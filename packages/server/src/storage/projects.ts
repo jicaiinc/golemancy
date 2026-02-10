@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { Project, ProjectId, IProjectService } from '@solocraft/shared'
-import { readJson, writeJson, deleteDir } from './base'
+import { readJson, writeJson, deleteDir, isNodeError } from './base'
 import { getDataDir } from '../utils/paths'
 import { generateId } from '../utils/ids'
 
@@ -22,8 +22,8 @@ export class FileProjectStorage implements IProjectService {
         dirs.map(d => readJson<Project>(path.join(this.projectsDir, d.name, 'project.json')))
       )
       return projects.filter((p): p is Project => p !== null)
-    } catch (e: any) {
-      if (e.code === 'ENOENT') return []
+    } catch (e) {
+      if (isNodeError(e) && e.code === 'ENOENT') return []
       throw e
     }
   }

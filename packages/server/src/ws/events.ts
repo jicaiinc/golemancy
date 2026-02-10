@@ -1,7 +1,9 @@
+import type { ConversationId, MessageId, TaskId, AgentId } from '@solocraft/shared'
+
 export interface WsMessageEvent {
   event: 'message:start' | 'message:delta' | 'message:tool_call' | 'message:end'
-  conversationId: string
-  messageId: string
+  conversationId: ConversationId
+  messageId: MessageId
   delta?: string
   toolCall?: { toolName: string; input: unknown; output?: string; status: string }
   tokenUsage?: { promptTokens: number; completionTokens: number }
@@ -9,8 +11,8 @@ export interface WsMessageEvent {
 
 export interface WsTaskEvent {
   event: 'task:started' | 'task:progress' | 'task:completed' | 'task:failed'
-  taskId: string
-  agentId?: string
+  taskId: TaskId
+  agentId?: AgentId
   title?: string
   progress?: number
   log?: string
@@ -20,9 +22,9 @@ export interface WsTaskEvent {
 
 export interface WsAgentEvent {
   event: 'agent:status_changed'
-  agentId: string
+  agentId: AgentId
   status: string
-  currentTaskId?: string
+  currentTaskId?: TaskId
 }
 
 export interface WsSystemEvent {

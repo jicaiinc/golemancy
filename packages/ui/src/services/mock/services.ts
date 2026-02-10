@@ -2,6 +2,7 @@ import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
+  Message, PaginationParams, PaginatedResult, TaskLogEntry,
 } from '@solocraft/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
@@ -176,6 +177,28 @@ export class MockConversationService implements IConversationService {
     conv.updatedAt = now
   }
 
+  async getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>> {
+    await delay()
+    const conv = this.data.get(conversationId)
+    if (!conv || conv.projectId !== projectId) return { items: [], total: 0, page: params.page, pageSize: params.pageSize }
+    const start = (params.page - 1) * params.pageSize
+    const items = conv.messages.slice(start, start + params.pageSize)
+    return { items, total: conv.messages.length, page: params.page, pageSize: params.pageSize }
+  }
+
+  async searchMessages(projectId: ProjectId, query: string, params: PaginationParams): Promise<PaginatedResult<Message>> {
+    await delay()
+    const allMessages: Message[] = []
+    for (const conv of this.data.values()) {
+      if (conv.projectId === projectId) {
+        allMessages.push(...conv.messages.filter(m => m.content.includes(query)))
+      }
+    }
+    const start = (params.page - 1) * params.pageSize
+    const items = allMessages.slice(start, start + params.pageSize)
+    return { items, total: allMessages.length, page: params.page, pageSize: params.pageSize }
+  }
+
   async delete(projectId: ProjectId, id: ConversationId): Promise<void> {
     await delay()
     const conv = this.data.get(id)
@@ -207,6 +230,12 @@ export class MockTaskService implements ITaskService {
       task.status = 'cancelled'
       task.updatedAt = new Date().toISOString()
     }
+  }
+
+  async getLogs(taskId: TaskId, _cursor?: number, _limit?: number): Promise<TaskLogEntry[]> {
+    await delay()
+    const task = this.data.get(taskId)
+    return task?.log ?? []
   }
 }
 

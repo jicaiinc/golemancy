@@ -1,13 +1,18 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, dialog } from 'electron'
 import { join } from 'path'
 import { fork, type ChildProcess } from 'child_process'
 
 let serverProcess: ChildProcess | null = null
 let serverPort: number | null = null
+let serverToken: string | null = null
+let isQuitting = false
 
 function startServer(): Promise<number> {
   return new Promise((resolve, reject) => {
-    const serverEntry = join(__dirname, '../../packages/server/src/index.ts')
+    // C5: Use correct path for dev vs production
+    const serverEntry = app.isPackaged
+      ? join(process.resourcesPath, 'server', 'index.js')
+      : join(__dirname, '../../packages/server/src/index.ts')
     const child = fork(serverEntry, [], {
       env: { ...process.env, PORT: '0' },
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
@@ -18,6 +23,7 @@ function startServer(): Promise<number> {
     child.on('message', (msg: any) => {
       if (msg?.type === 'ready' && msg.port) {
         serverPort = msg.port
+        serverToken = msg.token ?? null
         resolve(msg.port)
       }
     })
@@ -63,7 +69,10 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      additionalArguments: [`--server-port=${serverPort}`],
+      additionalArguments: [
+        `--server-port=${serverPort}`,
+        ...(serverToken ? [`--server-token=${serverToken}`] : []),
+      ],
     },
   })
 
@@ -79,7 +88,14 @@ app.whenReady().then(async () => {
     await startServer()
     console.log(`Agent server ready on port ${serverPort}`)
   } catch (err) {
+    // W5: Show dialog on server startup failure
     console.error('Failed to start agent server:', err)
+    dialog.showErrorBox(
+      'Server Error',
+      `Failed to start the agent server:\n${err instanceof Error ? err.message : String(err)}`,
+    )
+    app.quit()
+    return
   }
 
   createWindow()
@@ -89,8 +105,12 @@ app.whenReady().then(async () => {
   })
 })
 
-app.on('before-quit', async () => {
-  await stopServer()
+// W6: Fix async before-quit — prevent default, await cleanup, then quit
+app.on('before-quit', (e) => {
+  if (isQuitting) return
+  isQuitting = true
+  e.preventDefault()
+  stopServer().then(() => app.quit())
 })
 
 app.on('window-all-closed', () => {

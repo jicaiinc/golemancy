@@ -1,11 +1,9 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import type {
-  IProjectService, IAgentService, ITaskService,
+  IProjectService, IAgentService, IConversationService, ITaskService,
   IArtifactService, IMemoryService, ISettingsService, IDashboardService,
 } from '@solocraft/shared'
-import type { SqliteConversationStorage } from './storage/conversations'
-import type { FileTaskStorage } from './storage/tasks'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'
@@ -19,18 +17,45 @@ import { createDashboardRoutes } from './routes/dashboard'
 export interface ServerDependencies {
   projectStorage: IProjectService
   agentStorage: IAgentService
-  conversationStorage: SqliteConversationStorage
-  taskStorage: FileTaskStorage
+  conversationStorage: IConversationService
+  taskStorage: ITaskService
   artifactStorage: IArtifactService
   memoryStorage: IMemoryService
   settingsStorage: ISettingsService
   dashboardService: IDashboardService
 }
 
-export function createApp(deps: ServerDependencies) {
+export function createApp(deps: ServerDependencies, authToken?: string) {
   const app = new Hono()
 
-  app.use('/api/*', cors())
+  // SEC-03: Restrict CORS to localhost origins only
+  app.use('/api/*', cors({
+    origin: (origin) => {
+      return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+        ? origin
+        : undefined
+    },
+  }))
+
+  // SEC-07: Validate Bearer token on all /api/* routes
+  if (authToken) {
+    app.use('/api/*', async (c, next) => {
+      const header = c.req.header('Authorization')
+      if (header !== `Bearer ${authToken}`) {
+        return c.json({ error: 'Unauthorized' }, 401)
+      }
+      await next()
+    })
+  }
+
+  // W1: Global error handler — structured JSON, no stack leaks in production
+  app.onError((err, c) => {
+    console.error('Unhandled error:', err)
+    return c.json({
+      error: 'Internal Server Error',
+      ...(process.env.NODE_ENV === 'development' ? { message: err.message } : {}),
+    }, 500)
+  })
 
   app.get('/api/health', (c) => {
     return c.json({ status: 'ok', timestamp: new Date().toISOString() })

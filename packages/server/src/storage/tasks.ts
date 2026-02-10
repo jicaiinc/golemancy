@@ -1,10 +1,10 @@
 import path from 'node:path'
 import type { Task, TaskId, ProjectId, AgentId, TaskLogEntry, ITaskService } from '@solocraft/shared'
-import { eq, desc, sql } from 'drizzle-orm'
+import { eq, sql, inArray } from 'drizzle-orm'
 import type { AppDatabase } from '../db/client'
 import * as schema from '../db/schema'
 import { readJson, writeJson, listJsonFiles } from './base'
-import { getProjectPath } from '../utils/paths'
+import { getProjectPath, validateId } from '../utils/paths'
 
 export class FileTaskStorage implements ITaskService {
   constructor(private db: AppDatabase) {}
@@ -14,6 +14,7 @@ export class FileTaskStorage implements ITaskService {
   }
 
   private taskPath(projectId: string, id: string) {
+    validateId(id)
     return path.join(this.tasksDir(projectId), `${id}.json`)
   }
 
@@ -21,8 +22,29 @@ export class FileTaskStorage implements ITaskService {
     const tasks = await listJsonFiles<Task>(this.tasksDir(projectId))
     const filtered = agentId ? tasks.filter(t => t.agentId === agentId) : tasks
 
-    // Attach logs from SQLite
-    return Promise.all(filtered.map(t => this.attachLogs(t)))
+    if (filtered.length === 0) return filtered
+
+    // Batch query all logs in a single query instead of N+1
+    const taskIds = filtered.map(t => t.id as string)
+    const allLogs = await this.db
+      .select()
+      .from(schema.taskLogs)
+      .where(inArray(schema.taskLogs.taskId, taskIds))
+      .orderBy(schema.taskLogs.id)
+
+    const logsByTaskId = new Map<string, TaskLogEntry[]>()
+    for (const row of allLogs) {
+      const entries = logsByTaskId.get(row.taskId) ?? []
+      entries.push({
+        timestamp: row.timestamp,
+        type: row.type as TaskLogEntry['type'],
+        content: row.content,
+        metadata: row.metadata as Record<string, unknown> | undefined,
+      })
+      logsByTaskId.set(row.taskId, entries)
+    }
+
+    return filtered.map(t => ({ ...t, log: logsByTaskId.get(t.id as string) ?? [] }))
   }
 
   async getById(projectId: ProjectId, id: TaskId): Promise<Task | null> {

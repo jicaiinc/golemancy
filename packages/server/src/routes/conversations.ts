@@ -1,8 +1,7 @@
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, ConversationId } from '@solocraft/shared'
-import type { SqliteConversationStorage } from '../storage/conversations'
+import type { ProjectId, AgentId, ConversationId, IConversationService } from '@solocraft/shared'
 
-export function createConversationRoutes(storage: SqliteConversationStorage) {
+export function createConversationRoutes(storage: IConversationService) {
   const app = new Hono()
 
   app.get('/', async (c) => {

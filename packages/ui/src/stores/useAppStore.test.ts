@@ -41,6 +41,8 @@ function createTestServices(): ServiceContainer {
       getById: vi.fn(),
       create: vi.fn(),
       sendMessage: vi.fn(),
+      getMessages: vi.fn(),
+      searchMessages: vi.fn(),
       delete: vi.fn(),
     },
     tasks: {
@@ -49,6 +51,7 @@ function createTestServices(): ServiceContainer {
       ]),
       getById: vi.fn(),
       cancel: vi.fn(),
+      getLogs: vi.fn(),
     },
     artifacts: {
       list: vi.fn().mockResolvedValue([]),

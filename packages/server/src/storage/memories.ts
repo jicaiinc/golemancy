@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { MemoryEntry, MemoryId, ProjectId, IMemoryService } from '@solocraft/shared'
 import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
-import { getProjectPath } from '../utils/paths'
+import { getProjectPath, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
 
 export class FileMemoryStorage implements IMemoryService {
@@ -10,6 +10,7 @@ export class FileMemoryStorage implements IMemoryService {
   }
 
   private memoryPath(projectId: string, id: string) {
+    validateId(id)
     return path.join(this.memoryDir(projectId), `${id}.json`)
   }
 

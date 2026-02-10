@@ -1,7 +1,4 @@
-import { gateway, type LanguageModel } from 'ai'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createOpenAI } from '@ai-sdk/openai'
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import type { LanguageModel } from 'ai'
 import type { GlobalSettings, AgentModelConfig } from '@solocraft/shared'
 
 const DEFAULT_MODELS: Record<string, string> = {
@@ -10,11 +7,12 @@ const DEFAULT_MODELS: Record<string, string> = {
   anthropic: 'claude-haiku-4-5',
 }
 
-export function resolveModel(settings: GlobalSettings, agentConfig?: AgentModelConfig): LanguageModel {
+export async function resolveModel(settings: GlobalSettings, agentConfig?: AgentModelConfig): Promise<LanguageModel> {
   const provider = agentConfig?.provider ?? settings.defaultProvider
 
   // Gateway mode — user can set provider to 'custom' with a gateway model string like 'google/gemini-2.5-flash'
   if (agentConfig?.model?.includes('/') && provider === 'custom') {
+    const { gateway } = await import('ai')
     return gateway(agentConfig.model)
   }
 
@@ -25,14 +23,22 @@ export function resolveModel(settings: GlobalSettings, agentConfig?: AgentModelC
   const modelId = agentConfig?.model ?? providerConfig.defaultModel ?? DEFAULT_MODELS[provider] ?? 'gemini-2.5-flash'
 
   switch (provider) {
-    case 'anthropic':
+    case 'anthropic': {
+      const { createAnthropic } = await import('@ai-sdk/anthropic')
       return createAnthropic({ apiKey: providerConfig.apiKey, baseURL: providerConfig.baseUrl })(modelId)
-    case 'openai':
+    }
+    case 'openai': {
+      const { createOpenAI } = await import('@ai-sdk/openai')
       return createOpenAI({ apiKey: providerConfig.apiKey, baseURL: providerConfig.baseUrl })(modelId)
-    case 'google':
+    }
+    case 'google': {
+      const { createGoogleGenerativeAI } = await import('@ai-sdk/google')
       return createGoogleGenerativeAI({ apiKey: providerConfig.apiKey, baseURL: providerConfig.baseUrl })(modelId)
-    case 'custom':
+    }
+    case 'custom': {
+      const { createOpenAI } = await import('@ai-sdk/openai')
       return createOpenAI({ apiKey: providerConfig.apiKey, baseURL: providerConfig.baseUrl })(modelId)
+    }
     default:
       throw new Error(`Unknown provider: ${provider}`)
   }

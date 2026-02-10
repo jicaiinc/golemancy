@@ -1,6 +1,6 @@
 import type {
-  Conversation, ConversationId, ProjectId, AgentId, Message,
-  PaginationParams, PaginatedResult,
+  Conversation, ConversationId, ProjectId, AgentId, Message, MessageId,
+  PaginationParams, PaginatedResult, ToolCallResult,
   IConversationService,
 } from '@solocraft/shared'
 import { eq, and, desc, sql } from 'drizzle-orm'
@@ -63,6 +63,10 @@ export class SqliteConversationStorage implements IConversationService {
   }
 
   async sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void> {
+    // Verify conversationId belongs to projectId
+    const conv = await this.getById(projectId, conversationId)
+    if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
+
     const now = new Date().toISOString()
     const msgId = generateId('msg')
 
@@ -91,6 +95,10 @@ export class SqliteConversationStorage implements IConversationService {
     conversationId: ConversationId,
     params: PaginationParams,
   ): Promise<PaginatedResult<Message>> {
+    // Verify conversationId belongs to projectId
+    const conv = await this.getById(projectId, conversationId)
+    if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
+
     const { page, pageSize } = params
     const offset = (page - 1) * pageSize
 
@@ -123,30 +131,41 @@ export class SqliteConversationStorage implements IConversationService {
   ): Promise<PaginatedResult<Message>> {
     const { page, pageSize } = params
     const offset = (page - 1) * pageSize
+    const sanitized = '"' + query.replace(/"/g, '""') + '"'
 
-    const items = this.db.all<any>(sql`
-      SELECT m.*, c.project_id, c.agent_id
+    interface FtsMessageRow {
+      id: string
+      conversation_id: string
+      role: string
+      content: string
+      tool_calls: string | null
+      token_usage: string | null
+      created_at: string
+    }
+
+    const items = this.db.all<FtsMessageRow>(sql`
+      SELECT m.*
       FROM messages_fts fts
       JOIN messages m ON m.rowid = fts.rowid
       JOIN conversations c ON c.id = m.conversation_id
-      WHERE fts.content MATCH ${query}
+      WHERE fts.content MATCH ${sanitized}
         AND c.project_id = ${projectId}
       ORDER BY rank
       LIMIT ${pageSize}
       OFFSET ${offset}
     `)
 
-    const countRows = this.db.all<any>(sql`
+    const countRows = this.db.all<{ cnt: number }>(sql`
       SELECT count(*) as cnt
       FROM messages_fts fts
       JOIN messages m ON m.rowid = fts.rowid
       JOIN conversations c ON c.id = m.conversation_id
-      WHERE fts.content MATCH ${query}
+      WHERE fts.content MATCH ${sanitized}
         AND c.project_id = ${projectId}
     `)
 
     return {
-      items: items.map((r: any) => this.rowToMessage(r)),
+      items: items.map((r) => this.rowToMessage(r as unknown as typeof schema.messages.$inferSelect)),
       total: countRows[0]?.cnt ?? 0,
       page,
       pageSize,
@@ -168,11 +187,11 @@ export class SqliteConversationStorage implements IConversationService {
 
   private rowToMessage(row: typeof schema.messages.$inferSelect): Message {
     return {
-      id: row.id as any,
+      id: row.id as MessageId,
       conversationId: row.conversationId as ConversationId,
       role: row.role as Message['role'],
       content: row.content,
-      toolCalls: row.toolCalls as any,
+      toolCalls: (row.toolCalls as ToolCallResult[] | null) ?? undefined,
       createdAt: row.createdAt,
       updatedAt: row.createdAt,
     }

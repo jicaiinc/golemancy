@@ -19,10 +19,10 @@ export interface RunAgentParams {
   onEvent?: (event: AgentEvent) => void
 }
 
-export function runAgent(params: RunAgentParams) {
+export async function runAgent(params: RunAgentParams) {
   const { agent, settings, messages, tools, abortSignal, onEvent } = params
 
-  const model = resolveModel(settings, agent.modelConfig)
+  const model = await resolveModel(settings, agent.modelConfig)
 
   const result = streamText({
     model,

@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { Artifact, ArtifactId, ProjectId, AgentId, IArtifactService } from '@solocraft/shared'
-import { readJson, writeJson, deleteFile } from './base'
-import { getProjectPath } from '../utils/paths'
+import { readJson, writeJson, deleteFile, isNodeError } from './base'
+import { getProjectPath, validateId, validateFilePath } from '../utils/paths'
 
 export class FileArtifactStorage implements IArtifactService {
   private artifactsDir(projectId: string) {
@@ -10,6 +10,7 @@ export class FileArtifactStorage implements IArtifactService {
   }
 
   private metaPath(projectId: string, id: string) {
+    validateId(id)
     return path.join(this.artifactsDir(projectId), `${id}.meta.json`)
   }
 
@@ -23,8 +24,8 @@ export class FileArtifactStorage implements IArtifactService {
       )
       const artifacts = items.filter((a): a is Artifact => a !== null)
       return agentId ? artifacts.filter(a => a.agentId === agentId) : artifacts
-    } catch (e: any) {
-      if (e.code === 'ENOENT') return []
+    } catch (e) {
+      if (isNodeError(e) && e.code === 'ENOENT') return []
       throw e
     }
   }
@@ -36,7 +37,9 @@ export class FileArtifactStorage implements IArtifactService {
   async delete(projectId: ProjectId, id: ArtifactId): Promise<void> {
     const meta = await this.getById(projectId, id)
     if (meta?.filePath) {
-      await deleteFile(path.join(this.artifactsDir(projectId), meta.filePath))
+      const base = this.artifactsDir(projectId)
+      const safe = validateFilePath(base, meta.filePath)
+      await deleteFile(safe)
     }
     await deleteFile(this.metaPath(projectId, id))
   }

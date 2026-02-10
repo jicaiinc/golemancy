@@ -130,9 +130,10 @@ describe('SqliteConversationStorage', () => {
 
       await storage.delete(projId, conv.id)
 
-      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
-      expect(msgs.items).toHaveLength(0)
-      expect(msgs.total).toBe(0)
+      // After deletion, conversation no longer exists so getMessages throws
+      await expect(
+        storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 }),
+      ).rejects.toThrow('not found')
     })
 
     it('does not delete conversation from different project', async () => {

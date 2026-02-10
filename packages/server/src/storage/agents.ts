@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { Agent, AgentId, ProjectId, IAgentService } from '@solocraft/shared'
 import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
-import { getProjectPath } from '../utils/paths'
+import { getProjectPath, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
 
 export class FileAgentStorage implements IAgentService {
@@ -10,6 +10,7 @@ export class FileAgentStorage implements IAgentService {
   }
 
   private agentPath(projectId: string, id: string) {
+    validateId(id)
     return path.join(this.agentsDir(projectId), `${id}.json`)
   }
 

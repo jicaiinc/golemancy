@@ -53,9 +53,9 @@ describe('resolveModel', () => {
   })
 
   describe('direct provider mode', () => {
-    it('resolves google provider with default model', () => {
+    it('resolves google provider with default model', async () => {
       const settings = makeSettings()
-      const result = resolveModel(settings)
+      const result = await resolveModel(settings)
 
       expect(mocks.createGoogleGenerativeAI).toHaveBeenCalledWith({
         apiKey: 'google-key',
@@ -65,9 +65,9 @@ describe('resolveModel', () => {
       expect(result).toBe(mocks.googleModel)
     })
 
-    it('resolves openai provider', () => {
+    it('resolves openai provider', async () => {
       const settings = makeSettings({ defaultProvider: 'openai' })
-      const result = resolveModel(settings)
+      const result = await resolveModel(settings)
 
       expect(mocks.createOpenAI).toHaveBeenCalledWith({
         apiKey: 'openai-key',
@@ -77,9 +77,9 @@ describe('resolveModel', () => {
       expect(result).toBe(mocks.openaiModel)
     })
 
-    it('resolves anthropic provider', () => {
+    it('resolves anthropic provider', async () => {
       const settings = makeSettings({ defaultProvider: 'anthropic' })
-      const result = resolveModel(settings)
+      const result = await resolveModel(settings)
 
       expect(mocks.createAnthropic).toHaveBeenCalledWith({
         apiKey: 'anthropic-key',
@@ -89,31 +89,31 @@ describe('resolveModel', () => {
       expect(result).toBe(mocks.anthropicModel)
     })
 
-    it('uses agent config provider override', () => {
+    it('uses agent config provider override', async () => {
       const settings = makeSettings()
       const agentConfig: AgentModelConfig = { provider: 'anthropic', model: 'claude-sonnet-4-5' }
-      resolveModel(settings, agentConfig)
+      await resolveModel(settings, agentConfig)
 
       expect(mocks.createAnthropic).toHaveBeenCalled()
       expect(mocks.anthropicFactory).toHaveBeenCalledWith('claude-sonnet-4-5')
     })
 
-    it('uses agent config model override', () => {
+    it('uses agent config model override', async () => {
       const settings = makeSettings()
       const agentConfig: AgentModelConfig = { model: 'gemini-2.5-pro' }
-      resolveModel(settings, agentConfig)
+      await resolveModel(settings, agentConfig)
 
       expect(mocks.googleFactory).toHaveBeenCalledWith('gemini-2.5-pro')
     })
 
-    it('passes baseURL when provider has one', () => {
+    it('passes baseURL when provider has one', async () => {
       const settings = makeSettings({
         providers: [
           { provider: 'openai', apiKey: 'key', defaultModel: 'gpt-4o', baseUrl: 'https://custom.api.com/v1' },
         ],
         defaultProvider: 'openai',
       })
-      resolveModel(settings)
+      await resolveModel(settings)
 
       expect(mocks.createOpenAI).toHaveBeenCalledWith({
         apiKey: 'key',
@@ -121,14 +121,14 @@ describe('resolveModel', () => {
       })
     })
 
-    it('resolves custom provider as OpenAI-compatible', () => {
+    it('resolves custom provider as OpenAI-compatible', async () => {
       const settings = makeSettings({
         providers: [
           { provider: 'custom', apiKey: 'ollama-key', defaultModel: 'llama3', baseUrl: 'http://localhost:11434/v1' },
         ],
         defaultProvider: 'custom',
       })
-      resolveModel(settings)
+      await resolveModel(settings)
 
       expect(mocks.createOpenAI).toHaveBeenCalledWith({
         apiKey: 'ollama-key',
@@ -139,19 +139,19 @@ describe('resolveModel', () => {
   })
 
   describe('gateway mode', () => {
-    it('uses gateway when provider is custom and model contains slash', () => {
+    it('uses gateway when provider is custom and model contains slash', async () => {
       const settings = makeSettings()
       const agentConfig: AgentModelConfig = { provider: 'custom', model: 'google/gemini-2.5-flash' }
-      const result = resolveModel(settings, agentConfig)
+      const result = await resolveModel(settings, agentConfig)
 
       expect(mocks.gateway).toHaveBeenCalledWith('google/gemini-2.5-flash')
       expect(result).toBe(mocks.gatewayModel)
     })
 
-    it('does not use gateway when provider is not custom', () => {
+    it('does not use gateway when provider is not custom', async () => {
       const settings = makeSettings()
       const agentConfig: AgentModelConfig = { provider: 'google', model: 'google/gemini-2.5-flash' }
-      resolveModel(settings, agentConfig)
+      await resolveModel(settings, agentConfig)
 
       expect(mocks.gateway).not.toHaveBeenCalled()
       expect(mocks.createGoogleGenerativeAI).toHaveBeenCalled()
@@ -159,39 +159,39 @@ describe('resolveModel', () => {
   })
 
   describe('error handling', () => {
-    it('throws when provider is not configured', () => {
+    it('throws when provider is not configured', async () => {
       const settings = makeSettings({ providers: [] })
 
-      expect(() => resolveModel(settings)).toThrow('Provider "google" not configured')
+      await expect(resolveModel(settings)).rejects.toThrow('Provider "google" not configured')
     })
 
-    it('throws for unknown provider', () => {
+    it('throws for unknown provider', async () => {
       const settings = makeSettings({
         defaultProvider: 'unknown' as any,
         providers: [{ provider: 'unknown' as any, apiKey: 'k', defaultModel: 'm' }],
       })
 
-      expect(() => resolveModel(settings)).toThrow('Unknown provider')
+      await expect(resolveModel(settings)).rejects.toThrow('Unknown provider')
     })
   })
 
   describe('default model fallbacks', () => {
-    it('falls back to DEFAULT_MODELS when provider config defaultModel is nullish', () => {
+    it('falls back to DEFAULT_MODELS when provider config defaultModel is nullish', async () => {
       const settings = makeSettings({
         providers: [{ provider: 'google', apiKey: 'key', defaultModel: undefined as any }],
       })
-      resolveModel(settings)
+      await resolveModel(settings)
 
       // ?? only falls through for null/undefined, not empty string
       expect(mocks.googleFactory).toHaveBeenCalledWith('gemini-2.5-flash')
     })
 
-    it('falls back to global default when no agent config model', () => {
+    it('falls back to global default when no agent config model', async () => {
       const settings = makeSettings({
         providers: [{ provider: 'anthropic', apiKey: 'key', defaultModel: 'claude-sonnet-4-5' }],
         defaultProvider: 'anthropic',
       })
-      resolveModel(settings)
+      await resolveModel(settings)
 
       expect(mocks.anthropicFactory).toHaveBeenCalledWith('claude-sonnet-4-5')
     })

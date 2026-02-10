@@ -319,6 +319,7 @@ const TABS = [
 ]
 
 export function DashboardPage() {
+  const navigate = useNavigate()
   const loadDashboard = useAppStore(s => s.loadDashboard)
   const dashboardLoading = useAppStore(s => s.dashboardLoading)
   const [activeTab, setActiveTab] = useState('overview')

@@ -2,6 +2,7 @@ import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry,
   GlobalSettings, ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
+  Message, PaginationParams, PaginatedResult, TaskLogEntry,
 } from '../types'
 
 export interface IProjectService {
@@ -25,6 +26,8 @@ export interface IConversationService {
   getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null>
   create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation>
   sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void>
+  getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>>
+  searchMessages(projectId: ProjectId, query: string, params: PaginationParams): Promise<PaginatedResult<Message>>
   delete(projectId: ProjectId, id: ConversationId): Promise<void>
 }
 
@@ -32,6 +35,7 @@ export interface ITaskService {
   list(projectId: ProjectId, agentId?: AgentId): Promise<Task[]>
   getById(projectId: ProjectId, id: TaskId): Promise<Task | null>
   cancel(projectId: ProjectId, id: TaskId): Promise<void>
+  getLogs(taskId: TaskId, cursor?: number, limit?: number): Promise<TaskLogEntry[]>
 }
 
 export interface IArtifactService {

@@ -15,7 +15,7 @@ export function createSubAgentTool(
       context: z.string().optional().describe('Additional context'),
     }),
     execute: async ({ task, context }, { abortSignal }) => {
-      const childModel = resolveModel(settings, childAgent.modelConfig)
+      const childModel = await resolveModel(settings, childAgent.modelConfig)
 
       const result = await generateText({
         model: childModel,

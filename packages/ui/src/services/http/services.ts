@@ -2,6 +2,7 @@ import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
+  Message, PaginationParams, PaginatedResult, TaskLogEntry,
   IProjectService, IAgentService, IConversationService,
   ITaskService, IArtifactService, IMemoryService, ISettingsService, IDashboardService,
 } from '@solocraft/shared'
@@ -74,6 +75,16 @@ export class HttpConversationService implements IConversationService {
     // Chat streaming uses useChat() + /api/chat, not this method
     throw new Error('Use useChat() for real-time chat')
   }
+  getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams) {
+    return fetchJson<PaginatedResult<Message>>(
+      `${this.baseUrl}/api/projects/${projectId}/conversations/${conversationId}/messages?page=${params.page}&pageSize=${params.pageSize}`,
+    )
+  }
+  searchMessages(projectId: ProjectId, query: string, params: PaginationParams) {
+    return fetchJson<PaginatedResult<Message>>(
+      `${this.baseUrl}/api/projects/${projectId}/conversations/search?q=${encodeURIComponent(query)}&page=${params.page}&pageSize=${params.pageSize}`,
+    )
+  }
   async delete(projectId: ProjectId, id: ConversationId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`, { method: 'DELETE' })
   }
@@ -91,6 +102,13 @@ export class HttpTaskService implements ITaskService {
   }
   async cancel(projectId: ProjectId, id: TaskId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/tasks/${id}/cancel`, { method: 'POST' })
+  }
+  getLogs(taskId: TaskId, cursor?: number, limit?: number) {
+    const params = new URLSearchParams()
+    if (cursor !== undefined) params.set('cursor', String(cursor))
+    if (limit !== undefined) params.set('limit', String(limit))
+    const qs = params.toString()
+    return fetchJson<TaskLogEntry[]>(`${this.baseUrl}/api/tasks/${taskId}/logs${qs ? `?${qs}` : ''}`)
   }
 }
 

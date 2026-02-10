@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import { serve } from '@hono/node-server'
 import { createApp, type ServerDependencies } from './app'
@@ -39,13 +40,16 @@ async function main() {
     },
   }
 
-  const app = createApp(deps)
+  // SEC-07: Generate auth token for IPC-based authentication
+  const authToken = crypto.randomUUID()
+  const app = createApp(deps, authToken)
 
-  serve({ fetch: app.fetch, port }, (info) => {
-    console.log(`Server ready on port ${info.port}`)
+  // SEC-09: Bind to loopback only
+  serve({ fetch: app.fetch, port, hostname: '127.0.0.1' }, (info) => {
+    console.log(`Server ready on 127.0.0.1:${info.port}`)
 
     if (process.send) {
-      process.send({ type: 'ready', port: info.port })
+      process.send({ type: 'ready', port: info.port, token: authToken })
     }
   })
 }

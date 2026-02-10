@@ -4,6 +4,7 @@ import type { TaskId } from '@solocraft/shared'
 
 export class AgentProcessManager {
   private processes = new Map<string, ChildProcess>()
+  private killTimers = new Map<string, ReturnType<typeof setTimeout>>()
   private maxConcurrent: number
 
   constructor(maxConcurrent = 5) {
@@ -20,6 +21,7 @@ export class AgentProcessManager {
       throw new Error(`Max concurrent agents (${this.maxConcurrent}) reached`)
     }
 
+    // TODO: worker.js is a placeholder — replace with actual agent worker implementation
     const workerPath = path.join(import.meta.dirname, 'worker.js')
     const child = fork(workerPath, { serialization: 'json' })
 
@@ -32,6 +34,11 @@ export class AgentProcessManager {
 
     child.on('exit', (code) => {
       this.processes.delete(taskId)
+      const timer = this.killTimers.get(taskId)
+      if (timer) {
+        clearTimeout(timer)
+        this.killTimers.delete(taskId)
+      }
       onExit?.(code)
     })
   }
@@ -41,12 +48,14 @@ export class AgentProcessManager {
     if (!child) return
 
     child.send({ type: 'abort' })
-    setTimeout(() => {
+    const timer = setTimeout(() => {
+      this.killTimers.delete(taskId)
       if (this.processes.has(taskId)) {
         child.kill('SIGKILL')
         this.processes.delete(taskId)
       }
     }, 5000)
+    this.killTimers.set(taskId, timer)
   }
 
   getRunningCount(): number {

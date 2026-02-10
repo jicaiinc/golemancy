@@ -1,8 +1,7 @@
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, TaskId } from '@solocraft/shared'
-import type { FileTaskStorage } from '../storage/tasks'
+import type { ProjectId, AgentId, TaskId, ITaskService } from '@solocraft/shared'
 
-export function createTaskRoutes(storage: FileTaskStorage) {
+export function createTaskRoutes(storage: ITaskService) {
   const app = new Hono()
 
   app.get('/', async (c) => {
