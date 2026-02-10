@@ -140,7 +140,7 @@ Vitest with jsdom environment (UI) and Node environment (server). UI setup file 
 
 When creating a team, follow `_team/team.md`. Key points:
 
-- **11 roles**: Team Lead, Architect, Requirements Analyst, Abstraction Strategist, Fact Checker, UI/UX Designer, Full-stack Engineer, Test Engineer, CR-Quality, CR-Security, CR-Performance
+- **12 roles**: Team Lead, Architect, Requirements Analyst, Abstraction Strategist, Fact Checker, UI/UX Designer, Full-stack Engineer, Test Engineer, Reference Analyst (on-demand), CR-Quality, CR-Security, CR-Performance
 - **Three phases with auto-transition**:
   - Phase 1 (Planning) — all roles except engineers and reviewers
   - Phase 2 (Implementation) — Team Lead + Engineer + Tester + Fact Checker, others on-demand
@@ -150,6 +150,7 @@ When creating a team, follow `_team/team.md`. Key points:
 - **Parallel strategy**: independent tasks must run in parallel; use `blockedBy` in Task List for dependencies
 - **Escalation strategy**: Phase 1 — strict (any ambiguity/choice must be reported to user); Phase 2 — autonomous (only escalate fundamental blockers)
 - **Fact Checker is mandatory** — no tech enters code without verification via WebSearch / Context7 / source code
+- **Reference Analyst is on-demand** — only activated when user provides a reference project (source path or doc) to study; analyzes architecture, patterns, and best practices for team reuse
 
 ## Note: Fact-Based Analysis
 
