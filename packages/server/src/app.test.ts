@@ -2,6 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createApp, type ServerDependencies } from './app'
 import type { Hono } from 'hono'
 
+// Mock AI SDK modules used by chat route
+vi.mock('ai', () => ({
+  streamText: vi.fn(),
+  convertToModelMessages: vi.fn().mockResolvedValue([]),
+  stepCountIs: vi.fn().mockReturnValue(undefined),
+}))
+
+vi.mock('./agent/model', () => ({
+  resolveModel: vi.fn().mockResolvedValue({ modelId: 'test-model' }),
+}))
+
 function createMockDeps() {
   return {
     projectStorage: {
@@ -462,14 +473,146 @@ describe('HTTP API routes', () => {
   // ---- Chat ----
 
   describe('chat route', () => {
-    it('POST /api/chat returns 501 (placeholder)', async () => {
+    it('POST /api/chat returns 400 when projectId is missing', async () => {
       const res = await app.request(jsonRequest('/api/chat', {
         method: 'POST',
-        body: JSON.stringify({ conversationId: 'conv-1', messages: [] }),
+        body: JSON.stringify({ messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hi' }] }] }),
       }))
-      expect(res.status).toBe(501)
+      expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toBe('Not implemented')
+      expect(body.error).toBe('projectId is required')
+    })
+
+    it('POST /api/chat returns 400 when messages is empty', async () => {
+      const res = await app.request(jsonRequest('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({ projectId: 'proj-1', messages: [] }),
+      }))
+      expect(res.status).toBe(400)
+      const body = await res.json()
+      expect(body.error).toBe('messages is required')
+    })
+
+    it('POST /api/chat returns 400 when no agentId or conversationId', async () => {
+      const res = await app.request(jsonRequest('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          projectId: 'proj-1',
+          messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hi' }] }],
+        }),
+      }))
+      expect(res.status).toBe(400)
+      const body = await res.json()
+      expect(body.error).toBe('agentId or conversationId is required')
+    })
+
+    it('POST /api/chat returns 404 when agent not found', async () => {
+      const res = await app.request(jsonRequest('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          projectId: 'proj-1',
+          agentId: 'agent-nonexistent',
+          messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hi' }] }],
+        }),
+      }))
+      expect(res.status).toBe(404)
+      const body = await res.json()
+      expect(body.error).toBe('Agent agent-nonexistent not found')
+    })
+
+    it('POST /api/chat resolves agentId from conversationId', async () => {
+      deps.conversationStorage.getById.mockResolvedValueOnce({
+        id: 'conv-1', projectId: 'proj-1', agentId: 'agent-missing', title: 'Test',
+        messages: [], lastMessageAt: '', createdAt: '', updatedAt: '',
+      })
+      const res = await app.request(jsonRequest('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          projectId: 'proj-1',
+          conversationId: 'conv-1',
+          messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hi' }] }],
+        }),
+      }))
+      // Agent lookup returns null by default → 404
+      expect(res.status).toBe(404)
+      expect(deps.conversationStorage.getById).toHaveBeenCalledWith('proj-1', 'conv-1')
+      expect(deps.agentStorage.getById).toHaveBeenCalledWith('proj-1', 'agent-missing')
+    })
+
+    it('POST /api/chat returns streaming response when agent is found', async () => {
+      const { streamText } = await import('ai')
+      const { resolveModel } = await import('./agent/model')
+
+      const mockAgent = {
+        id: 'agent-1', projectId: 'proj-1', name: 'Writer',
+        description: 'Test agent', status: 'idle',
+        systemPrompt: 'You are helpful.',
+        modelConfig: { provider: 'google', temperature: 0.7, maxTokens: 1024 },
+        skills: [], tools: [], subAgents: [],
+        createdAt: '2024-01-01', updatedAt: '2024-01-01',
+      }
+      ;(deps.agentStorage.getById as any).mockResolvedValueOnce(mockAgent)
+
+      const mockResponse = new Response('data: {"type":"text"}\n\n', {
+        status: 200,
+        headers: { 'Content-Type': 'text/event-stream' },
+      })
+      ;(streamText as any).mockReturnValue({
+        toUIMessageStreamResponse: () => mockResponse,
+      })
+
+      const res = await app.request(jsonRequest('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          projectId: 'proj-1',
+          agentId: 'agent-1',
+          messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] }],
+        }),
+      }))
+
+      expect(res.status).toBe(200)
+      expect(resolveModel).toHaveBeenCalled()
+      expect(streamText).toHaveBeenCalledWith(expect.objectContaining({
+        system: 'You are helpful.',
+        temperature: 0.7,
+        maxOutputTokens: 1024,
+      }))
+    })
+
+    it('POST /api/chat passes convertToModelMessages result to streamText', async () => {
+      const { streamText, convertToModelMessages } = await import('ai')
+
+      const mockAgent = {
+        id: 'agent-1', projectId: 'proj-1', name: 'Writer',
+        description: 'Test agent', status: 'idle',
+        systemPrompt: 'You are a writer.',
+        modelConfig: { provider: 'google' },
+        skills: [], tools: [], subAgents: [],
+        createdAt: '2024-01-01', updatedAt: '2024-01-01',
+      }
+      ;(deps.agentStorage.getById as any).mockResolvedValueOnce(mockAgent)
+
+      const mockModelMessages = [{ role: 'user', content: 'converted' }]
+      ;(convertToModelMessages as any).mockResolvedValueOnce(mockModelMessages)
+      ;(streamText as any).mockReturnValue({
+        toUIMessageStreamResponse: () => new Response('', { status: 200 }),
+      })
+
+      await app.request(jsonRequest('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          projectId: 'proj-1',
+          agentId: 'agent-1',
+          messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] }],
+        }),
+      }))
+
+      expect(convertToModelMessages).toHaveBeenCalledWith([
+        { id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] },
+      ])
+      expect(streamText).toHaveBeenCalledWith(expect.objectContaining({
+        messages: mockModelMessages,
+      }))
     })
   })
 })

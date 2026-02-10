@@ -38,7 +38,7 @@ export function ChatPage() {
 
   const handleSelectAgent = useCallback((agentId: AgentId | null) => {
     setSelectedAgentId(agentId)
-    selectConversation(null as unknown as ConversationId)
+    selectConversation(null)
   }, [selectConversation])
 
   const handleSelectConversation = useCallback((id: ConversationId) => {
@@ -93,7 +93,7 @@ export function ChatPage() {
       {/* Main chat area */}
       <div className="flex-1 flex flex-col min-w-0">
         {currentConversation ? (
-          <ChatWindow conversation={currentConversation} agent={currentAgent} />
+          <ChatWindow key={currentConversation.id} conversation={currentConversation} agent={currentAgent} />
         ) : (
           <ChatEmptyState agents={agents} onStartChat={handleStartChat} />
         )}

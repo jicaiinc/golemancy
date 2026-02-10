@@ -1,8 +1,11 @@
+import { memo } from 'react'
 import type { Message } from '@solocraft/shared'
 import { ToolCallDisplay } from './ToolCallDisplay'
 
 interface MessageBubbleProps {
   message: Message
+  /** Show a blinking pixel cursor after the text (used during streaming) */
+  showCursor?: boolean
 }
 
 function formatTime(iso: string): string {
@@ -10,7 +13,7 @@ function formatTime(iso: string): string {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export const MessageBubble = memo(function MessageBubble({ message, showCursor }: MessageBubbleProps) {
   // System message — centered
   if (message.role === 'system') {
     return (
@@ -47,6 +50,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         >
           <p className="text-[13px] font-mono text-text-primary whitespace-pre-wrap break-words">
             {message.content}
+            {showCursor && (
+              <span className="inline-block w-[8px] h-[14px] bg-accent-green ml-[2px] align-middle animate-[pixel-blink_1s_steps(2)_infinite]" />
+            )}
           </p>
         </div>
 
@@ -62,4 +68,4 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       </div>
     </div>
   )
-}
+})

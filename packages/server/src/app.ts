@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { bodyLimit } from 'hono/body-limit'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   IArtifactService, IMemoryService, ISettingsService, IDashboardService,
@@ -7,7 +8,7 @@ import type {
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'
-import { createChatRoute } from './routes/chat'
+import { createChatRoutes } from './routes/chat'
 import { createTaskRoutes } from './routes/tasks'
 import { createArtifactRoutes } from './routes/artifacts'
 import { createMemoryRoutes } from './routes/memories'
@@ -27,6 +28,9 @@ export interface ServerDependencies {
 
 export function createApp(deps: ServerDependencies, authToken?: string) {
   const app = new Hono()
+
+  // Request body size limit (2 MB)
+  app.use('/api/*', bodyLimit({ maxSize: 2 * 1024 * 1024 }))
 
   // SEC-03: Restrict CORS to localhost origins only
   app.use('/api/*', cors({
@@ -67,7 +71,11 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
   app.route('/api/projects/:projectId/artifacts', createArtifactRoutes(deps.artifactStorage))
   app.route('/api/projects/:projectId/memories', createMemoryRoutes(deps.memoryStorage))
-  app.route('/api/chat', createChatRoute())
+  app.route('/api/chat', createChatRoutes({
+    agentStorage: deps.agentStorage,
+    conversationStorage: deps.conversationStorage,
+    settingsStorage: deps.settingsStorage,
+  }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/dashboard', createDashboardRoutes(deps.dashboardService))
 
