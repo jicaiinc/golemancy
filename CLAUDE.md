@@ -105,6 +105,17 @@ Tailwind CSS v4 with CSS-first config in `packages/ui/src/styles/global.css`:
 
 Vitest with jsdom environment. Setup file at `packages/ui/src/test/setup.ts` mocks matchMedia, ResizeObserver, IntersectionObserver. Tests co-located with source files (`*.test.tsx`).
 
+## Team
+
+When creating a team, follow `_team/team.md`. Key points:
+
+- **8 roles**: Team Lead, Architect, Requirements Analyst, Abstraction Strategist, Fact Checker, UI/UX Designer, Full-stack Engineer, Test Engineer
+- **Two phases**: Phase 1 (Planning) — all roles except engineers; Phase 2 (Implementation) — Team Lead + Engineer + Tester + Fact Checker, others on-demand
+- **Team Lead only coordinates, never writes code**
+- **Parallel strategy**: independent tasks must run in parallel; use `blockedBy` in Task List for dependencies
+- **Escalation strategy**: Phase 1 — strict (any ambiguity/choice must be reported to user); Phase 2 — autonomous (only escalate fundamental blockers)
+- **Fact Checker is mandatory** — no tech enters code without verification via WebSearch / Context7 / source code
+
 ## Note: Fact-Based Analysis
 
 When asked to analyze based on "facts", always consult actual evidence before drawing conclusions — never assume. "Facts" refers to: official docs, web search results, Context7 library lookups, source code readings, and similar verifiable sources. Verify technical claims (API signatures, library behavior, version-specific features) against "facts" rather than relying on training knowledge, which may be outdated or wrong.
