@@ -10,15 +10,26 @@ let isQuitting = false
 function startServer(): Promise<number> {
   return new Promise((resolve, reject) => {
     // C5: Use correct path for dev vs production
+    // app.getAppPath() → apps/desktop/ in dev, so ../../ reaches monorepo root
     const serverEntry = app.isPackaged
       ? join(process.resourcesPath, 'server', 'index.js')
-      : join(__dirname, '../../packages/server/src/index.ts')
+      : join(app.getAppPath(), '../../packages/server/src/index.ts')
+    const serverCwd = app.isPackaged
+      ? join(process.resourcesPath, 'server')
+      : join(app.getAppPath(), '../../packages/server')
     const child = fork(serverEntry, [], {
       env: { ...process.env, PORT: '0' },
+      // Dev: use system node (Electron's embedded Node has different ABI for native modules)
+      execPath: app.isPackaged ? process.execPath : 'node',
+      execArgv: app.isPackaged ? [] : ['--import', 'tsx'],
+      cwd: serverCwd,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
 
     serverProcess = child
+
+    child.stderr?.on('data', (d: Buffer) => console.error('[server]', d.toString()))
+    child.stdout?.on('data', (d: Buffer) => console.log('[server]', d.toString()))
 
     child.on('message', (msg: any) => {
       if (msg?.type === 'ready' && msg.port) {
