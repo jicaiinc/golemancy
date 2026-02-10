@@ -222,110 +222,78 @@ Electron Main Process (守护者)
 | 测试框架 | Vitest | 与 Vite 深度集成 |
 | 包管理 | pnpm (推荐) | workspace 原生支持，磁盘高效 |
 
-## 四、模块划分
+## 四、业务模块划分
+
+三个业务模块：**UI**（用户交互）、**Agent**（核心业务）、**Platform**（基础设施）。
+
+### 4.1 模块总览
 
 | 模块 | 职责 | 所在进程 |
 |------|------|----------|
-| **UI Module** | 像素风界面、Agent 操控面板、任务监控 | Renderer |
-| **Agent Manager** | Agent 生命周期管理、创建/销毁/调度 | Main |
-| **Agent Core** | 单个 Agent 的 Skills + Tool Calls + Sub-Agent 调度 | Main / Child Process |
-| **Process Supervisor** | 子进程注册、心跳、优雅退出、崩溃恢复 | Main |
-| **Runtime Sandbox** | Node.js / Python / Playwright 执行沙箱 | Child Process |
-| **Data Layer** | SQLite 读写、ORM、数据迁移 | Main |
-| **AI Orchestrator** | AI SDK 封装、模型调用、流式通信 | Main |
+| **UI** | 用户看到的、操作的一切 | Renderer |
+| **Agent** | Agent 本身的一切能力与执行 | Agent Server / Child Process |
+| **Platform** | 支撑 UI 和 Agent 运行的底座 | Electron Main / Agent Server |
 
-## 五、项目结构（初步设想）
+### 4.2 各模块包含项
+
+**UI 模块**：
+
+- 像素风组件库
+- 聊天界面（Chat）
+- Agent 操控面板
+- 任务监控
+- 设置页（API Key 配置界面）
+- 产出物（Artifact）浏览与导出
+- Token 用量面板
+
+**Agent 模块**：
+
+- Agent 定义与生命周期
+- Skills（能力注册）
+- Tool Calls（Schema 定义 + 执行）
+- Sub-Agent 调度
+- Session 与对话管理
+- AI 上下文管理（截断、摘要）
+- AI Provider 与模型调用与流式响应
+- API Key 校验与加密
+- Token 用量记录
+- Task 创建、执行、状态管理
+- Artifact 定义与关联
+- Runtime 沙箱（Node.js / Python / Playwright）
+
+**Platform 模块**：
+
+- Electron 外壳（窗口管理、fork Server、IPC 桥接）
+- HTTP Server + WebSocket
+- 数据库（Schema、存储、迁移）
+- 进程管理（调度、并发控制、生命周期）
+
+### 4.3 目录结构
 
 ```
 SoloCraft.team/
-├── _docs/                          # 文档与讨论记录
-│   └── discussion.md
-│
+├── _docs/                      # 文档与讨论记录
 ├── apps/
-│   └── desktop/                    # Electron 桌面应用 (electron-vite)
-│       ├── electron.vite.config.ts
-│       ├── src/
-│       │   ├── main/               # ── Electron 主进程 ──
-│       │   │   ├── index.ts        # 入口，窗口管理
-│       │   │   ├── ipc/            # IPC 通信处理器
-│       │   │   ├── agent-manager/  # Agent 生命周期管理
-│       │   │   ├── process/        # 进程管理器 (Supervisor)
-│       │   │   └── database/       # 数据库初始化与迁移
-│       │   │
-│       │   ├── renderer/           # ── React UI (渲染进程) ──
-│       │   │   ├── App.tsx
-│       │   │   ├── components/     # 像素风 UI 组件
-│       │   │   ├── pages/          # 页面
-│       │   │   ├── stores/         # Zustand 状态管理
-│       │   │   ├── hooks/          # React Hooks
-│       │   │   └── styles/         # Tailwind + 像素风主题
-│       │   │
-│       │   └── preload/            # ── 预加载脚本 ──
-│       │       └── index.ts        # 安全暴露 API 给渲染进程
-│       │
-│       └── resources/              # 像素风静态资源 (图标、字体、精灵图)
-│
+│   └── desktop/                # Electron 外壳（Platform 的入口）
+│       ├── main/               # 窗口管理、fork server、IPC 桥接
+│       ├── renderer/           # 挂载 UI 模块的入口
+│       └── preload/
 ├── packages/
-│   ├── agent-core/                 # Agent 核心逻辑
-│   │   ├── src/
-│   │   │   ├── agent.ts            # Agent 基类
-│   │   │   ├── skills/             # Skill 定义与注册
-│   │   │   ├── tools/              # Tool Call Schema 与执行
-│   │   │   └── sub-agent/          # Sub-Agent 调度逻辑
-│   │   └── package.json
-│   │
-│   ├── ai-orchestrator/            # AI 编排层
-│   │   ├── src/
-│   │   │   ├── providers/          # AI 模型 Provider (OpenAI, Claude, etc.)
-│   │   │   ├── streaming/          # 流式响应处理
-│   │   │   └── tool-registry/      # Tool Call 注册中心
-│   │   └── package.json
-│   │
-│   ├── runtime-sandbox/            # 运行时沙箱
-│   │   ├── src/
-│   │   │   ├── node-runner/        # Node.js 代码执行
-│   │   │   ├── python-runner/      # Python 代码执行
-│   │   │   └── browser-runner/     # Playwright 浏览器自动化
-│   │   └── package.json
-│   │
-│   ├── database/                   # 数据库层
-│   │   ├── src/
-│   │   │   ├── schema/             # Drizzle ORM Schema
-│   │   │   ├── migrations/         # 数据库迁移
-│   │   │   └── queries/            # 查询封装
-│   │   └── package.json
-│   │
-│   ├── ui-components/              # 像素风 UI 组件库
-│   │   ├── src/
-│   │   │   ├── pixel-button/
-│   │   │   ├── pixel-card/
-│   │   │   ├── pixel-dialog/
-│   │   │   └── ...
-│   │   └── package.json
-│   │
-│   └── shared/                     # 共享类型与工具
-│       ├── src/
-│       │   ├── types/              # TypeScript 类型定义
-│       │   ├── constants/          # 常量
-│       │   └── utils/              # 通用工具函数
-│       └── package.json
-│
-├── turbo.json                      # Turborepo 配置
-├── pnpm-workspace.yaml             # pnpm workspace
-├── package.json
-├── tsconfig.json                   # 根 TypeScript 配置
-└── .gitignore
+│   ├── ui/                     # UI 模块
+│   ├── agent/                  # Agent 模块
+│   └── platform/               # Platform 模块
+└── turbo.json
 ```
 
-## 六、待讨论事项
+## 五、待讨论事项
 
-### 6.1 Python Runtime 内嵌方案
+### 5.1 Python Runtime 内嵌方案
 
 - **选项 A**：打包 Python 解释器（体积较大，~50MB+）
 - **选项 B**：使用 pyodide（WASM 版 Python，但库支持有限）
 - **选项 C**：检测系统已安装的 Python，按需调用（最轻量，但需用户预装）
 
-### 6.2 后续规划
+### 5.2 后续规划
 
 - Nut.js 桌面自动化集成时机
 - 多 Agent 协作通信协议设计
