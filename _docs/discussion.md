@@ -30,9 +30,85 @@
 3. **本地优先** — 数据存储在本地，隐私安全，离线可用（AI 调用除外）
 4. **可扩展** — Agent 的 Skills、Tool Calls、Sub-Agent 均可自定义与扩展
 
-## 二、技术架构概览
+## 二、核心抽象模型
 
-### 2.1 整体架构
+系统仅包含两个核心抽象：**Project** 和 **Agent**。不引入 Company、Team 等额外层级。
+
+### 2.1 设计原则
+
+- **极简** — 只做最少的抽象，避免过度设计
+- **可组合** — 复杂能力通过 Agent 之间的组合涌现，而非依赖专用抽象
+
+### 2.2 Project（项目 / 工作空间）
+
+Project 是用户工作的顶层容器，等同于一个 Workspace。
+
+- 一个用户可以创建多个 Project
+- 所有 Agent、对话、记忆、产出物都归属于 Project
+- Project 之间完全隔离
+
+**Project 包含**：
+
+- Agent（多个）
+- 对话记录（Conversations）
+- 项目级记忆（Memory）
+- 产出物（Artifacts）
+- 项目级配置（Provider 覆盖等）
+
+### 2.3 Agent
+
+Agent 是系统的核心执行单元。每个 Agent 可配置三种能力：
+
+```
+Agent
+├── Tools      — 工具调用（API 调用、文件操作、浏览器操作等）
+├── Skills     — 能力集（写文章、做研究、数据分析等）
+└── Sub-Agents — 引用同 Project 内的其他 Agent
+```
+
+**关键设计**：Team 不是独立抽象，而是 Agent 组合的涌现模式。一个 Agent 挂载了多个 Sub-Agent，它天然就是一个 Team Leader。不需要额外的 Team 概念。
+
+### 2.4 抽象层级总览
+
+```
+User
+└── Project (Workspace)
+    ├── Agent A (Main Loop / Team Leader)
+    │   ├── Tools
+    │   ├── Skills
+    │   └── Sub-Agents → [Agent B, Agent C]
+    ├── Agent B
+    │   ├── Tools
+    │   └── Skills
+    ├── Agent C
+    │   ├── Tools
+    │   └── Skills
+    ├── Conversations
+    ├── Memory
+    └── Artifacts
+```
+
+**明确不引入的抽象**：
+
+- ~~Company~~ — 用户即公司，Project 已足够表达
+- ~~Team~~ — 通过 Agent + Sub-Agent 组合实现，无需单独建模
+- ~~Agent Template~~ — v1 不做跨 Project 复用，后续按需引入
+
+### 2.5 配置层级
+
+全局配置与项目配置采用分层覆盖：
+
+```
+全局 Settings（主题、默认 Provider、API Keys）
+└── Project 级配置（可覆盖 Provider 等）
+    └── Agent 级配置（可覆盖模型选择等）
+```
+
+层层继承，就近覆盖。
+
+## 三、技术架构概览
+
+### 3.1 整体架构
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -78,7 +154,7 @@
 | UI ↔ Electron Main | Electron IPC | 仅系统级操作（传递端口号、文件对话框、窗口管理、系统通知） |
 | Agent Server → Child Process | child_process.fork() | Agent 执行隔离，每个 Agent 独立进程 |
 
-### 2.2 Agent 内部结构
+### 3.2 Agent 内部结构
 
 ```
 ┌─────────────────────────────────────┐
@@ -101,8 +177,9 @@
 │  │     │                         │  │
 │  │     └──────► Agent C          │  │
 │  │                               │  │
-│  │  (Agent 可调用其他 Agent       │  │
-│  │   实现复杂任务的分解与协作)     │  │
+│  │  (Agent 可调用同 Project 内    │  │
+│  │   的其他 Agent，实现任务分解    │  │
+│  │   与协作——即"隐式 Team"模式)   │  │
 │  └───────────────────────────────┘  │
 │                                     │
 │  ┌───────────────────────────────┐  │
@@ -116,7 +193,7 @@
 └─────────────────────────────────────┘
 ```
 
-### 2.3 UI ↔ Agent Server 通信机制
+### 3.3 UI ↔ Agent Server 通信机制
 
 ```
 UI (Renderer)                              Agent Server (独立进程)
@@ -140,7 +217,7 @@ UI (Renderer)                              Agent Server (独立进程)
      │◄── HTTP 200 ────────────────────────────  │
 ```
 
-### 2.4 进程管理与生命周期
+### 3.4 进程管理与生命周期
 
 **核心原则**：主窗口关闭 → 所有后台进程一并退出，保证不残留。
 
@@ -167,9 +244,9 @@ Electron Main Process (守护者)
 - Agent Server 内置调度器，管理并发上限（如最多同时运行 N 个 Agent）
 - 数据库操作通过 **Agent Server 单进程**序列化写入，避免 SQLite 并发写冲突
 
-## 三、技术栈清单
+## 四、技术栈清单
 
-### 3.1 前端 / 渲染进程
+### 4.1 前端 / 渲染进程
 
 | 分类 | 技术 | 备注 |
 |------|------|------|
@@ -179,7 +256,7 @@ Electron Main Process (守护者)
 | 样式方案 | Tailwind CSS | 实用优先的 CSS 框架 |
 | 像素动画 | Framer Motion | 声明式动画库 |
 
-### 3.2 桌面 / 主进程
+### 4.2 桌面 / 主进程
 
 | 分类 | 技术 | 备注 |
 |------|------|------|
@@ -189,7 +266,7 @@ Electron Main Process (守护者)
 | Node.js 运行时 | 内嵌于 Electron | Code Agent 执行环境 |
 | Python 运行时 | 待确认方案 | Code Agent 执行环境 |
 
-### 3.3 Agent / 自动化
+### 4.3 Agent / 自动化
 
 | 分类 | 技术 | 备注 |
 |------|------|------|
@@ -197,7 +274,7 @@ Electron Main Process (守护者)
 | 浏览器自动化 | Playwright | 网页操作 |
 | 桌面自动化 | Nut.js（后续） | 截图、鼠标、键盘操控 |
 
-### 3.4 数据存储
+### 4.4 数据存储
 
 | 分类 | 技术 | 备注 |
 |------|------|------|
@@ -207,14 +284,18 @@ Electron Main Process (守护者)
 
 **数据库存储内容**：
 
-| 数据类型 | 说明 |
-|----------|------|
-| Agent 配置 | Agent 定义、Skills、Tool Call Schema |
-| 任务记录 | 任务创建时间、状态、执行日志 |
-| 执行日志 | Tool Call 调用记录、耗时、结果 |
-| 用户配置 | API Keys、偏好设置 |
+| 数据类型 | 说明 | 归属 |
+|----------|------|------|
+| Project | 项目定义、项目级配置 | 全局 |
+| Agent 配置 | Agent 定义、Skills、Tool Call Schema、Sub-Agent 引用 | Project |
+| 对话记录 | Session、消息历史 | Project |
+| 项目记忆 | 项目级知识沉淀 | Project |
+| 任务记录 | 任务创建时间、状态、执行日志 | Project |
+| 执行日志 | Tool Call 调用记录、耗时、结果 | Project |
+| 产出物 | Agent 生成的内容与文件 | Project |
+| 用户配置 | API Keys、主题偏好等 | 全局 |
 
-### 3.5 工程化
+### 4.5 工程化
 
 | 分类 | 技术 | 备注 |
 |------|------|------|
@@ -222,11 +303,11 @@ Electron Main Process (守护者)
 | 测试框架 | Vitest | 与 Vite 深度集成 |
 | 包管理 | pnpm (推荐) | workspace 原生支持，磁盘高效 |
 
-## 四、业务模块划分
+## 五、业务模块划分
 
 三个业务模块：**UI**（用户交互）、**Agent**（核心业务）、**Platform**（基础设施）。
 
-### 4.1 模块总览
+### 5.1 模块总览
 
 | 模块 | 职责 | 所在进程 |
 |------|------|----------|
@@ -234,7 +315,7 @@ Electron Main Process (守护者)
 | **Agent** | Agent 本身的一切能力与执行 | Agent Server / Child Process |
 | **Platform** | 支撑 UI 和 Agent 运行的底座 | Electron Main / Agent Server |
 
-### 4.2 各模块包含项
+### 5.2 各模块包含项
 
 **UI 模块**：
 
@@ -243,6 +324,7 @@ Electron Main Process (守护者)
 - Agent 操控面板
 - 任务监控
 - 设置页（API Key 配置界面）
+- Project 管理（创建、切换、配置）
 - 产出物（Artifact）浏览与导出
 - Token 用量面板
 
@@ -251,8 +333,8 @@ Electron Main Process (守护者)
 - Agent 定义与生命周期
 - Skills（能力注册）
 - Tool Calls（Schema 定义 + 执行）
-- Sub-Agent 调度
-- Session 与对话管理
+- Sub-Agent 调度（同 Project 内 Agent 间协作）
+- Session 与对话管理（归属于 Project）
 - AI 上下文管理（截断、摘要）
 - AI Provider 与模型调用与流式响应
 - API Key 校验与加密
@@ -267,8 +349,9 @@ Electron Main Process (守护者)
 - HTTP Server + WebSocket
 - 数据库（Schema、存储、迁移）
 - 进程管理（调度、并发控制、生命周期）
+- Project 数据隔离与存储管理
 
-### 4.3 目录结构
+### 5.3 目录结构
 
 ```
 SoloCraft.team/
@@ -285,17 +368,18 @@ SoloCraft.team/
 └── turbo.json
 ```
 
-## 五、待讨论事项
+## 六、待讨论事项
 
-### 5.1 Python Runtime 内嵌方案
+### 6.1 Python Runtime 内嵌方案
 
 - **选项 A**：打包 Python 解释器（体积较大，~50MB+）
 - **选项 B**：使用 pyodide（WASM 版 Python，但库支持有限）
 - **选项 C**：检测系统已安装的 Python，按需调用（最轻量，但需用户预装）
 
-### 5.2 后续规划
+### 6.2 后续规划
 
 - Nut.js 桌面自动化集成时机
-- 多 Agent 协作通信协议设计
+- Sub-Agent 调度协议细节（消息格式、上下文传递、结果回收）
 - 数据同步与云端方案（如果需要跨设备）
 - Agent 执行的安全沙箱与权限控制
+- 跨 Project 复用 Agent（Agent Template 机制，按需引入）
