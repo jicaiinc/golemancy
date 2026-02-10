@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route } from 'react-router'
 import { ProjectLayout } from './layouts/ProjectLayout'
 import {
+  DashboardPage,
   ProjectListPage,
   ProjectDashboardPage,
   AgentListPage,
@@ -18,6 +19,7 @@ export function AppRoutes() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<ProjectListPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/settings" element={<GlobalSettingsPage />} />
         <Route path="/projects/:projectId" element={<ProjectLayout />}>
           <Route index element={<ProjectDashboardPage />} />

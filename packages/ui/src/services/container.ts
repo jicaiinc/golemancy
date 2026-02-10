@@ -6,6 +6,7 @@ import type {
   IArtifactService,
   IMemoryService,
   ISettingsService,
+  IDashboardService,
 } from './interfaces'
 
 export interface ServiceContainer {
@@ -16,6 +17,7 @@ export interface ServiceContainer {
   artifacts: IArtifactService
   memory: IMemoryService
   settings: ISettingsService
+  dashboard: IDashboardService
 }
 
 let services: ServiceContainer | null = null

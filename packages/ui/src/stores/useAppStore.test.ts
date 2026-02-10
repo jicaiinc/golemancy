@@ -66,10 +66,21 @@ function createTestServices(): ServiceContainer {
         providers: [{ provider: 'openai', apiKey: 'test', defaultModel: 'gpt-4o' }],
         defaultProvider: 'openai',
         theme: 'dark',
+        userProfile: { name: 'Test', email: 'test@test.com' },
+        defaultWorkingDirectoryBase: '~/projects',
       }),
       update: vi.fn().mockImplementation((data) =>
         Promise.resolve({ ...data }),
       ),
+    },
+    dashboard: {
+      getSummary: vi.fn().mockResolvedValue({
+        totalProjects: 0, totalAgents: 0, activeAgents: 0,
+        runningTasks: 0, completedTasksToday: 0, totalTokenUsageToday: 0,
+      }),
+      getActiveAgents: vi.fn().mockResolvedValue([]),
+      getRecentTasks: vi.fn().mockResolvedValue([]),
+      getActivityFeed: vi.fn().mockResolvedValue([]),
     },
   }
 }
@@ -94,7 +105,15 @@ describe('useAppStore', () => {
       tasksLoading: false,
       settings: null,
       sidebarCollapsed: false,
+      themeMode: 'dark',
+      dashboardSummary: null,
+      dashboardActiveAgents: [],
+      dashboardRecentTasks: [],
+      dashboardActivityFeed: [],
+      dashboardLoading: false,
     })
+    // Clean DOM classes for theme tests
+    document.documentElement.classList.remove('light', 'dark')
   })
 
   describe('initial state', () => {
@@ -239,7 +258,7 @@ describe('useAppStore', () => {
 
   describe('createProject', () => {
     it('creates a project and adds it to the list', async () => {
-      const data = { name: 'New', description: 'Desc', icon: 'star' }
+      const data = { name: 'New', description: 'Desc', icon: 'star', workingDirectory: '~/projects/new' }
       const result = await useAppStore.getState().createProject(data)
       expect(result.id).toBe('proj-new')
       expect(useAppStore.getState().projects).toHaveLength(1)
@@ -267,6 +286,114 @@ describe('useAppStore', () => {
       await useAppStore.getState().loadSettings()
       expect(useAppStore.getState().settings).not.toBeNull()
       expect(useAppStore.getState().settings!.defaultProvider).toBe('openai')
+    })
+  })
+
+  describe('theme state', () => {
+    it('has dark as default theme mode', () => {
+      expect(useAppStore.getState().themeMode).toBe('dark')
+    })
+
+    it('setTheme("light") updates themeMode and adds light class to document', () => {
+      useAppStore.getState().setTheme('light')
+      expect(useAppStore.getState().themeMode).toBe('light')
+      expect(document.documentElement.classList.contains('light')).toBe(true)
+      expect(document.documentElement.classList.contains('dark')).toBe(false)
+    })
+
+    it('setTheme("dark") updates themeMode and adds dark class to document', () => {
+      useAppStore.getState().setTheme('dark')
+      expect(useAppStore.getState().themeMode).toBe('dark')
+      expect(document.documentElement.classList.contains('dark')).toBe(true)
+      expect(document.documentElement.classList.contains('light')).toBe(false)
+    })
+
+    it('setTheme("system") removes both light and dark classes', () => {
+      // First set to light so a class is present
+      useAppStore.getState().setTheme('light')
+      expect(document.documentElement.classList.contains('light')).toBe(true)
+
+      // Switch to system
+      useAppStore.getState().setTheme('system')
+      expect(useAppStore.getState().themeMode).toBe('system')
+      expect(document.documentElement.classList.contains('light')).toBe(false)
+      expect(document.documentElement.classList.contains('dark')).toBe(false)
+    })
+
+    it('switching themes replaces the previous class', () => {
+      useAppStore.getState().setTheme('light')
+      expect(document.documentElement.classList.contains('light')).toBe(true)
+      useAppStore.getState().setTheme('dark')
+      expect(document.documentElement.classList.contains('dark')).toBe(true)
+      expect(document.documentElement.classList.contains('light')).toBe(false)
+    })
+  })
+
+  describe('dashboard state', () => {
+    it('has empty dashboard state initially', () => {
+      const state = useAppStore.getState()
+      expect(state.dashboardSummary).toBeNull()
+      expect(state.dashboardActiveAgents).toEqual([])
+      expect(state.dashboardRecentTasks).toEqual([])
+      expect(state.dashboardActivityFeed).toEqual([])
+      expect(state.dashboardLoading).toBe(false)
+    })
+
+    it('loadDashboard populates all dashboard state', async () => {
+      await useAppStore.getState().loadDashboard()
+      const state = useAppStore.getState()
+      expect(state.dashboardSummary).not.toBeNull()
+      expect(state.dashboardLoading).toBe(false)
+      expect(mockServices.dashboard.getSummary).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getActiveAgents).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getRecentTasks).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getActivityFeed).toHaveBeenCalledOnce()
+    })
+
+    it('loadDashboard sets loading true then false', async () => {
+      const promise = useAppStore.getState().loadDashboard()
+      expect(useAppStore.getState().dashboardLoading).toBe(true)
+      await promise
+      expect(useAppStore.getState().dashboardLoading).toBe(false)
+    })
+
+    it('loadDashboardActiveAgents updates only active agents', async () => {
+      ;(mockServices.dashboard.getActiveAgents as any).mockResolvedValue([
+        { agentId: 'a1', agentName: 'Writer', status: 'running' },
+      ])
+      await useAppStore.getState().loadDashboardActiveAgents()
+      expect(useAppStore.getState().dashboardActiveAgents).toHaveLength(1)
+    })
+
+    it('loadDashboardRecentTasks updates only recent tasks', async () => {
+      ;(mockServices.dashboard.getRecentTasks as any).mockResolvedValue([
+        { taskId: 't1', title: 'Task' },
+      ])
+      await useAppStore.getState().loadDashboardRecentTasks(5)
+      expect(useAppStore.getState().dashboardRecentTasks).toHaveLength(1)
+      expect(mockServices.dashboard.getRecentTasks).toHaveBeenCalledWith(5)
+    })
+
+    it('loadDashboardActivityFeed updates only activity feed', async () => {
+      ;(mockServices.dashboard.getActivityFeed as any).mockResolvedValue([
+        { id: 'act-1', type: 'task_completed' },
+      ])
+      await useAppStore.getState().loadDashboardActivityFeed(10)
+      expect(useAppStore.getState().dashboardActivityFeed).toHaveLength(1)
+      expect(mockServices.dashboard.getActivityFeed).toHaveBeenCalledWith(10)
+    })
+  })
+
+  describe('createProject with workingDirectory', () => {
+    it('passes workingDirectory through to the service', async () => {
+      const data = {
+        name: 'Test Project',
+        description: 'Testing workDir',
+        icon: 'star',
+        workingDirectory: '~/custom/path',
+      }
+      await useAppStore.getState().createProject(data)
+      expect(mockServices.projects.create).toHaveBeenCalledWith(data)
     })
   })
 })

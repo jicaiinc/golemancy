@@ -5,23 +5,69 @@
 @source "..";
 @source "../../../shared/src";
 
-@theme {
-  /* Core backgrounds */
+/* === Theme switching: supports .dark class + system preference === */
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:not(.light, .light *)) {
+      @slot;
+    }
+  }
+}
+
+/* === Light theme (warm parchment) === */
+:root {
+  --color-void: #F5F3EE;
+  --color-deep: #EBE8E1;
+  --color-surface: #DEDBD4;
+  --color-elevated: #D1CEC7;
+
+  --color-border-dim: #C4C0B8;
+  --color-border-bright: #9E9A91;
+
+  --color-text-primary: #1A1612;
+  --color-text-secondary: #6B6560;
+  --color-text-dim: #A09A92;
+
+  --color-accent-green: #2D7A4F;
+  --color-accent-emerald: #1E8C5E;
+  --color-accent-blue: #2563EB;
+  --color-accent-amber: #B8860B;
+  --color-accent-red: #DC2626;
+  --color-accent-purple: #7C3AED;
+  --color-accent-cyan: #0891B2;
+
+  --color-mc-stone: #8C8C8C;
+  --color-mc-dirt: #7A5C3A;
+  --color-mc-grass: #4A7A2E;
+  --color-mc-diamond: #0E9384;
+  --color-mc-gold: #C8A800;
+  --color-mc-redstone: #B91C1C;
+  --color-mc-lapis: #2A4AAE;
+
+  --shadow-pixel-raised: inset 2px 2px 0px 0px rgba(255, 255, 255, 0.5),
+    inset -2px -2px 0px 0px rgba(0, 0, 0, 0.15);
+  --shadow-pixel-sunken: inset -2px -2px 0px 0px rgba(255, 255, 255, 0.5),
+    inset 2px 2px 0px 0px rgba(0, 0, 0, 0.15);
+  --shadow-pixel-drop: 4px 4px 0px 0px rgba(0, 0, 0, 0.15);
+}
+
+/* === Dark theme === */
+.dark {
   --color-void: #0B0E14;
   --color-deep: #141820;
   --color-surface: #1E2430;
   --color-elevated: #2A3242;
 
-  /* Borders */
   --color-border-dim: #2E3A4E;
   --color-border-bright: #4A5568;
 
-  /* Text */
   --color-text-primary: #E8ECF1;
   --color-text-secondary: #8B95A5;
   --color-text-dim: #505A6A;
 
-  /* Accents */
   --color-accent-green: #4ADE80;
   --color-accent-emerald: #34D399;
   --color-accent-blue: #60A5FA;
@@ -30,7 +76,6 @@
   --color-accent-purple: #A78BFA;
   --color-accent-cyan: #22D3EE;
 
-  /* Minecraft tints */
   --color-mc-stone: #7F7F7F;
   --color-mc-dirt: #8B6B4A;
   --color-mc-grass: #5B8C3E;
@@ -39,16 +84,93 @@
   --color-mc-redstone: #D73B3B;
   --color-mc-lapis: #3C5DC4;
 
-  /* Fonts */
-  --font-pixel: "Press Start 2P", monospace;
-  --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
-
-  /* Pixel shadows */
   --shadow-pixel-raised: inset 2px 2px 0px 0px rgba(255, 255, 255, 0.08),
     inset -2px -2px 0px 0px rgba(0, 0, 0, 0.3);
   --shadow-pixel-sunken: inset -2px -2px 0px 0px rgba(255, 255, 255, 0.08),
     inset 2px 2px 0px 0px rgba(0, 0, 0, 0.3);
   --shadow-pixel-drop: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --color-void: #0B0E14;
+    --color-deep: #141820;
+    --color-surface: #1E2430;
+    --color-elevated: #2A3242;
+
+    --color-border-dim: #2E3A4E;
+    --color-border-bright: #4A5568;
+
+    --color-text-primary: #E8ECF1;
+    --color-text-secondary: #8B95A5;
+    --color-text-dim: #505A6A;
+
+    --color-accent-green: #4ADE80;
+    --color-accent-emerald: #34D399;
+    --color-accent-blue: #60A5FA;
+    --color-accent-amber: #FBBF24;
+    --color-accent-red: #F87171;
+    --color-accent-purple: #A78BFA;
+    --color-accent-cyan: #22D3EE;
+
+    --color-mc-stone: #7F7F7F;
+    --color-mc-dirt: #8B6B4A;
+    --color-mc-grass: #5B8C3E;
+    --color-mc-diamond: #4AEDD9;
+    --color-mc-gold: #FCDB05;
+    --color-mc-redstone: #D73B3B;
+    --color-mc-lapis: #3C5DC4;
+
+    --shadow-pixel-raised: inset 2px 2px 0px 0px rgba(255, 255, 255, 0.08),
+      inset -2px -2px 0px 0px rgba(0, 0, 0, 0.3);
+    --shadow-pixel-sunken: inset -2px -2px 0px 0px rgba(255, 255, 255, 0.08),
+      inset 2px 2px 0px 0px rgba(0, 0, 0, 0.3);
+    --shadow-pixel-drop: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@theme {
+  /* Core backgrounds */
+  --color-void: var(--color-void);
+  --color-deep: var(--color-deep);
+  --color-surface: var(--color-surface);
+  --color-elevated: var(--color-elevated);
+
+  /* Borders */
+  --color-border-dim: var(--color-border-dim);
+  --color-border-bright: var(--color-border-bright);
+
+  /* Text */
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-dim: var(--color-text-dim);
+
+  /* Accents */
+  --color-accent-green: var(--color-accent-green);
+  --color-accent-emerald: var(--color-accent-emerald);
+  --color-accent-blue: var(--color-accent-blue);
+  --color-accent-amber: var(--color-accent-amber);
+  --color-accent-red: var(--color-accent-red);
+  --color-accent-purple: var(--color-accent-purple);
+  --color-accent-cyan: var(--color-accent-cyan);
+
+  /* Minecraft tints */
+  --color-mc-stone: var(--color-mc-stone);
+  --color-mc-dirt: var(--color-mc-dirt);
+  --color-mc-grass: var(--color-mc-grass);
+  --color-mc-diamond: var(--color-mc-diamond);
+  --color-mc-gold: var(--color-mc-gold);
+  --color-mc-redstone: var(--color-mc-redstone);
+  --color-mc-lapis: var(--color-mc-lapis);
+
+  /* Fonts */
+  --font-pixel: "Press Start 2P", monospace;
+  --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
+
+  /* Pixel shadows */
+  --shadow-pixel-raised: var(--shadow-pixel-raised);
+  --shadow-pixel-sunken: var(--shadow-pixel-sunken);
+  --shadow-pixel-drop: var(--shadow-pixel-drop);
 }
 
 /* === Base reset for pixel art === */

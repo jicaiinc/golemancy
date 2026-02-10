@@ -1,3 +1,6 @@
+// Global dashboard
+export { DashboardPage } from './dashboard'
+
 // Project management pages
 export { ProjectListPage, ProjectDashboardPage, ProjectSettingsPage } from './project'
 

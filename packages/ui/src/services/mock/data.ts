@@ -1,5 +1,6 @@
 import type {
   Project, Agent, Conversation, Message, Task, Artifact, MemoryEntry, GlobalSettings,
+  ActivityEntry,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
 } from '@solocraft/shared'
 
@@ -14,6 +15,7 @@ export const SEED_PROJECTS: Project[] = [
     name: 'Content Biz',
     description: 'Content creation and distribution pipeline',
     icon: 'pickaxe',
+    workingDirectory: '~/projects/content-biz',
     config: { maxConcurrentAgents: 3 },
     agentCount: 3,
     activeAgentCount: 1,
@@ -26,6 +28,7 @@ export const SEED_PROJECTS: Project[] = [
     name: 'E-Commerce Ops',
     description: 'Cross-border e-commerce automation',
     icon: 'sword',
+    workingDirectory: '~/projects/ecommerce-ops',
     config: { maxConcurrentAgents: 5 },
     agentCount: 5,
     activeAgentCount: 0,
@@ -331,4 +334,86 @@ export const SEED_SETTINGS: GlobalSettings = {
   ],
   defaultProvider: 'openai',
   theme: 'dark',
+  userProfile: {
+    name: 'Solo Crafter',
+    email: 'crafter@solocraft.dev',
+  },
+  defaultWorkingDirectoryBase: '~/projects',
 }
+
+// --- Dashboard Activity Feed ---
+const twoHoursAgo = new Date(Date.now() - 7200_000).toISOString()
+const threeHoursAgo = new Date(Date.now() - 10800_000).toISOString()
+
+export const SEED_ACTIVITIES: ActivityEntry[] = [
+  {
+    id: 'activity-1',
+    type: 'agent_started',
+    projectId: 'proj-1' as ProjectId,
+    projectName: 'Content Biz',
+    agentId: 'agent-1' as AgentId,
+    agentName: 'Writer',
+    description: 'Writer agent started working',
+    timestamp: hourAgo,
+  },
+  {
+    id: 'activity-2',
+    type: 'task_created',
+    projectId: 'proj-1' as ProjectId,
+    projectName: 'Content Biz',
+    agentId: 'agent-1' as AgentId,
+    agentName: 'Writer',
+    description: 'Started: Write blog post about AI trends',
+    timestamp: hourAgo,
+  },
+  {
+    id: 'activity-3',
+    type: 'task_completed',
+    projectId: 'proj-1' as ProjectId,
+    projectName: 'Content Biz',
+    agentId: 'agent-2' as AgentId,
+    agentName: 'Researcher',
+    description: 'Completed: Gather SEO keywords for Q1 campaign',
+    timestamp: twoHoursAgo,
+  },
+  {
+    id: 'activity-4',
+    type: 'artifact_created',
+    projectId: 'proj-1' as ProjectId,
+    projectName: 'Content Biz',
+    agentId: 'agent-1' as AgentId,
+    agentName: 'Writer',
+    description: 'Created artifact: blog-post-draft.md',
+    timestamp: twoHoursAgo,
+  },
+  {
+    id: 'activity-5',
+    type: 'agent_stopped',
+    projectId: 'proj-2' as ProjectId,
+    projectName: 'E-Commerce Ops',
+    agentId: 'agent-4' as AgentId,
+    agentName: 'Inventory Bot',
+    description: 'Inventory Bot stopped after completing all tasks',
+    timestamp: threeHoursAgo,
+  },
+  {
+    id: 'activity-6',
+    type: 'task_failed',
+    projectId: 'proj-2' as ProjectId,
+    projectName: 'E-Commerce Ops',
+    agentId: 'agent-5' as AgentId,
+    agentName: 'Price Tracker',
+    description: 'Failed: Sync competitor prices — API rate limited',
+    timestamp: dayAgo,
+  },
+  {
+    id: 'activity-7',
+    type: 'message_sent',
+    projectId: 'proj-1' as ProjectId,
+    projectName: 'Content Biz',
+    agentId: 'agent-2' as AgentId,
+    agentName: 'Researcher',
+    description: 'Researcher sent keywords list to Writer',
+    timestamp: dayAgo,
+  },
+]

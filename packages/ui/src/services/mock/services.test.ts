@@ -8,7 +8,9 @@ import {
   MockArtifactService,
   MockMemoryService,
   MockSettingsService,
+  MockDashboardService,
 } from './services'
+import { SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES } from './data'
 
 describe('MockProjectService', () => {
   let service: MockProjectService
@@ -38,6 +40,7 @@ describe('MockProjectService', () => {
       name: 'New Project',
       description: 'A new project',
       icon: 'hammer',
+      workingDirectory: '~/projects/new-project',
     })
     expect(created.id).toBeTruthy()
     expect(created.name).toBe('New Project')
@@ -297,5 +300,77 @@ describe('MockSettingsService', () => {
     // Verify persistence
     const fetched = await service.get()
     expect(fetched.defaultProvider).toBe('anthropic')
+  })
+})
+
+describe('MockDashboardService', () => {
+  let service: MockDashboardService
+
+  beforeEach(() => {
+    service = new MockDashboardService(SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES)
+  })
+
+  it('getSummary() returns dashboard summary with correct counts', async () => {
+    const summary = await service.getSummary()
+    expect(summary.totalProjects).toBe(SEED_PROJECTS.length)
+    expect(summary.totalAgents).toBe(SEED_AGENTS.length)
+    expect(summary.activeAgents).toBeGreaterThanOrEqual(0)
+    expect(summary.runningTasks).toBeGreaterThanOrEqual(0)
+    expect(summary.completedTasksToday).toBeGreaterThanOrEqual(0)
+    expect(summary.totalTokenUsageToday).toBeGreaterThanOrEqual(0)
+  })
+
+  it('getActiveAgents() returns only running agents', async () => {
+    const active = await service.getActiveAgents()
+    active.forEach(a => {
+      expect(a.status).toBe('running')
+      expect(a.agentId).toBeTruthy()
+      expect(a.projectName).toBeTruthy()
+      expect(a.agentName).toBeTruthy()
+    })
+  })
+
+  it('getRecentTasks() returns tasks sorted by updatedAt desc', async () => {
+    const tasks = await service.getRecentTasks(5)
+    expect(tasks.length).toBeLessThanOrEqual(5)
+    for (let i = 1; i < tasks.length; i++) {
+      expect(new Date(tasks[i - 1].updatedAt).getTime())
+        .toBeGreaterThanOrEqual(new Date(tasks[i].updatedAt).getTime())
+    }
+  })
+
+  it('getRecentTasks() includes project and agent names', async () => {
+    const tasks = await service.getRecentTasks()
+    tasks.forEach(t => {
+      expect(t.projectName).toBeTruthy()
+      expect(t.agentName).toBeTruthy()
+      expect(t.taskId).toBeTruthy()
+    })
+  })
+
+  it('getActivityFeed() returns sorted activities', async () => {
+    const feed = await service.getActivityFeed()
+    expect(feed.length).toBeLessThanOrEqual(20)
+    for (let i = 1; i < feed.length; i++) {
+      expect(new Date(feed[i - 1].timestamp).getTime())
+        .toBeGreaterThanOrEqual(new Date(feed[i].timestamp).getTime())
+    }
+  })
+
+  it('getActivityFeed() respects limit', async () => {
+    const feed = await service.getActivityFeed(3)
+    expect(feed.length).toBeLessThanOrEqual(3)
+  })
+
+  it('getActivityFeed() entries have required fields', async () => {
+    const feed = await service.getActivityFeed()
+    feed.forEach(entry => {
+      expect(entry.id).toBeTruthy()
+      expect(entry.type).toBeTruthy()
+      expect(entry.projectId).toBeTruthy()
+      expect(entry.projectName).toBeTruthy()
+      expect(entry.description).toBeTruthy()
+      expect(entry.timestamp).toBeTruthy()
+    })
   })
 })

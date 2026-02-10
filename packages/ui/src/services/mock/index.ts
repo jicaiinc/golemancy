@@ -7,7 +7,9 @@ import {
   MockArtifactService,
   MockMemoryService,
   MockSettingsService,
+  MockDashboardService,
 } from './services'
+import { SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES } from './data'
 
 export function createMockServices(): ServiceContainer {
   return {
@@ -18,5 +20,6 @@ export function createMockServices(): ServiceContainer {
     artifacts: new MockArtifactService(),
     memory: new MockMemoryService(),
     settings: new MockSettingsService(),
+    dashboard: new MockDashboardService(SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES),
   }
 }

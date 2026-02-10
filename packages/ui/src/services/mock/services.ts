@@ -1,14 +1,16 @@
 import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId,
+  DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
 } from '@solocraft/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISettingsService,
+  ITaskService, IArtifactService, IMemoryService, ISettingsService, IDashboardService,
 } from '../interfaces'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
   SEED_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
+  SEED_ACTIVITIES,
 } from './data'
 
 // Small delay to simulate async I/O
@@ -33,7 +35,7 @@ export class MockProjectService implements IProjectService {
     return this.data.get(id) ?? null
   }
 
-  async create(input: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project> {
+  async create(input: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project> {
     await delay()
     const now = new Date().toISOString()
     const project: Project = {
@@ -50,7 +52,7 @@ export class MockProjectService implements IProjectService {
     return project
   }
 
-  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config'>>): Promise<Project> {
+  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config'>>): Promise<Project> {
     await delay()
     const existing = this.data.get(id)
     if (!existing) throw new Error(`Project ${id} not found`)
@@ -284,5 +286,84 @@ export class MockSettingsService implements ISettingsService {
     await delay()
     this.settings = { ...this.settings, ...data }
     return { ...this.settings }
+  }
+}
+
+// --- DashboardService ---
+export class MockDashboardService implements IDashboardService {
+  private projects: Project[]
+  private agents: Agent[]
+  private tasks: Task[]
+  private activities: ActivityEntry[]
+
+  constructor(projects: Project[], agents: Agent[], tasks: Task[], activities: ActivityEntry[]) {
+    this.projects = projects
+    this.agents = agents
+    this.tasks = tasks
+    this.activities = activities
+  }
+
+  async getSummary(): Promise<DashboardSummary> {
+    await delay()
+    const today = new Date().toDateString()
+    return {
+      totalProjects: this.projects.length,
+      totalAgents: this.agents.length,
+      activeAgents: this.agents.filter(a => a.status === 'running').length,
+      runningTasks: this.tasks.filter(t => t.status === 'running').length,
+      completedTasksToday: this.tasks.filter(
+        t => t.status === 'completed' && t.completedAt && new Date(t.completedAt).toDateString() === today
+      ).length,
+      totalTokenUsageToday: this.tasks
+        .filter(t => new Date(t.updatedAt).toDateString() === today)
+        .reduce((sum, t) => sum + t.tokenUsage, 0),
+    }
+  }
+
+  async getActiveAgents(): Promise<DashboardAgentSummary[]> {
+    await delay()
+    return this.agents
+      .filter(a => a.status === 'running')
+      .map(a => {
+        const project = this.projects.find(p => p.id === a.projectId)
+        const task = a.currentTaskId ? this.tasks.find(t => t.id === a.currentTaskId) : undefined
+        return {
+          agentId: a.id,
+          projectId: a.projectId,
+          projectName: project?.name ?? 'Unknown',
+          agentName: a.name,
+          status: a.status,
+          currentTaskTitle: task?.title,
+        }
+      })
+  }
+
+  async getRecentTasks(limit = 10): Promise<DashboardTaskSummary[]> {
+    await delay()
+    return [...this.tasks]
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .slice(0, limit)
+      .map(t => {
+        const project = this.projects.find(p => p.id === t.projectId)
+        const agent = this.agents.find(a => a.id === t.agentId)
+        return {
+          taskId: t.id,
+          projectId: t.projectId,
+          projectName: project?.name ?? 'Unknown',
+          agentId: t.agentId,
+          agentName: agent?.name ?? 'Unknown',
+          title: t.title,
+          status: t.status,
+          progress: t.progress,
+          updatedAt: t.updatedAt,
+        }
+      })
+  }
+
+  async getActivityFeed(limit = 20): Promise<ActivityEntry[]> {
+    await delay()
+    return [...this.activities]
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, limit)
   }
 }

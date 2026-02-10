@@ -44,10 +44,23 @@ export function ProjectListPage() {
   return (
     <div className="h-full overflow-auto bg-void">
       <div className="max-w-[1200px] mx-auto p-8">
+        {/* Top bar */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="font-pixel text-[16px] text-accent-green">SoloCraft</h1>
+          <div className="flex items-center gap-2">
+            <PixelButton variant="ghost" size="sm" onClick={() => navigate('/dashboard')}>
+              Dashboard
+            </PixelButton>
+            <PixelButton variant="ghost" size="sm" onClick={() => navigate('/settings')}>
+              Settings
+            </PixelButton>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-pixel text-[16px] text-accent-green">Your Projects</h1>
+            <h1 className="font-pixel text-[12px] text-text-primary">Your Projects</h1>
             <p className="mt-2 text-text-secondary text-[13px]">
               {projects.length} project{projects.length !== 1 ? 's' : ''} in your workspace
             </p>

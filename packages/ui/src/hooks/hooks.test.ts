@@ -12,6 +12,8 @@ describe('useResolvedConfig', () => {
     ],
     defaultProvider: 'openai',
     theme: 'dark',
+    userProfile: { name: 'Test User', email: 'test@example.com' },
+    defaultWorkingDirectoryBase: '~/projects',
   }
 
   beforeEach(() => {

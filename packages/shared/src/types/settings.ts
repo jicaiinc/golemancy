@@ -1,5 +1,3 @@
-// Three-layer config inheritance: Global → Project → Agent
-
 export type AIProvider = 'openai' | 'anthropic' | 'google' | 'custom'
 
 export interface ProviderConfig {
@@ -9,20 +7,27 @@ export interface ProviderConfig {
   defaultModel: string
 }
 
-// Layer 1: Global settings
+export type ThemeMode = 'light' | 'dark' | 'system'
+
+export interface UserProfile {
+  name: string
+  email: string
+  avatarUrl?: string
+}
+
 export interface GlobalSettings {
   providers: ProviderConfig[]
   defaultProvider: AIProvider
-  theme: 'dark' // Only dark in v1
+  theme: ThemeMode
+  userProfile: UserProfile
+  defaultWorkingDirectoryBase: string
 }
 
-// Layer 2: Project-level overrides
 export interface ProjectConfig {
   providerOverride?: Partial<ProviderConfig>
   maxConcurrentAgents: number
 }
 
-// Layer 3: Agent-level model config
 export interface AgentModelConfig {
   provider?: AIProvider
   model?: string

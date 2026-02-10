@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import type { AIProvider, ProviderConfig } from '@solocraft/shared'
+import type { AIProvider, ProviderConfig, ThemeMode } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
 
 const SETTINGS_TABS = [
   { id: 'providers', label: 'Providers' },
+  { id: 'appearance', label: 'Appearance' },
+  { id: 'profile', label: 'Profile' },
+  { id: 'paths', label: 'Paths' },
   { id: 'general', label: 'General' },
 ]
 
@@ -41,6 +44,9 @@ export function GlobalSettingsPage() {
           {activeTab === 'providers' && (
             <ProvidersTab settings={settings} onUpdate={updateSettings} />
           )}
+          {activeTab === 'appearance' && <AppearanceTab />}
+          {activeTab === 'profile' && <ProfileTab />}
+          {activeTab === 'paths' && <PathsTab />}
           {activeTab === 'general' && <GeneralTab />}
         </div>
       </div>
@@ -198,25 +204,159 @@ function ProviderCard({ provider, onUpdate, allProviders, index }: {
   )
 }
 
+// ========== Appearance Tab (ThemeSwitcher) ==========
+function AppearanceTab() {
+  const themeMode = useAppStore(s => s.themeMode)
+  const setTheme = useAppStore(s => s.setTheme)
+  const updateSettings = useAppStore(s => s.updateSettings)
+
+  async function handleThemeChange(mode: ThemeMode) {
+    setTheme(mode)
+    await updateSettings({ theme: mode })
+  }
+
+  const themes: { mode: ThemeMode; label: string; bgPreview: string; surfPreview: string; textPreview: string }[] = [
+    { mode: 'light', label: 'Light', bgPreview: 'bg-[#F5F3EE]', surfPreview: 'bg-[#DEDBD4]', textPreview: 'bg-[#1A1612]' },
+    { mode: 'dark', label: 'Dark', bgPreview: 'bg-[#0B0E14]', surfPreview: 'bg-[#1E2430]', textPreview: 'bg-[#E8ECF1]' },
+    { mode: 'system', label: 'System', bgPreview: 'bg-gradient-to-r from-[#F5F3EE] to-[#0B0E14]', surfPreview: 'bg-gradient-to-r from-[#DEDBD4] to-[#1E2430]', textPreview: 'bg-gradient-to-r from-[#1A1612] to-[#E8ECF1]' },
+  ]
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">THEME</div>
+        <div className="grid grid-cols-3 gap-3">
+          {themes.map(t => {
+            const isActive = themeMode === t.mode
+            return (
+              <button
+                key={t.mode}
+                onClick={() => handleThemeChange(t.mode)}
+                className={`p-3 border-2 cursor-pointer transition-colors ${
+                  isActive
+                    ? 'bg-elevated border-accent-green'
+                    : 'bg-deep border-border-dim hover:border-border-bright'
+                }`}
+              >
+                {/* Mini preview */}
+                <div className={`w-full h-12 ${t.bgPreview} border border-border-dim mb-2 p-1.5 flex flex-col justify-between`}>
+                  <div className={`h-1.5 w-3/4 ${t.surfPreview}`} />
+                  <div className={`h-1 w-1/2 ${t.textPreview}`} />
+                  <div className={`h-1 w-2/3 ${t.textPreview} opacity-50`} />
+                </div>
+                <div className={`text-[10px] text-center ${isActive ? 'text-accent-green' : 'text-text-secondary'}`}>
+                  {t.label}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </PixelCard>
+    </div>
+  )
+}
+
+// ========== Profile Tab ==========
+function ProfileTab() {
+  const settings = useAppStore(s => s.settings)
+  const updateSettings = useAppStore(s => s.updateSettings)
+  const [name, setName] = useState(settings?.userProfile.name ?? '')
+  const [email, setEmail] = useState(settings?.userProfile.email ?? '')
+  const [avatarUrl, setAvatarUrl] = useState(settings?.userProfile.avatarUrl ?? '')
+  const [saved, setSaved] = useState(false)
+
+  async function handleSave() {
+    await updateSettings({
+      userProfile: {
+        name: name.trim(),
+        email: email.trim(),
+        avatarUrl: avatarUrl.trim() || undefined,
+      },
+    })
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">USER PROFILE</div>
+        <div className="flex flex-col gap-3">
+          <PixelInput
+            label="NAME"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Your name"
+          />
+          <PixelInput
+            label="EMAIL"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="you@example.com"
+          />
+          <PixelInput
+            label="AVATAR URL (optional)"
+            value={avatarUrl}
+            onChange={e => setAvatarUrl(e.target.value)}
+            placeholder="https://..."
+          />
+          <div className="flex items-center gap-2">
+            <PixelButton variant="primary" size="sm" onClick={handleSave}>
+              Save Profile
+            </PixelButton>
+            {saved && <span className="text-[11px] text-accent-green">Saved!</span>}
+          </div>
+        </div>
+      </PixelCard>
+    </div>
+  )
+}
+
+// ========== Paths Tab ==========
+function PathsTab() {
+  const settings = useAppStore(s => s.settings)
+  const updateSettings = useAppStore(s => s.updateSettings)
+  const [workDir, setWorkDir] = useState(settings?.defaultWorkingDirectoryBase ?? '~/projects')
+  const [saved, setSaved] = useState(false)
+
+  async function handleSave() {
+    await updateSettings({ defaultWorkingDirectoryBase: workDir.trim() })
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">DEFAULT WORKING DIRECTORY</div>
+        <p className="text-[11px] text-text-dim mb-3">
+          Base directory for new project working directories. Each project will get a subdirectory under this path.
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 h-9 bg-deep px-3 border-2 border-border-dim shadow-pixel-sunken">
+            <span className="text-[11px] text-text-dim shrink-0">{'\u{1F4C1}'}</span>
+            <input
+              type="text"
+              value={workDir}
+              onChange={e => setWorkDir(e.target.value)}
+              className="flex-1 bg-transparent text-[13px] text-text-primary font-mono outline-none"
+            />
+          </div>
+          <PixelButton variant="primary" size="sm" onClick={handleSave}>
+            Save
+          </PixelButton>
+        </div>
+        {saved && <span className="text-[11px] text-accent-green mt-2 block">Saved!</span>}
+      </PixelCard>
+    </div>
+  )
+}
+
 // ========== General Tab ==========
 function GeneralTab() {
   return (
     <div className="flex flex-col gap-4">
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">THEME</div>
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-deep border-2 border-accent-green cursor-pointer">
-            <div className="w-8 h-6 bg-void border border-border-dim" />
-            <div className="text-[9px] text-accent-green mt-1 text-center">Dark</div>
-          </div>
-          <div className="p-3 bg-deep border-2 border-border-dim opacity-40 cursor-not-allowed">
-            <div className="w-8 h-6 bg-[#f0f0f0] border border-[#ccc]" />
-            <div className="text-[9px] text-text-dim mt-1 text-center">Light</div>
-          </div>
-        </div>
-        <p className="text-[11px] text-text-dim mt-2">Only dark theme is available in v1</p>
-      </PixelCard>
-
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-3">ABOUT</div>
         <div className="text-[12px] text-text-primary">SoloCraft</div>

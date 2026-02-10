@@ -1,13 +1,14 @@
 import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry,
   GlobalSettings, ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId,
+  DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
 } from '@solocraft/shared'
 
 export interface IProjectService {
   list(): Promise<Project[]>
   getById(id: ProjectId): Promise<Project | null>
-  create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config'>>): Promise<Project>
+  create(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project>
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
 }
 
@@ -49,4 +50,11 @@ export interface IMemoryService {
 export interface ISettingsService {
   get(): Promise<GlobalSettings>
   update(data: Partial<GlobalSettings>): Promise<GlobalSettings>
+}
+
+export interface IDashboardService {
+  getSummary(): Promise<DashboardSummary>
+  getActiveAgents(): Promise<DashboardAgentSummary[]>
+  getRecentTasks(limit?: number): Promise<DashboardTaskSummary[]>
+  getActivityFeed(limit?: number): Promise<ActivityEntry[]>
 }

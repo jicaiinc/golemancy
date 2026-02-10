@@ -6,6 +6,7 @@ export interface Project extends Timestamped {
   name: string
   description: string
   icon: string // pixel-art icon identifier
+  workingDirectory: string
   config: ProjectConfig
   agentCount: number
   activeAgentCount: number
