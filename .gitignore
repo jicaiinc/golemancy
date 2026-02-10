@@ -6,3 +6,8 @@ dist/
 out/
 *.tsbuildinfo
 .turbo/
+
+# Environment variables (API keys)
+.env
+.env.local
+.env.*.local

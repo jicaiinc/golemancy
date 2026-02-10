@@ -1,0 +1,161 @@
+import type {
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId,
+  DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
+  IProjectService, IAgentService, IConversationService,
+  ITaskService, IArtifactService, IMemoryService, ISettingsService, IDashboardService,
+} from '@solocraft/shared'
+import { fetchJson } from './base'
+
+export class HttpProjectService implements IProjectService {
+  constructor(private baseUrl: string) {}
+
+  list() {
+    return fetchJson<Project[]>(`${this.baseUrl}/api/projects`)
+  }
+  getById(id: ProjectId) {
+    return fetchJson<Project | null>(`${this.baseUrl}/api/projects/${id}`)
+  }
+  create(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>) {
+    return fetchJson<Project>(`${this.baseUrl}/api/projects`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config'>>) {
+    return fetchJson<Project>(`${this.baseUrl}/api/projects/${id}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(id: ProjectId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpAgentService implements IAgentService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId) {
+    return fetchJson<Agent[]>(`${this.baseUrl}/api/projects/${projectId}/agents`)
+  }
+  getById(projectId: ProjectId, id: AgentId) {
+    return fetchJson<Agent | null>(`${this.baseUrl}/api/projects/${projectId}/agents/${id}`)
+  }
+  create(projectId: ProjectId, data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>) {
+    return fetchJson<Agent>(`${this.baseUrl}/api/projects/${projectId}/agents`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(projectId: ProjectId, id: AgentId, data: Partial<Agent>) {
+    return fetchJson<Agent>(`${this.baseUrl}/api/projects/${projectId}/agents/${id}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(projectId: ProjectId, id: AgentId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/agents/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpConversationService implements IConversationService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId, agentId?: AgentId) {
+    const params = agentId ? `?agentId=${agentId}` : ''
+    return fetchJson<Conversation[]>(`${this.baseUrl}/api/projects/${projectId}/conversations${params}`)
+  }
+  getById(projectId: ProjectId, id: ConversationId) {
+    return fetchJson<Conversation | null>(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`)
+  }
+  create(projectId: ProjectId, agentId: AgentId, title: string) {
+    return fetchJson<Conversation>(`${this.baseUrl}/api/projects/${projectId}/conversations`, {
+      method: 'POST', body: JSON.stringify({ agentId, title }),
+    })
+  }
+  async sendMessage(_projectId: ProjectId, _conversationId: ConversationId, _content: string) {
+    // Chat streaming uses useChat() + /api/chat, not this method
+    throw new Error('Use useChat() for real-time chat')
+  }
+  async delete(projectId: ProjectId, id: ConversationId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpTaskService implements ITaskService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId, agentId?: AgentId) {
+    const params = agentId ? `?agentId=${agentId}` : ''
+    return fetchJson<Task[]>(`${this.baseUrl}/api/projects/${projectId}/tasks${params}`)
+  }
+  getById(projectId: ProjectId, id: TaskId) {
+    return fetchJson<Task | null>(`${this.baseUrl}/api/projects/${projectId}/tasks/${id}`)
+  }
+  async cancel(projectId: ProjectId, id: TaskId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/tasks/${id}/cancel`, { method: 'POST' })
+  }
+}
+
+export class HttpArtifactService implements IArtifactService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId, agentId?: AgentId) {
+    const params = agentId ? `?agentId=${agentId}` : ''
+    return fetchJson<Artifact[]>(`${this.baseUrl}/api/projects/${projectId}/artifacts${params}`)
+  }
+  getById(projectId: ProjectId, id: ArtifactId) {
+    return fetchJson<Artifact | null>(`${this.baseUrl}/api/projects/${projectId}/artifacts/${id}`)
+  }
+  async delete(projectId: ProjectId, id: ArtifactId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/artifacts/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpMemoryService implements IMemoryService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId) {
+    return fetchJson<MemoryEntry[]>(`${this.baseUrl}/api/projects/${projectId}/memories`)
+  }
+  create(projectId: ProjectId, data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>) {
+    return fetchJson<MemoryEntry>(`${this.baseUrl}/api/projects/${projectId}/memories`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(projectId: ProjectId, id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>) {
+    return fetchJson<MemoryEntry>(`${this.baseUrl}/api/projects/${projectId}/memories/${id}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(projectId: ProjectId, id: MemoryId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/memories/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpSettingsService implements ISettingsService {
+  constructor(private baseUrl: string) {}
+
+  get() {
+    return fetchJson<GlobalSettings>(`${this.baseUrl}/api/settings`)
+  }
+  update(data: Partial<GlobalSettings>) {
+    return fetchJson<GlobalSettings>(`${this.baseUrl}/api/settings`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+}
+
+export class HttpDashboardService implements IDashboardService {
+  constructor(private baseUrl: string) {}
+
+  getSummary() {
+    return fetchJson<DashboardSummary>(`${this.baseUrl}/api/dashboard/summary`)
+  }
+  getActiveAgents() {
+    return fetchJson<DashboardAgentSummary[]>(`${this.baseUrl}/api/dashboard/active-agents`)
+  }
+  getRecentTasks(limit = 10) {
+    return fetchJson<DashboardTaskSummary[]>(`${this.baseUrl}/api/dashboard/recent-tasks?limit=${limit}`)
+  }
+  getActivityFeed(limit = 20) {
+    return fetchJson<ActivityEntry[]>(`${this.baseUrl}/api/dashboard/activity?limit=${limit}`)
+  }
+}

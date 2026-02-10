@@ -1,0 +1,38 @@
+{
+  "name": "@solocraft/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "node --import tsx src/index.ts",
+    "lint": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@solocraft/shared": "workspace:*",
+    "hono": "^4",
+    "@hono/node-server": "^1",
+    "@hono/node-ws": "^1",
+    "ai": "^6",
+    "@ai-sdk/anthropic": "^2",
+    "@ai-sdk/openai": "^2",
+    "@ai-sdk/google": "^2",
+    "better-sqlite3": "^11",
+    "drizzle-orm": "^0.45",
+    "nanoid": "^5",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30",
+    "@types/better-sqlite3": "^7",
+    "tsx": "^4",
+    "typescript": "^5.8",
+    "vitest": "^3"
+  }
+}
