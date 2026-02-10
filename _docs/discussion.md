@@ -62,7 +62,7 @@ Agent 是系统的核心执行单元。每个 Agent 可配置三种能力：
 ```
 Agent
 ├── Tools      — 工具调用（API 调用、文件操作、浏览器操作等）
-├── Skills     — 能力集（写文章、做研究、数据分析等）
+├── Skills     — 标准化指令包（SKILL.md + scripts/ + references/）
 └── Sub-Agents — 引用同 Project 内的其他 Agent
 ```
 
@@ -160,15 +160,13 @@ User
 ┌─────────────────────────────────────┐
 │             Agent                    │
 │                                     │
-│  ┌───────────┐   ┌───────────────┐  │
-│  │  Skills   │   │  Tool Calls   │  │
-│  │  (能力集)  │   │  (工具调用)    │  │
-│  │           │   │               │  │
-│  │ • 写文章   │   │ • Schema 定义  │  │
-│  │ • 做研究   │   │ • 参数校验     │  │
-│  │ • 发帖     │   │ • 执行逻辑     │  │
-│  │ • 分析数据 │   │ • 结果返回     │  │
-│  └───────────┘   └───────────────┘  │
+│  ┌───────────────┐ ┌─────────────┐  │
+│  │ Skills (指令包)│ │ Tool Calls  │  │
+│  │               │ │ (工具调用)   │  │
+│  │ SKILL.md      │ │             │  │
+│  │ + scripts/    │ │ • Zod Schema│  │
+│  │ + references/ │ │ • execute() │  │
+│  └───────────────┘ └─────────────┘  │
 │                                     │
 │  ┌───────────────────────────────┐  │
 │  │       Sub-Agent 调度          │  │
@@ -331,8 +329,8 @@ Electron Main Process (守护者)
 **Agent 模块**：
 
 - Agent 定义与生命周期
-- Skills（能力注册）
-- Tool Calls（Schema 定义 + 执行）
+- Skills（bash-tool 加载 Skill Package，按需激活）
+- Tool Calls（AI SDK `tool()` + Zod schema 定义 + 执行）
 - Sub-Agent 调度（同 Project 内 Agent 间协作）
 - Session 与对话管理（归属于 Project）
 - AI 上下文管理（截断、摘要）
@@ -383,7 +381,7 @@ SoloCraft.team/
 | **Artifacts（代码/图片/PDF 等）** | 二进制文件、大文本天然适合文件系统；用户可能想用外部工具打开 |
 | **项目配置** (`project.json`) | 人类可读、可版本控制（git）、可手动编辑 |
 | **全局设置** (`settings.json`) | 同上，少量结构化数据 |
-| **Skills 定义**（模板/prompt） | 本质是文本文件，方便用户导入/导出/分享 |
+| **Skills 定义**（Skill Package 目录） | SKILL.md + scripts/ + references/，方便导入/导出/分享 |
 | **导出/备份包** | 整个项目打包为 zip/folder |
 
 文件系统优势：
@@ -437,7 +435,10 @@ SQLite 优势：
         │   ├── {artifact-id}.png      # 生成的图片
         │   └── {artifact-id}.csv      # 生成的数据
         └── skills/
-            └── {skill-name}.md        # Skill 定义文件
+            └── {skill-name}/          # Skill Package
+                ├── SKILL.md           # 指令 + YAML frontmatter
+                ├── scripts/           # 可选：确定性脚本
+                └── references/        # 可选：按需参考文档
 ```
 
 **关键设计：SQLite 是单个 `data.db` 文件**，不是每个项目一个 DB。原因：
@@ -495,3 +496,111 @@ class SqliteArtifactService implements IArtifactService {
 - 数据同步与云端方案（如果需要跨设备）
 - Agent 执行的安全沙箱与权限控制
 - 跨 Project 复用 Agent（Agent Template 机制，按需引入）
+
+## 八、Agent 服务层技术方案
+
+基于 Vercel AI SDK + bash-tool + AI Gateway 构建。
+
+### 8.1 客户端：useChat（@ai-sdk/react）
+
+`useChat` 管理聊天状态，通过 Transport 与 Agent Server 通信。
+
+```typescript
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
+
+const { messages, sendMessage } = useChat({
+  transport: new DefaultChatTransport({
+    api: 'http://localhost:{port}/api/chat',  // Agent Server
+  }),
+})
+```
+
+- `DefaultChatTransport`：支持 tool calls、usage info、finish reason
+- `TextStreamChatTransport`：纯文本流，轻量但无 tool call 信息
+
+### 8.2 服务端：streamText + tools + maxSteps
+
+`streamText` 的 `maxSteps` 参数直接驱动 tool 调用循环，无需额外 Agent 封装。
+
+```typescript
+import { streamText } from 'ai'
+import { createBashTool, experimental_createSkillTool as createSkillTool } from 'bash-tool'
+
+const { skill, files, instructions } = await createSkillTool({
+  skillsDirectory: './skills',
+})
+const { tools } = await createBashTool({ files, extraInstructions: instructions })
+
+const result = streamText({
+  model,
+  prompt: '...',
+  tools: { skill, ...tools },
+  maxSteps: 10,
+})
+```
+
+| API | 用途 |
+|-----|------|
+| `streamText` | 流式文本 + tool 调用循环 |
+| `generateText` | 一次性文本 + tool 调用循环 |
+| `streamObject` | 流式结构化输出（Zod schema） |
+| `generateObject` | 一次性结构化输出 |
+
+### 8.3 模型路由：AI Gateway
+
+```typescript
+import { gateway } from 'ai'
+
+streamText({ model: gateway('anthropic/claude-sonnet-4-5'), ... })
+```
+
+- `provider/model` 字符串格式，统一路由 20+ Provider
+- BYOK（用户自己的 API Key），无 token 加价
+- 自动 failover，延迟 < 20ms
+
+### 8.4 Sub-Agent 调度：Agent-as-Tool
+
+子 Agent 包装为 `tool()`，父 Agent 通过 tool call 委托：
+
+```typescript
+const researchTool = tool({
+  description: 'Delegate a research task.',
+  inputSchema: z.object({ task: z.string() }),
+  execute: async ({ task }, { abortSignal }) => {
+    const result = await generateText({
+      model: gateway('anthropic/claude-sonnet-4-5'),
+      prompt: task,
+      tools: { search: searchTool },
+      maxSteps: 10,
+      abortSignal,
+    })
+    return result.text
+  },
+})
+
+streamText({
+  model,
+  tools: { research: researchTool, write: writeTool },
+  maxSteps: 10,
+})
+```
+
+- 子 Agent 上下文隔离，避免 token 爆炸
+- `abortSignal` 级联取消
+- 挂载多个 sub-agent tool 的 Agent = Team Leader（隐式 Team）
+
+### 8.5 Skills：Skill Package + bash-tool
+
+Skill 是 Vercel Skills 开放标准（agentskills.io）定义的标准化指令包：
+
+```
+{skill-name}/
+├── SKILL.md        # 必需：YAML frontmatter（name + description）+ 指令
+├── scripts/        # 可选：确定性可执行脚本
+└── references/     # 可选：按需加载参考文档
+```
+
+- 启动时只加载索引（name + description），匹配任务时按需加载全文
+- `createSkillTool` 发现 → `createBashTool` 执行 → 作为 tools 传入 `streamText`
+- 社区 Skills 可通过 `npx skills add` 安装
