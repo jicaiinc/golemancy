@@ -25,7 +25,7 @@
 
 关键价值点：
 
-1. **降低门槛** — 不需要编程背景，通过可视化界面编排 Agent 工作流
+1. **降低门槛** — 不需要编程背景，通过可视化界面管理和操控 AI Agent
 2. **杠杆放大** — 一个人通过 Agent 编排，覆盖内容创作、营销、研究、电商运营等多条业务线
 3. **本地优先** — 数据存储在本地，隐私安全，离线可用（AI 调用除外）
 4. **可扩展** — Agent 的 Skills、Tool Calls、Sub-Agent 均可自定义与扩展
@@ -35,52 +35,48 @@
 ### 2.1 整体架构
 
 ```
-┌──────────────────────────────────────────────────────────────────────┐
-│                         Electron Shell                               │
-│                                                                      │
-│  ┌────────────────────────┐    IPC Bridge     ┌───────────────────┐  │
-│  │    Renderer Process    │◄══════════════════►│   Main Process    │  │
-│  │       (UI Module)      │   (双向通信)        │  (Agent Host)     │  │
-│  │                        │                    │                   │  │
-│  │  ┌──────────────────┐  │                    │  ┌─────────────┐  │  │
-│  │  │   Agent Panel    │──┼── 指令/状态同步 ──►│  │ Agent       │  │  │
-│  │  │   (操控面板)      │  │                    │  │ Manager     │  │  │
-│  │  ├──────────────────┤  │                    │  │             │  │  │
-│  │  │   Task Monitor   │◄─┼── 实时状态推送 ────│  │  ┌────────┐ │  │  │
-│  │  │   (任务监控)      │  │                    │  │  │Agent A │ │  │  │
-│  │  ├──────────────────┤  │                    │  │  ├────────┤ │  │  │
-│  │  │   Workflow Editor│  │                    │  │  │Agent B │ │  │  │
-│  │  │   (工作流编排)    │  │                    │  │  ├────────┤ │  │  │
-│  │  ├──────────────────┤  │                    │  │  │Agent C │ │  │  │
-│  │  │   Settings       │  │                    │  │  └────────┘ │  │  │
-│  │  │   (配置中心)      │  │                    │  └─────────────┘  │  │
-│  │  └──────────────────┘  │                    │                   │  │
-│  │                        │                    │  ┌─────────────┐  │  │
-│  │  React + Vite          │                    │  │ Process     │  │  │
-│  │  TypeScript             │                    │  │ Supervisor  │  │  │
-│  │  Zustand               │                    │  │ (进程管理器) │  │  │
-│  │  Tailwind CSS          │                    │  └──────┬──────┘  │  │
-│  │  Framer Motion         │                    │         │         │  │
-│  └────────────────────────┘                    │         ▼         │  │
-│                                                │  ┌─────────────┐  │  │
-│                                                │  │ Child       │  │  │
-│                                                │  │ Processes   │  │  │
-│                                                │  │             │  │  │
-│                                                │  │ • Node.js   │  │  │
-│                                                │  │   Runtime   │  │  │
-│                                                │  │ • Python    │  │  │
-│                                                │  │   Runtime   │  │  │
-│                                                │  │ • Playwright│  │  │
-│                                                │  │   Browser   │  │  │
-│                                                │  └─────────────┘  │  │
-│                                                └───────────────────┘  │
-│                                                                      │
-│  ┌────────────────────────────────────────────────────────────────┐  │
-│  │                      Data Layer (数据层)                        │  │
-│  │  SQLite (Agent 配置 / 任务记录 / 工作流定义 / 执行日志)          │  │
-│  └────────────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│                            Electron Shell                                │
+│                                                                          │
+│  ┌──────────────────────┐          ┌──────────────────────────────────┐  │
+│  │   Electron Main      │  fork()  │        Agent Server              │  │
+│  │   (薄层)              │────────►│        (独立 Node.js 进程)        │  │
+│  │                      │          │                                  │  │
+│  │  • 创建窗口           │          │  HTTP API (:port)               │  │
+│  │  • 启动 Agent Server  │          │  WebSocket (:port/ws)           │  │
+│  │  • 传递端口号给 UI    │          │                                  │  │
+│  │  • 进程生命周期管理    │          │  ┌────────────┐ ┌────────────┐  │  │
+│  │  • 原生系统操作       │          │  │ Agent      │ │ Agent      │  │  │
+│  └──────────┬───────────┘          │  │ Manager    │ │ Scheduler  │  │  │
+│             │                      │  └────────────┘ └─────┬──────┘  │  │
+│        IPC (仅用于)                │                       │         │  │
+│        • 传递端口号                 │              fork()   │         │  │
+│        • 文件对话框                 │                       ▼         │  │
+│        • 系统通知                   │  ┌──────────────────────────┐  │  │
+│        • 窗口管理                   │  │    Child Processes       │  │  │
+│             │                      │  │                          │  │  │
+│  ┌──────────▼───────────┐          │  │  • Agent A (Node.js)     │  │  │
+│  │   Renderer Process   │          │  │  • Agent B (Node.js)     │  │  │
+│  │   (UI)               │          │  │  • Python Runtime        │  │  │
+│  │                      │  HTTP    │  │  • Playwright Browser    │  │  │
+│  │  React + Vite        │─────────►│  └──────────────────────────┘  │  │
+│  │  TypeScript          │  REST    │                                  │  │
+│  │  Zustand             │◄─────────│  ┌──────────────────────────┐  │  │
+│  │  Tailwind CSS        │ WebSocket│  │      Data Layer          │  │  │
+│  │  Framer Motion       │◄─────────│  │      SQLite + Drizzle    │  │  │
+│  │                      │  (推送)   │  └──────────────────────────┘  │  │
+│  └──────────────────────┘          └──────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
+
+**通信方式决策**：
+
+| 通信路径 | 方式 | 用途 |
+|----------|------|------|
+| UI ↔ Agent Server | HTTP REST | Agent 管理、任务下发、配置读写 |
+| Agent Server → UI | WebSocket | 实时状态推送、AI 流式输出 |
+| UI ↔ Electron Main | Electron IPC | 仅系统级操作（传递端口号、文件对话框、窗口管理、系统通知） |
+| Agent Server → Child Process | child_process.fork() | Agent 执行隔离，每个 Agent 独立进程 |
 
 ### 2.2 Agent 内部结构
 
@@ -120,26 +116,28 @@
 └─────────────────────────────────────┘
 ```
 
-### 2.3 UI ↔ Agent 通信机制
+### 2.3 UI ↔ Agent Server 通信机制
 
 ```
-UI (Renderer)                         Agent (Main Process)
-     │                                       │
-     │──── 创建 Agent ──────────────────────►│
-     │                                       │── 初始化 Agent 实例
-     │◄─── Agent 就绪 ─────────────────────  │
-     │                                       │
-     │──── 下发任务 (Task) ────────────────►│
-     │                                       │── 分解任务
-     │                                       │── 调用 Tool Calls
-     │                                       │── 调度 Sub-Agent
-     │◄─── 状态更新 (streaming) ───────────  │
-     │◄─── 中间结果 ──────────────────────   │
-     │◄─── 任务完成 ──────────────────────   │
-     │                                       │
-     │──── 终止任务 ──────────────────────►│
-     │                                       │── 清理资源
-     │◄─── 确认终止 ──────────────────────   │
+UI (Renderer)                              Agent Server (独立进程)
+     │                                            │
+     │── POST /api/agents ───────────────────────►│
+     │                                            │── 创建 Agent 实例
+     │◄── HTTP 201 { agentId } ──────────────────│
+     │                                            │
+     │── POST /api/tasks ───────────────────────►│
+     │                                            │── fork 子进程执行
+     │◄── HTTP 201 { taskId } ──────────────────│
+     │                                            │
+     │── WebSocket subscribe(task:{taskId}) ────►│
+     │                                            │── Agent 开始执行
+     │◄── WS event: task:stream { delta } ──────│   (AI 流式输出)
+     │◄── WS event: task:log { tool_call } ─────│   (Tool Call 日志)
+     │◄── WS event: task:completed { result } ──│   (任务完成)
+     │                                            │
+     │── POST /api/tasks/:id/cancel ────────────►│
+     │                                            │── 终止子进程、清理资源
+     │◄── HTTP 200 ────────────────────────────  │
 ```
 
 ### 2.4 进程管理与生命周期
@@ -147,28 +145,27 @@ UI (Renderer)                         Agent (Main Process)
 **核心原则**：主窗口关闭 → 所有后台进程一并退出，保证不残留。
 
 ```
-Electron Main Process (主进程 / 守护者)
+Electron Main Process (守护者)
   │
-  ├── Process Supervisor (进程管理器)
-  │     │
-  │     ├── 注册所有 child process (Node.js / Python / Playwright)
-  │     ├── 心跳检测 (确保子进程存活)
-  │     ├── 优雅退出 (SIGTERM → 等待 → SIGKILL)
-  │     └── 崩溃恢复 (子进程异常退出后自动重启或通知用户)
+  ├── fork() ──► Agent Server 进程
+  │                  │
+  │                  ├── fork() ──► Agent A 子进程
+  │                  ├── fork() ──► Agent B 子进程
+  │                  ├── fork() ──► Python Runtime
+  │                  └── fork() ──► Playwright Browser
   │
   ├── app.on('before-quit')
-  │     └── 遍历所有注册进程 → 发送终止信号 → 等待退出
+  │     └── 通知 Agent Server 关闭 → Server 清理所有子进程 → 退出
   │
   └── app.on('window-all-closed')
         └── 触发完整退出流程
 ```
 
-**线程安全考虑**：
+**并发模型**：
 
-- Agent Runtime 运行在**独立子进程**中（非主进程线程），避免阻塞 UI
-- 子进程间通过 **IPC / MessagePort** 通信，避免共享内存竞争
-- 数据库操作通过**单一写入进程**（main process）序列化，避免 SQLite 并发写冲突
-- 任务队列使用 **FIFO + 优先级** 调度，确保有序执行
+- 每个 Agent 任务在**独立子进程**（child_process.fork）中执行，互不影响
+- Agent Server 内置调度器，管理并发上限（如最多同时运行 N 个 Agent）
+- 数据库操作通过 **Agent Server 单进程**序列化写入，避免 SQLite 并发写冲突
 
 ## 三、技术栈清单
 
@@ -214,7 +211,6 @@ Electron Main Process (主进程 / 守护者)
 |----------|------|
 | Agent 配置 | Agent 定义、Skills、Tool Call Schema |
 | 任务记录 | 任务创建时间、状态、执行日志 |
-| 工作流定义 | 编排好的 Agent 工作流 DAG |
 | 执行日志 | Tool Call 调用记录、耗时、结果 |
 | 用户配置 | API Keys、偏好设置 |
 
@@ -230,7 +226,7 @@ Electron Main Process (主进程 / 守护者)
 
 | 模块 | 职责 | 所在进程 |
 |------|------|----------|
-| **UI Module** | 像素风界面、Agent 操控面板、任务监控、工作流编辑器 | Renderer |
+| **UI Module** | 像素风界面、Agent 操控面板、任务监控 | Renderer |
 | **Agent Manager** | Agent 生命周期管理、创建/销毁/调度 | Main |
 | **Agent Core** | 单个 Agent 的 Skills + Tool Calls + Sub-Agent 调度 | Main / Child Process |
 | **Process Supervisor** | 子进程注册、心跳、优雅退出、崩溃恢复 | Main |
@@ -332,7 +328,6 @@ SoloCraft.team/
 ### 6.2 后续规划
 
 - Nut.js 桌面自动化集成时机
-- Agent Marketplace（Agent 能力市场 / 插件系统）
 - 多 Agent 协作通信协议设计
 - 数据同步与云端方案（如果需要跨设备）
 - Agent 执行的安全沙箱与权限控制
