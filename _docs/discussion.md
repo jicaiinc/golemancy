@@ -368,15 +368,127 @@ SoloCraft.team/
 └── turbo.json
 ```
 
-## 六、待讨论事项
+## 六、数据存储架构设计
 
-### 6.1 Python Runtime 内嵌方案
+### 6.1 核心决策：混合存储方案
+
+不采用纯文件或纯数据库的单一方案，而是 **SQLite 做结构化索引 + 文件系统做内容存储** 的混合模式。这也是 VS Code、Obsidian、Cursor 等成熟桌面应用的通用做法。
+
+### 6.2 存储分层
+
+#### 文件系统层（适合的数据）
+
+| 数据类型 | 理由 |
+|---------|------|
+| **Artifacts（代码/图片/PDF 等）** | 二进制文件、大文本天然适合文件系统；用户可能想用外部工具打开 |
+| **项目配置** (`project.json`) | 人类可读、可版本控制（git）、可手动编辑 |
+| **全局设置** (`settings.json`) | 同上，少量结构化数据 |
+| **Skills 定义**（模板/prompt） | 本质是文本文件，方便用户导入/导出/分享 |
+| **导出/备份包** | 整个项目打包为 zip/folder |
+
+文件系统优势：
+- 透明、可调试（用户能直接看到文件）
+- 与操作系统生态集成（Finder/Explorer 直接打开）
+- 天然支持大文件和二进制
+- Git 友好，方便版本控制
+
+#### SQLite 层（适合的数据）
+
+| 数据类型 | 理由 |
+|---------|------|
+| **聊天消息（Conversations/Messages）** | 量大、需要分页查询、需要全文搜索 |
+| **任务记录（Tasks/TaskLogs）** | 需要按状态筛选、排序、统计 |
+| **Memory 条目** | 需要按 tag 搜索、模糊匹配 |
+| **Artifact 元数据索引** | 文件本身在文件系统，但元数据（名称、类型、关联关系）在 DB |
+| **Agent 配置** | 数量多、需要查询、有关联关系 |
+
+SQLite 优势：
+- ACID 事务保证一致性
+- 复杂查询（筛选、排序、分页、聚合）
+- 全文搜索（FTS5）对聊天记录/Memory 极有价值
+- 单文件，依然便于备份和迁移
+
+### 6.3 为什么不全用文件？
+
+聊天消息如果存 JSON 文件，会遇到严重问题：
+
+1. **一个对话几百条消息** → 每次追加都要读取整个文件、反序列化、修改、重新写入
+2. **并发写入不安全** → 两个 Agent 同时往同一个文件写，数据会丢失
+3. **搜索功能** → "找出包含关键词 X 的所有历史对话"，需要遍历所有 JSON 文件
+4. **分页** → 无法高效实现"加载最近 50 条消息"
+
+### 6.4 为什么不全用 SQLite？
+
+1. **图片/PDF/代码文件**存入 BLOB → 数据库体积膨胀，备份缓慢
+2. **用户无法直接用外部工具打开**数据库中的文件
+3. **项目配置**放在 DB 里，用户想手动改个参数还得用 SQL 工具
+
+### 6.5 推荐目录结构
+
+```
+~/.solocraft/                          # 或用 Electron app.getPath('userData')
+├── settings.json                      # 全局设置
+├── data.db                            # SQLite（所有结构化数据）
+└── projects/
+    └── {project-id}/
+        ├── project.json               # 项目配置（人类可读）
+        ├── artifacts/
+        │   ├── {artifact-id}.py       # 生成的代码
+        │   ├── {artifact-id}.png      # 生成的图片
+        │   └── {artifact-id}.csv      # 生成的数据
+        └── skills/
+            └── {skill-name}.md        # Skill 定义文件
+```
+
+**关键设计：SQLite 是单个 `data.db` 文件**，不是每个项目一个 DB。原因：
+
+- 跨项目查询更简单（搜索所有项目的消息）
+- 单文件备份更方便
+- `projectId` 字段已经做了数据隔离
+
+### 6.6 混合存储的实现模式
+
+以 Artifact 为例，元数据/内容分离对服务层完全透明：
+
+```typescript
+class SqliteArtifactService implements IArtifactService {
+  // 创建：文件 + 元数据分开存储
+  async create(projectId, data) {
+    const id = generateId()
+    // 1. 写文件到 artifacts/{id}.ext
+    await fs.writeFile(artifactPath, data.content)
+    // 2. 元数据插入 SQLite（包含 filePath）
+    db.insert(artifacts).values({ id, projectId, filePath, type, ... })
+    return artifact
+  }
+
+  // 查询：走 SQLite
+  async list(projectId) {
+    return db.select().from(artifacts).where(eq(projectId, ...))
+  }
+}
+```
+
+现有 `IXxxService` 接口无需变更，`configureServices()` 注入新实现即可。
+
+### 6.7 设计原则总结
+
+| 原则 | 说明 |
+|-----|------|
+| **配置 → JSON 文件** | 人类可读、可手编辑、可 git 跟踪 |
+| **文件类资产 → 文件系统** | 代码、图片、PDF 等放磁盘，自然且高效 |
+| **结构化数据 → SQLite** | 消息、任务、索引等需要查询和事务 |
+| **元数据/内容分离** | DB 存索引和关联关系，文件系统存实际内容 |
+
+## 七、待讨论事项
+
+### 7.1 Python Runtime 内嵌方案
 
 - **选项 A**：打包 Python 解释器（体积较大，~50MB+）
 - **选项 B**：使用 pyodide（WASM 版 Python，但库支持有限）
 - **选项 C**：检测系统已安装的 Python，按需调用（最轻量，但需用户预装）
 
-### 6.2 后续规划
+### 7.2 后续规划
 
 - Nut.js 桌面自动化集成时机
 - Sub-Agent 调度协议细节（消息格式、上下文传递、结果回收）
