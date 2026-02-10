@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* Scan packages/ui and packages/shared for Tailwind class usage */
+@source "..";
+@source "../../../shared/src";
+
+@theme {
+  /* Core backgrounds */
+  --color-void: #0B0E14;
+  --color-deep: #141820;
+  --color-surface: #1E2430;
+  --color-elevated: #2A3242;
+
+  /* Borders */
+  --color-border-dim: #2E3A4E;
+  --color-border-bright: #4A5568;
+
+  /* Text */
+  --color-text-primary: #E8ECF1;
+  --color-text-secondary: #8B95A5;
+  --color-text-dim: #505A6A;
+
+  /* Accents */
+  --color-accent-green: #4ADE80;
+  --color-accent-emerald: #34D399;
+  --color-accent-blue: #60A5FA;
+  --color-accent-amber: #FBBF24;
+  --color-accent-red: #F87171;
+  --color-accent-purple: #A78BFA;
+  --color-accent-cyan: #22D3EE;
+
+  /* Minecraft tints */
+  --color-mc-stone: #7F7F7F;
+  --color-mc-dirt: #8B6B4A;
+  --color-mc-grass: #5B8C3E;
+  --color-mc-diamond: #4AEDD9;
+  --color-mc-gold: #FCDB05;
+  --color-mc-redstone: #D73B3B;
+  --color-mc-lapis: #3C5DC4;
+
+  /* Fonts */
+  --font-pixel: "Press Start 2P", monospace;
+  --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
+
+  /* Pixel shadows */
+  --shadow-pixel-raised: inset 2px 2px 0px 0px rgba(255, 255, 255, 0.08),
+    inset -2px -2px 0px 0px rgba(0, 0, 0, 0.3);
+  --shadow-pixel-sunken: inset -2px -2px 0px 0px rgba(255, 255, 255, 0.08),
+    inset 2px 2px 0px 0px rgba(0, 0, 0, 0.3);
+  --shadow-pixel-drop: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+}
+
+/* === Base reset for pixel art === */
+
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+
+html {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-text-primary);
+  background-color: var(--color-void);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+img[data-pixel],
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-dim);
+  border: 1px solid var(--color-deep);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-bright);
+}
+
+::selection {
+  background: rgba(74, 222, 128, 0.3);
+  color: var(--color-text-primary);
+}
+
+/* === Pixel animations === */
+
+@keyframes pixel-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes pixel-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes pixel-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

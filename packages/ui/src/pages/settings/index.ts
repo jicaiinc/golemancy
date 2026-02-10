@@ -1,0 +1,1 @@
+export { GlobalSettingsPage } from './GlobalSettingsPage'

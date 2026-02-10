@@ -1,0 +1,22 @@
+{
+  "name": "solocraft",
+  "private": true,
+  "packageManager": "pnpm@10.19.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "@tailwindcss/oxide"
+    ]
+  },
+  "devDependencies": {
+    "turbo": "^2.8.0",
+    "typescript": "^5.8.0"
+  }
+}
