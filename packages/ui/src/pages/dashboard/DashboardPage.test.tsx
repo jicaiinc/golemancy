@@ -69,11 +69,12 @@ function createTestServices(): ServiceContainer {
   return {
     projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     agents: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    conversations: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), sendMessage: vi.fn(), getMessages: vi.fn(), searchMessages: vi.fn(), delete: vi.fn() },
+    conversations: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), sendMessage: vi.fn(), saveMessage: vi.fn(), getMessages: vi.fn(), searchMessages: vi.fn(), delete: vi.fn() },
     tasks: { list: vi.fn(), getById: vi.fn(), cancel: vi.fn(), getLogs: vi.fn() },
     artifacts: { list: vi.fn(), getById: vi.fn(), delete: vi.fn() },
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     settings: { get: vi.fn(), update: vi.fn() },
+    cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue(mockSummary),
       getActiveAgents: vi.fn().mockResolvedValue(mockActiveAgents),

@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { Project, ProjectId, IProjectService } from '@solocraft/shared'
 import { readJson, writeJson, deleteDir, isNodeError } from './base'
-import { getDataDir } from '../utils/paths'
+import { getDataDir, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 
@@ -14,6 +14,7 @@ export class FileProjectStorage implements IProjectService {
   }
 
   private projectJsonPath(id: string) {
+    validateId(id)
     return path.join(this.projectsDir, id, 'project.json')
   }
 
@@ -57,6 +58,7 @@ export class FileProjectStorage implements IProjectService {
     await fs.mkdir(path.join(projectDir, 'artifacts'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'memory'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'skills'), { recursive: true })
+    await fs.mkdir(path.join(projectDir, 'cronjobs'), { recursive: true })
     await writeJson(this.projectJsonPath(id), project)
 
     return project
@@ -64,7 +66,7 @@ export class FileProjectStorage implements IProjectService {
 
   async update(
     id: ProjectId,
-    data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config'>>,
+    data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config' | 'mainAgentId'>>,
   ): Promise<Project> {
     const existing = await this.getById(id)
     if (!existing) throw new Error(`Project ${id} not found`)
@@ -79,6 +81,7 @@ export class FileProjectStorage implements IProjectService {
   }
 
   async delete(id: ProjectId): Promise<void> {
+    validateId(id)
     log.debug({ projectId: id }, 'deleting project')
     await deleteDir(path.join(this.projectsDir, id))
   }

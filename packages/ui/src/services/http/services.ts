@@ -1,10 +1,10 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId,
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, CronJobId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISettingsService, IDashboardService,
+  ITaskService, IArtifactService, IMemoryService, ISettingsService, ICronJobService, IDashboardService,
 } from '@solocraft/shared'
 import { fetchJson } from './base'
 
@@ -22,7 +22,7 @@ export class HttpProjectService implements IProjectService {
       method: 'POST', body: JSON.stringify(data),
     })
   }
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config'>>) {
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config' | 'mainAgentId'>>) {
     return fetchJson<Project>(`${this.baseUrl}/api/projects/${id}`, {
       method: 'PATCH', body: JSON.stringify(data),
     })
@@ -74,6 +74,11 @@ export class HttpConversationService implements IConversationService {
   async sendMessage(_projectId: ProjectId, _conversationId: ConversationId, _content: string) {
     // Chat streaming uses useChat() + /api/chat, not this method
     throw new Error('Use useChat() for real-time chat')
+  }
+  async saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; content: string }) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/conversations/${conversationId}/messages`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
   }
   getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams) {
     return fetchJson<PaginatedResult<Message>>(
@@ -145,6 +150,30 @@ export class HttpMemoryService implements IMemoryService {
   }
   async delete(projectId: ProjectId, id: MemoryId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/memories/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpCronJobService implements ICronJobService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId) {
+    return fetchJson<CronJob[]>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs`)
+  }
+  getById(projectId: ProjectId, id: CronJobId) {
+    return fetchJson<CronJob | null>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`)
+  }
+  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>) {
+    return fetchJson<CronJob>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>>) {
+    return fetchJson<CronJob>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(projectId: ProjectId, id: CronJobId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`, { method: 'DELETE' })
   }
 }
 

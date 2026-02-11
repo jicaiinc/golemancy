@@ -1,17 +1,17 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId,
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, CronJobId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
 } from '@solocraft/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISettingsService, IDashboardService,
+  ITaskService, IArtifactService, IMemoryService, ISettingsService, ICronJobService, IDashboardService,
 } from '../interfaces'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
   SEED_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
-  SEED_ACTIVITIES,
+  SEED_ACTIVITIES, SEED_CRON_JOBS,
 } from './data'
 
 // Small delay to simulate async I/O
@@ -53,7 +53,7 @@ export class MockProjectService implements IProjectService {
     return project
   }
 
-  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config'>>): Promise<Project> {
+  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config' | 'mainAgentId'>>): Promise<Project> {
     await delay()
     const existing = this.data.get(id)
     if (!existing) throw new Error(`Project ${id} not found`)
@@ -170,6 +170,23 @@ export class MockConversationService implements IConversationService {
       conversationId,
       role: 'assistant',
       content: `Mock response to: "${content}"`,
+      createdAt: now,
+      updatedAt: now,
+    })
+    conv.lastMessageAt = now
+    conv.updatedAt = now
+  }
+
+  async saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; content: string }): Promise<void> {
+    await delay()
+    const conv = this.data.get(conversationId)
+    if (!conv || conv.projectId !== projectId) throw new Error('Conversation not found')
+    const now = new Date().toISOString()
+    conv.messages.push({
+      id: data.id,
+      conversationId,
+      role: data.role as Message['role'],
+      content: data.content,
       createdAt: now,
       updatedAt: now,
     })
@@ -299,6 +316,51 @@ export class MockMemoryService implements IMemoryService {
     await delay()
     const entry = this.data.get(id)
     if (entry && entry.projectId === projectId) this.data.delete(id)
+  }
+}
+
+// --- CronJobService ---
+export class MockCronJobService implements ICronJobService {
+  private data = new Map<CronJobId, CronJob>(SEED_CRON_JOBS.map(c => [c.id, { ...c }]))
+
+  async list(projectId: ProjectId): Promise<CronJob[]> {
+    await delay()
+    return [...this.data.values()].filter(c => c.projectId === projectId)
+  }
+
+  async getById(projectId: ProjectId, id: CronJobId): Promise<CronJob | null> {
+    await delay()
+    const job = this.data.get(id)
+    return job && job.projectId === projectId ? job : null
+  }
+
+  async create(projectId: ProjectId, input: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>): Promise<CronJob> {
+    await delay()
+    const now = new Date().toISOString()
+    const job: CronJob = {
+      id: genId('cron') as CronJobId,
+      projectId,
+      ...input,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(job.id, job)
+    return job
+  }
+
+  async update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>>): Promise<CronJob> {
+    await delay()
+    const existing = this.data.get(id)
+    if (!existing || existing.projectId !== projectId) throw new Error(`CronJob ${id} not found`)
+    const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
+    this.data.set(id, updated)
+    return updated
+  }
+
+  async delete(projectId: ProjectId, id: CronJobId): Promise<void> {
+    await delay()
+    const job = this.data.get(id)
+    if (job && job.projectId === projectId) this.data.delete(id)
   }
 }
 

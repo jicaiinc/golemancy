@@ -13,6 +13,7 @@ const navItems: NavItem[] = [
   { label: 'Agents', path: '/agents', icon: '{}' },
   { label: 'Chat', path: '/chat', icon: '>_' },
   { label: 'Tasks', path: '/tasks', icon: '#' },
+  { label: 'Cron', path: '/cron', icon: '::' },
   { label: 'Artifacts', path: '/artifacts', icon: '[]' },
   { label: 'Memory', path: '/memory', icon: '()' },
 ]

@@ -8,6 +8,7 @@ import {
   AgentDetailPage,
   ChatPage,
   TaskListPage,
+  CronJobsPage,
   ArtifactsPage,
   MemoryPage,
   ProjectSettingsPage,
@@ -27,6 +28,7 @@ export function AppRoutes() {
           <Route path="agents/:agentId" element={<AgentDetailPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="tasks" element={<TaskListPage />} />
+          <Route path="cron" element={<CronJobsPage />} />
           <Route path="artifacts" element={<ArtifactsPage />} />
           <Route path="memory" element={<MemoryPage />} />
           <Route path="settings" element={<ProjectSettingsPage />} />

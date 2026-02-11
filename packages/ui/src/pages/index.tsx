@@ -13,6 +13,9 @@ export { ChatPage } from './chat'
 // Task monitoring
 export { TaskListPage } from './task'
 
+// Cron Jobs
+export { CronJobsPage } from './cron'
+
 // Artifacts
 export { ArtifactsPage } from './artifact'
 

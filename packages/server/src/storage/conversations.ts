@@ -88,6 +88,44 @@ export class SqliteConversationStorage implements IConversationService {
       .where(eq(schema.conversations.id, conversationId))
   }
 
+  async saveMessage(
+    projectId: ProjectId,
+    conversationId: ConversationId,
+    data: { id: MessageId; role: string; content: string },
+  ): Promise<void> {
+    // Verify conversationId belongs to projectId
+    const conv = await this.getById(projectId, conversationId)
+    if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
+
+    // Dedup: skip if message with this ID already exists
+    const existing = await this.db
+      .select({ id: schema.messages.id })
+      .from(schema.messages)
+      .where(eq(schema.messages.id, data.id))
+      .limit(1)
+
+    if (existing.length > 0) {
+      log.debug({ messageId: data.id }, 'message already exists, skipping')
+      return
+    }
+
+    const now = new Date().toISOString()
+    await this.db.insert(schema.messages).values({
+      id: data.id,
+      conversationId,
+      role: data.role,
+      content: data.content,
+      createdAt: now,
+    })
+
+    await this.db
+      .update(schema.conversations)
+      .set({ lastMessageAt: now, updatedAt: now })
+      .where(eq(schema.conversations.id, conversationId))
+
+    log.debug({ projectId, conversationId, messageId: data.id, role: data.role }, 'saved message')
+  }
+
   async delete(projectId: ProjectId, id: ConversationId): Promise<void> {
     log.debug({ projectId, conversationId: id }, 'deleting conversation')
     await this.db

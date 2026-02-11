@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { Agent, AgentId, Conversation, ConversationId } from '@solocraft/shared'
 import { PixelButton, PixelDropdown } from '../../components'
 
@@ -10,6 +10,7 @@ interface ChatSidebarProps {
   onSelectAgent: (agentId: AgentId | null) => void
   onSelectConversation: (id: ConversationId) => void
   onNewChat: () => void
+  canNewChat?: boolean
 }
 
 function relativeTime(iso: string): string {
@@ -30,6 +31,7 @@ export function ChatSidebar({
   onSelectAgent,
   onSelectConversation,
   onNewChat,
+  canNewChat = false,
 }: ChatSidebarProps) {
   const selectedAgent = agents.find(a => a.id === selectedAgentId)
 
@@ -39,18 +41,24 @@ export function ChatSidebar({
     : conversations
 
   // Sort by lastMessageAt descending
-  const sorted = [...filtered].sort(
-    (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+  const sorted = useMemo(
+    () => [...filtered].sort(
+      (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+    ),
+    [filtered],
   )
 
-  const agentDropdownItems = [
-    { label: 'All Agents', value: '__all__', selected: !selectedAgentId },
-    ...agents.map(a => ({
-      label: a.name,
-      value: a.id,
-      selected: a.id === selectedAgentId,
-    })),
-  ]
+  const agentDropdownItems = useMemo(
+    () => [
+      { label: 'All Agents', value: '__all__', selected: !selectedAgentId },
+      ...agents.map(a => ({
+        label: a.name,
+        value: a.id,
+        selected: a.id === selectedAgentId,
+      })),
+    ],
+    [agents, selectedAgentId],
+  )
 
   const handleAgentSelect = useCallback((value: string) => {
     onSelectAgent(value === '__all__' ? null : value as AgentId)
@@ -58,8 +66,9 @@ export function ChatSidebar({
 
   return (
     <div className="w-[240px] shrink-0 flex flex-col h-full border-r-2 border-border-dim bg-deep">
-      {/* Agent selector */}
+      {/* Agent filter */}
       <div className="p-3 border-b-2 border-border-dim">
+        <label className="font-pixel text-[8px] text-text-dim mb-1 block">FILTER BY AGENT</label>
         <PixelDropdown
           trigger={
             <button className="w-full flex items-center justify-between px-3 py-2 bg-surface border-2 border-border-dim text-left cursor-pointer hover:border-border-bright transition-colors">
@@ -81,13 +90,10 @@ export function ChatSidebar({
           variant="primary"
           className="w-full"
           onClick={onNewChat}
-          disabled={!selectedAgentId}
+          disabled={!canNewChat}
         >
           + New Chat
         </PixelButton>
-        {!selectedAgentId && (
-          <p className="text-[10px] text-text-dim mt-1">Select an agent first</p>
-        )}
       </div>
 
       {/* Conversation list */}

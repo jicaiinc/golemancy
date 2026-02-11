@@ -1,10 +1,16 @@
 import { Hono } from 'hono'
-import type { IAgentService, ProjectId, AgentId } from '@solocraft/shared'
+import type { IAgentService, IProjectService, ProjectId, AgentId } from '@solocraft/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:agents' })
 
-export function createAgentRoutes(storage: IAgentService) {
+export interface AgentRouteDeps {
+  agentStorage: IAgentService
+  projectStorage: IProjectService
+}
+
+export function createAgentRoutes(deps: AgentRouteDeps) {
+  const { agentStorage: storage, projectStorage } = deps
   const app = new Hono()
 
   app.get('/', async (c) => {
@@ -46,6 +52,14 @@ export function createAgentRoutes(storage: IAgentService) {
     const projectId = c.req.param('projectId') as ProjectId
     const agentId = c.req.param('id') as AgentId
     log.debug({ projectId, agentId }, 'deleting agent')
+
+    // Cascade: clear mainAgentId if it points to the deleted agent
+    const project = await projectStorage.getById(projectId)
+    if (project && project.mainAgentId === agentId) {
+      log.debug({ projectId, agentId }, 'clearing mainAgentId (cascade)')
+      await projectStorage.update(projectId, { mainAgentId: undefined })
+    }
+
     await storage.delete(projectId, agentId)
     return c.json({ ok: true })
   })

@@ -1,7 +1,8 @@
 import type {
   Project, Agent, Conversation, Message, Task, Artifact, MemoryEntry, GlobalSettings,
-  ActivityEntry,
+  ActivityEntry, CronJob,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
+  CronJobId,
 } from '@solocraft/shared'
 
 const now = new Date().toISOString()
@@ -17,6 +18,7 @@ export const SEED_PROJECTS: Project[] = [
     icon: 'pickaxe',
     workingDirectory: '~/projects/content-biz',
     config: { maxConcurrentAgents: 3 },
+    mainAgentId: 'agent-1' as AgentId,
     agentCount: 3,
     activeAgentCount: 1,
     lastActivityAt: hourAgo,
@@ -415,5 +417,42 @@ export const SEED_ACTIVITIES: ActivityEntry[] = [
     agentName: 'Researcher',
     description: 'Researcher sent keywords list to Writer',
     timestamp: dayAgo,
+  },
+]
+
+// --- Cron Jobs ---
+export const SEED_CRON_JOBS: CronJob[] = [
+  {
+    id: 'cron-1' as CronJobId,
+    projectId: 'proj-1' as ProjectId,
+    agentId: 'agent-1' as AgentId,
+    name: 'Daily Summary',
+    description: 'Generate daily project summary',
+    cronExpression: '0 9 * * *',
+    enabled: true,
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+  {
+    id: 'cron-2' as CronJobId,
+    projectId: 'proj-1' as ProjectId,
+    agentId: 'agent-2' as AgentId,
+    name: 'Weekly Competitor Scan',
+    description: 'Scan competitor websites every Monday',
+    cronExpression: '0 8 * * 1',
+    enabled: true,
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+  {
+    id: 'cron-3' as CronJobId,
+    projectId: 'proj-1' as ProjectId,
+    agentId: 'agent-1' as AgentId,
+    name: 'Social Media Posting',
+    description: 'Auto-post to social channels at peak hours',
+    cronExpression: '0 14 * * 2,4',
+    enabled: false,
+    createdAt: dayAgo,
+    updatedAt: hourAgo,
   },
 ]

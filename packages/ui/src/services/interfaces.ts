@@ -6,5 +6,6 @@ export type {
   IArtifactService,
   IMemoryService,
   ISettingsService,
+  ICronJobService,
   IDashboardService,
 } from '@solocraft/shared'

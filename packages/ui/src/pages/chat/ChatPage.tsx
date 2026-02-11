@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import type { AgentId, ConversationId } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
+import { useCurrentProject } from '../../hooks'
 import { PixelSpinner } from '../../components'
 import { ChatSidebar } from './ChatSidebar'
 import { ChatWindow } from './ChatWindow'
@@ -14,13 +15,14 @@ export function ChatPage() {
   const currentConversationId = useAppStore(s => s.currentConversationId)
   const selectConversation = useAppStore(s => s.selectConversation)
   const createConversation = useAppStore(s => s.createConversation)
+  const currentProject = useCurrentProject()
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedAgentId, setSelectedAgentId] = useState<AgentId | null>(
     (searchParams.get('agent') as AgentId) ?? null
   )
 
-  // Sync URL params → store on mount
+  // Sync URL params -> store on mount
   useEffect(() => {
     const convParam = searchParams.get('conv') as ConversationId | null
     if (convParam && convParam !== currentConversationId) {
@@ -28,7 +30,7 @@ export function ChatPage() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync store → URL when conversation changes
+  // Sync store -> URL when conversation changes
   useEffect(() => {
     const params: Record<string, string> = {}
     if (selectedAgentId) params.agent = selectedAgentId
@@ -50,12 +52,16 @@ export function ChatPage() {
     }
   }, [selectConversation, conversations])
 
+  // Resolve which agent to use for a new chat:
+  // selectedAgentId (explicit filter) > mainAgentId (project default)
+  const resolvedAgentId = selectedAgentId ?? currentProject?.mainAgentId ?? null
+
   const handleNewChat = useCallback(async () => {
-    if (!selectedAgentId) return
-    const agent = agents.find(a => a.id === selectedAgentId)
+    if (!resolvedAgentId) return
+    const agent = agents.find(a => a.id === resolvedAgentId)
     const title = `Chat with ${agent?.name ?? 'Agent'}`
-    await createConversation(selectedAgentId, title)
-  }, [selectedAgentId, agents, createConversation])
+    await createConversation(resolvedAgentId, title)
+  }, [resolvedAgentId, agents, createConversation])
 
   const handleStartChat = useCallback(async (agentId: AgentId) => {
     setSelectedAgentId(agentId)
@@ -88,6 +94,7 @@ export function ChatPage() {
         onSelectAgent={handleSelectAgent}
         onSelectConversation={handleSelectConversation}
         onNewChat={handleNewChat}
+        canNewChat={!!resolvedAgentId}
       />
 
       {/* Main chat area */}
@@ -95,7 +102,11 @@ export function ChatPage() {
         {currentConversation ? (
           <ChatWindow key={currentConversation.id} conversation={currentConversation} agent={currentAgent} />
         ) : (
-          <ChatEmptyState agents={agents} onStartChat={handleStartChat} />
+          <ChatEmptyState
+            agents={agents}
+            mainAgentId={currentProject?.mainAgentId}
+            onStartChat={handleStartChat}
+          />
         )}
       </div>
     </div>

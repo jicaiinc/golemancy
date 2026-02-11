@@ -4,7 +4,7 @@ import { bodyLimit } from 'hono/body-limit'
 import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
-  IArtifactService, IMemoryService, ISettingsService, IDashboardService,
+  IArtifactService, IMemoryService, ISettingsService, IDashboardService, ICronJobService,
 } from '@solocraft/shared'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
@@ -15,6 +15,7 @@ import { createArtifactRoutes } from './routes/artifacts'
 import { createMemoryRoutes } from './routes/memories'
 import { createSettingsRoutes } from './routes/settings'
 import { createDashboardRoutes } from './routes/dashboard'
+import { createCronJobRoutes } from './routes/cronjobs'
 import { logger } from './logger'
 
 export interface ServerDependencies {
@@ -26,6 +27,7 @@ export interface ServerDependencies {
   memoryStorage: IMemoryService
   settingsStorage: ISettingsService
   dashboardService: IDashboardService
+  cronJobStorage: ICronJobService
 }
 
 export function createApp(deps: ServerDependencies, authToken?: string) {
@@ -71,7 +73,10 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   })
 
   app.route('/api/projects', createProjectRoutes(deps.projectStorage))
-  app.route('/api/projects/:projectId/agents', createAgentRoutes(deps.agentStorage))
+  app.route('/api/projects/:projectId/agents', createAgentRoutes({
+    agentStorage: deps.agentStorage,
+    projectStorage: deps.projectStorage,
+  }))
   app.route('/api/projects/:projectId/conversations', createConversationRoutes(deps.conversationStorage))
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
   app.route('/api/projects/:projectId/artifacts', createArtifactRoutes(deps.artifactStorage))
@@ -82,6 +87,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     settingsStorage: deps.settingsStorage,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
+  app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes(deps.cronJobStorage))
   app.route('/api/dashboard', createDashboardRoutes(deps.dashboardService))
 
   return app

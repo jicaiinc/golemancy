@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, ConversationId, IConversationService } from '@solocraft/shared'
+import type { ProjectId, AgentId, ConversationId, MessageId, IConversationService } from '@solocraft/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:conversations' })
@@ -42,12 +42,32 @@ export function createConversationRoutes(storage: IConversationService) {
     return c.json({ ok: true })
   })
 
+  // Save a message (with dedup by ID)
+  app.post('/:convId/messages', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const convId = c.req.param('convId') as ConversationId
+    const { id, role, content } = await c.req.json<{ id: string; role: string; content: string }>()
+
+    if (!id || !role || content == null) {
+      return c.json({ error: 'id, role, and content are required' }, 400)
+    }
+
+    const ALLOWED_ROLES = ['user', 'assistant']
+    if (!ALLOWED_ROLES.includes(role)) {
+      return c.json({ error: `Invalid role: ${role}` }, 400)
+    }
+
+    log.debug({ projectId, conversationId: convId, messageId: id, role }, 'saving message')
+    await storage.saveMessage(projectId, convId, { id: id as MessageId, role, content })
+    return c.json({ ok: true }, 201)
+  })
+
   // Paginated messages
   app.get('/:convId/messages', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('convId') as ConversationId
-    const page = parseInt(c.req.query('page') ?? '1', 10)
-    const pageSize = parseInt(c.req.query('pageSize') ?? '50', 10)
+    const page = Math.max(1, parseInt(c.req.query('page') ?? '1', 10) || 1)
+    const pageSize = Math.min(100, Math.max(1, parseInt(c.req.query('pageSize') ?? '50', 10) || 50))
     log.debug({ projectId, conversationId: convId, page, pageSize }, 'listing messages')
     const result = await storage.getMessages(projectId, convId, { page, pageSize })
     return c.json(result)

@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings,
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   ThemeMode,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, CronJobId,
 } from '@solocraft/shared'
 import { getServices } from '../services'
 
@@ -52,6 +52,11 @@ interface MemorySlice {
   memoriesLoading: boolean
 }
 
+interface CronJobSlice {
+  cronJobs: CronJob[]
+  cronJobsLoading: boolean
+}
+
 interface SettingsSlice {
   settings: GlobalSettings | null
 }
@@ -75,7 +80,7 @@ interface ProjectActions {
   selectProject(id: ProjectId): Promise<void>
   clearProject(): void
   createProject(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project>
-  updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config'>>): Promise<void>
+  updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>): Promise<void>
   deleteProject(id: ProjectId): Promise<void>
 }
 
@@ -111,6 +116,13 @@ interface MemoryActions {
   deleteMemory(id: MemoryId): Promise<void>
 }
 
+interface CronJobActions {
+  loadCronJobs(projectId: ProjectId): Promise<void>
+  createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>): Promise<CronJob>
+  updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>>): Promise<void>
+  deleteCronJob(id: CronJobId): Promise<void>
+}
+
 interface SettingsActions {
   loadSettings(): Promise<void>
   updateSettings(data: Partial<GlobalSettings>): Promise<void>
@@ -130,8 +142,8 @@ interface DashboardActions {
 
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & SettingsSlice & UISlice & DashboardSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & SettingsActions & UIActions & DashboardActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & CronJobActions & SettingsActions & UIActions & DashboardActions
 
 // AbortController for project switching
 let projectAbort: AbortController | null = null
@@ -166,21 +178,24 @@ export const useAppStore = create<AppState>()(
           tasks: [],
           artifacts: [],
           memories: [],
+          cronJobs: [],
           agentsLoading: true,
           conversationsLoading: true,
           tasksLoading: true,
           artifactsLoading: true,
           memoriesLoading: true,
+          cronJobsLoading: true,
         })
 
         // Load project data in parallel
         const svc = getServices()
-        const [agents, conversations, tasks, artifacts, memories] = await Promise.all([
+        const [agents, conversations, tasks, artifacts, memories, cronJobs] = await Promise.all([
           svc.agents.list(id),
           svc.conversations.list(id),
           svc.tasks.list(id),
           svc.artifacts.list(id),
           svc.memory.list(id),
+          svc.cronJobs.list(id),
         ])
 
         // Guard: only apply if still the active project
@@ -192,11 +207,13 @@ export const useAppStore = create<AppState>()(
           tasks,
           artifacts,
           memories,
+          cronJobs,
           agentsLoading: false,
           conversationsLoading: false,
           tasksLoading: false,
           artifactsLoading: false,
           memoriesLoading: false,
+          cronJobsLoading: false,
         })
       },
 
@@ -209,6 +226,8 @@ export const useAppStore = create<AppState>()(
           tasks: [],
           artifacts: [],
           memories: [],
+          cronJobs: [],
+          cronJobsLoading: false,
           currentConversationId: null,
         })
       },
@@ -228,7 +247,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], tasks: [], artifacts: [], memories: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], tasks: [], artifacts: [], memories: [], cronJobs: [] } : {}),
         }))
       },
 
@@ -262,6 +281,11 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().agents.delete(projectId, id)
         set(s => ({ agents: s.agents.filter(a => a.id !== id) }))
+        // If the deleted agent was the project's mainAgentId, clear it
+        const project = get().projects.find(p => p.id === projectId)
+        if (project?.mainAgentId === id) {
+          await get().updateProject(projectId, { mainAgentId: undefined })
+        }
       },
 
       // --- Conversation state ---
@@ -374,6 +398,38 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().memory.delete(projectId, id)
         set(s => ({ memories: s.memories.filter(m => m.id !== id) }))
+      },
+
+      // --- CronJob state ---
+      cronJobs: [],
+      cronJobsLoading: false,
+
+      async loadCronJobs(projectId: ProjectId) {
+        set({ cronJobsLoading: true })
+        const cronJobs = await getServices().cronJobs.list(projectId)
+        set({ cronJobs, cronJobsLoading: false })
+      },
+
+      async createCronJob(data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const job = await getServices().cronJobs.create(projectId, data)
+        set(s => ({ cronJobs: [...s.cronJobs, job] }))
+        return job
+      },
+
+      async updateCronJob(id, data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const updated = await getServices().cronJobs.update(projectId, id, data)
+        set(s => ({ cronJobs: s.cronJobs.map(c => c.id === id ? updated : c) }))
+      },
+
+      async deleteCronJob(id) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        await getServices().cronJobs.delete(projectId, id)
+        set(s => ({ cronJobs: s.cronJobs.filter(c => c.id !== id) }))
       },
 
       // --- Settings state ---

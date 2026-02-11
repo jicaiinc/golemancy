@@ -1,6 +1,6 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry,
-  GlobalSettings, ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId,
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, CronJob,
+  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, CronJobId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
 } from '../types'
@@ -9,7 +9,7 @@ export interface IProjectService {
   list(): Promise<Project[]>
   getById(id: ProjectId): Promise<Project | null>
   create(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project>
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config'>>): Promise<Project>
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config' | 'mainAgentId'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
 }
 
@@ -26,6 +26,7 @@ export interface IConversationService {
   getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null>
   create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation>
   sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void>
+  saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; content: string }): Promise<void>
   getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>>
   searchMessages(projectId: ProjectId, query: string, params: PaginationParams): Promise<PaginatedResult<Message>>
   delete(projectId: ProjectId, id: ConversationId): Promise<void>
@@ -54,6 +55,14 @@ export interface IMemoryService {
 export interface ISettingsService {
   get(): Promise<GlobalSettings>
   update(data: Partial<GlobalSettings>): Promise<GlobalSettings>
+}
+
+export interface ICronJobService {
+  list(projectId: ProjectId): Promise<CronJob[]>
+  getById(projectId: ProjectId, id: CronJobId): Promise<CronJob | null>
+  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>): Promise<CronJob>
+  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>>): Promise<CronJob>
+  delete(projectId: ProjectId, id: CronJobId): Promise<void>
 }
 
 export interface IDashboardService {

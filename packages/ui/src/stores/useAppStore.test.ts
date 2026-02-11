@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useAppStore } from './useAppStore'
 import { configureServices } from '../services/container'
 import type { ServiceContainer } from '../services/container'
-import type { ProjectId, AgentId, ConversationId } from '@solocraft/shared'
+import type { ProjectId, AgentId, ConversationId, CronJobId } from '@solocraft/shared'
 
 // Create mock services
 function createTestServices(): ServiceContainer {
@@ -41,6 +41,7 @@ function createTestServices(): ServiceContainer {
       getById: vi.fn(),
       create: vi.fn(),
       sendMessage: vi.fn(),
+      saveMessage: vi.fn(),
       getMessages: vi.fn(),
       searchMessages: vi.fn(),
       delete: vi.fn(),
@@ -75,6 +76,13 @@ function createTestServices(): ServiceContainer {
       update: vi.fn().mockImplementation((data) =>
         Promise.resolve({ ...data }),
       ),
+    },
+    cronJobs: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({
@@ -397,6 +405,163 @@ describe('useAppStore', () => {
       }
       await useAppStore.getState().createProject(data)
       expect(mockServices.projects.create).toHaveBeenCalledWith(data)
+    })
+  })
+
+  describe('cronJob slice', () => {
+    beforeEach(() => {
+      useAppStore.setState({
+        currentProjectId: 'proj-1' as ProjectId,
+        cronJobs: [],
+        cronJobsLoading: false,
+      })
+    })
+
+    it('has empty cronJobs initially', () => {
+      expect(useAppStore.getState().cronJobs).toEqual([])
+      expect(useAppStore.getState().cronJobsLoading).toBe(false)
+    })
+
+    it('loadCronJobs fetches from service', async () => {
+      const mockJobs = [
+        { id: 'cron-1' as CronJobId, name: 'Daily Job' },
+        { id: 'cron-2' as CronJobId, name: 'Weekly Job' },
+      ]
+      ;(mockServices.cronJobs.list as any).mockResolvedValue(mockJobs)
+      await useAppStore.getState().loadCronJobs('proj-1' as ProjectId)
+      expect(useAppStore.getState().cronJobs).toEqual(mockJobs)
+      expect(useAppStore.getState().cronJobsLoading).toBe(false)
+      expect(mockServices.cronJobs.list).toHaveBeenCalledWith('proj-1')
+    })
+
+    it('loadCronJobs sets loading state', async () => {
+      ;(mockServices.cronJobs.list as any).mockResolvedValue([])
+      const promise = useAppStore.getState().loadCronJobs('proj-1' as ProjectId)
+      expect(useAppStore.getState().cronJobsLoading).toBe(true)
+      await promise
+      expect(useAppStore.getState().cronJobsLoading).toBe(false)
+    })
+
+    it('createCronJob adds to list', async () => {
+      const newJob = { id: 'cron-new' as CronJobId, name: 'New Job', agentId: 'agent-1' as AgentId }
+      ;(mockServices.cronJobs.create as any).mockResolvedValue(newJob)
+      const result = await useAppStore.getState().createCronJob({
+        agentId: 'agent-1' as AgentId,
+        name: 'New Job',
+        description: 'Test',
+        cronExpression: '0 * * * *',
+        enabled: true,
+      })
+      expect(result).toEqual(newJob)
+      expect(useAppStore.getState().cronJobs).toHaveLength(1)
+      expect(useAppStore.getState().cronJobs[0].id).toBe('cron-new')
+    })
+
+    it('createCronJob throws if no project selected', async () => {
+      useAppStore.setState({ currentProjectId: null })
+      await expect(
+        useAppStore.getState().createCronJob({
+          agentId: 'agent-1' as AgentId,
+          name: 'Job',
+          description: '',
+          cronExpression: '0 * * * *',
+          enabled: true,
+        }),
+      ).rejects.toThrow('No project selected')
+    })
+
+    it('updateCronJob updates in list', async () => {
+      useAppStore.setState({
+        cronJobs: [
+          { id: 'cron-1' as CronJobId, name: 'Old Name', enabled: true } as any,
+        ],
+      })
+      const updated = { id: 'cron-1' as CronJobId, name: 'New Name', enabled: false }
+      ;(mockServices.cronJobs.update as any).mockResolvedValue(updated)
+      await useAppStore.getState().updateCronJob('cron-1' as CronJobId, { name: 'New Name', enabled: false })
+      expect(useAppStore.getState().cronJobs[0].name).toBe('New Name')
+    })
+
+    it('deleteCronJob removes from list', async () => {
+      useAppStore.setState({
+        cronJobs: [
+          { id: 'cron-1' as CronJobId, name: 'Job 1' } as any,
+          { id: 'cron-2' as CronJobId, name: 'Job 2' } as any,
+        ],
+      })
+      ;(mockServices.cronJobs.delete as any).mockResolvedValue(undefined)
+      await useAppStore.getState().deleteCronJob('cron-1' as CronJobId)
+      expect(useAppStore.getState().cronJobs).toHaveLength(1)
+      expect(useAppStore.getState().cronJobs[0].id).toBe('cron-2')
+    })
+
+    it('selectProject loads cronJobs along with other data', async () => {
+      useAppStore.setState({ currentProjectId: null })
+      const mockJobs = [{ id: 'cron-x' as CronJobId, name: 'X' }]
+      ;(mockServices.cronJobs.list as any).mockResolvedValue(mockJobs)
+      await useAppStore.getState().selectProject('proj-1' as ProjectId)
+      expect(useAppStore.getState().cronJobs).toEqual(mockJobs)
+      expect(mockServices.cronJobs.list).toHaveBeenCalledWith('proj-1')
+    })
+
+    it('clearProject clears cronJobs', async () => {
+      useAppStore.setState({ cronJobs: [{ id: 'cron-1' } as any] })
+      useAppStore.getState().clearProject()
+      expect(useAppStore.getState().cronJobs).toEqual([])
+    })
+
+    it('deleteProject clears cronJobs when deleting current project', async () => {
+      await useAppStore.getState().loadProjects()
+      await useAppStore.getState().selectProject('proj-1' as ProjectId)
+      useAppStore.setState({ cronJobs: [{ id: 'cron-1' } as any] })
+      await useAppStore.getState().deleteProject('proj-1' as ProjectId)
+      expect(useAppStore.getState().cronJobs).toEqual([])
+    })
+  })
+
+  describe('deleteAgent cascades mainAgentId', () => {
+    it('clears mainAgentId when deleting the main agent', async () => {
+      // Set up: project with mainAgentId = agent-1
+      useAppStore.setState({
+        currentProjectId: 'proj-1' as ProjectId,
+        projects: [
+          { id: 'proj-1' as ProjectId, name: 'Test', mainAgentId: 'agent-1' as AgentId } as any,
+        ],
+        agents: [
+          { id: 'agent-1' as AgentId, name: 'Agent A' } as any,
+        ],
+      })
+      ;(mockServices.agents.delete as any).mockResolvedValue(undefined)
+      ;(mockServices.projects.update as any).mockImplementation((id: string, data: any) =>
+        Promise.resolve({ id, ...data, mainAgentId: undefined }),
+      )
+
+      await useAppStore.getState().deleteAgent('agent-1' as AgentId)
+
+      // Agent should be removed
+      expect(useAppStore.getState().agents).toHaveLength(0)
+      // updateProject should have been called to clear mainAgentId
+      expect(mockServices.projects.update).toHaveBeenCalledWith('proj-1', { mainAgentId: undefined })
+    })
+
+    it('does not clear mainAgentId when deleting a non-main agent', async () => {
+      useAppStore.setState({
+        currentProjectId: 'proj-1' as ProjectId,
+        projects: [
+          { id: 'proj-1' as ProjectId, name: 'Test', mainAgentId: 'agent-1' as AgentId } as any,
+        ],
+        agents: [
+          { id: 'agent-1' as AgentId, name: 'Agent A' } as any,
+          { id: 'agent-2' as AgentId, name: 'Agent B' } as any,
+        ],
+      })
+      ;(mockServices.agents.delete as any).mockResolvedValue(undefined)
+
+      await useAppStore.getState().deleteAgent('agent-2' as AgentId)
+
+      expect(useAppStore.getState().agents).toHaveLength(1)
+      // updateProject should NOT have been called
+      expect(mockServices.projects.update).not.toHaveBeenCalled()
     })
   })
 })

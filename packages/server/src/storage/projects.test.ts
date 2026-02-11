@@ -6,10 +6,14 @@ import type { ProjectId } from '@solocraft/shared'
 
 const state = vi.hoisted(() => ({ tmpDir: '' }))
 
-vi.mock('../utils/paths', () => ({
-  getDataDir: () => state.tmpDir,
-  getProjectPath: (pid: string) => `${state.tmpDir}/projects/${pid}`,
-}))
+vi.mock('../utils/paths', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../utils/paths')>()
+  return {
+    ...actual,
+    getDataDir: () => state.tmpDir,
+    getProjectPath: (pid: string) => `${state.tmpDir}/projects/${pid}`,
+  }
+})
 
 import { FileProjectStorage } from './projects'
 

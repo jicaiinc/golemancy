@@ -11,6 +11,7 @@ import { SqliteConversationStorage } from './storage/conversations'
 import { FileTaskStorage } from './storage/tasks'
 import { FileArtifactStorage } from './storage/artifacts'
 import { FileMemoryStorage } from './storage/memories'
+import { FileCronJobStorage } from './storage/cronjobs'
 import { FileSettingsStorage } from './storage/settings'
 import { logger } from './logger'
 
@@ -36,6 +37,7 @@ async function main() {
     taskStorage: new FileTaskStorage(db),
     artifactStorage: new FileArtifactStorage(),
     memoryStorage: new FileMemoryStorage(),
+    cronJobStorage: new FileCronJobStorage(),
     settingsStorage: new FileSettingsStorage(),
     dashboardService: {
       getSummary: async () => ({ totalProjects: 0, totalAgents: 0, activeAgents: 0, runningTasks: 0, completedTasksToday: 0, totalTokenUsageToday: 0 }),

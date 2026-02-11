@@ -1,10 +1,10 @@
 import { nanoid } from 'nanoid'
 import type {
   ProjectId, AgentId, ConversationId, MessageId,
-  TaskId, ArtifactId, MemoryId,
+  TaskId, ArtifactId, MemoryId, CronJobId,
 } from '@solocraft/shared'
 
-type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'art' | 'mem'
+type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'art' | 'mem' | 'cron'
 
 type IdMap = {
   proj: ProjectId
@@ -14,6 +14,7 @@ type IdMap = {
   task: TaskId
   art: ArtifactId
   mem: MemoryId
+  cron: CronJobId
 }
 
 export function generateId<P extends IdPrefix>(prefix: P): IdMap[P] {

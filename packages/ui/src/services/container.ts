@@ -6,6 +6,7 @@ import type {
   IArtifactService,
   IMemoryService,
   ISettingsService,
+  ICronJobService,
   IDashboardService,
 } from './interfaces'
 
@@ -17,6 +18,7 @@ export interface ServiceContainer {
   artifacts: IArtifactService
   memory: IMemoryService
   settings: ISettingsService
+  cronJobs: ICronJobService
   dashboard: IDashboardService
 }
 
