@@ -54,6 +54,14 @@ export function GlobalSettingsPage() {
   )
 }
 
+// Default models per provider
+const DEFAULT_MODELS: Record<AIProvider, string> = {
+  openai: 'gpt-4o',
+  anthropic: 'claude-sonnet-4-5-20250929',
+  google: 'gemini-2.5-flash',
+  custom: '',
+}
+
 // ========== Providers Tab ==========
 function ProvidersTab({ settings, onUpdate }: {
   settings: NonNullable<ReturnType<typeof useAppStore.getState>['settings']>
@@ -61,6 +69,27 @@ function ProvidersTab({ settings, onUpdate }: {
 }) {
   const [defaultProvider, setDefaultProvider] = useState(settings.defaultProvider)
   const [saved, setSaved] = useState(false)
+  // Track which provider card should open in edit mode after being auto-created
+  const [autoEditProvider, setAutoEditProvider] = useState<AIProvider | null>(null)
+
+  async function handleProviderClick(key: AIProvider) {
+    setDefaultProvider(key)
+    const exists = settings.providers.some(p => p.provider === key)
+    if (exists) {
+      await onUpdate({ defaultProvider: key })
+    } else {
+      // Auto-create an empty config for this provider
+      const newConfig: ProviderConfig = {
+        provider: key,
+        apiKey: '',
+        defaultModel: DEFAULT_MODELS[key],
+      }
+      await onUpdate({ defaultProvider: key, providers: [...settings.providers, newConfig] })
+      setAutoEditProvider(key)
+    }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -71,15 +100,11 @@ function ProvidersTab({ settings, onUpdate }: {
           {(Object.keys(PROVIDER_INFO) as AIProvider[]).map(key => {
             const info = PROVIDER_INFO[key]
             const isSelected = defaultProvider === key
+            const isConfigured = settings.providers.some(p => p.provider === key)
             return (
               <button
                 key={key}
-                onClick={async () => {
-                  setDefaultProvider(key)
-                  await onUpdate({ defaultProvider: key })
-                  setSaved(true)
-                  setTimeout(() => setSaved(false), 2000)
-                }}
+                onClick={() => handleProviderClick(key)}
                 className={`p-3 border-2 cursor-pointer transition-colors text-left ${
                   isSelected
                     ? `bg-elevated ${info.color} border-l-4`
@@ -89,6 +114,7 @@ function ProvidersTab({ settings, onUpdate }: {
                 <div className="text-[16px] mb-1">{info.icon}</div>
                 <div className="text-[11px] text-text-primary">{info.name}</div>
                 {isSelected && <div className="text-[9px] text-accent-green mt-1">Active</div>}
+                {!isSelected && isConfigured && <div className="text-[9px] text-text-dim mt-1">Configured</div>}
               </button>
             )
           })}
@@ -100,11 +126,19 @@ function ProvidersTab({ settings, onUpdate }: {
       <div className="font-pixel text-[10px] text-text-secondary mt-2">CONFIGURED PROVIDERS</div>
       {settings.providers.length === 0 ? (
         <PixelCard variant="outlined" className="text-center py-6">
-          <p className="text-[12px] text-text-dim">No providers configured</p>
+          <p className="text-[12px] text-text-dim">Click a provider above to configure it</p>
         </PixelCard>
       ) : (
         settings.providers.map((provider, i) => (
-          <ProviderCard key={i} provider={provider} onUpdate={onUpdate} allProviders={settings.providers} index={i} />
+          <ProviderCard
+            key={provider.provider}
+            provider={provider}
+            onUpdate={onUpdate}
+            allProviders={settings.providers}
+            index={i}
+            startEditing={autoEditProvider === provider.provider}
+            onEditStarted={() => setAutoEditProvider(null)}
+          />
         ))
       )}
     </div>
@@ -112,13 +146,21 @@ function ProvidersTab({ settings, onUpdate }: {
 }
 
 // ========== Provider Card ==========
-function ProviderCard({ provider, onUpdate, allProviders, index }: {
+function ProviderCard({ provider, onUpdate, allProviders, index, startEditing, onEditStarted }: {
   provider: ProviderConfig
   onUpdate: (data: Partial<{ providers: ProviderConfig[] }>) => Promise<void>
   allProviders: ProviderConfig[]
   index: number
+  startEditing?: boolean
+  onEditStarted?: () => void
 }) {
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(startEditing ?? false)
+
+  // Auto-open edit mode when a new provider is created
+  if (startEditing && !editing) {
+    setEditing(true)
+    onEditStarted?.()
+  }
   const [apiKey, setApiKey] = useState(provider.apiKey)
   const [defaultModel, setDefaultModel] = useState(provider.defaultModel)
   const [baseUrl, setBaseUrl] = useState(provider.baseUrl ?? '')
