@@ -85,7 +85,7 @@ function createWindow(): void {
     minHeight: 640,
     backgroundColor: '#0B0E14',
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false,
       additionalArguments: [
         `--server-port=${serverPort}`,
