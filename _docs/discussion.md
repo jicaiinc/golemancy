@@ -51,6 +51,7 @@ Project 是用户工作的顶层容器，等同于一个 Workspace。
 
 - Agent（多个）
 - 对话记录（Conversations）
+- 定时任务（Cron Jobs）
 - 项目级记忆（Memory）
 - 产出物（Artifacts）
 - 项目级配置（Provider 覆盖等）

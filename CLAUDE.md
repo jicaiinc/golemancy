@@ -95,7 +95,7 @@ HashRouter at `packages/ui/src/app/routes.tsx`. Project-scoped routes nested und
 
 ### Abstraction Model
 
-Two core abstractions: **Project** (top container) and **Agent** (core unit within project). All agents belong to a project. Each project has a **Main Agent** configured in Project Settings — users chat with it by default when creating a new conversation. Skills, Tools, MCP, Sub-Agents all live inside Agent config. No global Agent/Skill libraries.
+Two core abstractions: **Project** (top container) and **Agent** (core unit within project). All agents belong to a project. Each project has a **Main Agent** configured in Project Settings — users chat with it by default when creating a new conversation. Skills, Tools, MCP, Sub-Agents all live inside Agent config. Projects also have **Cron Jobs** for scheduled agent execution. No global Agent/Skill libraries.
 
 ### Config Hierarchy
 
