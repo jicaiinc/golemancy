@@ -6,13 +6,18 @@
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
-    "build": "electron-vite build"
+    "build": "electron-vite build",
+    "test:e2e": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts --project=smoke --project=server",
+    "test:e2e:ai": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts",
+    "test:e2e:smoke": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts --project=smoke",
+    "test:e2e:only": "npx playwright test --config=e2e/playwright.config.ts"
   },
   "dependencies": {
     "@solocraft/shared": "workspace:*",
     "@solocraft/ui": "workspace:*"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.0.0",

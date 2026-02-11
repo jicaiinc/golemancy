@@ -464,3 +464,9 @@ export const useAppStore = create<AppState>()(
     },
   ),
 )
+
+// Expose store for E2E testing.
+// Always exposed — this is an Electron desktop app, not a public web app.
+if (typeof window !== 'undefined') {
+  ;(window as any).__SOLOCRAFT_STORE__ = useAppStore
+}

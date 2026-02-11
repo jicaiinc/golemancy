@@ -11,3 +11,6 @@ out/
 .env
 .env.local
 .env.*.local
+
+# E2E test results
+test-results/

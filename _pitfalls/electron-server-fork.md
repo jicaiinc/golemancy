@@ -90,21 +90,71 @@ fork(serverEntry, [], {
 
 ---
 
+### 坑 4：Playwright E2E — macOS GUI 进程不继承 shell PATH
+
+**症状**：`spawn node ENOENT`
+
+**问题**：坑 3 的修复用了 `execPath: 'node'`（bare name，依赖 PATH 解析）。在 `pnpm dev` 中没问题（终端 shell 有完整 PATH）。但 Playwright 通过 `_electron.launch()` 启动 Electron 时，macOS GUI 进程不继承 shell PATH，`node` 找不到。
+
+**修复**：E2E fixture 中用 `execSync('which node')` 解析绝对路径，传入 `SOLOCRAFT_FORK_EXEC_PATH` env var：
+
+```ts
+// e2e/fixtures/electron.ts
+const nodePath = execSync('which node', { encoding: 'utf-8' }).trim()
+// → 传入 env: { SOLOCRAFT_FORK_EXEC_PATH: nodePath }
+
+// apps/desktop/src/main/index.ts
+execPath: app.isPackaged ? process.execPath : (process.env.SOLOCRAFT_FORK_EXEC_PATH || 'node'),
+```
+
+**规则**：E2E 测试启动 Electron 时，不能依赖 PATH 解析，必须传入可执行文件的绝对路径。
+
+---
+
+### 坑 5：Playwright E2E — `app.getAppPath()` 返回编译后路径
+
+**症状**：`spawn /Users/.../.nvm/.../node ENOENT`（node 路径正确，实际是 cwd 不存在）
+
+**问题**：`_electron.launch({ args: ['out/main/index.js'] })` 启动时，`app.getAppPath()` 返回 `apps/desktop/out/main/`（而非 `apps/desktop/`）。导致 `join(app.getAppPath(), '../../packages/server')` 解析为 `apps/desktop/packages/server`，该路径不存在。Node.js `fork()`/`spawn()` 的 ENOENT 错误在 `cwd` 不存在时也会触发。
+
+**易混淆**：错误信息 `spawn node ENOENT` 看似 node 找不到，实际是 cwd 目录不存在。需要检查 `cwd` 和 `execPath` 两个维度。
+
+**修复**：E2E fixture 传入 monorepo 根路径，main process 优先使用：
+
+```ts
+// e2e/fixtures/electron.ts
+// → 传入 env: { SOLOCRAFT_ROOT_DIR: ROOT_DIR }
+
+// apps/desktop/src/main/index.ts
+const rootDir = process.env.SOLOCRAFT_ROOT_DIR || join(app.getAppPath(), '../..')
+const serverEntry = app.isPackaged
+  ? join(process.resourcesPath, 'server', 'index.js')
+  : join(rootDir, 'packages/server/src/index.ts')
+const serverCwd = app.isPackaged
+  ? join(process.resourcesPath, 'server')
+  : join(rootDir, 'packages/server')
+```
+
+**规则**：`app.getAppPath()` 的返回值取决于 Electron 启动方式。在 E2E 等非标准启动场景下，不能假设它返回 package 根目录。需要通过 env var 显式传入可靠的路径基准。
+
+---
+
 ## 最终正确写法
 
 ```ts
 // apps/desktop/src/main/index.ts
+const rootDir = process.env.SOLOCRAFT_ROOT_DIR || join(app.getAppPath(), '../..')
 const serverEntry = app.isPackaged
   ? join(process.resourcesPath, 'server', 'index.js')
-  : join(app.getAppPath(), '../../packages/server/src/index.ts')
+  : join(rootDir, 'packages/server/src/index.ts')
 
 const serverCwd = app.isPackaged
   ? join(process.resourcesPath, 'server')
-  : join(app.getAppPath(), '../../packages/server')
+  : join(rootDir, 'packages/server')
 
 const child = fork(serverEntry, [], {
   env: { ...process.env, PORT: '0' },
-  execPath: app.isPackaged ? process.execPath : 'node',
+  execPath: app.isPackaged ? process.execPath : (process.env.SOLOCRAFT_FORK_EXEC_PATH || 'node'),
   execArgv: app.isPackaged ? [] : ['--import', 'tsx'],
   cwd: serverCwd,
   stdio: ['pipe', 'pipe', 'pipe', 'ipc'],

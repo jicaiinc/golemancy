@@ -53,7 +53,7 @@ export function AgentListPage() {
             {agents.length} agent{agents.length !== 1 ? 's' : ''} in this project
           </p>
         </div>
-        <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
+        <PixelButton data-testid="create-agent-btn" variant="primary" onClick={() => setShowCreate(true)}>
           + New Agent
         </PixelButton>
       </div>
@@ -77,6 +77,7 @@ export function AgentListPage() {
           {agents.map(agent => (
             <motion.div key={agent.id} {...staggerItem}>
               <PixelCard
+                data-testid={`agent-item-${agent.id}`}
                 variant="interactive"
                 className="relative overflow-hidden group"
                 onClick={() => navigate(`/projects/${projectId}/agents/${agent.id}`)}

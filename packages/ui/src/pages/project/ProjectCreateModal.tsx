@@ -80,8 +80,8 @@ export function ProjectCreateModal({ open, onClose }: Props) {
       size="sm"
       footer={
         <>
-          <PixelButton variant="ghost" onClick={onClose}>Cancel</PixelButton>
-          <PixelButton variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
+          <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>Cancel</PixelButton>
+          <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
             {saving ? 'Creating...' : 'Create Project'}
           </PixelButton>
         </>
@@ -89,6 +89,7 @@ export function ProjectCreateModal({ open, onClose }: Props) {
     >
       <div className="flex flex-col gap-4">
         <PixelInput
+          data-testid="project-name-input"
           label="PROJECT NAME"
           placeholder="My Awesome Project"
           value={name}
@@ -97,6 +98,7 @@ export function ProjectCreateModal({ open, onClose }: Props) {
         />
 
         <PixelTextArea
+          data-testid="project-desc-input"
           label="DESCRIPTION"
           placeholder="What is this project about?"
           value={description}

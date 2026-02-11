@@ -65,7 +65,7 @@ export function ProjectSidebar() {
 
   if (sidebarCollapsed) {
     return (
-      <aside className="w-14 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
+      <aside data-testid="sidebar" className="w-14 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
         <div className="p-2 border-b-2 border-border-dim">
           <PixelDropdown
             trigger={
@@ -82,6 +82,7 @@ export function ProjectSidebar() {
           {navItems.map(item => (
             <button
               key={item.path}
+              data-testid={`nav-${item.label.toLowerCase()}`}
               onClick={() => navigate(basePath + item.path)}
               className={`w-full h-10 flex items-center justify-center font-mono text-[12px] cursor-pointer ${
                 isActive(item.path)
@@ -105,7 +106,7 @@ export function ProjectSidebar() {
   }
 
   return (
-    <aside className="w-60 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
+    <aside data-testid="sidebar" className="w-60 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
       {/* Project header with switcher */}
       <div className="p-3 border-b-2 border-border-dim">
         <PixelDropdown
@@ -131,6 +132,7 @@ export function ProjectSidebar() {
         {navItems.map(item => (
           <button
             key={item.path}
+            data-testid={`nav-${item.label.toLowerCase()}`}
             onClick={() => navigate(basePath + item.path)}
             className={`w-full text-left px-3 py-2 flex items-center gap-2 font-mono text-[12px] cursor-pointer ${
               isActive(item.path)
@@ -149,6 +151,7 @@ export function ProjectSidebar() {
         {configItems.map(item => (
           <button
             key={item.path}
+            data-testid={`nav-${item.label.toLowerCase()}`}
             onClick={() => navigate(basePath + item.path)}
             className={`w-full text-left px-3 py-2 flex items-center gap-2 font-mono text-[12px] cursor-pointer ${
               isActive(item.path)

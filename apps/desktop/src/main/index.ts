@@ -10,17 +10,22 @@ let isQuitting = false
 function startServer(): Promise<number> {
   return new Promise((resolve, reject) => {
     // C5: Use correct path for dev vs production
-    // app.getAppPath() → apps/desktop/ in dev, so ../../ reaches monorepo root
+    // app.getAppPath() → apps/desktop/ in dev, so ../../ reaches monorepo root.
+    // SOLOCRAFT_ROOT_DIR is set by E2E tests because app.getAppPath() returns
+    // out/main/ when Playwright launches the built JS directly.
+    const rootDir = process.env.SOLOCRAFT_ROOT_DIR || join(app.getAppPath(), '../..')
     const serverEntry = app.isPackaged
       ? join(process.resourcesPath, 'server', 'index.js')
-      : join(app.getAppPath(), '../../packages/server/src/index.ts')
+      : join(rootDir, 'packages/server/src/index.ts')
     const serverCwd = app.isPackaged
       ? join(process.resourcesPath, 'server')
-      : join(app.getAppPath(), '../../packages/server')
+      : join(rootDir, 'packages/server')
     const child = fork(serverEntry, [], {
       env: { ...process.env, PORT: '0' },
       // Dev: use system node (Electron's embedded Node has different ABI for native modules)
-      execPath: app.isPackaged ? process.execPath : 'node',
+      // SOLOCRAFT_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
+      // (GUI apps on macOS don't inherit shell PATH, so bare 'node' may fail).
+      execPath: app.isPackaged ? process.execPath : (process.env.SOLOCRAFT_FORK_EXEC_PATH || 'node'),
       execArgv: app.isPackaged ? [] : ['--import', 'tsx'],
       cwd: serverCwd,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],

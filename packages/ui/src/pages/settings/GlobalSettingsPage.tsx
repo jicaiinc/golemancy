@@ -29,7 +29,7 @@ export function GlobalSettingsPage() {
 
   return (
     <div className="h-full overflow-auto bg-void">
-      <div className="max-w-[800px] mx-auto p-8">
+      <div data-testid="settings-form" className="max-w-[800px] mx-auto p-8">
         {/* Back button + title */}
         <div className="flex items-center gap-4 mb-6">
           <PixelButton variant="ghost" size="sm" onClick={() => navigate('/')}>

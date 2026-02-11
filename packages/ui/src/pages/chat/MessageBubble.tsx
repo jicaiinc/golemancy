@@ -38,7 +38,7 @@ export const MessageBubble = memo(function MessageBubble({ message, showCursor }
   const isUser = message.role === 'user'
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} my-2`}>
+    <div data-testid="chat-message" data-role={message.role} className={`flex ${isUser ? 'justify-end' : 'justify-start'} my-2`}>
       <div className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'}`}>
         {/* Message bubble */}
         <div

@@ -54,8 +54,8 @@ export function AgentCreateModal({ open, onClose }: Props) {
       size="md"
       footer={
         <>
-          <PixelButton variant="ghost" onClick={onClose}>Cancel</PixelButton>
-          <PixelButton variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
+          <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>Cancel</PixelButton>
+          <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
             {saving ? 'Creating...' : 'Create Agent'}
           </PixelButton>
         </>
@@ -63,6 +63,7 @@ export function AgentCreateModal({ open, onClose }: Props) {
     >
       <div className="flex flex-col gap-4">
         <PixelInput
+          data-testid="agent-name-input"
           label="AGENT NAME"
           placeholder="e.g. Research Assistant"
           value={name}
@@ -78,6 +79,7 @@ export function AgentCreateModal({ open, onClose }: Props) {
         />
 
         <PixelTextArea
+          data-testid="agent-prompt-input"
           label="SYSTEM PROMPT"
           placeholder="You are a helpful assistant that..."
           value={systemPrompt}

@@ -19,7 +19,7 @@ export function AppShell({
   activeAgents,
 }: AppShellProps) {
   return (
-    <div className="flex h-screen w-screen bg-void">
+    <div data-testid="app-shell" className="flex h-screen w-screen bg-void">
       <ProjectSidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <TopBar left={topBarLeft} right={topBarRight} />

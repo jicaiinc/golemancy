@@ -158,7 +158,7 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
   const isStreamingNow = useServer && chatStatus === 'streaming'
 
   return (
-    <div className="flex flex-col h-full">
+    <div data-testid="chat-window" className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b-2 border-border-dim bg-deep">
         <div className="flex items-center gap-2 min-w-0">

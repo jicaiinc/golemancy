@@ -65,7 +65,7 @@ export function ProjectListPage() {
               {projects.length} project{projects.length !== 1 ? 's' : ''} in your workspace
             </p>
           </div>
-          <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
+          <PixelButton data-testid="create-project-btn" variant="primary" onClick={() => setShowCreate(true)}>
             + New Project
           </PixelButton>
         </div>
@@ -89,6 +89,7 @@ export function ProjectListPage() {
             {projects.map(project => (
               <motion.div key={project.id} {...staggerItem}>
                 <PixelCard
+                  data-testid={`project-item-${project.id}`}
                   variant="interactive"
                   className="group"
                   onClick={() => navigate(`/projects/${project.id}`)}
