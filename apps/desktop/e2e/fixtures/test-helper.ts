@@ -106,11 +106,35 @@ export class TestHelper {
     await this.page.click(SELECTORS.CHAT_SEND_BTN)
   }
 
-  /** Wait for an assistant response to appear */
+  /** Wait for an assistant response to appear and streaming to complete */
   async waitForResponse(timeout = TIMEOUTS.AI_RESPONSE): Promise<string> {
-    const assistantMsg = this.page.locator(`${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`).last()
+    // Wait for assistant message to appear
+    const assistantMsg = this.page
+      .locator(`${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`)
+      .last()
     await assistantMsg.waitFor({ state: 'visible', timeout })
+
+    // Wait for streaming to complete (input re-enabled = not disabled)
+    await this.page.waitForFunction(
+      (selector: string) => {
+        const input = document.querySelector(selector) as HTMLTextAreaElement | null
+        return input !== null && !input.disabled
+      },
+      SELECTORS.CHAT_INPUT,
+      { timeout },
+    )
+
+    // Return the final complete text
     return assistantMsg.innerText()
+  }
+
+  /** Start a chat by clicking an agent card in the empty state */
+  async startChatWithAgent(agentName: string): Promise<void> {
+    await this.page.getByText(agentName).click()
+    await this.page.waitForSelector(SELECTORS.CHAT_WINDOW, {
+      state: 'visible',
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
   }
 
   // ===== Assertions =====
