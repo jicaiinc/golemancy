@@ -34,5 +34,5 @@ export function getDbPath(): string {
 
 export function getProjectDbPath(projectId: string): string {
   validateId(projectId)
-  return path.join(DATA_DIR, 'projects', projectId, 'data.db')
+  return path.join(DATA_DIR, 'projects', projectId, 'data', 'data.db')
 }

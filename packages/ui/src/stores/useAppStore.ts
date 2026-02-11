@@ -8,6 +8,7 @@ import type {
 } from '@solocraft/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@solocraft/shared'
 import { getServices } from '../services'
+import { destroyChat, destroyAllChats } from '../lib/chat-instances'
 
 // --- Theme helper ---
 function applyThemeToDOM(mode: ThemeMode): void {
@@ -94,9 +95,8 @@ interface AgentActions {
 
 interface ConversationActions {
   loadConversations(projectId: ProjectId, agentId?: AgentId): Promise<void>
-  selectConversation(id: ConversationId | null): void
+  selectConversation(id: ConversationId | null): Promise<void>
   createConversation(agentId: AgentId, title: string): Promise<Conversation>
-  sendMessage(conversationId: ConversationId, content: string): Promise<void>
   deleteConversation(id: ConversationId): Promise<void>
 }
 
@@ -171,6 +171,9 @@ export const useAppStore = create<AppState>()(
         const prevId = get().currentProjectId
         if (prevId === id) return
 
+        // Destroy all Chat instances from previous project
+        destroyAllChats()
+
         // Clear → set new → populate
         set({
           currentProjectId: id,
@@ -220,6 +223,7 @@ export const useAppStore = create<AppState>()(
 
       clearProject() {
         projectAbort?.abort()
+        destroyAllChats()
         set({
           currentProjectId: null,
           agents: [],
@@ -313,8 +317,31 @@ export const useAppStore = create<AppState>()(
         set({ conversations, conversationsLoading: false })
       },
 
-      selectConversation(id: ConversationId | null) {
-        set({ currentConversationId: id })
+      async selectConversation(id: ConversationId | null) {
+        if (!id) {
+          set({ currentConversationId: null })
+          return
+        }
+
+        const projectId = get().currentProjectId
+        if (!projectId) {
+          set({ currentConversationId: id })
+          return
+        }
+
+        // Load full conversation (with messages) BEFORE setting currentConversationId.
+        // This ensures ChatWindow mounts with messages already available,
+        // since useChat only reads `messages` on initialization.
+        const full = await getServices().conversations.getById(projectId, id)
+        if (full) {
+          set(s => ({
+            conversations: s.conversations.map(c => c.id === id ? full : c),
+            currentConversationId: id,
+          }))
+          console.debug('[store] selectConversation loaded', id, 'messages:', full.messages.length)
+        } else {
+          set({ currentConversationId: id })
+        }
       },
 
       async createConversation(agentId: AgentId, title: string) {
@@ -325,21 +352,11 @@ export const useAppStore = create<AppState>()(
         return conv
       },
 
-      async sendMessage(conversationId: ConversationId, content: string) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().conversations.sendMessage(projectId, conversationId, content)
-        // Reload the conversation to pick up new messages
-        const updated = await getServices().conversations.getById(projectId, conversationId)
-        if (updated) {
-          set(s => ({ conversations: s.conversations.map(c => c.id === conversationId ? updated : c) }))
-        }
-      },
-
       async deleteConversation(id: ConversationId) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
         await getServices().conversations.delete(projectId, id)
+        destroyChat(id)
         set(s => ({
           conversations: s.conversations.filter(c => c.id !== id),
           ...(s.currentConversationId === id ? { currentConversationId: null } : {}),

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { createTestDb } from '../test/helpers'
 import { SqliteConversationStorage } from './conversations'
 import type { AppDatabase } from '../db/client'
-import type { ProjectId, AgentId, ConversationId } from '@solocraft/shared'
+import type { ProjectId, AgentId, ConversationId, MessageId } from '@solocraft/shared'
 
 describe('SqliteConversationStorage', () => {
   let db: AppDatabase
@@ -226,6 +226,274 @@ describe('SqliteConversationStorage', () => {
       const page1 = await storage.searchMessages(projId, 'keyword', { page: 1, pageSize: 2 })
       expect(page1.items).toHaveLength(2)
       expect(page1.total).toBe(5)
+    })
+  })
+
+  describe('saveMessage', () => {
+    it('saves a message with explicit id and role', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-custom-1' as MessageId,
+        role: 'assistant',
+        content: 'Hello from AI',
+      })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items).toHaveLength(1)
+      expect(msgs.items[0].id).toBe('msg-custom-1')
+      expect(msgs.items[0].role).toBe('assistant')
+      expect(msgs.items[0].content).toBe('Hello from AI')
+    })
+
+    it('deduplicates messages with same id', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      const msgId = 'msg-dedup-1' as MessageId
+
+      await storage.saveMessage(projId, conv.id, { id: msgId, role: 'user', content: 'Original' })
+      await storage.saveMessage(projId, conv.id, { id: msgId, role: 'user', content: 'Duplicate' })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items).toHaveLength(1)
+      expect(msgs.items[0].content).toBe('Original')
+    })
+
+    it('throws when conversation does not exist', async () => {
+      await expect(
+        storage.saveMessage(projId, 'conv-nonexistent' as ConversationId, {
+          id: 'msg-1' as MessageId,
+          role: 'user',
+          content: 'test',
+        }),
+      ).rejects.toThrow('not found')
+    })
+
+    it('throws when conversation belongs to different project', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      await expect(
+        storage.saveMessage(projId2, conv.id, {
+          id: 'msg-1' as MessageId,
+          role: 'user',
+          content: 'test',
+        }),
+      ).rejects.toThrow('not found')
+    })
+
+    it('updates conversation lastMessageAt', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      const originalTime = conv.lastMessageAt
+
+      await new Promise(r => setTimeout(r, 15))
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-ts-1' as MessageId,
+        role: 'assistant',
+        content: 'response',
+      })
+
+      const updated = await storage.getById(projId, conv.id)
+      expect(new Date(updated!.lastMessageAt).getTime())
+        .toBeGreaterThan(new Date(originalTime).getTime())
+    })
+
+    it('saves messages with different roles', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+
+      await storage.saveMessage(projId, conv.id, { id: 'msg-u' as MessageId, role: 'user', content: 'Hi' })
+      await new Promise(r => setTimeout(r, 5))
+      await storage.saveMessage(projId, conv.id, { id: 'msg-a' as MessageId, role: 'assistant', content: 'Hello!' })
+      await new Promise(r => setTimeout(r, 5))
+      await storage.saveMessage(projId, conv.id, { id: 'msg-s' as MessageId, role: 'system', content: 'System note' })
+      await new Promise(r => setTimeout(r, 5))
+      await storage.saveMessage(projId, conv.id, { id: 'msg-t' as MessageId, role: 'tool', content: 'Tool output' })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items).toHaveLength(4)
+
+      const roles = msgs.items.map(m => m.role)
+      expect(roles).toContain('user')
+      expect(roles).toContain('assistant')
+      expect(roles).toContain('system')
+      expect(roles).toContain('tool')
+    })
+  })
+
+  describe('full persistence flow', () => {
+    it('create → saveMessage → getMessages returns saved messages', async () => {
+      const conv = await storage.create(projId, agentId1, 'Full Flow Chat')
+
+      // Simulate a chat exchange
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-flow-1' as MessageId,
+        role: 'user',
+        content: 'What is 2+2?',
+      })
+      await new Promise(r => setTimeout(r, 5))
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-flow-2' as MessageId,
+        role: 'assistant',
+        content: 'The answer is 4.',
+      })
+
+      // Verify messages are retrievable
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items).toHaveLength(2)
+      expect(msgs.total).toBe(2)
+
+      // newest first
+      expect(msgs.items[0].id).toBe('msg-flow-2')
+      expect(msgs.items[0].content).toBe('The answer is 4.')
+      expect(msgs.items[1].id).toBe('msg-flow-1')
+      expect(msgs.items[1].content).toBe('What is 2+2?')
+    })
+
+    it('getById returns conversation with messages loaded', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-check-1' as MessageId,
+        role: 'user',
+        content: 'Hello',
+      })
+      await new Promise(r => setTimeout(r, 15))
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-check-2' as MessageId,
+        role: 'assistant',
+        content: 'World',
+      })
+
+      const found = await storage.getById(projId, conv.id)
+      expect(found).not.toBeNull()
+      expect(found!.messages).toHaveLength(2)
+      // messages ordered by createdAt ascending
+      expect(found!.messages[0].id).toBe('msg-check-1')
+      expect(found!.messages[0].content).toBe('Hello')
+      expect(found!.messages[1].id).toBe('msg-check-2')
+      expect(found!.messages[1].content).toBe('World')
+    })
+
+    it('list returns conversations with messages: [] (lightweight)', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-list-1' as MessageId,
+        role: 'user',
+        content: 'Hello',
+      })
+
+      const convs = await storage.list(projId)
+      expect(convs).toHaveLength(1)
+      expect(convs[0].messages).toEqual([])
+    })
+
+    it('sendMessage and saveMessage messages coexist in getMessages', async () => {
+      const conv = await storage.create(projId, agentId1, 'Mixed Chat')
+
+      // sendMessage creates a user message with auto-generated id
+      await storage.sendMessage(projId, conv.id, 'User via sendMessage')
+      await new Promise(r => setTimeout(r, 5))
+
+      // saveMessage creates a message with explicit id/role
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-explicit-1' as MessageId,
+        role: 'assistant',
+        content: 'Assistant via saveMessage',
+      })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items).toHaveLength(2)
+      expect(msgs.total).toBe(2)
+    })
+  })
+
+  describe('cross-project message isolation', () => {
+    it('messages in one project are not visible in another', async () => {
+      const conv1 = await storage.create(projId, agentId1, 'Proj1 Chat')
+      const conv2 = await storage.create(projId2, agentId1, 'Proj2 Chat')
+
+      await storage.saveMessage(projId, conv1.id, {
+        id: 'msg-p1' as MessageId,
+        role: 'user',
+        content: 'Project 1 message',
+      })
+      await storage.saveMessage(projId2, conv2.id, {
+        id: 'msg-p2' as MessageId,
+        role: 'user',
+        content: 'Project 2 message',
+      })
+
+      const msgs1 = await storage.getMessages(projId, conv1.id, { page: 1, pageSize: 50 })
+      const msgs2 = await storage.getMessages(projId2, conv2.id, { page: 1, pageSize: 50 })
+
+      expect(msgs1.items).toHaveLength(1)
+      expect(msgs1.items[0].content).toBe('Project 1 message')
+      expect(msgs2.items).toHaveLength(1)
+      expect(msgs2.items[0].content).toBe('Project 2 message')
+    })
+
+    it('cannot access messages via getMessages with wrong projectId', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-cross-1' as MessageId,
+        role: 'user',
+        content: 'Secret message',
+      })
+
+      // getMessages with wrong projectId should throw (conversation not found)
+      await expect(
+        storage.getMessages(projId2, conv.id, { page: 1, pageSize: 50 }),
+      ).rejects.toThrow('not found')
+    })
+
+    it('search is scoped to project after saveMessage', async () => {
+      const conv1 = await storage.create(projId, agentId1, 'Chat 1')
+      const conv2 = await storage.create(projId2, agentId1, 'Chat 2')
+
+      await storage.saveMessage(projId, conv1.id, {
+        id: 'msg-search-1' as MessageId,
+        role: 'assistant',
+        content: 'Unique keyword findme',
+      })
+      await storage.saveMessage(projId2, conv2.id, {
+        id: 'msg-search-2' as MessageId,
+        role: 'assistant',
+        content: 'Another keyword findme',
+      })
+
+      const results = await storage.searchMessages(projId, 'findme', { page: 1, pageSize: 50 })
+      expect(results.items).toHaveLength(1)
+      expect(results.items[0].id).toBe('msg-search-1')
+    })
+  })
+
+  describe('getMessages pagination with saveMessage', () => {
+    it('paginates saveMessage messages correctly', async () => {
+      const conv = await storage.create(projId, agentId1, 'Paginated Chat')
+
+      for (let i = 0; i < 7; i++) {
+        await new Promise(r => setTimeout(r, 5))
+        await storage.saveMessage(projId, conv.id, {
+          id: `msg-page-${i}` as MessageId,
+          role: i % 2 === 0 ? 'user' : 'assistant',
+          content: `Message ${i}`,
+        })
+      }
+
+      const page1 = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 3 })
+      expect(page1.items).toHaveLength(3)
+      expect(page1.total).toBe(7)
+      expect(page1.page).toBe(1)
+      expect(page1.pageSize).toBe(3)
+
+      const page2 = await storage.getMessages(projId, conv.id, { page: 2, pageSize: 3 })
+      expect(page2.items).toHaveLength(3)
+
+      const page3 = await storage.getMessages(projId, conv.id, { page: 3, pageSize: 3 })
+      expect(page3.items).toHaveLength(1)
+
+      // No overlap between pages
+      const allIds = [
+        ...page1.items.map(m => m.id),
+        ...page2.items.map(m => m.id),
+        ...page3.items.map(m => m.id),
+      ]
+      expect(new Set(allIds).size).toBe(7)
     })
   })
 })

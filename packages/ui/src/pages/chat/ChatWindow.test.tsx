@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { AgentId, ConversationId, MessageId, ProjectId, Conversation, Agent } from '@solocraft/shared'
+import type { UIMessage } from 'ai'
 import { ChatWindow } from './ChatWindow'
 import { useAppStore } from '../../stores'
 import { configureServices } from '../../services/container'
@@ -17,17 +18,34 @@ vi.mock('motion/react', () => ({
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }))
 
-// Mock @ai-sdk/react
+// Mock chat-instances module
+const mockChat = { id: 'conv-1', messages: [], status: 'ready', stop: vi.fn() }
+vi.mock('../../lib/chat-instances', () => ({
+  getOrCreateChat: vi.fn(() => mockChat),
+  toUIMessages: vi.fn((msgs: any[]) =>
+    msgs
+      .filter((m: any) => m.role === 'user' || m.role === 'assistant')
+      .map((m: any) => ({
+        id: m.id,
+        role: m.role,
+        parts: [{ type: 'text', text: m.content }],
+      })),
+  ),
+}))
+
+// Mock @ai-sdk/react — useChat returns what we configure per-test
 const mockChatSendMessage = vi.fn()
+let useChatMessages: UIMessage[] = []
 vi.mock('@ai-sdk/react', () => ({
   useChat: vi.fn(() => ({
-    messages: [],
+    messages: useChatMessages,
     status: 'ready',
+    error: undefined,
     sendMessage: mockChatSendMessage,
   })),
 }))
 
-// Mock ai module (DefaultChatTransport needs to be a class/constructor)
+// Mock ai module
 vi.mock('ai', () => ({
   DefaultChatTransport: class MockTransport {
     constructor(public opts: any) {}
@@ -68,6 +86,15 @@ function makeAgent(overrides?: Partial<Agent>): Agent {
   }
 }
 
+function makeUIMessage(overrides?: Partial<UIMessage>): UIMessage {
+  return {
+    id: 'msg-1',
+    role: 'user',
+    parts: [{ type: 'text', text: 'Hello' }],
+    ...overrides,
+  } as UIMessage
+}
+
 function createTestServices(): ServiceContainer {
   return {
     projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
@@ -87,14 +114,14 @@ function createTestServices(): ServiceContainer {
 
 describe('ChatWindow', () => {
   const originalElectronAPI = (window as any).electronAPI
+  let services: ServiceContainer
 
   beforeEach(() => {
     vi.clearAllMocks()
-    // Mock scrollIntoView (not available in jsdom)
+    useChatMessages = [] // reset to empty
     Element.prototype.scrollIntoView = vi.fn()
-    // Default: no electronAPI = mock mode
     delete (window as any).electronAPI
-    const services = createTestServices()
+    services = createTestServices()
     configureServices(services)
     useAppStore.setState({
       currentProjectId: 'proj-1' as ProjectId,
@@ -122,29 +149,13 @@ describe('ChatWindow', () => {
     expect(screen.getByText('Start the conversation...')).toBeInTheDocument()
   })
 
-  it('renders messages in mock mode', () => {
-    const conversation = makeConversation({
-      messages: [
-        {
-          id: 'msg-1' as MessageId,
-          conversationId: 'conv-1' as ConversationId,
-          role: 'user',
-          content: 'Hello there',
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          id: 'msg-2' as MessageId,
-          conversationId: 'conv-1' as ConversationId,
-          role: 'assistant',
-          content: 'Hi! How can I help?',
-          createdAt: now,
-          updatedAt: now,
-        },
-      ],
-    })
+  it('renders messages from useChat', () => {
+    useChatMessages = [
+      makeUIMessage({ id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello there' }] }),
+      makeUIMessage({ id: 'msg-2', role: 'assistant', parts: [{ type: 'text', text: 'Hi! How can I help?' }] }),
+    ]
 
-    render(<ChatWindow conversation={conversation} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
 
     expect(screen.getByText('Hello there')).toBeInTheDocument()
     expect(screen.getByText('Hi! How can I help?')).toBeInTheDocument()
@@ -170,20 +181,38 @@ describe('ChatWindow', () => {
     expect(screen.getByPlaceholderText('Type a message...')).toBeInTheDocument()
   })
 
-  it('sends message through Zustand store in mock mode', async () => {
-    const mockSendMessage = vi.fn().mockResolvedValue(undefined)
-    useAppStore.setState({ sendMessage: mockSendMessage })
+  it('sends message via service in mock mode (no electronAPI)', async () => {
+    const conv = makeConversation()
+    const updatedConv = { ...conv, messages: [{ id: 'msg-1' as MessageId, conversationId: conv.id, role: 'assistant' as const, content: 'response', createdAt: now, updatedAt: now }] }
+    ;(services.conversations.sendMessage as any).mockResolvedValue(undefined)
+    ;(services.conversations.getById as any).mockResolvedValue(updatedConv)
+
+    render(<ChatWindow conversation={conv} agent={makeAgent()} />)
+
+    const input = screen.getByPlaceholderText('Type a message...')
+    fireEvent.change(input, { target: { value: 'Test message' } })
+    fireEvent.click(screen.getByText('Send'))
+
+    await waitFor(() => {
+      expect(services.conversations.sendMessage).toHaveBeenCalledWith('proj-1', 'conv-1', 'Test message')
+    })
+  })
+
+  it('sends message via chatSendMessage in server mode', async () => {
+    ;(window as any).electronAPI = {
+      getServerBaseUrl: () => 'http://localhost:3001',
+      getServerToken: () => 'test-token',
+      getServerPort: () => 3001,
+    }
 
     render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
 
     const input = screen.getByPlaceholderText('Type a message...')
-    fireEvent.change(input, { target: { value: 'Test message' } })
-
-    const sendButton = screen.getByText('Send')
-    fireEvent.click(sendButton)
+    fireEvent.change(input, { target: { value: 'Server message' } })
+    fireEvent.click(screen.getByText('Send'))
 
     await waitFor(() => {
-      expect(mockSendMessage).toHaveBeenCalledWith('conv-1', 'Test message')
+      expect(mockChatSendMessage).toHaveBeenCalledWith({ text: 'Server message' })
     })
   })
 
@@ -194,43 +223,35 @@ describe('ChatWindow', () => {
     expect(screen.queryByText(/@/)).not.toBeInTheDocument()
   })
 
-  it('uses useChat with DefaultChatTransport in server mode', async () => {
-    ;(window as any).electronAPI = {
-      getServerBaseUrl: () => 'http://localhost:3001',
-      getServerToken: () => 'test-token',
-      getServerPort: () => 3001,
-    }
-
-    const { useChat } = await import('@ai-sdk/react')
+  it('calls getOrCreateChat with correct config', async () => {
+    const { getOrCreateChat } = await import('../../lib/chat-instances')
 
     render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
 
-    // useChat should have been called (it's always called due to rules of hooks)
-    expect(useChat).toHaveBeenCalled()
+    expect(getOrCreateChat).toHaveBeenCalledWith({
+      conversationId: 'conv-1',
+      projectId: 'proj-1',
+      agentId: 'agent-1',
+      initialMessages: [],
+      serverConfig: null,
+    })
   })
 
-  it('disables input while mock sending', async () => {
-    // Create a sendMessage that doesn't resolve immediately
-    let resolveSend: (() => void) | undefined
-    const mockSendMessage = vi.fn(() => new Promise<void>(r => { resolveSend = r }))
-    useAppStore.setState({ sendMessage: mockSendMessage })
-
-    const { unmount } = render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
-
-    const input = screen.getByPlaceholderText('Type a message...')
-    fireEvent.change(input, { target: { value: 'Test' } })
-    fireEvent.click(screen.getByText('Send'))
-
-    // While sending, the input should be disabled
-    await waitFor(() => {
-      expect(input).toBeDisabled()
+  it('delete button calls deleteConversation and clears selection', async () => {
+    const mockDelete = vi.fn().mockResolvedValue(undefined)
+    const mockSelect = vi.fn()
+    useAppStore.setState({
+      deleteConversation: mockDelete,
+      selectConversation: mockSelect,
     })
 
-    // Resolve the pending promise, then unmount to avoid act() warning
-    resolveSend?.()
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+
+    fireEvent.click(screen.getByText('Delete'))
+
     await waitFor(() => {
-      expect(input).not.toBeDisabled()
+      expect(mockDelete).toHaveBeenCalledWith('conv-1')
+      expect(mockSelect).toHaveBeenCalledWith(null)
     })
-    unmount()
   })
 })

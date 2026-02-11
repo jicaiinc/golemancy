@@ -4,6 +4,12 @@ import { configureServices } from '../services/container'
 import type { ServiceContainer } from '../services/container'
 import type { ProjectId, AgentId, ConversationId, CronJobId } from '@solocraft/shared'
 
+// Mock chat-instances to verify store calls destroyChat/destroyAllChats
+vi.mock('../lib/chat-instances', () => ({
+  destroyChat: vi.fn(),
+  destroyAllChats: vi.fn(),
+}))
+
 // Create mock services
 function createTestServices(): ServiceContainer {
   return {
@@ -255,15 +261,47 @@ describe('useAppStore', () => {
   })
 
   describe('selectConversation', () => {
-    it('sets current conversation id', () => {
-      useAppStore.getState().selectConversation('conv-1' as ConversationId)
+    it('sets current conversation id', async () => {
+      await useAppStore.getState().selectConversation('conv-1' as ConversationId)
       expect(useAppStore.getState().currentConversationId).toBe('conv-1')
     })
 
-    it('clears conversation when null', () => {
-      useAppStore.getState().selectConversation('conv-1' as ConversationId)
-      useAppStore.getState().selectConversation(null)
+    it('clears conversation when null', async () => {
+      await useAppStore.getState().selectConversation('conv-1' as ConversationId)
+      await useAppStore.getState().selectConversation(null)
       expect(useAppStore.getState().currentConversationId).toBeNull()
+    })
+  })
+
+  describe('deleteConversation', () => {
+    it('calls destroyChat and removes conversation', async () => {
+      const { destroyChat } = await import('../lib/chat-instances')
+      useAppStore.setState({
+        currentProjectId: 'proj-1' as ProjectId,
+        conversations: [{ id: 'conv-1' as ConversationId, title: 'Chat 1' } as any],
+        currentConversationId: 'conv-1' as ConversationId,
+      })
+      ;(mockServices.conversations.delete as any).mockResolvedValue(undefined)
+
+      await useAppStore.getState().deleteConversation('conv-1' as ConversationId)
+
+      expect(destroyChat).toHaveBeenCalledWith('conv-1')
+      expect(useAppStore.getState().conversations).toHaveLength(0)
+      expect(useAppStore.getState().currentConversationId).toBeNull()
+    })
+  })
+
+  describe('chat cleanup on project switch', () => {
+    it('selectProject calls destroyAllChats', async () => {
+      const { destroyAllChats } = await import('../lib/chat-instances')
+      await useAppStore.getState().selectProject('proj-1' as ProjectId)
+      expect(destroyAllChats).toHaveBeenCalled()
+    })
+
+    it('clearProject calls destroyAllChats', async () => {
+      const { destroyAllChats } = await import('../lib/chat-instances')
+      useAppStore.getState().clearProject()
+      expect(destroyAllChats).toHaveBeenCalled()
     })
   })
 

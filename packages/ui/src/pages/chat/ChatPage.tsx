@@ -76,7 +76,7 @@ export function ChatPage() {
       {/* Main chat area */}
       <div className="flex-1 flex flex-col min-w-0">
         {currentConversation ? (
-          <ChatWindow key={currentConversation.id} conversation={currentConversation} agent={currentAgent} />
+          <ChatWindow conversation={currentConversation} agent={currentAgent} />
         ) : (
           <ChatEmptyState
             mainAgentId={currentProject?.mainAgentId}

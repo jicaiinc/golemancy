@@ -42,7 +42,10 @@ export class SqliteConversationStorage implements IConversationService {
       .limit(1)
 
     if (rows.length === 0) return null
-    return this.rowToConversation(rows[0])
+
+    const messages = await this.loadMessages(db, id)
+    log.debug({ conversationId: id, messageCount: messages.length }, 'getById loaded messages')
+    return this.rowToConversation(rows[0], messages)
   }
 
   async create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation> {
@@ -227,13 +230,23 @@ export class SqliteConversationStorage implements IConversationService {
     }
   }
 
-  private rowToConversation(row: typeof schema.conversations.$inferSelect): Conversation {
+  private async loadMessages(db: AppDatabase, conversationId: ConversationId): Promise<Message[]> {
+    const rows = await db
+      .select()
+      .from(schema.messages)
+      .where(eq(schema.messages.conversationId, conversationId))
+      .orderBy(schema.messages.createdAt)
+
+    return rows.map(r => this.rowToMessage(r))
+  }
+
+  private rowToConversation(row: typeof schema.conversations.$inferSelect, messages: Message[] = []): Conversation {
     return {
       id: row.id as ConversationId,
       projectId: row.projectId as ProjectId,
       agentId: row.agentId as AgentId,
       title: row.title,
-      messages: [],
+      messages,
       lastMessageAt: row.lastMessageAt ?? row.createdAt,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,

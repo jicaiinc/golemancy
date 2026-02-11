@@ -109,17 +109,21 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
       onFinish: async ({ text }) => {
-        // Save assistant reply after streaming completes
-        if (conversationId && text) {
-          await deps.conversationStorage.saveMessage(
-            projectId as ProjectId,
-            conversationId as ConversationId,
-            {
-              id: generateId('msg') as MessageId,
-              role: 'assistant',
-              content: text,
-            },
-          )
+        try {
+          if (conversationId && text) {
+            await deps.conversationStorage.saveMessage(
+              projectId as ProjectId,
+              conversationId as ConversationId,
+              {
+                id: generateId('msg') as MessageId,
+                role: 'assistant',
+                content: text,
+              },
+            )
+            log.debug({ conversationId, role: 'assistant' }, 'saved assistant message in onFinish')
+          }
+        } catch (err) {
+          log.error({ err, conversationId }, 'failed to save assistant message')
         }
       },
     })

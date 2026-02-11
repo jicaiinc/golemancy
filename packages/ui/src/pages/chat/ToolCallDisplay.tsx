@@ -1,13 +1,46 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import type { ToolCallResult } from '@solocraft/shared'
 
-interface ToolCallDisplayProps {
-  toolCall: ToolCallResult
+interface ToolInvocationBase {
+  toolName: string
+  toolCallId: string
+  state: string
+  input?: unknown
+  output?: unknown
+  errorText?: string
 }
 
-export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
+interface ToolCallDisplayProps {
+  toolInvocation: ToolInvocationBase
+}
+
+function getStatusLabel(state: string): { text: string; color: string } {
+  switch (state) {
+    case 'input-streaming':
+    case 'input-available':
+      return { text: 'Running...', color: 'text-accent-amber' }
+    case 'approval-requested':
+      return { text: 'Awaiting approval', color: 'text-accent-amber' }
+    case 'approval-responded':
+      return { text: 'Approved', color: 'text-accent-blue' }
+    case 'output-available':
+      return { text: 'Done', color: 'text-accent-green' }
+    case 'output-error':
+      return { text: 'Error', color: 'text-accent-red' }
+    case 'output-denied':
+      return { text: 'Denied', color: 'text-accent-red' }
+    default:
+      return { text: state, color: 'text-text-dim' }
+  }
+}
+
+export function ToolCallDisplay({ toolInvocation }: ToolCallDisplayProps) {
   const [expanded, setExpanded] = useState(false)
+
+  const status = getStatusLabel(toolInvocation.state)
+  const hasOutput = toolInvocation.state === 'output-available'
+  const hasError = toolInvocation.state === 'output-error'
+  const isRunning = toolInvocation.state === 'input-streaming' || toolInvocation.state === 'input-available'
 
   return (
     <div className="my-2 border-2 border-border-dim bg-deep">
@@ -20,10 +53,13 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
           {expanded ? '[-]' : '[+]'}
         </span>
         <span className="font-mono text-[12px] text-accent-amber">
-          {toolCall.toolName}
+          {toolInvocation.toolName}
         </span>
-        <span className="ml-auto text-[11px] text-text-dim font-mono">
-          {toolCall.duration}ms
+        {isRunning && (
+          <span className="inline-block w-[6px] h-[6px] bg-accent-amber animate-[pixel-blink_1s_steps(2)_infinite]" />
+        )}
+        <span className={`ml-auto text-[11px] font-mono ${status.color}`}>
+          {status.text}
         </span>
       </button>
 
@@ -39,19 +75,34 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
           >
             <div className="px-3 pb-3 border-t-2 border-border-dim">
               {/* Input */}
-              <div className="mt-2">
-                <span className="text-[10px] font-pixel text-text-dim">INPUT</span>
-                <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto">
-                  {JSON.stringify(toolCall.input, null, 2)}
-                </pre>
-              </div>
+              {toolInvocation.input !== undefined && (
+                <div className="mt-2">
+                  <span className="text-[10px] font-pixel text-text-dim">INPUT</span>
+                  <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto">
+                    {JSON.stringify(toolInvocation.input, null, 2)}
+                  </pre>
+                </div>
+              )}
               {/* Output */}
-              <div className="mt-2">
-                <span className="text-[10px] font-pixel text-text-dim">OUTPUT</span>
-                <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto">
-                  {toolCall.output}
-                </pre>
-              </div>
+              {hasOutput && toolInvocation.output !== undefined && (
+                <div className="mt-2">
+                  <span className="text-[10px] font-pixel text-text-dim">OUTPUT</span>
+                  <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto">
+                    {typeof toolInvocation.output === 'string'
+                      ? toolInvocation.output
+                      : JSON.stringify(toolInvocation.output, null, 2)}
+                  </pre>
+                </div>
+              )}
+              {/* Error */}
+              {hasError && toolInvocation.errorText && (
+                <div className="mt-2">
+                  <span className="text-[10px] font-pixel text-accent-red">ERROR</span>
+                  <pre className="mt-1 text-[11px] font-mono text-accent-red bg-void p-2 overflow-x-auto">
+                    {toolInvocation.errorText}
+                  </pre>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

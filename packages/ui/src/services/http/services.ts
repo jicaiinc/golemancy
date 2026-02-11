@@ -87,7 +87,7 @@ export class HttpConversationService implements IConversationService {
   }
   searchMessages(projectId: ProjectId, query: string, params: PaginationParams) {
     return fetchJson<PaginatedResult<Message>>(
-      `${this.baseUrl}/api/projects/${projectId}/conversations/search?q=${encodeURIComponent(query)}&page=${params.page}&pageSize=${params.pageSize}`,
+      `${this.baseUrl}/api/projects/${projectId}/conversations/messages/search?q=${encodeURIComponent(query)}&page=${params.page}&pageSize=${params.pageSize}`,
     )
   }
   async delete(projectId: ProjectId, id: ConversationId) {

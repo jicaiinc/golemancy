@@ -1,16 +1,14 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
-import { DefaultChatTransport } from 'ai'
 import type { UIMessage } from 'ai'
 import { motion } from 'motion/react'
-import type {
-  Agent, Conversation, ConversationId, Message, MessageId,
-} from '@solocraft/shared'
+import type { Agent, Conversation } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
+import { getServices } from '../../services'
 import { PixelButton, PixelSpinner } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
+import { getOrCreateChat, toUIMessages } from '../../lib/chat-instances'
 import { MessageBubble } from './MessageBubble'
-import { StreamingMessage } from './StreamingMessage'
 import { ChatInput } from './ChatInput'
 
 /** Get Electron server config, or null when running without Electron */
@@ -20,117 +18,75 @@ function getServerConfig(): { baseUrl: string; token: string } | null {
   return baseUrl && token ? { baseUrl, token } : null
 }
 
-/** Convert app Message[] → UIMessage[] for useChat initial messages */
-function toUIMessages(messages: Message[]): UIMessage[] {
-  return messages
-    .filter(m => m.role === 'user' || m.role === 'assistant')
-    .map(m => ({
-      id: m.id,
-      role: m.role as 'user' | 'assistant',
-      parts: [{ type: 'text' as const, text: m.content }],
-    }))
-}
-
-/** Convert a UIMessage back to our app Message type for rendering */
-function toAppMessage(msg: UIMessage, conversationId: ConversationId): Message {
-  let text = ''
-  for (const part of msg.parts) {
-    if (part.type === 'text') text += part.text
-  }
-  const ts = (msg as UIMessage & { createdAt?: string }).createdAt ?? ''
-  return {
-    id: msg.id as MessageId,
-    conversationId,
-    role: msg.role,
-    content: text,
-    createdAt: ts,
-    updatedAt: ts,
-  }
-}
-
 interface ChatWindowProps {
   conversation: Conversation
   agent: Agent | undefined
 }
 
 export function ChatWindow({ conversation, agent }: ChatWindowProps) {
-  const storeSendMessage = useAppStore(s => s.sendMessage)
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
   const currentProjectId = useAppStore(s => s.currentProjectId)
 
-  // Stable server config (won't change during component lifetime)
   const serverConfig = useMemo(getServerConfig, [])
   const useServer = !!serverConfig
-
-  // --- AI SDK useChat (always called to satisfy rules of hooks) ---
-  const initialMessages = useMemo(
-    () => useServer ? toUIMessages(conversation.messages) : [],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [useServer]
-  )
-
-  const transport = useMemo(() => {
-    if (!serverConfig) return undefined
-    return new DefaultChatTransport({
-      api: `${serverConfig.baseUrl}/api/chat`,
-      body: {
-        projectId: currentProjectId,
-        agentId: conversation.agentId,
-        conversationId: conversation.id,
-      },
-      headers: { Authorization: `Bearer ${serverConfig.token}` },
-    })
-  }, [serverConfig, currentProjectId, conversation.agentId, conversation.id])
-
-  const {
-    messages: chatMessages,
-    status: chatStatus,
-    error: chatError,
-    sendMessage: chatSendMessage,
-  } = useChat({ transport, messages: initialMessages })
-
-  // --- Mock mode state ---
-  const [mockSending, setMockSending] = useState(false)
-  const [streamingContent, setStreamingContent] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const prevMessageCount = useRef(conversation.messages.length)
 
-  // Auto-scroll to bottom
+  // Get or create the Chat instance (survives unmount/remount)
+  const chat = useMemo(() => {
+    if (!currentProjectId) return null
+    return getOrCreateChat({
+      conversationId: conversation.id,
+      projectId: currentProjectId,
+      agentId: conversation.agentId,
+      initialMessages: conversation.messages,
+      serverConfig,
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Only re-create Chat when conversation identity changes.
+  // Other deps (projectId, agentId, messages, serverConfig) are stable
+  // for a given conversation, or handled by the Chat instance cache.
+  }, [conversation.id])
+
+  // SAFETY: chat is null only when currentProjectId is null,
+  // but ChatWindow is only rendered inside ProjectLayout which guarantees a project is selected.
+  const {
+    messages,
+    status,
+    error,
+    sendMessage: chatSendMessage,
+  } = useChat({ chat: chat! })
+
+  // Track whether this component mounted with pre-existing messages (loaded from cache).
+  // If so, skip the stagger entrance animation to avoid a multi-second delay.
+  const [shouldAnimateStagger] = useState(() => messages.length === 0)
+
+  // Auto-scroll to bottom — also triggers during streaming (content updates
+  // within the last message don't change messages.length, so we need status).
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [chatMessages.length, conversation.messages.length])
-
-  // Mock mode: detect new assistant message for typewriter effect
-  useEffect(() => {
-    if (useServer) return
-    const msgs = conversation.messages
-    if (msgs.length > prevMessageCount.current) {
-      const lastMsg = msgs[msgs.length - 1]
-      if (lastMsg.role === 'assistant') {
-        setStreamingContent(lastMsg.content)
-      }
-    }
-    prevMessageCount.current = msgs.length
-  }, [useServer, conversation.messages])
-
-  const handleStreamComplete = useCallback(() => {
-    setStreamingContent(null)
-  }, [])
+  }, [messages.length, status])
 
   // --- Send handler ---
   const handleSend = useCallback(async (content: string) => {
+    if (!currentProjectId || !chat) return
+
     if (useServer) {
       chatSendMessage({ text: content })
     } else {
-      setMockSending(true)
-      try {
-        await storeSendMessage(conversation.id, content)
-      } finally {
-        setMockSending(false)
+      // Mock mode: call service, then sync back to Chat
+      const svc = getServices()
+      await svc.conversations.sendMessage(currentProjectId, conversation.id, content)
+      const updated = await svc.conversations.getById(currentProjectId, conversation.id)
+      if (updated) {
+        chat.messages = toUIMessages(updated.messages)
+        // Update store for sidebar metadata
+        useAppStore.setState(s => ({
+          conversations: s.conversations.map(c => c.id === conversation.id ? updated : c),
+        }))
       }
     }
-  }, [useServer, chatSendMessage, storeSendMessage, conversation.id])
+  }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat])
 
   const handleDelete = useCallback(async () => {
     await deleteConversation(conversation.id)
@@ -138,24 +94,8 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
   }, [deleteConversation, selectConversation, conversation.id])
 
   // --- Derived display state ---
-  const isBusy = useServer
-    ? chatStatus === 'submitted' || chatStatus === 'streaming'
-    : mockSending
-
-  const displayMessages = useMemo<Message[]>(() => {
-    if (useServer) {
-      return chatMessages.map(m => toAppMessage(m, conversation.id))
-    }
-    return streamingContent
-      ? conversation.messages.slice(0, -1)
-      : conversation.messages
-  }, [useServer, chatMessages, conversation.id, conversation.messages, streamingContent])
-
-  const showThinking = useServer
-    ? chatStatus === 'submitted'
-    : mockSending && !streamingContent
-
-  const isStreamingNow = useServer && chatStatus === 'streaming'
+  const isBusy = status === 'submitted' || status === 'streaming'
+  const showThinking = status === 'submitted'
 
   return (
     <div data-testid="chat-window" className="flex flex-col h-full">
@@ -177,44 +117,29 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
       </div>
 
       {/* Error banner */}
-      {chatError && (
+      {error && (
         <div className="px-4 py-2 border-b-2 border-accent-red/40 bg-accent-red/10">
           <p className="text-[12px] font-mono text-accent-red">
-            Error: {chatError.message}
+            Error: {error.message}
           </p>
         </div>
       )}
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-4 py-3">
-        {displayMessages.length === 0 && !isBusy ? (
+        {messages.length === 0 && !isBusy ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-[12px] text-text-dim font-mono">
               Start the conversation...
             </p>
           </div>
         ) : (
-          <motion.div {...staggerContainer} initial="initial" animate="animate">
-            {displayMessages.map((msg, i) => (
+          <motion.div {...staggerContainer} initial={shouldAnimateStagger ? 'initial' : false} animate="animate">
+            {messages.map((msg: UIMessage) => (
               <motion.div key={msg.id} {...staggerItem}>
-                <MessageBubble
-                  message={msg}
-                  showCursor={
-                    isStreamingNow
-                    && i === displayMessages.length - 1
-                    && msg.role === 'assistant'
-                  }
-                />
+                <MessageBubble message={msg} />
               </motion.div>
             ))}
-
-            {/* Mock mode: typewriter streaming effect */}
-            {!useServer && streamingContent && (
-              <StreamingMessage
-                content={streamingContent}
-                onComplete={handleStreamComplete}
-              />
-            )}
 
             {/* Thinking indicator */}
             {showThinking && (
