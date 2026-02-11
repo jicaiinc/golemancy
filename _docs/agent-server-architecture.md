@@ -91,7 +91,7 @@ const results = db.all(sql`
 | Artifacts | `projects/{id}/artifacts/` files + `.meta.json` | Binary/large files belong on disk; metadata co-located |
 | Memory | `projects/{id}/memory/{id}.json` | Low volume, tag search viable via file scan at desktop scale |
 | Settings | `settings.json` | Single global config file |
-| Skills | `projects/{id}/skills/{name}/` | Directory-based Skill Package standard (SKILL.md + scripts/) |
+| Skills | `projects/{id}/skills/{name}/` | Directory-based Skill Package (SKILL.md + scripts/). Skills 归属于 Agent，通过 Agent 配置引用 |
 
 **Design rationale**: At desktop scale (tens of projects, hundreds of agents), file-based storage is fast enough for CRUD. SQLite is reserved for data that genuinely needs pagination (messages: thousands per conversation), full-text search (message history), or high-frequency append (task logs: many writes per second during agent execution).
 
@@ -741,8 +741,8 @@ User clicks "Cancel"
         │   └── {artifact-id}.{ext}        # Actual file content
         ├── memory/
         │   └── {memory-id}.json           # MemoryEntry
-        └── skills/
-            └── {skill-name}/              # Skill Package (agentskills.io standard)
+        └── skills/                        # Skills 存储（通过 Agent 配置引用）
+            └── {skill-name}/              # Skill Package
                 ├── SKILL.md               # YAML frontmatter + instructions
                 ├── scripts/               # Deterministic scripts
                 └── references/            # On-demand reference docs

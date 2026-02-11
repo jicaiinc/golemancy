@@ -139,7 +139,7 @@ User
 │  │  TypeScript          │  REST    │                                  │  │
 │  │  Zustand             │◄─────────│  ┌──────────────────────────┐  │  │
 │  │  Tailwind CSS        │ WebSocket│  │      Data Layer          │  │  │
-│  │  Framer Motion       │◄─────────│  │      SQLite + Drizzle    │  │  │
+│  │  motion              │◄─────────│  │      SQLite + Drizzle    │  │  │
 │  │                      │  (推送)   │  └──────────────────────────┘  │  │
 │  └──────────────────────┘          └──────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────────────────┘
@@ -252,7 +252,7 @@ Electron Main Process (守护者)
 | UI 框架 | React + TypeScript | - |
 | 状态管理 | Zustand | 轻量、灵活，适合 Agent 状态同步 |
 | 样式方案 | Tailwind CSS | 实用优先的 CSS 框架 |
-| 像素动画 | Framer Motion | 声明式动画库 |
+| 像素动画 | motion (`motion/react`) | 声明式动画库 |
 
 ### 4.2 桌面 / 主进程
 
@@ -286,7 +286,7 @@ Electron Main Process (守护者)
 |----------|------|------|
 | Project | 项目定义、项目级配置 | 全局 |
 | Agent 配置 | Agent 定义、Skills、Tool Call Schema、Sub-Agent 引用 | Project |
-| 对话记录 | Session、消息历史 | Project |
+| 对话记录 | Conversation、消息历史 | Project |
 | 项目记忆 | 项目级知识沉淀 | Project |
 | 任务记录 | 任务创建时间、状态、执行日志 | Project |
 | 执行日志 | Tool Call 调用记录、耗时、结果 | Project |
@@ -332,7 +332,7 @@ Electron Main Process (守护者)
 - Skills（bash-tool 加载 Skill Package，按需激活）
 - Tool Calls（AI SDK `tool()` + Zod schema 定义 + 执行）
 - Sub-Agent 调度（同 Project 内 Agent 间协作）
-- Session 与对话管理（归属于 Project）
+- Conversation 与对话管理（归属于 Project）
 - AI 上下文管理（截断、摘要）
 - AI Provider 与模型调用与流式响应
 - API Key 校验与加密
@@ -360,9 +360,9 @@ SoloCraft.team/
 │       ├── renderer/           # 挂载 UI 模块的入口
 │       └── preload/
 ├── packages/
-│   ├── ui/                     # UI 模块
-│   ├── agent/                  # Agent 模块
-│   └── platform/               # Platform 模块
+│   ├── ui/                     # UI 模块（React + Zustand + Tailwind）
+│   ├── server/                 # Server 模块（Hono + SQLite + AI SDK）
+│   └── shared/                 # 共享类型 + 服务接口（零运行时）
 └── turbo.json
 ```
 
@@ -434,11 +434,8 @@ SQLite 优势：
         │   ├── {artifact-id}.py       # 生成的代码
         │   ├── {artifact-id}.png      # 生成的图片
         │   └── {artifact-id}.csv      # 生成的数据
-        └── skills/
-            └── {skill-name}/          # Skill Package
-                ├── SKILL.md           # 指令 + YAML frontmatter
-                ├── scripts/           # 可选：确定性脚本
-                └── references/        # 可选：按需参考文档
+        └── agents/
+            └── {agent-id}.json        # Agent 定义（含 Skills 配置）
 ```
 
 **关键设计：SQLite 是单个 `data.db` 文件**，不是每个项目一个 DB。原因：
@@ -495,7 +492,6 @@ class SqliteArtifactService implements IArtifactService {
 - Sub-Agent 调度协议细节（消息格式、上下文传递、结果回收）
 - 数据同步与云端方案（如果需要跨设备）
 - Agent 执行的安全沙箱与权限控制
-- 跨 Project 复用 Agent（Agent Template 机制，按需引入）
 
 ## 八、Agent 服务层技术方案
 

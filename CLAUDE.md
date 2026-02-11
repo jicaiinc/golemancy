@@ -93,6 +93,10 @@ Zustand actions use `getServices()` directly (can't access React Context). Compo
 
 HashRouter at `packages/ui/src/app/routes.tsx`. Project-scoped routes nested under `/projects/:projectId` with `ProjectLayout`.
 
+### Abstraction Model
+
+Two core abstractions: **Project** (top container) and **Agent** (core unit within project). All agents belong to a project. Each project has a **Main Agent** configured in Project Settings — users chat with it by default when creating a new conversation. Skills, Tools, MCP, Sub-Agents all live inside Agent config. No global Agent/Skill libraries.
+
 ### Config Hierarchy
 
 Three-layer resolution: Global Settings → Project Config → Agent Config. See `useResolvedConfig()` hook.
