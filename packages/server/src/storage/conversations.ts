@@ -12,14 +12,19 @@ import { logger } from '../logger'
 const log = logger.child({ component: 'storage:conversations' })
 
 export class SqliteConversationStorage implements IConversationService {
-  constructor(private db: AppDatabase) {}
+  private getProjectDb: (projectId: ProjectId) => AppDatabase
+
+  constructor(getProjectDb: (projectId: ProjectId) => AppDatabase) {
+    this.getProjectDb = getProjectDb
+  }
 
   async list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]> {
+    const db = this.getProjectDb(projectId)
     const conditions = agentId
       ? and(eq(schema.conversations.projectId, projectId), eq(schema.conversations.agentId, agentId))
       : eq(schema.conversations.projectId, projectId)
 
-    const rows = await this.db
+    const rows = await db
       .select()
       .from(schema.conversations)
       .where(conditions)
@@ -29,7 +34,8 @@ export class SqliteConversationStorage implements IConversationService {
   }
 
   async getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null> {
-    const rows = await this.db
+    const db = this.getProjectDb(projectId)
+    const rows = await db
       .select()
       .from(schema.conversations)
       .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))
@@ -40,11 +46,12 @@ export class SqliteConversationStorage implements IConversationService {
   }
 
   async create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation> {
+    const db = this.getProjectDb(projectId)
     const id = generateId('conv')
     log.debug({ projectId, agentId, conversationId: id }, 'creating conversation')
     const now = new Date().toISOString()
 
-    await this.db.insert(schema.conversations).values({
+    await db.insert(schema.conversations).values({
       id,
       projectId,
       agentId,
@@ -67,6 +74,7 @@ export class SqliteConversationStorage implements IConversationService {
   }
 
   async sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void> {
+    const db = this.getProjectDb(projectId)
     // Verify conversationId belongs to projectId
     const conv = await this.getById(projectId, conversationId)
     if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
@@ -74,7 +82,7 @@ export class SqliteConversationStorage implements IConversationService {
     const now = new Date().toISOString()
     const msgId = generateId('msg')
 
-    await this.db.insert(schema.messages).values({
+    await db.insert(schema.messages).values({
       id: msgId,
       conversationId,
       role: 'user',
@@ -82,7 +90,7 @@ export class SqliteConversationStorage implements IConversationService {
       createdAt: now,
     })
 
-    await this.db
+    await db
       .update(schema.conversations)
       .set({ lastMessageAt: now, updatedAt: now })
       .where(eq(schema.conversations.id, conversationId))
@@ -93,12 +101,13 @@ export class SqliteConversationStorage implements IConversationService {
     conversationId: ConversationId,
     data: { id: MessageId; role: string; content: string },
   ): Promise<void> {
+    const db = this.getProjectDb(projectId)
     // Verify conversationId belongs to projectId
     const conv = await this.getById(projectId, conversationId)
     if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
 
     // Dedup: skip if message with this ID already exists
-    const existing = await this.db
+    const existing = await db
       .select({ id: schema.messages.id })
       .from(schema.messages)
       .where(eq(schema.messages.id, data.id))
@@ -110,7 +119,7 @@ export class SqliteConversationStorage implements IConversationService {
     }
 
     const now = new Date().toISOString()
-    await this.db.insert(schema.messages).values({
+    await db.insert(schema.messages).values({
       id: data.id,
       conversationId,
       role: data.role,
@@ -118,7 +127,7 @@ export class SqliteConversationStorage implements IConversationService {
       createdAt: now,
     })
 
-    await this.db
+    await db
       .update(schema.conversations)
       .set({ lastMessageAt: now, updatedAt: now })
       .where(eq(schema.conversations.id, conversationId))
@@ -127,8 +136,9 @@ export class SqliteConversationStorage implements IConversationService {
   }
 
   async delete(projectId: ProjectId, id: ConversationId): Promise<void> {
+    const db = this.getProjectDb(projectId)
     log.debug({ projectId, conversationId: id }, 'deleting conversation')
-    await this.db
+    await db
       .delete(schema.conversations)
       .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))
   }
@@ -138,6 +148,7 @@ export class SqliteConversationStorage implements IConversationService {
     conversationId: ConversationId,
     params: PaginationParams,
   ): Promise<PaginatedResult<Message>> {
+    const db = this.getProjectDb(projectId)
     // Verify conversationId belongs to projectId
     const conv = await this.getById(projectId, conversationId)
     if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
@@ -146,14 +157,14 @@ export class SqliteConversationStorage implements IConversationService {
     const offset = (page - 1) * pageSize
 
     const [items, countResult] = await Promise.all([
-      this.db
+      db
         .select()
         .from(schema.messages)
         .where(eq(schema.messages.conversationId, conversationId))
         .orderBy(desc(schema.messages.createdAt))
         .limit(pageSize)
         .offset(offset),
-      this.db
+      db
         .select({ count: sql<number>`count(*)` })
         .from(schema.messages)
         .where(eq(schema.messages.conversationId, conversationId)),
@@ -172,6 +183,7 @@ export class SqliteConversationStorage implements IConversationService {
     query: string,
     params: PaginationParams,
   ): Promise<PaginatedResult<Message>> {
+    const db = this.getProjectDb(projectId)
     const { page, pageSize } = params
     const offset = (page - 1) * pageSize
     const sanitized = '"' + query.replace(/"/g, '""') + '"'
@@ -186,7 +198,7 @@ export class SqliteConversationStorage implements IConversationService {
       created_at: string
     }
 
-    const items = this.db.all<FtsMessageRow>(sql`
+    const items = db.all<FtsMessageRow>(sql`
       SELECT m.*
       FROM messages_fts fts
       JOIN messages m ON m.rowid = fts.rowid
@@ -198,7 +210,7 @@ export class SqliteConversationStorage implements IConversationService {
       OFFSET ${offset}
     `)
 
-    const countRows = this.db.all<{ cnt: number }>(sql`
+    const countRows = db.all<{ cnt: number }>(sql`
       SELECT count(*) as cnt
       FROM messages_fts fts
       JOIN messages m ON m.rowid = fts.rowid

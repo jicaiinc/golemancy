@@ -34,10 +34,14 @@ export function createTaskRoutes(storage: ITaskService) {
   })
 
   app.get('/:id/logs', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
     const taskId = c.req.param('id') as TaskId
     const cursor = c.req.query('cursor') ? parseInt(c.req.query('cursor')!, 10) : undefined
     const limit = parseInt(c.req.query('limit') ?? '100', 10)
-    log.debug({ taskId, cursor, limit }, 'getting task logs')
+    log.debug({ projectId, taskId, cursor, limit }, 'getting task logs')
+    // Warm the taskId→projectId cache so getLogs can find the right DB
+    const task = await storage.getById(projectId, taskId)
+    if (!task) return c.json({ error: 'Not found' }, 404)
     const logs = await storage.getLogs(taskId, cursor, limit)
     return c.json(logs)
   })

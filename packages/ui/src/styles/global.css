@@ -188,11 +188,13 @@ html {
   color: var(--color-text-primary);
   background-color: var(--color-void);
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
 }
 
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 img[data-pixel],

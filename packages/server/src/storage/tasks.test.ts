@@ -66,7 +66,8 @@ describe('FileTaskStorage', () => {
     db = testDb.db
     closeDb = testDb.close
 
-    storage = new FileTaskStorage(db)
+    // All projects share the same in-memory DB for test simplicity
+    storage = new FileTaskStorage(() => db)
 
     await fs.mkdir(`${state.tmpDir}/projects/${projId}/tasks`, { recursive: true })
   })
@@ -157,6 +158,10 @@ describe('FileTaskStorage', () => {
 
   describe('getLogs', () => {
     it('returns logs for a task', async () => {
+      // Warm the cache via getById
+      await seedTask(makeTask({ id: 'task-1' as TaskId }))
+      await storage.getById(projId, 'task-1' as TaskId)
+
       db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
         VALUES ('task-1', 'start', 'Started', '2024-01-01T00:00:00Z')`)
       db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
@@ -171,6 +176,10 @@ describe('FileTaskStorage', () => {
     })
 
     it('supports cursor-based pagination', async () => {
+      // Warm the cache via getById
+      await seedTask(makeTask({ id: 'task-1' as TaskId }))
+      await storage.getById(projId, 'task-1' as TaskId)
+
       for (let i = 0; i < 5; i++) {
         db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
           VALUES ('task-1', 'generation', ${`Step ${i}`}, ${`2024-01-01T00:00:0${i}Z`})`)
@@ -189,6 +198,10 @@ describe('FileTaskStorage', () => {
     })
 
     it('returns logs with metadata', async () => {
+      // Warm the cache via getById
+      await seedTask(makeTask({ id: 'task-1' as TaskId }))
+      await storage.getById(projId, 'task-1' as TaskId)
+
       db.run(sql`INSERT INTO task_logs (task_id, type, content, metadata, timestamp)
         VALUES ('task-1', 'completed', 'Done', '{"tokenUsage":2500}', '2024-01-01T00:00:00Z')`)
 
@@ -196,9 +209,10 @@ describe('FileTaskStorage', () => {
       expect(logs[0].metadata).toEqual({ tokenUsage: 2500 })
     })
 
-    it('returns empty for task with no logs', async () => {
-      const logs = await storage.getLogs('task-missing' as TaskId)
-      expect(logs).toEqual([])
+    it('throws for task with no cache entry', async () => {
+      await expect(
+        storage.getLogs('task-missing' as TaskId),
+      ).rejects.toThrow('Unknown project for task')
     })
   })
 })

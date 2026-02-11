@@ -18,7 +18,8 @@ describe('SqliteConversationStorage', () => {
     const test = createTestDb()
     db = test.db
     close = test.close
-    storage = new SqliteConversationStorage(db)
+    // All projects share the same in-memory DB for test simplicity
+    storage = new SqliteConversationStorage(() => db)
   })
 
   afterEach(() => {

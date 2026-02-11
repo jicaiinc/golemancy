@@ -1,10 +1,11 @@
 import { Hono } from 'hono'
 import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
 import type {
-  AgentId, ProjectId, ConversationId,
+  AgentId, ProjectId, ConversationId, MessageId,
   IAgentService, IConversationService, ISettingsService,
 } from '@solocraft/shared'
 import { resolveModel } from '../agent/model'
+import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:chat' })
@@ -76,6 +77,28 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     log.debug({ projectId, agentId, conversationId, messageCount: messages.length }, 'starting chat stream')
 
+    // Save user's latest message before streaming
+    if (conversationId) {
+      const lastUserMsg = messages.filter(m => m.role === 'user').at(-1)
+      if (lastUserMsg) {
+        const textContent = lastUserMsg.parts
+          .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+          .map(p => p.text)
+          .join('')
+        if (textContent) {
+          await deps.conversationStorage.saveMessage(
+            projectId as ProjectId,
+            conversationId as ConversationId,
+            {
+              id: lastUserMsg.id as MessageId,
+              role: 'user',
+              content: textContent,
+            },
+          )
+        }
+      }
+    }
+
     const modelMessages = await convertToModelMessages(messages)
 
     const result = streamText({
@@ -85,6 +108,20 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       stopWhen: stepCountIs(10),
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
+      onFinish: async ({ text }) => {
+        // Save assistant reply after streaming completes
+        if (conversationId && text) {
+          await deps.conversationStorage.saveMessage(
+            projectId as ProjectId,
+            conversationId as ConversationId,
+            {
+              id: generateId('msg') as MessageId,
+              role: 'assistant',
+              content: text,
+            },
+          )
+        }
+      },
     })
 
     return result.toUIMessageStreamResponse()

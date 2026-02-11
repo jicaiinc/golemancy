@@ -51,6 +51,7 @@ function createMockDeps() {
         Promise.resolve({ id: 'conv-new', projectId: _pid, agentId, title, messages: [] }),
       ),
       sendMessage: vi.fn().mockResolvedValue(undefined),
+      saveMessage: vi.fn().mockResolvedValue(undefined),
       delete: vi.fn().mockResolvedValue(undefined),
       getMessages: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 50 }),
       searchMessages: vi.fn().mockResolvedValue({ items: [], total: 0, page: 1, pageSize: 20 }),
@@ -334,14 +335,22 @@ describe('HTTP API routes', () => {
     })
 
     it('GET /:id/logs returns logs with cursor and limit', async () => {
+      ;(deps.taskStorage.getById as any).mockResolvedValueOnce({ id: 'task-1', title: 'Research' })
       const res = await app.request('/api/projects/proj-1/tasks/task-1/logs?cursor=5&limit=50')
       expect(res.status).toBe(200)
+      expect(deps.taskStorage.getById).toHaveBeenCalledWith('proj-1', 'task-1')
       expect(deps.taskStorage.getLogs).toHaveBeenCalledWith('task-1', 5, 50)
     })
 
     it('GET /:id/logs uses defaults when no params', async () => {
+      ;(deps.taskStorage.getById as any).mockResolvedValueOnce({ id: 'task-1', title: 'Research' })
       await app.request('/api/projects/proj-1/tasks/task-1/logs')
       expect(deps.taskStorage.getLogs).toHaveBeenCalledWith('task-1', undefined, 100)
+    })
+
+    it('GET /:id/logs returns 404 when task not found', async () => {
+      const res = await app.request('/api/projects/proj-1/tasks/task-missing/logs')
+      expect(res.status).toBe(404)
     })
   })
 

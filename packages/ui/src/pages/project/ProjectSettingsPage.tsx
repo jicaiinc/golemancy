@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import type { AIProvider, AgentId, ProjectConfig } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
-import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelBadge, PixelTabs } from '../../components'
+import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs } from '../../components'
 
 const ICONS = [
   { id: 'pickaxe', label: '\u26CF' },
@@ -181,30 +181,14 @@ function AgentTab({
             </select>
 
             {mainAgent && (
-              <>
-                <PixelCard variant="outlined" className="mt-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-pixel text-[10px] text-text-primary">{mainAgent.name}</div>
-                      {mainAgent.description && (
-                        <p className="text-[11px] text-text-dim mt-1 line-clamp-2">{mainAgent.description}</p>
-                      )}
-                    </div>
-                    {mainAgent.modelConfig.model && (
-                      <PixelBadge variant="info">{mainAgent.modelConfig.model}</PixelBadge>
-                    )}
-                  </div>
-                </PixelCard>
-
-                {mainAgent.systemPrompt && (
-                  <div className="mt-4">
-                    <div className="font-pixel text-[10px] text-text-secondary mb-2">SYSTEM PROMPT</div>
-                    <pre className="bg-deep font-mono text-[12px] text-text-primary px-3 py-2 max-h-[400px] overflow-y-auto border-2 border-border-dim whitespace-pre-wrap break-words">
-                      {mainAgent.systemPrompt}
-                    </pre>
-                  </div>
-                )}
-              </>
+              <PixelButton
+                variant="secondary"
+                size="sm"
+                className="mt-3"
+                onClick={() => navigate(`/projects/${projectId}/agents/${mainAgent.id}`)}
+              >
+                Configure Agent →
+              </PixelButton>
             )}
           </>
         )}

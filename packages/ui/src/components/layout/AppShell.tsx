@@ -19,11 +19,11 @@ export function AppShell({
   activeAgents,
 }: AppShellProps) {
   return (
-    <div data-testid="app-shell" className="flex h-screen w-screen bg-void">
+    <div data-testid="app-shell" className="flex h-screen w-full bg-void">
       <ProjectSidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <TopBar left={topBarLeft} right={topBarRight} />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
         <StatusBar tokenUsage={tokenUsage} activeAgents={activeAgents} />

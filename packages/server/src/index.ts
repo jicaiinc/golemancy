@@ -2,9 +2,8 @@ import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import { serve } from '@hono/node-server'
 import { createApp, type ServerDependencies } from './app'
-import { createDatabase } from './db/client'
-import { migrateDatabase } from './db/migrate'
-import { getDataDir, getDbPath } from './utils/paths'
+import { ProjectDbManager } from './db/project-db'
+import { getDataDir } from './utils/paths'
 import { FileProjectStorage } from './storage/projects'
 import { FileAgentStorage } from './storage/agents'
 import { SqliteConversationStorage } from './storage/conversations'
@@ -23,18 +22,15 @@ async function main() {
   logger.debug({ dataDir }, 'ensuring data directory exists')
   await fs.mkdir(dataDir, { recursive: true })
 
-  // Initialize database
-  const dbPath = getDbPath()
-  logger.debug({ dbPath }, 'initializing database')
-  const db = createDatabase(dbPath)
-  migrateDatabase(db)
+  // Per-project database manager (lazy-loads DBs on first access)
+  const dbManager = new ProjectDbManager()
 
   // Construct dependencies
   const deps: ServerDependencies = {
     projectStorage: new FileProjectStorage(),
     agentStorage: new FileAgentStorage(),
-    conversationStorage: new SqliteConversationStorage(db),
-    taskStorage: new FileTaskStorage(db),
+    conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb),
+    taskStorage: new FileTaskStorage(dbManager.getProjectDb),
     artifactStorage: new FileArtifactStorage(),
     memoryStorage: new FileMemoryStorage(),
     cronJobStorage: new FileCronJobStorage(),

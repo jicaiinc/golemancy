@@ -10,7 +10,12 @@ import { logger } from '../logger'
 const log = logger.child({ component: 'storage:tasks' })
 
 export class FileTaskStorage implements ITaskService {
-  constructor(private db: AppDatabase) {}
+  private getProjectDb: (projectId: ProjectId) => AppDatabase
+  private taskProjectMap = new Map<string, ProjectId>()
+
+  constructor(getProjectDb: (projectId: ProjectId) => AppDatabase) {
+    this.getProjectDb = getProjectDb
+  }
 
   private tasksDir(projectId: string) {
     return path.join(getProjectPath(projectId), 'tasks')
@@ -28,9 +33,14 @@ export class FileTaskStorage implements ITaskService {
 
     if (filtered.length === 0) return filtered
 
+    // Cache taskId→projectId mapping
+    for (const t of filtered) this.taskProjectMap.set(t.id as string, projectId)
+
+    const db = this.getProjectDb(projectId)
+
     // Batch query all logs in a single query instead of N+1
     const taskIds = filtered.map(t => t.id as string)
-    const allLogs = await this.db
+    const allLogs = await db
       .select()
       .from(schema.taskLogs)
       .where(inArray(schema.taskLogs.taskId, taskIds))
@@ -54,7 +64,8 @@ export class FileTaskStorage implements ITaskService {
   async getById(projectId: ProjectId, id: TaskId): Promise<Task | null> {
     const task = await readJson<Task>(this.taskPath(projectId, id))
     if (!task) return null
-    return this.attachLogs(task)
+    this.taskProjectMap.set(id as string, projectId)
+    return this.attachLogs(projectId, task)
   }
 
   async cancel(projectId: ProjectId, id: TaskId): Promise<void> {
@@ -69,11 +80,15 @@ export class FileTaskStorage implements ITaskService {
   }
 
   async getLogs(taskId: TaskId, cursor?: number, limit = 100): Promise<TaskLogEntry[]> {
+    const projectId = this.taskProjectMap.get(taskId as string)
+    if (!projectId) throw new Error(`Unknown project for task ${taskId}. Call getById or list first.`)
+
+    const db = this.getProjectDb(projectId)
     const condition = cursor
       ? sql`${schema.taskLogs.taskId} = ${taskId} AND ${schema.taskLogs.id} > ${cursor}`
       : eq(schema.taskLogs.taskId, taskId)
 
-    const rows = await this.db
+    const rows = await db
       .select()
       .from(schema.taskLogs)
       .where(condition)
@@ -90,7 +105,8 @@ export class FileTaskStorage implements ITaskService {
     }))
   }
 
-  private async attachLogs(task: Task): Promise<Task> {
+  private async attachLogs(projectId: ProjectId, task: Task): Promise<Task> {
+    this.taskProjectMap.set(task.id as string, projectId)
     const logs = await this.getLogs(task.id as TaskId)
     return { ...task, log: logs }
   }
