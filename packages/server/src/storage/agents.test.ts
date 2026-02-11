@@ -77,7 +77,7 @@ describe('FileAgentStorage', () => {
       expect(agent.projectId).toBe(projId)
       expect(agent.name).toBe('Research Agent')
       expect(agent.status).toBe('idle')
-      expect(agent.skills).toEqual([])
+      expect(agent.skillIds).toEqual([])
       expect(agent.tools).toEqual([])
       expect(agent.subAgents).toEqual([])
     })

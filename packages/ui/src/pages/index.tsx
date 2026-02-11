@@ -7,6 +7,9 @@ export { ProjectListPage, ProjectDashboardPage, ProjectSettingsPage } from './pr
 // Agent management pages
 export { AgentListPage, AgentDetailPage } from './agent'
 
+// Skills
+export { SkillsPage } from './skill'
+
 // Chat pages
 export { ChatPage } from './chat'
 

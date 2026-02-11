@@ -4,7 +4,7 @@ import { bodyLimit } from 'hono/body-limit'
 import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
-  IArtifactService, IMemoryService, ISettingsService, IDashboardService, ICronJobService,
+  IArtifactService, IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
 } from '@solocraft/shared'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
@@ -15,6 +15,7 @@ import { createArtifactRoutes } from './routes/artifacts'
 import { createMemoryRoutes } from './routes/memories'
 import { createSettingsRoutes } from './routes/settings'
 import { createDashboardRoutes } from './routes/dashboard'
+import { createSkillRoutes } from './routes/skills'
 import { createCronJobRoutes } from './routes/cronjobs'
 import { logger } from './logger'
 
@@ -25,6 +26,7 @@ export interface ServerDependencies {
   taskStorage: ITaskService
   artifactStorage: IArtifactService
   memoryStorage: IMemoryService
+  skillStorage: ISkillService
   settingsStorage: ISettingsService
   dashboardService: IDashboardService
   cronJobStorage: ICronJobService
@@ -81,6 +83,10 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
   app.route('/api/projects/:projectId/artifacts', createArtifactRoutes(deps.artifactStorage))
   app.route('/api/projects/:projectId/memories', createMemoryRoutes(deps.memoryStorage))
+  app.route('/api/projects/:projectId/skills', createSkillRoutes({
+    skillStorage: deps.skillStorage,
+    agentStorage: deps.agentStorage,
+  }))
   app.route('/api/chat', createChatRoutes({
     agentStorage: deps.agentStorage,
     conversationStorage: deps.conversationStorage,

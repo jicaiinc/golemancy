@@ -1,17 +1,18 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, CronJobId,
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
+  SkillCreateData, SkillUpdateData,
 } from '@solocraft/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISettingsService, ICronJobService, IDashboardService,
+  ITaskService, IArtifactService, IMemoryService, ISkillService, ISettingsService, ICronJobService, IDashboardService,
 } from '../interfaces'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
   SEED_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
-  SEED_ACTIVITIES, SEED_CRON_JOBS,
+  SEED_ACTIVITIES, SEED_CRON_JOBS, SEED_SKILLS,
 } from './data'
 
 // Small delay to simulate async I/O
@@ -91,7 +92,7 @@ export class MockAgentService implements IAgentService {
       projectId,
       ...input,
       status: 'idle',
-      skills: [],
+      skillIds: [],
       tools: [],
       subAgents: [],
       createdAt: now,
@@ -316,6 +317,62 @@ export class MockMemoryService implements IMemoryService {
     await delay()
     const entry = this.data.get(id)
     if (entry && entry.projectId === projectId) this.data.delete(id)
+  }
+}
+
+// --- SkillService ---
+export class MockSkillService implements ISkillService {
+  private data = new Map<SkillId, Skill>(SEED_SKILLS.map(s => [s.id, { ...s }]))
+  private agents: MockAgentService
+
+  constructor(agents: MockAgentService) {
+    this.agents = agents
+  }
+
+  async list(projectId: ProjectId): Promise<Skill[]> {
+    await delay()
+    return [...this.data.values()].filter(s => s.projectId === projectId)
+  }
+
+  async getById(projectId: ProjectId, id: SkillId): Promise<Skill | null> {
+    await delay()
+    const skill = this.data.get(id)
+    return skill && skill.projectId === projectId ? skill : null
+  }
+
+  async create(projectId: ProjectId, input: SkillCreateData): Promise<Skill> {
+    await delay()
+    const now = new Date().toISOString()
+    const skill: Skill = {
+      id: genId('skill') as SkillId,
+      projectId,
+      ...input,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(skill.id, skill)
+    return skill
+  }
+
+  async update(projectId: ProjectId, id: SkillId, data: SkillUpdateData): Promise<Skill> {
+    await delay()
+    const existing = this.data.get(id)
+    if (!existing || existing.projectId !== projectId) throw new Error('Skill not found')
+    const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
+    this.data.set(id, updated)
+    return updated
+  }
+
+  async delete(projectId: ProjectId, id: SkillId): Promise<void> {
+    await delay()
+    const skill = this.data.get(id)
+    if (!skill || skill.projectId !== projectId) throw new Error('Skill not found')
+    const agents = await this.agents.list(projectId)
+    const referencingAgents = agents.filter(a => a.skillIds.includes(id))
+    if (referencingAgents.length > 0) {
+      throw new Error(`Skill is assigned to ${referencingAgents.length} agent(s). Unassign first.`)
+    }
+    this.data.delete(id)
   }
 }
 

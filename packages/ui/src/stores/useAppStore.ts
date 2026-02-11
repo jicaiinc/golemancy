@@ -1,10 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob,
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   ThemeMode,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, CronJobId,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
+  SkillCreateData, SkillUpdateData,
 } from '@solocraft/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@solocraft/shared'
 import { getServices } from '../services'
@@ -52,6 +53,11 @@ interface ArtifactSlice {
 interface MemorySlice {
   memories: MemoryEntry[]
   memoriesLoading: boolean
+}
+
+interface SkillSlice {
+  skills: Skill[]
+  skillsLoading: boolean
 }
 
 interface CronJobSlice {
@@ -117,6 +123,13 @@ interface MemoryActions {
   deleteMemory(id: MemoryId): Promise<void>
 }
 
+interface SkillActions {
+  loadSkills(projectId: ProjectId): Promise<void>
+  createSkill(data: SkillCreateData): Promise<Skill>
+  updateSkill(id: SkillId, data: SkillUpdateData): Promise<void>
+  deleteSkill(id: SkillId): Promise<void>
+}
+
 interface CronJobActions {
   loadCronJobs(projectId: ProjectId): Promise<void>
   createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>): Promise<CronJob>
@@ -143,8 +156,8 @@ interface DashboardActions {
 
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & CronJobActions & SettingsActions & UIActions & DashboardActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & SkillSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & SkillActions & CronJobActions & SettingsActions & UIActions & DashboardActions
 
 // AbortController for project switching
 let projectAbort: AbortController | null = null
@@ -182,24 +195,28 @@ export const useAppStore = create<AppState>()(
           tasks: [],
           artifacts: [],
           memories: [],
+          skills: [],
           cronJobs: [],
           agentsLoading: true,
           conversationsLoading: true,
           tasksLoading: true,
           artifactsLoading: true,
           memoriesLoading: true,
+          skillsLoading: true,
           cronJobsLoading: true,
         })
 
-        // Load project data in parallel
+        // Load project data in parallel (individual failures resolve to empty arrays)
         const svc = getServices()
-        const [agents, conversations, tasks, artifacts, memories, cronJobs] = await Promise.all([
-          svc.agents.list(id),
-          svc.conversations.list(id),
-          svc.tasks.list(id),
-          svc.artifacts.list(id),
-          svc.memory.list(id),
-          svc.cronJobs.list(id),
+        const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
+        const [agents, conversations, tasks, artifacts, memories, skills, cronJobs] = await Promise.all([
+          safe(svc.agents.list(id)),
+          safe(svc.conversations.list(id)),
+          safe(svc.tasks.list(id)),
+          safe(svc.artifacts.list(id)),
+          safe(svc.memory.list(id)),
+          safe(svc.skills.list(id)),
+          safe(svc.cronJobs.list(id)),
         ])
 
         // Guard: only apply if still the active project
@@ -211,12 +228,14 @@ export const useAppStore = create<AppState>()(
           tasks,
           artifacts,
           memories,
+          skills,
           cronJobs,
           agentsLoading: false,
           conversationsLoading: false,
           tasksLoading: false,
           artifactsLoading: false,
           memoriesLoading: false,
+          skillsLoading: false,
           cronJobsLoading: false,
         })
       },
@@ -231,7 +250,9 @@ export const useAppStore = create<AppState>()(
           tasks: [],
           artifacts: [],
           memories: [],
+          skills: [],
           cronJobs: [],
+          skillsLoading: false,
           cronJobsLoading: false,
           currentConversationId: null,
         })
@@ -265,7 +286,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], tasks: [], artifacts: [], memories: [], cronJobs: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], tasks: [], artifacts: [], memories: [], skills: [], cronJobs: [] } : {}),
         }))
       },
 
@@ -429,6 +450,38 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().memory.delete(projectId, id)
         set(s => ({ memories: s.memories.filter(m => m.id !== id) }))
+      },
+
+      // --- Skill state ---
+      skills: [],
+      skillsLoading: false,
+
+      async loadSkills(projectId: ProjectId) {
+        set({ skillsLoading: true })
+        const skills = await getServices().skills.list(projectId)
+        set({ skills, skillsLoading: false })
+      },
+
+      async createSkill(data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const skill = await getServices().skills.create(projectId, data)
+        set(s => ({ skills: [...s.skills, skill] }))
+        return skill
+      },
+
+      async updateSkill(id, data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const updated = await getServices().skills.update(projectId, id, data)
+        set(s => ({ skills: s.skills.map(sk => sk.id === id ? updated : sk) }))
+      },
+
+      async deleteSkill(id) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        await getServices().skills.delete(projectId, id)
+        set(s => ({ skills: s.skills.filter(sk => sk.id !== id) }))
       },
 
       // --- CronJob state ---

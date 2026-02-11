@@ -1,6 +1,6 @@
 import type {
   Project, Agent, Conversation, Message, Task, Artifact, MemoryEntry, GlobalSettings,
-  ActivityEntry, CronJob,
+  ActivityEntry, CronJob, Skill,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
   CronJobId,
 } from '@solocraft/shared'
@@ -51,10 +51,7 @@ export const SEED_AGENTS: Agent[] = [
     status: 'running',
     systemPrompt: DEFAULT_AGENT_SYSTEM_PROMPT,
     modelConfig: { provider: 'openai', model: 'gpt-4o', temperature: 0.7 },
-    skills: [
-      { id: 'skill-1' as SkillId, name: 'Blog Writing', description: 'Write SEO-optimized blog posts' },
-      { id: 'skill-2' as SkillId, name: 'Social Media', description: 'Create posts for Twitter, LinkedIn' },
-    ],
+    skillIds: ['skill-1' as SkillId, 'skill-2' as SkillId],
     tools: [
       { id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: { type: 'object', properties: { query: { type: 'string' } } } },
     ],
@@ -71,10 +68,7 @@ export const SEED_AGENTS: Agent[] = [
     status: 'idle',
     systemPrompt: 'You are a research assistant...',
     modelConfig: { provider: 'anthropic', model: 'claude-sonnet-4-5-20250929' },
-    skills: [
-      { id: 'skill-3' as SkillId, name: 'Research', description: 'Deep research on topics' },
-      { id: 'skill-4' as SkillId, name: 'Data Analysis', description: 'Analyze data and generate reports' },
-    ],
+    skillIds: ['skill-3' as SkillId, 'skill-4' as SkillId],
     tools: [
       { id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: { type: 'object', properties: { query: { type: 'string' } } } },
       { id: 'tool-2' as ToolId, name: 'read_file', description: 'Read a file', inputSchema: { type: 'object', properties: { path: { type: 'string' } } } },
@@ -91,7 +85,7 @@ export const SEED_AGENTS: Agent[] = [
     status: 'idle',
     systemPrompt: 'You are a team lead coordinating agents...',
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
-    skills: [],
+    skillIds: [],
     tools: [],
     subAgents: [
       { agentId: 'agent-1' as AgentId, role: 'Content Creation' },
@@ -109,7 +103,7 @@ export const SEED_AGENTS: Agent[] = [
     status: 'idle',
     systemPrompt: 'You scout for trending products...',
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
-    skills: [{ id: 'skill-5' as SkillId, name: 'Product Research', description: 'Find trending products' }],
+    skillIds: ['skill-5' as SkillId],
     tools: [{ id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: {} }],
     subAgents: [],
     createdAt: dayAgo,
@@ -123,7 +117,7 @@ export const SEED_AGENTS: Agent[] = [
     status: 'idle',
     systemPrompt: 'You create compelling product listings...',
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
-    skills: [{ id: 'skill-6' as SkillId, name: 'Copywriting', description: 'Write product descriptions' }],
+    skillIds: ['skill-6' as SkillId],
     tools: [],
     subAgents: [],
     createdAt: dayAgo,
@@ -455,5 +449,63 @@ export const SEED_CRON_JOBS: CronJob[] = [
     enabled: false,
     createdAt: dayAgo,
     updatedAt: hourAgo,
+  },
+]
+
+// --- Skills ---
+export const SEED_SKILLS: Skill[] = [
+  {
+    id: 'skill-1' as SkillId,
+    projectId: 'proj-1' as ProjectId,
+    name: 'Blog Writing',
+    description: 'Write SEO-optimized blog posts',
+    instructions: '# Blog Writing\n\nWrite engaging, SEO-optimized blog posts.\n\n## Guidelines\n- Use clear headings and subheadings\n- Include relevant keywords naturally\n- Keep paragraphs short and scannable',
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+  {
+    id: 'skill-2' as SkillId,
+    projectId: 'proj-1' as ProjectId,
+    name: 'Social Media',
+    description: 'Create posts for Twitter, LinkedIn',
+    instructions: '# Social Media\n\nCreate engaging social media posts.\n\n## Platforms\n- Twitter: concise, hashtags, max 280 chars\n- LinkedIn: professional tone, longer format',
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+  {
+    id: 'skill-3' as SkillId,
+    projectId: 'proj-1' as ProjectId,
+    name: 'Research',
+    description: 'Deep research on topics',
+    instructions: '# Research\n\nConduct thorough research on given topics.\n\n## Process\n- Search multiple sources\n- Cross-reference findings\n- Summarize key insights',
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+  {
+    id: 'skill-4' as SkillId,
+    projectId: 'proj-1' as ProjectId,
+    name: 'Data Analysis',
+    description: 'Analyze data and generate reports',
+    instructions: '# Data Analysis\n\nAnalyze data sets and generate actionable reports.\n\n## Approach\n- Identify trends and patterns\n- Create visualizations\n- Provide recommendations',
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+  {
+    id: 'skill-5' as SkillId,
+    projectId: 'proj-2' as ProjectId,
+    name: 'Product Research',
+    description: 'Find trending products',
+    instructions: '# Product Research\n\nScan marketplaces for trending products.\n\n## Sources\n- Amazon bestsellers\n- AliExpress trending\n- Social media product mentions',
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+  {
+    id: 'skill-6' as SkillId,
+    projectId: 'proj-2' as ProjectId,
+    name: 'Copywriting',
+    description: 'Write product descriptions',
+    instructions: '# Copywriting\n\nWrite compelling product descriptions and copy.\n\n## Guidelines\n- Highlight key benefits\n- Use persuasive language\n- Include bullet points for features',
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
   },
 ]

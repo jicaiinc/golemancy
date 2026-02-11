@@ -77,7 +77,7 @@ function makeAgent(overrides?: Partial<Agent>): Agent {
     status: 'idle',
     systemPrompt: 'You are a writer.',
     modelConfig: { provider: 'google' },
-    skills: [],
+    skillIds: [],
     tools: [],
     subAgents: [],
     createdAt: now,

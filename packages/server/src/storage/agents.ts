@@ -17,14 +17,25 @@ export class FileAgentStorage implements IAgentService {
     return path.join(this.agentsDir(projectId), `${id}.json`)
   }
 
+  /** Normalize agent data from disk — backfill fields added after initial release */
+  private normalize(agent: Agent): Agent {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const raw = agent as any
+    return {
+      ...agent,
+      skillIds: agent.skillIds ?? raw.skills?.map((s: { id: string }) => s.id) ?? [],
+    }
+  }
+
   async list(projectId: ProjectId): Promise<Agent[]> {
     const agents = await listJsonFiles<Agent>(this.agentsDir(projectId))
     log.debug({ projectId, count: agents.length }, 'listed agents')
-    return agents
+    return agents.map(a => this.normalize(a))
   }
 
   async getById(projectId: ProjectId, id: AgentId): Promise<Agent | null> {
-    return readJson<Agent>(this.agentPath(projectId, id))
+    const agent = await readJson<Agent>(this.agentPath(projectId, id))
+    return agent ? this.normalize(agent) : null
   }
 
   async create(
@@ -40,7 +51,7 @@ export class FileAgentStorage implements IAgentService {
       projectId,
       ...data,
       status: 'idle',
-      skills: [],
+      skillIds: [],
       tools: [],
       subAgents: [],
       createdAt: now,

@@ -6,6 +6,7 @@ import {
   MockTaskService,
   MockArtifactService,
   MockMemoryService,
+  MockSkillService,
   MockSettingsService,
   MockCronJobService,
   MockDashboardService,
@@ -13,13 +14,15 @@ import {
 import { SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES } from './data'
 
 export function createMockServices(): ServiceContainer {
+  const agents = new MockAgentService()
   return {
     projects: new MockProjectService(),
-    agents: new MockAgentService(),
+    agents,
     conversations: new MockConversationService(),
     tasks: new MockTaskService(),
     artifacts: new MockArtifactService(),
     memory: new MockMemoryService(),
+    skills: new MockSkillService(agents),
     settings: new MockSettingsService(),
     cronJobs: new MockCronJobService(),
     dashboard: new MockDashboardService(SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES),

@@ -10,6 +10,7 @@ import { SqliteConversationStorage } from './storage/conversations'
 import { FileTaskStorage } from './storage/tasks'
 import { FileArtifactStorage } from './storage/artifacts'
 import { FileMemoryStorage } from './storage/memories'
+import { FileSkillStorage } from './storage/skills'
 import { FileCronJobStorage } from './storage/cronjobs'
 import { FileSettingsStorage } from './storage/settings'
 import { logger } from './logger'
@@ -26,13 +27,15 @@ async function main() {
   const dbManager = new ProjectDbManager()
 
   // Construct dependencies
+  const agentStorage = new FileAgentStorage()
   const deps: ServerDependencies = {
     projectStorage: new FileProjectStorage(),
-    agentStorage: new FileAgentStorage(),
+    agentStorage,
     conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb),
     taskStorage: new FileTaskStorage(dbManager.getProjectDb),
     artifactStorage: new FileArtifactStorage(),
     memoryStorage: new FileMemoryStorage(),
+    skillStorage: new FileSkillStorage(agentStorage),
     cronJobStorage: new FileCronJobStorage(),
     settingsStorage: new FileSettingsStorage(),
     dashboardService: {

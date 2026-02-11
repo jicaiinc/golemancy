@@ -5,6 +5,7 @@ export type {
   ITaskService,
   IArtifactService,
   IMemoryService,
+  ISkillService,
   ISettingsService,
   ICronJobService,
   IDashboardService,

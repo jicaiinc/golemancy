@@ -1,10 +1,11 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, CronJobId,
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
+  SkillCreateData, SkillUpdateData,
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISettingsService, ICronJobService, IDashboardService,
+  ITaskService, IArtifactService, IMemoryService, ISkillService, ISettingsService, ICronJobService, IDashboardService,
 } from '@solocraft/shared'
 import { fetchJson } from './base'
 
@@ -150,6 +151,30 @@ export class HttpMemoryService implements IMemoryService {
   }
   async delete(projectId: ProjectId, id: MemoryId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/memories/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpSkillService implements ISkillService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId) {
+    return fetchJson<Skill[]>(`${this.baseUrl}/api/projects/${projectId}/skills`)
+  }
+  getById(projectId: ProjectId, id: SkillId) {
+    return fetchJson<Skill | null>(`${this.baseUrl}/api/projects/${projectId}/skills/${id}`)
+  }
+  create(projectId: ProjectId, data: SkillCreateData) {
+    return fetchJson<Skill>(`${this.baseUrl}/api/projects/${projectId}/skills`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(projectId: ProjectId, id: SkillId, data: SkillUpdateData) {
+    return fetchJson<Skill>(`${this.baseUrl}/api/projects/${projectId}/skills/${id}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(projectId: ProjectId, id: SkillId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/skills/${id}`, { method: 'DELETE' })
   }
 }
 

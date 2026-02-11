@@ -3,12 +3,6 @@ import type { AgentModelConfig } from './settings'
 
 export type AgentStatus = 'idle' | 'running' | 'paused' | 'error'
 
-export interface Skill {
-  id: SkillId
-  name: string
-  description: string
-}
-
 export interface ToolCallSchema {
   id: ToolId
   name: string
@@ -29,7 +23,7 @@ export interface Agent extends Timestamped {
   status: AgentStatus
   systemPrompt: string
   modelConfig: AgentModelConfig
-  skills: Skill[]
+  skillIds: SkillId[]
   tools: ToolCallSchema[]
   subAgents: SubAgentRef[]
   currentTaskId?: TaskId

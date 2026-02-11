@@ -1,8 +1,9 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, CronJob,
-  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, CronJobId,
+  Project, Agent, Conversation, Task, Artifact, MemoryEntry, CronJob, Skill,
+  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
+  SkillCreateData, SkillUpdateData,
 } from '../types'
 
 export interface IProjectService {
@@ -50,6 +51,14 @@ export interface IMemoryService {
   create(projectId: ProjectId, data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>): Promise<MemoryEntry>
   update(projectId: ProjectId, id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>): Promise<MemoryEntry>
   delete(projectId: ProjectId, id: MemoryId): Promise<void>
+}
+
+export interface ISkillService {
+  list(projectId: ProjectId): Promise<Skill[]>
+  getById(projectId: ProjectId, id: SkillId): Promise<Skill | null>
+  create(projectId: ProjectId, data: SkillCreateData): Promise<Skill>
+  update(projectId: ProjectId, id: SkillId, data: SkillUpdateData): Promise<Skill>
+  delete(projectId: ProjectId, id: SkillId): Promise<void>
 }
 
 export interface ISettingsService {

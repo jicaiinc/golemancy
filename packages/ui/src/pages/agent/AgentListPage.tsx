@@ -106,9 +106,9 @@ export function AgentListPage() {
 
                 {/* Meta */}
                 <div className="flex items-center gap-3 mt-auto pt-3 border-t-2 border-border-dim">
-                  {agent.skills.length > 0 && (
+                  {(agent.skillIds ?? []).length > 0 && (
                     <span className="text-[11px] text-text-dim">
-                      {agent.skills.length} skill{agent.skills.length !== 1 ? 's' : ''}
+                      {agent.skillIds.length} skill{agent.skillIds.length !== 1 ? 's' : ''}
                     </span>
                   )}
                   {agent.tools.length > 0 && (

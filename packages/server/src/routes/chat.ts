@@ -5,6 +5,7 @@ import type {
   IAgentService, IConversationService, ISettingsService,
 } from '@solocraft/shared'
 import { resolveModel } from '../agent/model'
+import { loadAgentSkillTools } from '../agent/skills'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 
@@ -99,12 +100,23 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       }
     }
 
+    // Load skill tools for this specific agent
+    let skillTools: Awaited<ReturnType<typeof loadAgentSkillTools>> = null
+    if (agent.skillIds?.length > 0) {
+      skillTools = await loadAgentSkillTools(projectId, agent.skillIds)
+    }
+
+    const systemPrompt = skillTools?.instructions
+      ? agent.systemPrompt + '\n\n' + skillTools.instructions
+      : agent.systemPrompt
+
     const modelMessages = await convertToModelMessages(messages)
 
     const result = streamText({
       model,
-      system: agent.systemPrompt,
+      system: systemPrompt,
       messages: modelMessages,
+      tools: skillTools?.tools,
       stopWhen: stepCountIs(10),
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,

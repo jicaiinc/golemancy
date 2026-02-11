@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import type { Agent, AgentId, AgentStatus, AIProvider } from '@solocraft/shared'
+import type { Agent, AgentId, AgentStatus, AIProvider, SkillId } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, useResolvedConfig } from '../../hooks'
 import {
@@ -74,7 +74,7 @@ export function AgentDetailPage() {
           </div>
           <p className="text-[13px] text-text-secondary mt-1">{agent.description}</p>
           <div className="flex items-center gap-3 mt-2 text-[11px] text-text-dim">
-            <span>{agent.skills.length} skills</span>
+            <span>{(agent.skillIds ?? []).length} skills</span>
             <span>{agent.tools.length} tools</span>
             <span>{agent.subAgents.length} sub-agents</span>
             {agent.modelConfig.model && (
@@ -89,7 +89,7 @@ export function AgentDetailPage() {
 
       <div className="mt-4">
         {activeTab === 'info' && <InfoTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`) }} />}
-        {activeTab === 'skills' && <SkillsTab agent={agent} />}
+        {activeTab === 'skills' && <SkillsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'tools' && <ToolsTab agent={agent} />}
         {activeTab === 'sub-agents' && <SubAgentsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'model' && <ModelConfigTab agent={agent} onUpdate={updateAgent} />}
@@ -143,22 +143,70 @@ function InfoTab({ agent, onUpdate, onDelete }: {
 }
 
 // ========== Skills Tab ==========
-function SkillsTab({ agent }: { agent: Agent }) {
+function SkillsTab({ agent, onUpdate }: {
+  agent: Agent
+  onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
+}) {
+  const skills = useAppStore(s => s.skills)
+  const navigate = useNavigate()
+  const { projectId } = useParams<{ projectId: string }>()
+
+  const assigned = skills.filter(s => agent.skillIds.includes(s.id))
+  const available = skills.filter(s => !agent.skillIds.includes(s.id))
+
+  async function addSkill(skillId: SkillId) {
+    await onUpdate(agent.id, { skillIds: [...agent.skillIds, skillId] })
+  }
+
+  async function removeSkill(skillId: SkillId) {
+    await onUpdate(agent.id, { skillIds: agent.skillIds.filter(id => id !== skillId) })
+  }
+
   return (
-    <div>
-      {agent.skills.length === 0 ? (
-        <PixelCard variant="outlined" className="text-center py-8">
-          <p className="text-[12px] text-text-dim">No skills configured</p>
-        </PixelCard>
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {agent.skills.map(skill => (
-            <PixelCard key={skill.id} className="inline-flex flex-col gap-1">
-              <span className="font-pixel text-[9px] text-accent-cyan">{skill.name}</span>
-              <span className="text-[11px] text-text-secondary">{skill.description}</span>
+    <div className="max-w-[640px]">
+      {/* Assigned skills */}
+      {assigned.length > 0 && (
+        <div className="flex flex-col gap-2 mb-4">
+          {assigned.map(skill => (
+            <PixelCard key={skill.id} className="flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="font-pixel text-[9px] text-accent-cyan">{skill.name}</div>
+                <div className="text-[11px] text-text-secondary mt-0.5">{skill.description}</div>
+              </div>
+              <PixelButton size="sm" variant="ghost" onClick={() => removeSkill(skill.id)}>
+                &times;
+              </PixelButton>
             </PixelCard>
           ))}
         </div>
+      )}
+
+      {/* Available skills picker */}
+      {available.length > 0 && (
+        <div>
+          <div className="font-pixel text-[8px] text-text-dim mb-2">ADD SKILL</div>
+          <div className="flex flex-col gap-1">
+            {available.map(skill => (
+              <button
+                key={skill.id}
+                className="flex items-center gap-3 p-2 text-left hover:bg-elevated/50 cursor-pointer transition-colors"
+                onClick={() => addSkill(skill.id)}
+              >
+                <span className="font-pixel text-[9px] text-accent-cyan">{skill.name}</span>
+                <span className="text-[11px] text-text-dim">{skill.description}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {assigned.length === 0 && available.length === 0 && (
+        <PixelCard variant="outlined" className="text-center py-8">
+          <p className="text-[12px] text-text-dim mb-2">No skills in this project</p>
+          <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/skills`)}>
+            Go to Skills
+          </PixelButton>
+        </PixelCard>
       )}
     </div>
   )
