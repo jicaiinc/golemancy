@@ -136,6 +136,24 @@ Tailwind CSS v4 with CSS-first config in `packages/ui/src/styles/global.css`:
 
 Vitest with jsdom environment (UI) and Node environment (server). UI setup file at `packages/ui/src/test/setup.ts` mocks matchMedia, ResizeObserver, IntersectionObserver. Tests co-located with source files (`*.test.{ts,tsx}`).
 
+E2E tests use Playwright in `apps/desktop/e2e/` with 3 tiers:
+
+```bash
+# E2E: smoke + server tests (no API keys needed)
+pnpm --filter @solocraft/desktop test:e2e
+
+# E2E: all tiers including AI tests (needs API keys)
+pnpm --filter @solocraft/desktop test:e2e:ai
+
+# E2E: smoke only (fastest)
+pnpm --filter @solocraft/desktop test:e2e:smoke
+
+# E2E: skip rebuild, run tests only
+pnpm --filter @solocraft/desktop test:e2e:only
+```
+
+E2E pitfalls: macOS GUI processes don't inherit shell PATH → use `SOLOCRAFT_FORK_EXEC_PATH` env var; `app.getAppPath()` returns `out/main/` in Playwright → use `SOLOCRAFT_ROOT_DIR` env var. Store exposed as `window.__SOLOCRAFT_STORE__` for test access (non-production only).
+
 ## Team
 
 When creating a team, follow `_team/team.md`. Key points:
