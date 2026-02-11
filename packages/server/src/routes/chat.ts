@@ -121,6 +121,9 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
       onFinish: async ({ text }) => {
+        // Clean up skill temp directory after stream completes
+        await skillTools?.cleanup()
+
         try {
           if (conversationId && text) {
             await deps.conversationStorage.saveMessage(

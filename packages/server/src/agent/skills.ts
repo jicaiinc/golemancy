@@ -11,13 +11,14 @@ const log = logger.child({ component: 'agent:skills' })
 export async function loadAgentSkillTools(
   projectId: string,
   skillIds: string[],
-): Promise<{ tools: ToolSet; instructions: string } | null> {
+): Promise<{ tools: ToolSet; instructions: string; cleanup: () => Promise<void> } | null> {
   if (skillIds.length === 0) return null
 
   const projectSkillsDir = path.join(getProjectPath(projectId), 'skills')
 
   // Build temp directory with symlinks to only the assigned skill directories
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'solocraft-skills-'))
+  const cleanup = () => fs.rm(tempDir, { recursive: true, force: true }).catch(() => {})
 
   let linkedCount = 0
   for (const skillId of skillIds) {
@@ -25,6 +26,7 @@ export async function loadAgentSkillTools(
     const source = path.join(projectSkillsDir, skillId)
     const target = path.join(tempDir, skillId)
     try {
+      await fs.access(source)
       await fs.symlink(source, target, 'dir')
       linkedCount++
     } catch {
@@ -33,18 +35,19 @@ export async function loadAgentSkillTools(
   }
 
   if (linkedCount === 0) {
-    await fs.rm(tempDir, { recursive: true, force: true })
+    await cleanup()
     return null
   }
 
   try {
     const { skill, instructions } = await createSkillTool({ skillsDirectory: tempDir })
     log.debug({ projectId, skillCount: linkedCount }, 'loaded agent skill tools')
-    return { tools: { skill }, instructions }
+    // NOTE: Do NOT clean up tempDir here — bash-tool reads skill files lazily
+    // when the tool is invoked during streaming. Caller must call cleanup() after stream ends.
+    return { tools: { skill }, instructions, cleanup }
   } catch (e) {
     log.error({ err: e, projectId }, 'failed to create skill tools')
+    await cleanup()
     return null
-  } finally {
-    await fs.rm(tempDir, { recursive: true, force: true })
   }
 }
