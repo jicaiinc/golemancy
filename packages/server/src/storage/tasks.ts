@@ -5,6 +5,9 @@ import type { AppDatabase } from '../db/client'
 import * as schema from '../db/schema'
 import { readJson, writeJson, listJsonFiles } from './base'
 import { getProjectPath, validateId } from '../utils/paths'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'storage:tasks' })
 
 export class FileTaskStorage implements ITaskService {
   constructor(private db: AppDatabase) {}
@@ -21,6 +24,7 @@ export class FileTaskStorage implements ITaskService {
   async list(projectId: ProjectId, agentId?: AgentId): Promise<Task[]> {
     const tasks = await listJsonFiles<Task>(this.tasksDir(projectId))
     const filtered = agentId ? tasks.filter(t => t.agentId === agentId) : tasks
+    log.debug({ projectId, agentId, count: filtered.length }, 'listed tasks')
 
     if (filtered.length === 0) return filtered
 
@@ -57,6 +61,7 @@ export class FileTaskStorage implements ITaskService {
     const task = await readJson<Task>(this.taskPath(projectId, id))
     if (!task) throw new Error(`Task ${id} not found`)
 
+    log.debug({ projectId, taskId: id }, 'cancelling task')
     task.status = 'cancelled'
     task.completedAt = new Date().toISOString()
     task.updatedAt = new Date().toISOString()
@@ -74,6 +79,8 @@ export class FileTaskStorage implements ITaskService {
       .where(condition)
       .orderBy(schema.taskLogs.id)
       .limit(limit)
+
+    log.debug({ taskId, cursor, limit, count: rows.length }, 'fetched task logs')
 
     return rows.map(r => ({
       timestamp: r.timestamp,

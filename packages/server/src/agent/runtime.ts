@@ -1,6 +1,9 @@
 import { streamText, stepCountIs, type ModelMessage, type ToolSet } from 'ai'
 import type { Agent, ConversationId, GlobalSettings } from '@solocraft/shared'
 import { resolveModel } from './model'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'agent:runtime' })
 
 export interface AgentEvent {
   type: 'tool_call' | 'token_usage' | 'step_finish'
@@ -21,6 +24,8 @@ export interface RunAgentParams {
 
 export async function runAgent(params: RunAgentParams) {
   const { agent, settings, messages, tools, abortSignal, onEvent } = params
+
+  log.debug({ agentId: agent.id, conversationId: params.conversationId, messageCount: messages.length }, 'running agent')
 
   const model = await resolveModel(settings, agent.modelConfig)
 

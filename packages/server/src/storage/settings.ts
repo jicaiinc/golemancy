@@ -2,6 +2,9 @@ import path from 'node:path'
 import type { GlobalSettings, ISettingsService } from '@solocraft/shared'
 import { readJson, writeJson } from './base'
 import { getDataDir } from '../utils/paths'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'storage:settings' })
 
 const DEFAULT_SETTINGS: GlobalSettings = {
   providers: [],
@@ -21,11 +24,13 @@ export class FileSettingsStorage implements ISettingsService {
 
   async get(): Promise<GlobalSettings> {
     const settings = await readJson<GlobalSettings>(this.settingsPath)
+    log.debug('loaded settings')
     return settings ?? { ...DEFAULT_SETTINGS }
   }
 
   async update(data: Partial<GlobalSettings>): Promise<GlobalSettings> {
     const existing = await this.get()
+    log.debug('updating settings')
     const updated: GlobalSettings = { ...existing, ...data }
     await writeJson(this.settingsPath, updated)
     return updated

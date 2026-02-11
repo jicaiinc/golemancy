@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { bodyLimit } from 'hono/body-limit'
+import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   IArtifactService, IMemoryService, ISettingsService, IDashboardService,
@@ -14,6 +15,7 @@ import { createArtifactRoutes } from './routes/artifacts'
 import { createMemoryRoutes } from './routes/memories'
 import { createSettingsRoutes } from './routes/settings'
 import { createDashboardRoutes } from './routes/dashboard'
+import { logger } from './logger'
 
 export interface ServerDependencies {
   projectStorage: IProjectService
@@ -41,6 +43,9 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     },
   }))
 
+  // Structured HTTP request/response logging via hono-pino
+  app.use('/api/*', pinoLogger({ pino: logger }))
+
   // SEC-07: Validate Bearer token on all /api/* routes
   if (authToken) {
     app.use('/api/*', async (c, next) => {
@@ -54,7 +59,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
 
   // W1: Global error handler — structured JSON, no stack leaks in production
   app.onError((err, c) => {
-    console.error('Unhandled error:', err)
+    logger.error({ err, method: c.req.method, path: c.req.path }, 'unhandled error')
     return c.json({
       error: 'Internal Server Error',
       ...(process.env.NODE_ENV === 'development' ? { message: err.message } : {}),

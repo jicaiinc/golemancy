@@ -7,6 +7,9 @@ import { eq, and, desc, sql } from 'drizzle-orm'
 import type { AppDatabase } from '../db/client'
 import * as schema from '../db/schema'
 import { generateId } from '../utils/ids'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'storage:conversations' })
 
 export class SqliteConversationStorage implements IConversationService {
   constructor(private db: AppDatabase) {}
@@ -38,6 +41,7 @@ export class SqliteConversationStorage implements IConversationService {
 
   async create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation> {
     const id = generateId('conv')
+    log.debug({ projectId, agentId, conversationId: id }, 'creating conversation')
     const now = new Date().toISOString()
 
     await this.db.insert(schema.conversations).values({
@@ -85,6 +89,7 @@ export class SqliteConversationStorage implements IConversationService {
   }
 
   async delete(projectId: ProjectId, id: ConversationId): Promise<void> {
+    log.debug({ projectId, conversationId: id }, 'deleting conversation')
     await this.db
       .delete(schema.conversations)
       .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))

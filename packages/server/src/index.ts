@@ -12,15 +12,20 @@ import { FileTaskStorage } from './storage/tasks'
 import { FileArtifactStorage } from './storage/artifacts'
 import { FileMemoryStorage } from './storage/memories'
 import { FileSettingsStorage } from './storage/settings'
+import { logger } from './logger'
 
 async function main() {
   const port = parseInt(process.env.PORT ?? '3000', 10)
 
   // Ensure data directory exists
-  await fs.mkdir(getDataDir(), { recursive: true })
+  const dataDir = getDataDir()
+  logger.debug({ dataDir }, 'ensuring data directory exists')
+  await fs.mkdir(dataDir, { recursive: true })
 
   // Initialize database
-  const db = createDatabase(getDbPath())
+  const dbPath = getDbPath()
+  logger.debug({ dbPath }, 'initializing database')
+  const db = createDatabase(dbPath)
   migrateDatabase(db)
 
   // Construct dependencies
@@ -46,7 +51,7 @@ async function main() {
 
   // SEC-09: Bind to loopback only
   serve({ fetch: app.fetch, port, hostname: '127.0.0.1' }, (info) => {
-    console.log(`Server ready on 127.0.0.1:${info.port}`)
+    logger.info({ port: info.port, host: '127.0.0.1' }, 'server ready')
 
     if (process.send) {
       process.send({ type: 'ready', port: info.port, token: authToken })
@@ -55,6 +60,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('Failed to start server:', err)
+  logger.fatal({ err }, 'failed to start server')
   process.exit(1)
 })

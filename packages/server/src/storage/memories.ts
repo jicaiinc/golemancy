@@ -3,6 +3,9 @@ import type { MemoryEntry, MemoryId, ProjectId, IMemoryService } from '@solocraf
 import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
 import { getProjectPath, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'storage:memories' })
 
 export class FileMemoryStorage implements IMemoryService {
   private memoryDir(projectId: string) {
@@ -15,7 +18,9 @@ export class FileMemoryStorage implements IMemoryService {
   }
 
   async list(projectId: ProjectId): Promise<MemoryEntry[]> {
-    return listJsonFiles<MemoryEntry>(this.memoryDir(projectId))
+    const entries = await listJsonFiles<MemoryEntry>(this.memoryDir(projectId))
+    log.debug({ projectId, count: entries.length }, 'listed memories')
+    return entries
   }
 
   async create(
@@ -23,6 +28,7 @@ export class FileMemoryStorage implements IMemoryService {
     data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>,
   ): Promise<MemoryEntry> {
     const id = generateId('mem')
+    log.debug({ projectId, memoryId: id }, 'creating memory entry')
     const now = new Date().toISOString()
 
     const entry: MemoryEntry = {
@@ -45,6 +51,7 @@ export class FileMemoryStorage implements IMemoryService {
     const existing = await readJson<MemoryEntry>(this.memoryPath(projectId, id))
     if (!existing) throw new Error(`Memory ${id} not found`)
 
+    log.debug({ projectId, memoryId: id }, 'updating memory entry')
     const updated: MemoryEntry = {
       ...existing,
       ...data,
@@ -55,6 +62,7 @@ export class FileMemoryStorage implements IMemoryService {
   }
 
   async delete(projectId: ProjectId, id: MemoryId): Promise<void> {
+    log.debug({ projectId, memoryId: id }, 'deleting memory entry')
     await deleteFile(this.memoryPath(projectId, id))
   }
 }

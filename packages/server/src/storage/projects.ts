@@ -4,6 +4,9 @@ import type { Project, ProjectId, IProjectService } from '@solocraft/shared'
 import { readJson, writeJson, deleteDir, isNodeError } from './base'
 import { getDataDir } from '../utils/paths'
 import { generateId } from '../utils/ids'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'storage:projects' })
 
 export class FileProjectStorage implements IProjectService {
   private get projectsDir() {
@@ -34,6 +37,7 @@ export class FileProjectStorage implements IProjectService {
 
   async create(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project> {
     const id = generateId('proj')
+    log.debug({ projectId: id }, 'creating project')
     const now = new Date().toISOString()
 
     const project: Project = {
@@ -75,6 +79,7 @@ export class FileProjectStorage implements IProjectService {
   }
 
   async delete(id: ProjectId): Promise<void> {
+    log.debug({ projectId: id }, 'deleting project')
     await deleteDir(path.join(this.projectsDir, id))
   }
 }

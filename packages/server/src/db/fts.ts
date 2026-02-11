@@ -1,7 +1,12 @@
 import type { AppDatabase } from './client'
 import { sql } from 'drizzle-orm'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'db' })
 
 export function setupFTS(db: AppDatabase) {
+  log.debug('setting up FTS5 indexes')
+
   db.run(sql`
     CREATE VIRTUAL TABLE IF NOT EXISTS messages_fts USING fts5(
       content,
@@ -28,4 +33,6 @@ export function setupFTS(db: AppDatabase) {
       INSERT INTO messages_fts(rowid, content) VALUES (new.rowid, new.content);
     END
   `)
+
+  log.debug('FTS5 indexes ready')
 }

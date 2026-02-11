@@ -3,6 +3,9 @@ import type { Agent, AgentId, ProjectId, IAgentService } from '@solocraft/shared
 import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
 import { getProjectPath, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'storage:agents' })
 
 export class FileAgentStorage implements IAgentService {
   private agentsDir(projectId: string) {
@@ -15,7 +18,9 @@ export class FileAgentStorage implements IAgentService {
   }
 
   async list(projectId: ProjectId): Promise<Agent[]> {
-    return listJsonFiles<Agent>(this.agentsDir(projectId))
+    const agents = await listJsonFiles<Agent>(this.agentsDir(projectId))
+    log.debug({ projectId, count: agents.length }, 'listed agents')
+    return agents
   }
 
   async getById(projectId: ProjectId, id: AgentId): Promise<Agent | null> {
@@ -27,6 +32,7 @@ export class FileAgentStorage implements IAgentService {
     data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>,
   ): Promise<Agent> {
     const id = generateId('agent')
+    log.debug({ projectId, agentId: id }, 'creating agent')
     const now = new Date().toISOString()
 
     const agent: Agent = {
@@ -49,6 +55,7 @@ export class FileAgentStorage implements IAgentService {
     const existing = await this.getById(projectId, id)
     if (!existing) throw new Error(`Agent ${id} not found in project ${projectId}`)
 
+    log.debug({ projectId, agentId: id }, 'updating agent')
     const updated: Agent = {
       ...existing,
       ...data,
@@ -61,6 +68,7 @@ export class FileAgentStorage implements IAgentService {
   }
 
   async delete(projectId: ProjectId, id: AgentId): Promise<void> {
+    log.debug({ projectId, agentId: id }, 'deleting agent')
     await deleteFile(this.agentPath(projectId, id))
   }
 }

@@ -1,6 +1,9 @@
 import { fork, type ChildProcess } from 'node:child_process'
 import path from 'node:path'
 import type { TaskId } from '@solocraft/shared'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'agent:process' })
 
 export class AgentProcessManager {
   private processes = new Map<string, ChildProcess>()
@@ -21,6 +24,8 @@ export class AgentProcessManager {
       throw new Error(`Max concurrent agents (${this.maxConcurrent}) reached`)
     }
 
+    log.debug({ taskId, running: this.processes.size }, 'spawning agent process')
+
     // TODO: worker.js is a placeholder — replace with actual agent worker implementation
     const workerPath = path.join(import.meta.dirname, 'worker.js')
     const child = fork(workerPath, { serialization: 'json' })
@@ -33,6 +38,7 @@ export class AgentProcessManager {
     }
 
     child.on('exit', (code) => {
+      log.debug({ taskId, code }, 'agent process exited')
       this.processes.delete(taskId)
       const timer = this.killTimers.get(taskId)
       if (timer) {
@@ -47,6 +53,7 @@ export class AgentProcessManager {
     const child = this.processes.get(taskId)
     if (!child) return
 
+    log.debug({ taskId }, 'cancelling agent process')
     child.send({ type: 'abort' })
     const timer = setTimeout(() => {
       this.killTimers.delete(taskId)

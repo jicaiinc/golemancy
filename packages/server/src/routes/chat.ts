@@ -5,6 +5,9 @@ import type {
   IAgentService, IConversationService, ISettingsService,
 } from '@solocraft/shared'
 import { resolveModel } from '../agent/model'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'routes:chat' })
 
 export interface ChatRouteDeps {
   agentStorage: IAgentService
@@ -70,6 +73,8 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     // Get global settings for model resolution
     const settings = await deps.settingsStorage.get()
     const model = await resolveModel(settings, agent.modelConfig)
+
+    log.debug({ projectId, agentId, conversationId, messageCount: messages.length }, 'starting chat stream')
 
     const modelMessages = await convertToModelMessages(messages)
 

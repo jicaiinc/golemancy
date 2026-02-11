@@ -1,8 +1,12 @@
 import type { AppDatabase } from './client'
 import { sql } from 'drizzle-orm'
 import { setupFTS } from './fts'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'db' })
 
 export function migrateDatabase(db: AppDatabase) {
+  log.info('running database migrations')
   // Create tables
   db.run(sql`
     CREATE TABLE IF NOT EXISTS conversations (
@@ -47,4 +51,5 @@ export function migrateDatabase(db: AppDatabase) {
 
   // Set up FTS5
   setupFTS(db)
+  log.info('database migrations complete')
 }

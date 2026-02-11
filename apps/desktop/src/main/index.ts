@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog } from 'electron'
 import { join } from 'path'
 import { fork, type ChildProcess } from 'child_process'
+import { logger } from './logger'
 
 let serverProcess: ChildProcess | null = null
 let serverPort: number | null = null
@@ -33,8 +34,9 @@ function startServer(): Promise<number> {
 
     serverProcess = child
 
-    child.stderr?.on('data', (d: Buffer) => console.error('[server]', d.toString()))
-    child.stdout?.on('data', (d: Buffer) => console.log('[server]', d.toString()))
+    const serverLog = logger.child({ component: 'server' })
+    child.stderr?.on('data', (d: Buffer) => serverLog.error(d.toString().trimEnd()))
+    child.stdout?.on('data', (d: Buffer) => serverLog.debug(d.toString().trimEnd()))
 
     child.on('message', (msg: any) => {
       if (msg?.type === 'ready' && msg.port) {
@@ -102,10 +104,10 @@ function createWindow(): void {
 app.whenReady().then(async () => {
   try {
     await startServer()
-    console.log(`Agent server ready on port ${serverPort}`)
+    logger.info({ port: serverPort }, 'agent server ready')
   } catch (err) {
     // W5: Show dialog on server startup failure
-    console.error('Failed to start agent server:', err)
+    logger.error({ err }, 'failed to start agent server')
     dialog.showErrorBox(
       'Server Error',
       `Failed to start the agent server:\n${err instanceof Error ? err.message : String(err)}`,
