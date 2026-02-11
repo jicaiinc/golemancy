@@ -6,6 +6,7 @@ import type {
   ThemeMode,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, CronJobId,
 } from '@solocraft/shared'
+import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@solocraft/shared'
 import { getServices } from '../services'
 
 // --- Theme helper ---
@@ -233,9 +234,22 @@ export const useAppStore = create<AppState>()(
       },
 
       async createProject(data) {
-        const project = await getServices().projects.create(data)
-        set(s => ({ projects: [...s.projects, project] }))
-        return project
+        const svc = getServices()
+        const project = await svc.projects.create(data)
+
+        // Auto-create default Main Agent
+        const agent = await svc.agents.create(project.id, {
+          name: 'Main Agent',
+          description: 'Default AI assistant for this project',
+          systemPrompt: DEFAULT_AGENT_SYSTEM_PROMPT,
+          modelConfig: { temperature: 0.7, maxTokens: 4096 },
+        })
+
+        // Set as Main Agent
+        const updated = await svc.projects.update(project.id, { mainAgentId: agent.id })
+
+        set(s => ({ projects: [...s.projects, updated] }))
+        return updated
       },
 
       async updateProject(id, data) {

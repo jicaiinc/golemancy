@@ -89,8 +89,8 @@ export function ArtifactsPage() {
           {artifacts.map(artifact => {
             const agent = agents.find(a => a.id === artifact.agentId)
             return (
-              <motion.div key={artifact.id} {...staggerItem}>
-                <PixelCard variant="interactive" onClick={() => setPreviewId(artifact.id)}>
+              <motion.div key={artifact.id} {...staggerItem} className="h-full">
+                <PixelCard variant="interactive" className="h-full flex flex-col" onClick={() => setPreviewId(artifact.id)}>
                   <div className="flex items-start gap-3">
                     <span className="text-[18px]">{typeIcons[artifact.type]}</span>
                     <div className="flex-1 min-w-0">
@@ -103,7 +103,7 @@ export function ArtifactsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border-dim/50">
+                  <div className="flex items-center gap-2 mt-auto pt-2 border-t border-border-dim/50">
                     <span className="text-[10px] text-accent-blue">{agent?.name ?? '???'}</span>
                     <span className="ml-auto text-[10px] text-text-dim">{relativeTime(artifact.createdAt)}</span>
                   </div>

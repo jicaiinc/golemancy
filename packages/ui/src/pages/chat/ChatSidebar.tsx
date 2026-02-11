@@ -1,13 +1,11 @@
-import { useCallback, useMemo } from 'react'
-import type { Agent, AgentId, Conversation, ConversationId } from '@solocraft/shared'
-import { PixelButton, PixelDropdown } from '../../components'
+import { useMemo } from 'react'
+import type { Agent, Conversation, ConversationId } from '@solocraft/shared'
+import { PixelButton } from '../../components'
 
 interface ChatSidebarProps {
   agents: Agent[]
   conversations: Conversation[]
-  selectedAgentId: AgentId | null
   selectedConversationId: ConversationId | null
-  onSelectAgent: (agentId: AgentId | null) => void
   onSelectConversation: (id: ConversationId) => void
   onNewChat: () => void
   canNewChat?: boolean
@@ -26,64 +24,21 @@ function relativeTime(iso: string): string {
 export function ChatSidebar({
   agents,
   conversations,
-  selectedAgentId,
   selectedConversationId,
-  onSelectAgent,
   onSelectConversation,
   onNewChat,
   canNewChat = false,
 }: ChatSidebarProps) {
-  const selectedAgent = agents.find(a => a.id === selectedAgentId)
-
-  // Filter conversations by selected agent
-  const filtered = selectedAgentId
-    ? conversations.filter(c => c.agentId === selectedAgentId)
-    : conversations
-
   // Sort by lastMessageAt descending
   const sorted = useMemo(
-    () => [...filtered].sort(
+    () => [...conversations].sort(
       (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
     ),
-    [filtered],
+    [conversations],
   )
-
-  const agentDropdownItems = useMemo(
-    () => [
-      { label: 'All Agents', value: '__all__', selected: !selectedAgentId },
-      ...agents.map(a => ({
-        label: a.name,
-        value: a.id,
-        selected: a.id === selectedAgentId,
-      })),
-    ],
-    [agents, selectedAgentId],
-  )
-
-  const handleAgentSelect = useCallback((value: string) => {
-    onSelectAgent(value === '__all__' ? null : value as AgentId)
-  }, [onSelectAgent])
 
   return (
     <div className="w-[240px] shrink-0 flex flex-col h-full border-r-2 border-border-dim bg-deep">
-      {/* Agent filter */}
-      <div className="p-3 border-b-2 border-border-dim">
-        <label className="font-pixel text-[8px] text-text-dim mb-1 block">FILTER BY AGENT</label>
-        <PixelDropdown
-          trigger={
-            <button className="w-full flex items-center justify-between px-3 py-2 bg-surface border-2 border-border-dim text-left cursor-pointer hover:border-border-bright transition-colors">
-              <span className="text-[12px] font-mono text-text-primary truncate">
-                {selectedAgent ? selectedAgent.name : 'All Agents'}
-              </span>
-              <span className="text-[10px] text-text-dim ml-2">&#9660;</span>
-            </button>
-          }
-          items={agentDropdownItems}
-          onSelect={handleAgentSelect}
-          dividerAfter={[0]}
-        />
-      </div>
-
       {/* New chat button */}
       <div className="p-3 border-b-2 border-border-dim">
         <PixelButton

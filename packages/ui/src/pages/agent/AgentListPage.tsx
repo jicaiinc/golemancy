@@ -75,11 +75,11 @@ export function AgentListPage() {
           animate="animate"
         >
           {agents.map(agent => (
-            <motion.div key={agent.id} {...staggerItem}>
+            <motion.div key={agent.id} {...staggerItem} className="h-full">
               <PixelCard
                 data-testid={`agent-item-${agent.id}`}
                 variant="interactive"
-                className="relative overflow-hidden group"
+                className="relative overflow-hidden group h-full flex flex-col"
                 onClick={() => navigate(`/projects/${projectId}/agents/${agent.id}`)}
               >
                 {/* Status bar - 4px colored top bar */}
@@ -105,7 +105,7 @@ export function AgentListPage() {
                 </div>
 
                 {/* Meta */}
-                <div className="flex items-center gap-3 mt-3 pt-3 border-t-2 border-border-dim">
+                <div className="flex items-center gap-3 mt-auto pt-3 border-t-2 border-border-dim">
                   {agent.skills.length > 0 && (
                     <span className="text-[11px] text-text-dim">
                       {agent.skills.length} skill{agent.skills.length !== 1 ? 's' : ''}

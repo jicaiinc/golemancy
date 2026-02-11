@@ -4,6 +4,7 @@ import type {
   ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
   CronJobId,
 } from '@solocraft/shared'
+import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@solocraft/shared'
 
 const now = new Date().toISOString()
 const hourAgo = new Date(Date.now() - 3600_000).toISOString()
@@ -48,7 +49,7 @@ export const SEED_AGENTS: Agent[] = [
     name: 'Writer',
     description: 'Content creation and blog writing assistant',
     status: 'running',
-    systemPrompt: 'You are a professional content writer...',
+    systemPrompt: DEFAULT_AGENT_SYSTEM_PROMPT,
     modelConfig: { provider: 'openai', model: 'gpt-4o', temperature: 0.7 },
     skills: [
       { id: 'skill-1' as SkillId, name: 'Blog Writing', description: 'Write SEO-optimized blog posts' },

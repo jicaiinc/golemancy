@@ -87,11 +87,11 @@ export function ProjectListPage() {
             animate="animate"
           >
             {projects.map(project => (
-              <motion.div key={project.id} {...staggerItem}>
+              <motion.div key={project.id} {...staggerItem} className="h-full">
                 <PixelCard
                   data-testid={`project-item-${project.id}`}
                   variant="interactive"
-                  className="group"
+                  className="group h-full flex flex-col"
                   onClick={() => navigate(`/projects/${project.id}`)}
                 >
                   <div className="flex items-start gap-3">
@@ -109,7 +109,7 @@ export function ProjectListPage() {
                   </div>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-3 mt-4 pt-3 border-t-2 border-border-dim">
+                  <div className="flex items-center gap-3 mt-auto pt-3 border-t-2 border-border-dim">
                     <span className="text-[11px] text-text-dim">
                       {project.agentCount} agent{project.agentCount !== 1 ? 's' : ''}
                     </span>
