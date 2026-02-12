@@ -248,6 +248,25 @@ Design → Implement → Test → Review
 
 **注意**：不要使用 Plan Mode 来启动团队或进入 Design 阶段。直接创建团队并开始工作。
 
+**成果物持久化**：Design 阶段的所有成果物必须保存到 `_design/` 目录下，防止团队关闭后对话丢失。
+
+目录结构：
+```
+_design/
+  └── {YYYYMMDD-HHmm}-{简短名称}/    # 如 20260210-1430-server-architecture
+      ├── architecture.md              # 架构师：架构设计文档
+      ├── requirements.md              # 需求分析师：需求分析、验收标准
+      ├── fact-check.md                # 事实验证师：技术验证报告
+      ├── abstraction-review.md        # 抽象策略师：抽象审查报告
+      ├── ui-design.md                 # UI/UX 设计师：视觉设计规范
+      ├── reference-analysis.md        # 参考分析师：参考项目分析（如有）
+      └── summary.md                   # Team Lead：汇总结论、实现计划
+```
+
+- Design 阶段开始时，Team Lead 创建 `_design/{时间戳}-{名称}/` 文件夹
+- 各角色将思考过程、中间结论、最终成果写入对应的 markdown 文件
+- 所有文件以 markdown 格式存储，确保可读性和可追溯性
+
 **参与角色**：
 
 | 角色         | 本阶段职责                                             |

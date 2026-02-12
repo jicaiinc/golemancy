@@ -164,7 +164,7 @@ When creating a team, follow `_team/team.md`. **NEVER use Plan Mode to start a t
 
 - **12 roles**: Team Lead, Architect, Requirements Analyst, Abstraction Strategist, Fact Checker, UI/UX Designer, Full-stack Engineer, Test Engineer, Reference Analyst (on-demand), CR-Quality, CR-Security, CR-Performance
 - **Four phases**: Design → Implement → Test → Review (auto-transition between phases)
-  - **Design** — architecture, research, requirements confirmation (all roles except engineers and reviewers)
+  - **Design** — architecture, research, requirements confirmation (all roles except engineers and reviewers). All artifacts saved to `_design/{YYYYMMDD-HHmm}-{name}/` as markdown files to persist across team sessions.
   - **Implement** — write code (Team Lead + Engineer + Fact Checker, others on-demand)
   - **Test** — run all tests (Test Engineer + Engineer for fixes)
   - **Review** — three CR roles run in parallel
