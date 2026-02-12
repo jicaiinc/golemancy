@@ -31,7 +31,7 @@ function createMockDeps() {
     },
     agentStorage: {
       list: vi.fn().mockResolvedValue([
-        { id: 'agent-1', projectId: 'proj-1', name: 'Writer' },
+        { id: 'agent-1', projectId: 'proj-1', name: 'Writer', mcpServers: [] },
       ]),
       getById: vi.fn().mockResolvedValue(null),
       create: vi.fn().mockImplementation((_pid: any, data: any) =>
@@ -102,6 +102,34 @@ function createMockDeps() {
       ]),
       getRecentTasks: vi.fn().mockResolvedValue([]),
       getActivityFeed: vi.fn().mockResolvedValue([]),
+    },
+    mcpStorage: {
+      list: vi.fn().mockResolvedValue([
+        { name: 'filesystem', transportType: 'stdio', command: 'npx', enabled: true },
+      ]),
+      getByName: vi.fn().mockResolvedValue(null),
+      create: vi.fn().mockImplementation((_pid: any, data: any) =>
+        Promise.resolve({ ...data, enabled: data.enabled ?? true }),
+      ),
+      update: vi.fn().mockImplementation((_pid: any, name: any, data: any) =>
+        Promise.resolve({ name, ...data }),
+      ),
+      delete: vi.fn().mockResolvedValue(undefined),
+      resolveNames: vi.fn().mockResolvedValue([]),
+    },
+    skillStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    cronJobStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
   } as unknown as ServerDependencies
 }
@@ -476,6 +504,110 @@ describe('HTTP API routes', () => {
     it('GET /api/dashboard/activity uses default limit', async () => {
       await app.request('/api/dashboard/activity')
       expect(deps.dashboardService.getActivityFeed).toHaveBeenCalledWith(20)
+    })
+  })
+
+  // ---- MCP Servers ----
+
+  describe('mcp-servers routes', () => {
+    it('GET /api/projects/:projectId/mcp-servers returns list', async () => {
+      const res = await app.request('/api/projects/proj-1/mcp-servers')
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body).toHaveLength(1)
+      expect(body[0].name).toBe('filesystem')
+      expect(deps.mcpStorage.list).toHaveBeenCalledWith('proj-1')
+    })
+
+    it('GET /api/projects/:projectId/mcp-servers/:name returns 404 when not found', async () => {
+      const res = await app.request('/api/projects/proj-1/mcp-servers/missing')
+      expect(res.status).toBe(404)
+      const body = await res.json()
+      expect(body.error).toBe('MCP server not found')
+    })
+
+    it('GET /api/projects/:projectId/mcp-servers/:name returns server when found', async () => {
+      ;(deps.mcpStorage.getByName as any).mockResolvedValueOnce({ name: 'fs', transportType: 'stdio' })
+      const res = await app.request('/api/projects/proj-1/mcp-servers/fs')
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.name).toBe('fs')
+    })
+
+    it('POST /api/projects/:projectId/mcp-servers creates with 201', async () => {
+      const res = await app.request(jsonRequest('/api/projects/proj-1/mcp-servers', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'new-server', transportType: 'stdio', command: 'echo' }),
+      }))
+      expect(res.status).toBe(201)
+      const body = await res.json()
+      expect(body.name).toBe('new-server')
+    })
+
+    it('POST /api/projects/:projectId/mcp-servers returns 400 for missing name', async () => {
+      const res = await app.request(jsonRequest('/api/projects/proj-1/mcp-servers', {
+        method: 'POST',
+        body: JSON.stringify({ transportType: 'stdio' }),
+      }))
+      expect(res.status).toBe(400)
+    })
+
+    it('POST /api/projects/:projectId/mcp-servers returns 400 for invalid transport', async () => {
+      const res = await app.request(jsonRequest('/api/projects/proj-1/mcp-servers', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'test', transportType: 'invalid' }),
+      }))
+      expect(res.status).toBe(400)
+    })
+
+    it('POST /api/projects/:projectId/mcp-servers returns 409 for duplicate', async () => {
+      ;(deps.mcpStorage.getByName as any).mockResolvedValueOnce({ name: 'dup', transportType: 'stdio' })
+      const res = await app.request(jsonRequest('/api/projects/proj-1/mcp-servers', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'dup', transportType: 'stdio', command: 'echo' }),
+      }))
+      expect(res.status).toBe(409)
+    })
+
+    it('PATCH /api/projects/:projectId/mcp-servers/:name updates server', async () => {
+      const res = await app.request(jsonRequest('/api/projects/proj-1/mcp-servers/fs', {
+        method: 'PATCH',
+        body: JSON.stringify({ enabled: false }),
+      }))
+      expect(res.status).toBe(200)
+      expect(deps.mcpStorage.update).toHaveBeenCalledWith('proj-1', 'fs', { enabled: false })
+    })
+
+    it('PATCH /api/projects/:projectId/mcp-servers/:name returns 404 when not found', async () => {
+      ;(deps.mcpStorage.update as any).mockRejectedValueOnce(new Error('MCP server "missing" not found'))
+      const res = await app.request(jsonRequest('/api/projects/proj-1/mcp-servers/missing', {
+        method: 'PATCH',
+        body: JSON.stringify({ enabled: false }),
+      }))
+      expect(res.status).toBe(404)
+    })
+
+    it('DELETE /api/projects/:projectId/mcp-servers/:name deletes server', async () => {
+      const res = await app.request('/api/projects/proj-1/mcp-servers/fs', { method: 'DELETE' })
+      expect(res.status).toBe(200)
+      const body = await res.json()
+      expect(body.ok).toBe(true)
+    })
+
+    it('DELETE /api/projects/:projectId/mcp-servers/:name returns 409 when referenced by agents', async () => {
+      ;(deps.agentStorage.list as any).mockResolvedValueOnce([
+        { id: 'agent-1', name: 'Writer', mcpServers: ['fs'] },
+      ])
+      const res = await app.request('/api/projects/proj-1/mcp-servers/fs', { method: 'DELETE' })
+      expect(res.status).toBe(409)
+      const body = await res.json()
+      expect(body.error).toBe('MCP server is referenced by agents')
+    })
+
+    it('DELETE /api/projects/:projectId/mcp-servers/:name returns 404 when not found', async () => {
+      ;(deps.mcpStorage.delete as any).mockRejectedValueOnce(new Error('MCP server "missing" not found'))
+      const res = await app.request('/api/projects/proj-1/mcp-servers/missing', { method: 'DELETE' })
+      expect(res.status).toBe(404)
     })
   })
 

@@ -64,6 +64,7 @@ function createTestServices(): ServiceContainer {
       delete: vi.fn().mockResolvedValue(undefined),
     },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
+    mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({}),
       getActiveAgents: vi.fn().mockResolvedValue([]),

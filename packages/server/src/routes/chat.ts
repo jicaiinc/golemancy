@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
 import type {
   AgentId, ProjectId, ConversationId, MessageId,
-  IAgentService, IConversationService, ISettingsService,
+  IAgentService, IConversationService, ISettingsService, IMCPService,
 } from '@solocraft/shared'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
@@ -15,6 +15,7 @@ export interface ChatRouteDeps {
   agentStorage: IAgentService
   conversationStorage: IConversationService
   settingsStorage: ISettingsService
+  mcpStorage: IMCPService
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -107,6 +108,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     const agentToolsResult = await loadAgentTools({
       agent, projectId, settings, allAgents,
+      mcpStorage: deps.mcpStorage,
     })
 
     const allTools = agentToolsResult.tools

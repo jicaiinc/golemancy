@@ -7,6 +7,7 @@ import {
   AgentListPage,
   AgentDetailPage,
   SkillsPage,
+  MCPServersPage,
   ChatPage,
   TaskListPage,
   CronJobsPage,
@@ -28,6 +29,7 @@ export function AppRoutes() {
           <Route path="agents" element={<AgentListPage />} />
           <Route path="agents/:agentId" element={<AgentDetailPage />} />
           <Route path="skills" element={<SkillsPage />} />
+          <Route path="mcp-servers" element={<MCPServersPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="tasks" element={<TaskListPage />} />
           <Route path="cron" element={<CronJobsPage />} />

@@ -230,7 +230,7 @@ describe('FileAgentStorage', () => {
       const agent = await storage.getById(projId, id as AgentId)
       expect(agent).not.toBeNull()
       expect(agent!.mcpServers).toHaveLength(1)
-      expect(agent!.mcpServers[0].name).toBe('my-mcp')
+      expect(agent!.mcpServers[0]).toBe('my-mcp')
       expect(agent!.builtinTools).toEqual({ bash: false })
     })
 

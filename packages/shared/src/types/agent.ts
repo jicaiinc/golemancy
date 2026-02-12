@@ -1,6 +1,9 @@
 import type { AgentId, ProjectId, SkillId, TaskId, ToolId, Timestamped } from './common'
 import type { AgentModelConfig } from './settings'
 
+// Re-export for backward compatibility
+export type { MCPTransportType, MCPServerConfig } from './mcp'
+
 export type AgentStatus = 'idle' | 'running' | 'paused' | 'error'
 
 export interface ToolCallSchema {
@@ -13,28 +16,6 @@ export interface ToolCallSchema {
 export interface SubAgentRef {
   agentId: AgentId
   role: string
-}
-
-// MCP Server configuration
-export type MCPTransportType = 'stdio' | 'sse' | 'http'
-
-export interface MCPServerConfig {
-  /** Unique name for this MCP server */
-  name: string
-  /** Transport type */
-  transportType: MCPTransportType
-  /** For stdio: command to run */
-  command?: string
-  /** For stdio: command arguments */
-  args?: string[]
-  /** For stdio: environment variables */
-  env?: Record<string, string>
-  /** For sse/http: server URL */
-  url?: string
-  /** For sse/http: custom headers */
-  headers?: Record<string, string>
-  /** Whether this MCP server is enabled */
-  enabled: boolean
 }
 
 // Built-in tool configuration
@@ -55,7 +36,7 @@ export interface Agent extends Timestamped {
   skillIds: SkillId[]
   tools: ToolCallSchema[]
   subAgents: SubAgentRef[]
-  mcpServers: MCPServerConfig[]
+  mcpServers: string[]
   builtinTools: BuiltinToolConfig
   currentTaskId?: TaskId
 }

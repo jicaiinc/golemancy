@@ -1,6 +1,6 @@
 import type {
   Project, Agent, Conversation, Message, Task, Artifact, MemoryEntry, GlobalSettings,
-  ActivityEntry, CronJob, Skill,
+  ActivityEntry, CronJob, Skill, MCPServerConfig,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
   CronJobId,
 } from '@solocraft/shared'
@@ -56,9 +56,7 @@ export const SEED_AGENTS: Agent[] = [
       { id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: { type: 'object', properties: { query: { type: 'string' } } } },
     ],
     subAgents: [],
-    mcpServers: [
-      { name: 'filesystem', transportType: 'stdio', command: 'npx', args: ['-y', '@modelcontextprotocol/server-filesystem', '/tmp'], enabled: true },
-    ],
+    mcpServers: ['filesystem'],
     builtinTools: { bash: true },
     currentTaskId: 'task-1' as TaskId,
     createdAt: dayAgo,
@@ -519,5 +517,33 @@ export const SEED_SKILLS: Skill[] = [
     instructions: '# Copywriting\n\nWrite compelling product descriptions and copy.\n\n## Guidelines\n- Highlight key benefits\n- Use persuasive language\n- Include bullet points for features',
     createdAt: dayAgo,
     updatedAt: dayAgo,
+  },
+]
+
+// --- MCP Servers ---
+export const SEED_MCP_SERVERS: MCPServerConfig[] = [
+  {
+    name: 'filesystem',
+    transportType: 'stdio',
+    description: 'Local filesystem access via MCP',
+    command: 'npx',
+    args: ['-y', '@modelcontextprotocol/server-filesystem', '/tmp'],
+    enabled: true,
+  },
+  {
+    name: 'github',
+    transportType: 'stdio',
+    description: 'GitHub API integration',
+    command: 'npx',
+    args: ['-y', '@modelcontextprotocol/server-github'],
+    env: { GITHUB_TOKEN: 'ghp_***' },
+    enabled: true,
+  },
+  {
+    name: 'web-search',
+    transportType: 'sse',
+    description: 'Web search via SSE endpoint',
+    url: 'http://localhost:3100/sse',
+    enabled: false,
   },
 ]

@@ -6,6 +6,7 @@ export type {
   IArtifactService,
   IMemoryService,
   ISkillService,
+  IMCPService,
   ISettingsService,
   ICronJobService,
   IDashboardService,

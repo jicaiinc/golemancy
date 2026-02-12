@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import type { Agent, AgentId, AgentStatus, AIProvider, SkillId, MCPServerConfig, MCPTransportType } from '@solocraft/shared'
+import type { Agent, AgentId, AgentStatus, AIProvider, SkillId } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, useResolvedConfig } from '../../hooks'
 import {
@@ -77,7 +77,7 @@ export function AgentDetailPage() {
           <div className="flex items-center gap-3 mt-2 text-[11px] text-text-dim">
             <span>{(agent.skillIds ?? []).length} skills</span>
             <span>{agent.tools.length} tools</span>
-            <span>{(agent.mcpServers ?? []).filter(s => s.enabled).length} MCP servers</span>
+            <span>{(agent.mcpServers ?? []).length} MCP servers</span>
             <span>{agent.subAgents.length} sub-agents</span>
             {agent.modelConfig.model && (
               <span className="font-mono text-accent-blue">{agent.modelConfig.model}</span>
@@ -294,86 +294,46 @@ function MCPTab({ agent, onUpdate }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
-  const [adding, setAdding] = useState(false)
-  const [newName, setNewName] = useState('')
-  const [newTransport, setNewTransport] = useState<MCPTransportType>('stdio')
-  const [newCommand, setNewCommand] = useState('')
-  const [newArgs, setNewArgs] = useState('')
-  const [newUrl, setNewUrl] = useState('')
+  const mcpServers = useAppStore(s => s.mcpServers)
+  const navigate = useNavigate()
+  const { projectId } = useParams<{ projectId: string }>()
 
-  async function addServer() {
-    const server: MCPServerConfig = {
-      name: newName.trim(),
-      transportType: newTransport,
-      enabled: true,
-      ...(newTransport === 'stdio' ? {
-        command: newCommand.trim(),
-        args: newArgs.trim() ? newArgs.trim().split(/\s+/) : [],
-      } : {
-        url: newUrl.trim(),
-      }),
-    }
-    await onUpdate(agent.id, {
-      mcpServers: [...(agent.mcpServers ?? []), server],
-    })
-    resetForm()
+  const assignedNames = agent.mcpServers ?? []
+  const assigned = mcpServers.filter(s => assignedNames.includes(s.name))
+  const available = mcpServers.filter(s => !assignedNames.includes(s.name))
+
+  async function addServer(name: string) {
+    await onUpdate(agent.id, { mcpServers: [...assignedNames, name] })
   }
 
   async function removeServer(name: string) {
-    await onUpdate(agent.id, {
-      mcpServers: (agent.mcpServers ?? []).filter(s => s.name !== name),
-    })
+    await onUpdate(agent.id, { mcpServers: assignedNames.filter(n => n !== name) })
   }
 
-  async function toggleServer(name: string) {
-    await onUpdate(agent.id, {
-      mcpServers: (agent.mcpServers ?? []).map(s =>
-        s.name === name ? { ...s, enabled: !s.enabled } : s
-      ),
-    })
+  const transportColors: Record<string, string> = {
+    stdio: 'text-accent-green',
+    sse: 'text-accent-amber',
+    http: 'text-accent-blue',
   }
-
-  function resetForm() {
-    setAdding(false)
-    setNewName('')
-    setNewTransport('stdio')
-    setNewCommand('')
-    setNewArgs('')
-    setNewUrl('')
-  }
-
-  const servers = agent.mcpServers ?? []
 
   return (
     <div className="max-w-[640px]">
-      {/* Server list */}
-      {servers.length > 0 && (
+      {/* Assigned servers */}
+      {assigned.length > 0 && (
         <div className="flex flex-col gap-2 mb-4">
-          {servers.map(server => (
-            <PixelCard key={server.name} className={`flex items-center gap-3 ${!server.enabled ? 'opacity-50' : ''}`}>
+          {assigned.map(server => (
+            <PixelCard key={server.name} className="flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-pixel text-[9px] text-accent-purple">{server.name}</span>
-                  <PixelBadge variant={server.transportType === 'stdio' ? 'idle' : 'running'}>
-                    {server.transportType}
-                  </PixelBadge>
+                  <span className={`font-mono text-[9px] ${transportColors[server.transportType] ?? 'text-text-dim'}`}>
+                    {server.transportType.toUpperCase()}
+                  </span>
                 </div>
-                <div className="text-[11px] text-text-dim mt-0.5 font-mono">
-                  {server.transportType === 'stdio'
-                    ? `${server.command} ${(server.args ?? []).join(' ')}`
-                    : server.url}
-                </div>
+                {server.description && (
+                  <div className="text-[11px] text-text-secondary mt-0.5">{server.description}</div>
+                )}
               </div>
-              <button
-                className={`w-10 h-5 border-2 transition-colors cursor-pointer ${
-                  server.enabled ? 'bg-accent-green border-accent-green' : 'bg-deep border-border-dim'
-                }`}
-                onClick={() => toggleServer(server.name)}
-              >
-                <div className={`w-3 h-3 bg-white transition-transform ${
-                  server.enabled ? 'translate-x-4' : 'translate-x-0.5'
-                }`} />
-              </button>
               <PixelButton size="sm" variant="ghost" onClick={() => removeServer(server.name)}>
                 &times;
               </PixelButton>
@@ -382,50 +342,45 @@ function MCPTab({ agent, onUpdate }: {
         </div>
       )}
 
-      {/* Add server form */}
-      {adding ? (
-        <PixelCard className="flex flex-col gap-3">
-          <PixelInput label="NAME" value={newName} onChange={e => setNewName(e.target.value)} placeholder="my-mcp-server" />
-
+      {/* Available servers picker */}
+      {available.length > 0 && (
+        <div>
+          <div className="font-pixel text-[8px] text-text-dim mb-2">ADD MCP SERVER</div>
           <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">TRANSPORT</label>
-            <select
-              value={newTransport}
-              onChange={e => setNewTransport(e.target.value as MCPTransportType)}
-              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-            >
-              <option value="stdio">stdio (local)</option>
-              <option value="http">HTTP</option>
-              <option value="sse">SSE</option>
-            </select>
+            {available.map(server => (
+              <button
+                key={server.name}
+                className="flex items-center gap-3 p-2 text-left hover:bg-elevated/50 cursor-pointer transition-colors"
+                onClick={() => addServer(server.name)}
+              >
+                <span className="font-pixel text-[9px] text-accent-purple">{server.name}</span>
+                <span className={`font-mono text-[9px] ${transportColors[server.transportType] ?? 'text-text-dim'}`}>
+                  {server.transportType.toUpperCase()}
+                </span>
+                {server.description && (
+                  <span className="text-[11px] text-text-dim">{server.description}</span>
+                )}
+              </button>
+            ))}
           </div>
-
-          {newTransport === 'stdio' ? (
-            <>
-              <PixelInput label="COMMAND" value={newCommand} onChange={e => setNewCommand(e.target.value)} placeholder="npx" />
-              <PixelInput label="ARGS (space-separated)" value={newArgs} onChange={e => setNewArgs(e.target.value)} placeholder="-y @modelcontextprotocol/server-filesystem /tmp" />
-            </>
-          ) : (
-            <PixelInput label="URL" value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="http://localhost:3001/mcp" />
-          )}
-
-          <div className="flex items-center gap-2">
-            <PixelButton variant="primary" onClick={addServer} disabled={!newName.trim() || (newTransport === 'stdio' ? !newCommand.trim() : !newUrl.trim())}>
-              Add Server
-            </PixelButton>
-            <PixelButton variant="ghost" onClick={resetForm}>Cancel</PixelButton>
-          </div>
-        </PixelCard>
-      ) : (
-        <PixelButton variant="secondary" onClick={() => setAdding(true)}>
-          + Add MCP Server
-        </PixelButton>
+        </div>
       )}
 
-      {servers.length === 0 && !adding && (
-        <PixelCard variant="outlined" className="text-center py-8 mt-4">
-          <p className="text-[12px] text-text-dim mb-1">No MCP servers configured</p>
-          <p className="text-[10px] text-text-dim">MCP servers provide additional tools like file system access, database queries, and more</p>
+      {/* Manage link */}
+      {mcpServers.length > 0 && (
+        <div className="mt-4">
+          <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/mcp-servers`)}>
+            Manage MCP Servers &rarr;
+          </PixelButton>
+        </div>
+      )}
+
+      {assigned.length === 0 && available.length === 0 && (
+        <PixelCard variant="outlined" className="text-center py-8">
+          <p className="text-[12px] text-text-dim mb-2">No MCP servers in this project</p>
+          <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/mcp-servers`)}>
+            Go to MCP Servers
+          </PixelButton>
         </PixelCard>
       )}
     </div>

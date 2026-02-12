@@ -1,11 +1,12 @@
 import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
   SkillCreateData, SkillUpdateData,
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISkillService, ISettingsService, ICronJobService, IDashboardService,
+  ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
 } from '@solocraft/shared'
 import { fetchJson } from './base'
 
@@ -175,6 +176,34 @@ export class HttpSkillService implements ISkillService {
   }
   async delete(projectId: ProjectId, id: SkillId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/skills/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpMCPService implements IMCPService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId) {
+    return fetchJson<MCPServerConfig[]>(`${this.baseUrl}/api/projects/${projectId}/mcp-servers`)
+  }
+  getByName(projectId: ProjectId, name: string) {
+    return fetchJson<MCPServerConfig | null>(`${this.baseUrl}/api/projects/${projectId}/mcp-servers/${encodeURIComponent(name)}`)
+  }
+  create(projectId: ProjectId, data: MCPServerCreateData) {
+    return fetchJson<MCPServerConfig>(`${this.baseUrl}/api/projects/${projectId}/mcp-servers`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(projectId: ProjectId, name: string, data: MCPServerUpdateData) {
+    return fetchJson<MCPServerConfig>(`${this.baseUrl}/api/projects/${projectId}/mcp-servers/${encodeURIComponent(name)}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(projectId: ProjectId, name: string) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/mcp-servers/${encodeURIComponent(name)}`, { method: 'DELETE' })
+  }
+  async resolveNames(projectId: ProjectId, names: string[]) {
+    const all = await this.list(projectId)
+    return all.filter(s => names.includes(s.name))
   }
 }
 

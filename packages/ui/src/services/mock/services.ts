@@ -1,5 +1,6 @@
 import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
@@ -7,12 +8,12 @@ import type {
 } from '@solocraft/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISkillService, ISettingsService, ICronJobService, IDashboardService,
+  ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
 } from '../interfaces'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
   SEED_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
-  SEED_ACTIVITIES, SEED_CRON_JOBS, SEED_SKILLS,
+  SEED_ACTIVITIES, SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
 } from './data'
 
 // Small delay to simulate async I/O
@@ -375,6 +376,59 @@ export class MockSkillService implements ISkillService {
       throw new Error(`Skill is assigned to ${referencingAgents.length} agent(s). Unassign first.`)
     }
     this.data.delete(id)
+  }
+}
+
+// --- MCPService ---
+export class MockMCPService implements IMCPService {
+  private data = new Map<string, MCPServerConfig>(SEED_MCP_SERVERS.map(s => [s.name, { ...s }]))
+  private agents: MockAgentService
+
+  constructor(agents: MockAgentService) {
+    this.agents = agents
+  }
+
+  async list(_projectId: ProjectId): Promise<MCPServerConfig[]> {
+    await delay()
+    return [...this.data.values()]
+  }
+
+  async getByName(_projectId: ProjectId, name: string): Promise<MCPServerConfig | null> {
+    await delay()
+    return this.data.get(name) ?? null
+  }
+
+  async create(_projectId: ProjectId, input: MCPServerCreateData): Promise<MCPServerConfig> {
+    await delay()
+    if (this.data.has(input.name)) throw new Error(`MCP server "${input.name}" already exists`)
+    const server: MCPServerConfig = { ...input, enabled: input.enabled ?? true }
+    this.data.set(server.name, server)
+    return server
+  }
+
+  async update(_projectId: ProjectId, name: string, data: MCPServerUpdateData): Promise<MCPServerConfig> {
+    await delay()
+    const existing = this.data.get(name)
+    if (!existing) throw new Error(`MCP server "${name}" not found`)
+    const updated = { ...existing, ...data }
+    this.data.set(name, updated)
+    return updated
+  }
+
+  async delete(projectId: ProjectId, name: string): Promise<void> {
+    await delay()
+    if (!this.data.has(name)) throw new Error(`MCP server "${name}" not found`)
+    const agents = await this.agents.list(projectId)
+    const referencingAgents = agents.filter(a => a.mcpServers.includes(name))
+    if (referencingAgents.length > 0) {
+      throw new Error(`MCP server is used by ${referencingAgents.length} agent(s). Remove references first.`)
+    }
+    this.data.delete(name)
+  }
+
+  async resolveNames(_projectId: ProjectId, names: string[]): Promise<MCPServerConfig[]> {
+    await delay()
+    return names.map(n => this.data.get(n)).filter((s): s is MCPServerConfig => s != null)
   }
 }
 

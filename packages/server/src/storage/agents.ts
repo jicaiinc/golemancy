@@ -21,10 +21,23 @@ export class FileAgentStorage implements IAgentService {
   private normalize(agent: Agent): Agent {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const raw = agent as any
+
+    // Migration: old mcpServers was MCPServerConfig[], new is string[]
+    let mcpServers: string[] = []
+    if (Array.isArray(raw.mcpServers)) {
+      if (raw.mcpServers.length > 0 && typeof raw.mcpServers[0] === 'object') {
+        // Old format: extract names from MCPServerConfig objects
+        mcpServers = (raw.mcpServers as Array<{ name: string }>).map(s => s.name)
+      } else {
+        // New format: already string[]
+        mcpServers = raw.mcpServers as string[]
+      }
+    }
+
     return {
       ...agent,
       skillIds: agent.skillIds ?? raw.skills?.map((s: { id: string }) => s.id) ?? [],
-      mcpServers: agent.mcpServers ?? [],
+      mcpServers,
       builtinTools: agent.builtinTools ?? { bash: true },
     }
   }

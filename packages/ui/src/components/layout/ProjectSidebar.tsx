@@ -13,6 +13,7 @@ const navItems: NavItem[] = [
   { label: 'Chats', path: '/chat', icon: '>_' },
   { label: 'Agents', path: '/agents', icon: '{}' },
   { label: 'Skills', path: '/skills', icon: '<>' },
+  { label: 'MCP Servers', path: '/mcp-servers', icon: '~>' },
   { label: 'Tasks', path: '/tasks', icon: '#' },
   { label: 'Cron Jobs', path: '/cron', icon: '::' },
   { label: 'Artifacts', path: '/artifacts', icon: '[]' },

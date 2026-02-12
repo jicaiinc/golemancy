@@ -14,7 +14,7 @@ import { loadAgentTools } from './tools'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
-import type { Agent, GlobalSettings, AgentId, ProjectId } from '@solocraft/shared'
+import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, MCPServerConfig } from '@solocraft/shared'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
   return {
@@ -46,6 +46,19 @@ const defaultSettings: GlobalSettings = {
   defaultWorkingDirectoryBase: '',
 }
 
+function makeMockMcpStorage(configs: MCPServerConfig[] = []): IMCPService {
+  return {
+    list: vi.fn().mockResolvedValue(configs),
+    getByName: vi.fn().mockResolvedValue(null),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    resolveNames: vi.fn().mockImplementation(async (_pid: string, names: string[]) =>
+      configs.filter(c => names.includes(c.name)),
+    ),
+  }
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
 })
@@ -59,6 +72,7 @@ describe('loadAgentTools', () => {
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [],
+      mcpStorage: makeMockMcpStorage(),
     })
 
     expect(result.tools).toEqual({})
@@ -80,6 +94,7 @@ describe('loadAgentTools', () => {
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [],
+      mcpStorage: makeMockMcpStorage(),
     })
 
     expect(loadAgentSkillTools).toHaveBeenCalledWith('proj-1', ['skill-1'])
@@ -98,16 +113,19 @@ describe('loadAgentTools', () => {
       cleanup: mockMcpCleanup,
     })
 
-    const mcpServers = [{ name: 'test', enabled: true, transportType: 'stdio' as const, command: 'echo' }]
-    const agent = makeAgent({ mcpServers })
+    const mcpConfigs: MCPServerConfig[] = [{ name: 'test', enabled: true, transportType: 'stdio', command: 'echo' }]
+    const agent = makeAgent({ mcpServers: ['test'] })
+    const mockStorage = makeMockMcpStorage(mcpConfigs)
     const result = await loadAgentTools({
       agent,
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [],
+      mcpStorage: mockStorage,
     })
 
-    expect(loadAgentMcpTools).toHaveBeenCalledWith(mcpServers)
+    expect(mockStorage.resolveNames).toHaveBeenCalledWith('proj-1', ['test'])
+    expect(loadAgentMcpTools).toHaveBeenCalledWith(mcpConfigs)
     expect(result.tools).toHaveProperty('mcp_search')
 
     await result.cleanup()
@@ -127,6 +145,7 @@ describe('loadAgentTools', () => {
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [],
+      mcpStorage: makeMockMcpStorage(),
     })
 
     expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true })
@@ -147,6 +166,7 @@ describe('loadAgentTools', () => {
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [parent, child],
+      mcpStorage: makeMockMcpStorage(),
     })
 
     // Sub-agent tool should be created as a lightweight shell
@@ -172,9 +192,10 @@ describe('loadAgentTools', () => {
     })
 
     const child = makeAgent({ id: 'agent-child' as AgentId, name: 'Helper', description: 'Helps' })
+    const mcpConfigs: MCPServerConfig[] = [{ name: 'test', enabled: true, transportType: 'stdio', command: 'echo' }]
     const agent = makeAgent({
       skillIds: ['s1'],
-      mcpServers: [{ name: 'test', enabled: true, transportType: 'stdio' as const, command: 'echo' }],
+      mcpServers: ['test'],
       builtinTools: { bash: true },
       subAgents: [{ agentId: 'agent-child' as AgentId, role: 'help' }],
     })
@@ -184,6 +205,7 @@ describe('loadAgentTools', () => {
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [agent, child],
+      mcpStorage: makeMockMcpStorage(mcpConfigs),
     })
 
     expect(Object.keys(result.tools)).toHaveLength(4)
@@ -213,6 +235,7 @@ describe('loadAgentTools', () => {
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [],
+      mcpStorage: makeMockMcpStorage(),
     })
 
     await result.cleanup()

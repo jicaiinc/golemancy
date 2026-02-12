@@ -1,6 +1,6 @@
 import { tool, generateText, stepCountIs, type ToolSet } from 'ai'
 import { z } from 'zod'
-import type { Agent, GlobalSettings } from '@solocraft/shared'
+import type { Agent, GlobalSettings, IMCPService } from '@solocraft/shared'
 import { resolveModel } from './model'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { logger } from '../logger'
@@ -37,6 +37,7 @@ export function createSubAgentTool(
   settings: GlobalSettings,
   projectId: string,
   loadTools: LoadToolsFn,
+  mcpStorage: IMCPService,
 ) {
   return tool({
     description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}`,
@@ -53,6 +54,7 @@ export function createSubAgentTool(
         projectId,
         settings,
         allAgents,
+        mcpStorage,
       })
 
       try {
@@ -94,6 +96,7 @@ export function createSubAgentToolSet(
   settings: GlobalSettings,
   projectId: string,
   loadTools: LoadToolsFn,
+  mcpStorage: IMCPService,
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
 
@@ -105,7 +108,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

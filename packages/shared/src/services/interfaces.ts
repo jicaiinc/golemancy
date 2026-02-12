@@ -4,6 +4,7 @@ import type {
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
   SkillCreateData, SkillUpdateData,
+  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
 } from '../types'
 
 export interface IProjectService {
@@ -59,6 +60,16 @@ export interface ISkillService {
   create(projectId: ProjectId, data: SkillCreateData): Promise<Skill>
   update(projectId: ProjectId, id: SkillId, data: SkillUpdateData): Promise<Skill>
   delete(projectId: ProjectId, id: SkillId): Promise<void>
+}
+
+export interface IMCPService {
+  list(projectId: ProjectId): Promise<MCPServerConfig[]>
+  getByName(projectId: ProjectId, name: string): Promise<MCPServerConfig | null>
+  create(projectId: ProjectId, data: MCPServerCreateData): Promise<MCPServerConfig>
+  update(projectId: ProjectId, name: string, data: MCPServerUpdateData): Promise<MCPServerConfig>
+  delete(projectId: ProjectId, name: string): Promise<void>
+  /** Resolve an array of names to full configs (skips missing) */
+  resolveNames(projectId: ProjectId, names: string[]): Promise<MCPServerConfig[]>
 }
 
 export interface ISettingsService {

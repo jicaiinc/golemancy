@@ -97,6 +97,14 @@ function createTestServices(): ServiceContainer {
       update: vi.fn(),
       delete: vi.fn(),
     },
+    mcp: {
+      list: vi.fn().mockResolvedValue([]),
+      getByName: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      resolveNames: vi.fn().mockResolvedValue([]),
+    },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({
         totalProjects: 0, totalAgents: 0, activeAgents: 0,

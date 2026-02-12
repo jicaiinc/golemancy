@@ -10,6 +10,9 @@ export { AgentListPage, AgentDetailPage } from './agent'
 // Skills
 export { SkillsPage } from './skill'
 
+// MCP Servers
+export { MCPServersPage } from './mcp'
+
 // Chat pages
 export { ChatPage } from './chat'
 

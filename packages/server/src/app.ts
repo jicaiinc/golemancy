@@ -5,6 +5,7 @@ import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   IArtifactService, IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
+  IMCPService,
 } from '@solocraft/shared'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
@@ -17,6 +18,7 @@ import { createSettingsRoutes } from './routes/settings'
 import { createDashboardRoutes } from './routes/dashboard'
 import { createSkillRoutes } from './routes/skills'
 import { createCronJobRoutes } from './routes/cronjobs'
+import { createMCPRoutes } from './routes/mcp'
 import { logger } from './logger'
 
 export interface ServerDependencies {
@@ -30,6 +32,7 @@ export interface ServerDependencies {
   settingsStorage: ISettingsService
   dashboardService: IDashboardService
   cronJobStorage: ICronJobService
+  mcpStorage: IMCPService
 }
 
 export function createApp(deps: ServerDependencies, authToken?: string) {
@@ -87,10 +90,15 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     skillStorage: deps.skillStorage,
     agentStorage: deps.agentStorage,
   }))
+  app.route('/api/projects/:projectId/mcp-servers', createMCPRoutes({
+    mcpStorage: deps.mcpStorage,
+    agentStorage: deps.agentStorage,
+  }))
   app.route('/api/chat', createChatRoutes({
     agentStorage: deps.agentStorage,
     conversationStorage: deps.conversationStorage,
     settingsStorage: deps.settingsStorage,
+    mcpStorage: deps.mcpStorage,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes(deps.cronJobStorage))

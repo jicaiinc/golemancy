@@ -1,5 +1,5 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, ProjectId } from '@solocraft/shared'
+import type { Agent, GlobalSettings, ProjectId, IMCPService } from '@solocraft/shared'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
@@ -13,6 +13,7 @@ export interface LoadAgentToolsParams {
   projectId: string
   settings: GlobalSettings
   allAgents: Agent[]
+  mcpStorage: IMCPService
 }
 
 export interface AgentToolsResult {
@@ -30,7 +31,7 @@ export interface AgentToolsResult {
  * recursive nesting controlled purely by agent configuration.
  */
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
-  const { agent, projectId, settings, allAgents } = params
+  const { agent, projectId, settings, allAgents, mcpStorage } = params
   const tools: ToolSet = {}
   const cleanups: Array<() => Promise<void>> = []
   let instructions = ''
@@ -45,12 +46,15 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     }
   }
 
-  // 2. MCP
+  // 2. MCP — resolve name references to full configs, then load
   if (agent.mcpServers?.length > 0) {
-    const mcpResult = await loadAgentMcpTools(agent.mcpServers)
-    if (mcpResult) {
-      Object.assign(tools, mcpResult.tools)
-      cleanups.push(mcpResult.cleanup)
+    const mcpConfigs = await mcpStorage.resolveNames(projectId as ProjectId, agent.mcpServers)
+    if (mcpConfigs.length > 0) {
+      const mcpResult = await loadAgentMcpTools(mcpConfigs)
+      if (mcpResult) {
+        Object.assign(tools, mcpResult.tools)
+        cleanups.push(mcpResult.cleanup)
+      }
     }
   }
 
@@ -66,7 +70,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   // 4. Sub-agents (lightweight shells, zero resource cost until invoked)
   if (agent.subAgents?.length > 0) {
     const subAgentResult = createSubAgentToolSet(
-      agent, allAgents, settings, projectId, loadAgentTools,
+      agent, allAgents, settings, projectId, loadAgentTools, mcpStorage,
     )
     Object.assign(tools, subAgentResult.tools)
   }

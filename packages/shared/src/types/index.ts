@@ -1,6 +1,7 @@
 export * from './common'
 export * from './settings'
 export * from './project'
+export * from './mcp'
 export * from './agent'
 export * from './conversation'
 export * from './task'

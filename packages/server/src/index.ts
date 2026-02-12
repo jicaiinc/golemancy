@@ -12,6 +12,7 @@ import { FileArtifactStorage } from './storage/artifacts'
 import { FileMemoryStorage } from './storage/memories'
 import { FileSkillStorage } from './storage/skills'
 import { FileCronJobStorage } from './storage/cronjobs'
+import { FileMCPStorage } from './storage/mcp'
 import { FileSettingsStorage } from './storage/settings'
 import { logger } from './logger'
 
@@ -38,6 +39,7 @@ async function main() {
     skillStorage: new FileSkillStorage(agentStorage),
     cronJobStorage: new FileCronJobStorage(),
     settingsStorage: new FileSettingsStorage(),
+    mcpStorage: new FileMCPStorage(),
     dashboardService: {
       getSummary: async () => ({ totalProjects: 0, totalAgents: 0, activeAgents: 0, runningTasks: 0, completedTasksToday: 0, totalTokenUsageToday: 0 }),
       getActiveAgents: async () => [],

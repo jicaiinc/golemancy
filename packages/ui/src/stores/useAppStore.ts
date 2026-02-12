@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   ThemeMode,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
@@ -58,6 +59,11 @@ interface MemorySlice {
 interface SkillSlice {
   skills: Skill[]
   skillsLoading: boolean
+}
+
+interface MCPSlice {
+  mcpServers: MCPServerConfig[]
+  mcpServersLoading: boolean
 }
 
 interface CronJobSlice {
@@ -130,6 +136,13 @@ interface SkillActions {
   deleteSkill(id: SkillId): Promise<void>
 }
 
+interface MCPActions {
+  loadMCPServers(projectId: ProjectId): Promise<void>
+  createMCPServer(data: MCPServerCreateData): Promise<MCPServerConfig>
+  updateMCPServer(name: string, data: MCPServerUpdateData): Promise<void>
+  deleteMCPServer(name: string): Promise<void>
+}
+
 interface CronJobActions {
   loadCronJobs(projectId: ProjectId): Promise<void>
   createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>): Promise<CronJob>
@@ -156,8 +169,8 @@ interface DashboardActions {
 
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & SkillSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & SkillActions & CronJobActions & SettingsActions & UIActions & DashboardActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions
 
 // AbortController for project switching
 let projectAbort: AbortController | null = null
@@ -196,6 +209,7 @@ export const useAppStore = create<AppState>()(
           artifacts: [],
           memories: [],
           skills: [],
+          mcpServers: [],
           cronJobs: [],
           agentsLoading: true,
           conversationsLoading: true,
@@ -203,19 +217,21 @@ export const useAppStore = create<AppState>()(
           artifactsLoading: true,
           memoriesLoading: true,
           skillsLoading: true,
+          mcpServersLoading: true,
           cronJobsLoading: true,
         })
 
         // Load project data in parallel (individual failures resolve to empty arrays)
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
-        const [agents, conversations, tasks, artifacts, memories, skills, cronJobs] = await Promise.all([
+        const [agents, conversations, tasks, artifacts, memories, skills, mcpServers, cronJobs] = await Promise.all([
           safe(svc.agents.list(id)),
           safe(svc.conversations.list(id)),
           safe(svc.tasks.list(id)),
           safe(svc.artifacts.list(id)),
           safe(svc.memory.list(id)),
           safe(svc.skills.list(id)),
+          safe(svc.mcp.list(id)),
           safe(svc.cronJobs.list(id)),
         ])
 
@@ -229,6 +245,7 @@ export const useAppStore = create<AppState>()(
           artifacts,
           memories,
           skills,
+          mcpServers,
           cronJobs,
           agentsLoading: false,
           conversationsLoading: false,
@@ -236,6 +253,7 @@ export const useAppStore = create<AppState>()(
           artifactsLoading: false,
           memoriesLoading: false,
           skillsLoading: false,
+          mcpServersLoading: false,
           cronJobsLoading: false,
         })
       },
@@ -251,8 +269,10 @@ export const useAppStore = create<AppState>()(
           artifacts: [],
           memories: [],
           skills: [],
+          mcpServers: [],
           cronJobs: [],
           skillsLoading: false,
+          mcpServersLoading: false,
           cronJobsLoading: false,
           currentConversationId: null,
         })
@@ -286,7 +306,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], tasks: [], artifacts: [], memories: [], skills: [], cronJobs: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], tasks: [], artifacts: [], memories: [], skills: [], mcpServers: [], cronJobs: [] } : {}),
         }))
       },
 
@@ -482,6 +502,38 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().skills.delete(projectId, id)
         set(s => ({ skills: s.skills.filter(sk => sk.id !== id) }))
+      },
+
+      // --- MCP state ---
+      mcpServers: [],
+      mcpServersLoading: false,
+
+      async loadMCPServers(projectId: ProjectId) {
+        set({ mcpServersLoading: true })
+        const mcpServers = await getServices().mcp.list(projectId)
+        set({ mcpServers, mcpServersLoading: false })
+      },
+
+      async createMCPServer(data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const server = await getServices().mcp.create(projectId, data)
+        set(s => ({ mcpServers: [...s.mcpServers, server] }))
+        return server
+      },
+
+      async updateMCPServer(name, data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const updated = await getServices().mcp.update(projectId, name, data)
+        set(s => ({ mcpServers: s.mcpServers.map(m => m.name === name ? updated : m) }))
+      },
+
+      async deleteMCPServer(name) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        await getServices().mcp.delete(projectId, name)
+        set(s => ({ mcpServers: s.mcpServers.filter(m => m.name !== name) }))
       },
 
       // --- CronJob state ---
