@@ -171,6 +171,7 @@ When creating a team, follow `_team/team.md`. **NEVER use Plan Mode to start a t
   - **Review** — three CR roles run in parallel
 - **Phase flow**: Implement done → auto-enter Test → tests pass → auto-enter Review. If CR finds P0 issues → back to Implement → Test → Review. Loop until no P0. If loop exceeds 3 rounds, pause and ask user.
 - **Team Lead only coordinates, never writes code**
+- **Implementation verification (mandatory)**: After each implementation task, Team Lead MUST personally read the actual code and verify it against the user's original requirements from Step 0. Never trust agent reports alone — always verify by reading the code yourself. If implementation doesn't match requirements, reject and send back for rework.
 - **Parallel strategy**: independent tasks must run in parallel; use `blockedBy` in Task List for dependencies
 - **Escalation strategy**: Phase 1 — strict (any ambiguity/choice must be reported to user); Phase 2 — autonomous (only escalate fundamental blockers)
 - **Fact Checker is mandatory** — no tech enters code without verification via WebSearch / Context7 / source code
