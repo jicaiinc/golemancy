@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
-import type { ConversationId } from '@solocraft/shared'
+import type { AgentId, ConversationId } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelSpinner } from '../../components'
@@ -53,6 +53,18 @@ export function ChatPage() {
     await createConversation(mainAgentId, 'New Chat')
   }, [mainAgentId, createConversation])
 
+  const deleteConversation = useAppStore(s => s.deleteConversation)
+  const updateProject = useAppStore(s => s.updateProject)
+
+  const handleSwitchAgent = useCallback(async (agentId: AgentId) => {
+    if (!currentConversationId || !currentProject) return
+    const oldConvId = currentConversationId
+    // Create new conversation first so UI doesn't flash empty
+    await createConversation(agentId, 'New Chat')
+    await updateProject(currentProject.id, { mainAgentId: agentId })
+    await deleteConversation(oldConvId)
+  }, [currentConversationId, currentProject, createConversation, updateProject, deleteConversation])
+
   // Find current conversation and its agent
   const currentConversation = conversations.find(c => c.id === currentConversationId)
   const currentAgent = currentConversation
@@ -85,12 +97,15 @@ export function ChatPage() {
       <div className="flex-1 flex flex-col min-w-0">
         {currentConversation ? (
           <ChatWindow
+            key={currentConversation.id}
             conversation={currentConversation}
             agent={currentAgent}
+            agents={agents}
             chatHistoryExpanded={chatHistoryExpanded}
             onToggleChatHistory={toggleChatHistory}
             onNewChat={handleNewChat}
             canNewChat={canNewChat}
+            onSwitchAgent={handleSwitchAgent}
           />
         ) : (
           <ChatEmptyState

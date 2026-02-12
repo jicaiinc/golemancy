@@ -110,6 +110,8 @@ const defaultSidebarProps = {
   onToggleChatHistory: vi.fn(),
   onNewChat: vi.fn(),
   canNewChat: true,
+  agents: [makeAgent()],
+  onSwitchAgent: vi.fn(),
 }
 
 describe('ChatWindow', () => {

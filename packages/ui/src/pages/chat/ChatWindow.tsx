@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import type { UIMessage } from 'ai'
 import { motion } from 'motion/react'
-import type { Agent, Conversation } from '@solocraft/shared'
+import type { Agent, AgentId, Conversation } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
 import { PixelButton, PixelSpinner, SidebarToggleIcon } from '../../components'
@@ -30,13 +30,15 @@ function getServerConfig(): { baseUrl: string; token: string } | null {
 interface ChatWindowProps {
   conversation: Conversation
   agent: Agent | undefined
+  agents: Agent[]
   chatHistoryExpanded: boolean
   onToggleChatHistory: () => void
   onNewChat: () => void
   canNewChat: boolean
+  onSwitchAgent: (agentId: AgentId) => void
 }
 
-export function ChatWindow({ conversation, agent, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat }: ChatWindowProps) {
+export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent }: ChatWindowProps) {
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
@@ -45,6 +47,7 @@ export function ChatWindow({ conversation, agent, chatHistoryExpanded, onToggleC
   // --- Inline title editing ---
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleValue, setTitleValue] = useState('')
+  const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
 
   const handleTitleClick = useCallback(() => {
@@ -58,6 +61,7 @@ export function ChatWindow({ conversation, agent, chatHistoryExpanded, onToggleC
     const trimmed = titleValue.trim()
     if (trimmed && trimmed !== conversation.title) {
       updateConversationTitle(conversation.id, trimmed)
+      setTitleManuallyEdited(true)
     }
   }, [titleValue, conversation.title, conversation.id, updateConversationTitle])
 
@@ -113,9 +117,9 @@ export function ChatWindow({ conversation, agent, chatHistoryExpanded, onToggleC
   const handleSend = useCallback(async (content: string) => {
     if (!currentProjectId || !chat) return
 
-    // Auto-title: if this is the first message, update the conversation title
+    // Auto-title: if first message and user hasn't manually renamed
     const isFirstMessage = messages.length === 0
-    if (isFirstMessage) {
+    if (isFirstMessage && !titleManuallyEdited) {
       const autoTitle = generateAutoTitle(content)
       updateConversationTitle(conversation.id, autoTitle)
     }
@@ -139,7 +143,7 @@ export function ChatWindow({ conversation, agent, chatHistoryExpanded, onToggleC
         }))
       }
     }
-  }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat, messages.length, updateConversationTitle])
+  }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat, messages.length, updateConversationTitle, titleManuallyEdited])
 
   const handleDelete = useCallback(async () => {
     if (!confirmDelete) {
@@ -198,10 +202,22 @@ export function ChatWindow({ conversation, agent, chatHistoryExpanded, onToggleC
               {conversation.title}
             </h2>
           )}
-          {agent && !editingTitle && (
-            <span className="text-[11px] text-accent-blue font-mono shrink-0">
-              @{agent.name}
-            </span>
+          {!editingTitle && (
+            messages.length === 0 && agents.length > 1 ? (
+              <select
+                className="text-[11px] text-accent-blue font-mono bg-deep border-2 border-border-dim px-1 py-0.5 outline-none cursor-pointer shrink-0"
+                value={conversation.agentId}
+                onChange={e => onSwitchAgent(e.target.value as AgentId)}
+              >
+                {agents.map(a => (
+                  <option key={a.id} value={a.id}>@{a.name}</option>
+                ))}
+              </select>
+            ) : agent && (
+              <span className="text-[11px] text-accent-blue font-mono shrink-0">
+                @{agent.name}
+              </span>
+            )
           )}
         </div>
 
