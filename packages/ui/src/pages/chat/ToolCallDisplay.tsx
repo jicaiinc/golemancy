@@ -28,7 +28,7 @@ function useToolDisplayName(toolName: string): string {
 
   const agentId = toolName.slice(DELEGATE_PREFIX.length)
   const agent = agents.find(a => a.id === agentId)
-  return agent ? `delegate_to_${agent.name}` : toolName
+  return agent ? agent.name : toolName
 }
 
 function getStatusLabel(state: string): { text: string; color: string } {
