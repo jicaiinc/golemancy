@@ -1,7 +1,9 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage } from 'electron'
 import { join } from 'path'
 import { fork, type ChildProcess } from 'child_process'
 import { logger } from './logger'
+
+const APP_VERSION = '0.1.0'
 
 let serverProcess: ChildProcess | null = null
 let serverPort: number | null = null
@@ -77,6 +79,83 @@ function stopServer(): Promise<void> {
   })
 }
 
+function getIconPath(): string {
+  const rootDir = process.env.SOLOCRAFT_ROOT_DIR || join(app.getAppPath(), '../..')
+  return join(rootDir, 'apps/desktop/resources/build/icons/png/512x512.png')
+}
+
+function getAppIcon(): Electron.NativeImage {
+  return nativeImage.createFromPath(getIconPath())
+}
+
+function showAbout(): void {
+  const icon = getAppIcon()
+  dialog.showMessageBox({
+    type: 'none',
+    icon: icon.isEmpty() ? undefined : icon,
+    title: 'About SoloCraft',
+    message: 'SoloCraft',
+    detail: `Version ${APP_VERSION}\nAI Agent Orchestrator for Solo Creators`,
+    buttons: ['OK'],
+  })
+}
+
+function buildAppMenu(): void {
+  const template: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: 'SoloCraft',
+      submenu: [
+        { label: 'About SoloCraft', click: showAbout },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { label: 'Hide SoloCraft', role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { label: 'Quit SoloCraft', role: 'quit' },
+      ],
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' },
+      ],
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' },
+      ],
+    },
+    {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'front' },
+      ],
+    },
+  ]
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+}
+
 function createWindow(options?: { projectId?: string }): void {
   const win = new BrowserWindow({
     width: 1280,
@@ -84,6 +163,7 @@ function createWindow(options?: { projectId?: string }): void {
     minWidth: 960,
     minHeight: 640,
     backgroundColor: '#0B0E14',
+    icon: getIconPath(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false,
@@ -102,7 +182,18 @@ function createWindow(options?: { projectId?: string }): void {
   }
 }
 
+app.name = 'SoloCraft'
+
 app.whenReady().then(async () => {
+  // Build custom menu (replaces default Electron menu, shows "SoloCraft" in menu bar)
+  buildAppMenu()
+
+  // Set dock icon on macOS
+  if (process.platform === 'darwin' && app.dock) {
+    const icon = getAppIcon()
+    if (!icon.isEmpty()) app.dock.setIcon(icon)
+  }
+
   try {
     await startServer()
     logger.info({ port: serverPort }, 'agent server ready')

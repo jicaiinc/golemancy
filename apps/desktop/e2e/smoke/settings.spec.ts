@@ -16,7 +16,6 @@ test.describe('Settings', () => {
     await expect(window.getByRole('button', { name: 'Appearance' })).toBeVisible()
     await expect(window.getByRole('button', { name: 'Profile' })).toBeVisible()
     await expect(window.getByRole('button', { name: 'Paths' })).toBeVisible()
-    await expect(window.getByRole('button', { name: 'General' })).toBeVisible()
   })
 
   test('provider section is visible', async ({ window, helper }) => {

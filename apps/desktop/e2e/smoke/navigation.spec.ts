@@ -7,11 +7,6 @@ test.describe('Navigation', () => {
     await expect(window.locator(SELECTORS.CREATE_PROJECT_BTN)).toBeVisible()
   })
 
-  test('navigate to dashboard page', async ({ window, helper }) => {
-    await helper.navigateTo('/dashboard')
-    await expect(window.getByText('Dashboard').first()).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
-  })
-
   test('navigate to global settings page', async ({ window, helper }) => {
     await helper.navigateTo('/settings')
     await expect(window.locator('[data-testid="settings-form"]')).toBeVisible({

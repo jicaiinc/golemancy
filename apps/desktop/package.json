@@ -1,11 +1,15 @@
 {
   "name": "@solocraft/desktop",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
+  "productName": "SoloCraft",
+  "description": "AI Agent Orchestrator for Solo Creators",
+  "author": "SoloCraft Team",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
+    "postinstall": "bash scripts/patch-electron-name.sh",
+    "dev": "bash scripts/patch-electron-name.sh && electron-vite dev",
     "build": "electron-vite build",
     "test:e2e": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts --project=smoke --project=server",
     "test:e2e:ai": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts",

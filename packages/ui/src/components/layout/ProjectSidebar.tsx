@@ -50,15 +50,12 @@ export function ProjectSidebar() {
       selected: p.id === projectId,
     })),
     { label: '← All Projects', value: '__lobby__' },
-    { label: '◉ Dashboard', value: '__dashboard__' },
     { label: '⚙ Settings', value: '__settings__' },
   ]
 
   function handleProjectSwitch(value: string) {
     if (value === '__lobby__') {
       navigate('/')
-    } else if (value === '__dashboard__') {
-      navigate('/dashboard')
     } else if (value === '__settings__') {
       navigate('/settings')
     } else {

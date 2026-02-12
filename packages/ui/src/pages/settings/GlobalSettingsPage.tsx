@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
 import type { AIProvider, ProviderConfig, ThemeMode } from '@solocraft/shared'
+import { APP_VERSION } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
+import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 
 const SETTINGS_TABS = [
   { id: 'providers', label: 'Providers' },
   { id: 'appearance', label: 'Appearance' },
   { id: 'profile', label: 'Profile' },
   { id: 'paths', label: 'Paths' },
-  { id: 'general', label: 'General' },
 ]
 
 const PROVIDER_INFO: Record<AIProvider, { name: string; icon: string; color: string }> = {
@@ -22,22 +22,13 @@ const PROVIDER_INFO: Record<AIProvider, { name: string; icon: string; color: str
 export function GlobalSettingsPage() {
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
-  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('providers')
 
   if (!settings) return null
 
   return (
-    <div className="h-full overflow-auto bg-void">
-      <div data-testid="settings-form" className="max-w-[800px] mx-auto p-8">
-        {/* Back button + title */}
-        <div className="flex items-center gap-4 mb-6">
-          <PixelButton variant="ghost" size="sm" onClick={() => navigate('/')}>
-            &larr; Back
-          </PixelButton>
-          <h1 className="font-pixel text-[16px] text-accent-green">Global Settings</h1>
-        </div>
-
+    <GlobalLayout title="Global Settings" showBack backLabel="All Projects">
+      <div data-testid="settings-form" className="max-w-[1000px] mx-auto p-8">
         <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="mt-4">
@@ -47,10 +38,16 @@ export function GlobalSettingsPage() {
           {activeTab === 'appearance' && <AppearanceTab />}
           {activeTab === 'profile' && <ProfileTab />}
           {activeTab === 'paths' && <PathsTab />}
-          {activeTab === 'general' && <GeneralTab />}
+        </div>
+
+        {/* About footer */}
+        <div className="mt-8 pt-4 border-t-2 border-border-dim text-center">
+          <span className="text-[11px] text-text-dim">
+            SoloCraft v{APP_VERSION} — AI Agent Orchestrator for Solo Creators
+          </span>
         </div>
       </div>
-    </div>
+    </GlobalLayout>
   )
 }
 
@@ -390,20 +387,6 @@ function PathsTab() {
           </PixelButton>
         </div>
         {saved && <span className="text-[11px] text-accent-green mt-2 block">Saved!</span>}
-      </PixelCard>
-    </div>
-  )
-}
-
-// ========== General Tab ==========
-function GeneralTab() {
-  return (
-    <div className="flex flex-col gap-4">
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">ABOUT</div>
-        <div className="text-[12px] text-text-primary">SoloCraft</div>
-        <div className="text-[11px] text-text-dim mt-1">v0.1.0</div>
-        <div className="text-[11px] text-text-dim mt-1">AI Agent Orchestrator for Solo Creators</div>
       </PixelCard>
     </div>
   )

@@ -1,7 +1,6 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router'
 import { ProjectLayout } from './layouts/ProjectLayout'
 import {
-  DashboardPage,
   ProjectListPage,
   ProjectDashboardPage,
   AgentListPage,
@@ -31,7 +30,7 @@ export function AppRoutes() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<RootRedirect />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<Navigate to="/" replace />} />
         <Route path="/settings" element={<GlobalSettingsPage />} />
         <Route path="/projects/:projectId" element={<ProjectLayout />}>
           <Route index element={<ProjectDashboardPage />} />

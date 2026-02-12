@@ -66,13 +66,12 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getByText('Global Settings')).toBeInTheDocument()
   })
 
-  it('renders all 5 tabs', () => {
+  it('renders all 4 tabs', () => {
     renderWithRouter(<GlobalSettingsPage />)
     expect(screen.getByText('Providers')).toBeInTheDocument()
     expect(screen.getByText('Appearance')).toBeInTheDocument()
     expect(screen.getByText('Profile')).toBeInTheDocument()
     expect(screen.getByText('Paths')).toBeInTheDocument()
-    expect(screen.getByText('General')).toBeInTheDocument()
   })
 
   it('shows Providers tab by default', () => {
@@ -103,18 +102,15 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getByText('DEFAULT WORKING DIRECTORY')).toBeInTheDocument()
   })
 
-  it('switches to General tab and shows about info', () => {
+  it('renders about footer with version', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    fireEvent.click(screen.getByText('General'))
-    expect(screen.getByText('ABOUT')).toBeInTheDocument()
-    expect(screen.getByText('SoloCraft')).toBeInTheDocument()
-    expect(screen.getByText('v0.1.0')).toBeInTheDocument()
+    expect(screen.getByText(/SoloCraft v0\.1\.0/)).toBeInTheDocument()
+    expect(screen.getByText(/AI Agent Orchestrator for Solo Creators/)).toBeInTheDocument()
   })
 
-  it('renders back button', () => {
+  it('renders back button with "All Projects" label', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    // The back button has "← Back" text (HTML entity)
-    const backBtn = screen.getByText(/Back/)
+    const backBtn = screen.getByText(/All Projects/)
     expect(backBtn).toBeInTheDocument()
   })
 })
