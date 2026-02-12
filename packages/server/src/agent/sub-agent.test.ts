@@ -1,18 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 
-// Mock child tool loaders to avoid loading real skills/MCP/bash
-vi.mock('./skills', () => ({
-  loadAgentSkillTools: vi.fn().mockResolvedValue(null),
-}))
-vi.mock('./mcp', () => ({
-  loadAgentMcpTools: vi.fn().mockResolvedValue(null),
-}))
-vi.mock('./builtin-tools', () => ({
-  loadBuiltinTools: vi.fn().mockResolvedValue(null),
-}))
-
-import { loadSubAgentTools, createSubAgentTool, sanitizeToolName } from './sub-agent'
+import { createSubAgentToolSet, createSubAgentTool, sanitizeToolName } from './sub-agent'
 import type { Agent, GlobalSettings, AgentId, ProjectId } from '@solocraft/shared'
+import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
   return {
@@ -43,6 +33,13 @@ const defaultSettings: GlobalSettings = {
   userProfile: { name: '', email: '' },
   defaultWorkingDirectoryBase: '',
 }
+
+const mockLoadTools = vi.fn<(params: LoadAgentToolsParams) => Promise<AgentToolsResult>>()
+  .mockResolvedValue({
+    tools: {},
+    instructions: '',
+    cleanup: vi.fn(),
+  })
 
 describe('sanitizeToolName', () => {
   it('passes through valid names', () => {
@@ -78,23 +75,22 @@ describe('sanitizeToolName', () => {
 describe('createSubAgentTool', () => {
   it('creates a tool with execute function', () => {
     const child = makeAgent({ name: 'Researcher', description: 'Finds information' })
-    const t = createSubAgentTool(child, defaultSettings)
+    const t = createSubAgentTool(child, [child], defaultSettings, 'proj-1', mockLoadTools)
 
     expect(t).toBeDefined()
     expect(t).toHaveProperty('execute')
   })
 })
 
-describe('loadSubAgentTools', () => {
-  it('returns empty tools when agent has no subAgents', async () => {
+describe('createSubAgentToolSet', () => {
+  it('returns empty tools when agent has no subAgents', () => {
     const agent = makeAgent({ subAgents: [] })
-    const result = await loadSubAgentTools(agent, [], defaultSettings, 'proj-1')
+    const result = createSubAgentToolSet(agent, [], defaultSettings, 'proj-1', mockLoadTools)
 
     expect(result.tools).toEqual({})
-    expect(result.cleanup).toBeTypeOf('function')
   })
 
-  it('creates tool for each sub-agent ref using agent ID', async () => {
+  it('creates tool for each sub-agent ref using agent ID', () => {
     const child1 = makeAgent({ id: 'agent-child1' as AgentId, name: 'Researcher' })
     const child2 = makeAgent({ id: 'agent-child2' as AgentId, name: 'Writer' })
     const parent = makeAgent({
@@ -104,26 +100,25 @@ describe('loadSubAgentTools', () => {
       ],
     })
 
-    const result = await loadSubAgentTools(parent, [child1, child2, parent], defaultSettings, 'proj-1')
+    const result = createSubAgentToolSet(parent, [child1, child2, parent], defaultSettings, 'proj-1', mockLoadTools)
 
     expect(Object.keys(result.tools)).toHaveLength(2)
     expect(result.tools).toHaveProperty('delegate_to_agent-child1')
     expect(result.tools).toHaveProperty('delegate_to_agent-child2')
   })
 
-  it('works with non-ASCII agent names by using ID', async () => {
+  it('works with non-ASCII agent names by using ID', () => {
     const child = makeAgent({ id: 'agent-cn' as AgentId, name: '蔡永吉' })
     const parent = makeAgent({
       subAgents: [{ agentId: 'agent-cn' as AgentId, role: 'assistant' }],
     })
 
-    const result = await loadSubAgentTools(parent, [child, parent], defaultSettings, 'proj-1')
+    const result = createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools)
 
-    // Uses ID not name, so Chinese chars don't cause issues
     expect(result.tools).toHaveProperty('delegate_to_agent-cn')
   })
 
-  it('skips sub-agents not found in allAgents list', async () => {
+  it('skips sub-agents not found in allAgents list', () => {
     const parent = makeAgent({
       subAgents: [
         { agentId: 'agent-missing' as AgentId, role: 'ghost' },
@@ -132,20 +127,20 @@ describe('loadSubAgentTools', () => {
     })
     const existing = makeAgent({ id: 'agent-exists' as AgentId, name: 'Existing' })
 
-    const result = await loadSubAgentTools(parent, [existing, parent], defaultSettings, 'proj-1')
+    const result = createSubAgentToolSet(parent, [existing, parent], defaultSettings, 'proj-1', mockLoadTools)
 
     expect(Object.keys(result.tools)).toHaveLength(1)
     expect(result.tools).toHaveProperty('delegate_to_agent-exists')
   })
 
-  it('cleanup function is callable', async () => {
+  it('does not call loadTools during creation (lazy loading)', () => {
     const child = makeAgent({ id: 'agent-child' as AgentId, name: 'Helper' })
     const parent = makeAgent({
       subAgents: [{ agentId: 'agent-child' as AgentId, role: 'help' }],
     })
 
-    const result = await loadSubAgentTools(parent, [child, parent], defaultSettings, 'proj-1')
+    createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools)
 
-    await expect(result.cleanup()).resolves.toBeUndefined()
+    expect(mockLoadTools).not.toHaveBeenCalled()
   })
 })

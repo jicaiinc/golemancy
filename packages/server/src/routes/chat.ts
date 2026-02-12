@@ -1,14 +1,11 @@
 import { Hono } from 'hono'
-import { streamText, stepCountIs, convertToModelMessages, type UIMessage, type ToolSet } from 'ai'
+import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
 import type {
   AgentId, ProjectId, ConversationId, MessageId,
   IAgentService, IConversationService, ISettingsService,
 } from '@solocraft/shared'
 import { resolveModel } from '../agent/model'
-import { loadAgentSkillTools } from '../agent/skills'
-import { loadSubAgentTools } from '../agent/sub-agent'
-import { loadAgentMcpTools } from '../agent/mcp'
-import { loadBuiltinTools } from '../agent/builtin-tools'
+import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 
@@ -103,44 +100,18 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       }
     }
 
-    // --- Load tools from all 4 sources ---
+    // Load all tools via unified entry point (skills, MCP, built-in, sub-agents)
+    const allAgents = agent.subAgents?.length > 0
+      ? await deps.agentStorage.list(projectId as ProjectId)
+      : []
 
-    // 1. Skill tools (existing)
-    let skillTools: Awaited<ReturnType<typeof loadAgentSkillTools>> = null
-    if (agent.skillIds?.length > 0) {
-      skillTools = await loadAgentSkillTools(projectId, agent.skillIds)
-    }
+    const agentToolsResult = await loadAgentTools({
+      agent, projectId, settings, allAgents,
+    })
 
-    // 2. Sub-agent tools (each sub-agent gets its own skills/MCP/built-in tools)
-    let subAgentResult: Awaited<ReturnType<typeof loadSubAgentTools>> | null = null
-    if (agent.subAgents?.length > 0) {
-      const allAgents = await deps.agentStorage.list(projectId as ProjectId)
-      subAgentResult = await loadSubAgentTools(agent, allAgents, settings, projectId)
-    }
-
-    // 3. MCP tools
-    let mcpTools: Awaited<ReturnType<typeof loadAgentMcpTools>> = null
-    if (agent.mcpServers?.length > 0) {
-      mcpTools = await loadAgentMcpTools(agent.mcpServers)
-    }
-
-    // 4. Built-in tools
-    let builtinToolsResult: Awaited<ReturnType<typeof loadBuiltinTools>> = null
-    if (agent.builtinTools) {
-      builtinToolsResult = await loadBuiltinTools(agent.builtinTools)
-    }
-
-    // Merge all tools
-    const allTools: ToolSet = {
-      ...(skillTools?.tools ?? {}),
-      ...(subAgentResult?.tools ?? {}),
-      ...(mcpTools?.tools ?? {}),
-      ...(builtinToolsResult?.tools ?? {}),
-    }
-
-    // Build system prompt
-    const systemPrompt = skillTools?.instructions
-      ? agent.systemPrompt + '\n\n' + skillTools.instructions
+    const allTools = agentToolsResult.tools
+    const systemPrompt = agentToolsResult.instructions
+      ? agent.systemPrompt + '\n\n' + agentToolsResult.instructions
       : agent.systemPrompt
 
     const modelMessages = await convertToModelMessages(messages)
@@ -155,11 +126,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
       onFinish: async ({ text }) => {
-        // Clean up all tool sources (including sub-agent child tools)
-        await skillTools?.cleanup()
-        await subAgentResult?.cleanup()
-        await mcpTools?.cleanup()
-        await builtinToolsResult?.cleanup()
+        await agentToolsResult.cleanup()
 
         try {
           if (conversationId && text) {
