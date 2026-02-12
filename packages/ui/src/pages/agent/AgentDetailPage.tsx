@@ -168,8 +168,9 @@ function SkillsTab({ agent, onUpdate }: {
   return (
     <div className="max-w-[640px]">
       {/* Assigned skills */}
-      {assigned.length > 0 && (
-        <div className="flex flex-col gap-2 mb-4">
+      <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED SKILLS</div>
+      {assigned.length > 0 ? (
+        <div className="flex flex-col gap-2">
           {assigned.map(skill => (
             <PixelCard key={skill.id} className="flex items-center gap-3">
               <div className="flex-1 min-w-0">
@@ -182,7 +183,12 @@ function SkillsTab({ agent, onUpdate }: {
             </PixelCard>
           ))}
         </div>
+      ) : (
+        <p className="text-[12px] text-text-dim mb-2">No skills assigned to this agent.</p>
       )}
+
+      {/* Divider */}
+      <div className="border-t border-border-dim my-4" />
 
       {/* Available skills picker */}
       {available.length > 0 && (
@@ -203,13 +209,22 @@ function SkillsTab({ agent, onUpdate }: {
         </div>
       )}
 
-      {assigned.length === 0 && available.length === 0 && (
+      {skills.length === 0 && (
         <PixelCard variant="outlined" className="text-center py-8">
           <p className="text-[12px] text-text-dim mb-2">No skills in this project</p>
           <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/skills`)}>
             Go to Skills
           </PixelButton>
         </PixelCard>
+      )}
+
+      {/* Manage link */}
+      {skills.length > 0 && (
+        <div className="mt-4">
+          <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/skills`)}>
+            Manage Skills &rarr;
+          </PixelButton>
+        </div>
       )}
     </div>
   )
@@ -319,8 +334,9 @@ function MCPTab({ agent, onUpdate }: {
   return (
     <div className="max-w-[640px]">
       {/* Assigned servers */}
-      {assigned.length > 0 && (
-        <div className="flex flex-col gap-2 mb-4">
+      <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED MCP SERVERS</div>
+      {assigned.length > 0 ? (
+        <div className="flex flex-col gap-2">
           {assigned.map(server => (
             <PixelCard key={server.name} className="flex items-center gap-3">
               <div className="flex-1 min-w-0">
@@ -340,7 +356,12 @@ function MCPTab({ agent, onUpdate }: {
             </PixelCard>
           ))}
         </div>
+      ) : (
+        <p className="text-[12px] text-text-dim mb-2">No MCP servers assigned to this agent.</p>
       )}
+
+      {/* Divider */}
+      <div className="border-t border-border-dim my-4" />
 
       {/* Available servers picker */}
       {available.length > 0 && (
@@ -366,6 +387,15 @@ function MCPTab({ agent, onUpdate }: {
         </div>
       )}
 
+      {mcpServers.length === 0 && (
+        <PixelCard variant="outlined" className="text-center py-8">
+          <p className="text-[12px] text-text-dim mb-2">No MCP servers in this project</p>
+          <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/mcp-servers`)}>
+            Go to MCP Servers
+          </PixelButton>
+        </PixelCard>
+      )}
+
       {/* Manage link */}
       {mcpServers.length > 0 && (
         <div className="mt-4">
@@ -373,15 +403,6 @@ function MCPTab({ agent, onUpdate }: {
             Manage MCP Servers &rarr;
           </PixelButton>
         </div>
-      )}
-
-      {assigned.length === 0 && available.length === 0 && (
-        <PixelCard variant="outlined" className="text-center py-8">
-          <p className="text-[12px] text-text-dim mb-2">No MCP servers in this project</p>
-          <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/mcp-servers`)}>
-            Go to MCP Servers
-          </PixelButton>
-        </PixelCard>
       )}
     </div>
   )
@@ -415,9 +436,10 @@ function SubAgentsTab({ agent, onUpdate }: {
 
   return (
     <div className="max-w-[640px]">
-      {/* Current sub-agents */}
-      {agent.subAgents.length > 0 && (
-        <div className="flex flex-col gap-2 mb-4">
+      {/* Assigned sub-agents */}
+      <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED SUB-AGENTS</div>
+      {agent.subAgents.length > 0 ? (
+        <div className="flex flex-col gap-2">
           {agent.subAgents.map(sub => {
             const subAgent = agents.find(a => a.id === sub.agentId)
             return (
@@ -439,10 +461,15 @@ function SubAgentsTab({ agent, onUpdate }: {
             )
           })}
         </div>
+      ) : (
+        <p className="text-[12px] text-text-dim mb-2">No sub-agents assigned to this agent.</p>
       )}
 
+      {/* Divider */}
+      <div className="border-t border-border-dim my-4" />
+
       {/* Add sub-agent picker */}
-      {available.length > 0 && (
+      {available.length > 0 ? (
         <div>
           <div className="font-pixel text-[8px] text-text-dim mb-2">ADD SUB-AGENT</div>
           <div className="flex flex-col gap-1">
@@ -459,12 +486,8 @@ function SubAgentsTab({ agent, onUpdate }: {
             ))}
           </div>
         </div>
-      )}
-
-      {agent.subAgents.length === 0 && available.length === 0 && (
-        <PixelCard variant="outlined" className="text-center py-8">
-          <p className="text-[12px] text-text-dim">No other agents in this project</p>
-        </PixelCard>
+      ) : (
+        <p className="text-[12px] text-text-dim">No other agents available in this project.</p>
       )}
     </div>
   )
