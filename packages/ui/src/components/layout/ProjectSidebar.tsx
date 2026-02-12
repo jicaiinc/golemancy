@@ -10,9 +10,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '', icon: '[]' },
+  { label: 'Chat', path: '/chat', icon: '>_' },
   { label: 'Agents', path: '/agents', icon: '{}' },
   { label: 'Skills', path: '/skills', icon: '<>' },
-  { label: 'Chat', path: '/chat', icon: '>_' },
   { label: 'Tasks', path: '/tasks', icon: '#' },
   { label: 'Cron', path: '/cron', icon: '::' },
   { label: 'Artifacts', path: '/artifacts', icon: '[]' },
