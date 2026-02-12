@@ -162,7 +162,7 @@ E2E pitfalls: macOS GUI processes don't inherit shell PATH → use `SOLOCRAFT_FO
 
 When creating a team, follow `_team/team.md`. **NEVER use Plan Mode to start a team** — create the team directly.
 
-- **Step 0 (mandatory)**: Before creating a team, Team Lead MUST recap ALL user requirements back to the user in a numbered list and get confirmation. This applies even when the user explicitly requests team creation. Only after user confirms completeness may the team be created and Design phase begin.
+- **Step 0 (mandatory)**: Before creating a team, Team Lead MUST recap ALL user requirements (features, tech constraints, process requirements, style, notes) back to the user in a numbered list and get confirmation. After confirmation, save to `_requirement/{YYYYMMDD-HHmm}-{name}.md` and broadcast to all team members. This file is the **single source of truth** — all subsequent phases must verify against it.
 - **12 roles**: Team Lead, Architect, Requirements Analyst, Abstraction Strategist, Fact Checker, UI/UX Designer, Full-stack Engineer, Test Engineer, Reference Analyst (on-demand), CR-Quality, CR-Security, CR-Performance
 - **Five phases**: Step 0 → Design → Implement → Test → Review (auto-transition between phases)
   - **Design** — architecture, research, requirements confirmation (all roles except engineers and reviewers). All artifacts saved to `_design/{YYYYMMDD-HHmm}-{name}/` as markdown files to persist across team sessions.
