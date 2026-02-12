@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import type { Agent, AgentId, AgentStatus, AIProvider, SkillId } from '@solocraft/shared'
+import type { Agent, AgentId, AgentStatus, AIProvider, SkillId, MCPServerConfig, MCPTransportType } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, useResolvedConfig } from '../../hooks'
 import {
@@ -24,6 +24,7 @@ const TABS = [
   { id: 'info', label: 'Info' },
   { id: 'skills', label: 'Skills' },
   { id: 'tools', label: 'Tools' },
+  { id: 'mcp', label: 'MCP' },
   { id: 'sub-agents', label: 'Sub-Agents' },
   { id: 'model', label: 'Model Config' },
 ]
@@ -76,6 +77,7 @@ export function AgentDetailPage() {
           <div className="flex items-center gap-3 mt-2 text-[11px] text-text-dim">
             <span>{(agent.skillIds ?? []).length} skills</span>
             <span>{agent.tools.length} tools</span>
+            <span>{(agent.mcpServers ?? []).filter(s => s.enabled).length} MCP servers</span>
             <span>{agent.subAgents.length} sub-agents</span>
             {agent.modelConfig.model && (
               <span className="font-mono text-accent-blue">{agent.modelConfig.model}</span>
@@ -90,7 +92,8 @@ export function AgentDetailPage() {
       <div className="mt-4">
         {activeTab === 'info' && <InfoTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`) }} />}
         {activeTab === 'skills' && <SkillsTab agent={agent} onUpdate={updateAgent} />}
-        {activeTab === 'tools' && <ToolsTab agent={agent} />}
+        {activeTab === 'tools' && <ToolsTab agent={agent} onUpdate={updateAgent} />}
+        {activeTab === 'mcp' && <MCPTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'sub-agents' && <SubAgentsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'model' && <ModelConfigTab agent={agent} onUpdate={updateAgent} />}
       </div>
@@ -213,28 +216,217 @@ function SkillsTab({ agent, onUpdate }: {
 }
 
 // ========== Tools Tab ==========
-function ToolsTab({ agent }: { agent: Agent }) {
+function ToolsTab({ agent, onUpdate }: {
+  agent: Agent
+  onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
+}) {
+  const builtinToolDefs = [
+    { id: 'bash', name: 'Bash', description: 'Execute bash commands, read and write files', available: true },
+    { id: 'browser', name: 'Browser', description: 'Control web browser for automation', available: false },
+    { id: 'os_control', name: 'OS Control', description: 'Desktop automation and system control', available: false },
+  ]
+
+  async function toggleBuiltinTool(toolId: string) {
+    const current = agent.builtinTools[toolId] ?? (toolId === 'bash')
+    await onUpdate(agent.id, {
+      builtinTools: { ...agent.builtinTools, [toolId]: !current },
+    })
+  }
+
   return (
-    <div>
-      {agent.tools.length === 0 ? (
-        <PixelCard variant="outlined" className="text-center py-8">
-          <p className="text-[12px] text-text-dim">No tools configured</p>
-        </PixelCard>
-      ) : (
+    <div className="max-w-[640px]">
+      {/* Built-in Tools Section */}
+      <div className="mb-6">
+        <div className="font-pixel text-[8px] text-text-dim mb-2">BUILT-IN TOOLS</div>
         <div className="flex flex-col gap-2">
-          {agent.tools.map(tool => (
-            <PixelCard key={tool.id} className="flex items-start gap-3">
-              <span className="font-mono text-[12px] text-accent-amber shrink-0">{tool.name}</span>
-              <span className="text-[12px] text-text-secondary flex-1">{tool.description}</span>
-              {tool.inputSchema && Object.keys(tool.inputSchema).length > 0 && (
-                <code className="text-[10px] text-text-dim font-mono bg-deep px-2 py-1 border border-border-dim">
-                  {JSON.stringify(tool.inputSchema).slice(0, 60)}
-                  {JSON.stringify(tool.inputSchema).length > 60 ? '...' : ''}
-                </code>
-              )}
+          {builtinToolDefs.map(tool => {
+            const enabled = agent.builtinTools[tool.id] ?? (tool.id === 'bash')
+            return (
+              <PixelCard key={tool.id} className={`flex items-center gap-3 ${!tool.available ? 'opacity-50' : ''}`}>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[12px] text-accent-amber">{tool.name}</span>
+                    {!tool.available && (
+                      <span className="text-[9px] text-text-dim font-pixel">COMING SOON</span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-text-secondary mt-0.5">{tool.description}</div>
+                </div>
+                <button
+                  className={`w-10 h-5 border-2 transition-colors cursor-pointer ${
+                    enabled && tool.available
+                      ? 'bg-accent-green border-accent-green'
+                      : 'bg-deep border-border-dim'
+                  } ${!tool.available ? 'cursor-not-allowed' : ''}`}
+                  onClick={() => tool.available && toggleBuiltinTool(tool.id)}
+                  disabled={!tool.available}
+                >
+                  <div className={`w-3 h-3 bg-white transition-transform ${
+                    enabled && tool.available ? 'translate-x-4' : 'translate-x-0.5'
+                  }`} />
+                </button>
+              </PixelCard>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Custom Tools Section */}
+      {agent.tools.length > 0 && (
+        <div>
+          <div className="font-pixel text-[8px] text-text-dim mb-2">CUSTOM TOOLS</div>
+          <div className="flex flex-col gap-2">
+            {agent.tools.map(tool => (
+              <PixelCard key={tool.id} className="flex items-start gap-3">
+                <span className="font-mono text-[12px] text-accent-amber shrink-0">{tool.name}</span>
+                <span className="text-[12px] text-text-secondary flex-1">{tool.description}</span>
+              </PixelCard>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ========== MCP Tab ==========
+function MCPTab({ agent, onUpdate }: {
+  agent: Agent
+  onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
+}) {
+  const [adding, setAdding] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newTransport, setNewTransport] = useState<MCPTransportType>('stdio')
+  const [newCommand, setNewCommand] = useState('')
+  const [newArgs, setNewArgs] = useState('')
+  const [newUrl, setNewUrl] = useState('')
+
+  async function addServer() {
+    const server: MCPServerConfig = {
+      name: newName.trim(),
+      transportType: newTransport,
+      enabled: true,
+      ...(newTransport === 'stdio' ? {
+        command: newCommand.trim(),
+        args: newArgs.trim() ? newArgs.trim().split(/\s+/) : [],
+      } : {
+        url: newUrl.trim(),
+      }),
+    }
+    await onUpdate(agent.id, {
+      mcpServers: [...(agent.mcpServers ?? []), server],
+    })
+    resetForm()
+  }
+
+  async function removeServer(name: string) {
+    await onUpdate(agent.id, {
+      mcpServers: (agent.mcpServers ?? []).filter(s => s.name !== name),
+    })
+  }
+
+  async function toggleServer(name: string) {
+    await onUpdate(agent.id, {
+      mcpServers: (agent.mcpServers ?? []).map(s =>
+        s.name === name ? { ...s, enabled: !s.enabled } : s
+      ),
+    })
+  }
+
+  function resetForm() {
+    setAdding(false)
+    setNewName('')
+    setNewTransport('stdio')
+    setNewCommand('')
+    setNewArgs('')
+    setNewUrl('')
+  }
+
+  const servers = agent.mcpServers ?? []
+
+  return (
+    <div className="max-w-[640px]">
+      {/* Server list */}
+      {servers.length > 0 && (
+        <div className="flex flex-col gap-2 mb-4">
+          {servers.map(server => (
+            <PixelCard key={server.name} className={`flex items-center gap-3 ${!server.enabled ? 'opacity-50' : ''}`}>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-pixel text-[9px] text-accent-purple">{server.name}</span>
+                  <PixelBadge variant={server.transportType === 'stdio' ? 'idle' : 'running'}>
+                    {server.transportType}
+                  </PixelBadge>
+                </div>
+                <div className="text-[11px] text-text-dim mt-0.5 font-mono">
+                  {server.transportType === 'stdio'
+                    ? `${server.command} ${(server.args ?? []).join(' ')}`
+                    : server.url}
+                </div>
+              </div>
+              <button
+                className={`w-10 h-5 border-2 transition-colors cursor-pointer ${
+                  server.enabled ? 'bg-accent-green border-accent-green' : 'bg-deep border-border-dim'
+                }`}
+                onClick={() => toggleServer(server.name)}
+              >
+                <div className={`w-3 h-3 bg-white transition-transform ${
+                  server.enabled ? 'translate-x-4' : 'translate-x-0.5'
+                }`} />
+              </button>
+              <PixelButton size="sm" variant="ghost" onClick={() => removeServer(server.name)}>
+                &times;
+              </PixelButton>
             </PixelCard>
           ))}
         </div>
+      )}
+
+      {/* Add server form */}
+      {adding ? (
+        <PixelCard className="flex flex-col gap-3">
+          <PixelInput label="NAME" value={newName} onChange={e => setNewName(e.target.value)} placeholder="my-mcp-server" />
+
+          <div className="flex flex-col gap-1">
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">TRANSPORT</label>
+            <select
+              value={newTransport}
+              onChange={e => setNewTransport(e.target.value as MCPTransportType)}
+              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+            >
+              <option value="stdio">stdio (local)</option>
+              <option value="http">HTTP</option>
+              <option value="sse">SSE</option>
+            </select>
+          </div>
+
+          {newTransport === 'stdio' ? (
+            <>
+              <PixelInput label="COMMAND" value={newCommand} onChange={e => setNewCommand(e.target.value)} placeholder="npx" />
+              <PixelInput label="ARGS (space-separated)" value={newArgs} onChange={e => setNewArgs(e.target.value)} placeholder="-y @modelcontextprotocol/server-filesystem /tmp" />
+            </>
+          ) : (
+            <PixelInput label="URL" value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="http://localhost:3001/mcp" />
+          )}
+
+          <div className="flex items-center gap-2">
+            <PixelButton variant="primary" onClick={addServer} disabled={!newName.trim() || (newTransport === 'stdio' ? !newCommand.trim() : !newUrl.trim())}>
+              Add Server
+            </PixelButton>
+            <PixelButton variant="ghost" onClick={resetForm}>Cancel</PixelButton>
+          </div>
+        </PixelCard>
+      ) : (
+        <PixelButton variant="secondary" onClick={() => setAdding(true)}>
+          + Add MCP Server
+        </PixelButton>
+      )}
+
+      {servers.length === 0 && !adding && (
+        <PixelCard variant="outlined" className="text-center py-8 mt-4">
+          <p className="text-[12px] text-text-dim mb-1">No MCP servers configured</p>
+          <p className="text-[10px] text-text-dim">MCP servers provide additional tools like file system access, database queries, and more</p>
+        </PixelCard>
       )}
     </div>
   )

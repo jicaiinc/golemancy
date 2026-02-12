@@ -1,11 +1,14 @@
 import { Hono } from 'hono'
-import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
+import { streamText, stepCountIs, convertToModelMessages, type UIMessage, type ToolSet } from 'ai'
 import type {
   AgentId, ProjectId, ConversationId, MessageId,
   IAgentService, IConversationService, ISettingsService,
 } from '@solocraft/shared'
 import { resolveModel } from '../agent/model'
 import { loadAgentSkillTools } from '../agent/skills'
+import { loadSubAgentTools } from '../agent/sub-agent'
+import { loadAgentMcpTools } from '../agent/mcp'
+import { loadBuiltinTools } from '../agent/builtin-tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 
@@ -100,29 +103,62 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       }
     }
 
-    // Load skill tools for this specific agent
+    // --- Load tools from all 4 sources ---
+
+    // 1. Skill tools (existing)
     let skillTools: Awaited<ReturnType<typeof loadAgentSkillTools>> = null
     if (agent.skillIds?.length > 0) {
       skillTools = await loadAgentSkillTools(projectId, agent.skillIds)
     }
 
+    // 2. Sub-agent tools
+    let subAgentToolSet: ToolSet = {}
+    if (agent.subAgents?.length > 0) {
+      const allAgents = await deps.agentStorage.list(projectId as ProjectId)
+      subAgentToolSet = loadSubAgentTools(agent, allAgents, settings)
+    }
+
+    // 3. MCP tools
+    let mcpTools: Awaited<ReturnType<typeof loadAgentMcpTools>> = null
+    if (agent.mcpServers?.length > 0) {
+      mcpTools = await loadAgentMcpTools(agent.mcpServers)
+    }
+
+    // 4. Built-in tools
+    let builtinToolsResult: Awaited<ReturnType<typeof loadBuiltinTools>> = null
+    if (agent.builtinTools) {
+      builtinToolsResult = await loadBuiltinTools(agent.builtinTools)
+    }
+
+    // Merge all tools
+    const allTools: ToolSet = {
+      ...(skillTools?.tools ?? {}),
+      ...subAgentToolSet,
+      ...(mcpTools?.tools ?? {}),
+      ...(builtinToolsResult?.tools ?? {}),
+    }
+
+    // Build system prompt
     const systemPrompt = skillTools?.instructions
       ? agent.systemPrompt + '\n\n' + skillTools.instructions
       : agent.systemPrompt
 
     const modelMessages = await convertToModelMessages(messages)
+    const hasTools = Object.keys(allTools).length > 0
 
     const result = streamText({
       model,
       system: systemPrompt,
       messages: modelMessages,
-      tools: skillTools?.tools,
-      stopWhen: stepCountIs(10),
+      tools: hasTools ? allTools : undefined,
+      stopWhen: hasTools ? stepCountIs(10) : undefined,
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
       onFinish: async ({ text }) => {
-        // Clean up skill temp directory after stream completes
+        // Clean up all tool sources
         await skillTools?.cleanup()
+        await mcpTools?.cleanup()
+        await builtinToolsResult?.cleanup()
 
         try {
           if (conversationId && text) {

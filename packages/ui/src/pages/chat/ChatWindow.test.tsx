@@ -80,6 +80,8 @@ function makeAgent(overrides?: Partial<Agent>): Agent {
     skillIds: [],
     tools: [],
     subAgents: [],
+    mcpServers: [],
+    builtinTools: { bash: true },
     createdAt: now,
     updatedAt: now,
     ...overrides,

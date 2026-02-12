@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import fs from 'node:fs/promises'
+import path from 'node:path'
 import { createTmpDir } from '../test/helpers'
 import type { ProjectId, AgentId } from '@solocraft/shared'
 
@@ -172,6 +173,84 @@ describe('FileAgentStorage', () => {
 
       const found = await storage.getById(projId, agent.id)
       expect(found).not.toBeNull()
+    })
+  })
+
+  describe('normalize (backfill new fields)', () => {
+    it('backfills mcpServers as empty array when missing', async () => {
+      // Write a raw agent file without mcpServers
+      const id = 'agent-legacy-mcp'
+      const raw = {
+        id, projectId: projId, name: 'Legacy', description: '', status: 'idle',
+        systemPrompt: '', modelConfig: { provider: 'openai' },
+        skillIds: [], tools: [], subAgents: [],
+        builtinTools: { bash: true },
+        createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
+        // Note: no mcpServers field
+      }
+      const filePath = path.join(state.tmpDir, 'projects', projId, 'agents', `${id}.json`)
+      await fs.writeFile(filePath, JSON.stringify(raw))
+
+      const agent = await storage.getById(projId, id as AgentId)
+      expect(agent).not.toBeNull()
+      expect(agent!.mcpServers).toEqual([])
+    })
+
+    it('backfills builtinTools as { bash: true } when missing', async () => {
+      const id = 'agent-legacy-builtin'
+      const raw = {
+        id, projectId: projId, name: 'Legacy', description: '', status: 'idle',
+        systemPrompt: '', modelConfig: { provider: 'openai' },
+        skillIds: [], tools: [], subAgents: [],
+        mcpServers: [],
+        // Note: no builtinTools field
+        createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
+      }
+      const filePath = path.join(state.tmpDir, 'projects', projId, 'agents', `${id}.json`)
+      await fs.writeFile(filePath, JSON.stringify(raw))
+
+      const agent = await storage.getById(projId, id as AgentId)
+      expect(agent).not.toBeNull()
+      expect(agent!.builtinTools).toEqual({ bash: true })
+    })
+
+    it('preserves existing mcpServers and builtinTools', async () => {
+      const id = 'agent-with-fields'
+      const raw = {
+        id, projectId: projId, name: 'Modern', description: '', status: 'idle',
+        systemPrompt: '', modelConfig: { provider: 'openai' },
+        skillIds: [], tools: [], subAgents: [],
+        mcpServers: [{ name: 'my-mcp', transportType: 'stdio', command: '/usr/bin/mcp', enabled: true }],
+        builtinTools: { bash: false },
+        createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
+      }
+      const filePath = path.join(state.tmpDir, 'projects', projId, 'agents', `${id}.json`)
+      await fs.writeFile(filePath, JSON.stringify(raw))
+
+      const agent = await storage.getById(projId, id as AgentId)
+      expect(agent).not.toBeNull()
+      expect(agent!.mcpServers).toHaveLength(1)
+      expect(agent!.mcpServers[0].name).toBe('my-mcp')
+      expect(agent!.builtinTools).toEqual({ bash: false })
+    })
+
+    it('backfills both mcpServers and builtinTools via list()', async () => {
+      const id = 'agent-legacy-both'
+      const raw = {
+        id, projectId: projId, name: 'OldAgent', description: '', status: 'idle',
+        systemPrompt: '', modelConfig: { provider: 'openai' },
+        skillIds: [], tools: [], subAgents: [],
+        // Both fields missing
+        createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
+      }
+      const filePath = path.join(state.tmpDir, 'projects', projId, 'agents', `${id}.json`)
+      await fs.writeFile(filePath, JSON.stringify(raw))
+
+      const agents = await storage.list(projId)
+      const agent = agents.find(a => a.id === id)
+      expect(agent).toBeDefined()
+      expect(agent!.mcpServers).toEqual([])
+      expect(agent!.builtinTools).toEqual({ bash: true })
     })
   })
 })

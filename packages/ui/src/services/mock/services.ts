@@ -95,6 +95,8 @@ export class MockAgentService implements IAgentService {
       skillIds: [],
       tools: [],
       subAgents: [],
+      mcpServers: [],
+      builtinTools: { bash: true },
       createdAt: now,
       updatedAt: now,
     }
