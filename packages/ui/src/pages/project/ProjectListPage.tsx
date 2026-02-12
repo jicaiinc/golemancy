@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { motion } from 'motion/react'
 import { useAppStore } from '../../stores'
-import { PixelButton, PixelCard, PixelBadge, PixelSpinner } from '../../components'
+import { PixelButton, PixelCard, PixelBadge, PixelSpinner, OpenExternalIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { ProjectCreateModal } from './ProjectCreateModal'
 
@@ -106,6 +106,18 @@ export function ProjectListPage() {
                         {project.description}
                       </p>
                     </div>
+                    {window.electronAPI?.openNewWindow && (
+                      <button
+                        className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0"
+                        title="Open in New Window"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          window.electronAPI!.openNewWindow(project.id)
+                        }}
+                      >
+                        <OpenExternalIcon className="w-[14px] h-[14px]" />
+                      </button>
+                    )}
                   </div>
 
                   {/* Stats */}
@@ -121,18 +133,6 @@ export function ProjectListPage() {
                     <span className="ml-auto text-[11px] text-text-dim">
                       {relativeTime(project.lastActivityAt)}
                     </span>
-                    {window.electronAPI?.openNewWindow && (
-                      <button
-                        className="text-[10px] font-mono text-text-dim hover:text-accent-blue transition-colors"
-                        title="Open in New Window"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          window.electronAPI!.openNewWindow(project.id)
-                        }}
-                      >
-                        [+W]
-                      </button>
-                    )}
                   </div>
                 </PixelCard>
               </motion.div>
