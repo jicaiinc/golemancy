@@ -1,6 +1,6 @@
-import { tool, generateText, stepCountIs, type ToolSet } from 'ai'
+import { tool, streamText, stepCountIs, type ToolSet } from 'ai'
 import { z } from 'zod'
-import type { Agent, GlobalSettings, IMCPService } from '@solocraft/shared'
+import type { Agent, GlobalSettings, IMCPService, SubAgentStreamState } from '@solocraft/shared'
 import { resolveModel } from './model'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { logger } from '../logger'
@@ -24,12 +24,17 @@ export function sanitizeToolName(name: string): string {
 
 type LoadToolsFn = (params: LoadAgentToolsParams) => Promise<AgentToolsResult>
 
+const TEXT_THROTTLE_MS = 100
+
 /**
  * Create a single sub-agent delegate tool.
  *
  * The tool is a lightweight shell — it only loads the child agent's tools
  * when `execute()` is called, using the injected `loadTools` function.
  * This enables infinite nesting depth controlled purely by agent config.
+ *
+ * execute() is an async generator that yields SubAgentStreamState as
+ * preliminary tool results, enabling real-time streaming of sub-agent progress.
  */
 export function createSubAgentTool(
   childAgent: Agent,
@@ -45,10 +50,9 @@ export function createSubAgentTool(
       task: z.string().describe('The task to delegate'),
       context: z.string().optional().describe('Additional context'),
     }),
-    execute: async ({ task, context }, { abortSignal }) => {
+    execute: async function*({ task, context }, { abortSignal }) {
       log.debug({ childAgentId: childAgent.id, childAgentName: childAgent.name }, 'delegating to sub-agent')
 
-      // Load tools on demand — same function used by the main agent
       const childToolsResult = await loadTools({
         agent: childAgent,
         projectId,
@@ -66,7 +70,15 @@ export function createSubAgentTool(
 
         const hasTools = Object.keys(childToolsResult.tools).length > 0
 
-        const result = await generateText({
+        const state: SubAgentStreamState = {
+          agentName: childAgent.name,
+          text: '',
+          toolCalls: [],
+          status: 'running',
+        }
+        yield state
+
+        const result = streamText({
           model: childModel,
           system: systemPrompt,
           tools: hasTools ? childToolsResult.tools : undefined,
@@ -75,7 +87,56 @@ export function createSubAgentTool(
           abortSignal,
         })
 
-        return result.text
+        let lastTextYield = 0
+        let pendingTextYield = false
+
+        for await (const chunk of result.fullStream) {
+          switch (chunk.type) {
+            case 'text-delta': {
+              state.text += chunk.text
+              const now = Date.now()
+              if (now - lastTextYield >= TEXT_THROTTLE_MS) {
+                yield { ...state, toolCalls: state.toolCalls.map(tc => ({ ...tc })) }
+                lastTextYield = now
+                pendingTextYield = false
+              } else {
+                pendingTextYield = true
+              }
+              break
+            }
+
+            case 'tool-call': {
+              if (pendingTextYield) {
+                yield { ...state, toolCalls: state.toolCalls.map(tc => ({ ...tc })) }
+                pendingTextYield = false
+              }
+              state.toolCalls.push({
+                id: chunk.toolCallId,
+                name: chunk.toolName,
+                input: chunk.input,
+                state: 'running',
+              })
+              yield { ...state, toolCalls: state.toolCalls.map(tc => ({ ...tc })) }
+              lastTextYield = Date.now()
+              break
+            }
+
+            case 'tool-result': {
+              const tc = state.toolCalls.find(t => t.id === chunk.toolCallId)
+              if (tc) {
+                tc.output = chunk.output
+                tc.state = chunk.preliminary ? 'running' : 'done'
+              }
+              yield { ...state, toolCalls: state.toolCalls.map(tc => ({ ...tc })) }
+              lastTextYield = Date.now()
+              break
+            }
+          }
+        }
+
+        // Final yield — becomes the persisted tool output
+        state.status = 'done'
+        yield state
       } finally {
         await childToolsResult.cleanup()
       }

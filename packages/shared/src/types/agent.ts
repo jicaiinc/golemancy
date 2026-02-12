@@ -25,6 +25,21 @@ export interface BuiltinToolConfig {
   [key: string]: boolean
 }
 
+export interface SubAgentToolCallState {
+  id: string
+  name: string
+  input: unknown
+  output?: unknown
+  state: 'running' | 'done' | 'error'
+}
+
+export interface SubAgentStreamState {
+  agentName: string
+  text: string
+  toolCalls: SubAgentToolCallState[]
+  status: 'running' | 'done'
+}
+
 export interface Agent extends Timestamped {
   id: AgentId
   projectId: ProjectId
