@@ -160,14 +160,15 @@ E2E pitfalls: macOS GUI processes don't inherit shell PATH → use `SOLOCRAFT_FO
 
 ## Team
 
-When creating a team, follow `_team/team.md`. Key points:
+When creating a team, follow `_team/team.md`. **NEVER use Plan Mode to start a team** — create the team directly.
 
 - **12 roles**: Team Lead, Architect, Requirements Analyst, Abstraction Strategist, Fact Checker, UI/UX Designer, Full-stack Engineer, Test Engineer, Reference Analyst (on-demand), CR-Quality, CR-Security, CR-Performance
-- **Three phases with auto-transition**:
-  - Phase 1 (Planning) — all roles except engineers and reviewers
-  - Phase 2 (Implementation) — Team Lead + Engineer + Tester + Fact Checker, others on-demand
-  - Phase 3 (Code Review) — three CR roles run in parallel
-- **Phase flow**: Phase 2 done → run tests → tests pass → auto-enter Phase 3. If CR finds P0 issues → back to Phase 2 to fix → re-test → re-enter Phase 3. Loop until no P0. If loop exceeds 3 rounds, pause and ask user.
+- **Four phases**: Design → Implement → Test → Review (auto-transition between phases)
+  - **Design** — architecture, research, requirements confirmation (all roles except engineers and reviewers)
+  - **Implement** — write code (Team Lead + Engineer + Fact Checker, others on-demand)
+  - **Test** — run all tests (Test Engineer + Engineer for fixes)
+  - **Review** — three CR roles run in parallel
+- **Phase flow**: Implement done → auto-enter Test → tests pass → auto-enter Review. If CR finds P0 issues → back to Implement → Test → Review. Loop until no P0. If loop exceeds 3 rounds, pause and ask user.
 - **Team Lead only coordinates, never writes code**
 - **Parallel strategy**: independent tasks must run in parallel; use `blockedBy` in Task List for dependencies
 - **Escalation strategy**: Phase 1 — strict (any ambiguity/choice must be reported to user); Phase 2 — autonomous (only escalate fundamental blockers)
