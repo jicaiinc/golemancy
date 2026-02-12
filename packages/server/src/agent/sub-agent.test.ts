@@ -1,5 +1,17 @@
-import { describe, it, expect, vi } from 'vitest'
-import { loadSubAgentTools, createSubAgentTool } from './sub-agent'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+// Mock child tool loaders to avoid loading real skills/MCP/bash
+vi.mock('./skills', () => ({
+  loadAgentSkillTools: vi.fn().mockResolvedValue(null),
+}))
+vi.mock('./mcp', () => ({
+  loadAgentMcpTools: vi.fn().mockResolvedValue(null),
+}))
+vi.mock('./builtin-tools', () => ({
+  loadBuiltinTools: vi.fn().mockResolvedValue(null),
+}))
+
+import { loadSubAgentTools, createSubAgentTool, sanitizeToolName } from './sub-agent'
 import type { Agent, GlobalSettings, AgentId, ProjectId } from '@solocraft/shared'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
@@ -32,26 +44,57 @@ const defaultSettings: GlobalSettings = {
   defaultWorkingDirectoryBase: '',
 }
 
+describe('sanitizeToolName', () => {
+  it('passes through valid names', () => {
+    expect(sanitizeToolName('delegate_to_writer')).toBe('delegate_to_writer')
+  })
+
+  it('replaces spaces with underscores', () => {
+    expect(sanitizeToolName('delegate_to_team lead')).toBe('delegate_to_team_lead')
+  })
+
+  it('collapses consecutive underscores', () => {
+    expect(sanitizeToolName('delegate_to_my__cool___agent')).toBe('delegate_to_my_cool_agent')
+  })
+
+  it('prepends underscore if starts with number', () => {
+    expect(sanitizeToolName('123tool')).toBe('_123tool')
+  })
+
+  it('returns unnamed_tool for empty string', () => {
+    expect(sanitizeToolName('')).toBe('unnamed_tool')
+  })
+
+  it('trims trailing underscore', () => {
+    expect(sanitizeToolName('delegate_to_')).toBe('delegate_to')
+  })
+
+  it('truncates to 64 chars', () => {
+    const long = 'a'.repeat(100)
+    expect(sanitizeToolName(long).length).toBe(64)
+  })
+})
+
 describe('createSubAgentTool', () => {
-  it('creates a tool with correct description', () => {
+  it('creates a tool with execute function', () => {
     const child = makeAgent({ name: 'Researcher', description: 'Finds information' })
     const t = createSubAgentTool(child, defaultSettings)
 
     expect(t).toBeDefined()
-    // The tool object from ai SDK has description in its definition
     expect(t).toHaveProperty('execute')
   })
 })
 
 describe('loadSubAgentTools', () => {
-  it('returns empty ToolSet when agent has no subAgents', () => {
+  it('returns empty tools when agent has no subAgents', async () => {
     const agent = makeAgent({ subAgents: [] })
-    const tools = loadSubAgentTools(agent, [], defaultSettings)
+    const result = await loadSubAgentTools(agent, [], defaultSettings, 'proj-1')
 
-    expect(tools).toEqual({})
+    expect(result.tools).toEqual({})
+    expect(result.cleanup).toBeTypeOf('function')
   })
 
-  it('creates tool for each sub-agent ref', () => {
+  it('creates tool for each sub-agent ref using agent ID', async () => {
     const child1 = makeAgent({ id: 'agent-child1' as AgentId, name: 'Researcher' })
     const child2 = makeAgent({ id: 'agent-child2' as AgentId, name: 'Writer' })
     const parent = makeAgent({
@@ -61,25 +104,26 @@ describe('loadSubAgentTools', () => {
       ],
     })
 
-    const tools = loadSubAgentTools(parent, [child1, child2, parent], defaultSettings)
+    const result = await loadSubAgentTools(parent, [child1, child2, parent], defaultSettings, 'proj-1')
 
-    expect(Object.keys(tools)).toHaveLength(2)
-    expect(tools).toHaveProperty('delegate_to_researcher')
-    expect(tools).toHaveProperty('delegate_to_writer')
+    expect(Object.keys(result.tools)).toHaveLength(2)
+    expect(result.tools).toHaveProperty('delegate_to_agent-child1')
+    expect(result.tools).toHaveProperty('delegate_to_agent-child2')
   })
 
-  it('uses delegate_to_ prefix with lowercased name', () => {
-    const child = makeAgent({ id: 'agent-child' as AgentId, name: 'Data Analyst' })
+  it('works with non-ASCII agent names by using ID', async () => {
+    const child = makeAgent({ id: 'agent-cn' as AgentId, name: '蔡永吉' })
     const parent = makeAgent({
-      subAgents: [{ agentId: 'agent-child' as AgentId, role: 'analysis' }],
+      subAgents: [{ agentId: 'agent-cn' as AgentId, role: 'assistant' }],
     })
 
-    const tools = loadSubAgentTools(parent, [child, parent], defaultSettings)
+    const result = await loadSubAgentTools(parent, [child, parent], defaultSettings, 'proj-1')
 
-    expect(tools).toHaveProperty('delegate_to_data_analyst')
+    // Uses ID not name, so Chinese chars don't cause issues
+    expect(result.tools).toHaveProperty('delegate_to_agent-cn')
   })
 
-  it('skips sub-agents not found in allAgents list', () => {
+  it('skips sub-agents not found in allAgents list', async () => {
     const parent = makeAgent({
       subAgents: [
         { agentId: 'agent-missing' as AgentId, role: 'ghost' },
@@ -88,34 +132,20 @@ describe('loadSubAgentTools', () => {
     })
     const existing = makeAgent({ id: 'agent-exists' as AgentId, name: 'Existing' })
 
-    const tools = loadSubAgentTools(parent, [existing, parent], defaultSettings)
+    const result = await loadSubAgentTools(parent, [existing, parent], defaultSettings, 'proj-1')
 
-    expect(Object.keys(tools)).toHaveLength(1)
-    expect(tools).toHaveProperty('delegate_to_existing')
-    expect(tools).not.toHaveProperty('delegate_to_ghost')
+    expect(Object.keys(result.tools)).toHaveLength(1)
+    expect(result.tools).toHaveProperty('delegate_to_agent-exists')
   })
 
-  it('handles agents with special characters in names', () => {
-    const child = makeAgent({ id: 'agent-special' as AgentId, name: 'Code Review Bot' })
+  it('cleanup function is callable', async () => {
+    const child = makeAgent({ id: 'agent-child' as AgentId, name: 'Helper' })
     const parent = makeAgent({
-      subAgents: [{ agentId: 'agent-special' as AgentId, role: 'review' }],
+      subAgents: [{ agentId: 'agent-child' as AgentId, role: 'help' }],
     })
 
-    const tools = loadSubAgentTools(parent, [child, parent], defaultSettings)
+    const result = await loadSubAgentTools(parent, [child, parent], defaultSettings, 'proj-1')
 
-    // Spaces are replaced with underscores, name is lowercased
-    expect(tools).toHaveProperty('delegate_to_code_review_bot')
-  })
-
-  it('handles agent name with multiple spaces', () => {
-    const child = makeAgent({ id: 'agent-spaces' as AgentId, name: 'My  Cool   Agent' })
-    const parent = makeAgent({
-      subAgents: [{ agentId: 'agent-spaces' as AgentId, role: 'helper' }],
-    })
-
-    const tools = loadSubAgentTools(parent, [child, parent], defaultSettings)
-
-    // \s+ regex replaces multiple spaces with single underscore
-    expect(tools).toHaveProperty('delegate_to_my_cool_agent')
+    await expect(result.cleanup()).resolves.toBeUndefined()
   })
 })

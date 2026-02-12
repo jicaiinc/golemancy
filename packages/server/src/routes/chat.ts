@@ -111,11 +111,11 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       skillTools = await loadAgentSkillTools(projectId, agent.skillIds)
     }
 
-    // 2. Sub-agent tools
-    let subAgentToolSet: ToolSet = {}
+    // 2. Sub-agent tools (each sub-agent gets its own skills/MCP/built-in tools)
+    let subAgentResult: Awaited<ReturnType<typeof loadSubAgentTools>> | null = null
     if (agent.subAgents?.length > 0) {
       const allAgents = await deps.agentStorage.list(projectId as ProjectId)
-      subAgentToolSet = loadSubAgentTools(agent, allAgents, settings)
+      subAgentResult = await loadSubAgentTools(agent, allAgents, settings, projectId)
     }
 
     // 3. MCP tools
@@ -133,7 +133,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     // Merge all tools
     const allTools: ToolSet = {
       ...(skillTools?.tools ?? {}),
-      ...subAgentToolSet,
+      ...(subAgentResult?.tools ?? {}),
       ...(mcpTools?.tools ?? {}),
       ...(builtinToolsResult?.tools ?? {}),
     }
@@ -155,8 +155,9 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
       onFinish: async ({ text }) => {
-        // Clean up all tool sources
+        // Clean up all tool sources (including sub-agent child tools)
         await skillTools?.cleanup()
+        await subAgentResult?.cleanup()
         await mcpTools?.cleanup()
         await builtinToolsResult?.cleanup()
 

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useAppStore } from '../../stores'
 
 interface ToolInvocationBase {
   toolName: string
@@ -12,6 +13,22 @@ interface ToolInvocationBase {
 
 interface ToolCallDisplayProps {
   toolInvocation: ToolInvocationBase
+}
+
+const DELEGATE_PREFIX = 'delegate_to_'
+
+/**
+ * Resolve a delegate_to_<agentId> tool name to a human-readable display name.
+ * Falls back to the raw tool name if the agent is not found.
+ */
+function useToolDisplayName(toolName: string): string {
+  const agents = useAppStore(s => s.agents)
+
+  if (!toolName.startsWith(DELEGATE_PREFIX)) return toolName
+
+  const agentId = toolName.slice(DELEGATE_PREFIX.length)
+  const agent = agents.find(a => a.id === agentId)
+  return agent ? `delegate_to_${agent.name}` : toolName
 }
 
 function getStatusLabel(state: string): { text: string; color: string } {
@@ -36,6 +53,7 @@ function getStatusLabel(state: string): { text: string; color: string } {
 
 export function ToolCallDisplay({ toolInvocation }: ToolCallDisplayProps) {
   const [expanded, setExpanded] = useState(false)
+  const displayName = useToolDisplayName(toolInvocation.toolName)
 
   const status = getStatusLabel(toolInvocation.state)
   const hasOutput = toolInvocation.state === 'output-available'
@@ -53,7 +71,7 @@ export function ToolCallDisplay({ toolInvocation }: ToolCallDisplayProps) {
           {expanded ? '[-]' : '[+]'}
         </span>
         <span className="font-mono text-[12px] text-accent-amber">
-          {toolInvocation.toolName}
+          {displayName}
         </span>
         {isRunning && (
           <span className="inline-block w-[6px] h-[6px] bg-accent-amber animate-[pixel-blink_1s_steps(2)_infinite]" />
