@@ -15,6 +15,9 @@ export function ChatPage() {
   const currentConversationId = useAppStore(s => s.currentConversationId)
   const selectConversation = useAppStore(s => s.selectConversation)
   const createConversation = useAppStore(s => s.createConversation)
+  const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
+  const chatHistoryExpanded = useAppStore(s => s.chatHistoryExpanded)
+  const toggleChatHistory = useAppStore(s => s.toggleChatHistory)
   const currentProject = useCurrentProject()
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -41,12 +44,14 @@ export function ChatPage() {
   const mainAgentId = currentProject?.mainAgentId ?? null
   const canNewChat = !!mainAgentId
 
+  const handleRenameConversation = useCallback((id: ConversationId, title: string) => {
+    updateConversationTitle(id, title)
+  }, [updateConversationTitle])
+
   const handleNewChat = useCallback(async () => {
     if (!mainAgentId) return
-    const agent = agents.find(a => a.id === mainAgentId)
-    const title = `Chat with ${agent?.name ?? 'Agent'}`
-    await createConversation(mainAgentId, title)
-  }, [mainAgentId, agents, createConversation])
+    await createConversation(mainAgentId, 'New Chat')
+  }, [mainAgentId, createConversation])
 
   // Find current conversation and its agent
   const currentConversation = conversations.find(c => c.id === currentConversationId)
@@ -64,24 +69,36 @@ export function ChatPage() {
 
   return (
     <div className="flex h-full">
-      <ChatSidebar
-        agents={agents}
-        conversations={conversations}
-        selectedConversationId={currentConversationId}
-        onSelectConversation={handleSelectConversation}
-        onNewChat={handleNewChat}
-        canNewChat={canNewChat}
-      />
+      {chatHistoryExpanded && (
+        <ChatSidebar
+          agents={agents}
+          conversations={conversations}
+          selectedConversationId={currentConversationId}
+          onSelectConversation={handleSelectConversation}
+          onRenameConversation={handleRenameConversation}
+          onNewChat={handleNewChat}
+          canNewChat={canNewChat}
+        />
+      )}
 
       {/* Main chat area */}
       <div className="flex-1 flex flex-col min-w-0">
         {currentConversation ? (
-          <ChatWindow conversation={currentConversation} agent={currentAgent} />
+          <ChatWindow
+            conversation={currentConversation}
+            agent={currentAgent}
+            chatHistoryExpanded={chatHistoryExpanded}
+            onToggleChatHistory={toggleChatHistory}
+            onNewChat={handleNewChat}
+            canNewChat={canNewChat}
+          />
         ) : (
           <ChatEmptyState
             mainAgentId={currentProject?.mainAgentId}
             onNewChat={handleNewChat}
             canNewChat={canNewChat}
+            chatHistoryExpanded={chatHistoryExpanded}
+            onToggleChatHistory={toggleChatHistory}
           />
         )}
       </div>

@@ -136,6 +136,22 @@ export class SqliteConversationStorage implements IConversationService {
     log.debug({ projectId, conversationId, messageId: data.id, role: data.role }, 'saved message')
   }
 
+  async update(projectId: ProjectId, id: ConversationId, data: { title?: string }): Promise<Conversation> {
+    const db = this.getProjectDb(projectId)
+    const now = new Date().toISOString()
+    const updateFields: Record<string, string> = { updatedAt: now }
+    if (data.title !== undefined) updateFields.title = data.title
+
+    await db
+      .update(schema.conversations)
+      .set(updateFields)
+      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))
+
+    const updated = await this.getById(projectId, id)
+    if (!updated) throw new Error(`Conversation ${id} not found in project ${projectId}`)
+    return updated
+  }
+
   async delete(projectId: ProjectId, id: ConversationId): Promise<void> {
     const db = this.getProjectDb(projectId)
     log.debug({ projectId, conversationId: id }, 'deleting conversation')

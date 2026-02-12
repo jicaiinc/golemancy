@@ -16,16 +16,16 @@ export function AgentCreateModal({ open, onClose }: Props) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
-  const [provider, setProvider] = useState<AIProvider>('openai')
-  const [model, setModel] = useState('gpt-4o')
+  const [provider, setProvider] = useState<AIProvider | undefined>(undefined)
+  const [model, setModel] = useState('')
   const [saving, setSaving] = useState(false)
 
   function reset() {
     setName('')
     setDescription('')
     setSystemPrompt('')
-    setProvider('openai')
-    setModel('gpt-4o')
+    setProvider(undefined)
+    setModel('')
   }
 
   async function handleSubmit() {
@@ -36,7 +36,7 @@ export function AgentCreateModal({ open, onClose }: Props) {
         name: name.trim(),
         description: description.trim(),
         systemPrompt: systemPrompt.trim(),
-        modelConfig: { provider, model },
+        modelConfig: { provider, model: model || undefined },
       })
       reset()
       onClose()
@@ -91,10 +91,11 @@ export function AgentCreateModal({ open, onClose }: Props) {
           <div className="flex flex-col gap-1">
             <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
             <select
-              value={provider}
-              onChange={e => setProvider(e.target.value as AIProvider)}
+              value={provider ?? ''}
+              onChange={e => setProvider(e.target.value ? e.target.value as AIProvider : undefined)}
               className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
             >
+              <option value="">Inherit (from project/global)</option>
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
               <option value="google">Google</option>
@@ -103,7 +104,13 @@ export function AgentCreateModal({ open, onClose }: Props) {
           </div>
           <PixelInput
             label="MODEL"
-            placeholder="gpt-4o"
+            placeholder={
+              !provider ? 'Inherit (from provider)' :
+              provider === 'openai' ? 'gpt-4o' :
+              provider === 'anthropic' ? 'claude-sonnet-4-5-20250929' :
+              provider === 'google' ? 'gemini-2.0-flash' :
+              'model-name'
+            }
             value={model}
             onChange={e => setModel(e.target.value)}
           />

@@ -93,7 +93,7 @@ function createTestServices(): ServiceContainer {
     projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     agents: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     conversations: {
-      list: vi.fn(), getById: vi.fn(), create: vi.fn(),
+      list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(),
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getMessages: vi.fn(), searchMessages: vi.fn(), delete: vi.fn(),
     },
@@ -103,6 +103,13 @@ function createTestServices(): ServiceContainer {
     settings: { get: vi.fn(), update: vi.fn() },
     dashboard: { getSummary: vi.fn(), getActiveAgents: vi.fn(), getRecentTasks: vi.fn(), getActivityFeed: vi.fn() },
   } as unknown as ServiceContainer
+}
+
+const defaultSidebarProps = {
+  chatHistoryExpanded: false,
+  onToggleChatHistory: vi.fn(),
+  onNewChat: vi.fn(),
+  canNewChat: true,
 }
 
 describe('ChatWindow', () => {
@@ -130,14 +137,14 @@ describe('ChatWindow', () => {
   })
 
   it('renders conversation title and agent name', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
     expect(screen.getByText('Test Chat')).toBeInTheDocument()
     expect(screen.getByText('@Writer')).toBeInTheDocument()
   })
 
   it('shows empty state when no messages', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
     expect(screen.getByText('Start the conversation...')).toBeInTheDocument()
   })
@@ -148,20 +155,20 @@ describe('ChatWindow', () => {
       makeUIMessage({ id: 'msg-2', role: 'assistant', parts: [{ type: 'text', text: 'Hi! How can I help?' }] }),
     ]
 
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
     expect(screen.getByText('Hello there')).toBeInTheDocument()
     expect(screen.getByText('Hi! How can I help?')).toBeInTheDocument()
   })
 
   it('renders the Delete button', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
     expect(screen.getByText('Delete')).toBeInTheDocument()
   })
 
   it('renders the Send button (disabled when input is empty)', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
     const sendButton = screen.getByText('Send')
     expect(sendButton).toBeInTheDocument()
@@ -169,7 +176,7 @@ describe('ChatWindow', () => {
   })
 
   it('renders ChatInput with placeholder', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
     expect(screen.getByPlaceholderText('Type a message...')).toBeInTheDocument()
   })
@@ -180,7 +187,7 @@ describe('ChatWindow', () => {
     ;(services.conversations.sendMessage as any).mockResolvedValue(undefined)
     ;(services.conversations.getById as any).mockResolvedValue(updatedConv)
 
-    render(<ChatWindow conversation={conv} agent={makeAgent()} />)
+    render(<ChatWindow conversation={conv} agent={makeAgent()} {...defaultSidebarProps} />)
 
     const input = screen.getByPlaceholderText('Type a message...')
     fireEvent.change(input, { target: { value: 'Test message' } })
@@ -198,7 +205,7 @@ describe('ChatWindow', () => {
       getServerPort: () => 3001,
     }
 
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
     const input = screen.getByPlaceholderText('Type a message...')
     fireEvent.change(input, { target: { value: 'Server message' } })
@@ -210,7 +217,7 @@ describe('ChatWindow', () => {
   })
 
   it('renders without agent name when agent is undefined', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={undefined} />)
+    render(<ChatWindow conversation={makeConversation()} agent={undefined} {...defaultSidebarProps} />)
 
     expect(screen.getByText('Test Chat')).toBeInTheDocument()
     expect(screen.queryByText(/@/)).not.toBeInTheDocument()
@@ -219,7 +226,7 @@ describe('ChatWindow', () => {
   it('calls getOrCreateChat with correct config', async () => {
     const { getOrCreateChat } = await import('../../lib/chat-instances')
 
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
     expect(getOrCreateChat).toHaveBeenCalledWith({
       conversationId: 'conv-1',
@@ -230,7 +237,7 @@ describe('ChatWindow', () => {
     })
   })
 
-  it('delete button calls deleteConversation and clears selection', async () => {
+  it('delete button calls deleteConversation and clears selection after confirmation', async () => {
     const mockDelete = vi.fn().mockResolvedValue(undefined)
     const mockSelect = vi.fn()
     useAppStore.setState({
@@ -238,9 +245,16 @@ describe('ChatWindow', () => {
       selectConversation: mockSelect,
     })
 
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} />)
+    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
+    // First click shows confirmation
     fireEvent.click(screen.getByText('Delete'))
+    expect(mockDelete).not.toHaveBeenCalled()
+    expect(screen.getByText('Confirm')).toBeInTheDocument()
+    expect(screen.getByText('Cancel')).toBeInTheDocument()
+
+    // Second click (Confirm) actually deletes
+    fireEvent.click(screen.getByText('Confirm'))
 
     await waitFor(() => {
       expect(mockDelete).toHaveBeenCalledWith('conv-1')

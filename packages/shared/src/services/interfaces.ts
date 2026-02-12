@@ -31,6 +31,7 @@ export interface IConversationService {
   saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string }): Promise<void>
   getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>>
   searchMessages(projectId: ProjectId, query: string, params: PaginationParams): Promise<PaginatedResult<Message>>
+  update(projectId: ProjectId, id: ConversationId, data: { title?: string }): Promise<Conversation>
   delete(projectId: ProjectId, id: ConversationId): Promise<void>
 }
 

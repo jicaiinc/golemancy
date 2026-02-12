@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
-import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData } from '@solocraft/shared'
+import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {
-  PixelCard, PixelButton, PixelBadge, PixelTabs, PixelToggle, PixelSpinner,
+  PixelCard, PixelButton, PixelBadge, PixelTabs, PixelToggle, PixelSpinner, PixelDropZone,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { MCPFormModal } from './MCPFormModal'
@@ -33,6 +33,7 @@ export function MCPServersPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [editServer, setEditServer] = useState<MCPServerConfig | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   if (!project) return null
 
@@ -70,6 +71,32 @@ export function MCPServersPage() {
     }
   }
 
+  const handleConfigDrop = useCallback(async (files: File[]) => {
+    setImportStatus(null)
+    const file = files[0]
+    if (!file) return
+    try {
+      const text = await file.text()
+      const parsed = JSON.parse(text) as MCPProjectFile
+      if (!parsed.mcpServers || typeof parsed.mcpServers !== 'object') {
+        setImportStatus({ type: 'error', message: 'Invalid format: expected { mcpServers: { ... } }' })
+        return
+      }
+      const entries = Object.entries(parsed.mcpServers)
+      if (entries.length === 0) {
+        setImportStatus({ type: 'error', message: 'No servers found in config file' })
+        return
+      }
+      await Promise.all(entries.map(([name, config]) =>
+        createMCPServer({ name, ...config, enabled: config.enabled ?? true })
+      ))
+      setImportStatus({ type: 'success', message: `Imported ${entries.length} MCP server${entries.length !== 1 ? 's' : ''}` })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to parse config file'
+      setImportStatus({ type: 'error', message })
+    }
+  }, [createMCPServer])
+
   return (
     <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
@@ -82,6 +109,23 @@ export function MCPServersPage() {
         </div>
         <PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Server</PixelButton>
       </div>
+
+      {/* Drop zone for MCP config import */}
+      <PixelDropZone accept={['.json']} onDrop={handleConfigDrop} className="mb-4" />
+
+      {/* Import status */}
+      {importStatus && (
+        <div className="mb-4">
+          <PixelCard className={importStatus.type === 'error' ? 'bg-accent-red/10 border-accent-red' : 'bg-accent-green/10 border-accent-green'}>
+            <div className="flex items-center justify-between">
+              <span className={`text-[12px] ${importStatus.type === 'error' ? 'text-accent-red' : 'text-accent-green'}`}>
+                {importStatus.message}
+              </span>
+              <PixelButton size="sm" variant="ghost" onClick={() => setImportStatus(null)}>&times;</PixelButton>
+            </div>
+          </PixelCard>
+        </div>
+      )}
 
       {/* Tabs */}
       <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />

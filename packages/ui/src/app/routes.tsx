@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from 'react-router'
+import { HashRouter, Routes, Route, Navigate } from 'react-router'
 import { ProjectLayout } from './layouts/ProjectLayout'
 import {
   DashboardPage,
@@ -17,11 +17,20 @@ import {
   GlobalSettingsPage,
 } from '../pages'
 
+/** If window was opened with --project-id, redirect to that project */
+function RootRedirect() {
+  const projectId = window.electronAPI?.getInitialProjectId()
+  if (projectId) {
+    return <Navigate to={`/projects/${projectId}`} replace />
+  }
+  return <ProjectListPage />
+}
+
 export function AppRoutes() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<ProjectListPage />} />
+        <Route path="/" element={<RootRedirect />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/settings" element={<GlobalSettingsPage />} />
         <Route path="/projects/:projectId" element={<ProjectLayout />}>

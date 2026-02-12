@@ -34,6 +34,15 @@ export function createConversationRoutes(storage: IConversationService) {
     return c.json(conv, 201)
   })
 
+  app.patch('/:id', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const convId = c.req.param('id') as ConversationId
+    const data = await c.req.json<{ title?: string }>()
+    log.debug({ projectId, conversationId: convId }, 'updating conversation')
+    const conv = await storage.update(projectId, convId, data)
+    return c.json(conv)
+  })
+
   app.delete('/:id', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('id') as ConversationId

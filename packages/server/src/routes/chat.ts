@@ -125,6 +125,13 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const modelMessages = await convertToModelMessages(messages)
     const hasTools = Object.keys(allTools).length > 0
 
+    let cleaned = false
+    const ensureCleanup = async () => {
+      if (cleaned) return
+      cleaned = true
+      await agentToolsResult.cleanup()
+    }
+
     const result = streamText({
       model,
       system: systemPrompt,
@@ -133,9 +140,9 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       stopWhen: hasTools ? stepCountIs(10) : undefined,
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
-      onFinish: async () => {
-        await agentToolsResult.cleanup()
-      },
+      abortSignal: c.req.raw.signal,
+      onFinish: ensureCleanup,
+      onAbort: ensureCleanup,
     })
 
     return result.toUIMessageStreamResponse({

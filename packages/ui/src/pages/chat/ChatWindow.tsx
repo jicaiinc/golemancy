@@ -5,11 +5,20 @@ import { motion } from 'motion/react'
 import type { Agent, Conversation } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
-import { PixelButton, PixelSpinner } from '../../components'
+import { PixelButton, PixelSpinner, SidebarToggleIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { getOrCreateChat } from '../../lib/chat-instances'
 import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
+
+/** Truncate text to maxLen at word boundary for auto-title */
+function generateAutoTitle(text: string, maxLen = 50): string {
+  const trimmed = text.trim()
+  if (trimmed.length <= maxLen) return trimmed
+  const truncated = trimmed.slice(0, maxLen)
+  const lastSpace = truncated.lastIndexOf(' ')
+  return (lastSpace > 20 ? truncated.slice(0, lastSpace) : truncated) + '...'
+}
 
 /** Get Electron server config, or null when running without Electron */
 function getServerConfig(): { baseUrl: string; token: string } | null {
@@ -21,12 +30,44 @@ function getServerConfig(): { baseUrl: string; token: string } | null {
 interface ChatWindowProps {
   conversation: Conversation
   agent: Agent | undefined
+  chatHistoryExpanded: boolean
+  onToggleChatHistory: () => void
+  onNewChat: () => void
+  canNewChat: boolean
 }
 
-export function ChatWindow({ conversation, agent }: ChatWindowProps) {
+export function ChatWindow({ conversation, agent, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat }: ChatWindowProps) {
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
+  const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
   const currentProjectId = useAppStore(s => s.currentProjectId)
+
+  // --- Inline title editing ---
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [titleValue, setTitleValue] = useState('')
+  const titleInputRef = useRef<HTMLInputElement>(null)
+
+  const handleTitleClick = useCallback(() => {
+    setTitleValue(conversation.title)
+    setEditingTitle(true)
+    setTimeout(() => titleInputRef.current?.select(), 0)
+  }, [conversation.title])
+
+  const handleTitleSave = useCallback(() => {
+    setEditingTitle(false)
+    const trimmed = titleValue.trim()
+    if (trimmed && trimmed !== conversation.title) {
+      updateConversationTitle(conversation.id, trimmed)
+    }
+  }, [titleValue, conversation.title, conversation.id, updateConversationTitle])
+
+  const handleTitleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleTitleSave()
+    if (e.key === 'Escape') setEditingTitle(false)
+  }, [handleTitleSave])
+
+  // --- Delete confirmation ---
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const serverConfig = useMemo(getServerConfig, [])
   const useServer = !!serverConfig
@@ -54,6 +95,7 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
     messages,
     status,
     error,
+    stop,
     sendMessage: chatSendMessage,
   } = useChat({ chat: chat! })
 
@@ -70,6 +112,13 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
   // --- Send handler ---
   const handleSend = useCallback(async (content: string) => {
     if (!currentProjectId || !chat) return
+
+    // Auto-title: if this is the first message, update the conversation title
+    const isFirstMessage = messages.length === 0
+    if (isFirstMessage) {
+      const autoTitle = generateAutoTitle(content)
+      updateConversationTitle(conversation.id, autoTitle)
+    }
 
     if (useServer) {
       chatSendMessage({ text: content })
@@ -90,12 +139,17 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
         }))
       }
     }
-  }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat])
+  }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat, messages.length, updateConversationTitle])
 
   const handleDelete = useCallback(async () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      return
+    }
+    setConfirmDelete(false)
     await deleteConversation(conversation.id)
     selectConversation(null)
-  }, [deleteConversation, selectConversation, conversation.id])
+  }, [confirmDelete, deleteConversation, selectConversation, conversation.id])
 
   // --- Derived display state ---
   const isBusy = status === 'submitted' || status === 'streaming'
@@ -106,21 +160,68 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
 
   return (
     <div data-testid="chat-window" className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b-2 border-border-dim bg-deep">
-        <div className="flex items-center gap-2 min-w-0">
-          <h2 className="font-pixel text-[10px] text-text-primary truncate">
-            {conversation.title}
-          </h2>
-          {agent && (
+      {/* Header — 3-section layout: left (toggle + new), center (title), right (actions) */}
+      <div className="flex items-center px-4 py-3 border-b-2 border-border-dim bg-deep">
+        {/* Left: toggle + new chat */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            className="text-text-secondary hover:text-text-primary transition-colors p-1"
+            onClick={onToggleChatHistory}
+            title={chatHistoryExpanded ? 'Hide chat history' : 'Show chat history'}
+          >
+            <SidebarToggleIcon className="w-[18px] h-[16px]" />
+          </button>
+          {!chatHistoryExpanded && (
+            <PixelButton size="sm" variant="ghost" onClick={onNewChat} disabled={!canNewChat}>
+              + New
+            </PixelButton>
+          )}
+        </div>
+
+        {/* Center: title (centered with flex-1, double-click to rename) */}
+        <div className="flex-1 flex items-center justify-center gap-2 min-w-0 px-2">
+          {editingTitle ? (
+            <input
+              ref={titleInputRef}
+              className="font-pixel text-[10px] text-text-primary bg-deep border-2 border-accent-blue px-2 py-0.5 outline-none text-center w-full max-w-[300px]"
+              value={titleValue}
+              onChange={e => setTitleValue(e.target.value)}
+              onBlur={handleTitleSave}
+              onKeyDown={handleTitleKeyDown}
+            />
+          ) : (
+            <h2
+              className="font-pixel text-[10px] text-text-primary truncate cursor-pointer hover:text-accent-blue transition-colors"
+              onClick={handleTitleClick}
+              title="Click to rename"
+            >
+              {conversation.title}
+            </h2>
+          )}
+          {agent && !editingTitle && (
             <span className="text-[11px] text-accent-blue font-mono shrink-0">
               @{agent.name}
             </span>
           )}
         </div>
-        <PixelButton size="sm" variant="ghost" onClick={handleDelete}>
-          Delete
-        </PixelButton>
+
+        {/* Right: actions */}
+        <div className="shrink-0">
+          {confirmDelete ? (
+            <div className="flex items-center gap-1">
+              <PixelButton size="sm" variant="danger" onClick={handleDelete}>
+                Confirm
+              </PixelButton>
+              <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
+                Cancel
+              </PixelButton>
+            </div>
+          ) : (
+            <PixelButton size="sm" variant="ghost" onClick={handleDelete}>
+              Delete
+            </PixelButton>
+          )}
+        </div>
       </div>
 
       {/* Error banner */}
@@ -144,7 +245,7 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
           <motion.div {...staggerContainer} initial={shouldAnimateStagger ? 'initial' : false} animate="animate">
             {messages.map((msg: UIMessage) => (
               <motion.div key={msg.id} {...staggerItem}>
-                <MessageBubble message={msg} />
+                <MessageBubble message={msg} chatStatus={status} />
               </motion.div>
             ))}
 
@@ -162,7 +263,7 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
       </div>
 
       {/* Input */}
-      <ChatInput onSend={handleSend} disabled={isBusy} />
+      <ChatInput onSend={handleSend} onStop={stop} isStreaming={isBusy} disabled={isBusy} />
     </div>
   )
 }

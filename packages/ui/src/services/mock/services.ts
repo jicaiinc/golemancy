@@ -155,6 +155,15 @@ export class MockConversationService implements IConversationService {
     return conv
   }
 
+  async update(projectId: ProjectId, id: ConversationId, data: { title?: string }): Promise<Conversation> {
+    await delay()
+    const conv = this.data.get(id)
+    if (!conv || conv.projectId !== projectId) throw new Error('Conversation not found')
+    if (data.title !== undefined) conv.title = data.title
+    conv.updatedAt = new Date().toISOString()
+    return { ...conv }
+  }
+
   async sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void> {
     await delay()
     const conv = this.data.get(conversationId)

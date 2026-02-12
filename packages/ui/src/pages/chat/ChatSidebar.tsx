@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
 import type { Agent, Conversation, ConversationId } from '@solocraft/shared'
 import { PixelButton } from '../../components'
 
@@ -7,6 +7,7 @@ interface ChatSidebarProps {
   conversations: Conversation[]
   selectedConversationId: ConversationId | null
   onSelectConversation: (id: ConversationId) => void
+  onRenameConversation?: (id: ConversationId, title: string) => void
   onNewChat: () => void
   canNewChat?: boolean
 }
@@ -26,9 +27,48 @@ export function ChatSidebar({
   conversations,
   selectedConversationId,
   onSelectConversation,
+  onRenameConversation,
   onNewChat,
   canNewChat = false,
 }: ChatSidebarProps) {
+  const [editingId, setEditingId] = useState<ConversationId | null>(null)
+  const [editValue, setEditValue] = useState('')
+  const editInputRef = useRef<HTMLInputElement>(null)
+
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (editingId) {
+      editInputRef.current?.focus()
+      editInputRef.current?.select()
+    }
+  }, [editingId])
+
+  const handleStartEdit = useCallback((conv: Conversation) => {
+    setEditingId(conv.id)
+    setEditValue(conv.title)
+  }, [])
+
+  const handleSaveEdit = useCallback(() => {
+    if (editingId && editValue.trim() && onRenameConversation) {
+      onRenameConversation(editingId, editValue.trim())
+    }
+    setEditingId(null)
+  }, [editingId, editValue, onRenameConversation])
+
+  const handleCancelEdit = useCallback(() => {
+    setEditingId(null)
+  }, [])
+
+  const handleEditKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSaveEdit()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleCancelEdit()
+    }
+  }, [handleSaveEdit, handleCancelEdit])
+
   // Sort by lastMessageAt descending
   const sorted = useMemo(
     () => [...conversations].sort(
@@ -72,9 +112,27 @@ export function ChatSidebar({
                 onClick={() => onSelectConversation(conv.id)}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-text-primary truncate flex-1">
-                    {conv.title}
-                  </span>
+                  {editingId === conv.id ? (
+                    <input
+                      ref={editInputRef}
+                      className="text-[12px] text-text-primary bg-surface border border-border-dim px-1 py-0 w-full outline-none"
+                      value={editValue}
+                      onChange={e => setEditValue(e.target.value)}
+                      onKeyDown={handleEditKeyDown}
+                      onBlur={handleSaveEdit}
+                      onClick={e => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span
+                      className="text-[12px] text-text-primary truncate flex-1"
+                      onDoubleClick={(e) => {
+                        e.stopPropagation()
+                        handleStartEdit(conv)
+                      }}
+                    >
+                      {conv.title}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[10px] text-accent-blue font-mono">

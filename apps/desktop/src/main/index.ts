@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import { join } from 'path'
 import { fork, type ChildProcess } from 'child_process'
 import { logger } from './logger'
@@ -77,8 +77,8 @@ function stopServer(): Promise<void> {
   })
 }
 
-function createWindow(): void {
-  const mainWindow = new BrowserWindow({
+function createWindow(options?: { projectId?: string }): void {
+  const win = new BrowserWindow({
     width: 1280,
     height: 800,
     minWidth: 960,
@@ -90,14 +90,15 @@ function createWindow(): void {
       additionalArguments: [
         `--server-port=${serverPort}`,
         ...(serverToken ? [`--server-token=${serverToken}`] : []),
+        ...(options?.projectId ? [`--project-id=${options.projectId}`] : []),
       ],
     },
   })
 
   if (process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    win.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    win.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
 
@@ -117,6 +118,10 @@ app.whenReady().then(async () => {
   }
 
   createWindow()
+
+  ipcMain.handle('window:open', (_event, projectId?: string) => {
+    createWindow(projectId ? { projectId } : undefined)
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

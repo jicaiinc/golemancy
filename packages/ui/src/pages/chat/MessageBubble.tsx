@@ -129,9 +129,10 @@ function extractToolInvocation(part: { type: string; [key: string]: unknown }) {
 
 interface MessageBubbleProps {
   message: UIMessage
+  chatStatus?: string
 }
 
-export const MessageBubble = memo(function MessageBubble({ message }: MessageBubbleProps) {
+export const MessageBubble = memo(function MessageBubble({ message, chatStatus }: MessageBubbleProps) {
   // System message — centered
   if (message.role === 'system') {
     const text = message.parts
@@ -193,7 +194,7 @@ export const MessageBubble = memo(function MessageBubble({ message }: MessageBub
               // requiring a type assertion to access the field.
               const tool = extractToolInvocation(part as { type: string; [key: string]: unknown })
               if (tool) {
-                return <ToolCallDisplay key={i} toolInvocation={tool} />
+                return <ToolCallDisplay key={i} toolInvocation={tool} chatStatus={chatStatus} />
               }
               // Unknown part type — gracefully ignore
               return null

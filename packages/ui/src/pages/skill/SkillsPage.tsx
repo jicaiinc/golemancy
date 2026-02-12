@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
 import type { Skill, SkillId } from '@solocraft/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {
-  PixelCard, PixelButton, PixelTabs, PixelSpinner,
+  PixelCard, PixelButton, PixelTabs, PixelSpinner, PixelDropZone,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { SkillFormModal } from './SkillFormModal'
@@ -27,6 +27,7 @@ export function SkillsPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [editSkill, setEditSkill] = useState<Skill | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   if (!project) return null
 
@@ -49,6 +50,26 @@ export function SkillsPage() {
     }
   }
 
+  const handleSkillDrop = useCallback(async (files: File[]) => {
+    setImportStatus(null)
+    const mdFiles = files.filter(f => f.name.toLowerCase().endsWith('.md'))
+    if (mdFiles.length === 0) {
+      setImportStatus({ type: 'error', message: 'No .md files found. Drop markdown files to import skills.' })
+      return
+    }
+    try {
+      await Promise.all(mdFiles.map(async (file) => {
+        const content = await file.text()
+        const name = file.name.replace(/\.md$/i, '').replace(/[-_]/g, ' ')
+        return createSkill({ name, description: '', instructions: content })
+      }))
+      setImportStatus({ type: 'success', message: `Imported ${mdFiles.length} skill${mdFiles.length !== 1 ? 's' : ''}` })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to import skills'
+      setImportStatus({ type: 'error', message })
+    }
+  }, [createSkill])
+
   return (
     <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
@@ -61,6 +82,23 @@ export function SkillsPage() {
         </div>
         <PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Skill</PixelButton>
       </div>
+
+      {/* Drop zone for skill import */}
+      <PixelDropZone accept={['.md']} onDrop={handleSkillDrop} className="mb-4" />
+
+      {/* Import status */}
+      {importStatus && (
+        <div className="mb-4">
+          <PixelCard className={importStatus.type === 'error' ? 'bg-accent-red/10 border-accent-red' : 'bg-accent-green/10 border-accent-green'}>
+            <div className="flex items-center justify-between">
+              <span className={`text-[12px] ${importStatus.type === 'error' ? 'text-accent-red' : 'text-accent-green'}`}>
+                {importStatus.message}
+              </span>
+              <PixelButton size="sm" variant="ghost" onClick={() => setImportStatus(null)}>&times;</PixelButton>
+            </div>
+          </PixelCard>
+        </div>
+      )}
 
       {/* Tabs */}
       <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />

@@ -77,6 +77,7 @@ interface SettingsSlice {
 
 interface UISlice {
   sidebarCollapsed: boolean
+  chatHistoryExpanded: boolean
   themeMode: ThemeMode
 }
 
@@ -109,6 +110,7 @@ interface ConversationActions {
   loadConversations(projectId: ProjectId, agentId?: AgentId): Promise<void>
   selectConversation(id: ConversationId | null): Promise<void>
   createConversation(agentId: AgentId, title: string): Promise<Conversation>
+  updateConversationTitle(id: ConversationId, title: string): Promise<void>
   deleteConversation(id: ConversationId): Promise<void>
 }
 
@@ -157,6 +159,7 @@ interface SettingsActions {
 
 interface UIActions {
   toggleSidebar(): void
+  toggleChatHistory(): void
   setTheme(mode: ThemeMode): void
 }
 
@@ -393,6 +396,13 @@ export const useAppStore = create<AppState>()(
         return conv
       },
 
+      async updateConversationTitle(id: ConversationId, title: string) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const updated = await getServices().conversations.update(projectId, id, { title })
+        set(s => ({ conversations: s.conversations.map(c => c.id === id ? { ...c, title: updated.title, updatedAt: updated.updatedAt } : c) }))
+      },
+
       async deleteConversation(id: ConversationId) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
@@ -589,10 +599,15 @@ export const useAppStore = create<AppState>()(
 
       // --- UI state ---
       sidebarCollapsed: false,
+      chatHistoryExpanded: false,
       themeMode: 'dark' as ThemeMode,
 
       toggleSidebar() {
         set(s => ({ sidebarCollapsed: !s.sidebarCollapsed }))
+      },
+
+      toggleChatHistory() {
+        set(s => ({ chatHistoryExpanded: !s.chatHistoryExpanded }))
       },
 
       setTheme(mode: ThemeMode) {
@@ -644,6 +659,7 @@ export const useAppStore = create<AppState>()(
       name: 'solocraft-prefs',
       partialize: (state) => ({
         sidebarCollapsed: state.sidebarCollapsed,
+        chatHistoryExpanded: state.chatHistoryExpanded,
         themeMode: state.themeMode,
       }),
       onRehydrateStorage: () => {

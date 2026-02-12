@@ -46,6 +46,7 @@ function createTestServices(): ServiceContainer {
       ]),
       getById: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
       sendMessage: vi.fn(),
       saveMessage: vi.fn(),
       getMessages: vi.fn(),

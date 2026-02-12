@@ -121,6 +121,18 @@ export function ProjectListPage() {
                     <span className="ml-auto text-[11px] text-text-dim">
                       {relativeTime(project.lastActivityAt)}
                     </span>
+                    {window.electronAPI?.openNewWindow && (
+                      <button
+                        className="text-[10px] font-mono text-text-dim hover:text-accent-blue transition-colors"
+                        title="Open in New Window"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          window.electronAPI!.openNewWindow(project.id)
+                        }}
+                      >
+                        [+W]
+                      </button>
+                    )}
                   </div>
                 </PixelCard>
               </motion.div>

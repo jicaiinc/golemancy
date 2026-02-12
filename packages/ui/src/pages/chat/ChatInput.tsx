@@ -3,10 +3,12 @@ import { PixelButton } from '../../components'
 
 interface ChatInputProps {
   onSend: (content: string) => void
+  onStop?: () => void
+  isStreaming?: boolean
   disabled?: boolean
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputProps) {
   const [value, setValue] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -22,7 +24,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   }, [value, disabled, onSend])
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault()
       handleSend()
     }
@@ -49,14 +51,24 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         rows={1}
         className="flex-1 min-h-[36px] max-h-[160px] bg-surface px-3 py-2 font-mono text-[13px] text-text-primary border-2 border-border-dim placeholder:text-text-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none resize-none transition-colors focus:border-accent-blue disabled:opacity-50"
       />
-      <PixelButton
-        data-testid="chat-send-btn"
-        variant="primary"
-        disabled={!value.trim() || disabled}
-        onClick={handleSend}
-      >
-        Send
-      </PixelButton>
+      {isStreaming ? (
+        <PixelButton
+          data-testid="chat-stop-btn"
+          variant="danger"
+          onClick={onStop}
+        >
+          Stop
+        </PixelButton>
+      ) : (
+        <PixelButton
+          data-testid="chat-send-btn"
+          variant="primary"
+          disabled={!value.trim() || disabled}
+          onClick={handleSend}
+        >
+          Send
+        </PixelButton>
+      )}
     </div>
   )
 }

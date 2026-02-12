@@ -14,6 +14,7 @@ interface ToolInvocationBase {
 
 interface ToolCallDisplayProps {
   toolInvocation: ToolInvocationBase
+  chatStatus?: string
 }
 
 const DELEGATE_PREFIX = 'delegate_to_'
@@ -52,6 +53,11 @@ function getStatusLabel(state: string): { text: string; color: string } {
   }
 }
 
+/** Returns true when chat has finished but a snapshot still shows a running state */
+function isChatDone(chatStatus: string | undefined): boolean {
+  return chatStatus === 'ready' || chatStatus === 'error'
+}
+
 function isSubAgentStreamState(output: unknown): output is SubAgentStreamState {
   return (
     typeof output === 'object' &&
@@ -66,16 +72,17 @@ function isSubAgentStreamState(output: unknown): output is SubAgentStreamState {
 
 interface SubAgentDisplayProps {
   state: SubAgentStreamState
+  chatStatus?: string
   task?: string
 }
 
-function SubAgentToolItem({ tc }: { tc: SubAgentToolCallState }) {
+function SubAgentToolItem({ tc, chatStatus }: { tc: SubAgentToolCallState; chatStatus?: string }) {
   const [expanded, setExpanded] = useState(false)
-  const isRunning = tc.state === 'running'
+  const isRunning = tc.state === 'running' && !isChatDone(chatStatus)
 
   // Nested sub-agent: recurse
   if (tc.name.startsWith(DELEGATE_PREFIX) && isSubAgentStreamState(tc.output)) {
-    return <SubAgentDisplay state={tc.output} task={typeof tc.input === 'object' && tc.input !== null && 'task' in tc.input ? String((tc.input as { task: string }).task) : undefined} />
+    return <SubAgentDisplay state={tc.output} chatStatus={chatStatus} task={typeof tc.input === 'object' && tc.input !== null && 'task' in tc.input ? String((tc.input as { task: string }).task) : undefined} />
   }
 
   return (
@@ -131,8 +138,8 @@ function SubAgentToolItem({ tc }: { tc: SubAgentToolCallState }) {
   )
 }
 
-function SubAgentDisplay({ state, task }: SubAgentDisplayProps) {
-  const isRunning = state.status === 'running'
+function SubAgentDisplay({ state, chatStatus, task }: SubAgentDisplayProps) {
+  const isRunning = state.status === 'running' && !isChatDone(chatStatus)
   const [expanded, setExpanded] = useState(isRunning)
 
   // Auto-expand when running, auto-collapse when done
@@ -141,7 +148,7 @@ function SubAgentDisplay({ state, task }: SubAgentDisplayProps) {
   }, [isRunning])
 
   const toolCount = state.toolCalls.length
-  const runningTools = state.toolCalls.filter(tc => tc.state === 'running').length
+  const runningTools = isRunning ? state.toolCalls.filter(tc => tc.state === 'running').length : 0
 
   return (
     <div className="my-2 border-2 border-border-dim bg-deep">
@@ -195,7 +202,7 @@ function SubAgentDisplay({ state, task }: SubAgentDisplayProps) {
                 <div className="mt-2 space-y-1">
                   <span className="text-[10px] font-pixel text-text-dim">TOOLS</span>
                   {state.toolCalls.map(tc => (
-                    <SubAgentToolItem key={tc.id} tc={tc} />
+                    <SubAgentToolItem key={tc.id} tc={tc} chatStatus={chatStatus} />
                   ))}
                 </div>
               )}
@@ -219,14 +226,17 @@ function SubAgentDisplay({ state, task }: SubAgentDisplayProps) {
 
 // --- Main ToolCallDisplay ---
 
-export function ToolCallDisplay({ toolInvocation }: ToolCallDisplayProps) {
+export function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProps) {
   const [expanded, setExpanded] = useState(false)
   const displayName = useToolDisplayName(toolInvocation.toolName)
 
-  const status = getStatusLabel(toolInvocation.state)
-  const hasOutput = toolInvocation.state === 'output-available'
+  const chatDone = isChatDone(chatStatus)
+  const rawIsRunning = toolInvocation.state === 'input-streaming' || toolInvocation.state === 'input-available'
+  const isRunning = rawIsRunning && !chatDone
+  const effectiveState = rawIsRunning && chatDone ? 'output-available' : toolInvocation.state
+  const status = getStatusLabel(effectiveState)
+  const hasOutput = toolInvocation.state === 'output-available' || (rawIsRunning && chatDone)
   const hasError = toolInvocation.state === 'output-error'
-  const isRunning = toolInvocation.state === 'input-streaming' || toolInvocation.state === 'input-available'
 
   // Check if this is a sub-agent with structured streaming output
   const isSubAgent = toolInvocation.toolName.startsWith(DELEGATE_PREFIX)
@@ -238,7 +248,7 @@ export function ToolCallDisplay({ toolInvocation }: ToolCallDisplayProps) {
     const taskInput = typeof toolInvocation.input === 'object' && toolInvocation.input !== null && 'task' in toolInvocation.input
       ? String((toolInvocation.input as { task: string }).task)
       : undefined
-    return <SubAgentDisplay state={subAgentState} task={taskInput} />
+    return <SubAgentDisplay state={subAgentState} chatStatus={chatStatus} task={taskInput} />
   }
 
   return (
