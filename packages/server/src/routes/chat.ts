@@ -11,6 +11,13 @@ import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:chat' })
 
+function extractTextContent(parts: UIMessage['parts']): string {
+  return parts
+    .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+    .map(p => p.text)
+    .join('\n')
+}
+
 export interface ChatRouteDeps {
   agentStorage: IAgentService
   conversationStorage: IConversationService
@@ -39,13 +46,13 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       return c.json({ error: 'messages is required' }, 400)
     }
 
-    // Validate message structure and reject system role injection
+    // Validate message structure and whitelist allowed roles
     for (const msg of messages) {
-      if (!msg.role || !msg.parts) {
+      if (!msg.role || !Array.isArray(msg.parts)) {
         return c.json({ error: 'Each message must have role and parts' }, 400)
       }
-      if (msg.role === 'system') {
-        return c.json({ error: 'Messages with role "system" are not allowed' }, 400)
+      if (msg.role !== 'user' && msg.role !== 'assistant') {
+        return c.json({ error: `Invalid message role: "${msg.role}"` }, 400)
       }
     }
 
@@ -81,23 +88,22 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     // Save user's latest message before streaming
     if (conversationId) {
-      const lastUserMsg = messages.filter(m => m.role === 'user').at(-1)
-      if (lastUserMsg) {
-        const textContent = lastUserMsg.parts
-          .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
-          .map(p => p.text)
-          .join('')
-        if (textContent) {
+      try {
+        const lastUserMsg = messages.filter(m => m.role === 'user').at(-1)
+        if (lastUserMsg) {
           await deps.conversationStorage.saveMessage(
             projectId as ProjectId,
             conversationId as ConversationId,
             {
               id: lastUserMsg.id as MessageId,
               role: 'user',
-              content: textContent,
+              parts: lastUserMsg.parts,
+              content: extractTextContent(lastUserMsg.parts),
             },
           )
         }
+      } catch (err) {
+        log.error({ err, conversationId }, 'failed to save user message')
       }
     }
 
@@ -127,18 +133,25 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       stopWhen: hasTools ? stepCountIs(10) : undefined,
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
-      onFinish: async ({ text }) => {
+      onFinish: async () => {
         await agentToolsResult.cleanup()
+      },
+    })
 
+    return result.toUIMessageStreamResponse({
+      originalMessages: messages,
+      generateMessageId: () => generateId('msg'),
+      onFinish: async ({ responseMessage }) => {
         try {
-          if (conversationId && text) {
+          if (conversationId) {
             await deps.conversationStorage.saveMessage(
               projectId as ProjectId,
               conversationId as ConversationId,
               {
-                id: generateId('msg') as MessageId,
+                id: responseMessage.id as MessageId,
                 role: 'assistant',
-                content: text,
+                parts: responseMessage.parts,
+                content: extractTextContent(responseMessage.parts),
               },
             )
             log.debug({ conversationId, role: 'assistant' }, 'saved assistant message in onFinish')
@@ -148,8 +161,6 @@ export function createChatRoutes(deps: ChatRouteDeps) {
         }
       },
     })
-
-    return result.toUIMessageStreamResponse()
   })
 
   return app

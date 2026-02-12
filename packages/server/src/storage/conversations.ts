@@ -1,6 +1,6 @@
 import type {
   Conversation, ConversationId, ProjectId, AgentId, Message, MessageId,
-  PaginationParams, PaginatedResult, ToolCallResult,
+  PaginationParams, PaginatedResult,
   IConversationService,
 } from '@solocraft/shared'
 import { eq, and, desc, sql } from 'drizzle-orm'
@@ -78,9 +78,7 @@ export class SqliteConversationStorage implements IConversationService {
 
   async sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void> {
     const db = this.getProjectDb(projectId)
-    // Verify conversationId belongs to projectId
-    const conv = await this.getById(projectId, conversationId)
-    if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
+    await this.verifyOwnership(db, projectId, conversationId)
 
     const now = new Date().toISOString()
     const msgId = generateId('msg')
@@ -89,6 +87,7 @@ export class SqliteConversationStorage implements IConversationService {
       id: msgId,
       conversationId,
       role: 'user',
+      parts: [{ type: 'text', text: content }],
       content,
       createdAt: now,
     })
@@ -102,12 +101,10 @@ export class SqliteConversationStorage implements IConversationService {
   async saveMessage(
     projectId: ProjectId,
     conversationId: ConversationId,
-    data: { id: MessageId; role: string; content: string },
+    data: { id: MessageId; role: string; parts: unknown[]; content: string },
   ): Promise<void> {
     const db = this.getProjectDb(projectId)
-    // Verify conversationId belongs to projectId
-    const conv = await this.getById(projectId, conversationId)
-    if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
+    await this.verifyOwnership(db, projectId, conversationId)
 
     // Dedup: skip if message with this ID already exists
     const existing = await db
@@ -126,6 +123,7 @@ export class SqliteConversationStorage implements IConversationService {
       id: data.id,
       conversationId,
       role: data.role,
+      parts: data.parts,
       content: data.content,
       createdAt: now,
     })
@@ -152,9 +150,7 @@ export class SqliteConversationStorage implements IConversationService {
     params: PaginationParams,
   ): Promise<PaginatedResult<Message>> {
     const db = this.getProjectDb(projectId)
-    // Verify conversationId belongs to projectId
-    const conv = await this.getById(projectId, conversationId)
-    if (!conv) throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
+    await this.verifyOwnership(db, projectId, conversationId)
 
     const { page, pageSize } = params
     const offset = (page - 1) * pageSize
@@ -195,9 +191,8 @@ export class SqliteConversationStorage implements IConversationService {
       id: string
       conversation_id: string
       role: string
+      parts: string
       content: string
-      tool_calls: string | null
-      token_usage: string | null
       created_at: string
     }
 
@@ -223,10 +218,33 @@ export class SqliteConversationStorage implements IConversationService {
     `)
 
     return {
-      items: items.map((r) => this.rowToMessage(r as unknown as typeof schema.messages.$inferSelect)),
+      items: items.map((r): Message => ({
+        id: r.id as MessageId,
+        conversationId: r.conversation_id as ConversationId,
+        role: r.role as Message['role'],
+        parts: typeof r.parts === 'string' ? JSON.parse(r.parts) : r.parts,
+        content: r.content,
+        createdAt: r.created_at,
+        updatedAt: r.created_at,
+      })),
       total: countRows[0]?.cnt ?? 0,
       page,
       pageSize,
+    }
+  }
+
+  private async verifyOwnership(
+    db: AppDatabase,
+    projectId: ProjectId,
+    conversationId: ConversationId,
+  ): Promise<void> {
+    const rows = await db
+      .select({ id: schema.conversations.id })
+      .from(schema.conversations)
+      .where(and(eq(schema.conversations.id, conversationId), eq(schema.conversations.projectId, projectId)))
+      .limit(1)
+    if (rows.length === 0) {
+      throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
     }
   }
 
@@ -258,8 +276,8 @@ export class SqliteConversationStorage implements IConversationService {
       id: row.id as MessageId,
       conversationId: row.conversationId as ConversationId,
       role: row.role as Message['role'],
+      parts: row.parts as unknown[],
       content: row.content,
-      toolCalls: (row.toolCalls as ToolCallResult[] | null) ?? undefined,
       createdAt: row.createdAt,
       updatedAt: row.createdAt,
     }

@@ -42,7 +42,6 @@ import {
   destroyChat,
   destroyAllChats,
   hasChat,
-  toUIMessages,
 } from './chat-instances'
 
 const now = '2024-06-01T10:00:00.000Z'
@@ -52,6 +51,7 @@ function makeMessage(overrides?: Partial<Message>): Message {
     id: 'msg-1' as MessageId,
     conversationId: 'conv-1' as ConversationId,
     role: 'user',
+    parts: [{ type: 'text', text: 'Hello' }],
     content: 'Hello',
     createdAt: now,
     updatedAt: now,
@@ -76,44 +76,6 @@ describe('chat-instances', () => {
     chatConstructorCalls.length = 0
     // Clear the module-level cache between tests
     destroyAllChats()
-  })
-
-  describe('toUIMessages', () => {
-    it('converts user and assistant messages to UIMessage format', () => {
-      const messages: Message[] = [
-        makeMessage({ id: 'msg-1' as MessageId, role: 'user', content: 'Hi' }),
-        makeMessage({ id: 'msg-2' as MessageId, role: 'assistant', content: 'Hello!' }),
-      ]
-
-      const result = toUIMessages(messages)
-
-      expect(result).toHaveLength(2)
-      expect(result[0]).toEqual({
-        id: 'msg-1',
-        role: 'user',
-        parts: [{ type: 'text', text: 'Hi' }],
-      })
-      expect(result[1]).toEqual({
-        id: 'msg-2',
-        role: 'assistant',
-        parts: [{ type: 'text', text: 'Hello!' }],
-      })
-    })
-
-    it('filters out system messages', () => {
-      const messages: Message[] = [
-        makeMessage({ id: 'msg-1' as MessageId, role: 'system' as any, content: 'System prompt' }),
-        makeMessage({ id: 'msg-2' as MessageId, role: 'user', content: 'Hi' }),
-      ]
-
-      const result = toUIMessages(messages)
-      expect(result).toHaveLength(1)
-      expect(result[0].role).toBe('user')
-    })
-
-    it('returns empty array for empty input', () => {
-      expect(toUIMessages([])).toEqual([])
-    })
   })
 
   describe('getOrCreateChat', () => {

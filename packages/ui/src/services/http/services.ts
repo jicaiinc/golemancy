@@ -77,7 +77,7 @@ export class HttpConversationService implements IConversationService {
     // Chat streaming uses useChat() + /api/chat, not this method
     throw new Error('Use useChat() for real-time chat')
   }
-  async saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; content: string }) {
+  async saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string }) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/conversations/${conversationId}/messages`, {
       method: 'POST', body: JSON.stringify(data),
     })

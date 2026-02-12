@@ -14,10 +14,9 @@ export const messages = sqliteTable('messages', {
   id: text('id').primaryKey(),
   conversationId: text('conversation_id').notNull()
     .references(() => conversations.id, { onDelete: 'cascade' }),
-  role: text('role').notNull(), // 'user' | 'assistant' | 'system' | 'tool'
-  content: text('content').notNull(),
-  toolCalls: text('tool_calls', { mode: 'json' }),
-  tokenUsage: text('token_usage', { mode: 'json' }),
+  role: text('role').notNull(), // 'user' | 'assistant'
+  parts: text('parts', { mode: 'json' }).notNull(), // UIMessage['parts']
+  content: text('content').notNull().default(''), // plain text for FTS
   createdAt: text('created_at').notNull(),
 })
 

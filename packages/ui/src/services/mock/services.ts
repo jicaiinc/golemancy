@@ -164,16 +164,19 @@ export class MockConversationService implements IConversationService {
       id: genId('msg') as MessageId,
       conversationId,
       role: 'user',
+      parts: [{ type: 'text', text: content }],
       content,
       createdAt: now,
       updatedAt: now,
     })
+    const responseText = `Mock response to: "${content}"`
     // Simulate assistant response
     conv.messages.push({
       id: genId('msg') as MessageId,
       conversationId,
       role: 'assistant',
-      content: `Mock response to: "${content}"`,
+      parts: [{ type: 'text', text: responseText }],
+      content: responseText,
       createdAt: now,
       updatedAt: now,
     })
@@ -181,7 +184,7 @@ export class MockConversationService implements IConversationService {
     conv.updatedAt = now
   }
 
-  async saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; content: string }): Promise<void> {
+  async saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string }): Promise<void> {
     await delay()
     const conv = this.data.get(conversationId)
     if (!conv || conv.projectId !== projectId) throw new Error('Conversation not found')
@@ -190,6 +193,7 @@ export class MockConversationService implements IConversationService {
       id: data.id,
       conversationId,
       role: data.role as Message['role'],
+      parts: data.parts,
       content: data.content,
       createdAt: now,
       updatedAt: now,

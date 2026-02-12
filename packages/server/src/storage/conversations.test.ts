@@ -235,6 +235,7 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-custom-1' as MessageId,
         role: 'assistant',
+        parts: [{ type: 'text', text: 'Hello from AI' }],
         content: 'Hello from AI',
       })
 
@@ -249,8 +250,8 @@ describe('SqliteConversationStorage', () => {
       const conv = await storage.create(projId, agentId1, 'Chat')
       const msgId = 'msg-dedup-1' as MessageId
 
-      await storage.saveMessage(projId, conv.id, { id: msgId, role: 'user', content: 'Original' })
-      await storage.saveMessage(projId, conv.id, { id: msgId, role: 'user', content: 'Duplicate' })
+      await storage.saveMessage(projId, conv.id, { id: msgId, role: 'user', parts: [{ type: 'text', text: 'Original' }], content: 'Original' })
+      await storage.saveMessage(projId, conv.id, { id: msgId, role: 'user', parts: [{ type: 'text', text: 'Duplicate' }], content: 'Duplicate' })
 
       const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
       expect(msgs.items).toHaveLength(1)
@@ -262,6 +263,7 @@ describe('SqliteConversationStorage', () => {
         storage.saveMessage(projId, 'conv-nonexistent' as ConversationId, {
           id: 'msg-1' as MessageId,
           role: 'user',
+          parts: [{ type: 'text', text: 'test' }],
           content: 'test',
         }),
       ).rejects.toThrow('not found')
@@ -273,6 +275,7 @@ describe('SqliteConversationStorage', () => {
         storage.saveMessage(projId2, conv.id, {
           id: 'msg-1' as MessageId,
           role: 'user',
+          parts: [{ type: 'text', text: 'test' }],
           content: 'test',
         }),
       ).rejects.toThrow('not found')
@@ -286,6 +289,7 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-ts-1' as MessageId,
         role: 'assistant',
+        parts: [{ type: 'text', text: 'response' }],
         content: 'response',
       })
 
@@ -297,22 +301,16 @@ describe('SqliteConversationStorage', () => {
     it('saves messages with different roles', async () => {
       const conv = await storage.create(projId, agentId1, 'Chat')
 
-      await storage.saveMessage(projId, conv.id, { id: 'msg-u' as MessageId, role: 'user', content: 'Hi' })
+      await storage.saveMessage(projId, conv.id, { id: 'msg-u' as MessageId, role: 'user', parts: [{ type: 'text', text: 'Hi' }], content: 'Hi' })
       await new Promise(r => setTimeout(r, 5))
-      await storage.saveMessage(projId, conv.id, { id: 'msg-a' as MessageId, role: 'assistant', content: 'Hello!' })
-      await new Promise(r => setTimeout(r, 5))
-      await storage.saveMessage(projId, conv.id, { id: 'msg-s' as MessageId, role: 'system', content: 'System note' })
-      await new Promise(r => setTimeout(r, 5))
-      await storage.saveMessage(projId, conv.id, { id: 'msg-t' as MessageId, role: 'tool', content: 'Tool output' })
+      await storage.saveMessage(projId, conv.id, { id: 'msg-a' as MessageId, role: 'assistant', parts: [{ type: 'text', text: 'Hello!' }], content: 'Hello!' })
 
       const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
-      expect(msgs.items).toHaveLength(4)
+      expect(msgs.items).toHaveLength(2)
 
       const roles = msgs.items.map(m => m.role)
       expect(roles).toContain('user')
       expect(roles).toContain('assistant')
-      expect(roles).toContain('system')
-      expect(roles).toContain('tool')
     })
   })
 
@@ -324,12 +322,14 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-flow-1' as MessageId,
         role: 'user',
+        parts: [{ type: 'text', text: 'What is 2+2?' }],
         content: 'What is 2+2?',
       })
       await new Promise(r => setTimeout(r, 5))
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-flow-2' as MessageId,
         role: 'assistant',
+        parts: [{ type: 'text', text: 'The answer is 4.' }],
         content: 'The answer is 4.',
       })
 
@@ -350,12 +350,14 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-check-1' as MessageId,
         role: 'user',
+        parts: [{ type: 'text', text: 'Hello' }],
         content: 'Hello',
       })
       await new Promise(r => setTimeout(r, 15))
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-check-2' as MessageId,
         role: 'assistant',
+        parts: [{ type: 'text', text: 'World' }],
         content: 'World',
       })
 
@@ -374,6 +376,7 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-list-1' as MessageId,
         role: 'user',
+        parts: [{ type: 'text', text: 'Hello' }],
         content: 'Hello',
       })
 
@@ -393,6 +396,7 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-explicit-1' as MessageId,
         role: 'assistant',
+        parts: [{ type: 'text', text: 'Assistant via saveMessage' }],
         content: 'Assistant via saveMessage',
       })
 
@@ -410,11 +414,13 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv1.id, {
         id: 'msg-p1' as MessageId,
         role: 'user',
+        parts: [{ type: 'text', text: 'Project 1 message' }],
         content: 'Project 1 message',
       })
       await storage.saveMessage(projId2, conv2.id, {
         id: 'msg-p2' as MessageId,
         role: 'user',
+        parts: [{ type: 'text', text: 'Project 2 message' }],
         content: 'Project 2 message',
       })
 
@@ -432,6 +438,7 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-cross-1' as MessageId,
         role: 'user',
+        parts: [{ type: 'text', text: 'Secret message' }],
         content: 'Secret message',
       })
 
@@ -448,17 +455,154 @@ describe('SqliteConversationStorage', () => {
       await storage.saveMessage(projId, conv1.id, {
         id: 'msg-search-1' as MessageId,
         role: 'assistant',
+        parts: [{ type: 'text', text: 'Unique keyword findme' }],
         content: 'Unique keyword findme',
       })
       await storage.saveMessage(projId2, conv2.id, {
         id: 'msg-search-2' as MessageId,
         role: 'assistant',
+        parts: [{ type: 'text', text: 'Another keyword findme' }],
         content: 'Another keyword findme',
       })
 
       const results = await storage.searchMessages(projId, 'findme', { page: 1, pageSize: 50 })
       expect(results.items).toHaveLength(1)
       expect(results.items[0].id).toBe('msg-search-1')
+    })
+  })
+
+  describe('parts round-trip persistence', () => {
+    it('stores and retrieves text parts', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      const textParts = [{ type: 'text', text: 'Hello world' }]
+
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-text-parts' as MessageId,
+        role: 'user',
+        parts: textParts,
+        content: 'Hello world',
+      })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items[0].parts).toEqual(textParts)
+      expect(msgs.items[0].content).toBe('Hello world')
+    })
+
+    it('stores and retrieves tool-invocation parts', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      const toolParts = [
+        { type: 'text', text: 'Let me search for that.' },
+        {
+          type: 'tool-invocation',
+          toolInvocation: {
+            toolCallId: 'call-123',
+            toolName: 'web_search',
+            args: { query: 'AI trends 2025' },
+            state: 'result',
+            result: { results: ['result1', 'result2'] },
+          },
+        },
+        { type: 'text', text: 'Here are the results.' },
+      ]
+
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-tool-parts' as MessageId,
+        role: 'assistant',
+        parts: toolParts,
+        content: 'Let me search for that.\nHere are the results.',
+      })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items[0].parts).toEqual(toolParts)
+      expect(msgs.items[0].parts).toHaveLength(3)
+      // Verify tool-invocation fields survived serialization
+      const toolPart = msgs.items[0].parts[1] as any
+      expect(toolPart.type).toBe('tool-invocation')
+      expect(toolPart.toolInvocation.toolCallId).toBe('call-123')
+      expect(toolPart.toolInvocation.args).toEqual({ query: 'AI trends 2025' })
+      expect(toolPart.toolInvocation.state).toBe('result')
+    })
+
+    it('stores and retrieves mixed parts (text + tool + reasoning)', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      const mixedParts = [
+        { type: 'reasoning', text: 'I need to search the web first.', signature: 'sig-abc' },
+        { type: 'text', text: 'Searching now...' },
+        {
+          type: 'tool-invocation',
+          toolInvocation: {
+            toolCallId: 'call-456',
+            toolName: 'read_file',
+            args: { path: '/tmp/data.json' },
+            state: 'result',
+            result: '{"key":"value"}',
+          },
+        },
+        { type: 'text', text: 'Found the data.' },
+      ]
+
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-mixed-parts' as MessageId,
+        role: 'assistant',
+        parts: mixedParts,
+        content: 'Searching now...\nFound the data.',
+      })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items[0].parts).toEqual(mixedParts)
+      expect(msgs.items[0].parts).toHaveLength(4)
+
+      // Verify each part type survived
+      expect((msgs.items[0].parts[0] as any).type).toBe('reasoning')
+      expect((msgs.items[0].parts[1] as any).type).toBe('text')
+      expect((msgs.items[0].parts[2] as any).type).toBe('tool-invocation')
+      expect((msgs.items[0].parts[3] as any).type).toBe('text')
+    })
+
+    it('content column holds plain text extracted from parts', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      const parts = [
+        { type: 'text', text: 'Before tool call.' },
+        { type: 'tool-invocation', toolInvocation: { toolCallId: 'c1', toolName: 'x', args: {}, state: 'result', result: 'ok' } },
+        { type: 'text', text: 'After tool call.' },
+      ]
+
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-content-extract' as MessageId,
+        role: 'assistant',
+        parts,
+        content: 'Before tool call.\nAfter tool call.',
+      })
+
+      // FTS should find using content, not parts JSON
+      const results = await storage.searchMessages(projId, 'tool call', { page: 1, pageSize: 50 })
+      expect(results.items).toHaveLength(1)
+      expect(results.items[0].content).toBe('Before tool call.\nAfter tool call.')
+    })
+
+    it('getById returns messages with parts populated', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      const parts = [{ type: 'text', text: 'Check parts via getById' }]
+
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-getbyid-parts' as MessageId,
+        role: 'user',
+        parts,
+        content: 'Check parts via getById',
+      })
+
+      const found = await storage.getById(projId, conv.id)
+      expect(found!.messages).toHaveLength(1)
+      expect(found!.messages[0].parts).toEqual(parts)
+    })
+
+    it('sendMessage auto-generates text parts', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      await storage.sendMessage(projId, conv.id, 'Auto parts test')
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items[0].parts).toEqual([{ type: 'text', text: 'Auto parts test' }])
+      expect(msgs.items[0].content).toBe('Auto parts test')
     })
   })
 
@@ -471,6 +615,7 @@ describe('SqliteConversationStorage', () => {
         await storage.saveMessage(projId, conv.id, {
           id: `msg-page-${i}` as MessageId,
           role: i % 2 === 0 ? 'user' : 'assistant',
+          parts: [{ type: 'text', text: `Message ${i}` }],
           content: `Message ${i}`,
         })
       }

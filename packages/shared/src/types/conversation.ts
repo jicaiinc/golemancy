@@ -1,21 +1,11 @@
-import type { AgentId, ConversationId, MessageId, ProjectId, ToolId, Timestamped } from './common'
-
-export type MessageRole = 'user' | 'assistant' | 'system' | 'tool'
-
-export interface ToolCallResult {
-  toolId: ToolId
-  toolName: string
-  input: Record<string, unknown>
-  output: string
-  duration: number // ms
-}
+import type { AgentId, ConversationId, MessageId, ProjectId, Timestamped } from './common'
 
 export interface Message extends Timestamped {
   id: MessageId
   conversationId: ConversationId
-  role: MessageRole
-  content: string
-  toolCalls?: ToolCallResult[]
+  role: 'user' | 'assistant'
+  parts: unknown[] // serialized UIMessage['parts'] — opaque to shared package
+  content: string  // plain text for display/search (derived from parts)
 }
 
 export interface Conversation extends Timestamped {

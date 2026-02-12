@@ -10,20 +10,13 @@ import { DefaultChatTransport } from 'ai'
 import type { UIMessage, ChatTransport } from 'ai'
 import type { ConversationId, AgentId, ProjectId, Message } from '@solocraft/shared'
 
-/**
- * Convert app Message[] → UIMessage[] for Chat constructor initial messages.
- * Note: Only converts text content. ToolCalls from stored messages are not
- * included because tool-invocation parts require the full streaming state
- * machine which isn't available for historical messages.
- */
-export function toUIMessages(messages: Message[]): UIMessage[] {
-  return messages
-    .filter(m => m.role === 'user' || m.role === 'assistant')
-    .map(m => ({
-      id: m.id,
-      role: m.role as 'user' | 'assistant',
-      parts: [{ type: 'text' as const, text: m.content }],
-    }))
+/** Convert app Message[] → UIMessage[] for Chat constructor. */
+function messagesToUIMessages(messages: Message[]): UIMessage[] {
+  return messages.map(m => ({
+    id: m.id,
+    role: m.role,
+    parts: m.parts as UIMessage['parts'],
+  }))
 }
 
 export interface ChatInstanceConfig {
@@ -56,7 +49,7 @@ export function getOrCreateChat(config: ChatInstanceConfig): Chat<UIMessage> {
   // onError must be set here — useChat({ chat }) Mode A ignores callbacks
   const chat = new Chat<UIMessage>({
     id: config.conversationId,
-    messages: toUIMessages(config.initialMessages),
+    messages: messagesToUIMessages(config.initialMessages),
     transport,
     onError: (error) => {
       console.error('[Chat]', config.conversationId, error)

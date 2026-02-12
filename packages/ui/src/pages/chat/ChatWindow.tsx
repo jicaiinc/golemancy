@@ -7,7 +7,7 @@ import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
 import { PixelButton, PixelSpinner } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
-import { getOrCreateChat, toUIMessages } from '../../lib/chat-instances'
+import { getOrCreateChat } from '../../lib/chat-instances'
 import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
 
@@ -79,7 +79,11 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
       await svc.conversations.sendMessage(currentProjectId, conversation.id, content)
       const updated = await svc.conversations.getById(currentProjectId, conversation.id)
       if (updated) {
-        chat.messages = toUIMessages(updated.messages)
+        chat.messages = updated.messages.map(m => ({
+          id: m.id,
+          role: m.role,
+          parts: m.parts as UIMessage['parts'],
+        }))
         // Update store for sidebar metadata
         useAppStore.setState(s => ({
           conversations: s.conversations.map(c => c.id === conversation.id ? updated : c),
@@ -95,7 +99,10 @@ export function ChatWindow({ conversation, agent }: ChatWindowProps) {
 
   // --- Derived display state ---
   const isBusy = status === 'submitted' || status === 'streaming'
-  const showThinking = status === 'submitted'
+  const lastMsg = messages[messages.length - 1]
+  const hasVisibleContent = lastMsg?.role === 'assistant' &&
+    lastMsg.parts.some(p => p.type === 'text' && (p as { text: string }).text.length > 0)
+  const showThinking = isBusy && !hasVisibleContent
 
   return (
     <div data-testid="chat-window" className="flex flex-col h-full">

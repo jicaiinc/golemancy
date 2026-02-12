@@ -22,15 +22,6 @@ vi.mock('motion/react', () => ({
 const mockChat = { id: 'conv-1', messages: [], status: 'ready', stop: vi.fn() }
 vi.mock('../../lib/chat-instances', () => ({
   getOrCreateChat: vi.fn(() => mockChat),
-  toUIMessages: vi.fn((msgs: any[]) =>
-    msgs
-      .filter((m: any) => m.role === 'user' || m.role === 'assistant')
-      .map((m: any) => ({
-        id: m.id,
-        role: m.role,
-        parts: [{ type: 'text', text: m.content }],
-      })),
-  ),
 }))
 
 // Mock @ai-sdk/react — useChat returns what we configure per-test
@@ -185,7 +176,7 @@ describe('ChatWindow', () => {
 
   it('sends message via service in mock mode (no electronAPI)', async () => {
     const conv = makeConversation()
-    const updatedConv = { ...conv, messages: [{ id: 'msg-1' as MessageId, conversationId: conv.id, role: 'assistant' as const, content: 'response', createdAt: now, updatedAt: now }] }
+    const updatedConv = { ...conv, messages: [{ id: 'msg-1' as MessageId, conversationId: conv.id, role: 'assistant' as const, parts: [{ type: 'text', text: 'response' }], content: 'response', createdAt: now, updatedAt: now }] }
     ;(services.conversations.sendMessage as any).mockResolvedValue(undefined)
     ;(services.conversations.getById as any).mockResolvedValue(updatedConv)
 

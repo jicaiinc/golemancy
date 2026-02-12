@@ -25,9 +25,8 @@ export function migrateDatabase(db: AppDatabase) {
       id                TEXT PRIMARY KEY,
       conversation_id   TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
       role              TEXT NOT NULL,
-      content           TEXT NOT NULL,
-      tool_calls        TEXT,
-      token_usage       TEXT,
+      parts             TEXT NOT NULL,
+      content           TEXT NOT NULL DEFAULT '',
       created_at        TEXT NOT NULL
     )
   `)
@@ -48,6 +47,32 @@ export function migrateDatabase(db: AppDatabase) {
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(project_id, agent_id)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at DESC)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_task_logs_task ON task_logs(task_id, timestamp)`)
+
+  // --- Migration v2: message parts ---
+  const columns = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+
+  const hasParts = columns.some(col => col.name === 'parts')
+  if (!hasParts) {
+    log.info('migrating messages table: adding parts column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN parts TEXT`)
+    db.run(sql`
+      UPDATE messages
+      SET parts = json_array(json_object('type', 'text', 'text', content))
+      WHERE parts IS NULL
+    `)
+  }
+
+  const hasToolCalls = columns.some(col => col.name === 'tool_calls')
+  if (hasToolCalls) {
+    log.info('migrating messages table: dropping tool_calls column')
+    db.run(sql`ALTER TABLE messages DROP COLUMN tool_calls`)
+  }
+
+  const hasTokenUsage = columns.some(col => col.name === 'token_usage')
+  if (hasTokenUsage) {
+    log.info('migrating messages table: dropping token_usage column')
+    db.run(sql`ALTER TABLE messages DROP COLUMN token_usage`)
+  }
 
   // Set up FTS5
   setupFTS(db)

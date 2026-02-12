@@ -65,8 +65,8 @@ describe('database migration', () => {
     it('enforces cascade delete from conversations to messages', () => {
       db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
         VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
-      db.run(sql`INSERT INTO messages (id, conversation_id, role, content, created_at)
-        VALUES ('msg-1', 'conv-1', 'user', 'Hello', '2024-01-01')`)
+      db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
+        VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"Hello"}]', 'Hello', '2024-01-01')`)
 
       db.run(sql`DELETE FROM conversations WHERE id = 'conv-1'`)
 
@@ -76,8 +76,8 @@ describe('database migration', () => {
 
     it('rejects message insert with invalid conversation_id', () => {
       expect(() => {
-        db.run(sql`INSERT INTO messages (id, conversation_id, role, content, created_at)
-          VALUES ('msg-1', 'conv-nonexistent', 'user', 'Hello', '2024-01-01')`)
+        db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
+          VALUES ('msg-1', 'conv-nonexistent', 'user', '[{"type":"text","text":"Hello"}]', 'Hello', '2024-01-01')`)
       }).toThrow()
     })
   })
@@ -86,8 +86,8 @@ describe('database migration', () => {
     it('indexes messages on insert', () => {
       db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
         VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
-      db.run(sql`INSERT INTO messages (id, conversation_id, role, content, created_at)
-        VALUES ('msg-1', 'conv-1', 'user', 'Hello world testing FTS', '2024-01-01')`)
+      db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
+        VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"Hello world testing FTS"}]', 'Hello world testing FTS', '2024-01-01')`)
 
       const results = db.all<any>(sql`SELECT * FROM messages_fts WHERE content MATCH 'testing'`)
       expect(results).toHaveLength(1)
@@ -96,8 +96,8 @@ describe('database migration', () => {
     it('removes from index on delete', () => {
       db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
         VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
-      db.run(sql`INSERT INTO messages (id, conversation_id, role, content, created_at)
-        VALUES ('msg-1', 'conv-1', 'user', 'unique term xyz', '2024-01-01')`)
+      db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
+        VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"unique term xyz"}]', 'unique term xyz', '2024-01-01')`)
 
       db.run(sql`DELETE FROM messages WHERE id = 'msg-1'`)
 
@@ -108,8 +108,8 @@ describe('database migration', () => {
     it('updates index on message update', () => {
       db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
         VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
-      db.run(sql`INSERT INTO messages (id, conversation_id, role, content, created_at)
-        VALUES ('msg-1', 'conv-1', 'user', 'old content alpha', '2024-01-01')`)
+      db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
+        VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"old content alpha"}]', 'old content alpha', '2024-01-01')`)
 
       db.run(sql`UPDATE messages SET content = 'new content beta' WHERE id = 'msg-1'`)
 
@@ -123,10 +123,10 @@ describe('database migration', () => {
     it('supports multi-word FTS search', () => {
       db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
         VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
-      db.run(sql`INSERT INTO messages (id, conversation_id, role, content, created_at)
-        VALUES ('msg-1', 'conv-1', 'user', 'The quick brown fox jumps', '2024-01-01')`)
-      db.run(sql`INSERT INTO messages (id, conversation_id, role, content, created_at)
-        VALUES ('msg-2', 'conv-1', 'user', 'The lazy brown dog sleeps', '2024-01-01')`)
+      db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
+        VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"The quick brown fox jumps"}]', 'The quick brown fox jumps', '2024-01-01')`)
+      db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
+        VALUES ('msg-2', 'conv-1', 'user', '[{"type":"text","text":"The lazy brown dog sleeps"}]', 'The lazy brown dog sleeps', '2024-01-01')`)
 
       const results = db.all<any>(sql`SELECT * FROM messages_fts WHERE content MATCH 'brown fox'`)
       expect(results).toHaveLength(1)
