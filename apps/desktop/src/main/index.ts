@@ -107,8 +107,6 @@ function buildAppMenu(): void {
       submenu: [
         { label: 'About Golemancy', click: showAbout },
         { type: 'separator' },
-        { role: 'services' },
-        { type: 'separator' },
         { label: 'Hide Golemancy', role: 'hide' },
         { role: 'hideOthers' },
         { role: 'unhide' },
@@ -129,29 +127,27 @@ function buildAppMenu(): void {
       ],
     },
     {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+      ],
+    },
+  ]
+
+  // Add View menu in development mode only
+  if (!app.isPackaged) {
+    template.splice(2, 0, {
       label: 'View',
       submenu: [
         { role: 'reload' },
         { role: 'forceReload' },
         { role: 'toggleDevTools' },
         { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
         { role: 'togglefullscreen' },
       ],
-    },
-    {
-      label: 'Window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        { type: 'separator' },
-        { role: 'front' },
-      ],
-    },
-  ]
+    })
+  }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
