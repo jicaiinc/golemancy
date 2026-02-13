@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // ExtensionDriver — controls browser remotely via WebSocket connection to
-// the SoloCraft browser extension.
+// the Golemancy browser extension.
 //
 // Protocol: JSON-RPC 2.0 over WebSocket
 //   → { id, method, params }

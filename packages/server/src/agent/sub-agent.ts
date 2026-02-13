@@ -1,6 +1,6 @@
 import { tool, streamText, stepCountIs, type ToolSet } from 'ai'
 import { z } from 'zod'
-import type { Agent, GlobalSettings, IMCPService, SubAgentStreamState } from '@solocraft/shared'
+import type { Agent, GlobalSettings, IMCPService, SubAgentStreamState } from '@golemancy/shared'
 import { resolveModel } from './model'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { logger } from '../logger'

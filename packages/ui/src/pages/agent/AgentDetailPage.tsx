@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router'
-import type { Agent, AgentId, AgentStatus, AIProvider, SkillId } from '@solocraft/shared'
+import type { Agent, AgentId, AgentStatus, AIProvider, SkillId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, useResolvedConfig } from '../../hooks'
 import {

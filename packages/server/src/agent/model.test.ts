@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { GlobalSettings, AgentModelConfig } from '@solocraft/shared'
+import type { GlobalSettings, AgentModelConfig } from '@golemancy/shared'
 
 const mocks = vi.hoisted(() => {
   const anthropicModel = { id: 'anthropic-model' }

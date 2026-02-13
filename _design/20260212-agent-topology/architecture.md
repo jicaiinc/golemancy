@@ -181,7 +181,7 @@ Renders a pixel-art styled card for each agent. Based on `PixelCard` design lang
 ```tsx
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import type { AgentId, AgentStatus } from '@solocraft/shared'
+import type { AgentId, AgentStatus } from '@golemancy/shared'
 
 export interface AgentNodeData {
   agentId: AgentId
@@ -322,7 +322,7 @@ A slide-in panel on the right side of the canvas, showing agent summary info. Ap
 
 ```tsx
 import { motion } from 'motion/react'
-import type { AgentId } from '@solocraft/shared'
+import type { AgentId } from '@golemancy/shared'
 import { useNavigate, useParams } from 'react-router'
 import { useAppStore } from '../../../stores'
 import { PixelButton, PixelBadge, PixelAvatar } from '../../../components'
@@ -435,7 +435,7 @@ import {
   useNodesState, useEdgesState,
   type Node, type Edge, type OnConnect, type OnNodesChange, type OnEdgesChange,
 } from '@xyflow/react'
-import type { AgentId } from '@solocraft/shared'
+import type { AgentId } from '@golemancy/shared'
 import { useAppStore } from '../../../stores'
 import { useParams } from 'react-router'
 import { computeDagreLayout } from './useTopologyLayout'
@@ -646,7 +646,7 @@ packages/ui/src/pages/agent/topology/topology-types.ts
 ```
 
 ```tsx
-import type { AgentId } from '@solocraft/shared'
+import type { AgentId } from '@golemancy/shared'
 
 /** Layout position for a single node, persisted to server */
 export interface TopologyNodePosition {
@@ -672,7 +672,7 @@ Simple REST endpoint for reading/writing the topology layout JSON file.
 
 ```tsx
 import { Hono } from 'hono'
-import type { ProjectId } from '@solocraft/shared'
+import type { ProjectId } from '@golemancy/shared'
 import { logger } from '../logger'
 import { readJson, writeJson } from '../storage/base'
 import { getProjectPath, validateId } from '../utils/paths'
@@ -740,7 +740,7 @@ Note: `createTopologyRoutes()` takes no dependencies — it uses `readJson`/`wri
 ### 4.3 Storage Path
 
 ```
-~/.solocraft/projects/{projectId}/topology-layout.json
+~/.golemancy/projects/{projectId}/topology-layout.json
 ```
 
 Content example:
@@ -848,8 +848,8 @@ topologyLayout: {},
 
 **Install commands**:
 ```bash
-pnpm --filter @solocraft/ui add @xyflow/react @dagrejs/dagre
-pnpm --filter @solocraft/ui add -D @types/dagre
+pnpm --filter @golemancy/ui add @xyflow/react @dagrejs/dagre
+pnpm --filter @golemancy/ui add -D @types/dagre
 ```
 
 **No server-side dependencies** — topology route uses existing `readJson`/`writeJson`.

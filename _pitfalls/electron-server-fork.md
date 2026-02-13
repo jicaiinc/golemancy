@@ -8,7 +8,7 @@
 
 ## 背景
 
-SoloCraft 是 Electron 桌面应用，Server（Hono + SQLite）作为子进程运行。Electron 主进程通过 `child_process.fork()` 启动 Server。
+Golemancy 是 Electron 桌面应用，Server（Hono + SQLite）作为子进程运行。Electron 主进程通过 `child_process.fork()` 启动 Server。
 
 ```
 Electron main process
@@ -45,7 +45,7 @@ fork(serverEntry, [], {
 })
 ```
 
-**问题**：`fork()` 继承 Electron 主进程的 cwd（`apps/desktop/`）。但 `tsx` 是 `@solocraft/server` 的 devDependency，pnpm 只安装在 `packages/server/node_modules/tsx/`。从 `apps/desktop/` 无法解析到 tsx。
+**问题**：`fork()` 继承 Electron 主进程的 cwd（`apps/desktop/`）。但 `tsx` 是 `@golemancy/server` 的 devDependency，pnpm 只安装在 `packages/server/node_modules/tsx/`。从 `apps/desktop/` 无法解析到 tsx。
 
 **报错**：
 ```
@@ -96,15 +96,15 @@ fork(serverEntry, [], {
 
 **问题**：坑 3 的修复用了 `execPath: 'node'`（bare name，依赖 PATH 解析）。在 `pnpm dev` 中没问题（终端 shell 有完整 PATH）。但 Playwright 通过 `_electron.launch()` 启动 Electron 时，macOS GUI 进程不继承 shell PATH，`node` 找不到。
 
-**修复**：E2E fixture 中用 `execSync('which node')` 解析绝对路径，传入 `SOLOCRAFT_FORK_EXEC_PATH` env var：
+**修复**：E2E fixture 中用 `execSync('which node')` 解析绝对路径，传入 `GOLEMANCY_FORK_EXEC_PATH` env var：
 
 ```ts
 // e2e/fixtures/electron.ts
 const nodePath = execSync('which node', { encoding: 'utf-8' }).trim()
-// → 传入 env: { SOLOCRAFT_FORK_EXEC_PATH: nodePath }
+// → 传入 env: { GOLEMANCY_FORK_EXEC_PATH: nodePath }
 
 // apps/desktop/src/main/index.ts
-execPath: app.isPackaged ? process.execPath : (process.env.SOLOCRAFT_FORK_EXEC_PATH || 'node'),
+execPath: app.isPackaged ? process.execPath : (process.env.GOLEMANCY_FORK_EXEC_PATH || 'node'),
 ```
 
 **规则**：E2E 测试启动 Electron 时，不能依赖 PATH 解析，必须传入可执行文件的绝对路径。
@@ -123,10 +123,10 @@ execPath: app.isPackaged ? process.execPath : (process.env.SOLOCRAFT_FORK_EXEC_P
 
 ```ts
 // e2e/fixtures/electron.ts
-// → 传入 env: { SOLOCRAFT_ROOT_DIR: ROOT_DIR }
+// → 传入 env: { GOLEMANCY_ROOT_DIR: ROOT_DIR }
 
 // apps/desktop/src/main/index.ts
-const rootDir = process.env.SOLOCRAFT_ROOT_DIR || join(app.getAppPath(), '../..')
+const rootDir = process.env.GOLEMANCY_ROOT_DIR || join(app.getAppPath(), '../..')
 const serverEntry = app.isPackaged
   ? join(process.resourcesPath, 'server', 'index.js')
   : join(rootDir, 'packages/server/src/index.ts')
@@ -143,7 +143,7 @@ const serverCwd = app.isPackaged
 
 ```ts
 // apps/desktop/src/main/index.ts
-const rootDir = process.env.SOLOCRAFT_ROOT_DIR || join(app.getAppPath(), '../..')
+const rootDir = process.env.GOLEMANCY_ROOT_DIR || join(app.getAppPath(), '../..')
 const serverEntry = app.isPackaged
   ? join(process.resourcesPath, 'server', 'index.js')
   : join(rootDir, 'packages/server/src/index.ts')
@@ -154,7 +154,7 @@ const serverCwd = app.isPackaged
 
 const child = fork(serverEntry, [], {
   env: { ...process.env, PORT: '0' },
-  execPath: app.isPackaged ? process.execPath : (process.env.SOLOCRAFT_FORK_EXEC_PATH || 'node'),
+  execPath: app.isPackaged ? process.execPath : (process.env.GOLEMANCY_FORK_EXEC_PATH || 'node'),
   execArgv: app.isPackaged ? [] : ['--import', 'tsx'],
   cwd: serverCwd,
   stdio: ['pipe', 'pipe', 'pipe', 'ipc'],

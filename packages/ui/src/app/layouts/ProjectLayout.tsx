@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Outlet, useParams, useNavigate } from 'react-router'
-import type { ProjectId } from '@solocraft/shared'
+import type { ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { AppShell } from '../../components/layout'
 

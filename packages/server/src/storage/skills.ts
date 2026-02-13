@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import matter from 'gray-matter'
-import type { Skill, SkillId, ProjectId, SkillCreateData, SkillUpdateData, ISkillService, IAgentService } from '@solocraft/shared'
+import type { Skill, SkillId, ProjectId, SkillCreateData, SkillUpdateData, ISkillService, IAgentService } from '@golemancy/shared'
 import { deleteDir, isNodeError } from './base'
 import { getProjectPath, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'

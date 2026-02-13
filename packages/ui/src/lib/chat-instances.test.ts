@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { ConversationId, ProjectId, AgentId, MessageId, Message } from '@solocraft/shared'
+import type { ConversationId, ProjectId, AgentId, MessageId, Message } from '@golemancy/shared'
 
 // vi.hoisted ensures these are available when vi.mock factories run (hoisted)
 const { mockStop, MockChat, chatConstructorCalls } = vi.hoisted(() => {

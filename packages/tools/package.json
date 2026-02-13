@@ -1,5 +1,5 @@
 {
-  "name": "@solocraft/tools",
+  "name": "@golemancy/tools",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@solocraft/shared": "workspace:*",
+    "@golemancy/shared": "workspace:*",
     "ai": "^6.0.82",
     "playwright-core": "^1.52.0",
     "zod": "^3"

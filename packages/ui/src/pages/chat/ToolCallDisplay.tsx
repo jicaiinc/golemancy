@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAppStore } from '../../stores'
-import type { SubAgentStreamState, SubAgentToolCallState } from '@solocraft/shared'
+import type { SubAgentStreamState, SubAgentToolCallState } from '@golemancy/shared'
 
 interface ToolInvocationBase {
   toolName: string

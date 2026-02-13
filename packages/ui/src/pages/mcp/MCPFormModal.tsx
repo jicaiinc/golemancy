@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { MCPTransportType, MCPServerConfig } from '@solocraft/shared'
+import type { MCPTransportType, MCPServerConfig } from '@golemancy/shared'
 import { PixelButton, PixelInput, PixelTextArea, PixelModal } from '../../components'
 
 interface MCPFormModalProps {

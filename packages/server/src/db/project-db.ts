@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import type { ProjectId } from '@solocraft/shared'
+import type { ProjectId } from '@golemancy/shared'
 import { createDatabase, type AppDatabase } from './client'
 import { migrateDatabase } from './migrate'
 import { getProjectDbPath } from '../utils/paths'

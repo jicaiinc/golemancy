@@ -10,7 +10,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import './topology.css'
 
-import type { AgentId, ProjectId } from '@solocraft/shared'
+import type { AgentId, ProjectId } from '@golemancy/shared'
 import { useNavigate, useParams } from 'react-router'
 import { useAppStore } from '../../../stores'
 import { AgentNode } from './AgentNode'

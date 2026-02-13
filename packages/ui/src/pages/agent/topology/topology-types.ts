@@ -1,4 +1,4 @@
-import type { AgentId } from '@solocraft/shared'
+import type { AgentId } from '@golemancy/shared'
 
 /** Layout position for a single node, persisted to server */
 export interface TopologyNodePosition {

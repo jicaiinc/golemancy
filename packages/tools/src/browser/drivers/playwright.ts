@@ -371,7 +371,7 @@ export class PlaywrightDriver implements BrowserDriver {
     if (!/^e\d+$/.test(ref)) {
       throw new Error(`Invalid element ref "${ref}". Expected format: e0, e1, e2, ...`)
     }
-    return page.locator(`[data-solocraft-ref="${ref}"]`)
+    return page.locator(`[data-golemancy-ref="${ref}"]`)
   }
 
   private timeout(): number {

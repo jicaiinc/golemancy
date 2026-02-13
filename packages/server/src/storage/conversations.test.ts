@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { createTestDb } from '../test/helpers'
 import { SqliteConversationStorage } from './conversations'
 import type { AppDatabase } from '../db/client'
-import type { ProjectId, AgentId, ConversationId, MessageId } from '@solocraft/shared'
+import type { ProjectId, AgentId, ConversationId, MessageId } from '@golemancy/shared'
 
 describe('SqliteConversationStorage', () => {
   let db: AppDatabase

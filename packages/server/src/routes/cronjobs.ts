@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ProjectId, CronJobId, ICronJobService } from '@solocraft/shared'
+import type { ProjectId, CronJobId, ICronJobService } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:cronjobs' })

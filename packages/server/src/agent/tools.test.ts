@@ -14,7 +14,7 @@ import { loadAgentTools } from './tools'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
-import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, MCPServerConfig } from '@solocraft/shared'
+import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, MCPServerConfig } from '@golemancy/shared'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
   return {

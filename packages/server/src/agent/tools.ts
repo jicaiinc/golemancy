@@ -1,5 +1,5 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, ProjectId, IMCPService } from '@solocraft/shared'
+import type { Agent, GlobalSettings, ProjectId, IMCPService } from '@golemancy/shared'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'

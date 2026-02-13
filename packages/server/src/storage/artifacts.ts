@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import type { Artifact, ArtifactId, ProjectId, AgentId, IArtifactService } from '@solocraft/shared'
+import type { Artifact, ArtifactId, ProjectId, AgentId, IArtifactService } from '@golemancy/shared'
 import { readJson, writeJson, deleteFile, isNodeError } from './base'
 import { getProjectPath, validateId, validateFilePath } from '../utils/paths'
 import { logger } from '../logger'

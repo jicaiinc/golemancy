@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, TaskId, ITaskService } from '@solocraft/shared'
+import type { ProjectId, AgentId, TaskId, ITaskService } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:tasks' })

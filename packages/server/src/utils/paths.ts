@@ -1,7 +1,7 @@
 import os from 'node:os'
 import path from 'node:path'
 
-const DATA_DIR = process.env.SOLOCRAFT_DATA_DIR ?? path.join(os.homedir(), '.solocraft')
+const DATA_DIR = process.env.GOLEMANCY_DATA_DIR ?? path.join(os.homedir(), '.golemancy')
 
 const ID_PATTERN = /^[a-z]+-[A-Za-z0-9_-]+$/
 

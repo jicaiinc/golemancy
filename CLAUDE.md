@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-SoloCraft — AI Agent orchestration platform. Electron desktop app with pixel art (Minecraft) aesthetic, dark theme only. Language convention: Chinese for discussions/docs, English for code.
+Golemancy — AI Agent orchestration platform. Electron desktop app with pixel art (Minecraft) aesthetic, dark theme only. Language convention: Chinese for discussions/docs, English for code.
 
 ## Commands
 
@@ -22,26 +22,26 @@ pnpm lint
 pnpm test
 
 # Run tests in a single package
-pnpm --filter @solocraft/ui test
-pnpm --filter @solocraft/server test
+pnpm --filter @golemancy/ui test
+pnpm --filter @golemancy/server test
 
 # Run a single test file
-pnpm --filter @solocraft/ui exec vitest run src/components/base/PixelButton.test.tsx
+pnpm --filter @golemancy/ui exec vitest run src/components/base/PixelButton.test.tsx
 
 # Run tests in watch mode
-pnpm --filter @solocraft/ui exec vitest src/components/base/PixelButton.test.tsx
+pnpm --filter @golemancy/ui exec vitest src/components/base/PixelButton.test.tsx
 
 # Run server standalone (outside Electron)
-pnpm --filter @solocraft/server dev
+pnpm --filter @golemancy/server dev
 ```
 
 ## Monorepo Structure
 
 ```
-apps/desktop/      @solocraft/desktop  — Electron shell, forks server as child process
-packages/ui/       @solocraft/ui       — React UI, business logic, store, services
-packages/server/   @solocraft/server   — Hono HTTP server, SQLite, AI agent runtime
-packages/shared/   @solocraft/shared   — Pure TypeScript types + service interfaces (zero runtime)
+apps/desktop/      @golemancy/desktop  — Electron shell, forks server as child process
+packages/ui/       @golemancy/ui       — React UI, business logic, store, services
+packages/server/   @golemancy/server   — Hono HTTP server, SQLite, AI agent runtime
+packages/shared/   @golemancy/shared   — Pure TypeScript types + service interfaces (zero runtime)
 ```
 
 Strict one-way dependency: `desktop → ui → shared ← server`
@@ -144,19 +144,19 @@ E2E tests use Playwright in `apps/desktop/e2e/` with 3 tiers:
 
 ```bash
 # E2E: smoke + server tests (no API keys needed)
-pnpm --filter @solocraft/desktop test:e2e
+pnpm --filter @golemancy/desktop test:e2e
 
 # E2E: all tiers including AI tests (needs API keys)
-pnpm --filter @solocraft/desktop test:e2e:ai
+pnpm --filter @golemancy/desktop test:e2e:ai
 
 # E2E: smoke only (fastest)
-pnpm --filter @solocraft/desktop test:e2e:smoke
+pnpm --filter @golemancy/desktop test:e2e:smoke
 
 # E2E: skip rebuild, run tests only
-pnpm --filter @solocraft/desktop test:e2e:only
+pnpm --filter @golemancy/desktop test:e2e:only
 ```
 
-E2E pitfalls: macOS GUI processes don't inherit shell PATH → use `SOLOCRAFT_FORK_EXEC_PATH` env var; `app.getAppPath()` returns `out/main/` in Playwright → use `SOLOCRAFT_ROOT_DIR` env var. Store exposed as `window.__SOLOCRAFT_STORE__` for test access (non-production only).
+E2E pitfalls: macOS GUI processes don't inherit shell PATH → use `GOLEMANCY_FORK_EXEC_PATH` env var; `app.getAppPath()` returns `out/main/` in Playwright → use `GOLEMANCY_ROOT_DIR` env var. Store exposed as `window.__GOLEMANCY_STORE__` for test access (non-production only).
 
 ## Team
 

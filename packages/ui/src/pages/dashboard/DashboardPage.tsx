@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { motion } from 'motion/react'
-import type { AgentStatus, TaskStatus } from '@solocraft/shared'
+import type { AgentStatus, TaskStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import {
   PixelCard, PixelBadge, PixelSpinner, PixelTabs,

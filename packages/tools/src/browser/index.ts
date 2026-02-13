@@ -2,7 +2,7 @@
 // Browser tools — public API
 //
 // Usage:
-//   import { createBrowserTools } from '@solocraft/tools/browser'
+//   import { createBrowserTools } from '@golemancy/tools/browser'
 //   const { tools, cleanup } = createBrowserTools({ driver: 'playwright' })
 // ---------------------------------------------------------------------------
 

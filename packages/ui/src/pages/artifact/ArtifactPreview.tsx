@@ -1,4 +1,4 @@
-import type { Artifact, ArtifactType } from '@solocraft/shared'
+import type { Artifact, ArtifactType } from '@golemancy/shared'
 
 interface ArtifactPreviewProps {
   artifact: Artifact

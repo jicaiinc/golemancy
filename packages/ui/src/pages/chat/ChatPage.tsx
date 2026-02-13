@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
-import type { AgentId, ConversationId } from '@solocraft/shared'
+import type { AgentId, ConversationId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelSpinner } from '../../components'

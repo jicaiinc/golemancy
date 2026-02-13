@@ -19,7 +19,7 @@ vi.mock('@ai-sdk/mcp/mcp-stdio', () => ({
 }))
 
 import { loadAgentMcpTools } from './mcp'
-import type { MCPServerConfig } from '@solocraft/shared'
+import type { MCPServerConfig } from '@golemancy/shared'
 
 function makeServer(overrides: Partial<MCPServerConfig> = {}): MCPServerConfig {
   return {

@@ -3,8 +3,8 @@ import type {
   ActivityEntry, CronJob, Skill, MCPServerConfig,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
   CronJobId,
-} from '@solocraft/shared'
-import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@solocraft/shared'
+} from '@golemancy/shared'
+import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 
 const now = new Date().toISOString()
 const hourAgo = new Date(Date.now() - 3600_000).toISOString()
@@ -342,7 +342,7 @@ export const SEED_SETTINGS: GlobalSettings = {
   theme: 'dark',
   userProfile: {
     name: 'Solo Crafter',
-    email: 'crafter@solocraft.dev',
+    email: 'crafter@golemancy.dev',
   },
   defaultWorkingDirectoryBase: '~/projects',
 }

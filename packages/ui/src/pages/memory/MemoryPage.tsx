@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'motion/react'
-import type { MemoryEntry } from '@solocraft/shared'
+import type { MemoryEntry } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {

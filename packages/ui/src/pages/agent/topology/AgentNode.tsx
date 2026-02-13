@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
-import type { AgentId, AgentStatus } from '@solocraft/shared'
+import type { AgentId, AgentStatus } from '@golemancy/shared'
 import { PixelAvatar, PixelBadge } from '../../../components'
 
 export interface AgentNodeData extends Record<string, unknown> {

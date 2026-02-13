@@ -10,12 +10,12 @@
 
 ### 背景
 
-SoloCraft 当前采用**单一 agent server** 架构：Electron 主进程 fork 一个 server 子进程，所有项目共享这一个 server 实例。
+Golemancy 当前采用**单一 agent server** 架构：Electron 主进程 fork 一个 server 子进程，所有项目共享这一个 server 实例。
 
 #### 当前数据存储拓扑
 
 ```
-~/.solocraft/
+~/.golemancy/
 ├── data.db                          ← 共享 SQLite（conversations, messages, task_logs）
 ├── settings.json                    ← 全局设置
 └── projects/
@@ -174,7 +174,7 @@ Electron Main Process
 
 **强烈建议维持单一 Server**，原因：
 
-1. **产品定位决定** — SoloCraft 是"个人开发者的 AI Agent 编排工具"，强调简洁和趣味性。多 server 的复杂性违背产品调性
+1. **产品定位决定** — Golemancy 是"个人开发者的 AI Agent 编排工具"，强调简洁和趣味性。多 server 的复杂性违背产品调性
 2. **用户场景决定** — 绝大多数使用场景不需要项目级进程隔离
 3. **跨项目功能决定** — Dashboard 和全局搜索是核心功能需求，多 server 架构会让这些功能变得极其困难
 4. **桌面应用约束** — 用户对内存和电池消耗敏感
@@ -362,7 +362,7 @@ const serverUrl = getServerUrl() // http://127.0.0.1:{port}
 
 | 应用 | 架构 | 说明 |
 |------|------|------|
-| VS Code | 单 Extension Host 进程 | 所有工作区共享，与 SoloCraft 场景类似 |
+| VS Code | 单 Extension Host 进程 | 所有工作区共享，与 Golemancy 场景类似 |
 | Figma (Desktop) | 单进程 | 所有文件在一个进程中编辑 |
 | Obsidian | 单进程 | 多 vault 通过目录隔离，进程共享 |
 | Claude Code (Anthropic) | 单进程 | 一个 CLI 进程处理一个会话 |

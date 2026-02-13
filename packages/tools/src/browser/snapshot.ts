@@ -3,7 +3,7 @@
 //
 // Two key exports:
 // 1. SNAPSHOT_SCRIPT — JavaScript to evaluate in the browser page context.
-//    It walks the DOM, assigns `data-solocraft-ref` attributes to interactive
+//    It walks the DOM, assigns `data-golemancy-ref` attributes to interactive
 //    elements, and returns a structured tree.
 // 2. formatSnapshotText() — Converts the tree into a compact text format
 //    that LLMs can reason about efficiently.
@@ -24,7 +24,7 @@ export type { SnapshotElement } from './driver'
  * Returns a JSON-serializable tree of SnapshotElement[].
  *
  * The script:
- * 1. Removes old `data-solocraft-ref` attributes
+ * 1. Removes old `data-golemancy-ref` attributes
  * 2. Walks the DOM tree
  * 3. Assigns refs (e0, e1, …) to interactive or landmark elements
  * 4. Returns the tree structure
@@ -32,8 +32,8 @@ export type { SnapshotElement } from './driver'
 export const SNAPSHOT_SCRIPT = /* js */ `
 (() => {
   // Clean up previous refs
-  document.querySelectorAll('[data-solocraft-ref]').forEach(el => {
-    el.removeAttribute('data-solocraft-ref');
+  document.querySelectorAll('[data-golemancy-ref]').forEach(el => {
+    el.removeAttribute('data-golemancy-ref');
   });
 
   let refCounter = 0;
@@ -191,7 +191,7 @@ export const SNAPSHOT_SCRIPT = /* js */ `
     // Assign ref to interactive elements
     if (interactive) {
       const ref = 'e' + (refCounter++);
-      el.setAttribute('data-solocraft-ref', ref);
+      el.setAttribute('data-golemancy-ref', ref);
       node.ref = ref;
     }
 

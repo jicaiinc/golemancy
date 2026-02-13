@@ -4,7 +4,7 @@
 
 ## 1. SQLite Schema (Drizzle ORM)
 
-SQLite stores **only** high-volume, query-intensive data. Single file: `~/.solocraft/data.db`.
+SQLite stores **only** high-volume, query-intensive data. Single file: `~/.golemancy/data.db`.
 
 ### 1.1 Tables
 
@@ -159,7 +159,7 @@ Hono app with route groups per domain. Each row maps to a service interface meth
 | POST | `/projects/:projectId/conversations` | `create(projectId, agentId, title)` | SQLite: insert `conversations` |
 | DELETE | `/projects/:projectId/conversations/:id` | `delete(projectId, id)` | SQLite: delete (cascade deletes messages) |
 
-**Messages** (sub-resource, paginated — uses `PaginatedResult<Message>` from `@solocraft/shared`):
+**Messages** (sub-resource, paginated — uses `PaginatedResult<Message>` from `@golemancy/shared`):
 
 | Method | Path | Notes |
 |--------|------|-------|
@@ -726,7 +726,7 @@ User clicks "Cancel"
 ### 5.1 Directory Structure
 
 ```
-~/.solocraft/                              # Electron app.getPath('userData') or XDG
+~/.golemancy/                              # Electron app.getPath('userData') or XDG
 ├── settings.json                          # GlobalSettings
 ├── data.db                                # SQLite (conversations, messages, task_logs)
 └── projects/
@@ -861,7 +861,7 @@ The actual content lives in `artifacts/art-1.md` alongside the `.meta.json`.
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-const DATA_DIR = process.env.SOLOCRAFT_DATA_DIR ?? path.join(os.homedir(), '.solocraft')
+const DATA_DIR = process.env.GOLEMANCY_DATA_DIR ?? path.join(os.homedir(), '.golemancy')
 
 export function getDataDir(): string { return DATA_DIR }
 export function getProjectPath(projectId: string): string {
@@ -964,9 +964,9 @@ packages/server/
 
 ```json
 {
-  "name": "@solocraft/server",
+  "name": "@golemancy/server",
   "dependencies": {
-    "@solocraft/shared": "workspace:*",
+    "@golemancy/shared": "workspace:*",
     "hono": "^4",
     "@hono/node-server": "^1",
     "@hono/node-ws": "^1",
@@ -994,14 +994,14 @@ packages/server/
 ### 6.2 Dependency Graph
 
 ```
-@solocraft/desktop
-  ├── @solocraft/ui (renderer)
-  │     └── @solocraft/shared (types)
-  └── @solocraft/server (fork'd from main process)
-        └── @solocraft/shared (types)
+@golemancy/desktop
+  ├── @golemancy/ui (renderer)
+  │     └── @golemancy/shared (types)
+  └── @golemancy/server (fork'd from main process)
+        └── @golemancy/shared (types)
 ```
 
-`@solocraft/server` depends on `@solocraft/shared` for type definitions (branded IDs, entity types). It does NOT depend on `@solocraft/ui`. The UI depends on server only at runtime via HTTP/WebSocket — no compile-time dependency.
+`@golemancy/server` depends on `@golemancy/shared` for type definitions (branded IDs, entity types). It does NOT depend on `@golemancy/ui`. The UI depends on server only at runtime via HTTP/WebSocket — no compile-time dependency.
 
 ### 6.3 Build Configuration
 
@@ -1268,23 +1268,23 @@ AFTER:
   packages/shared/src/services/interfaces.ts  ← 8 interfaces moved here
   packages/shared/src/services/index.ts        ← re-export
 
-  packages/ui/ imports from @solocraft/shared   ✓ (already a dependency)
-  packages/server/ imports from @solocraft/shared ✓ (already a dependency)
+  packages/ui/ imports from @golemancy/shared   ✓ (already a dependency)
+  packages/server/ imports from @golemancy/shared ✓ (already a dependency)
 ```
 
 Updated dependency graph:
 
 ```
-@solocraft/shared (types + service interfaces)
+@golemancy/shared (types + service interfaces)
   ↑               ↑
   │               │
-@solocraft/ui    @solocraft/server
+@golemancy/ui    @golemancy/server
   (renderer)       (backend)
 ```
 
 **What moves**:
 - `IProjectService`, `IAgentService`, `IConversationService`, `ITaskService`, `IArtifactService`, `IMemoryService`, `ISettingsService`, `IDashboardService`
-- Their import of entity types already comes from `@solocraft/shared`, so no transitive dependency issues
+- Their import of entity types already comes from `@golemancy/shared`, so no transitive dependency issues
 
 **What stays in `packages/ui/`**:
 - `ServiceContainer` type, `getServices()`, `configureServices()`, `useServices()` — these are UI-specific DI
@@ -1295,7 +1295,7 @@ The UI uses a module-level container (`getServices()`/`configureServices()`) bec
 
 ```typescript
 // packages/server/src/app.ts
-import type { IProjectService, IAgentService /* ... */ } from '@solocraft/shared'
+import type { IProjectService, IAgentService /* ... */ } from '@golemancy/shared'
 
 export interface ServerDependencies {
   db: DrizzleDatabase

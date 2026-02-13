@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ProjectId, SkillId, ISkillService, IAgentService } from '@solocraft/shared'
+import type { ProjectId, SkillId, ISkillService, IAgentService } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:skills' })

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises'
 import { sql } from 'drizzle-orm'
 import { createTestDb, createTmpDir } from '../test/helpers'
 import type { AppDatabase } from '../db/client'
-import type { ProjectId, AgentId, TaskId, Task } from '@solocraft/shared'
+import type { ProjectId, AgentId, TaskId, Task } from '@golemancy/shared'
 
 const state = vi.hoisted(() => ({ tmpDir: '' }))
 

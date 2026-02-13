@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile, ProjectId, IMCPService } from '@solocraft/shared'
+import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile, ProjectId, IMCPService } from '@golemancy/shared'
 import { readJson, writeJson } from './base'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, IMCPService, IAgentService, MCPServerConfig, Agent } from '@solocraft/shared'
+import type { ProjectId, AgentId, IMCPService, IAgentService, MCPServerConfig, Agent } from '@golemancy/shared'
 import { createMCPRoutes } from './mcp'
 
 const projId = 'proj-1' as ProjectId

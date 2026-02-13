@@ -3,7 +3,7 @@ import {
   useNodesState, useEdgesState,
   type Node, type Edge, type OnConnect,
 } from '@xyflow/react'
-import type { AgentId, ProjectId } from '@solocraft/shared'
+import type { AgentId, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../../stores'
 import { useParams } from 'react-router'
 import { computeDagreLayout } from './useTopologyLayout'

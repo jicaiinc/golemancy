@@ -319,7 +319,7 @@ Main process sends project ID via `webContents.send()` after window loads. More 
 | Aspect | Behavior | Sync Needed? |
 |--------|----------|-------------|
 | Projects, Agents, etc. | Fetched from HTTP server | No (server is source of truth) |
-| Theme, Sidebar | localStorage (`solocraft-prefs`) | Auto-sync (same localStorage) |
+| Theme, Sidebar | localStorage (`golemancy-prefs`) | Auto-sync (same localStorage) |
 | Chat instances | Per-window `Map<ConversationId, Chat>` | No (each window has own sessions) |
 | Streaming state | Per-window (React state) | No |
 
@@ -510,7 +510,7 @@ execute: async ({ command: originalCommand }) => {
 - But the currently executing bash command will run to completion
 - After it finishes, `streamText` won't request more steps (abort is checked between steps)
 
-**Future mitigation** (noted in `skills.ts` line 26-30 comments): SoloCraft plans to implement a custom Sandbox using `child_process` that can be killed via `process.kill()`. When that happens, `abortSignal` should be wired to kill the child process.
+**Future mitigation** (noted in `skills.ts` line 26-30 comments): Golemancy plans to implement a custom Sandbox using `child_process` that can be killed via `process.kill()`. When that happens, `abortSignal` should be wired to kill the child process.
 
 #### File: `packages/server/src/agent/builtin-tools.ts` — **DOES NOT CHECK `abortSignal`**
 

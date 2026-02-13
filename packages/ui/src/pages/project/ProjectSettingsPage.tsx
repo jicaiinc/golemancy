@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import type { AIProvider, AgentId, ProjectConfig } from '@solocraft/shared'
+import type { AIProvider, AgentId, ProjectConfig } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs } from '../../components'

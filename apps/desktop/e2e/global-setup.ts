@@ -32,7 +32,7 @@ export default async function globalSetup() {
   const envVars = parseEnvFile(envLocalPath)
 
   // Create temp data directory
-  const testDataDir = path.join(os.tmpdir(), `solocraft-e2e-${process.pid}`)
+  const testDataDir = path.join(os.tmpdir(), `golemancy-e2e-${process.pid}`)
   fs.mkdirSync(testDataDir, { recursive: true })
 
   // Seed settings.json matching FileSettingsStorage format (GlobalSettings)
@@ -81,7 +81,7 @@ export default async function globalSetup() {
   )
 
   // Store path in env for tests to use
-  process.env.SOLOCRAFT_TEST_DATA_DIR = testDataDir
+  process.env.GOLEMANCY_TEST_DATA_DIR = testDataDir
 
   console.log(`[e2e] Test data dir: ${testDataDir}`)
   console.log(`[e2e] Providers configured: ${providers.map((p) => p.provider).join(', ') || 'none'}`)

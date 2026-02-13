@@ -6,7 +6,7 @@ import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   IArtifactService, IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
   IMCPService,
-} from '@solocraft/shared'
+} from '@golemancy/shared'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'

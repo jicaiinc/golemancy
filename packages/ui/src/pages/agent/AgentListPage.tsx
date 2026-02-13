@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { motion } from 'motion/react'
-import type { AgentStatus } from '@solocraft/shared'
+import type { AgentStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelSpinner } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'

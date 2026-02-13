@@ -14,9 +14,9 @@ function startServer(): Promise<number> {
   return new Promise((resolve, reject) => {
     // C5: Use correct path for dev vs production
     // app.getAppPath() → apps/desktop/ in dev, so ../../ reaches monorepo root.
-    // SOLOCRAFT_ROOT_DIR is set by E2E tests because app.getAppPath() returns
+    // GOLEMANCY_ROOT_DIR is set by E2E tests because app.getAppPath() returns
     // out/main/ when Playwright launches the built JS directly.
-    const rootDir = process.env.SOLOCRAFT_ROOT_DIR || join(app.getAppPath(), '../..')
+    const rootDir = process.env.GOLEMANCY_ROOT_DIR || join(app.getAppPath(), '../..')
     const serverEntry = app.isPackaged
       ? join(process.resourcesPath, 'server', 'index.js')
       : join(rootDir, 'packages/server/src/index.ts')
@@ -26,9 +26,9 @@ function startServer(): Promise<number> {
     const child = fork(serverEntry, [], {
       env: { ...process.env, PORT: '0' },
       // Dev: use system node (Electron's embedded Node has different ABI for native modules)
-      // SOLOCRAFT_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
+      // GOLEMANCY_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
       // (GUI apps on macOS don't inherit shell PATH, so bare 'node' may fail).
-      execPath: app.isPackaged ? process.execPath : (process.env.SOLOCRAFT_FORK_EXEC_PATH || 'node'),
+      execPath: app.isPackaged ? process.execPath : (process.env.GOLEMANCY_FORK_EXEC_PATH || 'node'),
       execArgv: app.isPackaged ? [] : ['--import', 'tsx'],
       cwd: serverCwd,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
@@ -80,7 +80,7 @@ function stopServer(): Promise<void> {
 }
 
 function getIconPath(): string {
-  const rootDir = process.env.SOLOCRAFT_ROOT_DIR || join(app.getAppPath(), '../..')
+  const rootDir = process.env.GOLEMANCY_ROOT_DIR || join(app.getAppPath(), '../..')
   return join(rootDir, 'apps/desktop/resources/build/icons/png/512x512.png')
 }
 
@@ -93,8 +93,8 @@ function showAbout(): void {
   dialog.showMessageBox({
     type: 'none',
     icon: icon.isEmpty() ? undefined : icon,
-    title: 'About SoloCraft',
-    message: 'SoloCraft',
+    title: 'About Golemancy',
+    message: 'Golemancy',
     detail: `Version ${APP_VERSION}\nAI Agent Orchestrator for Solo Creators`,
     buttons: ['OK'],
   })
@@ -103,17 +103,17 @@ function showAbout(): void {
 function buildAppMenu(): void {
   const template: Electron.MenuItemConstructorOptions[] = [
     {
-      label: 'SoloCraft',
+      label: 'Golemancy',
       submenu: [
-        { label: 'About SoloCraft', click: showAbout },
+        { label: 'About Golemancy', click: showAbout },
         { type: 'separator' },
         { role: 'services' },
         { type: 'separator' },
-        { label: 'Hide SoloCraft', role: 'hide' },
+        { label: 'Hide Golemancy', role: 'hide' },
         { role: 'hideOthers' },
         { role: 'unhide' },
         { type: 'separator' },
-        { label: 'Quit SoloCraft', role: 'quit' },
+        { label: 'Quit Golemancy', role: 'quit' },
       ],
     },
     {
@@ -182,10 +182,10 @@ function createWindow(options?: { projectId?: string }): void {
   }
 }
 
-app.name = 'SoloCraft'
+app.name = 'Golemancy'
 
 app.whenReady().then(async () => {
-  // Build custom menu (replaces default Electron menu, shows "SoloCraft" in menu bar)
+  // Build custom menu (replaces default Electron menu, shows "Golemancy" in menu bar)
   buildAppMenu()
 
   // Set dock icon on macOS

@@ -23,7 +23,7 @@ const log = logger.child({ component: 'agent:skills' })
  *
  * NOTE: bash-tool currently uses just-bash (TypeScript-based bash interpreter with
  * in-memory filesystem), which cannot run real Python or Node.js code.
- * Since SoloCraft is an Electron desktop app, we plan to implement a custom
+ * Since Golemancy is an Electron desktop app, we plan to implement a custom
  * Sandbox (conforming to bash-tool's Sandbox interface) that leverages
  * Electron's child_process to execute scripts on the host machine's real shell.
  * This will enable full Python, Node.js, and native binary support for skill
@@ -40,7 +40,7 @@ export async function loadAgentSkillTools(
   // 1. Create temp directory with symlinks for per-agent filtering.
   //    createSkillTool scans a directory to discover skills, so we create
   //    a filtered view containing only the agent's assigned skills.
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'solocraft-skills-'))
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'golemancy-skills-'))
   const cleanup = () => fs.rm(tempDir, { recursive: true, force: true }).catch(() => {})
 
   let linkedCount = 0

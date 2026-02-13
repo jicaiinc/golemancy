@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import type { ProjectId, AgentId, ConversationId } from '@solocraft/shared'
+import type { ProjectId, AgentId, ConversationId } from '@golemancy/shared'
 import {
   MockProjectService,
   MockAgentService,

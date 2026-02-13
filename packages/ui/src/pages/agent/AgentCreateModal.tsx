@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import type { AIProvider } from '@solocraft/shared'
+import type { AIProvider } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../components'
 

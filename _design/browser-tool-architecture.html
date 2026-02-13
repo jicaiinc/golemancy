@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SoloCraft Browser Tool - Architecture</title>
+<title>Golemancy Browser Tool - Architecture</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -399,7 +399,7 @@
 </head>
 <body>
 
-<h1>SoloCraft Browser Tool <span>/ Architecture Design</span></h1>
+<h1>Golemancy Browser Tool <span>/ Architecture Design</span></h1>
 <p class="subtitle">浏览器工具分层架构 · Playwright + Extension 双驱动 · 工具共享设计</p>
 
 <!-- ===================================================================== -->
@@ -527,7 +527,7 @@
         <div style="display:flex;flex-direction:column;gap:8px">
           <div class="box box-dim">WebSocket Server</div>
           <div class="box box-dim" style="margin-left:12px">↓ WS</div>
-          <div class="box box-pink">SoloCraft Extension <span class="tag">独立项目</span></div>
+          <div class="box box-pink">Golemancy Extension <span class="tag">独立项目</span></div>
           <div class="box box-dim" style="margin-left:12px">↓ DOM API</div>
           <div class="box box-dim" style="margin-left:12px">用户的浏览器页面</div>
         </div>
@@ -715,8 +715,8 @@
 
 <div class="tree-container">
 <div class="tree"><span class="existing">apps/</span>
-<span class="existing">├── desktop/                          </span><span class="comment"># @solocraft/desktop  （已有）</span>
-<span class="new">├── extension/                        </span><span class="comment"># @solocraft/extension （🆕 未来 - 浏览器插件）</span>
+<span class="existing">├── desktop/                          </span><span class="comment"># @golemancy/desktop  （已有）</span>
+<span class="new">├── extension/                        </span><span class="comment"># @golemancy/extension （🆕 未来 - 浏览器插件）</span>
 <span class="new">│   ├── manifest.json                 </span><span class="comment"># Chrome Extension Manifest V3</span>
 <span class="new">│   ├── src/</span>
 <span class="new">│   │   ├── background/</span>
@@ -731,15 +731,15 @@
 <span class="new">│   └── package.json</span>
 
 <span class="existing">packages/</span>
-<span class="existing">├── shared/                           </span><span class="comment"># @solocraft/shared   （已有 - 零运行时类型）</span>
-<span class="existing">├── server/                           </span><span class="comment"># @solocraft/server   （已有 - 改 1 个文件）</span>
+<span class="existing">├── shared/                           </span><span class="comment"># @golemancy/shared   （已有 - 零运行时类型）</span>
+<span class="existing">├── server/                           </span><span class="comment"># @golemancy/server   （已有 - 改 1 个文件）</span>
 <span class="existing">│   └── src/agent/</span>
 <span class="existing">│       ├── builtin-tools.ts          </span><span class="comment"># ← 加 browser 分支，调用 createBrowserTools()</span>
 <span class="existing">│       ├── tools.ts                  </span><span class="comment"># ← 无需改动</span>
 <span class="existing">│       └── runtime.ts                </span><span class="comment"># ← 无需改动</span>
-<span class="existing">├── ui/                               </span><span class="comment"># @solocraft/ui       （已有）</span>
+<span class="existing">├── ui/                               </span><span class="comment"># @golemancy/ui       （已有）</span>
 
-<span class="new">└── tools/                            </span><span class="comment"># @solocraft/tools    （🆕 工具运行时包）</span>
+<span class="new">└── tools/                            </span><span class="comment"># @golemancy/tools    （🆕 工具运行时包）</span>
 <span class="new">    ├── package.json</span>
 <span class="new">    ├── tsconfig.json</span>
 <span class="new">    ├── vitest.config.ts</span>
@@ -773,17 +773,17 @@
 <h2>五、包依赖关系</h2>
 
 <div class="dep-arrow">
-  <span class="pkg pkg-blue">@solocraft/desktop</span>
+  <span class="pkg pkg-blue">@golemancy/desktop</span>
   <span class="arr">→</span>
-  <span class="pkg pkg-blue">@solocraft/ui</span>
+  <span class="pkg pkg-blue">@golemancy/ui</span>
   <span class="arr">→</span>
-  <span class="pkg pkg-purple">@solocraft/shared</span>
+  <span class="pkg pkg-purple">@golemancy/shared</span>
   <span class="arr">←</span>
-  <span class="pkg pkg-blue">@solocraft/server</span>
+  <span class="pkg pkg-blue">@golemancy/server</span>
   <span class="arr">→</span>
-  <span class="pkg pkg-green">@solocraft/tools</span>
+  <span class="pkg pkg-green">@golemancy/tools</span>
   <span class="arr">→</span>
-  <span class="pkg pkg-purple">@solocraft/shared</span>
+  <span class="pkg pkg-purple">@golemancy/shared</span>
 </div>
 
 <div style="font-size:12px;color:var(--text-dim);margin:-8px 0 32px 0">

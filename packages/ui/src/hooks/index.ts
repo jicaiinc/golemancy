@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { AgentModelConfig, GlobalSettings, ProjectConfig } from '@solocraft/shared'
+import type { AgentModelConfig, GlobalSettings, ProjectConfig } from '@golemancy/shared'
 import { useAppStore } from '../stores'
 import { useServiceContext } from '../services'
 

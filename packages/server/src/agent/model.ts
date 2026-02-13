@@ -1,5 +1,5 @@
 import type { LanguageModel } from 'ai'
-import type { GlobalSettings, AgentModelConfig } from '@solocraft/shared'
+import type { GlobalSettings, AgentModelConfig } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:model' })

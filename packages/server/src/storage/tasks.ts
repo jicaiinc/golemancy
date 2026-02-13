@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Task, TaskId, ProjectId, AgentId, TaskLogEntry, ITaskService } from '@solocraft/shared'
+import type { Task, TaskId, ProjectId, AgentId, TaskLogEntry, ITaskService } from '@golemancy/shared'
 import { eq, sql, inArray } from 'drizzle-orm'
 import type { AppDatabase } from '../db/client'
 import * as schema from '../db/schema'

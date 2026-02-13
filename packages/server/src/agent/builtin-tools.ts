@@ -1,7 +1,7 @@
 import { createBashTool } from 'bash-tool'
 import type { ToolSet } from 'ai'
-import type { BuiltinToolConfig } from '@solocraft/shared'
-import { createBrowserTools, type BrowserToolsConfig } from '@solocraft/tools/browser'
+import type { BuiltinToolConfig } from '@golemancy/shared'
+import { createBrowserTools, type BrowserToolsConfig } from '@golemancy/tools/browser'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:builtin-tools' })

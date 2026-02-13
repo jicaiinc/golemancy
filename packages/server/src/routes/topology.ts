@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ProjectId } from '@solocraft/shared'
+import type { ProjectId } from '@golemancy/shared'
 import { logger } from '../logger'
 import { readJson, writeJson } from '../storage/base'
 import { getProjectPath, validateId } from '../utils/paths'

@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ProjectId, IMCPService, IAgentService, MCPServerUpdateData } from '@solocraft/shared'
+import type { ProjectId, IMCPService, IAgentService, MCPServerUpdateData } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:mcp' })

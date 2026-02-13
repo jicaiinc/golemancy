@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
-import type { Agent, Conversation, ConversationId } from '@solocraft/shared'
+import type { Agent, Conversation, ConversationId } from '@golemancy/shared'
 import { PixelButton } from '../../components'
 
 interface ChatSidebarProps {

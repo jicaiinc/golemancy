@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useAppStore } from './useAppStore'
 import { configureServices } from '../services/container'
 import type { ServiceContainer } from '../services/container'
-import type { ProjectId, AgentId, ConversationId, CronJobId } from '@solocraft/shared'
+import type { ProjectId, AgentId, ConversationId, CronJobId } from '@golemancy/shared'
 
 // Mock chat-instances to verify store calls destroyChat/destroyAllChats
 vi.mock('../lib/chat-instances', () => ({

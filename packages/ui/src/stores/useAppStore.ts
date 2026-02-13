@@ -7,8 +7,8 @@ import type {
   ThemeMode,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
   SkillCreateData, SkillUpdateData,
-} from '@solocraft/shared'
-import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@solocraft/shared'
+} from '@golemancy/shared'
+import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import { getServices } from '../services'
 import { fetchJson, getBaseUrl } from '../services/http/base'
 import { destroyChat, destroyAllChats } from '../lib/chat-instances'
@@ -694,7 +694,7 @@ export const useAppStore = create<AppState>()(
       },
     }),
     {
-      name: 'solocraft-prefs',
+      name: 'golemancy-prefs',
       partialize: (state) => ({
         sidebarCollapsed: state.sidebarCollapsed,
         chatHistoryExpanded: state.chatHistoryExpanded,
@@ -714,5 +714,5 @@ export const useAppStore = create<AppState>()(
 // Expose store for E2E testing.
 // Always exposed — this is an Electron desktop app, not a public web app.
 if (typeof window !== 'undefined') {
-  ;(window as any).__SOLOCRAFT_STORE__ = useAppStore
+  ;(window as any).__GOLEMANCY_STORE__ = useAppStore
 }

@@ -488,9 +488,9 @@ pnpm add -D @types/dagre
 9. **`parentNode` → `parentId`** in v12
 10. **`@dagrejs/dagre` not `dagre`** — the old package is abandoned
 
-### Compatibility with SoloCraft
+### Compatibility with Golemancy
 
-- React `>=17` required → SoloCraft uses React 18+ ✅
+- React `>=17` required → Golemancy uses React 18+ ✅
 - Dark mode via `colorMode="dark"` + CSS variables → integrates with our dark theme ✅
 - Custom nodes support any React components → PixelCard, icons, etc. ✅
 - `borderRadius: 0` everywhere → pixel art style ✅

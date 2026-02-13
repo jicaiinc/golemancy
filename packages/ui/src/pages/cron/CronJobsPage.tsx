@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import type { CronJob, CronJobId } from '@solocraft/shared'
+import type { CronJob, CronJobId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import {
   PixelButton, PixelCard, PixelBadge, PixelToggle,

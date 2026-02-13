@@ -1,4 +1,4 @@
-import type { TaskLogEntry } from '@solocraft/shared'
+import type { TaskLogEntry } from '@golemancy/shared'
 import { PixelBadge } from '../../components'
 
 interface TaskLogViewerProps {

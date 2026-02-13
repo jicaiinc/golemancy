@@ -1,6 +1,6 @@
 import { fork, type ChildProcess } from 'node:child_process'
 import path from 'node:path'
-import type { TaskId } from '@solocraft/shared'
+import type { TaskId } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:process' })

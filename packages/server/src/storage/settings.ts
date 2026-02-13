@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { GlobalSettings, ISettingsService } from '@solocraft/shared'
+import type { GlobalSettings, ISettingsService } from '@golemancy/shared'
 import { readJson, writeJson } from './base'
 import { getDataDir } from '../utils/paths'
 import { logger } from '../logger'

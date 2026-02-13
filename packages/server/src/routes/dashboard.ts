@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { IDashboardService } from '@solocraft/shared'
+import type { IDashboardService } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:dashboard' })

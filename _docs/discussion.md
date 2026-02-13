@@ -1,4 +1,4 @@
-# SoloCraft - 产品与技术讨论记录
+# Golemancy - 产品与技术讨论记录
 
 ## 一、产品定位
 
@@ -353,7 +353,7 @@ Electron Main Process (守护者)
 ### 5.3 目录结构
 
 ```
-SoloCraft.team/
+Golemancy.team/
 ├── _docs/                      # 文档与讨论记录
 ├── apps/
 │   └── desktop/                # Electron 外壳（Platform 的入口）
@@ -425,7 +425,7 @@ SQLite 优势：
 ### 6.5 推荐目录结构
 
 ```
-~/.solocraft/                          # 或用 Electron app.getPath('userData')
+~/.golemancy/                          # 或用 Electron app.getPath('userData')
 ├── settings.json                      # 全局设置
 ├── data.db                            # SQLite（所有结构化数据）
 └── projects/

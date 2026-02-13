@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import type { AgentId } from '@solocraft/shared'
+import type { AgentId } from '@golemancy/shared'
 import { useNavigate, useParams } from 'react-router'
 import { useAppStore } from '../../../stores'
 import { PixelButton, PixelBadge, PixelAvatar } from '../../../components'
