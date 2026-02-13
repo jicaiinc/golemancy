@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
-import type { Skill, SkillId } from '@solocraft/shared'
+import type { Skill, SkillId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {

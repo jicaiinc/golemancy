@@ -32,6 +32,7 @@ vi.mock('./http', () => ({
 
 vi.mock('./http/base', () => ({
   setAuthToken: vi.fn(),
+  setBaseUrl: vi.fn(),
 }))
 
 // Helper component to read context and display the service type
@@ -77,7 +78,7 @@ describe('ServiceProvider', () => {
       getServerPort: () => 3001,
     }
 
-    const { setAuthToken } = await import('./http/base')
+    const { setAuthToken, setBaseUrl } = await import('./http/base')
 
     render(
       <ServiceProvider>
@@ -87,6 +88,7 @@ describe('ServiceProvider', () => {
 
     expect(screen.getByTestId('service-type')).toHaveTextContent('http')
     expect(setAuthToken).toHaveBeenCalledWith('test-token-123')
+    expect(setBaseUrl).toHaveBeenCalledWith('http://localhost:3001')
   })
 
   it('falls back to Mock services when electronAPI returns null baseUrl', () => {

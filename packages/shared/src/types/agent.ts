@@ -22,7 +22,7 @@ export interface SubAgentRef {
 export type BuiltinToolId = 'bash' | 'browser' | 'os_control'
 
 export interface BuiltinToolConfig {
-  [key: string]: boolean
+  [key: string]: boolean | Record<string, unknown>
 }
 
 export interface SubAgentToolCallState {

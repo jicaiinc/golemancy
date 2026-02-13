@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import type { Project, ProjectId, IProjectService } from '@solocraft/shared'
+import type { Project, ProjectId, IProjectService } from '@golemancy/shared'
 import { readJson, writeJson, deleteDir, isNodeError } from './base'
 import { getDataDir, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'

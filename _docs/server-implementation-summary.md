@@ -1,4 +1,4 @@
-# SoloCraft Agent Server 实现总结
+# Golemancy Agent Server 实现总结
 
 > **阶段**: Server 接入（UI-First → 真实后端）
 > **状态**: 基础实现完成 + Code Review 修复
@@ -8,7 +8,7 @@
 
 ## 一、概述
 
-在 UI-First 阶段完成后（11 页面 + 13 组件 + 8 个 Mock Service），本阶段实现了 **Agent Server** —— 为 SoloCraft 提供真实的数据持久化、AI 模型调用和进程管理能力。
+在 UI-First 阶段完成后（11 页面 + 13 组件 + 8 个 Mock Service），本阶段实现了 **Agent Server** —— 为 Golemancy 提供真实的数据持久化、AI 模型调用和进程管理能力。
 
 ### 本阶段做了什么
 
@@ -72,8 +72,8 @@ desktop ──依赖──→ ui ──依赖──→ shared ←──依赖─
 ```
 Phase 1:  ui/services/interfaces.ts  → 定义 8 个接口
 Phase 2:  shared/services/interfaces.ts → 接口迁移到 shared
-          ui/services/interfaces.ts     → re-export from @solocraft/shared
-          server/                       → 直接 import from @solocraft/shared
+          ui/services/interfaces.ts     → re-export from @golemancy/shared
+          server/                       → 直接 import from @golemancy/shared
 ```
 
 迁移原因：`packages/server/` 需要实现这些接口，但不能依赖 `packages/ui/`（会形成循环依赖）。
@@ -84,7 +84,7 @@ Phase 2:  shared/services/interfaces.ts → 接口迁移到 shared
 
 ```
 packages/server/
-├── package.json                 @solocraft/server
+├── package.json                 @golemancy/server
 ├── tsconfig.json                ES2022 + ESNext module
 └── src/
     ├── index.ts                 入口：初始化 DB → 构造依赖 → 启动 Hono
@@ -143,7 +143,7 @@ packages/server/
 | `packages/shared/src/services/interfaces.ts` | 新增：8 个接口从 ui 迁移，补充 getMessages / searchMessages / getLogs |
 | `packages/shared/src/index.ts` | 新增 `export * from './services/interfaces'` |
 | `packages/ui/src/services/http/` | 新增：8 个 Http\*Service + fetchJson + createHttpServices 工厂 |
-| `packages/ui/src/services/interfaces.ts` | 改为 re-export from @solocraft/shared |
+| `packages/ui/src/services/interfaces.ts` | 改为 re-export from @golemancy/shared |
 | `packages/ui/src/services/index.ts` | 新增 http 导出 |
 | `apps/desktop/src/main/index.ts` | 重写：fork Server + IPC + Auth Token + graceful shutdown |
 | `apps/desktop/src/preload/index.ts` | 新增：electronAPI（serverPort / baseUrl / token） |
@@ -235,8 +235,8 @@ CREATE VIRTUAL TABLE messages_fts USING fts5(content, content=messages, content_
 ### 文件系统目录结构
 
 ```
-~/.solocraft/                           SOLOCRAFT_DATA_DIR
-├── solocraft.db                        SQLite 数据库
+~/.golemancy/                           GOLEMANCY_DATA_DIR
+├── golemancy.db                        SQLite 数据库
 ├── settings.json                       全局设置
 └── projects/
     └── {projectId}/

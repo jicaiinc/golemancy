@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'motion/react'
-import type { ArtifactType } from '@solocraft/shared'
+import type { ArtifactType } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelCard, PixelButton, PixelModal, PixelSpinner } from '../../components'

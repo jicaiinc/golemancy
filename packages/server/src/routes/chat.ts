@@ -3,7 +3,7 @@ import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 
 import type {
   AgentId, ProjectId, ConversationId, MessageId,
   IAgentService, IConversationService, ISettingsService, IMCPService,
-} from '@solocraft/shared'
+} from '@golemancy/shared'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'

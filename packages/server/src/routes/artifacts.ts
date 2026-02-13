@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, ArtifactId } from '@solocraft/shared'
-import type { IArtifactService } from '@solocraft/shared'
+import type { ProjectId, AgentId, ArtifactId } from '@golemancy/shared'
+import type { IArtifactService } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:artifacts' })

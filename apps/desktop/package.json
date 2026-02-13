@@ -1,10 +1,10 @@
 {
-  "name": "@solocraft/desktop",
+  "name": "@golemancy/desktop",
   "version": "0.1.0",
   "private": true,
-  "productName": "SoloCraft",
+  "productName": "Golemancy",
   "description": "AI Agent Orchestrator for Solo Creators",
-  "author": "SoloCraft Team",
+  "author": "Golemancy Team",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
@@ -17,8 +17,8 @@
     "test:e2e:only": "npx playwright test --config=e2e/playwright.config.ts"
   },
   "dependencies": {
-    "@solocraft/shared": "workspace:*",
-    "@solocraft/ui": "workspace:*",
+    "@golemancy/shared": "workspace:*",
+    "@golemancy/ui": "workspace:*",
     "pino": "^10.3.1"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   IArtifactService, IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
   IMCPService,
-} from '@solocraft/shared'
+} from '@golemancy/shared'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'
@@ -19,6 +19,7 @@ import { createDashboardRoutes } from './routes/dashboard'
 import { createSkillRoutes } from './routes/skills'
 import { createCronJobRoutes } from './routes/cronjobs'
 import { createMCPRoutes } from './routes/mcp'
+import { createTopologyRoutes } from './routes/topology'
 import { logger } from './logger'
 
 export interface ServerDependencies {
@@ -103,6 +104,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes(deps.cronJobStorage))
   app.route('/api/dashboard', createDashboardRoutes(deps.dashboardService))
+  app.route('/api/projects/:projectId/topology-layout', createTopologyRoutes())
 
   return app
 }

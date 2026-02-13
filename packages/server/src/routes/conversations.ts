@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, ConversationId, MessageId, IConversationService } from '@solocraft/shared'
+import type { ProjectId, AgentId, ConversationId, MessageId, IConversationService } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:conversations' })

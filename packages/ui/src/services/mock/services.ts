@@ -5,7 +5,7 @@ import type {
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
   SkillCreateData, SkillUpdateData,
-} from '@solocraft/shared'
+} from '@golemancy/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
   ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,

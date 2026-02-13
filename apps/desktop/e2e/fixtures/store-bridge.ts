@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 
 /**
- * Bridge to access the Zustand store exposed at `window.__SOLOCRAFT_STORE__`
+ * Bridge to access the Zustand store exposed at `window.__GOLEMANCY_STORE__`
  * from Playwright test code.
  */
 export class StoreBridge {
@@ -9,13 +9,13 @@ export class StoreBridge {
 
   /** Check if the store is exposed on the window */
   async isAvailable(): Promise<boolean> {
-    return this.page.evaluate(() => typeof (window as any).__SOLOCRAFT_STORE__ === 'function')
+    return this.page.evaluate(() => typeof (window as any).__GOLEMANCY_STORE__ === 'function')
   }
 
   /** Get a full snapshot of the Zustand state */
   async getState(): Promise<Record<string, unknown>> {
     return this.page.evaluate(() => {
-      const store = (window as any).__SOLOCRAFT_STORE__
+      const store = (window as any).__GOLEMANCY_STORE__
       if (!store) throw new Error('Store not available')
       return store.getState()
     })
@@ -27,7 +27,7 @@ export class StoreBridge {
    */
   async get<T = unknown>(path: string): Promise<T> {
     return this.page.evaluate((p: string) => {
-      const store = (window as any).__SOLOCRAFT_STORE__
+      const store = (window as any).__GOLEMANCY_STORE__
       if (!store) throw new Error('Store not available')
       const state = store.getState()
       return p.split('.').reduce((obj: any, key: string) => {
@@ -50,7 +50,7 @@ export class StoreBridge {
   async waitFor(predicateBody: string, timeout = 10_000): Promise<void> {
     await this.page.waitForFunction(
       (body: string) => {
-        const store = (window as any).__SOLOCRAFT_STORE__
+        const store = (window as any).__GOLEMANCY_STORE__
         if (!store) return false
         const state = store.getState()
         // eslint-disable-next-line no-new-func

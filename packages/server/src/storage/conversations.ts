@@ -2,7 +2,7 @@ import type {
   Conversation, ConversationId, ProjectId, AgentId, Message, MessageId,
   PaginationParams, PaginatedResult,
   IConversationService,
-} from '@solocraft/shared'
+} from '@golemancy/shared'
 import { eq, and, desc, sql } from 'drizzle-orm'
 import type { AppDatabase } from '../db/client'
 import * as schema from '../db/schema'

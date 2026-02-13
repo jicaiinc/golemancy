@@ -10,7 +10,7 @@ test.describe('App Launch', () => {
   test('store bridge is available', async ({ window }) => {
     // Check directly on window — store may take a moment to initialize
     const available = await window.evaluate(() => {
-      return typeof (window as any).__SOLOCRAFT_STORE__ === 'function'
+      return typeof (window as any).__GOLEMANCY_STORE__ === 'function'
     })
     // If store isn't available, it may be a production build (--mode test required)
     expect(available).toBe(true)

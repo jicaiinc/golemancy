@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import type { AIProvider, ProviderConfig, ThemeMode } from '@solocraft/shared'
-import { APP_VERSION } from '@solocraft/shared'
+import type { AIProvider, ProviderConfig, ThemeMode } from '@golemancy/shared'
+import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
@@ -43,7 +43,7 @@ export function GlobalSettingsPage() {
         {/* About footer */}
         <div className="mt-8 pt-4 border-t-2 border-border-dim text-center">
           <span className="text-[11px] text-text-dim">
-            SoloCraft v{APP_VERSION} — AI Agent Orchestrator for Solo Creators
+            Golemancy v{APP_VERSION} — AI Agent Orchestrator for Solo Creators
           </span>
         </div>
       </div>

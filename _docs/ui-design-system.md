@@ -1,6 +1,6 @@
-# SoloCraft UI Design System — Pixel Craft
+# Golemancy UI Design System — Pixel Craft
 
-> A complete design system for SoloCraft's Minecraft/Pixel Art-inspired desktop UI.
+> A complete design system for Golemancy's Minecraft/Pixel Art-inspired desktop UI.
 > Tech stack: React + TypeScript + Tailwind CSS + Framer Motion + Electron
 
 ---
@@ -281,7 +281,7 @@ For simple loaders without sprite sheets, use a 3-dot "typing" animation with `s
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  ◼ SoloCraft                                    ⚙ Settings  │
+│  ◼ Golemancy                                    ⚙ Settings  │
 │                                                              │
 │   ╔═══════════════════════════════════════════════════════╗   │
 │   ║           ☐ YOUR PROJECTS                             ║   │
@@ -388,7 +388,7 @@ Sidebar collapse uses Framer Motion `layout` animation with spring physics.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  HEADER: Logo + "SoloCraft" (Press Start 2P, 16px)   [⚙ Gear] │
+│  HEADER: Logo + "Golemancy" (Press Start 2P, 16px)   [⚙ Gear] │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  "YOUR PROJECTS" (Press Start 2P, 12px, text-secondary)        │
@@ -1185,7 +1185,7 @@ export default {
 
 ### 14.1 Pixel Font Loading for Electron
 
-Since SoloCraft is a desktop app, bundle fonts locally for offline support:
+Since Golemancy is a desktop app, bundle fonts locally for offline support:
 
 ```
 packages/ui/src/assets/fonts/

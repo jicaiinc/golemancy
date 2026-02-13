@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useResolvedConfig } from './index'
 import { useAppStore } from '../stores'
-import type { GlobalSettings, ProjectConfig, AgentModelConfig } from '@solocraft/shared'
+import type { GlobalSettings, ProjectConfig, AgentModelConfig } from '@golemancy/shared'
 
 describe('useResolvedConfig', () => {
   const baseSettings: GlobalSettings = {

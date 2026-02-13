@@ -44,7 +44,7 @@ export function ProjectListPage() {
 
   return (
     <GlobalLayout
-      title="SoloCraft"
+      title="Golemancy"
       actions={
         <PixelButton variant="ghost" size="sm" onClick={() => navigate('/settings')}>
           ⚙

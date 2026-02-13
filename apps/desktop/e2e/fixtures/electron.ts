@@ -13,9 +13,9 @@ export type ElectronFixtures = {
  */
 export const electronFixtures = base.extend<object, ElectronFixtures>({
   electronApp: [async ({}, use) => {
-    const testDataDir = process.env.SOLOCRAFT_TEST_DATA_DIR
+    const testDataDir = process.env.GOLEMANCY_TEST_DATA_DIR
     if (!testDataDir) {
-      throw new Error('SOLOCRAFT_TEST_DATA_DIR not set – did globalSetup run?')
+      throw new Error('GOLEMANCY_TEST_DATA_DIR not set – did globalSetup run?')
     }
 
     // Resolve absolute path to node — Electron GUI processes on macOS
@@ -26,9 +26,9 @@ export const electronFixtures = base.extend<object, ElectronFixtures>({
       args: [MAIN_ENTRY],
       env: {
         ...process.env,
-        SOLOCRAFT_DATA_DIR: testDataDir,
-        SOLOCRAFT_FORK_EXEC_PATH: nodePath,
-        SOLOCRAFT_ROOT_DIR: ROOT_DIR,
+        GOLEMANCY_DATA_DIR: testDataDir,
+        GOLEMANCY_FORK_EXEC_PATH: nodePath,
+        GOLEMANCY_ROOT_DIR: ROOT_DIR,
         NODE_ENV: 'test',
       },
       timeout: TIMEOUTS.APP_LAUNCH,

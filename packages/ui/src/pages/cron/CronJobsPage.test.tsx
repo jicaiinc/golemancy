@@ -4,7 +4,7 @@ import { CronJobsPage } from './CronJobsPage'
 import { useAppStore } from '../../stores'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
-import type { AgentId, CronJobId, ProjectId } from '@solocraft/shared'
+import type { AgentId, CronJobId, ProjectId } from '@golemancy/shared'
 
 // Mock motion/react to avoid animation issues in tests
 vi.mock('motion/react', () => ({

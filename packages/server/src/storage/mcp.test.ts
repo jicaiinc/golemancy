@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import type { ProjectId } from '@solocraft/shared'
+import type { ProjectId } from '@golemancy/shared'
 import { createTmpDir } from '../test/helpers'
 
 const state = vi.hoisted(() => ({ tmpDir: '' }))

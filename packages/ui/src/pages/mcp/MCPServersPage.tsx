@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
-import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile } from '@solocraft/shared'
+import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {

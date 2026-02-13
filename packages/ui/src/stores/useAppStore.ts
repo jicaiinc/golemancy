@@ -7,9 +7,10 @@ import type {
   ThemeMode,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
   SkillCreateData, SkillUpdateData,
-} from '@solocraft/shared'
-import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@solocraft/shared'
+} from '@golemancy/shared'
+import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import { getServices } from '../services'
+import { fetchJson, getBaseUrl } from '../services/http/base'
 import { destroyChat, destroyAllChats } from '../lib/chat-instances'
 
 // --- Theme helper ---
@@ -87,6 +88,11 @@ interface DashboardSlice {
   dashboardRecentTasks: DashboardTaskSummary[]
   dashboardActivityFeed: ActivityEntry[]
   dashboardLoading: boolean
+}
+
+interface TopologySlice {
+  topologyLayout: Record<string, { x: number; y: number }>
+  topologyLayoutLoading: boolean
 }
 
 // --- Actions ---
@@ -170,10 +176,15 @@ interface DashboardActions {
   loadDashboardActivityFeed(limit?: number): Promise<void>
 }
 
+interface TopologyActions {
+  loadTopologyLayout(projectId: ProjectId): Promise<void>
+  saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void>
+}
+
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions
 
 // AbortController for project switching
 let projectAbort: AbortController | null = null
@@ -214,6 +225,8 @@ export const useAppStore = create<AppState>()(
           skills: [],
           mcpServers: [],
           cronJobs: [],
+          topologyLayout: {},
+          topologyLayoutLoading: false,
           agentsLoading: true,
           conversationsLoading: true,
           tasksLoading: true,
@@ -274,6 +287,7 @@ export const useAppStore = create<AppState>()(
           skills: [],
           mcpServers: [],
           cronJobs: [],
+          topologyLayout: {},
           skillsLoading: false,
           mcpServersLoading: false,
           cronJobsLoading: false,
@@ -654,9 +668,33 @@ export const useAppStore = create<AppState>()(
         const activityFeed = await getServices().dashboard.getActivityFeed(limit)
         set({ dashboardActivityFeed: activityFeed })
       },
+
+      // --- Topology state ---
+      topologyLayout: {},
+      topologyLayoutLoading: false,
+
+      async loadTopologyLayout(projectId: ProjectId) {
+        set({ topologyLayoutLoading: true })
+        try {
+          const layout = await fetchJson<Record<string, { x: number; y: number }>>(
+            `${getBaseUrl()}/api/projects/${projectId}/topology-layout`
+          )
+          set({ topologyLayout: layout ?? {}, topologyLayoutLoading: false })
+        } catch {
+          set({ topologyLayout: {}, topologyLayoutLoading: false })
+        }
+      },
+
+      async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>) {
+        set({ topologyLayout: layout })
+        await fetchJson(`${getBaseUrl()}/api/projects/${projectId}/topology-layout`, {
+          method: 'PUT',
+          body: JSON.stringify(layout),
+        })
+      },
     }),
     {
-      name: 'solocraft-prefs',
+      name: 'golemancy-prefs',
       partialize: (state) => ({
         sidebarCollapsed: state.sidebarCollapsed,
         chatHistoryExpanded: state.chatHistoryExpanded,
@@ -676,5 +714,5 @@ export const useAppStore = create<AppState>()(
 // Expose store for E2E testing.
 // Always exposed — this is an Electron desktop app, not a public web app.
 if (typeof window !== 'undefined') {
-  ;(window as any).__SOLOCRAFT_STORE__ = useAppStore
+  ;(window as any).__GOLEMANCY_STORE__ = useAppStore
 }

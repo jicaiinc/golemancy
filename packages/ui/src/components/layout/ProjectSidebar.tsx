@@ -113,7 +113,7 @@ export function ProjectSidebar() {
           trigger={
             <button className="w-full text-left flex items-center gap-2 hover:bg-elevated/50 p-1 cursor-pointer transition-colors">
               <span className="font-pixel text-[10px] text-accent-green truncate flex-1">
-                {currentProject?.name ?? 'SoloCraft'}
+                {currentProject?.name ?? 'Golemancy'}
               </span>
               <span className="text-text-dim text-[10px]">▼</span>
             </button>

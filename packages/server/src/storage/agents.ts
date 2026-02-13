@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { Agent, AgentId, ProjectId, IAgentService } from '@solocraft/shared'
+import type { Agent, AgentId, ProjectId, IAgentService } from '@golemancy/shared'
 import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
 import { getProjectPath, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'

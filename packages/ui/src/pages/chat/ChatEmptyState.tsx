@@ -1,5 +1,5 @@
 import { useParams } from 'react-router'
-import type { AgentId } from '@solocraft/shared'
+import type { AgentId } from '@golemancy/shared'
 import { PixelCard, PixelButton, SidebarToggleIcon } from '../../components'
 
 interface Props {

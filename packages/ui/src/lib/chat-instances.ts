@@ -8,7 +8,7 @@
 import { Chat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import type { UIMessage, ChatTransport } from 'ai'
-import type { ConversationId, AgentId, ProjectId, Message } from '@solocraft/shared'
+import type { ConversationId, AgentId, ProjectId, Message } from '@golemancy/shared'
 
 /** Convert app Message[] → UIMessage[] for Chat constructor. */
 function messagesToUIMessages(messages: Message[]): UIMessage[] {

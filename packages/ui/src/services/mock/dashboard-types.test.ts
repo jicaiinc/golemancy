@@ -5,7 +5,7 @@ import type {
   DashboardTaskSummary,
   ActivityType,
   ActivityEntry,
-} from '@solocraft/shared'
+} from '@golemancy/shared'
 
 describe('Dashboard types (compilation check)', () => {
   it('DashboardSummary has expected shape', () => {

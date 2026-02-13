@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 
 import { createSubAgentToolSet, createSubAgentTool, sanitizeToolName } from './sub-agent'
-import type { Agent, GlobalSettings, AgentId, ProjectId } from '@solocraft/shared'
+import type { Agent, GlobalSettings, AgentId, ProjectId } from '@golemancy/shared'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {

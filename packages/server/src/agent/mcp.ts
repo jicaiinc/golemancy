@@ -1,6 +1,6 @@
 import { createMCPClient } from '@ai-sdk/mcp'
 import type { ToolSet } from 'ai'
-import type { MCPServerConfig } from '@solocraft/shared'
+import type { MCPServerConfig } from '@golemancy/shared'
 import { sanitizeToolName } from './sub-agent'
 import { logger } from '../logger'
 

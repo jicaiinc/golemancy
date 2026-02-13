@@ -1,4 +1,4 @@
-import type { ConversationId, MessageId, TaskId, AgentId } from '@solocraft/shared'
+import type { ConversationId, MessageId, TaskId, AgentId } from '@golemancy/shared'
 
 export interface WsMessageEvent {
   event: 'message:start' | 'message:delta' | 'message:tool_call' | 'message:end'

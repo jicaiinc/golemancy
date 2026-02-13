@@ -10,4 +10,4 @@ export type {
   ISettingsService,
   ICronJobService,
   IDashboardService,
-} from '@solocraft/shared'
+} from '@golemancy/shared'

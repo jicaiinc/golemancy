@@ -1,5 +1,5 @@
 import { streamText, stepCountIs, type ModelMessage, type ToolSet } from 'ai'
-import type { Agent, ConversationId, GlobalSettings } from '@solocraft/shared'
+import type { Agent, ConversationId, GlobalSettings } from '@golemancy/shared'
 import { resolveModel } from './model'
 import { logger } from '../logger'
 

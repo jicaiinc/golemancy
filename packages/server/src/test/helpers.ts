@@ -23,7 +23,7 @@ export function createTestDb() {
  * Returns the directory path and a cleanup function.
  */
 export async function createTmpDir() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'solocraft-test-'))
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'golemancy-test-'))
   return {
     dir,
     cleanup: () => fs.rm(dir, { recursive: true, force: true }),

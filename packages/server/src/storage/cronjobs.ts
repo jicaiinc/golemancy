@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { CronJob, CronJobId, ProjectId, ICronJobService } from '@solocraft/shared'
+import type { CronJob, CronJobId, ProjectId, ICronJobService } from '@golemancy/shared'
 import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
 import { getProjectPath, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'

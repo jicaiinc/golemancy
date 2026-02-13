@@ -5,7 +5,7 @@ import { GlobalSettingsPage } from './GlobalSettingsPage'
 import { useAppStore } from '../../stores'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
-import type { GlobalSettings } from '@solocraft/shared'
+import type { GlobalSettings } from '@golemancy/shared'
 
 const mockSettings: GlobalSettings = {
   providers: [
@@ -104,7 +104,7 @@ describe('GlobalSettingsPage', () => {
 
   it('renders about footer with version', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText(/SoloCraft v0\.1\.0/)).toBeInTheDocument()
+    expect(screen.getByText(/Golemancy v0\.1\.0/)).toBeInTheDocument()
     expect(screen.getByText(/AI Agent Orchestrator for Solo Creators/)).toBeInTheDocument()
   })
 

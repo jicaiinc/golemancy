@@ -7,7 +7,7 @@ import type {
   SkillCreateData, SkillUpdateData,
   IProjectService, IAgentService, IConversationService,
   ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-} from '@solocraft/shared'
+} from '@golemancy/shared'
 import { fetchJson } from './base'
 
 export class HttpProjectService implements IProjectService {

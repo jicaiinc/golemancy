@@ -1,5 +1,5 @@
 {
-  "name": "solocraft",
+  "name": "golemancy",
   "private": true,
   "packageManager": "pnpm@10.19.0",
   "scripts": {
@@ -7,8 +7,8 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
-    "test:e2e": "pnpm --filter @solocraft/desktop test:e2e",
-    "test:e2e:ai": "pnpm --filter @solocraft/desktop test:e2e:ai"
+    "test:e2e": "pnpm --filter @golemancy/desktop test:e2e",
+    "test:e2e:ai": "pnpm --filter @golemancy/desktop test:e2e:ai"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

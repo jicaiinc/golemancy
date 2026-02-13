@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid'
 import type {
   ProjectId, AgentId, ConversationId, MessageId,
   TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
-} from '@solocraft/shared'
+} from '@golemancy/shared'
 
 type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'art' | 'mem' | 'skill' | 'cron'
 

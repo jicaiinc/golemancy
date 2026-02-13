@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { AgentId, ConversationId, MessageId, ProjectId, Conversation, Agent } from '@solocraft/shared'
+import type { AgentId, ConversationId, MessageId, ProjectId, Conversation, Agent } from '@golemancy/shared'
 import type { UIMessage } from 'ai'
 import { ChatWindow } from './ChatWindow'
 import { useAppStore } from '../../stores'

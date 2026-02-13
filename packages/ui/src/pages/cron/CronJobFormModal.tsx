@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { AgentId, CronJob } from '@solocraft/shared'
+import type { AgentId, CronJob } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelInput, PixelTextArea, PixelButton, PixelToggle } from '../../components'
 

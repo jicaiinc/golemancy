@@ -4,7 +4,7 @@ import { MCPServersPage } from './MCPServersPage'
 import { useAppStore } from '../../stores'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
-import type { AgentId, ProjectId, MCPServerConfig } from '@solocraft/shared'
+import type { AgentId, ProjectId, MCPServerConfig } from '@golemancy/shared'
 
 // Mock motion/react to avoid animation issues in tests
 vi.mock('motion/react', () => ({
