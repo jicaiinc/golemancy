@@ -150,6 +150,7 @@ describe('loadAgentTools', () => {
     })
 
     expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {
+      projectId: 'proj-1',
       skillFiles: undefined,
       skillInstructions: undefined,
     })
@@ -224,7 +225,7 @@ describe('loadAgentTools', () => {
     // Verify skill files and instructions were passed to builtin-tools
     expect(loadBuiltinTools).toHaveBeenCalledWith(
       { bash: true },
-      { skillFiles, skillInstructions: 'skill instructions' },
+      { projectId: 'proj-1', skillFiles, skillInstructions: 'skill instructions' },
     )
   })
 
