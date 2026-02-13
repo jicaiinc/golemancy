@@ -30,4 +30,4 @@ export function createHttpServices(baseUrl: string): ServiceContainer {
 }
 
 export { HttpProjectService, HttpAgentService, HttpConversationService, HttpTaskService, HttpArtifactService, HttpMemoryService, HttpSkillService, HttpMCPService, HttpSettingsService, HttpCronJobService, HttpDashboardService } from './services'
-export { setAuthToken, getAuthToken } from './base'
+export { setAuthToken, getAuthToken, setBaseUrl, getBaseUrl } from './base'
