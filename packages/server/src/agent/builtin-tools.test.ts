@@ -4,12 +4,26 @@ vi.mock('bash-tool', () => ({
   createBashTool: vi.fn(),
 }))
 
+vi.mock('just-bash', () => ({
+  Bash: vi.fn(),
+  ReadWriteFs: vi.fn(),
+}))
+
 vi.mock('@golemancy/tools/browser', () => ({
   createBrowserTools: vi.fn(),
 }))
 
+vi.mock('../utils/paths', () => ({
+  getProjectPath: vi.fn((id: string) => `/mock-data/projects/${id}`),
+}))
+
+vi.mock('node:fs/promises', () => ({
+  default: { mkdir: vi.fn().mockResolvedValue(undefined) },
+}))
+
 import { loadBuiltinTools, BUILTIN_TOOL_REGISTRY } from './builtin-tools'
 import { createBashTool } from 'bash-tool'
+import { Bash, ReadWriteFs } from 'just-bash'
 
 const mockCreateBashTool = vi.mocked(createBashTool)
 
@@ -41,17 +55,37 @@ describe('loadBuiltinTools', () => {
     vi.clearAllMocks()
   })
 
-  it('returns tools when bash is enabled', async () => {
+  it('returns tools when bash is enabled with projectId', async () => {
+    const fakeTool = { execute: vi.fn() }
+    mockCreateBashTool.mockResolvedValue({ tools: { bash: fakeTool } } as any)
+
+    const result = await loadBuiltinTools({ bash: true }, { projectId: 'proj-1' })
+
+    expect(result).not.toBeNull()
+    expect(result!.tools).toHaveProperty('bash')
+    // Should create ReadWriteFs-backed Bash and pass as sandbox
+    expect(ReadWriteFs).toHaveBeenCalledWith({ root: '/mock-data/projects/proj-1/workspace' })
+    expect(Bash).toHaveBeenCalledWith(expect.objectContaining({
+      python: true,
+      network: { dangerouslyAllowFullInternetAccess: true },
+      cwd: '/',
+    }))
+    expect(mockCreateBashTool).toHaveBeenCalledWith(expect.objectContaining({
+      destination: '/',
+    }))
+  })
+
+  it('falls back to default sandbox without projectId', async () => {
     const fakeTool = { execute: vi.fn() }
     mockCreateBashTool.mockResolvedValue({ tools: { bash: fakeTool } } as any)
 
     const result = await loadBuiltinTools({ bash: true })
 
     expect(result).not.toBeNull()
-    expect(result!.tools).toHaveProperty('bash')
+    expect(Bash).not.toHaveBeenCalled()
     expect(mockCreateBashTool).toHaveBeenCalledWith({
-      files: undefined,
-      extraInstructions: undefined,
+      sandbox: undefined,
+      destination: undefined,
     })
   })
 
@@ -89,36 +123,6 @@ describe('loadBuiltinTools', () => {
 
     expect(result).not.toBeNull()
     expect(typeof result!.cleanup).toBe('function')
-    // Cleanup should resolve without error
     await expect(result!.cleanup()).resolves.toBeUndefined()
-  })
-
-  it('passes skill files and instructions to createBashTool', async () => {
-    const fakeTool = { execute: vi.fn() }
-    mockCreateBashTool.mockResolvedValue({ tools: { bash: fakeTool } } as any)
-
-    const skillFiles = { './skills/data/script.py': 'import pandas' }
-    const skillInstructions = 'SKILL DIRECTORIES: data'
-
-    const result = await loadBuiltinTools({ bash: true }, {
-      skillFiles,
-      skillInstructions,
-    })
-
-    expect(result).not.toBeNull()
-    expect(mockCreateBashTool).toHaveBeenCalledWith({
-      files: skillFiles,
-      extraInstructions: skillInstructions,
-    })
-  })
-
-  it('ignores skill options when bash is disabled', async () => {
-    const result = await loadBuiltinTools({ bash: false }, {
-      skillFiles: { './test.py': 'print()' },
-      skillInstructions: 'test',
-    })
-
-    expect(result).toBeNull()
-    expect(mockCreateBashTool).not.toHaveBeenCalled()
   })
 })
