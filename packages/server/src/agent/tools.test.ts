@@ -83,7 +83,8 @@ describe('loadAgentTools', () => {
   it('loads skill tools and captures instructions', async () => {
     const mockSkillCleanup = vi.fn().mockResolvedValue(undefined)
     vi.mocked(loadAgentSkillTools).mockResolvedValueOnce({
-      tools: { skill: {} as never, bash: {} as never },
+      tools: { skill: {} as never },
+      files: { './skills/research/script.py': 'print("hello")' },
       instructions: 'Use skill X for research',
       cleanup: mockSkillCleanup,
     })
@@ -99,7 +100,7 @@ describe('loadAgentTools', () => {
 
     expect(loadAgentSkillTools).toHaveBeenCalledWith('proj-1', ['skill-1'])
     expect(result.tools).toHaveProperty('skill')
-    expect(result.tools).toHaveProperty('bash')
+    // skills no longer produce bash tools
     expect(result.instructions).toBe('Use skill X for research')
 
     await result.cleanup()
@@ -148,7 +149,10 @@ describe('loadAgentTools', () => {
       mcpStorage: makeMockMcpStorage(),
     })
 
-    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true })
+    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {
+      skillFiles: undefined,
+      skillInstructions: undefined,
+    })
     expect(result.tools).toHaveProperty('execute')
 
     await result.cleanup()
@@ -176,9 +180,11 @@ describe('loadAgentTools', () => {
     expect(loadAgentSkillTools).not.toHaveBeenCalled()
   })
 
-  it('merges tools from all sources', async () => {
+  it('merges tools from all sources and passes skill data to builtin', async () => {
+    const skillFiles = { './skills/s1/script.py': 'print("hi")' }
     vi.mocked(loadAgentSkillTools).mockResolvedValueOnce({
       tools: { skill: {} as never },
+      files: skillFiles,
       instructions: 'skill instructions',
       cleanup: vi.fn(),
     })
@@ -214,6 +220,12 @@ describe('loadAgentTools', () => {
     expect(result.tools).toHaveProperty('execute')
     expect(result.tools).toHaveProperty('delegate_to_agent-child')
     expect(result.instructions).toBe('skill instructions')
+
+    // Verify skill files and instructions were passed to builtin-tools
+    expect(loadBuiltinTools).toHaveBeenCalledWith(
+      { bash: true },
+      { skillFiles, skillInstructions: 'skill instructions' },
+    )
   })
 
   it('cleanup calls all registered cleanups even if one fails', async () => {
@@ -221,6 +233,7 @@ describe('loadAgentTools', () => {
     const cleanup2 = vi.fn().mockResolvedValue(undefined)
     vi.mocked(loadAgentSkillTools).mockResolvedValueOnce({
       tools: { skill: {} as never },
+      files: {},
       instructions: '',
       cleanup: cleanup1,
     })

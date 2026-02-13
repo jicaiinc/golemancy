@@ -4,6 +4,10 @@ vi.mock('bash-tool', () => ({
   createBashTool: vi.fn(),
 }))
 
+vi.mock('@golemancy/tools/browser', () => ({
+  createBrowserTools: vi.fn(),
+}))
+
 import { loadBuiltinTools, BUILTIN_TOOL_REGISTRY } from './builtin-tools'
 import { createBashTool } from 'bash-tool'
 
@@ -45,7 +49,10 @@ describe('loadBuiltinTools', () => {
 
     expect(result).not.toBeNull()
     expect(result!.tools).toHaveProperty('bash')
-    expect(mockCreateBashTool).toHaveBeenCalledWith({})
+    expect(mockCreateBashTool).toHaveBeenCalledWith({
+      files: undefined,
+      extraInstructions: undefined,
+    })
   })
 
   it('returns null when bash is disabled', async () => {
@@ -84,5 +91,34 @@ describe('loadBuiltinTools', () => {
     expect(typeof result!.cleanup).toBe('function')
     // Cleanup should resolve without error
     await expect(result!.cleanup()).resolves.toBeUndefined()
+  })
+
+  it('passes skill files and instructions to createBashTool', async () => {
+    const fakeTool = { execute: vi.fn() }
+    mockCreateBashTool.mockResolvedValue({ tools: { bash: fakeTool } } as any)
+
+    const skillFiles = { './skills/data/script.py': 'import pandas' }
+    const skillInstructions = 'SKILL DIRECTORIES: data'
+
+    const result = await loadBuiltinTools({ bash: true }, {
+      skillFiles,
+      skillInstructions,
+    })
+
+    expect(result).not.toBeNull()
+    expect(mockCreateBashTool).toHaveBeenCalledWith({
+      files: skillFiles,
+      extraInstructions: skillInstructions,
+    })
+  })
+
+  it('ignores skill options when bash is disabled', async () => {
+    const result = await loadBuiltinTools({ bash: false }, {
+      skillFiles: { './test.py': 'print()' },
+      skillInstructions: 'test',
+    })
+
+    expect(result).toBeNull()
+    expect(mockCreateBashTool).not.toHaveBeenCalled()
   })
 })

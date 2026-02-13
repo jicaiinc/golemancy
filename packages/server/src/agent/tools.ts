@@ -36,12 +36,16 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   const cleanups: Array<() => Promise<void>> = []
   let instructions = ''
 
-  // 1. Skills
+  // 1. Skills — returns only the `skill` selector tool + files/instructions
+  let skillFiles: Record<string, string> | undefined
+  let skillInstructions: string | undefined
   if (agent.skillIds?.length > 0) {
     const skillResult = await loadAgentSkillTools(projectId, agent.skillIds)
     if (skillResult) {
-      Object.assign(tools, skillResult.tools)
+      Object.assign(tools, skillResult.tools)  // only { skill }
       instructions = skillResult.instructions
+      skillFiles = skillResult.files
+      skillInstructions = skillResult.instructions
       cleanups.push(skillResult.cleanup)
     }
   }
@@ -58,9 +62,13 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     }
   }
 
-  // 3. Built-in tools
+  // 3. Built-in tools — single entry point for bash/readFile/writeFile
+  //    Skill files and instructions are passed here so bash tool can access them
   if (agent.builtinTools) {
-    const builtinResult = await loadBuiltinTools(agent.builtinTools)
+    const builtinResult = await loadBuiltinTools(agent.builtinTools, {
+      skillFiles,
+      skillInstructions,
+    })
     if (builtinResult) {
       Object.assign(tools, builtinResult.tools)
       cleanups.push(builtinResult.cleanup)
