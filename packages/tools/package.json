@@ -1,0 +1,27 @@
+{
+  "name": "@solocraft/tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./browser": "./src/browser/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "lint": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@solocraft/shared": "workspace:*",
+    "ai": "^6.0.82",
+    "playwright-core": "^1.52.0",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "typescript": "^5.8",
+    "vitest": "^3"
+  }
+}
