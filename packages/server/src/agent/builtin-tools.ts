@@ -1,7 +1,10 @@
+import fs from 'node:fs/promises'
 import { createBashTool } from 'bash-tool'
+import { Bash, ReadWriteFs } from 'just-bash'
 import type { ToolSet } from 'ai'
 import type { BuiltinToolConfig } from '@golemancy/shared'
 import { createBrowserTools, type BrowserToolsConfig } from '@golemancy/tools/browser'
+import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:builtin-tools' })
@@ -19,16 +22,27 @@ const DEFAULT_BROWSER_CONFIG: BrowserToolsConfig = {
   headless: false,
 }
 
+export interface BuiltinToolOptions {
+  /** Skill script files to inject into bash tool (from loadAgentSkillTools) */
+  skillFiles?: Record<string, string>
+  /** Extra instructions for bash tool (from loadAgentSkillTools) */
+  skillInstructions?: string
+}
+
 export async function loadBuiltinTools(
   config: BuiltinToolConfig,
+  options?: BuiltinToolOptions,
 ): Promise<{ tools: ToolSet; cleanup: () => Promise<void> } | null> {
   const tools: ToolSet = {}
   const cleanups: Array<() => Promise<void>> = []
 
-  // Bash tools
+  // Bash tools — single entry point for bash/readFile/writeFile
   if (config.bash !== false) {
     try {
-      const bashToolkit = await createBashTool({})
+      const bashToolkit = await createBashTool({
+        files: options?.skillFiles,
+        extraInstructions: options?.skillInstructions,
+      })
       Object.assign(tools, bashToolkit.tools)
       log.debug('loaded bash built-in tools')
     } catch (err) {
