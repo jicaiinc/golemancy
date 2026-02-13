@@ -84,7 +84,6 @@ describe('loadAgentTools', () => {
     const mockSkillCleanup = vi.fn().mockResolvedValue(undefined)
     vi.mocked(loadAgentSkillTools).mockResolvedValueOnce({
       tools: { skill: {} as never },
-      files: { './skills/research/script.py': 'print("hello")' },
       instructions: 'Use skill X for research',
       cleanup: mockSkillCleanup,
     })
@@ -149,11 +148,7 @@ describe('loadAgentTools', () => {
       mcpStorage: makeMockMcpStorage(),
     })
 
-    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {
-      projectId: 'proj-1',
-      skillFiles: undefined,
-      skillInstructions: undefined,
-    })
+    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, { projectId: 'proj-1' })
     expect(result.tools).toHaveProperty('execute')
 
     await result.cleanup()
@@ -181,11 +176,9 @@ describe('loadAgentTools', () => {
     expect(loadAgentSkillTools).not.toHaveBeenCalled()
   })
 
-  it('merges tools from all sources and passes skill data to builtin', async () => {
-    const skillFiles = { './skills/s1/script.py': 'print("hi")' }
+  it('merges tools from all sources', async () => {
     vi.mocked(loadAgentSkillTools).mockResolvedValueOnce({
       tools: { skill: {} as never },
-      files: skillFiles,
       instructions: 'skill instructions',
       cleanup: vi.fn(),
     })
@@ -222,11 +215,8 @@ describe('loadAgentTools', () => {
     expect(result.tools).toHaveProperty('delegate_to_agent-child')
     expect(result.instructions).toBe('skill instructions')
 
-    // Verify skill files and instructions were passed to builtin-tools
-    expect(loadBuiltinTools).toHaveBeenCalledWith(
-      { bash: true },
-      { projectId: 'proj-1', skillFiles, skillInstructions: 'skill instructions' },
-    )
+    // Skills and bash are fully decoupled — no skill data passed to builtin
+    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, { projectId: 'proj-1' })
   })
 
   it('cleanup calls all registered cleanups even if one fails', async () => {
@@ -234,7 +224,6 @@ describe('loadAgentTools', () => {
     const cleanup2 = vi.fn().mockResolvedValue(undefined)
     vi.mocked(loadAgentSkillTools).mockResolvedValueOnce({
       tools: { skill: {} as never },
-      files: {},
       instructions: '',
       cleanup: cleanup1,
     })

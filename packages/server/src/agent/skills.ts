@@ -8,23 +8,11 @@ import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:skills' })
 
-export interface SkillToolsResult {
-  tools: ToolSet
-  /** Skill script files to be passed to bash tool (key = relative path, value = content) */
-  files: Record<string, string>
-  instructions: string
-  cleanup: () => Promise<void>
-}
-
 /**
  * Load skill tools for a specific agent based on its skillIds.
  *
- * Uses bash-tool's createSkillTool to discover skills and create the skill selector tool.
- * Returns the `skill` selector tool along with discovered files and instructions.
- *
- * **Decoupling**: This function does NOT create bash tools. The caller (tools.ts)
- * is responsible for passing `files` and `instructions` to `loadBuiltinTools`,
- * which is the single entry point for bash/readFile/writeFile tools.
+ * Returns only the `skill` selector tool + instructions. Skills and bash are
+ * fully decoupled — this function has no knowledge of bash tools.
  *
  * IMPORTANT: Caller must invoke cleanup() after streaming completes (e.g. in onFinish).
  * The temp directory must persist during streaming because the skill tool reads
@@ -33,7 +21,7 @@ export interface SkillToolsResult {
 export async function loadAgentSkillTools(
   projectId: string,
   skillIds: string[],
-): Promise<SkillToolsResult | null> {
+): Promise<{ tools: ToolSet; instructions: string; cleanup: () => Promise<void> } | null> {
   if (skillIds.length === 0) return null
 
   const projectSkillsDir = path.join(getProjectPath(projectId), 'skills')
@@ -74,7 +62,7 @@ export async function loadAgentSkillTools(
 
     // NOTE: Do NOT clean up tempDir here — bash-tool reads skill files lazily
     // when the tool is invoked during streaming. Caller must call cleanup() after stream ends.
-    return { tools: { skill }, files, instructions, cleanup }
+    return { tools: { skill }, instructions, cleanup }
   } catch (e) {
     log.error({ err: e, projectId }, 'failed to create skill tools')
     await cleanup()

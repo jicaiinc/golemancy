@@ -25,10 +25,6 @@ const DEFAULT_BROWSER_CONFIG: BrowserToolsConfig = {
 export interface BuiltinToolOptions {
   /** Project ID — used to resolve workspace directory for ReadWriteFs */
   projectId?: string
-  /** Skill script files to inject into bash tool (from loadAgentSkillTools) */
-  skillFiles?: Record<string, string>
-  /** Extra instructions for bash tool (from loadAgentSkillTools) */
-  skillInstructions?: string
 }
 
 /**
@@ -56,8 +52,6 @@ async function createBashToolWithSandbox(options?: BuiltinToolOptions) {
   return createBashTool({
     sandbox,
     destination,
-    files: options?.skillFiles,
-    extraInstructions: options?.skillInstructions,
   })
 }
 
