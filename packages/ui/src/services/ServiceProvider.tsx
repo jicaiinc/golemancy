@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react'
 import { type ServiceContainer, configureServices } from './container'
 import { createMockServices } from './mock'
 import { createHttpServices } from './http'
-import { setAuthToken } from './http/base'
+import { setAuthToken, setBaseUrl } from './http/base'
 
 const ServiceContext = createContext<ServiceContainer | null>(null)
 
@@ -18,6 +18,7 @@ function initServices(): ServiceContainer {
 
   if (baseUrl && token) {
     setAuthToken(token)
+    setBaseUrl(baseUrl)
     const container = createHttpServices(baseUrl)
     configureServices(container)
     return container

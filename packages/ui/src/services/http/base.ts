@@ -6,6 +6,7 @@ export class HttpError extends Error {
 }
 
 let authToken: string | null = null
+let baseUrl: string | null = null
 
 export function setAuthToken(token: string | null): void {
   authToken = token
@@ -13,6 +14,15 @@ export function setAuthToken(token: string | null): void {
 
 export function getAuthToken(): string | null {
   return authToken
+}
+
+export function setBaseUrl(url: string | null): void {
+  baseUrl = url
+}
+
+export function getBaseUrl(): string {
+  if (!baseUrl) throw new Error('Base URL not configured. Call setBaseUrl() first.')
+  return baseUrl
 }
 
 export async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
