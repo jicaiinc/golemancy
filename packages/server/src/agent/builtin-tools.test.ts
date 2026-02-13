@@ -17,10 +17,10 @@ describe('BUILTIN_TOOL_REGISTRY', () => {
     expect(bash!.defaultEnabled).toBe(true)
   })
 
-  it('has browser as not available', () => {
+  it('has browser as available but not enabled by default', () => {
     const browser = BUILTIN_TOOL_REGISTRY.find(t => t.id === 'browser')
     expect(browser).toBeDefined()
-    expect(browser!.available).toBe(false)
+    expect(browser!.available).toBe(true)
     expect(browser!.defaultEnabled).toBe(false)
   })
 

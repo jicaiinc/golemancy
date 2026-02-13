@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoloCraft Browser Tool - Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --border-bright: #3a3a5a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --accent-blue: #4a9eff;
+    --accent-green: #4aff9e;
+    --accent-purple: #a855f7;
+    --accent-orange: #ff9e4a;
+    --accent-red: #ff4a6a;
+    --accent-yellow: #ffe04a;
+    --accent-cyan: #4ae0ff;
+    --accent-pink: #ff4ae0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 40px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  h1 span { color: var(--text-dim); font-weight: 400; }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    margin: 48px 0 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 18px;
+    background: var(--accent-cyan);
+  }
+
+  /* ===== Architecture Diagram ===== */
+  .arch-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px;
+    overflow-x: auto;
+    margin-bottom: 32px;
+  }
+
+  .arch-layers {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 900px;
+    position: relative;
+  }
+
+  .arch-layer {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    position: relative;
+  }
+
+  .layer-label {
+    width: 140px;
+    min-width: 140px;
+    padding: 16px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+    border-right: 2px solid var(--border);
+  }
+
+  .layer-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    flex-wrap: wrap;
+  }
+
+  .box {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .box-blue { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(74,158,255,0.06); }
+  .box-green { border-color: var(--accent-green); color: var(--accent-green); background: rgba(74,255,158,0.06); }
+  .box-purple { border-color: var(--accent-purple); color: var(--accent-purple); background: rgba(168,85,247,0.06); }
+  .box-orange { border-color: var(--accent-orange); color: var(--accent-orange); background: rgba(255,158,74,0.06); }
+  .box-red { border-color: var(--accent-red); color: var(--accent-red); background: rgba(255,74,106,0.06); }
+  .box-yellow { border-color: var(--accent-yellow); color: var(--accent-yellow); background: rgba(255,224,74,0.06); }
+  .box-cyan { border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(74,224,255,0.06); }
+  .box-pink { border-color: var(--accent-pink); color: var(--accent-pink); background: rgba(255,74,224,0.06); }
+  .box-dim { border-color: var(--border-bright); color: var(--text-dim); background: rgba(255,255,255,0.02); }
+
+  .box .tag {
+    font-size: 9px;
+    padding: 1px 5px;
+    border: 1px solid;
+    border-color: inherit;
+    opacity: 0.6;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .box .new-tag {
+    font-size: 9px;
+    padding: 1px 5px;
+    background: var(--accent-green);
+    color: var(--bg);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .layer-divider {
+    width: 100%;
+    border-top: 1px dashed var(--border);
+  }
+
+  .connector {
+    color: var(--text-dim);
+    font-size: 16px;
+    padding: 0 4px;
+  }
+
+  /* ===== Flow Diagram ===== */
+  .flow-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .flow-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+  }
+
+  .flow-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .flow-title .dot {
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+  }
+
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 12px;
+  }
+
+  .flow-step {
+    padding: 10px 14px;
+    border-left: 2px solid var(--border);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .flow-step::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border: 2px solid var(--border-bright);
+    background: var(--surface);
+  }
+
+  .flow-step.active::before { border-color: var(--accent-green); background: var(--accent-green); }
+  .flow-step .step-label { color: var(--text-dim); min-width: 100px; }
+  .flow-step .step-detail { color: var(--text); }
+
+  .flow-arrow {
+    padding: 4px 0 4px 20px;
+    color: var(--text-dim);
+    font-size: 11px;
+    border-left: 2px solid var(--border);
+  }
+
+  /* ===== Directory Tree ===== */
+  .tree-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 32px;
+    overflow-x: auto;
+  }
+
+  .tree {
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre;
+  }
+
+  .tree .dir { color: var(--accent-blue); font-weight: 600; }
+  .tree .file { color: var(--text-dim); }
+  .tree .new { color: var(--accent-green); font-weight: 600; }
+  .tree .interface { color: var(--accent-purple); }
+  .tree .driver { color: var(--accent-orange); }
+  .tree .tool { color: var(--accent-cyan); }
+  .tree .comment { color: var(--text-dim); font-style: italic; opacity: 0.6; }
+  .tree .shared { color: var(--accent-yellow); }
+  .tree .existing { color: var(--text-dim); opacity: 0.5; }
+
+  /* ===== Shared vs Separate Table ===== */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 16px 0 32px;
+  }
+
+  .comparison-table th {
+    text-align: left;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 11px;
+  }
+
+  .comparison-table td {
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    vertical-align: top;
+  }
+
+  .comparison-table .shared-cell { color: var(--accent-green); }
+  .comparison-table .separate-cell { color: var(--accent-orange); }
+  .comparison-table .loc { color: var(--text-dim); font-size: 11px; }
+
+  /* ===== Key Insight Box ===== */
+  .insight-box {
+    border: 1px solid var(--accent-green);
+    background: rgba(74,255,158,0.04);
+    padding: 20px 24px;
+    margin: 24px 0;
+    font-size: 13px;
+  }
+
+  .insight-box .insight-title {
+    color: var(--accent-green);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .dep-arrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    font-size: 13px;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin: 16px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .dep-arrow .pkg { font-weight: 600; }
+  .dep-arrow .pkg-blue { color: var(--accent-blue); }
+  .dep-arrow .pkg-green { color: var(--accent-green); }
+  .dep-arrow .pkg-purple { color: var(--accent-purple); }
+  .dep-arrow .pkg-orange { color: var(--accent-orange); }
+  .dep-arrow .arr { color: var(--text-dim); margin: 0 4px; }
+
+  /* ===== Legend ===== */
+  .legend {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin: 16px 0 32px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border: 2px solid;
+    display: inline-block;
+  }
+
+  /* ===== Protocol Box ===== */
+  .protocol-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 16px 0 32px;
+  }
+
+  .protocol-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+
+  .protocol-box .proto-title {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .protocol-box pre {
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    overflow-x: auto;
+  }
+
+  .protocol-box pre .key { color: var(--accent-purple); }
+  .protocol-box pre .str { color: var(--accent-green); }
+  .protocol-box pre .num { color: var(--accent-orange); }
+  .protocol-box pre .comment { color: var(--text-dim); opacity: 0.5; }
+</style>
+</head>
+<body>
+
+<h1>SoloCraft Browser Tool <span>/ Architecture Design</span></h1>
+<p class="subtitle">浏览器工具分层架构 · Playwright + Extension 双驱动 · 工具共享设计</p>
+
+<!-- ===================================================================== -->
+<h2>一、全局分层架构图</h2>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="border-color:var(--accent-blue)"></div> 已有模块</div>
+  <div class="legend-item"><div class="legend-dot" style="border-color:var(--accent-green);background:var(--accent-green)"></div> 新增模块</div>
+  <div class="legend-item"><div class="legend-dot" style="border-color:var(--accent-purple)"></div> 抽象接口</div>
+  <div class="legend-item"><div class="legend-dot" style="border-color:var(--accent-orange)"></div> Driver 实现</div>
+  <div class="legend-item"><div class="legend-dot" style="border-color:var(--text-dim)"></div> 外部依赖 / 未来</div>
+</div>
+
+<div class="arch-diagram">
+  <div class="arch-layers">
+
+    <!-- Layer 1: Agent Runtime -->
+    <div class="arch-layer">
+      <div class="layer-label" style="color:var(--accent-blue)">Agent<br>Runtime</div>
+      <div class="layer-content">
+        <div class="box box-blue">streamText() <span class="tag">Vercel AI SDK</span></div>
+        <span class="connector">←</span>
+        <div class="box box-blue">tools: ToolSet</div>
+        <span class="connector">←</span>
+        <div class="box box-blue">loadAgentTools()</div>
+      </div>
+    </div>
+
+    <div class="layer-divider"></div>
+
+    <!-- Layer 2: Tool Loading -->
+    <div class="arch-layer">
+      <div class="layer-label" style="color:var(--accent-blue)">Tool<br>Loading</div>
+      <div class="layer-content">
+        <div class="box box-blue">builtin-tools.ts <span class="tag">SERVER</span></div>
+        <span class="connector">→</span>
+        <div class="box box-green">
+          createBrowserTools(config)
+          <span class="new-tag">NEW</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-divider"></div>
+
+    <!-- Layer 3: Tool Definitions (SHARED) -->
+    <div class="arch-layer">
+      <div class="layer-label" style="color:var(--accent-green)">Tool<br>Definitions<br><small style="color:var(--accent-yellow)">(共享层)</small></div>
+      <div class="layer-content" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="box box-cyan">browser_navigate <span class="new-tag">NEW</span></div>
+          <div class="box box-cyan">browser_snapshot <span class="new-tag">NEW</span></div>
+          <div class="box box-cyan">browser_click <span class="new-tag">NEW</span></div>
+          <div class="box box-cyan">browser_type <span class="new-tag">NEW</span></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="box box-cyan">browser_screenshot <span class="new-tag">NEW</span></div>
+          <div class="box box-cyan">browser_scroll <span class="new-tag">NEW</span></div>
+          <div class="box box-cyan">browser_press_key <span class="new-tag">NEW</span></div>
+          <div class="box box-cyan">browser_wait <span class="new-tag">NEW</span></div>
+        </div>
+        <div style="font-size:11px;color:var(--accent-yellow);margin-top:4px">
+          ⬆ 所有 tool 只依赖 BrowserDriver 接口，不知道底层是 Playwright 还是 Extension
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-divider"></div>
+
+    <!-- Layer 4: Driver Interface -->
+    <div class="arch-layer">
+      <div class="layer-label" style="color:var(--accent-purple)">Driver<br>Interface<br><small>(抽象层)</small></div>
+      <div class="layer-content">
+        <div class="box box-purple">
+          BrowserDriver
+          <span class="new-tag">NEW</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim)">
+          navigate() · click() · type() · snapshot() · screenshot() · scroll() · pressKey() · close() ...
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-divider"></div>
+
+    <!-- Layer 5: Driver Implementations -->
+    <div class="arch-layer">
+      <div class="layer-label" style="color:var(--accent-orange)">Driver<br>Implementations</div>
+      <div class="layer-content" style="gap:24px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="box box-orange">PlaywrightDriver <span class="new-tag">NEW</span></div>
+          <div style="font-size:11px;color:var(--text-dim);padding-left:4px">
+            进程内 CDP 控制<br>
+            launch() / connectOverCDP()
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="box box-orange">ExtensionDriver <span class="new-tag">NEW</span></div>
+          <div style="font-size:11px;color:var(--text-dim);padding-left:4px">
+            WebSocket JSON-RPC<br>
+            → 浏览器插件
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="box box-dim">CloudDriver <span class="tag">FUTURE</span></div>
+          <div style="font-size:11px;color:var(--text-dim);padding-left:4px">
+            Browserbase / 远程<br>
+            CDP over network
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-divider"></div>
+
+    <!-- Layer 6: External -->
+    <div class="arch-layer">
+      <div class="layer-label" style="color:var(--text-dim)">External<br>Runtime</div>
+      <div class="layer-content" style="gap:24px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="box box-dim">playwright-core</div>
+          <div class="box box-dim" style="margin-left:12px">↓ CDP</div>
+          <div class="box box-dim" style="margin-left:12px">Chrome / Chromium / Edge</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="box box-dim">WebSocket Server</div>
+          <div class="box box-dim" style="margin-left:12px">↓ WS</div>
+          <div class="box box-pink">SoloCraft Extension <span class="tag">独立项目</span></div>
+          <div class="box box-dim" style="margin-left:12px">↓ DOM API</div>
+          <div class="box box-dim" style="margin-left:12px">用户的浏览器页面</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="box box-dim">Browserbase API</div>
+          <div class="box box-dim" style="margin-left:12px">↓ HTTPS</div>
+          <div class="box box-dim" style="margin-left:12px">Cloud Browser</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="insight-box">
+  <div class="insight-title">核心设计原则</div>
+  <strong style="color:var(--accent-cyan)">Tool 定义层只写一次，永远不需要改。</strong>
+  新增 Driver（插件/云端/移动端）时，只需要实现 <code style="color:var(--accent-purple)">BrowserDriver</code> 接口，
+  上层 8 个 tool 定义 + Agent 调用链路零改动。
+</div>
+
+<!-- ===================================================================== -->
+<h2>二、两种模式调用流程对比</h2>
+
+<div class="flow-container">
+  <!-- Playwright Flow -->
+  <div class="flow-panel">
+    <div class="flow-title" style="color:var(--accent-orange)">
+      <div class="dot" style="background:var(--accent-orange)"></div>
+      模式 A · Playwright 本地控制
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--accent-blue)">Agent</span>
+        <span class="step-detail">调用 browser_navigate("https://...")</span>
+      </div>
+      <div class="flow-arrow">↓ Vercel AI SDK tool execute()</div>
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--accent-cyan)">Tool 定义层</span>
+        <span class="step-detail">driver.navigate(url)</span>
+      </div>
+      <div class="flow-arrow">↓ 调用 BrowserDriver 接口</div>
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--accent-orange)">Playwright<br>Driver</span>
+        <span class="step-detail">page.goto(url)</span>
+      </div>
+      <div class="flow-arrow">↓ CDP 协议（进程内）</div>
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--text-dim)">Chrome</span>
+        <span class="step-detail">导航到目标页面</span>
+      </div>
+      <div class="flow-arrow">↑ 返回 DOM</div>
+      <div class="flow-step active">
+        <span class="step-label" style="color:var(--accent-orange)">Playwright<br>Driver</span>
+        <span class="step-detail">page.accessibility.snapshot()</span>
+      </div>
+      <div class="flow-arrow">↑ 格式化 → PageSnapshot</div>
+      <div class="flow-step active">
+        <span class="step-label" style="color:var(--accent-green)">返回 Agent</span>
+        <span class="step-detail">Accessibility tree 文本</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Extension Flow -->
+  <div class="flow-panel">
+    <div class="flow-title" style="color:var(--accent-pink)">
+      <div class="dot" style="background:var(--accent-pink)"></div>
+      模式 B · 浏览器插件远程控制
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--accent-blue)">Agent</span>
+        <span class="step-detail">调用 browser_navigate("https://...")</span>
+      </div>
+      <div class="flow-arrow">↓ Vercel AI SDK tool execute()</div>
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--accent-cyan)">Tool 定义层</span>
+        <span class="step-detail">driver.navigate(url)　<em style="color:var(--accent-yellow)">← 完全相同</em></span>
+      </div>
+      <div class="flow-arrow">↓ 调用 BrowserDriver 接口</div>
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--accent-orange)">Extension<br>Driver</span>
+        <span class="step-detail">ws.send({ method: "navigate" })</span>
+      </div>
+      <div class="flow-arrow">↓ WebSocket JSON-RPC（网络）</div>
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--accent-pink)">Extension<br>Service Worker</span>
+        <span class="step-detail">chrome.tabs.update({ url })</span>
+      </div>
+      <div class="flow-arrow">↓ Chrome Extension API</div>
+      <div class="flow-step">
+        <span class="step-label" style="color:var(--text-dim)">用户浏览器</span>
+        <span class="step-detail">导航到目标页面</span>
+      </div>
+      <div class="flow-arrow">↑ Content Script 注入</div>
+      <div class="flow-step active">
+        <span class="step-label" style="color:var(--accent-pink)">Extension<br>Content Script</span>
+        <span class="step-detail">buildAccessibilityTree()</span>
+      </div>
+      <div class="flow-arrow">↑ WebSocket 返回 → PageSnapshot</div>
+      <div class="flow-step active">
+        <span class="step-label" style="color:var(--accent-green)">返回 Agent</span>
+        <span class="step-detail">Accessibility tree 文本　<em style="color:var(--accent-yellow)">← 完全相同</em></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="insight-box">
+  <div class="insight-title">共享 vs 分别实现</div>
+  从上面两个流程可以看到：<br><br>
+  <strong style="color:var(--accent-green)">Agent → Tool 定义 → BrowserDriver 接口</strong> 这三层是 <strong style="color:var(--accent-green)">完全共享</strong> 的，代码只写一次。<br><br>
+  <strong style="color:var(--accent-orange)">BrowserDriver 接口 → 底层执行</strong> 这层是 <strong style="color:var(--accent-orange)">分别实现</strong> 的，每种模式有自己的 Driver。<br><br>
+  所以浏览器工具<strong>不需要写两遍</strong>。8 个 tool 定义在 <code>tools.ts</code> 中写一次，通过 <code>BrowserDriver</code> 接口调用。
+  只有 Driver 层面需要分别实现 <code>PlaywrightDriver</code> 和 <code>ExtensionDriver</code>。
+</div>
+
+<!-- ===================================================================== -->
+<h2>三、共享 vs 分别实现 · 逐层详解</h2>
+
+<table class="comparison-table">
+  <thead>
+    <tr>
+      <th style="width:180px">层</th>
+      <th style="width:120px">共享/分别</th>
+      <th>文件位置</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Agent Runtime</td>
+      <td class="shared-cell">共享 ✓</td>
+      <td class="loc">packages/server/src/agent/runtime.ts</td>
+      <td>已有代码，streamText + tools，无需改动</td>
+    </tr>
+    <tr>
+      <td>Tool Loading</td>
+      <td class="shared-cell">共享 ✓</td>
+      <td class="loc">packages/server/src/agent/builtin-tools.ts</td>
+      <td>已有代码，加一个 if (config.browser) 分支</td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent-cyan)">Tool Definitions</td>
+      <td class="shared-cell"><strong>共享 ✓</strong></td>
+      <td class="loc" style="color:var(--accent-green)">packages/tools/src/browser/tools.ts</td>
+      <td>8 个 tool 定义 (browser_navigate, browser_click...) — <strong>只写一次</strong></td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent-yellow)">Snapshot 序列化</td>
+      <td class="shared-cell"><strong>共享 ✓</strong></td>
+      <td class="loc" style="color:var(--accent-green)">packages/tools/src/browser/snapshot.ts</td>
+      <td>PageSnapshot → 文本格式化 + ref 生成算法 — 两种模式输出格式一致</td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent-purple)">BrowserDriver 接口</td>
+      <td class="shared-cell"><strong>共享 ✓</strong></td>
+      <td class="loc" style="color:var(--accent-green)">packages/tools/src/browser/driver.ts</td>
+      <td>TypeScript interface — 契约定义</td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent-orange)">PlaywrightDriver</td>
+      <td class="separate-cell"><strong>分别 ✗</strong></td>
+      <td class="loc" style="color:var(--accent-green)">packages/tools/src/browser/drivers/playwright.ts</td>
+      <td>playwright-core 实现 BrowserDriver</td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent-orange)">ExtensionDriver</td>
+      <td class="separate-cell"><strong>分别 ✗</strong></td>
+      <td class="loc" style="color:var(--accent-green)">packages/tools/src/browser/drivers/extension.ts</td>
+      <td>WebSocket JSON-RPC 实现 BrowserDriver</td>
+    </tr>
+    <tr>
+      <td style="color:var(--accent-pink)">浏览器插件</td>
+      <td class="separate-cell"><strong>分别 ✗</strong></td>
+      <td class="loc">apps/extension/ (独立项目)</td>
+      <td>Chrome Extension — Service Worker + Content Script</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ===================================================================== -->
+<h2>四、新增项目目录结构</h2>
+
+<div class="tree-container">
+<div class="tree"><span class="existing">apps/</span>
+<span class="existing">├── desktop/                          </span><span class="comment"># @solocraft/desktop  （已有）</span>
+<span class="new">├── extension/                        </span><span class="comment"># @solocraft/extension （🆕 未来 - 浏览器插件）</span>
+<span class="new">│   ├── manifest.json                 </span><span class="comment"># Chrome Extension Manifest V3</span>
+<span class="new">│   ├── src/</span>
+<span class="new">│   │   ├── background/</span>
+<span class="new">│   │   │   └── service-worker.ts     </span><span class="comment"># WebSocket 客户端 + JSON-RPC 分发</span>
+<span class="new">│   │   ├── content/</span>
+<span class="new">│   │   │   ├── snapshot.ts           </span><span class="comment"># DOM → Accessibility tree（<span class="shared">复用 snapshot 算法</span>）</span>
+<span class="new">│   │   │   ├── actions.ts            </span><span class="comment"># click / type / scroll 执行层</span>
+<span class="new">│   │   │   └── inject.ts             </span><span class="comment"># Content script 入口</span>
+<span class="new">│   │   └── popup/</span>
+<span class="new">│   │       ├── Popup.tsx              </span><span class="comment"># 连接配置 UI</span>
+<span class="new">│   │       └── index.html</span>
+<span class="new">│   └── package.json</span>
+
+<span class="existing">packages/</span>
+<span class="existing">├── shared/                           </span><span class="comment"># @solocraft/shared   （已有 - 零运行时类型）</span>
+<span class="existing">├── server/                           </span><span class="comment"># @solocraft/server   （已有 - 改 1 个文件）</span>
+<span class="existing">│   └── src/agent/</span>
+<span class="existing">│       ├── builtin-tools.ts          </span><span class="comment"># ← 加 browser 分支，调用 createBrowserTools()</span>
+<span class="existing">│       ├── tools.ts                  </span><span class="comment"># ← 无需改动</span>
+<span class="existing">│       └── runtime.ts                </span><span class="comment"># ← 无需改动</span>
+<span class="existing">├── ui/                               </span><span class="comment"># @solocraft/ui       （已有）</span>
+
+<span class="new">└── tools/                            </span><span class="comment"># @solocraft/tools    （🆕 工具运行时包）</span>
+<span class="new">    ├── package.json</span>
+<span class="new">    ├── tsconfig.json</span>
+<span class="new">    ├── vitest.config.ts</span>
+<span class="new">    └── src/</span>
+<span class="new">        ├── index.ts                  </span><span class="comment"># 统一导出</span>
+<span class="new">        ├── types.ts                  </span><span class="comment"># ToolsResult 通用类型</span>
+<span class="new">        │</span>
+<span class="new">        ├── <span class="dir">browser/</span>                 </span><span class="comment"># 浏览器工具</span>
+<span class="new">        │   ├── <span class="tool">index.ts</span>             </span><span class="comment"># createBrowserTools() 工厂入口</span>
+<span class="new">        │   ├── <span class="interface">driver.ts</span>            </span><span class="comment"># BrowserDriver interface（抽象协议）</span>
+<span class="new">        │   ├── <span class="tool">tools.ts</span>             </span><span class="comment"># 8 个 tool() 定义（共享，只写一次）</span>
+<span class="new">        │   ├── <span class="shared">snapshot.ts</span>          </span><span class="comment"># Accessibility tree 序列化 + ref 生成</span>
+<span class="new">        │   ├── detect.ts             </span><span class="comment"># 系统浏览器路径检测</span>
+<span class="new">        │   │</span>
+<span class="new">        │   └── <span class="dir">drivers/</span>             </span><span class="comment"># Driver 实现层（分别实现）</span>
+<span class="new">        │       ├── <span class="driver">playwright.ts</span>    </span><span class="comment"># PlaywrightDriver — playwright-core CDP</span>
+<span class="new">        │       └── <span class="driver">extension.ts</span>     </span><span class="comment"># ExtensionDriver  — WebSocket JSON-RPC</span>
+<span class="new">        │</span>
+<span class="new">        ├── <span class="dir">computer-use/</span>            </span><span class="comment"># 🔮 未来：Computer Use（截图+坐标）</span>
+<span class="new">        │   ├── index.ts</span>
+<span class="new">        │   ├── driver.ts</span>
+<span class="new">        │   ├── tools.ts</span>
+<span class="new">        │   └── drivers/</span>
+<span class="new">        │</span>
+<span class="new">        └── <span class="dir">wechat/</span>                  </span><span class="comment"># 🔮 未来：微信工具</span>
+<span class="new">            ├── index.ts</span>
+<span class="new">            └── ...</span></div>
+</div>
+
+<!-- ===================================================================== -->
+<h2>五、包依赖关系</h2>
+
+<div class="dep-arrow">
+  <span class="pkg pkg-blue">@solocraft/desktop</span>
+  <span class="arr">→</span>
+  <span class="pkg pkg-blue">@solocraft/ui</span>
+  <span class="arr">→</span>
+  <span class="pkg pkg-purple">@solocraft/shared</span>
+  <span class="arr">←</span>
+  <span class="pkg pkg-blue">@solocraft/server</span>
+  <span class="arr">→</span>
+  <span class="pkg pkg-green">@solocraft/tools</span>
+  <span class="arr">→</span>
+  <span class="pkg pkg-purple">@solocraft/shared</span>
+</div>
+
+<div style="font-size:12px;color:var(--text-dim);margin:-8px 0 32px 0">
+  新的依赖链：<code style="color:var(--accent-blue)">server</code>
+  → <code style="color:var(--accent-green)">tools</code>
+  → <code style="color:var(--accent-purple)">shared</code>
+  &nbsp;（保持单向依赖，tools 不依赖 server）
+</div>
+
+<!-- ===================================================================== -->
+<h2>六、Extension 通信协议</h2>
+
+<div class="protocol-grid">
+  <div class="protocol-box">
+    <div class="proto-title" style="color:var(--accent-orange)">
+      <div class="dot" style="background:var(--accent-orange);width:8px;height:8px"></div>
+      请求：Server → Extension
+    </div>
+<pre>{
+  <span class="key">"id"</span>:      <span class="str">"req_a1b2c3"</span>,
+  <span class="key">"method"</span>:  <span class="str">"navigate"</span>,
+  <span class="key">"params"</span>: {
+    <span class="key">"url"</span>: <span class="str">"https://example.com"</span>
+  }
+}
+
+{
+  <span class="key">"id"</span>:      <span class="str">"req_d4e5f6"</span>,
+  <span class="key">"method"</span>:  <span class="str">"click"</span>,
+  <span class="key">"params"</span>: {
+    <span class="key">"ref"</span>: <span class="str">"e14"</span>
+  }
+}
+
+{
+  <span class="key">"id"</span>:      <span class="str">"req_g7h8i9"</span>,
+  <span class="key">"method"</span>:  <span class="str">"snapshot"</span>,
+  <span class="key">"params"</span>: {}
+}</pre>
+  </div>
+  <div class="protocol-box">
+    <div class="proto-title" style="color:var(--accent-green)">
+      <div class="dot" style="background:var(--accent-green);width:8px;height:8px"></div>
+      响应：Extension → Server
+    </div>
+<pre>{
+  <span class="key">"id"</span>:      <span class="str">"req_a1b2c3"</span>,
+  <span class="key">"result"</span>: {
+    <span class="key">"url"</span>:   <span class="str">"https://example.com"</span>,
+    <span class="key">"title"</span>: <span class="str">"Example Domain"</span>,
+    <span class="key">"tree"</span>:  [<span class="comment">/* SnapshotElement[] */</span>],
+    <span class="key">"text"</span>:  <span class="str">"page: Example Domain\n..."</span>
+  }
+}
+
+<span class="comment">// 错误响应</span>
+{
+  <span class="key">"id"</span>:    <span class="str">"req_d4e5f6"</span>,
+  <span class="key">"error"</span>: {
+    <span class="key">"code"</span>:    <span class="num">-32602</span>,
+    <span class="key">"message"</span>: <span class="str">"Element ref e14 not found"</span>
+  }
+}</pre>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<h2>七、配置切换示意</h2>
+
+<div class="protocol-box" style="margin-bottom:32px">
+<pre><span class="comment">// Agent 配置中切换 browser driver</span>
+{
+  <span class="key">"builtinTools"</span>: {
+    <span class="key">"bash"</span>: <span class="num">true</span>,
+    <span class="key">"browser"</span>: {
+      <span class="key">"enabled"</span>:  <span class="num">true</span>,
+      <span class="key">"driver"</span>:   <span class="str">"playwright"</span>,    <span class="comment">// 或 "extension" 或 "cloud"</span>
+
+      <span class="comment">// Playwright 模式专用</span>
+      <span class="key">"headless"</span>: <span class="num">false</span>,
+      <span class="key">"executablePath"</span>: <span class="str">"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"</span>,
+
+      <span class="comment">// Extension 模式专用</span>
+      <span class="key">"wsUrl"</span>:    <span class="str">"ws://localhost:9876"</span>,
+      <span class="key">"token"</span>:    <span class="str">"auto-generated"</span>
+    }
+  }
+}</pre>
+</div>
+
+<div class="insight-box" style="border-color:var(--accent-cyan)">
+  <div class="insight-title" style="color:var(--accent-cyan)">总结</div>
+  <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:12px">
+    <span style="color:var(--accent-green)">共享（写一次）：</span>
+    <span>8 个 tool 定义 · BrowserDriver 接口 · snapshot 序列化 · 工厂入口 · 配置类型</span>
+    <span style="color:var(--accent-orange)">分别实现：</span>
+    <span>PlaywrightDriver（~200行）· ExtensionDriver（~150行）· 浏览器插件本体</span>
+    <span style="color:var(--text-dim)">已有代码改动：</span>
+    <span>builtin-tools.ts 加一个 if 分支（~10行）</span>
+  </div>
+</div>
+
+</body>
+</html>
