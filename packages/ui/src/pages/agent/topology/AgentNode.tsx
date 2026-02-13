@@ -64,8 +64,8 @@ export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => 
 
       {/* Main agent label */}
       {data.isMainAgent && (
-        <div className="px-3 pt-1.5">
-          <span className="font-pixel text-[8px] text-mc-gold">MAIN</span>
+        <div className="px-3 pt-1.5" title="Current selected main agent for this project">
+          <span className="font-pixel text-[8px] text-mc-gold">CURRENT MAIN</span>
         </div>
       )}
 
