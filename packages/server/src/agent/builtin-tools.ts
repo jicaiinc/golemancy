@@ -23,10 +23,42 @@ const DEFAULT_BROWSER_CONFIG: BrowserToolsConfig = {
 }
 
 export interface BuiltinToolOptions {
+  /** Project ID — used to resolve workspace directory for ReadWriteFs */
+  projectId?: string
   /** Skill script files to inject into bash tool (from loadAgentSkillTools) */
   skillFiles?: Record<string, string>
   /** Extra instructions for bash tool (from loadAgentSkillTools) */
   skillInstructions?: string
+}
+
+/**
+ * Create a just-bash Bash instance backed by ReadWriteFs for real file persistence,
+ * with Python and full network access enabled.
+ * Workspace directory: ~/.golemancy/projects/{projectId}/workspace/
+ */
+async function createBashToolWithSandbox(options?: BuiltinToolOptions) {
+  let sandbox: Bash | undefined
+  let destination: string | undefined
+
+  if (options?.projectId) {
+    const workspaceDir = getProjectPath(options.projectId) + '/workspace'
+    await fs.mkdir(workspaceDir, { recursive: true })
+
+    sandbox = new Bash({
+      fs: new ReadWriteFs({ root: workspaceDir }),
+      python: true,
+      network: { dangerouslyAllowFullInternetAccess: true },
+      cwd: '/',
+    })
+    destination = '/'
+  }
+
+  return createBashTool({
+    sandbox,
+    destination,
+    files: options?.skillFiles,
+    extraInstructions: options?.skillInstructions,
+  })
 }
 
 export async function loadBuiltinTools(
@@ -39,10 +71,7 @@ export async function loadBuiltinTools(
   // Bash tools — single entry point for bash/readFile/writeFile
   if (config.bash !== false) {
     try {
-      const bashToolkit = await createBashTool({
-        files: options?.skillFiles,
-        extraInstructions: options?.skillInstructions,
-      })
+      const bashToolkit = await createBashToolWithSandbox(options)
       Object.assign(tools, bashToolkit.tools)
       log.debug('loaded bash built-in tools')
     } catch (err) {

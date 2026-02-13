@@ -66,6 +66,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   //    Skill files and instructions are passed here so bash tool can access them
   if (agent.builtinTools) {
     const builtinResult = await loadBuiltinTools(agent.builtinTools, {
+      projectId,
       skillFiles,
       skillInstructions,
     })
