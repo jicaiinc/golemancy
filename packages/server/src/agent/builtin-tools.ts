@@ -1,6 +1,6 @@
-import fs from 'node:fs/promises'
+import nodeFs from 'node:fs/promises'
 import { createBashTool } from 'bash-tool'
-import { Bash, ReadWriteFs } from 'just-bash'
+import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash'
 import type { ToolSet } from 'ai'
 import type { BuiltinToolConfig } from '@golemancy/shared'
 import { createBrowserTools, type BrowserToolsConfig } from '@golemancy/tools/browser'
@@ -28,20 +28,31 @@ export interface BuiltinToolOptions {
 }
 
 /**
- * Create a just-bash Bash instance backed by ReadWriteFs for real file persistence,
- * with Python and full network access enabled.
- * Workspace directory: ~/.golemancy/projects/{projectId}/workspace/
+ * Create a just-bash Bash instance with MountableFs:
+ *   /project  → OverlayFs (read-only, project root with skills/agents/config)
+ *   /workspace → ReadWriteFs (read-write, persistent working directory)
+ *
+ * Python and full network access enabled.
  */
 async function createBashToolWithSandbox(options?: BuiltinToolOptions) {
   let sandbox: Bash | undefined
   let destination: string | undefined
 
   if (options?.projectId) {
-    const workspaceDir = getProjectPath(options.projectId) + '/workspace'
-    await fs.mkdir(workspaceDir, { recursive: true })
+    const projectDir = getProjectPath(options.projectId)
+    const workspaceDir = projectDir + '/workspace'
+    await nodeFs.mkdir(workspaceDir, { recursive: true })
+
+    const mountableFs = new MountableFs({
+      base: new InMemoryFs(),
+      mounts: [
+        { mountPoint: '/root', filesystem: new OverlayFs({ root: '/', mountPoint: '/'}) },
+        { mountPoint: '/workspace', filesystem: new ReadWriteFs({ root: workspaceDir }) },
+      ],
+    })
 
     sandbox = new Bash({
-      fs: new ReadWriteFs({ root: workspaceDir }),
+      fs: mountableFs,
       python: true,
       network: { dangerouslyAllowFullInternetAccess: true },
       cwd: '/',

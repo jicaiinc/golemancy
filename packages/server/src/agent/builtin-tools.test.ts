@@ -6,6 +6,9 @@ vi.mock('bash-tool', () => ({
 
 vi.mock('just-bash', () => ({
   Bash: vi.fn(),
+  MountableFs: vi.fn(),
+  InMemoryFs: vi.fn(),
+  OverlayFs: vi.fn(),
   ReadWriteFs: vi.fn(),
 }))
 
@@ -23,7 +26,8 @@ vi.mock('node:fs/promises', () => ({
 
 import { loadBuiltinTools, BUILTIN_TOOL_REGISTRY } from './builtin-tools'
 import { createBashTool } from 'bash-tool'
-import { Bash, ReadWriteFs } from 'just-bash'
+import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash'
+import nodeFs from 'node:fs/promises'
 
 const mockCreateBashTool = vi.mocked(createBashTool)
 
@@ -55,7 +59,7 @@ describe('loadBuiltinTools', () => {
     vi.clearAllMocks()
   })
 
-  it('returns tools when bash is enabled with projectId', async () => {
+  it('creates MountableFs sandbox with projectId', async () => {
     const fakeTool = { execute: vi.fn() }
     mockCreateBashTool.mockResolvedValue({ tools: { bash: fakeTool } } as any)
 
@@ -63,13 +67,33 @@ describe('loadBuiltinTools', () => {
 
     expect(result).not.toBeNull()
     expect(result!.tools).toHaveProperty('bash')
-    // Should create ReadWriteFs-backed Bash and pass as sandbox
+
+    // Creates workspace directory on disk
+    expect(nodeFs.mkdir).toHaveBeenCalledWith('/mock-data/projects/proj-1/workspace', { recursive: true })
+
+    // OverlayFs: real root mounted read-only at /root with mountPoint '/'
+    expect(OverlayFs).toHaveBeenCalledWith({ root: '/', mountPoint: '/' })
+
+    // ReadWriteFs: workspace directory for read-write
     expect(ReadWriteFs).toHaveBeenCalledWith({ root: '/mock-data/projects/proj-1/workspace' })
+
+    // MountableFs: InMemoryFs base + two mounts
+    expect(InMemoryFs).toHaveBeenCalled()
+    expect(MountableFs).toHaveBeenCalledWith(expect.objectContaining({
+      mounts: expect.arrayContaining([
+        expect.objectContaining({ mountPoint: '/root' }),
+        expect.objectContaining({ mountPoint: '/workspace' }),
+      ]),
+    }))
+
+    // Bash: python + network + cwd at /
     expect(Bash).toHaveBeenCalledWith(expect.objectContaining({
       python: true,
       network: { dangerouslyAllowFullInternetAccess: true },
       cwd: '/',
     }))
+
+    // createBashTool: destination at /
     expect(mockCreateBashTool).toHaveBeenCalledWith(expect.objectContaining({
       destination: '/',
     }))
@@ -83,6 +107,7 @@ describe('loadBuiltinTools', () => {
 
     expect(result).not.toBeNull()
     expect(Bash).not.toHaveBeenCalled()
+    expect(MountableFs).not.toHaveBeenCalled()
     expect(mockCreateBashTool).toHaveBeenCalledWith({
       sandbox: undefined,
       destination: undefined,
@@ -111,7 +136,6 @@ describe('loadBuiltinTools', () => {
 
     const result = await loadBuiltinTools({ bash: true })
 
-    // Should return null since no tools were loaded, not throw
     expect(result).toBeNull()
   })
 
