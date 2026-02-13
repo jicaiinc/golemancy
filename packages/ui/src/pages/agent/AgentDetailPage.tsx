@@ -237,7 +237,7 @@ function ToolsTab({ agent, onUpdate }: {
 }) {
   const builtinToolDefs = [
     { id: 'bash', name: 'Bash', description: 'Execute bash commands, read and write files', available: true },
-    { id: 'browser', name: 'Browser', description: 'Control web browser for automation', available: false },
+    { id: 'browser', name: 'Browser', description: 'Control web browser for automation', available: true },
     { id: 'os_control', name: 'OS Control', description: 'Desktop automation and system control', available: false },
   ]
 
