@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useRef } from 'react'
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react'
 import { AnimatePresence } from 'motion/react'
 import {
   ReactFlow,
@@ -32,9 +32,21 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
   const deleteAgent = useAppStore(s => s.deleteAgent)
   const updateProject = useAppStore(s => s.updateProject)
   const agents = useAppStore(s => s.agents)
+  const themeMode = useAppStore(s => s.themeMode)
 
   const [highlightedNodeId, setHighlightedNodeId] = useState<AgentId | null>(null)
   const prevAgentCountRef = useRef(agents.length)
+
+  // Compute effective color mode for ReactFlow
+  const colorMode = useMemo<'light' | 'dark'>(() => {
+    if (themeMode === 'light') return 'light'
+    if (themeMode === 'dark') return 'dark'
+    // For 'system', check media query
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    return 'dark' // fallback
+  }, [themeMode])
 
   const {
     nodes, edges,
@@ -101,7 +113,7 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        colorMode="dark"
+        colorMode={colorMode}
         proOptions={{ hideAttribution: true }}
       >
         <Background color="var(--color-border-dim)" gap={24} size={1} />

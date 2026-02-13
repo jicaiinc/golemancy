@@ -7,16 +7,16 @@
   width: 8px !important;
   height: 8px !important;
   border-radius: 0 !important;
-  background: #4A5568 !important;
-  border: 2px solid #2E3A4E !important;
+  background: var(--color-border-bright) !important;
+  border: 2px solid var(--color-border-dim) !important;
 }
 
 .react-flow__handle:hover {
-  background: #22D3EE !important;
+  background: var(--color-accent-cyan) !important;
 }
 
 .react-flow__handle-connecting {
-  background: #4ADE80 !important;
+  background: var(--color-accent-green) !important;
 }
 
 .react-flow__edge-path {
@@ -26,25 +26,24 @@
 /* Controls */
 .react-flow__controls {
   box-shadow: none !important;
-  border: 2px solid #2E3A4E !important;
+  border: 2px solid var(--color-border-dim) !important;
   border-radius: 0 !important;
 }
 
 .react-flow__controls-button {
   width: 32px !important;
   height: 32px !important;
-  background: #1E2430 !important;
+  background: var(--color-surface) !important;
   border: none !important;
-  border-bottom: 2px solid #2E3A4E !important;
+  border-bottom: 2px solid var(--color-border-dim) !important;
   border-radius: 0 !important;
-  color: #8B95A5 !important;
-  box-shadow: inset 2px 2px 0 0 rgba(255,255,255,0.08),
-              inset -2px -2px 0 0 rgba(0,0,0,0.3) !important;
+  color: var(--color-text-secondary) !important;
+  box-shadow: var(--shadow-pixel-raised) !important;
 }
 
 .react-flow__controls-button:hover {
-  background: #2A3242 !important;
-  color: #E8ECF1 !important;
+  background: var(--color-elevated) !important;
+  color: var(--color-text-primary) !important;
 }
 
 .react-flow__controls-button:last-child {
@@ -57,10 +56,10 @@
 
 /* Minimap */
 .react-flow__minimap {
-  background: rgba(20, 24, 32, 0.9) !important;
-  border: 2px solid #2E3A4E !important;
+  background: color-mix(in srgb, var(--color-deep) 90%, transparent) !important;
+  border: 2px solid var(--color-border-dim) !important;
   border-radius: 0 !important;
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5) !important;
+  box-shadow: var(--shadow-pixel-drop) !important;
 }
 
 /* Background */
