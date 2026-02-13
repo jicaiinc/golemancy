@@ -38,20 +38,20 @@ function ViewSwitcher({ mode, onChange }: { mode: ViewMode; onChange: (mode: Vie
   return (
     <div className="flex border-2 border-border-dim">
       <button
-        className={`h-7 px-3 text-[12px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer ${
+        className={`h-7 px-3 text-[12px] font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
           mode === 'grid'
-            ? 'bg-elevated text-text-primary shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)]'
-            : 'text-text-secondary hover:text-text-primary'
+            ? 'bg-deep text-text-primary shadow-pixel-sunken'
+            : 'bg-surface text-text-secondary hover:text-text-primary shadow-pixel-raised'
         }`}
         onClick={() => onChange('grid')}
       >
         Grid
       </button>
       <button
-        className={`h-7 px-3 text-[12px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer border-l-2 border-border-dim ${
+        className={`h-7 px-3 text-[12px] font-mono flex items-center gap-1.5 transition-all cursor-pointer border-l-2 border-border-dim ${
           mode === 'topology'
-            ? 'bg-elevated text-text-primary shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)]'
-            : 'text-text-secondary hover:text-text-primary'
+            ? 'bg-deep text-text-primary shadow-pixel-sunken'
+            : 'bg-surface text-text-secondary hover:text-text-primary shadow-pixel-raised'
         }`}
         onClick={() => onChange('topology')}
       >
@@ -177,8 +177,13 @@ export function AgentListPage() {
         </>
       ) : (
         <Suspense fallback={<div className="flex items-center justify-center h-full"><PixelSpinner /></div>}>
-          <LazyTopologyView />
+          <LazyTopologyView onCreateAgent={() => setShowCreate(true)} />
         </Suspense>
+      )}
+
+      {/* Shared modal for topology view with skipNavigation */}
+      {viewMode === 'topology' && (
+        <AgentCreateModal open={showCreate} onClose={() => setShowCreate(false)} skipNavigation />
       )}
     </div>
   )

@@ -10,7 +10,7 @@ import { computeDagreLayout } from './useTopologyLayout'
 import type { AgentNodeData } from './AgentNode'
 import type { AgentEdgeData } from './AgentEdge'
 
-export function useTopologyData() {
+export function useTopologyData(highlightedNodeId?: AgentId | null) {
   const { projectId } = useParams<{ projectId: string }>()
   const agents = useAppStore(s => s.agents)
   const projects = useAppStore(s => s.projects)
@@ -57,9 +57,10 @@ export function useTopologyData() {
         toolCount: agent.tools.length,
         subAgentCount: agent.subAgents.length,
         isMainAgent: currentProject?.mainAgentId === agent.id,
+        isHighlighted: highlightedNodeId === agent.id,
       },
     }))
-  }, [agents, currentProject?.mainAgentId])
+  }, [agents, currentProject?.mainAgentId, highlightedNodeId])
 
   // Derive edges from subAgents refs
   const rawEdges: Edge<AgentEdgeData>[] = useMemo(() => {
