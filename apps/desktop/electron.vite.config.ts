@@ -6,5 +6,6 @@ export default defineConfig({
   preload: {},
   renderer: {
     plugins: [react()],
+    publicDir: 'src/renderer/public',
   },
 })
