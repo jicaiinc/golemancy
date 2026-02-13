@@ -7,9 +7,10 @@ import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../compon
 interface Props {
   open: boolean
   onClose: () => void
+  skipNavigation?: boolean
 }
 
-export function AgentCreateModal({ open, onClose }: Props) {
+export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
   const { projectId } = useParams<{ projectId: string }>()
   const createAgent = useAppStore(s => s.createAgent)
   const navigate = useNavigate()
@@ -40,7 +41,9 @@ export function AgentCreateModal({ open, onClose }: Props) {
       })
       reset()
       onClose()
-      navigate(`/projects/${projectId}/agents/${agent.id}`)
+      if (!skipNavigation) {
+        navigate(`/projects/${projectId}/agents/${agent.id}`)
+      }
     } finally {
       setSaving(false)
     }

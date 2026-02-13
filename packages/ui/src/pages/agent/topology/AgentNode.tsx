@@ -12,6 +12,7 @@ export interface AgentNodeData extends Record<string, unknown> {
   toolCount: number
   subAgentCount: number
   isMainAgent: boolean
+  isHighlighted?: boolean
 }
 
 export type AgentNodeType = Node<AgentNodeData, 'agentNode'>
@@ -47,13 +48,15 @@ function mapStatus(status: AgentStatus): 'online' | 'error' | 'paused' | 'offlin
 export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => {
   return (
     <div className={`
-      w-[240px] bg-surface border-2 relative overflow-hidden cursor-pointer transition-colors
+      w-[240px] bg-surface border-2 relative overflow-hidden cursor-pointer transition-all
       shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)]
       ${selected
         ? 'bg-elevated border-accent-blue shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3),4px_4px_0_0_rgba(0,0,0,0.5),0_0_0_2px_rgba(96,165,250,0.3)]'
-        : data.isMainAgent
-          ? 'border-mc-gold/60'
-          : 'border-border-dim'
+        : data.isHighlighted
+          ? 'border-accent-green animate-[pixel-pulse_1s_steps(2)_infinite] shadow-[0_0_0_4px_rgba(74,222,128,0.3),inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)]'
+          : data.isMainAgent
+            ? 'border-mc-gold/60'
+            : 'border-border-dim'
       }
     `}>
       {/* Status bar */}

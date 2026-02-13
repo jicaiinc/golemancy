@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect, useRef } from 'react'
 import { AnimatePresence } from 'motion/react'
 import {
   ReactFlow,
@@ -18,16 +18,23 @@ import { AgentEdge } from './AgentEdge'
 import { NodeDetailPanel } from './NodeDetailPanel'
 import { TopologyToolbar } from './TopologyToolbar'
 import { useTopologyData } from './useTopologyData'
-import { AgentCreateModal } from '../AgentCreateModal'
 
 const nodeTypes = { agentNode: AgentNode }
 const edgeTypes = { agentEdge: AgentEdge }
 
-export function TopologyView() {
+interface TopologyViewProps {
+  onCreateAgent: () => void
+}
+
+export function TopologyView({ onCreateAgent }: TopologyViewProps) {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
   const deleteAgent = useAppStore(s => s.deleteAgent)
   const updateProject = useAppStore(s => s.updateProject)
+  const agents = useAppStore(s => s.agents)
+
+  const [highlightedNodeId, setHighlightedNodeId] = useState<AgentId | null>(null)
+  const prevAgentCountRef = useRef(agents.length)
 
   const {
     nodes, edges,
@@ -36,9 +43,20 @@ export function TopologyView() {
     onNodeDragStop,
     resetLayout,
     selectedAgentId, setSelectedAgentId,
-  } = useTopologyData()
+  } = useTopologyData(highlightedNodeId)
 
-  const [showCreate, setShowCreate] = useState(false)
+  // Detect new agent creation and highlight it
+  useEffect(() => {
+    if (agents.length > prevAgentCountRef.current) {
+      // New agent was added - find and highlight it
+      const newAgent = agents[agents.length - 1]
+      setHighlightedNodeId(newAgent.id)
+      // Clear highlight after animation
+      const timer = setTimeout(() => setHighlightedNodeId(null), 2000)
+      return () => clearTimeout(timer)
+    }
+    prevAgentCountRef.current = agents.length
+  }, [agents])
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{
@@ -77,7 +95,7 @@ export function TopologyView() {
           // Only trigger on pane double-click, not on nodes
           // (onPaneDoubleClick doesn't exist in v12)
           if ((e.target as HTMLElement).classList.contains('react-flow__pane')) {
-            setShowCreate(true)
+            onCreateAgent()
           }
         }}
         nodeTypes={nodeTypes}
@@ -150,8 +168,6 @@ export function TopologyView() {
           </button>
         </div>
       )}
-
-      <AgentCreateModal open={showCreate} onClose={() => setShowCreate(false)} />
     </div>
   )
 }
