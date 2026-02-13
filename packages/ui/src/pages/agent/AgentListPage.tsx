@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useLocation } from 'react-router'
 import { motion } from 'motion/react'
 import type { AgentStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -66,8 +66,11 @@ export function AgentListPage() {
   const agents = useAppStore(s => s.agents)
   const agentsLoading = useAppStore(s => s.agentsLoading)
   const navigate = useNavigate()
+  const location = useLocation()
   const [showCreate, setShowCreate] = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  // Initialize viewMode from location state if coming from agent detail
+  const initialView = (location.state as { fromView?: ViewMode })?.fromView ?? 'grid'
+  const [viewMode, setViewMode] = useState<ViewMode>(initialView)
 
   if (agentsLoading) {
     return (

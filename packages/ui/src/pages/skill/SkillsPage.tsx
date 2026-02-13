@@ -53,17 +53,34 @@ export function SkillsPage() {
   const handleSkillDrop = useCallback(async (files: File[]) => {
     setImportStatus(null)
     const mdFiles = files.filter(f => f.name.toLowerCase().endsWith('.md'))
-    if (mdFiles.length === 0) {
-      setImportStatus({ type: 'error', message: 'No .md files found. Drop markdown files to import skills.' })
+    const zipFiles = files.filter(f => f.name.toLowerCase().endsWith('.zip'))
+
+    if (mdFiles.length === 0 && zipFiles.length === 0) {
+      setImportStatus({ type: 'error', message: 'No .md or .zip files found. Drop markdown or zip files to import skills.' })
       return
     }
+
     try {
-      await Promise.all(mdFiles.map(async (file) => {
-        const content = await file.text()
-        const name = file.name.replace(/\.md$/i, '').replace(/[-_]/g, ' ')
-        return createSkill({ name, description: '', instructions: content })
-      }))
-      setImportStatus({ type: 'success', message: `Imported ${mdFiles.length} skill${mdFiles.length !== 1 ? 's' : ''}` })
+      let totalImported = 0
+
+      // Handle .md files
+      if (mdFiles.length > 0) {
+        await Promise.all(mdFiles.map(async (file) => {
+          const content = await file.text()
+          const name = file.name.replace(/\.md$/i, '').replace(/[-_]/g, ' ')
+          return createSkill({ name, description: '', instructions: content })
+        }))
+        totalImported += mdFiles.length
+      }
+
+      // Handle .zip files
+      const importSkillsFromZip = useAppStore.getState().importSkillsFromZip
+      for (const zipFile of zipFiles) {
+        const result = await importSkillsFromZip(zipFile)
+        totalImported += result.count
+      }
+
+      setImportStatus({ type: 'success', message: `Imported ${totalImported} skill${totalImported !== 1 ? 's' : ''}` })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to import skills'
       setImportStatus({ type: 'error', message })
@@ -84,7 +101,7 @@ export function SkillsPage() {
       </div>
 
       {/* Drop zone for skill import */}
-      <PixelDropZone accept={['.md']} onDrop={handleSkillDrop} className="mb-4" />
+      <PixelDropZone accept={['.md', '.zip']} onDrop={handleSkillDrop} className="mb-4" />
 
       {/* Import status */}
       {importStatus && (

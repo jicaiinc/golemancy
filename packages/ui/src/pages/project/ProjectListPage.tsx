@@ -47,7 +47,7 @@ export function ProjectListPage() {
       title="Golemancy"
       actions={
         <PixelButton variant="ghost" size="sm" onClick={() => navigate('/settings')}>
-          ⚙
+          <span className="text-[18px]">⚙</span>
         </PixelButton>
       }
     >

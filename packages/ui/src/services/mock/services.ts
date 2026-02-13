@@ -390,6 +390,12 @@ export class MockSkillService implements ISkillService {
     }
     this.data.delete(id)
   }
+
+  async importZip(_projectId: ProjectId, _file: File): Promise<{ imported: Array<{ name: string; id: SkillId }>; count: number }> {
+    await delay()
+    // Mock: just return empty result
+    return { imported: [], count: 0 }
+  }
 }
 
 // --- MCPService ---

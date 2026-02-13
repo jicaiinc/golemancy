@@ -61,6 +61,7 @@ export interface ISkillService {
   create(projectId: ProjectId, data: SkillCreateData): Promise<Skill>
   update(projectId: ProjectId, id: SkillId, data: SkillUpdateData): Promise<Skill>
   delete(projectId: ProjectId, id: SkillId): Promise<void>
+  importZip(projectId: ProjectId, file: File): Promise<{ imported: Array<{ name: string; id: SkillId }>; count: number }>
 }
 
 export interface IMCPService {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router'
+import { useParams, useNavigate, useLocation } from 'react-router'
 import type { Agent, AgentId, AgentStatus, AIProvider, SkillId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, useResolvedConfig } from '../../hooks'
@@ -35,6 +35,10 @@ export function AgentDetailPage() {
   const updateAgent = useAppStore(s => s.updateAgent)
   const deleteAgent = useAppStore(s => s.deleteAgent)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Preserve the view mode we came from
+  const fromView = (location.state as { fromView?: 'grid' | 'topology' })?.fromView
 
   const agent = agents.find(a => a.id === agentId)
   const [activeTab, setActiveTab] = useState('info')
@@ -43,7 +47,11 @@ export function AgentDetailPage() {
     return (
       <div className="p-6">
         <p className="text-text-dim">Agent not found.</p>
-        <PixelButton variant="ghost" className="mt-2" onClick={() => navigate(`/projects/${projectId}/agents`)}>
+        <PixelButton
+          variant="ghost"
+          className="mt-2"
+          onClick={() => navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined)}
+        >
           &lt; Back to Agents
         </PixelButton>
       </div>
@@ -54,7 +62,11 @@ export function AgentDetailPage() {
     <div className="p-6">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
-        <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/agents`)}>
+        <PixelButton
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined)}
+        >
           &lt; Agents
         </PixelButton>
       </div>
@@ -90,7 +102,7 @@ export function AgentDetailPage() {
       <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="mt-4">
-        {activeTab === 'info' && <InfoTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`) }} />}
+        {activeTab === 'info' && <InfoTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined) }} />}
         {activeTab === 'skills' && <SkillsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'tools' && <ToolsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'mcp' && <MCPTab agent={agent} onUpdate={updateAgent} />}

@@ -140,17 +140,14 @@ export function useTopologyData(highlightedNodeId?: AgentId | null) {
     clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => {
       // Collect all current node positions from React Flow state
-      const layout: Record<string, { x: number; y: number }> = {}
-      // Use getState to get latest nodes without stale closure
-      const currentNodes = useAppStore.getState().topologyLayout
-      // Actually we need React Flow's current nodes — use the nodes from the closure
-      // but we read from the setter to get latest
       setNodes(currentNodes => {
+        const layout: Record<string, { x: number; y: number }> = {}
         for (const n of currentNodes) {
           layout[n.id] = n.position
         }
-        layout[node.id] = node.position
+        // Save to backend and update ref
         saveTopologyLayout(projectId as ProjectId, layout)
+        initialLayoutRef.current = layout
         return currentNodes // don't modify
       })
     }, 500)

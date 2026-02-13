@@ -1,6 +1,12 @@
 import { Hono } from 'hono'
-import type { ProjectId, SkillId, ISkillService, IAgentService } from '@golemancy/shared'
+import type { ProjectId, SkillId, ISkillService, IAgentService, SkillCreateData } from '@golemancy/shared'
 import { logger } from '../logger'
+import path from 'node:path'
+import fs from 'node:fs/promises'
+import AdmZip from 'adm-zip'
+import { getProjectPath } from '../utils/paths'
+import { generateId } from '../utils/ids'
+import matter from 'gray-matter'
 
 const log = logger.child({ component: 'routes:skills' })
 
@@ -74,6 +80,72 @@ export function createSkillRoutes(deps: { skillStorage: ISkillService; agentStor
 
     await deps.skillStorage.delete(projectId, skillId)
     return c.json({ ok: true })
+  })
+
+  // POST /api/projects/:projectId/skills/import-zip
+  app.post('/import-zip', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    log.debug({ projectId }, 'importing skills from zip')
+
+    // Get uploaded file from multipart form data
+    const body = await c.req.parseBody()
+    const file = body['file']
+
+    if (!file || typeof file === 'string') {
+      return c.json({ error: 'No file uploaded' }, 400)
+    }
+
+    try {
+      // Read file buffer
+      const buffer = await file.arrayBuffer()
+      const zip = new AdmZip(Buffer.from(buffer))
+      const zipEntries = zip.getEntries()
+
+      const imported: { name: string; id: SkillId }[] = []
+      const skillsDir = path.join(getProjectPath(projectId), 'skills')
+
+      // Process each .md file in the zip
+      for (const entry of zipEntries) {
+        if (entry.isDirectory) continue
+        if (!entry.entryName.toLowerCase().endsWith('.md')) continue
+
+        const content = entry.getData().toString('utf-8')
+        const { data, content: instructions } = matter(content)
+
+        // Extract skill metadata from frontmatter or filename
+        const name = (data.name as string) || path.basename(entry.entryName, '.md').replace(/[-_]/g, ' ')
+        const description = (data.description as string) || ''
+
+        // Create skill
+        const skillData: SkillCreateData = {
+          name,
+          description,
+          instructions: instructions.trim(),
+        }
+        const skill = await deps.skillStorage.create(projectId, skillData)
+        imported.push({ name: skill.name, id: skill.id })
+
+        // Extract all files from the same directory in zip to skill directory
+        const entryDir = path.dirname(entry.entryName)
+        for (const asset of zipEntries) {
+          if (asset.isDirectory) continue
+          if (!asset.entryName.startsWith(entryDir + '/')) continue
+          if (asset.entryName === entry.entryName) continue // Skip the .md file itself
+
+          const assetName = path.relative(entryDir, asset.entryName)
+          const targetPath = path.join(skillsDir, skill.id, assetName)
+          await fs.mkdir(path.dirname(targetPath), { recursive: true })
+          await fs.writeFile(targetPath, asset.getData())
+        }
+      }
+
+      log.debug({ projectId, count: imported.length }, 'imported skills from zip')
+      return c.json({ imported, count: imported.length }, 201)
+    } catch (err) {
+      log.error({ projectId, error: err }, 'failed to import skills from zip')
+      const message = err instanceof Error ? err.message : 'Failed to import skills'
+      return c.json({ error: message }, 500)
+    }
   })
 
   return app

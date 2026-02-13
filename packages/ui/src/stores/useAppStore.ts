@@ -142,6 +142,7 @@ interface SkillActions {
   createSkill(data: SkillCreateData): Promise<Skill>
   updateSkill(id: SkillId, data: SkillUpdateData): Promise<void>
   deleteSkill(id: SkillId): Promise<void>
+  importSkillsFromZip(file: File): Promise<{ imported: Array<{ name: string; id: SkillId }>; count: number }>
 }
 
 interface MCPActions {
@@ -526,6 +527,15 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().skills.delete(projectId, id)
         set(s => ({ skills: s.skills.filter(sk => sk.id !== id) }))
+      },
+
+      async importSkillsFromZip(file) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const result = await getServices().skills.importZip(projectId, file)
+        // Reload skills to get the newly imported ones
+        await get().loadSkills(projectId)
+        return result
       },
 
       // --- MCP state ---

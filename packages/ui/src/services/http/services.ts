@@ -182,6 +182,19 @@ export class HttpSkillService implements ISkillService {
   async delete(projectId: ProjectId, id: SkillId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/skills/${id}`, { method: 'DELETE' })
   }
+  async importZip(projectId: ProjectId, file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/skills/import-zip`, {
+      method: 'POST',
+      body: formData,
+    })
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to import zip' }))
+      throw new Error(error.error || 'Failed to import zip')
+    }
+    return response.json() as Promise<{ imported: Array<{ name: string; id: SkillId }>; count: number }>
+  }
 }
 
 export class HttpMCPService implements IMCPService {

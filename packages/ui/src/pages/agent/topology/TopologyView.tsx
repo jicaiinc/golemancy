@@ -100,7 +100,7 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
         onEdgesDelete={onEdgeDelete}
         onNodeDragStop={onNodeDragStop}
         onNodeClick={(_, node) => { setSelectedAgentId(node.id as AgentId); closeContextMenu() }}
-        onNodeDoubleClick={(_, node) => navigate(`/projects/${projectId}/agents/${node.id}`)}
+        onNodeDoubleClick={(_, node) => navigate(`/projects/${projectId}/agents/${node.id}`, { state: { fromView: 'topology' } })}
         onNodeContextMenu={onNodeContextMenu}
         onPaneClick={handlePaneClick}
         onDoubleClick={(e) => {
@@ -150,7 +150,7 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
           <button
             className="block w-full text-left px-3 py-2 text-[12px] font-mono text-text-primary hover:bg-elevated transition-colors cursor-pointer"
             onClick={() => {
-              navigate(`/projects/${projectId}/agents/${contextMenu.agentId}`)
+              navigate(`/projects/${projectId}/agents/${contextMenu.agentId}`, { state: { fromView: 'topology' } })
               closeContextMenu()
             }}
           >

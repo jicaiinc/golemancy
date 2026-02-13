@@ -141,4 +141,10 @@ export class FileSkillStorage implements ISkillService {
     log.debug({ projectId, skillId: id }, 'deleting skill')
     await deleteDir(this.skillDir(projectId, id))
   }
+
+  async importZip(_projectId: ProjectId, _file: File): Promise<{ imported: Array<{ name: string; id: SkillId }>; count: number }> {
+    // This method is implemented at the route level (routes/skills.ts)
+    // It's only in the interface for frontend service compatibility
+    throw new Error('importZip should be called via HTTP route, not storage service')
+  }
 }
