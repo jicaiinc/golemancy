@@ -1,5 +1,5 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, ProjectId, IMCPService } from '@golemancy/shared'
+import type { Agent, GlobalSettings, ProjectBashToolConfig, ProjectId, IMCPService } from '@golemancy/shared'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
@@ -14,6 +14,7 @@ export interface LoadAgentToolsParams {
   settings: GlobalSettings
   allAgents: Agent[]
   mcpStorage: IMCPService
+  projectBashToolConfig?: ProjectBashToolConfig
 }
 
 export interface AgentToolsResult {
@@ -31,7 +32,7 @@ export interface AgentToolsResult {
  * recursive nesting controlled purely by agent configuration.
  */
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
-  const { agent, projectId, settings, allAgents, mcpStorage } = params
+  const { agent, projectId, settings, allAgents, mcpStorage, projectBashToolConfig } = params
   const tools: ToolSet = {}
   const cleanups: Array<() => Promise<void>> = []
   let instructions = ''
@@ -60,7 +61,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 
   // 3. Built-in tools (bash/readFile/writeFile, browser, etc.)
   if (agent.builtinTools) {
-    const builtinResult = await loadBuiltinTools(agent.builtinTools, { projectId })
+    const builtinResult = await loadBuiltinTools(agent.builtinTools, { projectId, settings, projectBashToolConfig })
     if (builtinResult) {
       Object.assign(tools, builtinResult.tools)
       cleanups.push(builtinResult.cleanup)

@@ -345,6 +345,13 @@ export const SEED_SETTINGS: GlobalSettings = {
     email: 'crafter@golemancy.dev',
   },
   defaultWorkingDirectoryBase: '~/projects',
+  bashTool: {
+    defaultMode: 'sandbox',
+    sandboxPreset: 'balanced',
+  },
+  mcpSafety: {
+    runInSandbox: false,
+  },
 }
 
 // --- Dashboard Activity Feed ---

@@ -79,6 +79,8 @@ function createTestServices(): ServiceContainer {
         theme: 'dark',
         userProfile: { name: 'Test', email: 'test@test.com' },
         defaultWorkingDirectoryBase: '~/projects',
+        bashTool: { defaultMode: 'sandbox', sandboxPreset: 'balanced' },
+        mcpSafety: { runInSandbox: false },
       }),
       update: vi.fn().mockImplementation((data) =>
         Promise.resolve({ ...data }),
@@ -97,6 +99,7 @@ function createTestServices(): ServiceContainer {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      importZip: vi.fn(),
     },
     mcp: {
       list: vi.fn().mockResolvedValue([]),

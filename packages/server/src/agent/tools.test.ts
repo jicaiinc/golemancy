@@ -44,6 +44,8 @@ const defaultSettings: GlobalSettings = {
   theme: 'dark',
   userProfile: { name: '', email: '' },
   defaultWorkingDirectoryBase: '',
+  bashTool: { defaultMode: 'restricted', sandboxPreset: 'balanced' },
+  mcpSafety: { runInSandbox: false },
 }
 
 function makeMockMcpStorage(configs: MCPServerConfig[] = []): IMCPService {
@@ -148,7 +150,7 @@ describe('loadAgentTools', () => {
       mcpStorage: makeMockMcpStorage(),
     })
 
-    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, { projectId: 'proj-1' })
+    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, { projectId: 'proj-1', settings: defaultSettings })
     expect(result.tools).toHaveProperty('execute')
 
     await result.cleanup()
@@ -216,7 +218,7 @@ describe('loadAgentTools', () => {
     expect(result.instructions).toBe('skill instructions')
 
     // Skills and bash are fully decoupled — no skill data passed to builtin
-    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, { projectId: 'proj-1' })
+    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, { projectId: 'proj-1', settings: defaultSettings })
   })
 
   it('cleanup calls all registered cleanups even if one fails', async () => {

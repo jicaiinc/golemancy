@@ -97,6 +97,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   }))
   app.route('/api/chat', createChatRoutes({
     agentStorage: deps.agentStorage,
+    projectStorage: deps.projectStorage,
     conversationStorage: deps.conversationStorage,
     settingsStorage: deps.settingsStorage,
     mcpStorage: deps.mcpStorage,

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import type { AIProvider, AgentId, ProjectConfig } from '@golemancy/shared'
+import type { AIProvider, AgentId, ProjectConfig, ProjectBashToolConfig, ProjectMCPSafetyConfig } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
-import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs } from '../../components'
+import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, ProjectSafetyBashToolSettings, ProjectSafetyMCPSettings } from '../../components'
 
 const ICONS = [
   { id: 'pickaxe', label: '\u26CF' },
@@ -20,6 +20,7 @@ const SETTINGS_TABS = [
   { id: 'agent', label: 'Agent' },
   { id: 'general', label: 'General' },
   { id: 'provider', label: 'Provider' },
+  { id: 'safety', label: 'Safety' },
 ]
 
 export function ProjectSettingsPage() {
@@ -121,6 +122,13 @@ export function ProjectSettingsPage() {
             saved={saved}
             onSave={handleSave}
             name={name}
+          />
+        )}
+        {activeTab === 'safety' && settings && (
+          <ProjectSafetyTab
+            project={project}
+            settings={settings}
+            updateProject={updateProject}
           />
         )}
       </div>
@@ -340,6 +348,77 @@ function ProviderTab({
         </PixelButton>
         {saved && <span className="text-[12px] text-accent-green">Saved!</span>}
       </div>
+    </div>
+  )
+}
+
+// ========== Safety Tab ==========
+function ProjectSafetyTab({
+  project,
+  settings,
+  updateProject,
+}: {
+  project: NonNullable<ReturnType<typeof useCurrentProject>>
+  settings: NonNullable<ReturnType<typeof useAppStore.getState>['settings']>
+  updateProject: (id: typeof project.id, data: Partial<Pick<typeof project, 'config'>>) => Promise<void>
+}) {
+  const [subSection, setSubSection] = useState<'bash' | 'mcp'>('bash')
+
+  async function handleBashSave(bashTool: ProjectBashToolConfig) {
+    await updateProject(project.id, {
+      config: { ...project.config, bashTool },
+    })
+  }
+
+  async function handleMCPSave(mcpSafety: ProjectMCPSafetyConfig) {
+    await updateProject(project.id, {
+      config: { ...project.config, mcpSafety },
+    })
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Sub-section pill toggle */}
+      <div className="flex">
+        <button
+          type="button"
+          onClick={() => setSubSection('bash')}
+          className={`px-4 py-2 font-pixel text-[10px] border-2 cursor-pointer transition-colors ${
+            subSection === 'bash'
+              ? 'bg-elevated border-accent-blue text-accent-blue'
+              : 'bg-deep border-border-dim text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          Bash Tool
+        </button>
+        <button
+          type="button"
+          onClick={() => setSubSection('mcp')}
+          className={`px-4 py-2 font-pixel text-[10px] border-2 border-l-0 cursor-pointer transition-colors ${
+            subSection === 'mcp'
+              ? 'bg-elevated border-accent-blue text-accent-blue'
+              : 'bg-deep border-border-dim text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          MCP
+        </button>
+      </div>
+
+      {/* Sub-section content */}
+      {subSection === 'bash' && (
+        <ProjectSafetyBashToolSettings
+          config={project.config.bashTool}
+          globalConfig={settings.bashTool ?? { defaultMode: 'restricted', sandboxPreset: 'balanced' }}
+          onSave={handleBashSave}
+        />
+      )}
+      {subSection === 'mcp' && (
+        <ProjectSafetyMCPSettings
+          config={project.config.mcpSafety}
+          globalConfig={settings.mcpSafety ?? { runInSandbox: false }}
+          onSave={handleMCPSave}
+        />
+      )}
     </div>
   )
 }

@@ -14,6 +14,7 @@ import { FileSkillStorage } from './storage/skills'
 import { FileCronJobStorage } from './storage/cronjobs'
 import { FileMCPStorage } from './storage/mcp'
 import { FileSettingsStorage } from './storage/settings'
+import { sandboxPool } from './agent/sandbox-pool'
 import { logger } from './logger'
 
 async function main() {
@@ -51,6 +52,12 @@ async function main() {
   // SEC-07: Generate auth token for IPC-based authentication
   const authToken = crypto.randomUUID()
   const app = createApp(deps, authToken)
+
+  // Graceful shutdown: clean up sandbox workers
+  process.on('SIGTERM', async () => {
+    logger.info('SIGTERM received, shutting down sandbox pool')
+    await sandboxPool.shutdown()
+  })
 
   // SEC-09: Bind to loopback only
   serve({ fetch: app.fetch, port, hostname: '127.0.0.1' }, (info) => {

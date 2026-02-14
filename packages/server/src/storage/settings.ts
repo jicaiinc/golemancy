@@ -15,6 +15,13 @@ const DEFAULT_SETTINGS: GlobalSettings = {
     email: '',
   },
   defaultWorkingDirectoryBase: '',
+  bashTool: {
+    defaultMode: 'restricted',
+    sandboxPreset: 'balanced',
+  },
+  mcpSafety: {
+    runInSandbox: false,
+  },
 }
 
 export class FileSettingsStorage implements ISettingsService {
@@ -25,7 +32,7 @@ export class FileSettingsStorage implements ISettingsService {
   async get(): Promise<GlobalSettings> {
     const settings = await readJson<GlobalSettings>(this.settingsPath)
     log.debug('loaded settings')
-    return settings ?? { ...DEFAULT_SETTINGS }
+    return { ...DEFAULT_SETTINGS, ...settings }
   }
 
   async update(data: Partial<GlobalSettings>): Promise<GlobalSettings> {

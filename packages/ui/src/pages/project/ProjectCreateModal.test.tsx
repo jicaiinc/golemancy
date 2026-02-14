@@ -24,6 +24,8 @@ const mockSettings: GlobalSettings = {
   theme: 'dark',
   userProfile: { name: 'Test', email: 'test@test.com' },
   defaultWorkingDirectoryBase: '~/projects',
+  bashTool: { defaultMode: 'sandbox', sandboxPreset: 'balanced' },
+  mcpSafety: { runInSandbox: false },
 }
 
 function createTestServices(): ServiceContainer {
@@ -44,7 +46,7 @@ function createTestServices(): ServiceContainer {
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     settings: { get: vi.fn(), update: vi.fn() },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
+    skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
     mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({}),
