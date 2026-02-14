@@ -46,7 +46,7 @@ async function createBashToolWithSandbox(options?: BuiltinToolOptions) {
     const mountableFs = new MountableFs({
       base: new InMemoryFs(),
       mounts: [
-        { mountPoint: '/root', filesystem: new OverlayFs({ root: '/', mountPoint: '/'}) },
+        { mountPoint: '/project', filesystem: new OverlayFs({ root: projectDir, mountPoint: '/'}) },
         { mountPoint: '/workspace', filesystem: new ReadWriteFs({ root: workspaceDir }) },
       ],
     })
@@ -55,9 +55,9 @@ async function createBashToolWithSandbox(options?: BuiltinToolOptions) {
       fs: mountableFs,
       python: true,
       network: { dangerouslyAllowFullInternetAccess: true },
-      cwd: '/',
+      cwd: '/workspace',
     })
-    destination = '/'
+    destination = '/workspace'
   }
 
   return createBashTool({
