@@ -24,6 +24,7 @@
     "@golemancy/tools": "workspace:*",
     "@hono/node-server": "^1",
     "@hono/node-ws": "^1",
+    "@vscode/ripgrep": "^1.17.0",
     "adm-zip": "^0.5.16",
     "ai": "^6.0.82",
     "bash-tool": "^1.3.14",

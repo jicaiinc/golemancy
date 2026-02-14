@@ -1,4 +1,6 @@
 import { fork, type ChildProcess } from 'node:child_process'
+import { createRequire } from 'node:module'
+import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import type {
@@ -17,8 +19,37 @@ const IPC_TIMEOUT_MS = 30_000
 const MAX_CONSECUTIVE_TIMEOUTS = 3
 const WORKER_KILL_GRACE_MS = 5_000
 
+// ── Ripgrep Resolution ──────────────────────────────────────
+// @anthropic-ai/sandbox-runtime requires ripgrep (rg) for initialize().
+// On macOS, rg is only needed to pass the dependency check (not used at runtime).
+// On Linux, rg is used to expand glob patterns for bubblewrap.
+
+function resolveRipgrepPath(): string | null {
+  // 1. Try bundled @vscode/ripgrep (ships prebuilt rg binary per platform)
+  try {
+    const require = createRequire(import.meta.url)
+    const { rgPath } = require('@vscode/ripgrep') as { rgPath: string }
+    if (rgPath) return rgPath
+  } catch { /* not installed */ }
+
+  // 2. Try system rg in PATH
+  const result = spawnSync('which', ['rg'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+    timeout: 1_000,
+  })
+  if (result.status === 0 && result.stdout?.trim()) {
+    return result.stdout.trim()
+  }
+
+  return null
+}
+
+/** Resolved once at module load. null = not available. */
+const resolvedRgPath = resolveRipgrepPath()
+
 // ── SandboxManager Type Declaration ────────────────────────
-// @anthropic-ai/sandbox-runtime is NOT installed — dynamic import only.
+// @anthropic-ai/sandbox-runtime is dynamically imported at runtime.
 // We define the subset of the API we use.
 
 interface SandboxManagerAPI {
@@ -306,10 +337,8 @@ export class SandboxPool {
     this.globalManager = mod.SandboxManager
     this.globalConfig = config
 
-    if (process.platform === 'linux') {
-      await this.globalManager.checkDependencies()
-    }
-
+    // initialize() internally calls checkDependencies() which requires ripgrep.
+    // We pass the resolved rg path (bundled or system) via the ripgrep config field.
     await this.globalManager.initialize(sandboxConfigToRuntimeConfig(config))
   }
 
@@ -394,8 +423,19 @@ export class SandboxPool {
  * SandboxRuntimeConfig shape:
  *   network:    { allowedDomains, deniedDomains, ... }
  *   filesystem: { allowWrite, denyRead, denyWrite, allowGitConfig? }
+ *   ripgrep?:   { command, args? }
  */
 function sandboxConfigToRuntimeConfig(config: SandboxConfig): Record<string, unknown> {
+  // Ripgrep resolution:
+  //   1. resolvedRgPath from bundled @vscode/ripgrep or system PATH → use it
+  //   2. macOS: rg not used at runtime, but initialize() checks for it → placeholder
+  //   3. Linux: rg is required → omit field, let initialize() throw a clear error
+  const ripgrep = resolvedRgPath
+    ? { command: resolvedRgPath }
+    : process.platform === 'darwin'
+      ? { command: '/usr/bin/true' }  // macOS doesn't use rg at runtime
+      : undefined
+
   return {
     network: {
       allowedDomains: config.network.allowedDomains,
@@ -407,6 +447,7 @@ function sandboxConfigToRuntimeConfig(config: SandboxConfig): Record<string, unk
       denyWrite: config.filesystem.denyWrite,
       allowGitConfig: config.filesystem.allowGitConfig,
     },
+    ...(ripgrep && { ripgrep }),
   }
 }
 

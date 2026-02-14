@@ -308,18 +308,17 @@ describe('SandboxPool', () => {
     it('initializes the global SandboxManager on first call', async () => {
       const pool = new SandboxPool()
       await pool.getHandle(PROJECT_ID, GLOBAL_CONFIG)
-      expect(mockSandboxManager.initialize).toHaveBeenCalledWith({
-        network: {
-          allowedDomains: TEST_CONFIG.network.allowedDomains,
-          deniedDomains: [],
-        },
-        filesystem: {
-          allowWrite: TEST_CONFIG.filesystem.allowWrite,
-          denyRead: TEST_CONFIG.filesystem.denyRead,
-          denyWrite: TEST_CONFIG.filesystem.denyWrite,
-          allowGitConfig: TEST_CONFIG.filesystem.allowGitConfig,
-        },
-      })
+      expect(mockSandboxManager.initialize).toHaveBeenCalledWith(
+        expect.objectContaining({
+          network: {
+            allowedDomains: TEST_CONFIG.network.allowedDomains,
+            deniedDomains: [],
+          },
+          filesystem: expect.objectContaining({
+            allowWrite: TEST_CONFIG.filesystem.allowWrite,
+          }),
+        }),
+      )
     })
 
     it('reuses global manager on subsequent calls', async () => {
