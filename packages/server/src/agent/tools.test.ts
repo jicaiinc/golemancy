@@ -158,6 +158,7 @@ describe('loadAgentTools', () => {
     expect(mockStorage.resolveNames).toHaveBeenCalledWith('proj-1', ['test'])
     expect(loadAgentMcpTools).toHaveBeenCalledWith(mcpConfigs, expect.objectContaining({
       projectId: 'proj-1',
+      workspaceDir: '/tmp/test-project/workspace',
       resolvedPermissions: expect.objectContaining({ mode: 'sandbox' }),
     }))
     expect(result.tools).toHaveProperty('mcp_search')

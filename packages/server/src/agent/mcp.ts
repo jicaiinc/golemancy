@@ -13,14 +13,16 @@ interface MCPClientHandle {
   cleanup: () => Promise<void>
 }
 
-export interface MCPSandboxOptions {
+export interface MCPLoadOptions {
   projectId: ProjectId
+  /** Project workspace directory — used as default cwd for stdio MCP servers */
+  workspaceDir: string
   resolvedPermissions: ResolvedPermissionsConfig
 }
 
 export async function loadAgentMcpTools(
   mcpServers: MCPServerConfig[],
-  sandboxOptions?: MCPSandboxOptions,
+  options?: MCPLoadOptions,
 ): Promise<MCPClientHandle | null> {
   const enabled = mcpServers.filter(s => s.enabled)
   if (enabled.length === 0) return null
@@ -31,9 +33,9 @@ export async function loadAgentMcpTools(
   // Determine if stdio MCP commands should be sandbox-wrapped
   const platform = process.platform as SupportedPlatform
   const shouldSandbox = !!(
-    sandboxOptions
-    && sandboxOptions.resolvedPermissions.config.applyToMCP
-    && sandboxOptions.resolvedPermissions.mode === 'sandbox'
+    options
+    && options.resolvedPermissions.config.applyToMCP
+    && options.resolvedPermissions.mode === 'sandbox'
     && isSandboxRuntimeSupported(platform)
   )
 
@@ -52,8 +54,8 @@ export async function loadAgentMcpTools(
 
         if (shouldSandbox) {
           try {
-            const sandboxConfig = permissionsToSandboxConfig(sandboxOptions!.resolvedPermissions.config)
-            const handle = await sandboxPool.getHandle(sandboxOptions!.projectId, {
+            const sandboxConfig = permissionsToSandboxConfig(options!.resolvedPermissions.config)
+            const handle = await sandboxPool.getHandle(options!.projectId, {
               mode: 'sandbox',
               sandbox: sandboxConfig,
               usesDedicatedWorker: true,
@@ -83,8 +85,11 @@ export async function loadAgentMcpTools(
           }
         }
 
+        // Resolve cwd: user-configured > project workspace > undefined (inherit)
+        const effectiveCwd = server.cwd || options?.workspaceDir || undefined
+
         log.info(
-          { name: server.name, command: effectiveCommand, args: effectiveArgs },
+          { name: server.name, command: effectiveCommand, args: effectiveArgs, cwd: effectiveCwd },
           'starting stdio MCP server',
         )
 
@@ -93,6 +98,7 @@ export async function loadAgentMcpTools(
           command: effectiveCommand,
           args: effectiveArgs,
           env: server.env ? { ...process.env, ...server.env } as Record<string, string> : undefined,
+          cwd: effectiveCwd,
         })
       } else if (server.transportType === 'http' || server.transportType === 'sse') {
         if (!server.url) {

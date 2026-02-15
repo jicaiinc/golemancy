@@ -56,11 +56,11 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   if (agent.mcpServers?.length > 0) {
     const mcpConfigs = await mcpStorage.resolveNames(projectId as ProjectId, agent.mcpServers)
     if (mcpConfigs.length > 0) {
-      // Resolve permissions for MCP sandbox wrapping (applyToMCP check)
-      let sandboxOptions: Parameters<typeof loadAgentMcpTools>[1]
+      // Resolve permissions and workspace dir for MCP loading
+      const workspaceDir = getProjectPath(projectId) + '/workspace'
+      let mcpOptions: Parameters<typeof loadAgentMcpTools>[1]
       if (permissionsConfigStorage) {
         try {
-          const workspaceDir = getProjectPath(projectId) + '/workspace'
           const platform = process.platform as SupportedPlatform
           const resolvedPermissions = await resolvePermissionsConfig(
             permissionsConfigStorage,
@@ -69,13 +69,13 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
             workspaceDir,
             platform,
           )
-          sandboxOptions = { projectId: projectId as ProjectId, resolvedPermissions }
+          mcpOptions = { projectId: projectId as ProjectId, workspaceDir, resolvedPermissions }
         } catch (err) {
-          log.warn({ err }, 'failed to resolve permissions for MCP sandbox wrapping')
+          log.warn({ err }, 'failed to resolve permissions for MCP loading')
         }
       }
 
-      const mcpResult = await loadAgentMcpTools(mcpConfigs, sandboxOptions)
+      const mcpResult = await loadAgentMcpTools(mcpConfigs, mcpOptions)
       if (mcpResult) {
         Object.assign(tools, mcpResult.tools)
         cleanups.push(mcpResult.cleanup)
