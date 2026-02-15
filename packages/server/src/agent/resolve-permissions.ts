@@ -66,6 +66,7 @@ export async function resolvePermissionsConfig(
         allowWrite: [],
         denyRead: [],
         denyWrite: [],
+        networkRestrictionsEnabled: false,
         allowedDomains: [],
         deniedDomains: [],
         deniedCommands: config.deniedCommands,

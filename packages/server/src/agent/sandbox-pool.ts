@@ -489,7 +489,9 @@ function sandboxConfigToRuntimeConfig(config: SandboxConfig): Record<string, unk
 
   return {
     network: {
-      allowedDomains: config.network.allowedDomains,
+      ...(config.network.allowedDomains !== undefined && {
+        allowedDomains: config.network.allowedDomains,
+      }),
       deniedDomains: [],
     },
     filesystem: {

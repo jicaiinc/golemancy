@@ -445,6 +445,27 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
   )
 }
 
+// ========== Domain Validation ==========
+function validateDomainPattern(value: string): string | null {
+  if (value.includes('://') || value.includes('/') || value.includes(':'))
+    return 'Remove protocol, path, or port — just the domain'
+  if (value === 'localhost') return null
+  if (value.startsWith('*.')) {
+    const domain = value.slice(2)
+    if (!domain.includes('.') || domain.startsWith('.') || domain.endsWith('.'))
+      return 'Wildcard needs 2+ parts after *. (e.g., *.example.com)'
+    const parts = domain.split('.')
+    if (parts.length < 2 || parts.some(p => p.length === 0))
+      return 'Wildcard needs 2+ parts after *. (e.g., *.example.com)'
+    return null
+  }
+  if (value.includes('*'))
+    return 'Only *.domain.com wildcard format is supported'
+  if (!value.includes('.') || value.startsWith('.') || value.endsWith('.'))
+    return 'Must be a valid domain with at least one dot (e.g., example.com)'
+  return null
+}
+
 // ========== SandboxConfigEditor ==========
 function SandboxConfigEditor({
   config,
@@ -483,23 +504,40 @@ function SandboxConfigEditor({
       </PixelCard>
 
       <PixelCard>
-        <div className="font-pixel text-[9px] text-text-dim mb-3">NETWORK PERMISSIONS</div>
-        <div className="flex flex-col gap-4">
-          <PathListEditor
-            label="ALLOWED DOMAINS"
-            items={config.allowedDomains}
-            onChange={items => onUpdate({ allowedDomains: items })}
-            placeholder="e.g., api.github.com"
-            helperText="Network domains agents can access. Default: all allowed."
+        <div className="font-pixel text-[9px] text-text-dim mb-3">NETWORK RESTRICTIONS</div>
+        <div className="flex items-center gap-2">
+          <PixelToggle
+            checked={config.networkRestrictionsEnabled}
+            onChange={checked => onUpdate({ networkRestrictionsEnabled: checked })}
+            label="Enable"
           />
-          <PathListEditor
-            label="DENIED DOMAINS"
-            items={config.deniedDomains}
-            onChange={items => onUpdate({ deniedDomains: items })}
-            placeholder="e.g., malicious-site.com"
-            helperText="Domains to block network access."
-          />
+          <span className="font-mono text-[11px] text-text-dim">
+            {config.networkRestrictionsEnabled
+              ? 'Only configured domains are accessible'
+              : 'All network traffic is allowed'}
+          </span>
         </div>
+
+        {config.networkRestrictionsEnabled && (
+          <div className="flex flex-col gap-4 mt-4">
+            <PathListEditor
+              label="ALLOWED DOMAINS"
+              items={config.allowedDomains}
+              onChange={items => onUpdate({ allowedDomains: items })}
+              placeholder="e.g., api.github.com"
+              helperText="Domains agents can access. Exact: example.com — Wildcard: *.example.com (2+ parts after *.)"
+              validateItem={validateDomainPattern}
+            />
+            <PathListEditor
+              label="DENIED DOMAINS"
+              items={config.deniedDomains}
+              onChange={items => onUpdate({ deniedDomains: items })}
+              placeholder="e.g., malicious-site.com"
+              helperText="Domains to block. Same format as allowed domains."
+              validateItem={validateDomainPattern}
+            />
+          </div>
+        )}
       </PixelCard>
 
       <PixelCard>

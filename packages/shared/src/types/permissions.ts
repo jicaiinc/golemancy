@@ -38,8 +38,19 @@ export interface PermissionsConfig {
   denyWrite: string[]
 
   /**
+   * Whether network domain restrictions are enforced.
+   *
+   * - false (default): All network traffic allowed. The sandbox runtime
+   *   skips network proxy entirely (allowedDomains is NOT passed).
+   * - true: Only domains listed in allowedDomains/deniedDomains are
+   *   accessible. Traffic is routed through the sandbox proxy.
+   */
+  networkRestrictionsEnabled: boolean
+
+  /**
    * Allowed domain patterns (supports wildcards like "*.github.com").
-   * Default: ['*'] (all domains allowed)
+   * Only enforced when networkRestrictionsEnabled is true.
+   * Default: []
    */
   allowedDomains: string[]
 
@@ -226,7 +237,8 @@ export const DEFAULT_PERMISSIONS_CONFIG: PermissionsConfigFile = {
     allowWrite: ['{{workspaceDir}}'],
     denyRead: [...COMMON_DENY_READ, ...UNIX_DENY_READ],
     denyWrite: [],
-    allowedDomains: ['*'],
+    networkRestrictionsEnabled: false,
+    allowedDomains: [],
     deniedDomains: [],
     deniedCommands: UNIX_DENIED_COMMANDS,
     applyToMCP: true,

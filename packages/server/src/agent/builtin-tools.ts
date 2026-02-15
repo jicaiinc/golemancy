@@ -139,7 +139,7 @@ function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig {
       allowGitConfig: false,
     },
     network: {
-      allowedDomains: pc.allowedDomains,
+      allowedDomains: pc.networkRestrictionsEnabled ? pc.allowedDomains : undefined,
     },
     enablePython: true,
     deniedCommands: pc.deniedCommands,

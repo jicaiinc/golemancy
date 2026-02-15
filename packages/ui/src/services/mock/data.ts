@@ -530,6 +530,7 @@ export const SEED_PERMISSIONS_CONFIGS: PermissionsConfigFile[] = [
       allowWrite: ['{{workspaceDir}}'],
       denyRead: ['~/.ssh', '~/.aws', '**/.env', '**/.env.*', '**/*.pem', '**/*.key'],
       denyWrite: ['/etc', '/usr', '/bin'],
+      networkRestrictionsEnabled: true,
       allowedDomains: ['*.github.com', 'registry.npmjs.org'],
       deniedDomains: [],
       deniedCommands: ['sudo *', 'rm -rf /'],

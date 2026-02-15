@@ -33,8 +33,8 @@ export interface FilesystemConfig {
  * @deprecated Use PermissionsConfig from permissions.ts instead.
  */
 export interface NetworkConfig {
-  /** Allowed domain patterns (supports wildcards like "*.github.com") */
-  allowedDomains: string[]
+  /** Allowed domain patterns (supports wildcards like "*.github.com"). undefined = all allowed (no proxy). */
+  allowedDomains?: string[]
 }
 
 // ── Sandbox Config ─────────────────────────────────────────

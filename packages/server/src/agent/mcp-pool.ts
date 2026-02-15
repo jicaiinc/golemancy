@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import type { ChildProcess } from 'node:child_process'
 import { createMCPClient } from '@ai-sdk/mcp'
 import type { ToolSet } from 'ai'
 import type {
@@ -16,6 +17,49 @@ import { sandboxPool } from './sandbox-pool'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:mcp-pool' })
+
+// ── Stderr Capture ──────────────────────────────────────────────
+
+const DEFAULT_MAX_STDERR_BYTES = 8 * 1024  // 8 KB
+
+class StderrCapture {
+  private chunks: Buffer[] = []
+  private totalBytes = 0
+  private readonly maxBytes: number
+
+  constructor(maxBytes = DEFAULT_MAX_STDERR_BYTES) {
+    this.maxBytes = maxBytes
+  }
+
+  /** Attach to a child process's stderr stream. */
+  attach(proc: ChildProcess): void {
+    proc.stderr?.on('data', (chunk: Buffer) => {
+      log.debug({ stderr: chunk.toString('utf-8').trimEnd() }, 'MCP server stderr')
+
+      if (this.totalBytes < this.maxBytes) {
+        const remaining = this.maxBytes - this.totalBytes
+        const slice = chunk.length > remaining ? chunk.subarray(0, remaining) : chunk
+        this.chunks.push(slice)
+        this.totalBytes += slice.length
+      }
+    })
+  }
+
+  /** Return captured stderr as a trimmed UTF-8 string. */
+  getText(): string {
+    if (this.chunks.length === 0) return ''
+    const text = Buffer.concat(this.chunks).toString('utf-8').trim()
+    const wasTruncated = this.totalBytes >= this.maxBytes
+    return wasTruncated ? text + '\n... (truncated)' : text
+  }
+}
+
+interface BuildTransportResult {
+  transport: Parameters<typeof createMCPClient>[0]['transport']
+  stderrCapture: StderrCapture | null
+}
+
+// ── Pool Constants ──────────────────────────────────────────────
 
 const DEFAULT_IDLE_SCAN_INTERVAL_MS = 5 * 60 * 1000  // 5 minutes
 const DEFAULT_MAX_IDLE_MS = 30 * 60 * 1000           // 30 minutes
@@ -151,7 +195,7 @@ function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig {
       allowGitConfig: false,
     },
     network: {
-      allowedDomains: pc.allowedDomains,
+      allowedDomains: pc.networkRestrictionsEnabled ? pc.allowedDomains : undefined,
     },
     enablePython: true,
     deniedCommands: pc.deniedCommands,
@@ -316,14 +360,16 @@ export class MCPPool {
   ): Promise<{ ok: boolean; toolCount: number; error?: string }> {
     const effectiveCwd = server.cwd || options?.workspaceDir || undefined
     const fingerprint = computeFingerprint(server, options, effectiveCwd)
+    let stderrCapture: StderrCapture | null = null
 
     try {
-      const transport = await this.buildTransport(server, options, fingerprint, effectiveCwd)
-      if (!transport) {
+      const result = await this.buildTransport(server, options, fingerprint, effectiveCwd)
+      if (!result) {
         return { ok: false, toolCount: 0, error: 'Missing required configuration (command or url)' }
       }
 
-      const client = await createMCPClient({ transport })
+      stderrCapture = result.stderrCapture
+      const client = await createMCPClient({ transport: result.transport })
       const tools = await client.tools()
       const toolCount = Object.keys(tools).length
       await client.close()
@@ -331,8 +377,13 @@ export class MCPPool {
       return { ok: true, toolCount }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown connection error'
+      const stderrText = stderrCapture?.getText() ?? ''
+      const enhancedMessage = stderrText
+        ? `${message}\n\nMCP server stderr:\n${stderrText}`
+        : message
+
       log.warn({ err, serverName: server.name }, 'MCP connectivity test failed')
-      return { ok: false, toolCount: 0, error: message }
+      return { ok: false, toolCount: 0, error: enhancedMessage }
     }
   }
 
@@ -390,9 +441,11 @@ export class MCPPool {
     effectiveCwd: string | undefined,
     entry: MCPPoolEntry,
   ): Promise<MCPGetToolsResult> {
+    let stderrCapture: StderrCapture | null = null
+
     try {
-      const transport = await this.buildTransport(server, options, fingerprint, effectiveCwd)
-      if (!transport) {
+      const result = await this.buildTransport(server, options, fingerprint, effectiveCwd)
+      if (!result) {
         // Missing required config (command or url)
         const serverMap = this.pool.get(projectId)
         if (serverMap) {
@@ -402,7 +455,8 @@ export class MCPPool {
         return { tools: {}, error: 'Missing required configuration (command or url)' }
       }
 
-      const client = await createMCPClient({ transport })
+      stderrCapture = result.stderrCapture
+      const client = await createMCPClient({ transport: result.transport })
       const rawTools = await client.tools()
 
       entry.client = client
@@ -420,13 +474,20 @@ export class MCPPool {
     } catch (err) {
       log.error({ err, projectId, serverName: server.name }, 'MCP pool: connection failed')
       const message = err instanceof Error ? err.message : 'Unknown connection error'
+
+      // Enhance error message with captured stderr
+      const stderrText = stderrCapture?.getText() ?? ''
+      const enhancedMessage = stderrText
+        ? `${message}\n\nMCP server stderr:\n${stderrText}`
+        : message
+
       // Remove failed entry
       const serverMap = this.pool.get(projectId)
       if (serverMap) {
         serverMap.delete(server.name)
         if (serverMap.size === 0) this.pool.delete(projectId)
       }
-      return { tools: {}, error: message }
+      return { tools: {}, error: enhancedMessage }
     }
   }
 
@@ -435,7 +496,7 @@ export class MCPPool {
     options: MCPLoadOptions | undefined,
     fingerprint: MCPPoolFingerprint,
     effectiveCwd: string | undefined,
-  ): Promise<Parameters<typeof createMCPClient>[0]['transport'] | null> {
+  ): Promise<BuildTransportResult | null> {
     if (server.transportType === 'stdio') {
       if (!server.command) {
         log.warn({ name: server.name }, 'stdio MCP server missing command, skipping')
@@ -483,13 +544,28 @@ export class MCPPool {
         'starting stdio MCP server',
       )
 
+      const stderrCapture = new StderrCapture()
       const { Experimental_StdioMCPTransport } = await import('@ai-sdk/mcp/mcp-stdio')
-      return new Experimental_StdioMCPTransport({
+      const transport = new Experimental_StdioMCPTransport({
         command: effectiveCommand,
         args: effectiveArgs,
         env: server.env ? { ...process.env, ...server.env } as Record<string, string> : undefined,
         cwd: effectiveCwd,
+        stderr: 'pipe',
       })
+
+      // Intercept start() to capture stderr from the spawned child process.
+      // The private `process` field is set inside start() after spawn().
+      if (typeof transport.start === 'function') {
+        const originalStart = transport.start.bind(transport)
+        transport.start = async function (this: typeof transport) {
+          await originalStart()
+          const proc = (this as unknown as { process?: ChildProcess }).process
+          if (proc) stderrCapture.attach(proc)
+        }
+      }
+
+      return { transport, stderrCapture }
     }
 
     if (server.transportType === 'http' || server.transportType === 'sse') {
@@ -504,9 +580,12 @@ export class MCPPool {
       )
 
       return {
-        type: server.transportType,
-        url: server.url,
-        headers: server.headers,
+        transport: {
+          type: server.transportType,
+          url: server.url,
+          headers: server.headers,
+        },
+        stderrCapture: null,
       }
     }
 
