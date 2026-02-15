@@ -255,6 +255,7 @@ export function getDefaultPermissionsConfig(platform: SupportedPlatform): Permis
 /** Messages from main process to sandbox worker */
 export type SandboxWorkerRequest =
   | { type: 'init'; config: Record<string, unknown> }
+  | { type: 'reinitialize'; id: string; config: Record<string, unknown> }
   | { type: 'wrapCommand'; id: string; command: string }
   | { type: 'cleanupAfterCommand'; id: string }
   | { type: 'shutdown' }
@@ -262,6 +263,7 @@ export type SandboxWorkerRequest =
 /** Messages from sandbox worker to main process */
 export type SandboxWorkerResponse =
   | { type: 'ready' }
+  | { type: 'reinitialized'; id: string }
   | { type: 'wrappedCommand'; id: string; result: string }
   | { type: 'cleanupDone'; id: string }
   | { type: 'error'; id: string; message: string }

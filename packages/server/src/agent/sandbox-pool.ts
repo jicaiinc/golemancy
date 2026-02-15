@@ -152,6 +152,26 @@ export class WorkerSandboxManagerHandle implements SandboxManagerHandle {
     })
   }
 
+  async reinitialize(runtimeConfig: Record<string, unknown>): Promise<void> {
+    if (this.destroyed) throw new Error('Worker handle destroyed')
+
+    const id = randomUUID()
+    return new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pendingRequests.delete(id)
+        this.handleTimeout()
+        reject(new Error(`IPC reinitialize timeout after ${IPC_TIMEOUT_MS}ms`))
+      }, IPC_TIMEOUT_MS)
+
+      this.pendingRequests.set(id, {
+        resolve: () => resolve(),
+        reject,
+        timer,
+      })
+      this.child.send({ type: 'reinitialize', id, config: runtimeConfig } satisfies SandboxWorkerRequest)
+    })
+  }
+
   destroy(): void {
     if (this.destroyed) return
     this.destroyed = true
@@ -190,6 +210,17 @@ export class WorkerSandboxManagerHandle implements SandboxManagerHandle {
           this.pendingRequests.delete(msg.id)
           this.consecutiveTimeouts = 0
           pending.resolve(msg.result)
+        }
+        break
+      }
+
+      case 'reinitialized': {
+        const pending = this.pendingRequests.get(msg.id)
+        if (pending) {
+          clearTimeout(pending.timer)
+          this.pendingRequests.delete(msg.id)
+          this.consecutiveTimeouts = 0
+          pending.resolve(undefined)
         }
         break
       }
@@ -273,7 +304,21 @@ export class SandboxPool {
     }
 
     const existing = this.projectWorkers.get(projectId)
-    if (existing) return existing.handle
+    if (existing) {
+      // Hot-reload if config changed
+      if (!sandboxConfigEquals(existing.config, config.sandbox)) {
+        log.info({ projectId }, 'sandbox config changed, hot-reloading worker')
+        try {
+          await existing.handle.reinitialize(sandboxConfigToRuntimeConfig(config.sandbox))
+          existing.config = config.sandbox
+        } catch (err) {
+          log.warn({ err, projectId }, 'hot-reload failed, destroying and recreating worker')
+          existing.handle.destroy()
+          return this.createWorker(projectId, config.sandbox)
+        }
+      }
+      return existing.handle
+    }
 
     return this.createWorker(projectId, config.sandbox)
   }
@@ -412,6 +457,12 @@ export class SandboxPool {
 
     return handle
   }
+}
+
+// ── Config Comparison ──────────────────────────────────────
+
+function sandboxConfigEquals(a: SandboxConfig, b: SandboxConfig): boolean {
+  return JSON.stringify(a) === JSON.stringify(b)
 }
 
 // ── Config Mapping ─────────────────────────────────────────

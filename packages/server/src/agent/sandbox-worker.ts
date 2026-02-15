@@ -63,6 +63,25 @@ process.on('message', async (msg: SandboxWorkerRequest) => {
       break
     }
 
+    case 'reinitialize': {
+      if (!manager) {
+        send({ type: 'error', id: msg.id, message: 'SandboxManager not initialized' })
+        break
+      }
+      try {
+        await manager.reset()
+        await manager.initialize(msg.config)
+        send({ type: 'reinitialized', id: msg.id })
+      } catch (err) {
+        send({
+          type: 'error',
+          id: msg.id,
+          message: err instanceof Error ? err.message : String(err),
+        })
+      }
+      break
+    }
+
     case 'wrapCommand': {
       if (!manager) {
         send({ type: 'error', id: msg.id, message: 'SandboxManager not initialized' })
