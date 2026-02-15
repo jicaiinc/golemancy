@@ -1,22 +1,17 @@
 import type { ReactNode } from 'react'
 import { TopBar } from './TopBar'
-import { StatusBar } from './StatusBar'
 import { ProjectSidebar } from './ProjectSidebar'
 
 interface AppShellProps {
   children: ReactNode
   topBarLeft?: ReactNode
   topBarRight?: ReactNode
-  tokenUsage?: string
-  activeAgents?: number
 }
 
 export function AppShell({
   children,
   topBarLeft,
   topBarRight,
-  tokenUsage,
-  activeAgents,
 }: AppShellProps) {
   return (
     <div data-testid="app-shell" className="flex h-screen w-full bg-void">
@@ -26,7 +21,6 @@ export function AppShell({
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
-        <StatusBar tokenUsage={tokenUsage} activeAgents={activeAgents} />
       </div>
     </div>
   )

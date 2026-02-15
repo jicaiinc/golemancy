@@ -59,6 +59,8 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
   const resolved = await resolveEffectivePermissions(options)
   const mode = resolved?.mode ?? 'restricted'
 
+  log.info({ mode, projectId: options?.projectId }, 'creating bash tools with permission mode')
+
   switch (mode) {
     case 'restricted':
       return createRestrictedBashTool(options)

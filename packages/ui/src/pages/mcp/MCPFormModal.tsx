@@ -140,7 +140,7 @@ export function MCPFormModal({ open, onClose, onSubmit, title, initial }: MCPFor
             <PixelInput label="COMMAND" value={command} onChange={e => setCommand(e.target.value)} placeholder="npx" />
             <PixelInput label="ARGS (space-separated)" value={args} onChange={e => setArgs(e.target.value)} placeholder="-y @modelcontextprotocol/server-filesystem /tmp" />
             <PixelTextArea label="ENV (KEY=VALUE per line)" value={envText} onChange={e => setEnvText(e.target.value)} rows={3} placeholder="GITHUB_TOKEN=ghp_..." />
-            <PixelInput label="CWD" value={cwd} onChange={e => setCwd(e.target.value)} placeholder="/path/to/dir" />
+            <PixelInput label="CWD" value={cwd} onChange={e => setCwd(e.target.value)} placeholder="{{workspaceDir}}" />
           </>
         ) : (
           <>

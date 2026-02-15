@@ -113,8 +113,13 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
     setMode(newMode)
     if (isDefault) {
       // Create a new config with the new mode
+      const titleMap: Record<PermissionMode, string> = {
+        restricted: 'Restricted',
+        sandbox: 'Sandbox',
+        unrestricted: 'Unrestricted',
+      }
       const created = await service.create(projectId, {
-        title: newMode === 'restricted' ? 'Restricted' : 'Unrestricted',
+        title: titleMap[newMode],
         mode: newMode,
         config,
       })
@@ -135,12 +140,7 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       setShowUnrestrictedModal(true)
       return
     }
-    if (newMode === 'restricted') {
-      persistModeChange('restricted')
-      return
-    }
-    // sandbox — just switch locally, user will configure and Save manually
-    setMode(newMode as PermissionMode)
+    persistModeChange(newMode as PermissionMode)
   }
 
   function confirmUnrestricted() {
