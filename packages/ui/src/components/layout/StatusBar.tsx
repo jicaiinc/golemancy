@@ -1,8 +1,8 @@
 import type { PermissionMode } from '@golemancy/shared'
 
 const MODE_STYLES: Record<PermissionMode, { label: string; className: string }> = {
-  restricted: { label: 'Restricted', className: 'text-accent-green' },
-  sandbox: { label: 'Sandbox', className: 'text-accent-blue' },
+  restricted: { label: 'Restricted', className: 'text-accent-amber' },
+  sandbox: { label: 'Sandbox', className: 'text-accent-green' },
   unrestricted: { label: 'Unrestricted', className: 'text-accent-red' },
 }
 

@@ -7,7 +7,7 @@ export interface ExecutionModeOption {
   description: string
   badge?: {
     label: string
-    variant: 'success' | 'error' | 'info'
+    variant: 'success' | 'warning' | 'error' | 'info'
   }
   children?: ReactNode
 }
@@ -19,6 +19,12 @@ const VARIANT_SELECTED: Record<string, { border: string; accent: string; radio: 
     accent: 'border-accent-green bg-deep',
     radio: 'border-accent-green bg-deep',
     dot: 'bg-accent-green',
+  },
+  warning: {
+    border: 'border-accent-amber bg-elevated border-t-4 border-t-accent-amber',
+    accent: 'border-accent-amber bg-deep',
+    radio: 'border-accent-amber bg-deep',
+    dot: 'bg-accent-amber',
   },
   info: {
     border: 'border-accent-blue bg-elevated border-t-4 border-t-accent-blue',
@@ -77,9 +83,11 @@ export function ExecutionModeCard({ options, value, onChange }: ExecutionModeCar
                   className={`inline-flex items-center px-1 py-0.5 font-pixel text-[7px] border ${
                     option.badge.variant === 'success'
                       ? 'bg-accent-green/15 text-accent-green border-accent-green/30'
-                      : option.badge.variant === 'error'
-                        ? 'bg-accent-red/15 text-accent-red border-accent-red/30'
-                        : 'bg-accent-blue/15 text-accent-blue border-accent-blue/30'
+                      : option.badge.variant === 'warning'
+                        ? 'bg-accent-amber/15 text-accent-amber border-accent-amber/30'
+                        : option.badge.variant === 'error'
+                          ? 'bg-accent-red/15 text-accent-red border-accent-red/30'
+                          : 'bg-accent-blue/15 text-accent-blue border-accent-blue/30'
                   }`}
                 >
                   {option.badge.label}

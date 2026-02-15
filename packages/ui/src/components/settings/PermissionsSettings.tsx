@@ -17,15 +17,15 @@ const MODE_OPTIONS: ExecutionModeOption[] = [
     id: 'restricted',
     name: 'Restricted',
     subtitle: 'Just Bash, no sandbox',
-    description: 'Minimal execution environment. No sandbox runtime, no filesystem restrictions.',
-    badge: { label: 'Safest', variant: 'success' },
+    description: 'Minimal execution environment. No sandbox runtime, no MCP support.',
+    badge: { label: 'Limited', variant: 'warning' },
   },
   {
     id: 'sandbox',
     name: 'Sandbox',
     subtitle: 'Configurable isolation',
     description: 'Sandbox runtime with configurable filesystem, network, and command restrictions.',
-    badge: { label: 'Recommended', variant: 'info' },
+    badge: { label: 'Recommended', variant: 'success' },
   },
   {
     id: 'unrestricted',
