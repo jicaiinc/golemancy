@@ -14,6 +14,8 @@ const KILL_GRACE_MS = 5_000          // Grace period before SIGKILL
 export interface NativeSandboxOptions {
   workspaceRoot: string
   timeoutMs?: number
+  /** Runtime env vars (PATH override, pip/npm cache dirs) to inject into subprocess */
+  runtimeEnv?: Record<string, string>
 }
 
 /**
@@ -24,10 +26,12 @@ export interface NativeSandboxOptions {
 export class NativeSandbox implements Sandbox {
   private readonly workspaceRoot: string
   private readonly timeoutMs: number
+  private readonly runtimeEnv: Record<string, string>
 
   constructor(options: NativeSandboxOptions) {
     this.workspaceRoot = options.workspaceRoot
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
+    this.runtimeEnv = options.runtimeEnv ?? {}
   }
 
   // ── Sandbox Interface ─────────────────────────────────────
@@ -59,7 +63,7 @@ export class NativeSandbox implements Sandbox {
     return new Promise((resolve, reject) => {
       const child = spawn('bash', ['-c', command], {
         cwd: this.workspaceRoot,
-        env: process.env,
+        env: { ...process.env, ...this.runtimeEnv },
         stdio: ['ignore', 'pipe', 'pipe'],
       })
 

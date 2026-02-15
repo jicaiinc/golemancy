@@ -19,8 +19,8 @@ export type PermissionMode = 'restricted' | 'sandbox' | 'unrestricted'
 export interface PermissionsConfig {
   /**
    * Directories where write operations are allowed (glob patterns).
-   * Supports template variable: {{workspaceDir}} (replaced at resolution time).
-   * Default: ['{{workspaceDir}}']
+   * Supports template variables: {{workspaceDir}}, {{projectRuntimeDir}}, {{globalRuntimeDir}}
+   * (replaced at resolution time).
    */
   allowWrite: string[]
 
@@ -234,11 +234,33 @@ export const DEFAULT_PERMISSIONS_CONFIG: PermissionsConfigFile = {
   title: 'Default',
   mode: 'sandbox',
   config: {
-    allowWrite: ['{{workspaceDir}}'],
+    allowWrite: [
+      '{{workspaceDir}}',
+      '{{projectRuntimeDir}}/**',
+      '{{globalRuntimeDir}}/**',
+    ],
     denyRead: [...COMMON_DENY_READ, ...UNIX_DENY_READ],
     denyWrite: [],
     networkRestrictionsEnabled: false,
-    allowedDomains: [],
+    allowedDomains: [
+      // Python package index
+      'pypi.org',
+      'files.pythonhosted.org',
+      // npm registry
+      'registry.npmjs.org',
+      // GitHub (packages & MCP tools hosted here)
+      'github.com',
+      '*.githubusercontent.com',
+      // AI provider APIs
+      'api.openai.com',
+      'api.anthropic.com',
+      'generativelanguage.googleapis.com',
+      'api.deepseek.com',
+      // Common CDNs (npm packages often hosted here)
+      '*.cloudflare.com',
+      '*.fastly.net',
+      '*.amazonaws.com',
+    ],
     deniedDomains: [],
     deniedCommands: UNIX_DENIED_COMMANDS,
     applyToMCP: true,

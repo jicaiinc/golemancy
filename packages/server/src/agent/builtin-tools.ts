@@ -18,6 +18,7 @@ import { AnthropicSandbox } from './anthropic-sandbox'
 import { NativeSandbox } from './native-sandbox'
 import { sandboxPool } from './sandbox-pool'
 import { resolvePermissionsConfig } from './resolve-permissions'
+import { buildRuntimeEnv } from '../runtime/env-builder'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
 
@@ -70,6 +71,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
         if (!options?.projectId) throw new Error('projectId required for sandbox mode')
         const workspaceDir = await ensureWorkspaceDir(options.projectId)
         const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
+        const runtimeEnv = buildRuntimeEnv(options.projectId)
 
         // Bridge to existing SandboxPool API
         const bridgedConfig: ResolvedBashToolConfig = {
@@ -86,6 +88,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
           config: sandboxConfig,
           workspaceRoot: workspaceDir,
           sandboxManager: handle,
+          runtimeEnv: { ...runtimeEnv },
         })
         return createBashTool({ sandbox, destination: workspaceDir })
       } catch (err) {
@@ -98,7 +101,10 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
       const workspaceDir = options?.projectId
         ? await ensureWorkspaceDir(options.projectId)
         : process.cwd()
-      const sandbox = new NativeSandbox({ workspaceRoot: workspaceDir })
+      const runtimeEnv = options?.projectId
+        ? { ...buildRuntimeEnv(options.projectId) }
+        : {}
+      const sandbox = new NativeSandbox({ workspaceRoot: workspaceDir, runtimeEnv })
       return createBashTool({ sandbox, destination: workspaceDir })
     }
   }

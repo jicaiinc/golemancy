@@ -12,6 +12,9 @@ out/
 .env.local
 .env.*.local
 
+# Bundled runtimes (downloaded via scripts/download-runtime.sh)
+apps/desktop/resources/runtime/
+
 # E2E test results
 test-results/
 /__logs/

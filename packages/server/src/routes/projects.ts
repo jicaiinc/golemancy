@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import type { IProjectService, ProjectId } from '@golemancy/shared'
+import { initProjectPythonEnv } from '../runtime/python-manager'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:projects' })
@@ -27,6 +28,12 @@ export function createProjectRoutes(storage: IProjectService) {
     log.debug('creating project')
     const project = await storage.create(data)
     log.debug({ projectId: project.id }, 'created project')
+
+    // Eagerly create Python venv (non-blocking, non-fatal)
+    initProjectPythonEnv(project.id).catch((err) => {
+      log.warn({ err, projectId: project.id }, 'failed to create Python venv on project creation')
+    })
+
     return c.json(project, 201)
   })
 

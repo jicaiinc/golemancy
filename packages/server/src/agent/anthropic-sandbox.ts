@@ -62,6 +62,8 @@ export interface AnthropicSandboxOptions {
   workspaceRoot: string
   sandboxManager: SandboxManagerHandle
   timeoutMs?: number
+  /** Runtime env vars (PATH override, pip/npm cache dirs) to inject into subprocess */
+  runtimeEnv?: Record<string, string>
 }
 
 /**
@@ -79,12 +81,14 @@ export class AnthropicSandbox implements Sandbox {
   private readonly workspaceRoot: string
   private readonly sandboxManager: SandboxManagerHandle
   private readonly timeoutMs: number
+  private readonly runtimeEnv: Record<string, string>
 
   constructor(options: AnthropicSandboxOptions) {
     this.config = options.config
     this.workspaceRoot = options.workspaceRoot
     this.sandboxManager = options.sandboxManager
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
+    this.runtimeEnv = options.runtimeEnv ?? {}
   }
 
   // ── Sandbox Interface ─────────────────────────────────────
@@ -173,7 +177,7 @@ export class AnthropicSandbox implements Sandbox {
     return new Promise((resolve, reject) => {
       const child = spawn('bash', ['-c', wrappedCommand], {
         cwd: this.workspaceRoot,
-        env: getSafeEnv(),
+        env: { ...getSafeEnv(), ...this.runtimeEnv },
         stdio: ['ignore', 'pipe', 'pipe'],
       })
 

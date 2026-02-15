@@ -24,7 +24,12 @@ function startServer(): Promise<number> {
       ? join(process.resourcesPath, 'server')
       : join(rootDir, 'packages/server')
     const child = fork(serverEntry, [], {
-      env: { ...process.env, PORT: '0' },
+      env: {
+        ...process.env,
+        PORT: '0',
+        // Pass Electron resources path to server for bundled runtime resolution
+        ...(app.isPackaged ? { GOLEMANCY_RESOURCES_PATH: process.resourcesPath } : {}),
+      },
       // Dev: use system node (Electron's embedded Node has different ABI for native modules)
       // GOLEMANCY_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
       // (GUI apps on macOS don't inherit shell PATH, so bare 'node' may fail).

@@ -14,6 +14,7 @@ import type {
 import { isSandboxRuntimeSupported } from '@golemancy/shared'
 import type { MCPLoadOptions } from './mcp'
 import { sandboxPool } from './sandbox-pool'
+import { buildMCPRuntimeEnv } from '../runtime/env-builder'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:mcp-pool' })
@@ -546,10 +547,17 @@ export class MCPPool {
 
       const stderrCapture = new StderrCapture()
       const { Experimental_StdioMCPTransport } = await import('@ai-sdk/mcp/mcp-stdio')
+
+      // Inject bundled Node.js env (PATH, npm cache/prefix) for stdio MCP servers
+      const mcpRuntimeEnv = buildMCPRuntimeEnv()
+      const transportEnv = Object.keys(mcpRuntimeEnv).length > 0 || server.env
+        ? { ...process.env, ...mcpRuntimeEnv, ...server.env } as Record<string, string>
+        : undefined
+
       const transport = new Experimental_StdioMCPTransport({
         command: effectiveCommand,
         args: effectiveArgs,
-        env: server.env ? { ...process.env, ...server.env } as Record<string, string> : undefined,
+        env: transportEnv,
         cwd: effectiveCwd,
         stderr: 'pipe',
       })
