@@ -2,8 +2,8 @@ import { useCallback, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import type { AgentId, ConversationId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { useCurrentProject } from '../../hooks'
-import { PixelSpinner } from '../../components'
+import { useCurrentProject, usePermissionMode } from '../../hooks'
+import { PixelSpinner, StatusBar } from '../../components'
 import { ChatSidebar } from './ChatSidebar'
 import { ChatWindow } from './ChatWindow'
 import { ChatEmptyState } from './ChatEmptyState'
@@ -19,6 +19,7 @@ export function ChatPage() {
   const chatHistoryExpanded = useAppStore(s => s.chatHistoryExpanded)
   const toggleChatHistory = useAppStore(s => s.toggleChatHistory)
   const currentProject = useCurrentProject()
+  const permissionMode = usePermissionMode()
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -71,6 +72,8 @@ export function ChatPage() {
     ? agents.find(a => a.id === currentConversation.agentId)
     : undefined
 
+  const isUnrestricted = permissionMode === 'unrestricted'
+
   if (conversationsLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -93,8 +96,10 @@ export function ChatPage() {
         />
       )}
 
-      {/* Main chat area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Right side: chat panel + status bar */}
+      <div className={`flex-1 flex flex-col min-w-0 ${
+        isUnrestricted ? 'border-2 border-dashed border-accent-red/60' : ''
+      }`}>
         {currentConversation ? (
           <ChatWindow
             key={currentConversation.id}
@@ -116,6 +121,7 @@ export function ChatPage() {
             onToggleChatHistory={toggleChatHistory}
           />
         )}
+        <StatusBar permissionMode={permissionMode} />
       </div>
     </div>
   )

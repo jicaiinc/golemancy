@@ -97,6 +97,7 @@ function createTestServices(): ServiceContainer {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      importZip: vi.fn(),
     },
     mcp: {
       list: vi.fn().mockResolvedValue([]),
@@ -114,6 +115,14 @@ function createTestServices(): ServiceContainer {
       getActiveAgents: vi.fn().mockResolvedValue([]),
       getRecentTasks: vi.fn().mockResolvedValue([]),
       getActivityFeed: vi.fn().mockResolvedValue([]),
+    },
+    permissionsConfig: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      duplicate: vi.fn(),
     },
   }
 }

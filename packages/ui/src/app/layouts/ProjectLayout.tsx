@@ -9,7 +9,6 @@ export function ProjectLayout() {
   const selectProject = useAppStore(s => s.selectProject)
   const currentProjectId = useAppStore(s => s.currentProjectId)
   const projects = useAppStore(s => s.projects)
-  const agents = useAppStore(s => s.agents)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -26,10 +25,8 @@ export function ProjectLayout() {
     }
   }, [projectId, projects, currentProjectId, selectProject, navigate])
 
-  const activeAgents = agents.filter(a => a.status === 'running').length
-
   return (
-    <AppShell activeAgents={activeAgents}>
+    <AppShell>
       <Outlet />
     </AppShell>
   )

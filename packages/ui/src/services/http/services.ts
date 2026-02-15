@@ -1,12 +1,13 @@
 import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
-  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId,
+  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
   SkillCreateData, SkillUpdateData,
   IProjectService, IAgentService, IConversationService,
   ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
+  IPermissionsConfigService,
 } from '@golemancy/shared'
 import { fetchJson } from './base'
 
@@ -223,6 +224,12 @@ export class HttpMCPService implements IMCPService {
     const all = await this.list(projectId)
     return all.filter(s => names.includes(s.name))
   }
+  test(projectId: ProjectId, name: string) {
+    return fetchJson<{ ok: boolean; toolCount: number; error?: string }>(
+      `${this.baseUrl}/api/projects/${projectId}/mcp-servers/${encodeURIComponent(name)}/test`,
+      { method: 'POST' },
+    )
+  }
 }
 
 export class HttpCronJobService implements ICronJobService {
@@ -276,5 +283,34 @@ export class HttpDashboardService implements IDashboardService {
   }
   getActivityFeed(limit = 20) {
     return fetchJson<ActivityEntry[]>(`${this.baseUrl}/api/dashboard/activity?limit=${limit}`)
+  }
+}
+
+export class HttpPermissionsConfigService implements IPermissionsConfigService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId) {
+    return fetchJson<PermissionsConfigFile[]>(`${this.baseUrl}/api/projects/${projectId}/permissions-config`)
+  }
+  getById(projectId: ProjectId, id: PermissionsConfigId) {
+    return fetchJson<PermissionsConfigFile | null>(`${this.baseUrl}/api/projects/${projectId}/permissions-config/${id}`)
+  }
+  create(projectId: ProjectId, data: Pick<PermissionsConfigFile, 'title' | 'mode' | 'config'>) {
+    return fetchJson<PermissionsConfigFile>(`${this.baseUrl}/api/projects/${projectId}/permissions-config`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(projectId: ProjectId, id: PermissionsConfigId, data: Partial<Pick<PermissionsConfigFile, 'title' | 'mode' | 'config'>>) {
+    return fetchJson<PermissionsConfigFile>(`${this.baseUrl}/api/projects/${projectId}/permissions-config/${id}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(projectId: ProjectId, id: PermissionsConfigId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/permissions-config/${id}`, { method: 'DELETE' })
+  }
+  duplicate(projectId: ProjectId, sourceId: PermissionsConfigId, newTitle: string) {
+    return fetchJson<PermissionsConfigFile>(`${this.baseUrl}/api/projects/${projectId}/permissions-config/${sourceId}/duplicate`, {
+      method: 'POST', body: JSON.stringify({ title: newTitle }),
+    })
   }
 }

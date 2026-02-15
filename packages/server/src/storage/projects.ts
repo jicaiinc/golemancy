@@ -59,6 +59,7 @@ export class FileProjectStorage implements IProjectService {
     await fs.mkdir(path.join(projectDir, 'memory'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'skills'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'cronjobs'), { recursive: true })
+    await fs.mkdir(path.join(projectDir, 'permissions-config'), { recursive: true })
     await writeJson(this.projectJsonPath(id), project)
 
     return project

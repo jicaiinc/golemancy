@@ -1,10 +1,12 @@
 import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, CronJob, Skill,
   GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
+  PermissionsConfigId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
   SkillCreateData, SkillUpdateData,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
+  PermissionsConfigFile,
 } from '../types'
 
 export interface IProjectService {
@@ -72,6 +74,8 @@ export interface IMCPService {
   delete(projectId: ProjectId, name: string): Promise<void>
   /** Resolve an array of names to full configs (skips missing) */
   resolveNames(projectId: ProjectId, names: string[]): Promise<MCPServerConfig[]>
+  /** Test connectivity to an MCP server. Returns ok/toolCount/error. Optional — only implemented by HTTP/mock services, not storage. */
+  test?(projectId: ProjectId, name: string): Promise<{ ok: boolean; toolCount: number; error?: string }>
 }
 
 export interface ISettingsService {
@@ -92,4 +96,35 @@ export interface IDashboardService {
   getActiveAgents(): Promise<DashboardAgentSummary[]>
   getRecentTasks(limit?: number): Promise<DashboardTaskSummary[]>
   getActivityFeed(limit?: number): Promise<ActivityEntry[]>
+}
+
+export interface IPermissionsConfigService {
+  /** List all permissions configs for a project. Always includes the system default. */
+  list(projectId: ProjectId): Promise<PermissionsConfigFile[]>
+
+  /** Get a permissions config by ID. System default (id='default') is always available. */
+  getById(projectId: ProjectId, id: PermissionsConfigId): Promise<PermissionsConfigFile | null>
+
+  /** Create a new permissions config with a generated UUID. */
+  create(
+    projectId: ProjectId,
+    data: Pick<PermissionsConfigFile, 'title' | 'mode' | 'config'>
+  ): Promise<PermissionsConfigFile>
+
+  /** Update an existing permissions config. Cannot update system default (id='default'). */
+  update(
+    projectId: ProjectId,
+    id: PermissionsConfigId,
+    data: Partial<Pick<PermissionsConfigFile, 'title' | 'mode' | 'config'>>
+  ): Promise<PermissionsConfigFile>
+
+  /** Delete a permissions config. Cannot delete system default (id='default'). */
+  delete(projectId: ProjectId, id: PermissionsConfigId): Promise<void>
+
+  /** Duplicate a permissions config with a new ID and title. */
+  duplicate(
+    projectId: ProjectId,
+    sourceId: PermissionsConfigId,
+    newTitle: string
+  ): Promise<PermissionsConfigFile>
 }

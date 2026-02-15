@@ -5,7 +5,7 @@ import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   IArtifactService, IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
-  IMCPService,
+  IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
@@ -20,6 +20,7 @@ import { createSkillRoutes } from './routes/skills'
 import { createCronJobRoutes } from './routes/cronjobs'
 import { createMCPRoutes } from './routes/mcp'
 import { createTopologyRoutes } from './routes/topology'
+import { createPermissionsConfigRoutes } from './routes/permissions-config'
 import { logger } from './logger'
 
 export interface ServerDependencies {
@@ -34,6 +35,7 @@ export interface ServerDependencies {
   dashboardService: IDashboardService
   cronJobStorage: ICronJobService
   mcpStorage: IMCPService
+  permissionsConfigStorage: IPermissionsConfigService
 }
 
 export function createApp(deps: ServerDependencies, authToken?: string) {
@@ -94,17 +96,22 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects/:projectId/mcp-servers', createMCPRoutes({
     mcpStorage: deps.mcpStorage,
     agentStorage: deps.agentStorage,
+    projectStorage: deps.projectStorage,
+    permissionsConfigStorage: deps.permissionsConfigStorage,
   }))
   app.route('/api/chat', createChatRoutes({
     agentStorage: deps.agentStorage,
+    projectStorage: deps.projectStorage,
     conversationStorage: deps.conversationStorage,
     settingsStorage: deps.settingsStorage,
     mcpStorage: deps.mcpStorage,
+    permissionsConfigStorage: deps.permissionsConfigStorage,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes(deps.cronJobStorage))
   app.route('/api/dashboard', createDashboardRoutes(deps.dashboardService))
   app.route('/api/projects/:projectId/topology-layout', createTopologyRoutes())
+  app.route('/api/projects/:projectId/permissions-config', createPermissionsConfigRoutes(deps.permissionsConfigStorage))
 
   return app
 }

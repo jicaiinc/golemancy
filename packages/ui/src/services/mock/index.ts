@@ -11,6 +11,7 @@ import {
   MockSettingsService,
   MockCronJobService,
   MockDashboardService,
+  MockPermissionsConfigService,
 } from './services'
 import { SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES } from './data'
 
@@ -28,5 +29,6 @@ export function createMockServices(): ServiceContainer {
     settings: new MockSettingsService(),
     cronJobs: new MockCronJobService(),
     dashboard: new MockDashboardService(SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES),
+    permissionsConfig: new MockPermissionsConfigService(),
   }
 }

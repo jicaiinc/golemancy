@@ -2,8 +2,22 @@ import nodeFs from 'node:fs/promises'
 import { createBashTool } from 'bash-tool'
 import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash'
 import type { ToolSet } from 'ai'
-import type { BuiltinToolConfig } from '@golemancy/shared'
+import type {
+  BuiltinToolConfig,
+  PermissionsConfig,
+  PermissionsConfigId,
+  ProjectId,
+  ResolvedPermissionsConfig,
+  SandboxConfig,
+  ResolvedBashToolConfig,
+  SupportedPlatform,
+  IPermissionsConfigService,
+} from '@golemancy/shared'
 import { createBrowserTools, type BrowserToolsConfig } from '@golemancy/tools/browser'
+import { AnthropicSandbox } from './anthropic-sandbox'
+import { NativeSandbox } from './native-sandbox'
+import { sandboxPool } from './sandbox-pool'
+import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
 
@@ -23,18 +37,123 @@ const DEFAULT_BROWSER_CONFIG: BrowserToolsConfig = {
 }
 
 export interface BuiltinToolOptions {
-  /** Project ID — used to resolve workspace directory for ReadWriteFs */
+  /** Project ID — used to resolve workspace directory and permissions config */
   projectId?: string
+  /** Permissions config ID from project config */
+  permissionsConfigId?: PermissionsConfigId
+  /** Permissions config storage service */
+  permissionsConfigStorage?: IPermissionsConfigService
 }
+
+// ── Mode-Aware Sandbox Factory (Strategy Pattern) ──────────
+
+/**
+ * Create bash tools using the appropriate sandbox based on the resolved permission mode.
+ *
+ * Strategy:
+ *   restricted   → just-bash virtual sandbox (existing)
+ *   sandbox      → AnthropicSandbox via SandboxPool (OS-level isolation)
+ *   unrestricted → NativeSandbox (no isolation)
+ */
+async function createBashToolForMode(options?: BuiltinToolOptions) {
+  const resolved = await resolveEffectivePermissions(options)
+  const mode = resolved?.mode ?? 'restricted'
+
+  log.info({ mode, projectId: options?.projectId }, 'creating bash tools with permission mode')
+
+  switch (mode) {
+    case 'restricted':
+      return createRestrictedBashTool(options)
+
+    case 'sandbox': {
+      try {
+        if (!options?.projectId) throw new Error('projectId required for sandbox mode')
+        const workspaceDir = await ensureWorkspaceDir(options.projectId)
+        const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
+
+        // Bridge to existing SandboxPool API
+        const bridgedConfig: ResolvedBashToolConfig = {
+          mode: 'sandbox',
+          sandbox: sandboxConfig,
+          usesDedicatedWorker: true,
+        }
+
+        const handle = await sandboxPool.getHandle(
+          options.projectId as ProjectId,
+          bridgedConfig,
+        )
+        const sandbox = new AnthropicSandbox({
+          config: sandboxConfig,
+          workspaceRoot: workspaceDir,
+          sandboxManager: handle,
+        })
+        return createBashTool({ sandbox, destination: workspaceDir })
+      } catch (err) {
+        log.warn({ err, mode }, 'sandbox mode unavailable, falling back to restricted')
+        return createRestrictedBashTool(options)
+      }
+    }
+
+    case 'unrestricted': {
+      const workspaceDir = options?.projectId
+        ? await ensureWorkspaceDir(options.projectId)
+        : process.cwd()
+      const sandbox = new NativeSandbox({ workspaceRoot: workspaceDir })
+      return createBashTool({ sandbox, destination: workspaceDir })
+    }
+  }
+}
+
+// ── Permissions Resolution ─────────────────────────────────
+
+async function resolveEffectivePermissions(
+  options?: BuiltinToolOptions,
+): Promise<ResolvedPermissionsConfig | null> {
+  if (!options?.projectId || !options.permissionsConfigStorage) return null
+
+  const workspaceDir = getProjectPath(options.projectId) + '/workspace'
+  const platform = process.platform as SupportedPlatform
+
+  return resolvePermissionsConfig(
+    options.permissionsConfigStorage,
+    options.projectId as ProjectId,
+    options.permissionsConfigId,
+    workspaceDir,
+    platform,
+  )
+}
+
+// ── Adapter: PermissionsConfig → SandboxConfig ─────────────
+
+/**
+ * Bridge new flat PermissionsConfig to old nested SandboxConfig
+ * used by AnthropicSandbox and SandboxPool.
+ * This adapter will be removed when the runtime layer is migrated.
+ */
+function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig {
+  return {
+    filesystem: {
+      allowWrite: pc.allowWrite,
+      denyRead: pc.denyRead,
+      denyWrite: pc.denyWrite,
+      allowGitConfig: false,
+    },
+    network: {
+      allowedDomains: pc.networkRestrictionsEnabled ? pc.allowedDomains : undefined,
+    },
+    enablePython: true,
+    deniedCommands: pc.deniedCommands,
+  }
+}
+
+// ── Restricted Mode (just-bash) ────────────────────────────
 
 /**
  * Create a just-bash Bash instance with MountableFs:
  *   /project  → OverlayFs (read-only, project root with skills/agents/config)
  *   /workspace → ReadWriteFs (read-write, persistent working directory)
- *
- * Python and full network access enabled.
  */
-async function createBashToolWithSandbox(options?: BuiltinToolOptions) {
+async function createRestrictedBashTool(options?: BuiltinToolOptions) {
   let sandbox: Bash | undefined
   let destination: string | undefined
 
@@ -46,7 +165,7 @@ async function createBashToolWithSandbox(options?: BuiltinToolOptions) {
     const mountableFs = new MountableFs({
       base: new InMemoryFs(),
       mounts: [
-        { mountPoint: '/project', filesystem: new OverlayFs({ root: projectDir, mountPoint: '/'}) },
+        { mountPoint: '/project', filesystem: new OverlayFs({ root: projectDir, mountPoint: '/' }) },
         { mountPoint: '/workspace', filesystem: new ReadWriteFs({ root: workspaceDir }) },
       ],
     })
@@ -66,6 +185,16 @@ async function createBashToolWithSandbox(options?: BuiltinToolOptions) {
   })
 }
 
+// ── Helpers ────────────────────────────────────────────────
+
+async function ensureWorkspaceDir(projectId: string): Promise<string> {
+  const workspaceDir = getProjectPath(projectId) + '/workspace'
+  await nodeFs.mkdir(workspaceDir, { recursive: true })
+  return workspaceDir
+}
+
+// ── Public API ─────────────────────────────────────────────
+
 export async function loadBuiltinTools(
   config: BuiltinToolConfig,
   options?: BuiltinToolOptions,
@@ -76,9 +205,9 @@ export async function loadBuiltinTools(
   // Bash tools — single entry point for bash/readFile/writeFile
   if (config.bash !== false) {
     try {
-      const bashToolkit = await createBashToolWithSandbox(options)
+      const bashToolkit = await createBashToolForMode(options)
       Object.assign(tools, bashToolkit.tools)
-      log.debug('loaded bash built-in tools')
+      log.debug({ toolNames: Object.keys(bashToolkit.tools) }, 'loaded bash built-in tools')
     } catch (err) {
       log.error({ err }, 'failed to create bash tools')
     }

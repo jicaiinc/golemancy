@@ -14,3 +14,4 @@ out/
 
 # E2E test results
 test-results/
+/__logs/

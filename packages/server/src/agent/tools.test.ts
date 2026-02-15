@@ -4,17 +4,35 @@ vi.mock('./skills', () => ({
   loadAgentSkillTools: vi.fn().mockResolvedValue(null),
 }))
 vi.mock('./mcp', () => ({
-  loadAgentMcpTools: vi.fn().mockResolvedValue(null),
+  loadAgentMcpTools: vi.fn().mockResolvedValue({ tools: {}, warnings: [] }),
 }))
 vi.mock('./builtin-tools', () => ({
   loadBuiltinTools: vi.fn().mockResolvedValue(null),
+}))
+vi.mock('./resolve-permissions', () => ({
+  resolvePermissionsConfig: vi.fn().mockResolvedValue({
+    mode: 'sandbox',
+    config: {
+      allowWrite: [],
+      denyRead: [],
+      denyWrite: [],
+      networkRestrictionsEnabled: false,
+      allowedDomains: [],
+      deniedDomains: [],
+      deniedCommands: [],
+      applyToMCP: false,
+    },
+  }),
+}))
+vi.mock('../utils/paths', () => ({
+  getProjectPath: vi.fn().mockReturnValue('/tmp/test-project'),
 }))
 
 import { loadAgentTools } from './tools'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
-import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, MCPServerConfig } from '@golemancy/shared'
+import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, IPermissionsConfigService, MCPServerConfig } from '@golemancy/shared'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
   return {
@@ -46,6 +64,17 @@ const defaultSettings: GlobalSettings = {
   defaultWorkingDirectoryBase: '',
 }
 
+function makeMockPermissionsConfigStorage(): IPermissionsConfigService {
+  return {
+    list: vi.fn().mockResolvedValue([]),
+    getById: vi.fn().mockResolvedValue(null),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    duplicate: vi.fn(),
+  }
+}
+
 function makeMockMcpStorage(configs: MCPServerConfig[] = []): IMCPService {
   return {
     list: vi.fn().mockResolvedValue(configs),
@@ -73,6 +102,7 @@ describe('loadAgentTools', () => {
       settings: defaultSettings,
       allAgents: [],
       mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
     })
 
     expect(result.tools).toEqual({})
@@ -95,6 +125,7 @@ describe('loadAgentTools', () => {
       settings: defaultSettings,
       allAgents: [],
       mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
     })
 
     expect(loadAgentSkillTools).toHaveBeenCalledWith('proj-1', ['skill-1'])
@@ -107,10 +138,9 @@ describe('loadAgentTools', () => {
   })
 
   it('loads MCP tools', async () => {
-    const mockMcpCleanup = vi.fn().mockResolvedValue(undefined)
     vi.mocked(loadAgentMcpTools).mockResolvedValueOnce({
       tools: { mcp_search: {} as never },
-      cleanup: mockMcpCleanup,
+      warnings: [],
     })
 
     const mcpConfigs: MCPServerConfig[] = [{ name: 'test', enabled: true, transportType: 'stdio', command: 'echo' }]
@@ -122,14 +152,19 @@ describe('loadAgentTools', () => {
       settings: defaultSettings,
       allAgents: [],
       mcpStorage: mockStorage,
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
     })
 
     expect(mockStorage.resolveNames).toHaveBeenCalledWith('proj-1', ['test'])
-    expect(loadAgentMcpTools).toHaveBeenCalledWith(mcpConfigs)
+    expect(loadAgentMcpTools).toHaveBeenCalledWith(mcpConfigs, expect.objectContaining({
+      projectId: 'proj-1',
+      workspaceDir: '/tmp/test-project/workspace',
+      resolvedPermissions: expect.objectContaining({ mode: 'sandbox' }),
+    }))
     expect(result.tools).toHaveProperty('mcp_search')
 
+    // MCP cleanup is managed by the pool — no cleanup pushed
     await result.cleanup()
-    expect(mockMcpCleanup).toHaveBeenCalled()
   })
 
   it('loads built-in tools', async () => {
@@ -140,15 +175,21 @@ describe('loadAgentTools', () => {
     })
 
     const agent = makeAgent({ builtinTools: { bash: true } })
+    const mockPermsStorage = makeMockPermissionsConfigStorage()
     const result = await loadAgentTools({
       agent,
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [],
       mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: mockPermsStorage,
     })
 
-    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, { projectId: 'proj-1' })
+    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {
+      projectId: 'proj-1',
+      permissionsConfigId: undefined,
+      permissionsConfigStorage: mockPermsStorage,
+    })
     expect(result.tools).toHaveProperty('execute')
 
     await result.cleanup()
@@ -167,6 +208,7 @@ describe('loadAgentTools', () => {
       settings: defaultSettings,
       allAgents: [parent, child],
       mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
     })
 
     // Sub-agent tool should be created as a lightweight shell
@@ -184,7 +226,7 @@ describe('loadAgentTools', () => {
     })
     vi.mocked(loadAgentMcpTools).mockResolvedValueOnce({
       tools: { mcp_tool: {} as never },
-      cleanup: vi.fn(),
+      warnings: [],
     })
     vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
       tools: { execute: {} as never },
@@ -200,12 +242,14 @@ describe('loadAgentTools', () => {
       subAgents: [{ agentId: 'agent-child' as AgentId, role: 'help' }],
     })
 
+    const mockPermsStorage = makeMockPermissionsConfigStorage()
     const result = await loadAgentTools({
       agent,
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [agent, child],
       mcpStorage: makeMockMcpStorage(mcpConfigs),
+      permissionsConfigStorage: mockPermsStorage,
     })
 
     expect(Object.keys(result.tools)).toHaveLength(4)
@@ -216,7 +260,11 @@ describe('loadAgentTools', () => {
     expect(result.instructions).toBe('skill instructions')
 
     // Skills and bash are fully decoupled — no skill data passed to builtin
-    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, { projectId: 'proj-1' })
+    expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {
+      projectId: 'proj-1',
+      permissionsConfigId: undefined,
+      permissionsConfigStorage: mockPermsStorage,
+    })
   })
 
   it('cleanup calls all registered cleanups even if one fails', async () => {
@@ -239,6 +287,7 @@ describe('loadAgentTools', () => {
       settings: defaultSettings,
       allAgents: [],
       mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
     })
 
     await result.cleanup()

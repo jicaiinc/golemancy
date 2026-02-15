@@ -1,9 +1,11 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, ProjectId, IMCPService } from '@golemancy/shared'
+import type { Agent, GlobalSettings, PermissionsConfigId, ProjectId, SupportedPlatform, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
 import { createSubAgentToolSet } from './sub-agent'
+import { resolvePermissionsConfig } from './resolve-permissions'
+import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:tools' })
@@ -11,14 +13,19 @@ const log = logger.child({ component: 'agent:tools' })
 export interface LoadAgentToolsParams {
   agent: Agent
   projectId: string
+  /** Global settings — passed through to sub-agents for model resolution */
   settings: GlobalSettings
   allAgents: Agent[]
   mcpStorage: IMCPService
+  permissionsConfigId?: PermissionsConfigId
+  permissionsConfigStorage: IPermissionsConfigService
 }
 
 export interface AgentToolsResult {
   tools: ToolSet
   instructions: string
+  /** Warnings about tools that failed to load (for UI display, not for agent context). */
+  warnings: string[]
   cleanup: () => Promise<void>
 }
 
@@ -31,8 +38,9 @@ export interface AgentToolsResult {
  * recursive nesting controlled purely by agent configuration.
  */
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
-  const { agent, projectId, settings, allAgents, mcpStorage } = params
+  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage } = params
   const tools: ToolSet = {}
+  const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
   let instructions = ''
 
@@ -47,20 +55,45 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   }
 
   // 2. MCP — resolve name references to full configs, then load
+  //    Resolve permissions early so MCP sandbox wrapping can use it
   if (agent.mcpServers?.length > 0) {
     const mcpConfigs = await mcpStorage.resolveNames(projectId as ProjectId, agent.mcpServers)
     if (mcpConfigs.length > 0) {
-      const mcpResult = await loadAgentMcpTools(mcpConfigs)
-      if (mcpResult) {
+      // Resolve permissions and workspace dir for MCP loading
+      const workspaceDir = getProjectPath(projectId) + '/workspace'
+      let mcpOptions: Parameters<typeof loadAgentMcpTools>[1]
+      if (permissionsConfigStorage) {
+        try {
+          const platform = process.platform as SupportedPlatform
+          const resolvedPermissions = await resolvePermissionsConfig(
+            permissionsConfigStorage,
+            projectId as ProjectId,
+            permissionsConfigId,
+            workspaceDir,
+            platform,
+          )
+          mcpOptions = { projectId: projectId as ProjectId, workspaceDir, resolvedPermissions }
+        } catch (err) {
+          log.warn({ err }, 'failed to resolve permissions for MCP loading')
+        }
+      }
+
+      const mcpResult = await loadAgentMcpTools(mcpConfigs, mcpOptions)
+      warnings.push(...mcpResult.warnings)
+      if (Object.keys(mcpResult.tools).length > 0) {
         Object.assign(tools, mcpResult.tools)
-        cleanups.push(mcpResult.cleanup)
+        // No cleanup pushed — pool manages MCP connections
       }
     }
   }
 
   // 3. Built-in tools (bash/readFile/writeFile, browser, etc.)
   if (agent.builtinTools) {
-    const builtinResult = await loadBuiltinTools(agent.builtinTools, { projectId })
+    const builtinResult = await loadBuiltinTools(agent.builtinTools, {
+      projectId,
+      permissionsConfigId,
+      permissionsConfigStorage,
+    })
     if (builtinResult) {
       Object.assign(tools, builtinResult.tools)
       cleanups.push(builtinResult.cleanup)
@@ -70,7 +103,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   // 4. Sub-agents (lightweight shells, zero resource cost until invoked)
   if (agent.subAgents?.length > 0) {
     const subAgentResult = createSubAgentToolSet(
-      agent, allAgents, settings, projectId, loadAgentTools, mcpStorage,
+      agent, allAgents, settings, projectId, loadAgentTools, mcpStorage, permissionsConfigStorage,
     )
     Object.assign(tools, subAgentResult.tools)
   }
@@ -83,6 +116,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   return {
     tools,
     instructions,
+    warnings,
     cleanup: async () => {
       await Promise.all(cleanups.map(fn => fn().catch(() => {})))
     },

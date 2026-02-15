@@ -1,3 +1,5 @@
+import type { PermissionsConfigId } from './common'
+
 export type AIProvider = 'openai' | 'anthropic' | 'google' | 'custom'
 
 export interface ProviderConfig {
@@ -26,6 +28,7 @@ export interface GlobalSettings {
 export interface ProjectConfig {
   providerOverride?: Partial<ProviderConfig>
   maxConcurrentAgents: number
+  permissionsConfigId?: PermissionsConfigId
 }
 
 export interface AgentModelConfig {

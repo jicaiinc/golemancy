@@ -1,8 +1,12 @@
 import { Hono } from 'hono'
-import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
+import {
+  streamText, stepCountIs, convertToModelMessages,
+  createUIMessageStream, createUIMessageStreamResponse,
+  type UIMessage,
+} from 'ai'
 import type {
   AgentId, ProjectId, ConversationId, MessageId,
-  IAgentService, IConversationService, ISettingsService, IMCPService,
+  IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
@@ -20,9 +24,11 @@ function extractTextContent(parts: UIMessage['parts']): string {
 
 export interface ChatRouteDeps {
   agentStorage: IAgentService
+  projectStorage: IProjectService
   conversationStorage: IConversationService
   settingsStorage: ISettingsService
   mcpStorage: IMCPService
+  permissionsConfigStorage: IPermissionsConfigService
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -80,6 +86,9 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       return c.json({ error: `Agent ${agentId} not found` }, 404)
     }
 
+    // Get project config for permissions config reference
+    const project = await deps.projectStorage.getById(projectId as ProjectId)
+
     // Get global settings for model resolution
     const settings = await deps.settingsStorage.get()
     const model = await resolveModel(settings, agent.modelConfig)
@@ -115,6 +124,8 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const agentToolsResult = await loadAgentTools({
       agent, projectId, settings, allAgents,
       mcpStorage: deps.mcpStorage,
+      permissionsConfigId: project?.config.permissionsConfigId,
+      permissionsConfigStorage: deps.permissionsConfigStorage,
     })
 
     const allTools = agentToolsResult.tools
@@ -145,29 +156,47 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       onAbort: ensureCleanup,
     })
 
-    return result.toUIMessageStreamResponse({
-      originalMessages: messages,
-      generateMessageId: () => generateId('msg'),
-      onFinish: async ({ responseMessage }) => {
-        try {
-          if (conversationId) {
-            await deps.conversationStorage.saveMessage(
-              projectId as ProjectId,
-              conversationId as ConversationId,
-              {
-                id: responseMessage.id as MessageId,
-                role: 'assistant',
-                parts: responseMessage.parts,
-                content: extractTextContent(responseMessage.parts),
-              },
-            )
-            log.debug({ conversationId, role: 'assistant' }, 'saved assistant message in onFinish')
-          }
-        } catch (err) {
-          log.error({ err, conversationId }, 'failed to save assistant message')
+    // Wrap in createUIMessageStream to inject transient warnings before LLM output
+    const toolWarnings = agentToolsResult.warnings
+    const stream = createUIMessageStream({
+      execute: ({ writer }) => {
+        // Send tool loading warnings as transient data (not persisted in message history)
+        for (const warning of toolWarnings) {
+          writer.write({
+            type: 'data-warning' as `data-${string}`,
+            data: { message: warning },
+            transient: true,
+          })
         }
+
+        // Merge the LLM stream
+        writer.merge(result.toUIMessageStream({
+          originalMessages: messages,
+          generateMessageId: () => generateId('msg'),
+          onFinish: async ({ responseMessage }) => {
+            try {
+              if (conversationId) {
+                await deps.conversationStorage.saveMessage(
+                  projectId as ProjectId,
+                  conversationId as ConversationId,
+                  {
+                    id: responseMessage.id as MessageId,
+                    role: 'assistant',
+                    parts: responseMessage.parts,
+                    content: extractTextContent(responseMessage.parts),
+                  },
+                )
+                log.debug({ conversationId, role: 'assistant' }, 'saved assistant message in onFinish')
+              }
+            } catch (err) {
+              log.error({ err, conversationId }, 'failed to save assistant message')
+            }
+          },
+        }))
       },
     })
+
+    return createUIMessageStreamResponse({ stream })
   })
 
   return app

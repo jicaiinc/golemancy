@@ -150,6 +150,7 @@ interface MCPActions {
   createMCPServer(data: MCPServerCreateData): Promise<MCPServerConfig>
   updateMCPServer(name: string, data: MCPServerUpdateData): Promise<void>
   deleteMCPServer(name: string): Promise<void>
+  testMCPServer(name: string): Promise<{ ok: boolean; toolCount: number; error?: string }>
 }
 
 interface CronJobActions {
@@ -568,6 +569,14 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().mcp.delete(projectId, name)
         set(s => ({ mcpServers: s.mcpServers.filter(m => m.name !== name) }))
+      },
+
+      async testMCPServer(name) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const svc = getServices().mcp
+        if (!svc.test) throw new Error('MCP test not available')
+        return svc.test(projectId, name)
       },
 
       // --- CronJob state ---

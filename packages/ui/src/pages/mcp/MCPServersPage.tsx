@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
 import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { useCurrentProject } from '../../hooks'
+import { useCurrentProject, usePermissionConfig } from '../../hooks'
 import {
   PixelCard, PixelButton, PixelBadge, PixelTabs, PixelToggle, PixelSpinner, PixelDropZone,
 } from '../../components'
@@ -28,12 +28,27 @@ export function MCPServersPage() {
   const createMCPServer = useAppStore(s => s.createMCPServer)
   const updateMCPServer = useAppStore(s => s.updateMCPServer)
   const deleteMCPServer = useAppStore(s => s.deleteMCPServer)
+  const testMCPServer = useAppStore(s => s.testMCPServer)
+  const { mode, applyToMCP, sandboxSupported } = usePermissionConfig()
 
   const [activeTab, setActiveTab] = useState('installed')
   const [showCreate, setShowCreate] = useState(false)
   const [editServer, setEditServer] = useState<MCPServerConfig | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [testResults, setTestResults] = useState<Record<string, { status: 'testing' | 'ok' | 'error'; message?: string }>>({})
+
+  // Determine MCP security warning type
+  let mcpWarning: 'restricted' | 'risk' | null = null
+  if (mode === 'restricted') {
+    mcpWarning = 'restricted'
+  } else if (mode === 'unrestricted') {
+    mcpWarning = 'risk'
+  } else if (mode === 'sandbox') {
+    if (!applyToMCP || !sandboxSupported) {
+      mcpWarning = 'risk'
+    }
+  }
 
   if (!project) return null
 
@@ -41,9 +56,28 @@ export function MCPServersPage() {
     return agents.filter(a => a.mcpServers.includes(serverName)).length
   }
 
+  async function handleTest(name: string) {
+    setTestResults(prev => ({ ...prev, [name]: { status: 'testing' } }))
+    try {
+      const result = await testMCPServer(name)
+      if (result.ok) {
+        setTestResults(prev => ({ ...prev, [name]: { status: 'ok', message: `OK (${result.toolCount} tools)` } }))
+      } else {
+        setTestResults(prev => ({ ...prev, [name]: { status: 'error', message: result.error ?? 'Connection failed' } }))
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Test failed'
+      setTestResults(prev => ({ ...prev, [name]: { status: 'error', message } }))
+    }
+  }
+
   async function handleCreate(data: MCPServerCreateData) {
-    await createMCPServer(data)
+    const server = await createMCPServer(data)
     setShowCreate(false)
+    // Auto-test after creation
+    if (server.enabled) {
+      handleTest(server.name)
+    }
   }
 
   async function handleEdit(data: { name: string } & MCPServerUpdateData) {
@@ -54,6 +88,10 @@ export function MCPServersPage() {
 
   async function handleToggleEnabled(server: MCPServerConfig) {
     await updateMCPServer(server.name, { enabled: !server.enabled })
+    // Auto-test when enabling
+    if (!server.enabled) {
+      handleTest(server.name)
+    }
   }
 
   async function handleDelete(server: MCPServerConfig) {
@@ -110,6 +148,36 @@ export function MCPServersPage() {
         <PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Server</PixelButton>
       </div>
 
+      {/* MCP security warning */}
+      {mcpWarning === 'restricted' && (
+        <PixelCard variant="outlined" className="mb-4 border-accent-blue bg-accent-blue/5">
+          <div className="flex items-center gap-2">
+            <span className="font-pixel text-[10px] text-accent-blue shrink-0">{'\u26D4'} RESTRICTED</span>
+            <span className="text-[12px] text-text-secondary">
+              Restricted mode: stdio MCP servers are disabled and will not be loaded
+            </span>
+          </div>
+        </PixelCard>
+      )}
+      {mcpWarning === 'risk' && (
+        <PixelCard variant="outlined" className="mb-4 border-accent-amber bg-accent-amber/5">
+          <div className="flex items-start gap-2">
+            <span className="font-pixel text-[10px] text-accent-amber shrink-0 mt-0.5">{'\u26A0'} WARNING</span>
+            <div className="text-[12px] text-text-secondary">
+              <p>Third-party MCP servers may access or modify files on your computer.</p>
+              {mode === 'sandbox' && sandboxSupported && !applyToMCP && (
+                <p className="mt-1 text-text-dim">
+                  Enable "Apply to MCP" in Settings &gt; Permissions to sandbox MCP servers.
+                </p>
+              )}
+              {mode === 'sandbox' && !sandboxSupported && (
+                <p className="mt-1 text-text-dim">Sandbox runtime is not available on this platform.</p>
+              )}
+            </div>
+          </div>
+        </PixelCard>
+      )}
+
       {/* Drop zone for MCP config import */}
       <PixelDropZone accept={['.json']} onDrop={handleConfigDrop} className="mb-4" />
 
@@ -163,6 +231,7 @@ export function MCPServersPage() {
               <div className="flex flex-col gap-2">
                 {mcpServers.map(server => {
                   const refCount = getReferencingAgentCount(server.name)
+                  const testResult = testResults[server.name]
                   return (
                     <motion.div key={server.name} {...staggerItem}>
                       <PixelCard className={!server.enabled ? 'opacity-60' : ''}>
@@ -173,6 +242,14 @@ export function MCPServersPage() {
                               <PixelBadge variant="idle">
                                 <span className={transportColors[server.transportType]}>{server.transportType.toUpperCase()}</span>
                               </PixelBadge>
+                              {testResult && (
+                                <span className={`text-[10px] font-mono whitespace-pre-line ${
+                                  testResult.status === 'testing' ? 'text-text-dim' :
+                                  testResult.status === 'ok' ? 'text-accent-green' : 'text-accent-red'
+                                }`}>
+                                  {testResult.status === 'testing' ? 'Testing...' : testResult.message}
+                                </span>
+                              )}
                             </div>
                             {server.description && (
                               <p className="text-[12px] text-text-secondary mt-1">{server.description}</p>
@@ -185,11 +262,24 @@ export function MCPServersPage() {
                                 <span className="font-mono">{server.url}</span>
                               )}
                             </div>
+                            {mode === 'restricted' && server.transportType === 'stdio' && (
+                              <div className="mt-1 text-[10px] text-accent-blue">
+                                {'\u26D4'} Blocked by restricted mode — stdio servers are not loaded at runtime
+                              </div>
+                            )}
                             <div className="mt-1 text-[10px] text-text-dim">
                               Used by {refCount} agent{refCount !== 1 ? 's' : ''}
                             </div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
+                            <PixelButton
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleTest(server.name)}
+                              disabled={testResult?.status === 'testing'}
+                            >
+                              Test
+                            </PixelButton>
                             <PixelToggle checked={server.enabled} onChange={() => handleToggleEnabled(server)} />
                             <PixelButton size="sm" variant="ghost" onClick={() => setEditServer(server)}>Edit</PixelButton>
                             <PixelButton size="sm" variant="ghost" onClick={() => handleDelete(server)}>&times;</PixelButton>

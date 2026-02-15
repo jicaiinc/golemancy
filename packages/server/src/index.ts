@@ -14,6 +14,9 @@ import { FileSkillStorage } from './storage/skills'
 import { FileCronJobStorage } from './storage/cronjobs'
 import { FileMCPStorage } from './storage/mcp'
 import { FileSettingsStorage } from './storage/settings'
+import { FilePermissionsConfigStorage } from './storage/permissions-config'
+import { sandboxPool } from './agent/sandbox-pool'
+import { mcpPool } from './agent/mcp-pool'
 import { logger } from './logger'
 
 async function main() {
@@ -40,6 +43,7 @@ async function main() {
     cronJobStorage: new FileCronJobStorage(),
     settingsStorage: new FileSettingsStorage(),
     mcpStorage: new FileMCPStorage(),
+    permissionsConfigStorage: new FilePermissionsConfigStorage(),
     dashboardService: {
       getSummary: async () => ({ totalProjects: 0, totalAgents: 0, activeAgents: 0, runningTasks: 0, completedTasksToday: 0, totalTokenUsageToday: 0 }),
       getActiveAgents: async () => [],
@@ -51,6 +55,18 @@ async function main() {
   // SEC-07: Generate auth token for IPC-based authentication
   const authToken = crypto.randomUUID()
   const app = createApp(deps, authToken)
+
+  // Graceful shutdown: clean up sandbox workers and MCP connections
+  process.on('SIGTERM', async () => {
+    logger.info('SIGTERM received, shutting down')
+    await Promise.allSettled([
+      sandboxPool.shutdown(),
+      mcpPool.shutdown(),
+    ])
+  })
+
+  // Start MCP pool idle connection scanner
+  mcpPool.startIdleScanner()
 
   // SEC-09: Bind to loopback only
   serve({ fetch: app.fetch, port, hostname: '127.0.0.1' }, (info) => {

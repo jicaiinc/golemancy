@@ -10,4 +10,5 @@ export type {
   ISettingsService,
   ICronJobService,
   IDashboardService,
+  IPermissionsConfigService,
 } from '@golemancy/shared'

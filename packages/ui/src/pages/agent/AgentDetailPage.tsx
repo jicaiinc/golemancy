@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import type { Agent, AgentId, AgentStatus, AIProvider, SkillId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { useCurrentProject, useResolvedConfig } from '../../hooks'
+import { useCurrentProject, useResolvedConfig, usePermissionConfig } from '../../hooks'
 import {
   PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelTabs,
   PixelInput, PixelTextArea,
@@ -324,10 +324,16 @@ function MCPTab({ agent, onUpdate }: {
   const mcpServers = useAppStore(s => s.mcpServers)
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
+  const { mode, applyToMCP, sandboxSupported } = usePermissionConfig()
 
   const assignedNames = agent.mcpServers ?? []
   const assigned = mcpServers.filter(s => assignedNames.includes(s.name))
   const available = mcpServers.filter(s => !assignedNames.includes(s.name))
+
+  // Determine warning type
+  const isRestricted = mode === 'restricted'
+  const showRiskWarning = mode === 'unrestricted' || (mode === 'sandbox' && (!applyToMCP || !sandboxSupported))
+  const hasStdioServers = assigned.some(s => s.transportType === 'stdio')
 
   async function addServer(name: string) {
     await onUpdate(agent.id, { mcpServers: [...assignedNames, name] })
@@ -345,6 +351,26 @@ function MCPTab({ agent, onUpdate }: {
 
   return (
     <div className="max-w-[640px]">
+      {/* MCP security warnings */}
+      {showRiskWarning && (
+        <PixelCard variant="outlined" className="mb-4 border-accent-amber bg-accent-amber/5">
+          <div className="flex items-start gap-2">
+            <span className="font-pixel text-[10px] text-accent-amber shrink-0 mt-0.5">{'\u26A0'} WARNING</span>
+            <div className="text-[12px] text-text-secondary">
+              <p>Third-party MCP servers may access or modify files on your computer.</p>
+              {mode === 'sandbox' && sandboxSupported && !applyToMCP && (
+                <p className="mt-1 text-text-dim">
+                  Enable "Apply to MCP" in Settings &gt; Permissions to sandbox MCP servers.
+                </p>
+              )}
+              {mode === 'sandbox' && !sandboxSupported && (
+                <p className="mt-1 text-text-dim">Sandbox runtime is not available on this platform.</p>
+              )}
+            </div>
+          </div>
+        </PixelCard>
+      )}
+
       {/* Assigned servers */}
       <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED MCP SERVERS</div>
       {assigned.length > 0 ? (
@@ -357,6 +383,9 @@ function MCPTab({ agent, onUpdate }: {
                   <span className={`font-mono text-[9px] ${transportColors[server.transportType] ?? 'text-text-dim'}`}>
                     {server.transportType.toUpperCase()}
                   </span>
+                  {isRestricted && server.transportType === 'stdio' && (
+                    <PixelBadge variant="error">Restricted</PixelBadge>
+                  )}
                 </div>
                 {server.description && (
                   <div className="text-[11px] text-text-secondary mt-0.5">{server.description}</div>

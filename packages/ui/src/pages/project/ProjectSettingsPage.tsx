@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import type { AIProvider, AgentId, ProjectConfig } from '@golemancy/shared'
+import type { AIProvider, AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
-import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs } from '../../components'
+import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
 
 const ICONS = [
   { id: 'pickaxe', label: '\u26CF' },
@@ -20,6 +20,7 @@ const SETTINGS_TABS = [
   { id: 'agent', label: 'Agent' },
   { id: 'general', label: 'General' },
   { id: 'provider', label: 'Provider' },
+  { id: 'permissions', label: 'Permissions' },
 ]
 
 export function ProjectSettingsPage() {
@@ -64,8 +65,9 @@ export function ProjectSettingsPage() {
     if (!project) return
     setSaving(true)
     const config: ProjectConfig = {
+      ...project.config,
       maxConcurrentAgents,
-      ...(providerOverride ? { providerOverride: { provider: providerOverride as AIProvider } } : {}),
+      ...(providerOverride ? { providerOverride: { provider: providerOverride as AIProvider } } : { providerOverride: undefined }),
     }
     await updateProject(project.id, {
       name: name.trim(),
@@ -80,7 +82,7 @@ export function ProjectSettingsPage() {
   }
 
   return (
-    <div className="p-6 max-w-[640px]">
+    <div className={`p-6 ${activeTab === 'permissions' ? 'max-w-[960px]' : 'max-w-[640px]'}`}>
       <h1 className="font-pixel text-[14px] text-text-primary mb-6">Project Settings</h1>
 
       <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
@@ -122,6 +124,9 @@ export function ProjectSettingsPage() {
             onSave={handleSave}
             name={name}
           />
+        )}
+        {activeTab === 'permissions' && (
+          <PermissionsSettings projectId={projectId! as ProjectId} />
         )}
       </div>
     </div>
@@ -343,3 +348,4 @@ function ProviderTab({
     </div>
   )
 }
+
