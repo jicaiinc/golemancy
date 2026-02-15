@@ -62,7 +62,7 @@ export interface PermissionsConfig {
    *
    * When true: MCP server commands are wrapped with `srt` (sandbox runtime).
    * When false: MCP servers run unrestricted.
-   * Default: false
+   * Default: true
    *
    * Windows doesn't show this option (no sandbox runtime support).
    */
@@ -229,7 +229,7 @@ export const DEFAULT_PERMISSIONS_CONFIG: PermissionsConfigFile = {
     allowedDomains: ['*'],
     deniedDomains: [],
     deniedCommands: UNIX_DENIED_COMMANDS,
-    applyToMCP: false,
+    applyToMCP: true,
   },
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',

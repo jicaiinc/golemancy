@@ -4,7 +4,7 @@ vi.mock('./skills', () => ({
   loadAgentSkillTools: vi.fn().mockResolvedValue(null),
 }))
 vi.mock('./mcp', () => ({
-  loadAgentMcpTools: vi.fn().mockResolvedValue(null),
+  loadAgentMcpTools: vi.fn().mockResolvedValue({}),
 }))
 vi.mock('./builtin-tools', () => ({
   loadBuiltinTools: vi.fn().mockResolvedValue(null),
@@ -137,10 +137,8 @@ describe('loadAgentTools', () => {
   })
 
   it('loads MCP tools', async () => {
-    const mockMcpCleanup = vi.fn().mockResolvedValue(undefined)
     vi.mocked(loadAgentMcpTools).mockResolvedValueOnce({
-      tools: { mcp_search: {} as never },
-      cleanup: mockMcpCleanup,
+      mcp_search: {} as never,
     })
 
     const mcpConfigs: MCPServerConfig[] = [{ name: 'test', enabled: true, transportType: 'stdio', command: 'echo' }]
@@ -163,8 +161,8 @@ describe('loadAgentTools', () => {
     }))
     expect(result.tools).toHaveProperty('mcp_search')
 
+    // MCP cleanup is managed by the pool — no cleanup pushed
     await result.cleanup()
-    expect(mockMcpCleanup).toHaveBeenCalled()
   })
 
   it('loads built-in tools', async () => {
@@ -225,8 +223,7 @@ describe('loadAgentTools', () => {
       cleanup: vi.fn(),
     })
     vi.mocked(loadAgentMcpTools).mockResolvedValueOnce({
-      tools: { mcp_tool: {} as never },
-      cleanup: vi.fn(),
+      mcp_tool: {} as never,
     })
     vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
       tools: { execute: {} as never },

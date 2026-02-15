@@ -16,6 +16,7 @@ import { FileMCPStorage } from './storage/mcp'
 import { FileSettingsStorage } from './storage/settings'
 import { FilePermissionsConfigStorage } from './storage/permissions-config'
 import { sandboxPool } from './agent/sandbox-pool'
+import { mcpPool } from './agent/mcp-pool'
 import { logger } from './logger'
 
 async function main() {
@@ -55,11 +56,17 @@ async function main() {
   const authToken = crypto.randomUUID()
   const app = createApp(deps, authToken)
 
-  // Graceful shutdown: clean up sandbox workers
+  // Graceful shutdown: clean up sandbox workers and MCP connections
   process.on('SIGTERM', async () => {
-    logger.info('SIGTERM received, shutting down sandbox pool')
-    await sandboxPool.shutdown()
+    logger.info('SIGTERM received, shutting down')
+    await Promise.allSettled([
+      sandboxPool.shutdown(),
+      mcpPool.shutdown(),
+    ])
   })
+
+  // Start MCP pool idle connection scanner
+  mcpPool.startIdleScanner()
 
   // SEC-09: Bind to loopback only
   serve({ fetch: app.fetch, port, hostname: '127.0.0.1' }, (info) => {

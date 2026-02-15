@@ -75,10 +75,10 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         }
       }
 
-      const mcpResult = await loadAgentMcpTools(mcpConfigs, mcpOptions)
-      if (mcpResult) {
-        Object.assign(tools, mcpResult.tools)
-        cleanups.push(mcpResult.cleanup)
+      const mcpTools = await loadAgentMcpTools(mcpConfigs, mcpOptions)
+      if (mcpTools && Object.keys(mcpTools).length > 0) {
+        Object.assign(tools, mcpTools)
+        // No cleanup pushed — pool manages MCP connections
       }
     }
   }

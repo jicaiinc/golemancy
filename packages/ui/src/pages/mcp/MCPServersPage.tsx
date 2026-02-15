@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
 import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { useCurrentProject } from '../../hooks'
+import { useCurrentProject, usePermissionConfig } from '../../hooks'
 import {
   PixelCard, PixelButton, PixelBadge, PixelTabs, PixelToggle, PixelSpinner, PixelDropZone,
 } from '../../components'
@@ -28,12 +28,25 @@ export function MCPServersPage() {
   const createMCPServer = useAppStore(s => s.createMCPServer)
   const updateMCPServer = useAppStore(s => s.updateMCPServer)
   const deleteMCPServer = useAppStore(s => s.deleteMCPServer)
+  const { mode, applyToMCP, sandboxSupported } = usePermissionConfig()
 
   const [activeTab, setActiveTab] = useState('installed')
   const [showCreate, setShowCreate] = useState(false)
   const [editServer, setEditServer] = useState<MCPServerConfig | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+
+  // Determine MCP security warning type
+  let mcpWarning: 'restricted' | 'risk' | null = null
+  if (mode === 'restricted') {
+    mcpWarning = 'restricted'
+  } else if (mode === 'unrestricted') {
+    mcpWarning = 'risk'
+  } else if (mode === 'sandbox') {
+    if (!applyToMCP || !sandboxSupported) {
+      mcpWarning = 'risk'
+    }
+  }
 
   if (!project) return null
 
@@ -109,6 +122,28 @@ export function MCPServersPage() {
         </div>
         <PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Server</PixelButton>
       </div>
+
+      {/* MCP security warning */}
+      {mcpWarning === 'restricted' && (
+        <PixelCard variant="outlined" className="mb-4 border-accent-blue bg-accent-blue/5">
+          <div className="flex items-center gap-2">
+            <span className="font-pixel text-[10px] text-accent-blue shrink-0">{'\u26D4'} RESTRICTED</span>
+            <span className="text-[12px] text-text-secondary">
+              Restricted mode: stdio MCP servers are disabled and will not be loaded
+            </span>
+          </div>
+        </PixelCard>
+      )}
+      {mcpWarning === 'risk' && (
+        <PixelCard variant="outlined" className="mb-4 border-accent-amber bg-accent-amber/5">
+          <div className="flex items-center gap-2">
+            <span className="font-pixel text-[10px] text-accent-amber shrink-0">{'\u26A0'} WARNING</span>
+            <span className="text-[12px] text-text-secondary">
+              Third-party MCP servers may access or modify files on your computer
+            </span>
+          </div>
+        </PixelCard>
+      )}
 
       {/* Drop zone for MCP config import */}
       <PixelDropZone accept={['.json']} onDrop={handleConfigDrop} className="mb-4" />

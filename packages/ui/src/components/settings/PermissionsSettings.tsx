@@ -5,7 +5,7 @@ import { PixelCard, PixelButton, PixelInput, PixelModal, PixelToggle } from '../
 import { PixelDropdown } from '../base/PixelDropdown'
 import { ExecutionModeCard, type ExecutionModeOption } from './ExecutionModeCard'
 import { PathListEditor } from './PathListEditor'
-import { useServices, useCurrentProject } from '../../hooks'
+import { useServices, useCurrentProject, detectPlatform } from '../../hooks'
 import { useAppStore } from '../../stores'
 
 interface PermissionsSettingsProps {
@@ -35,13 +35,6 @@ const MODE_OPTIONS: ExecutionModeOption[] = [
     badge: { label: 'Risky', variant: 'error' },
   },
 ]
-
-function detectPlatform(): SupportedPlatform {
-  const ua = navigator.userAgent.toLowerCase()
-  if (ua.includes('win')) return 'win32'
-  if (ua.includes('linux')) return 'linux'
-  return 'darwin'
-}
 
 export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
   const { permissionsConfig: service } = useServices()
