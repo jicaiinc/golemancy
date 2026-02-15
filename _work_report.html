@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Golemancy - Git 工作作息统计</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e; color: #e0e0e0;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    padding: 32px; line-height: 1.6;
+  }
+  h1 { color: #00ff88; font-size: 24px; margin-bottom: 8px; }
+  h2 { color: #4ecdc4; font-size: 18px; margin: 28px 0 12px; }
+  .subtitle { color: #888; font-size: 13px; margin-bottom: 24px; }
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 28px;
+  }
+  .summary-card {
+    background: #16213e; border: 2px solid #0f3460; padding: 16px; text-align: center;
+  }
+  .summary-card .num { font-size: 28px; color: #00ff88; font-weight: bold; }
+  .summary-card .label { font-size: 11px; color: #888; margin-top: 4px; }
+  table {
+    width: 100%; border-collapse: collapse; margin-bottom: 20px;
+    font-size: 13px;
+  }
+  th {
+    background: #0f3460; color: #4ecdc4; padding: 10px 12px;
+    text-align: left; border: 2px solid #1a1a2e; font-weight: normal;
+  }
+  td {
+    padding: 8px 12px; border: 2px solid #1a1a2e; background: #16213e;
+  }
+  tr:hover td { background: #1a2744; }
+  .bar {
+    display: inline-block; height: 16px; background: #00ff88; vertical-align: middle;
+    min-width: 2px;
+  }
+  .timeline { position: relative; margin: 12px 0; }
+  .timeline-row {
+    display: flex; align-items: center; margin-bottom: 6px; font-size: 12px;
+  }
+  .timeline-label { width: 80px; text-align: right; padding-right: 12px; color: #888; flex-shrink: 0; }
+  .timeline-track {
+    flex: 1; height: 22px; background: #0d1117; position: relative; border: 1px solid #222;
+  }
+  .timeline-block {
+    position: absolute; height: 100%; opacity: 0.85;
+  }
+  .timeline-block.active { background: #00ff88; }
+  .timeline-block.late { background: #ff6b6b; }
+  .timeline-hours {
+    display: flex; flex: 1; font-size: 9px; color: #444;
+  }
+  .timeline-hours span { flex: 1; text-align: center; }
+  .legend { display: flex; gap: 20px; font-size: 11px; color: #888; margin: 8px 0 0 92px; }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-box { width: 12px; height: 12px; display: inline-block; }
+  .highlight { color: #ffd93d; }
+  .dim { color: #555; }
+  .tag {
+    display: inline-block; padding: 2px 8px; font-size: 11px;
+    background: #0f3460; color: #4ecdc4; margin: 1px;
+  }
+  .tag-night { background: #3d1f00; color: #ff922b; }
+  .note { font-size: 12px; color: #666; margin-top: 8px; font-style: italic; }
+  .hour-grid {
+    display: grid; grid-template-columns: 80px repeat(24, 1fr); font-size: 10px; gap: 1px;
+  }
+  .hour-grid .cell {
+    height: 24px; display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .cell-header { color: #666; font-weight: bold; }
+  .cell-label { color: #888; text-align: right; padding-right: 6px; justify-content: flex-end; }
+  .heat-0 { background: #0d1117; color: #333; }
+  .heat-1 { background: #0e4429; color: #3fb950; }
+  .heat-2 { background: #006d32; color: #fff; }
+  .heat-3 { background: #26a641; color: #fff; }
+  .heat-4 { background: #39d353; color: #000; }
+  .heat-5 { background: #7aff7a; color: #000; }
+
+  .branch-info { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .branch-tag {
+    display: inline-block; padding: 4px 10px; font-size: 11px;
+    background: #16213e; border: 1px solid #0f3460; color: #4ecdc4;
+  }
+  .branch-tag .count { color: #00ff88; font-weight: bold; }
+
+  .session-row { display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px; font-size: 12px; }
+  .session-date { width: 100px; color: #888; flex-shrink: 0; text-align: right; }
+  .session-block { display: inline-block; padding: 2px 8px; font-size: 11px; margin: 1px; }
+  .session-active { background: #0f3460; color: #4ecdc4; }
+  .session-night { background: #3d1f00; color: #ff922b; }
+  .session-rest { color: #555; font-size: 10px; }
+
+  @media (max-width: 900px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Golemancy -- Git 工作作息统计</h1>
+<p class="subtitle">统计区间: 2026-02-09 ~ 2026-02-15 | 全部分支去重 | 时区: UTC+8</p>
+
+<!-- ==================== 概览卡片 ==================== -->
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="num">117</div>
+    <div class="label">Unique Commits (全分支)</div>
+  </div>
+  <div class="summary-card">
+    <div class="num">7</div>
+    <div class="label">活跃天数</div>
+  </div>
+  <div class="summary-card">
+    <div class="num">16.7</div>
+    <div class="label">日均 commits</div>
+  </div>
+  <div class="summary-card">
+    <div class="num">6</div>
+    <div class="label">分支 (worktrees)</div>
+  </div>
+  <div class="summary-card">
+    <div class="num" style="color:#ff6b6b">03:08</div>
+    <div class="label">最晚提交</div>
+  </div>
+</div>
+
+<!-- ==================== 分支统计 ==================== -->
+<h2>分支 / Worktree 提交分布</h2>
+<div class="branch-info">
+  <div class="branch-tag">main <span class="count">96</span></div>
+  <div class="branch-tag">sandbox-runtime <span class="count">109</span></div>
+  <div class="branch-tag">sandbox <span class="count">92</span></div>
+  <div class="branch-tag">merge0213 <span class="count">80</span></div>
+  <div class="branch-tag">browser <span class="count">74</span></div>
+  <div class="branch-tag">tree <span class="count">74</span></div>
+</div>
+<p class="note">* 数字为各分支含祖先的 commit 总数。去重后全局共 117 个 unique commits。</p>
+
+<!-- ==================== 每日总览 ==================== -->
+<h2>每日总览</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:100px">日期</th>
+      <th style="width:50px">星期</th>
+      <th style="width:60px">提交数</th>
+      <th style="width:100px">首次提交</th>
+      <th style="width:100px">末次提交</th>
+      <th style="width:90px">跨度</th>
+      <th>提交密度</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>02-09</td>
+      <td style="color:#ffd93d">周一</td>
+      <td>2</td>
+      <td>12:04</td>
+      <td>14:58</td>
+      <td>2h 53m</td>
+      <td><span class="bar" style="width:10px"></span> 0.7/h</td>
+    </tr>
+    <tr>
+      <td>02-10</td>
+      <td style="color:#6bcb77">周二</td>
+      <td style="color:#00ff88"><b>22</b></td>
+      <td>15:20</td>
+      <td>23:34</td>
+      <td>8h 13m</td>
+      <td><span class="bar" style="width:66px"></span> 2.7/h</td>
+    </tr>
+    <tr>
+      <td>02-11</td>
+      <td style="color:#4d96ff">周三</td>
+      <td>21</td>
+      <td style="color:#ff6b6b">00:03</td>
+      <td>22:03</td>
+      <td>21h 59m</td>
+      <td><span class="bar" style="width:63px"></span> 2.6/h<sup style="color:#666;font-size:9px"> *含休息</sup></td>
+    </tr>
+    <tr>
+      <td>02-12</td>
+      <td style="color:#ff922b">周四</td>
+      <td style="color:#ffd93d"><b>28</b></td>
+      <td style="color:#ff6b6b">00:54</td>
+      <td>23:28</td>
+      <td>22h 33m</td>
+      <td><span class="bar" style="width:84px"></span> <b>3.3/h</b><sup style="color:#666;font-size:9px"> *含休息</sup></td>
+    </tr>
+    <tr>
+      <td>02-13</td>
+      <td style="color:#cc5de8">周五</td>
+      <td>23</td>
+      <td style="color:#ff6b6b">02:55</td>
+      <td>23:45</td>
+      <td>20h 50m</td>
+      <td><span class="bar" style="width:69px"></span> 2.8/h<sup style="color:#666;font-size:9px"> *含休息</sup></td>
+    </tr>
+    <tr>
+      <td>02-14</td>
+      <td style="color:#ff6b6b">周六</td>
+      <td>10</td>
+      <td style="color:#ff6b6b">00:18</td>
+      <td>23:56</td>
+      <td>23h 38m</td>
+      <td><span class="bar" style="width:30px"></span> 1.2/h<sup style="color:#666;font-size:9px"> *含休息</sup></td>
+    </tr>
+    <tr>
+      <td>02-15</td>
+      <td style="color:#ff6b6b">周日</td>
+      <td>11</td>
+      <td>16:34</td>
+      <td>23:22</td>
+      <td>6h 48m</td>
+      <td><span class="bar" style="width:40px"></span> 1.6/h</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ==================== 工作时段详情 ==================== -->
+<h2>每日工作时段 (间隔 &gt; 2h 视为独立时段)</h2>
+<div style="margin-bottom:20px;">
+  <div class="session-row">
+    <div class="session-date" style="color:#ffd93d">02-09 周一</div>
+    <span class="session-block session-active">12:04 (1)</span>
+    <span class="session-rest">-- 2h53m --</span>
+    <span class="session-block session-active">14:58 (1)</span>
+  </div>
+  <div class="session-row">
+    <div class="session-date" style="color:#6bcb77">02-10 周二</div>
+    <span class="session-block session-active">15:20 - 23:34 (22 commits, 8h13m)</span>
+  </div>
+  <div class="session-row">
+    <div class="session-date" style="color:#4d96ff">02-11 周三</div>
+    <span class="session-block session-night">00:03 - 01:33 (6, 1h29m)</span>
+    <span class="session-rest">-- 休息 10h59m --</span>
+    <span class="session-block session-active">12:32 - 13:04 (5, 0h32m)</span>
+    <span class="session-rest">-- 休息 4h39m --</span>
+    <span class="session-block session-active">17:44 - 22:03 (10, 4h19m)</span>
+  </div>
+  <div class="session-row">
+    <div class="session-date" style="color:#ff922b">02-12 周四</div>
+    <span class="session-block session-night">00:54 - 02:09 (4, 1h15m)</span>
+    <span class="session-rest">-- 休息 9h46m --</span>
+    <span class="session-block session-active">11:55 - 23:28 (24, 11h32m)</span>
+  </div>
+  <div class="session-row">
+    <div class="session-date" style="color:#cc5de8">02-13 周五</div>
+    <span class="session-block session-night">02:55 - 03:08 (2, 0h12m)</span>
+    <span class="session-rest">-- 休息 11h31m --</span>
+    <span class="session-block session-active">14:39 - 20:09 (17, 5h30m)</span>
+    <span class="session-rest">-- 休息 3h34m --</span>
+    <span class="session-block session-active">23:44 - 23:45 (4, 0h01m)</span>
+  </div>
+  <div class="session-row">
+    <div class="session-date" style="color:#ff6b6b">02-14 周六</div>
+    <span class="session-block session-night">00:18 - 01:43 (4, 1h25m)</span>
+    <span class="session-rest">-- 休息 15h09m --</span>
+    <span class="session-block session-active">16:53 (2)</span>
+    <span class="session-rest">-- 休息 3h52m --</span>
+    <span class="session-block session-active">20:45 - 23:56 (4, 3h11m)</span>
+  </div>
+  <div class="session-row">
+    <div class="session-date" style="color:#ff6b6b">02-15 周日</div>
+    <span class="session-block session-active">16:34 - 23:22 (11, 6h48m)</span>
+  </div>
+</div>
+
+<!-- ==================== 每小时活动热力图 ==================== -->
+<h2>每小时提交热力图 (Hour x Day)</h2>
+<div class="hour-grid">
+  <!-- Header row -->
+  <div class="cell cell-label"></div>
+  <div class="cell cell-header">0</div><div class="cell cell-header">1</div>
+  <div class="cell cell-header">2</div><div class="cell cell-header">3</div>
+  <div class="cell cell-header">4</div><div class="cell cell-header">5</div>
+  <div class="cell cell-header">6</div><div class="cell cell-header">7</div>
+  <div class="cell cell-header">8</div><div class="cell cell-header">9</div>
+  <div class="cell cell-header">10</div><div class="cell cell-header">11</div>
+  <div class="cell cell-header">12</div><div class="cell cell-header">13</div>
+  <div class="cell cell-header">14</div><div class="cell cell-header">15</div>
+  <div class="cell cell-header">16</div><div class="cell cell-header">17</div>
+  <div class="cell cell-header">18</div><div class="cell cell-header">19</div>
+  <div class="cell cell-header">20</div><div class="cell cell-header">21</div>
+  <div class="cell cell-header">22</div><div class="cell cell-header">23</div>
+
+  <!-- 02-09 -->
+  <div class="cell cell-label" style="color:#ffd93d">02-09 一</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-1">1</div><div class="cell heat-0">.</div>
+  <div class="cell heat-1">1</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+
+  <!-- 02-10 -->
+  <div class="cell cell-label" style="color:#6bcb77">02-10 二</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-2">2</div>
+  <div class="cell heat-2">3</div><div class="cell heat-2">2</div>
+  <div class="cell heat-1">1</div><div class="cell heat-3">4</div>
+  <div class="cell heat-0">.</div><div class="cell heat-4">5</div>
+  <div class="cell heat-2">3</div><div class="cell heat-2">2</div>
+
+  <!-- 02-11 -->
+  <div class="cell cell-label" style="color:#4d96ff">02-11 三</div>
+  <div class="cell heat-2">3</div><div class="cell heat-2">3</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-2">3</div><div class="cell heat-2">2</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-4">5</div>
+  <div class="cell heat-0">.</div><div class="cell heat-1">1</div>
+  <div class="cell heat-2">2</div><div class="cell heat-0">.</div>
+  <div class="cell heat-2">2</div><div class="cell heat-0">.</div>
+
+  <!-- 02-12 -->
+  <div class="cell cell-label" style="color:#ff922b">02-12 四</div>
+  <div class="cell heat-2">2</div><div class="cell heat-0">.</div>
+  <div class="cell heat-2">2</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-1">1</div>
+  <div class="cell heat-2">2</div><div class="cell heat-2">2</div>
+  <div class="cell heat-2">2</div><div class="cell heat-2">2</div>
+  <div class="cell heat-2">2</div><div class="cell heat-1">1</div>
+  <div class="cell heat-2">2</div><div class="cell heat-1">1</div>
+  <div class="cell heat-3">4</div><div class="cell heat-2">2</div>
+  <div class="cell heat-0">.</div><div class="cell heat-2">3</div>
+
+  <!-- 02-13 -->
+  <div class="cell cell-label" style="color:#cc5de8">02-13 五</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-1">1</div><div class="cell heat-1">1</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-3">4</div><div class="cell heat-0">.</div>
+  <div class="cell heat-4">5</div><div class="cell heat-4">5</div>
+  <div class="cell heat-0">.</div><div class="cell heat-2">2</div>
+  <div class="cell heat-1">1</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-3">4</div>
+
+  <!-- 02-14 -->
+  <div class="cell cell-label" style="color:#ff6b6b">02-14 六</div>
+  <div class="cell heat-2">2</div><div class="cell heat-2">2</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-2">2</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-2">2</div><div class="cell heat-0">.</div>
+  <div class="cell heat-1">1</div><div class="cell heat-1">1</div>
+
+  <!-- 02-15 -->
+  <div class="cell cell-label" style="color:#ff6b6b">02-15 日</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-0">.</div><div class="cell heat-0">.</div>
+  <div class="cell heat-1">1</div><div class="cell heat-1">1</div>
+  <div class="cell heat-2">2</div><div class="cell heat-2">2</div>
+  <div class="cell heat-0">.</div><div class="cell heat-1">1</div>
+  <div class="cell heat-2">3</div><div class="cell heat-1">1</div>
+</div>
+<p class="note" style="margin-top:8px">* 颜色越亮 = 该小时内提交越多。数字为该小时 unique commit 数。</p>
+
+<!-- ==================== 时间轴可视化 ==================== -->
+<h2>每日活跃时间轴 (0:00 - 24:00)</h2>
+<div class="timeline">
+  <!-- Hour labels -->
+  <div class="timeline-row">
+    <div class="timeline-label"></div>
+    <div class="timeline-hours">
+      <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+      <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span>
+      <span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span>
+      <span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+    </div>
+  </div>
+
+  <!-- 02-09 -->
+  <div class="timeline-row">
+    <div class="timeline-label" style="color:#ffd93d">02-09 一</div>
+    <div class="timeline-track">
+      <div class="timeline-block active" style="left:50.3%;width:12.1%"></div>
+    </div>
+  </div>
+  <!-- 02-10 -->
+  <div class="timeline-row">
+    <div class="timeline-label" style="color:#6bcb77">02-10 二</div>
+    <div class="timeline-track">
+      <div class="timeline-block active" style="left:63.9%;width:34.3%"></div>
+    </div>
+  </div>
+  <!-- 02-11: 00:03-01:33, 12:32-13:04, 17:44-22:03 -->
+  <div class="timeline-row">
+    <div class="timeline-label" style="color:#4d96ff">02-11 三</div>
+    <div class="timeline-track">
+      <div class="timeline-block late" style="left:0.2%;width:6.3%"></div>
+      <div class="timeline-block active" style="left:52.2%;width:2.2%"></div>
+      <div class="timeline-block active" style="left:73.9%;width:18.0%"></div>
+    </div>
+  </div>
+  <!-- 02-12: 00:54-02:09, 11:55-23:28 -->
+  <div class="timeline-row">
+    <div class="timeline-label" style="color:#ff922b">02-12 四</div>
+    <div class="timeline-track">
+      <div class="timeline-block late" style="left:3.8%;width:5.2%"></div>
+      <div class="timeline-block active" style="left:49.7%;width:48.2%"></div>
+    </div>
+  </div>
+  <!-- 02-13: 02:55-03:08, 14:39-20:09, 23:44-23:45 -->
+  <div class="timeline-row">
+    <div class="timeline-label" style="color:#cc5de8">02-13 五</div>
+    <div class="timeline-track">
+      <div class="timeline-block late" style="left:12.2%;width:0.9%"></div>
+      <div class="timeline-block active" style="left:61.0%;width:22.9%"></div>
+      <div class="timeline-block active" style="left:98.9%;width:0.1%"></div>
+    </div>
+  </div>
+  <!-- 02-14: 00:18-01:43, 16:53, 20:45-23:56 -->
+  <div class="timeline-row">
+    <div class="timeline-label" style="color:#ff6b6b">02-14 六</div>
+    <div class="timeline-track">
+      <div class="timeline-block late" style="left:1.3%;width:5.9%"></div>
+      <div class="timeline-block active" style="left:70.4%;width:0.4%"></div>
+      <div class="timeline-block active" style="left:86.5%;width:13.3%"></div>
+    </div>
+  </div>
+  <!-- 02-15: 16:34-23:22 -->
+  <div class="timeline-row">
+    <div class="timeline-label" style="color:#ff6b6b">02-15 日</div>
+    <div class="timeline-track">
+      <div class="timeline-block active" style="left:69.0%;width:28.2%"></div>
+    </div>
+  </div>
+</div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-box" style="background:#00ff88"></div> 日间活跃</div>
+  <div class="legend-item"><div class="legend-box" style="background:#ff6b6b"></div> 深夜活跃 (00-04点)</div>
+  <div class="legend-item" style="color:#555">灰色 = 无提交</div>
+</div>
+
+<!-- ==================== 每小时累计柱状图 ==================== -->
+<h2>全周每小时累计提交 (0-23点)</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:80px">小时</th>
+      <th style="width:50px">次数</th>
+      <th>分布</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td style="color:#ff6b6b">00:00</td><td>7</td><td><span class="bar" style="width:70px;background:#ff6b6b"></span></td></tr>
+    <tr><td style="color:#ff6b6b">01:00</td><td>5</td><td><span class="bar" style="width:50px;background:#ff6b6b"></span></td></tr>
+    <tr><td style="color:#ff6b6b">02:00</td><td>3</td><td><span class="bar" style="width:30px;background:#ff6b6b"></span></td></tr>
+    <tr><td style="color:#ff6b6b">03:00</td><td>1</td><td><span class="bar" style="width:10px;background:#ff6b6b"></span></td></tr>
+    <tr><td class="dim">04:00</td><td class="dim">0</td><td class="dim">zzz...</td></tr>
+    <tr><td class="dim">05:00</td><td class="dim">0</td><td class="dim">zzz...</td></tr>
+    <tr><td class="dim">06:00</td><td class="dim">0</td><td class="dim">zzz...</td></tr>
+    <tr><td class="dim">07:00</td><td class="dim">0</td><td class="dim">zzz...</td></tr>
+    <tr><td class="dim">08:00</td><td class="dim">0</td><td class="dim">zzz...</td></tr>
+    <tr><td class="dim">09:00</td><td class="dim">0</td><td class="dim">zzz...</td></tr>
+    <tr><td class="dim">10:00</td><td class="dim">0</td><td class="dim">zzz...</td></tr>
+    <tr><td>11:00</td><td>1</td><td><span class="bar" style="width:10px;background:#4ecdc4"></span></td></tr>
+    <tr><td>12:00</td><td>6</td><td><span class="bar" style="width:60px;background:#4ecdc4"></span></td></tr>
+    <tr><td>13:00</td><td>4</td><td><span class="bar" style="width:40px;background:#4ecdc4"></span></td></tr>
+    <tr><td>14:00</td><td>7</td><td><span class="bar" style="width:70px;background:#4ecdc4"></span></td></tr>
+    <tr><td>15:00</td><td>4</td><td><span class="bar" style="width:40px"></span></td></tr>
+    <tr><td style="color:#ffd93d"><b>16:00</b></td><td style="color:#ffd93d"><b>13</b></td><td><span class="bar" style="width:130px"></span></td></tr>
+    <tr><td style="color:#ffd93d"><b>17:00</b></td><td style="color:#ffd93d"><b>14</b></td><td><span class="bar" style="width:140px"></span> MAX</td></tr>
+    <tr><td>18:00</td><td>5</td><td><span class="bar" style="width:50px"></span></td></tr>
+    <tr><td>19:00</td><td>10</td><td><span class="bar" style="width:100px"></span></td></tr>
+    <tr><td>20:00</td><td>9</td><td><span class="bar" style="width:90px"></span></td></tr>
+    <tr><td>21:00</td><td>8</td><td><span class="bar" style="width:80px"></span></td></tr>
+    <tr><td>22:00</td><td>9</td><td><span class="bar" style="width:90px"></span></td></tr>
+    <tr><td>23:00</td><td>11</td><td><span class="bar" style="width:110px"></span></td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 时段汇总 ==================== -->
+<h2>按时段汇总</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:160px">时段</th>
+      <th style="width:80px">提交数</th>
+      <th style="width:80px">占比</th>
+      <th>分布条</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="tag-night tag">深夜 00:00-04:00</span></td>
+      <td>16</td>
+      <td>13.7%</td>
+      <td><span class="bar" style="width:55px;background:#ff6b6b"></span></td>
+    </tr>
+    <tr>
+      <td class="dim">凌晨 04:00-08:00</td>
+      <td class="dim">0</td>
+      <td class="dim">0%</td>
+      <td class="dim">--</td>
+    </tr>
+    <tr>
+      <td class="dim">上午 08:00-12:00</td>
+      <td>1</td>
+      <td>0.9%</td>
+      <td><span class="bar" style="width:4px;background:#4ecdc4"></span></td>
+    </tr>
+    <tr>
+      <td>下午 12:00-16:00</td>
+      <td>21</td>
+      <td>17.9%</td>
+      <td><span class="bar" style="width:72px;background:#4ecdc4"></span></td>
+    </tr>
+    <tr>
+      <td><span class="highlight">傍晚 16:00-20:00</span></td>
+      <td style="color:#ffd93d"><b>42</b></td>
+      <td style="color:#ffd93d"><b>35.9%</b></td>
+      <td><span class="bar" style="width:144px"></span></td>
+    </tr>
+    <tr>
+      <td>晚间 20:00-24:00</td>
+      <td><b>37</b></td>
+      <td><b>31.6%</b></td>
+      <td><span class="bar" style="width:127px"></span></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ==================== 作息模式分析 ==================== -->
+<h2>作息模式分析</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:200px">指标</th>
+      <th>结果</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>典型工作开始时间</td>
+      <td><span class="highlight">~15:00 - 17:00</span> (下午中后段)</td>
+    </tr>
+    <tr>
+      <td>典型工作结束时间</td>
+      <td><span class="highlight">~23:00 - 00:00</span> (午夜前后)</td>
+    </tr>
+    <tr>
+      <td>核心高产时段</td>
+      <td><span class="highlight">16:00 - 24:00</span> (67.5% 的提交集中于此 = 79/117)</td>
+    </tr>
+    <tr>
+      <td>绝对巅峰时段</td>
+      <td><span class="highlight">16:00 - 17:59</span> (27 commits, 占 23.1%)</td>
+    </tr>
+    <tr>
+      <td>深夜工作频率</td>
+      <td>7 天中 <span style="color:#ff6b6b"><b>4 天</b></span> 工作到凌晨 00:00-03:08</td>
+    </tr>
+    <tr>
+      <td>完全沉寂时段</td>
+      <td><span class="dim">04:00 - 11:00</span> (零提交，推测为睡眠时间)</td>
+    </tr>
+    <tr>
+      <td>最高产一天</td>
+      <td>02-12 周四 -- <span class="highlight">28 commits</span></td>
+    </tr>
+    <tr>
+      <td>最长连续工作</td>
+      <td>02-12 周四 -- <span class="highlight">11h 32m</span> 不间断 (11:55-23:28, 24 commits)</td>
+    </tr>
+    <tr>
+      <td>平均 commit 间隔</td>
+      <td>~25 分钟 (活跃时段内)</td>
+    </tr>
+    <tr>
+      <td>工作节奏类型</td>
+      <td><span class="highlight">夜猫子型</span> -- 下午启动，午夜收工，偶尔通宵冲刺</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ==================== 推测日程 ==================== -->
+<h2>推测的典型日程</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="width:140px">时段</th>
+      <th style="width:80px">状态</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>03:00 - 12:00</td>
+      <td style="color:#555">睡眠</td>
+      <td>全时段零提交 (04-11点)，凌晨最晚到 03:08</td>
+    </tr>
+    <tr>
+      <td>12:00 - 15:00</td>
+      <td style="color:#4ecdc4">热身期</td>
+      <td>约 1/3 天数有活动，可能在 review、规划、准备</td>
+    </tr>
+    <tr>
+      <td>15:00 - 20:00</td>
+      <td style="color:#00ff88">高产期 I</td>
+      <td>主力开发时间，架构设计 + 功能实现，密度最高</td>
+    </tr>
+    <tr>
+      <td>20:00 - 24:00</td>
+      <td style="color:#00ff88">高产期 II</td>
+      <td>持续输出，里程碑突破多在此时段 (如 subagent、chat)</td>
+    </tr>
+    <tr>
+      <td>00:00 - 03:00</td>
+      <td style="color:#ff6b6b">冲刺/收尾</td>
+      <td>4/7 天延续到凌晨，收尾当日功能或 debug</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="margin-top:40px;color:#444;font-size:11px;text-align:center">
+  Generated from git log --all (6 branches, 6 worktrees) | Golemancy Project | 2026-02-15
+</p>
+
+</body>
+</html>
