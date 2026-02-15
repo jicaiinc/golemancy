@@ -43,13 +43,17 @@ export async function resolvePermissionsConfig(
   const config: PermissionsConfig = {
     ...configFile.config,
     allowWrite: configFile.config.allowWrite.map(p => {
-      const resolved = path.resolve(p.replace('{{workspaceDir}}', workspaceDir))
-      // Prevent path traversal outside workspace
-      if (!resolved.startsWith(workspaceRealPath + path.sep) && resolved !== workspaceRealPath) {
-        log.warn({ pattern: p, resolved, workspaceDir }, 'allowWrite path escapes workspace, rejecting')
-        return workspaceRealPath
+      // Only apply path traversal check to template-expanded paths,
+      // not to explicit absolute paths the user intentionally added.
+      if (p.includes('{{workspaceDir}}')) {
+        const resolved = path.resolve(p.replace('{{workspaceDir}}', workspaceDir))
+        if (!resolved.startsWith(workspaceRealPath + path.sep) && resolved !== workspaceRealPath) {
+          log.warn({ pattern: p, resolved, workspaceDir }, 'allowWrite template escapes workspace, rejecting')
+          return workspaceRealPath
+        }
+        return resolved
       }
-      return resolved
+      return path.resolve(p)
     }),
   }
 
