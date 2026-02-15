@@ -18,6 +18,12 @@ vi.mock('@ai-sdk/mcp/mcp-stdio', () => ({
   Experimental_StdioMCPTransport: mocks.StdioTransport,
 }))
 
+vi.mock('./sandbox-pool', () => ({
+  sandboxPool: {
+    getHandle: vi.fn(),
+  },
+}))
+
 import { loadAgentMcpTools } from './mcp'
 import type { MCPServerConfig } from '@golemancy/shared'
 

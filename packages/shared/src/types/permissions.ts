@@ -64,8 +64,6 @@ export interface PermissionsConfig {
    * When false: MCP servers run unrestricted.
    * Default: false
    *
-   * NOTE: This field is for UI/config storage only in this refactor phase.
-   * Actual MCP command wrapping implementation is deferred to future work.
    * Windows doesn't show this option (no sandbox runtime support).
    */
   applyToMCP: boolean

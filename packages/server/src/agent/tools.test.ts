@@ -9,6 +9,23 @@ vi.mock('./mcp', () => ({
 vi.mock('./builtin-tools', () => ({
   loadBuiltinTools: vi.fn().mockResolvedValue(null),
 }))
+vi.mock('./resolve-permissions', () => ({
+  resolvePermissionsConfig: vi.fn().mockResolvedValue({
+    mode: 'sandbox',
+    config: {
+      allowWrite: [],
+      denyRead: [],
+      denyWrite: [],
+      allowedDomains: ['*'],
+      deniedDomains: [],
+      deniedCommands: [],
+      applyToMCP: false,
+    },
+  }),
+}))
+vi.mock('../utils/paths', () => ({
+  getProjectPath: vi.fn().mockReturnValue('/tmp/test-project'),
+}))
 
 import { loadAgentTools } from './tools'
 import { loadAgentSkillTools } from './skills'
@@ -139,7 +156,10 @@ describe('loadAgentTools', () => {
     })
 
     expect(mockStorage.resolveNames).toHaveBeenCalledWith('proj-1', ['test'])
-    expect(loadAgentMcpTools).toHaveBeenCalledWith(mcpConfigs)
+    expect(loadAgentMcpTools).toHaveBeenCalledWith(mcpConfigs, expect.objectContaining({
+      projectId: 'proj-1',
+      resolvedPermissions: expect.objectContaining({ mode: 'sandbox' }),
+    }))
     expect(result.tools).toHaveProperty('mcp_search')
 
     await result.cleanup()

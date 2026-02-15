@@ -11,12 +11,14 @@ const mockCleanupAfterCommand = vi.fn()
 const mockReadFile = vi.fn()
 const mockWriteFile = vi.fn()
 const mockMkdir = vi.fn()
+const mockUnlink = vi.fn()
 
 vi.mock('node:fs/promises', () => ({
   default: {
     readFile: (...args: unknown[]) => mockReadFile(...args),
     writeFile: (...args: unknown[]) => mockWriteFile(...args),
     mkdir: (...args: unknown[]) => mockMkdir(...args),
+    unlink: (...args: unknown[]) => mockUnlink(...args),
     realpath: vi.fn().mockImplementation(async (p: string) => p),
   },
 }))
@@ -103,6 +105,7 @@ beforeEach(() => {
   mockReadFile.mockResolvedValue('file content')
   mockWriteFile.mockResolvedValue(undefined)
   mockMkdir.mockResolvedValue(undefined)
+  mockUnlink.mockResolvedValue(undefined)
 })
 
 describe('AnthropicSandbox', () => {
@@ -172,16 +175,18 @@ describe('AnthropicSandbox', () => {
   // ── readFile ──────────────────────────────────────────────
 
   describe('readFile', () => {
-    it('reads file within workspace', async () => {
+    it('routes through sandbox (wrapWithSandbox + cat)', async () => {
       const sandbox = makeSandbox()
       const content = await sandbox.readFile('./src/index.ts')
-      expect(mockReadFile).toHaveBeenCalled()
-      expect(content).toBe('file content')
+      // Should go through sandbox, not direct fs.readFile
+      expect(mockWrapWithSandbox).toHaveBeenCalledWith(
+        expect.stringContaining('cat'),
+      )
+      expect(content).toBe('output\n') // from spawn mock stdout
     })
 
-    it('blocks reading denied paths (~/.ssh)', async () => {
+    it('blocks reading denied paths (~/.ssh) via validatePath defense-in-depth', async () => {
       const sandbox = makeSandbox()
-      // The path validation will block ~/.ssh via denyRead pattern
       await expect(sandbox.readFile('~/.ssh/id_rsa')).rejects.toThrow()
     })
 
@@ -195,45 +200,56 @@ describe('AnthropicSandbox', () => {
       await expect(sandbox.readFile('.env')).rejects.toThrow()
     })
 
-    it('reads file using utf-8 encoding', async () => {
+    it('calls cleanupAfterCommand after reading', async () => {
       const sandbox = makeSandbox()
       await sandbox.readFile('./test.txt')
-      expect(mockReadFile).toHaveBeenCalledWith(
-        expect.any(String),
-        'utf-8',
-      )
+      expect(mockCleanupAfterCommand).toHaveBeenCalled()
     })
   })
 
   // ── writeFiles ────────────────────────────────────────────
 
   describe('writeFiles', () => {
-    it('writes file within workspace', async () => {
+    it('stages to temp file then routes through sandbox (cp)', async () => {
       const sandbox = makeSandbox()
       await sandbox.writeFiles([{ path: './src/new.ts', content: 'hello' }])
-      expect(mockMkdir).toHaveBeenCalled()
-      expect(mockWriteFile).toHaveBeenCalled()
-    })
-
-    it('creates parent directory with recursive: true', async () => {
-      const sandbox = makeSandbox()
-      await sandbox.writeFiles([{ path: './deep/nested/file.ts', content: 'code' }])
-      expect(mockMkdir).toHaveBeenCalledWith(
-        expect.any(String),
-        { recursive: true },
+      // Should stage content to temp file
+      expect(mockWriteFile).toHaveBeenCalledWith(
+        expect.stringContaining('golemancy-'),
+        'hello',
       )
+      // Should go through sandbox with cp command
+      expect(mockWrapWithSandbox).toHaveBeenCalledWith(
+        expect.stringContaining('cp'),
+      )
+      // Should clean up temp file
+      expect(mockUnlink).toHaveBeenCalled()
     })
 
-    it('writes multiple files', async () => {
+    it('writes multiple files (each through sandbox)', async () => {
       const sandbox = makeSandbox()
       await sandbox.writeFiles([
         { path: './a.ts', content: 'a' },
         { path: './b.ts', content: 'b' },
       ])
+      // Each file stages to temp then routes through sandbox
       expect(mockWriteFile).toHaveBeenCalledTimes(2)
+      expect(mockWrapWithSandbox).toHaveBeenCalledTimes(2)
+      expect(mockUnlink).toHaveBeenCalledTimes(2)
     })
 
-    it('blocks writing to denied paths (.git/hooks)', async () => {
+    it('cleans up temp file even when sandbox command fails', async () => {
+      // Make wrapWithSandbox reject
+      mockWrapWithSandbox.mockRejectedValueOnce(new Error('sandbox failed'))
+      const sandbox = makeSandbox()
+      await expect(
+        sandbox.writeFiles([{ path: './src/new.ts', content: 'hello' }]),
+      ).rejects.toThrow('sandbox failed')
+      // Temp file should still be cleaned up
+      expect(mockUnlink).toHaveBeenCalled()
+    })
+
+    it('blocks writing to denied paths (.git/hooks) via validatePath defense-in-depth', async () => {
       const sandbox = makeSandbox()
       await expect(
         sandbox.writeFiles([{ path: '.git/hooks/pre-commit', content: 'evil' }]),
@@ -265,6 +281,7 @@ describe('AnthropicSandbox', () => {
       const sandbox = makeSandbox()
       await sandbox.writeFiles([])
       expect(mockWriteFile).not.toHaveBeenCalled()
+      expect(mockWrapWithSandbox).not.toHaveBeenCalled()
     })
   })
 

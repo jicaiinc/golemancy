@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process'
 import fs from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 import type { Sandbox, CommandResult } from 'bash-tool'
 import type { SandboxConfig } from '@golemancy/shared'
@@ -8,6 +9,11 @@ import { checkCommandBlacklist, type CommandBlacklistConfig } from './check-comm
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:anthropic-sandbox' })
+
+/** Escape a string for safe use inside single-quoted shell argument */
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'"
+}
 
 // ── SandboxManagerHandle ────────────────────────────────────
 
@@ -62,16 +68,11 @@ export interface AnthropicSandboxOptions {
  * Sandbox implementation using @anthropic-ai/sandbox-runtime for OS-level isolation.
  * Implements the bash-tool Sandbox interface.
  *
- * executeCommand flow:
- *   1. Check deniedCommands blacklist (app-layer, NOT sandbox-runtime native)
- *   2. Wrap command via SandboxManager.wrapWithSandbox()
- *   3. Spawn wrapped command as child process
- *   4. Collect stdout/stderr with size limits
- *   5. cleanupAfterCommand() in finally block (mandatory)
+ * ALL operations go through sandbox-exec (Seatbelt) for consistent OS-level enforcement:
  *
- * readFile/writeFiles flow:
- *   1. Validate path against filesystem rules (denyRead/denyWrite/allowWrite)
- *   2. Perform Node.js fs operation
+ * executeCommand: checkBlacklist → wrapWithSandbox → spawn → cleanup
+ * readFile:       validatePath (defense-in-depth) → wrapWithSandbox(cat) → spawn → cleanup
+ * writeFiles:     validatePath (defense-in-depth) → stage to /tmp → wrapWithSandbox(cp) → spawn → cleanup
  */
 export class AnthropicSandbox implements Sandbox {
   private readonly config: SandboxConfig
@@ -89,17 +90,61 @@ export class AnthropicSandbox implements Sandbox {
   // ── Sandbox Interface ─────────────────────────────────────
 
   async executeCommand(command: string): Promise<CommandResult> {
-    // Step 1: Check command blacklist (app-layer security)
     this.checkBlacklist(command)
+    return this.executeWrapped(command)
+  }
 
-    // Step 2: Wrap command with sandbox isolation
+  async readFile(filePath: string): Promise<string> {
+    // Defense-in-depth: fast-fail on invalid paths before spawning a sandbox process
+    const validated = await this.validatePath(filePath, 'read')
+
+    // Route through sandbox — OS-level enforcement of read permissions
+    const result = await this.executeWrapped(`cat ${shellEscape(validated)}`)
+    if (result.exitCode !== 0) {
+      throw new Error(`Failed to read ${filePath}: ${result.stderr.trim()}`)
+    }
+    return result.stdout
+  }
+
+  async writeFiles(files: Array<{ path: string; content: string | Buffer }>): Promise<void> {
+    for (const file of files) {
+      // Defense-in-depth: fast-fail on invalid paths before spawning a sandbox process
+      const validated = await this.validatePath(file.path, 'write')
+
+      // Stage content in temp file (server process, outside sandbox)
+      const tmpFile = path.join(
+        os.tmpdir(),
+        `golemancy-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      )
+      await fs.writeFile(tmpFile, file.content)
+
+      try {
+        // Route through sandbox — OS-level enforcement of write permissions
+        const result = await this.executeWrapped(
+          `mkdir -p ${shellEscape(path.dirname(validated))} && cp ${shellEscape(tmpFile)} ${shellEscape(validated)}`,
+        )
+        if (result.exitCode !== 0) {
+          throw new Error(`Failed to write ${file.path}: ${result.stderr.trim()}`)
+        }
+      } finally {
+        await fs.unlink(tmpFile).catch(() => {})
+      }
+    }
+  }
+
+  // ── Internal ──────────────────────────────────────────────
+
+  /**
+   * Wrap a command with sandbox-exec and execute it.
+   * Used by all three Sandbox interface methods to ensure consistent OS-level enforcement.
+   * Unlike executeCommand(), this skips the user-facing deniedCommands blacklist
+   * (internal commands like cat/cp should never be blocked by user config).
+   */
+  private async executeWrapped(command: string): Promise<CommandResult> {
     const wrappedCommand = await this.sandboxManager.wrapWithSandbox(command)
-
     try {
-      // Step 3-5: Execute and collect output
       return await this.spawnCommand(wrappedCommand)
     } finally {
-      // Step 6: Always clean up (mandatory per sandbox-runtime docs)
       try {
         await this.sandboxManager.cleanupAfterCommand()
       } catch (err) {
@@ -107,21 +152,6 @@ export class AnthropicSandbox implements Sandbox {
       }
     }
   }
-
-  async readFile(filePath: string): Promise<string> {
-    const validated = await this.validatePath(filePath, 'read')
-    return fs.readFile(validated, 'utf-8')
-  }
-
-  async writeFiles(files: Array<{ path: string; content: string | Buffer }>): Promise<void> {
-    for (const file of files) {
-      const validated = await this.validatePath(file.path, 'write')
-      await fs.mkdir(path.dirname(validated), { recursive: true })
-      await fs.writeFile(validated, file.content)
-    }
-  }
-
-  // ── Internal ──────────────────────────────────────────────
 
   private checkBlacklist(command: string): void {
     const blacklistConfig: CommandBlacklistConfig = {

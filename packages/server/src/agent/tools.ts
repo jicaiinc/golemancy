@@ -1,9 +1,11 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, PermissionsConfigId, ProjectId, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
+import type { Agent, GlobalSettings, PermissionsConfigId, ProjectId, SupportedPlatform, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
 import { createSubAgentToolSet } from './sub-agent'
+import { resolvePermissionsConfig } from './resolve-permissions'
+import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:tools' })
@@ -50,10 +52,30 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   }
 
   // 2. MCP — resolve name references to full configs, then load
+  //    Resolve permissions early so MCP sandbox wrapping can use it
   if (agent.mcpServers?.length > 0) {
     const mcpConfigs = await mcpStorage.resolveNames(projectId as ProjectId, agent.mcpServers)
     if (mcpConfigs.length > 0) {
-      const mcpResult = await loadAgentMcpTools(mcpConfigs)
+      // Resolve permissions for MCP sandbox wrapping (applyToMCP check)
+      let sandboxOptions: Parameters<typeof loadAgentMcpTools>[1]
+      if (permissionsConfigStorage) {
+        try {
+          const workspaceDir = getProjectPath(projectId) + '/workspace'
+          const platform = process.platform as SupportedPlatform
+          const resolvedPermissions = await resolvePermissionsConfig(
+            permissionsConfigStorage,
+            projectId as ProjectId,
+            permissionsConfigId,
+            workspaceDir,
+            platform,
+          )
+          sandboxOptions = { projectId: projectId as ProjectId, resolvedPermissions }
+        } catch (err) {
+          log.warn({ err }, 'failed to resolve permissions for MCP sandbox wrapping')
+        }
+      }
+
+      const mcpResult = await loadAgentMcpTools(mcpConfigs, sandboxOptions)
       if (mcpResult) {
         Object.assign(tools, mcpResult.tools)
         cleanups.push(mcpResult.cleanup)
