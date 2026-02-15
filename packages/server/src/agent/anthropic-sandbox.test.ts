@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { SandboxConfig } from '@golemancy/shared'
-import { PRESET_BALANCED } from '@golemancy/shared'
 import { PathAccessError } from './validate-path'
 import { CommandBlockedError } from './check-command-blacklist'
 
@@ -58,6 +57,21 @@ import type { SandboxManagerHandle } from './anthropic-sandbox'
 
 const WORKSPACE = '/workspace'
 
+/** Test-local default SandboxConfig (replaces deleted PRESET_BALANCED) */
+const DEFAULT_TEST_CONFIG: SandboxConfig = {
+  filesystem: {
+    allowWrite: ['/workspace', '/workspace/**'],
+    denyRead: ['~/.ssh/**', '~/.gnupg/**', '**/.env', '**/.env.*', '/etc/shadow', '/etc/passwd'],
+    denyWrite: [],
+    allowGitConfig: false,
+  },
+  network: {
+    allowedDomains: ['*'],
+  },
+  enablePython: true,
+  deniedCommands: [],
+}
+
 function makeHandle(): SandboxManagerHandle {
   return {
     wrapWithSandbox: mockWrapWithSandbox,
@@ -67,7 +81,7 @@ function makeHandle(): SandboxManagerHandle {
 
 function makeConfig(overrides: Partial<SandboxConfig> = {}): SandboxConfig {
   return {
-    ...PRESET_BALANCED,
+    ...DEFAULT_TEST_CONFIG,
     ...overrides,
   }
 }

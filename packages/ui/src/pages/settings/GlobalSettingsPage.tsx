@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import type { AIProvider, ProviderConfig, ThemeMode, GlobalBashToolConfig, GlobalMCPSafetyConfig } from '@golemancy/shared'
+import type { AIProvider, ProviderConfig, ThemeMode } from '@golemancy/shared'
 import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { PixelCard, PixelButton, PixelInput, PixelTabs, SafetyBashToolSettings, SafetyMCPSettings } from '../../components'
+import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 
 const SETTINGS_TABS = [
@@ -10,7 +10,6 @@ const SETTINGS_TABS = [
   { id: 'appearance', label: 'Appearance' },
   { id: 'profile', label: 'Profile' },
   { id: 'paths', label: 'Paths' },
-  { id: 'safety', label: 'Safety' },
 ]
 
 const PROVIDER_INFO: Record<AIProvider, { name: string; icon: string; color: string }> = {
@@ -39,9 +38,6 @@ export function GlobalSettingsPage() {
           {activeTab === 'appearance' && <AppearanceTab />}
           {activeTab === 'profile' && <ProfileTab />}
           {activeTab === 'paths' && <PathsTab />}
-          {activeTab === 'safety' && (
-            <SafetyTab settings={settings} onUpdate={updateSettings} />
-          )}
         </div>
 
         {/* About footer */}
@@ -396,62 +392,3 @@ function PathsTab() {
   )
 }
 
-// ========== Safety Tab ==========
-function SafetyTab({ settings, onUpdate }: {
-  settings: NonNullable<ReturnType<typeof useAppStore.getState>['settings']>
-  onUpdate: (data: Partial<typeof settings>) => Promise<void>
-}) {
-  const [subSection, setSubSection] = useState<'bash' | 'mcp'>('bash')
-
-  async function handleBashSave(bashTool: GlobalBashToolConfig) {
-    await onUpdate({ bashTool })
-  }
-
-  async function handleMCPSave(mcpSafety: GlobalMCPSafetyConfig) {
-    await onUpdate({ mcpSafety })
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      {/* Sub-section pill toggle */}
-      <div className="flex">
-        <button
-          type="button"
-          onClick={() => setSubSection('bash')}
-          className={`px-4 py-2 font-pixel text-[10px] border-2 cursor-pointer transition-colors ${
-            subSection === 'bash'
-              ? 'bg-elevated border-accent-blue text-accent-blue'
-              : 'bg-deep border-border-dim text-text-secondary hover:text-text-primary'
-          }`}
-        >
-          Bash Tool
-        </button>
-        <button
-          type="button"
-          onClick={() => setSubSection('mcp')}
-          className={`px-4 py-2 font-pixel text-[10px] border-2 border-l-0 cursor-pointer transition-colors ${
-            subSection === 'mcp'
-              ? 'bg-elevated border-accent-blue text-accent-blue'
-              : 'bg-deep border-border-dim text-text-secondary hover:text-text-primary'
-          }`}
-        >
-          MCP
-        </button>
-      </div>
-
-      {/* Sub-section content */}
-      {subSection === 'bash' && (
-        <SafetyBashToolSettings
-          config={settings.bashTool ?? { defaultMode: 'restricted', sandboxPreset: 'balanced' }}
-          onSave={handleBashSave}
-        />
-      )}
-      {subSection === 'mcp' && (
-        <SafetyMCPSettings
-          config={settings.mcpSafety ?? { runInSandbox: false }}
-          onSave={handleMCPSave}
-        />
-      )}
-    </div>
-  )
-}

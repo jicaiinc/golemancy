@@ -15,8 +15,6 @@ const mockSettings: GlobalSettings = {
   theme: 'dark',
   userProfile: { name: 'Test User', email: 'test@example.com' },
   defaultWorkingDirectoryBase: '~/projects',
-  bashTool: { defaultMode: 'sandbox', sandboxPreset: 'balanced' },
-  mcpSafety: { runInSandbox: false },
 }
 
 function createTestServices(): ServiceContainer {
@@ -39,6 +37,14 @@ function createTestServices(): ServiceContainer {
       getActiveAgents: vi.fn().mockResolvedValue([]),
       getRecentTasks: vi.fn().mockResolvedValue([]),
       getActivityFeed: vi.fn().mockResolvedValue([]),
+    },
+    permissionsConfig: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      duplicate: vi.fn(),
     },
   }
 }
@@ -68,13 +74,12 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getByText('Global Settings')).toBeInTheDocument()
   })
 
-  it('renders all 5 tabs', () => {
+  it('renders all 4 tabs', () => {
     renderWithRouter(<GlobalSettingsPage />)
     expect(screen.getByText('Providers')).toBeInTheDocument()
     expect(screen.getByText('Appearance')).toBeInTheDocument()
     expect(screen.getByText('Profile')).toBeInTheDocument()
     expect(screen.getByText('Paths')).toBeInTheDocument()
-    expect(screen.getByText('Safety')).toBeInTheDocument()
   })
 
   it('shows Providers tab by default', () => {

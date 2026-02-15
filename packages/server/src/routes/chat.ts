@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
 import type {
   AgentId, ProjectId, ConversationId, MessageId,
-  IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService,
+  IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
@@ -24,6 +24,7 @@ export interface ChatRouteDeps {
   conversationStorage: IConversationService
   settingsStorage: ISettingsService
   mcpStorage: IMCPService
+  permissionsConfigStorage: IPermissionsConfigService
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -81,7 +82,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       return c.json({ error: `Agent ${agentId} not found` }, 404)
     }
 
-    // Get project config for sandbox settings
+    // Get project config for permissions config reference
     const project = await deps.projectStorage.getById(projectId as ProjectId)
 
     // Get global settings for model resolution
@@ -119,7 +120,8 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const agentToolsResult = await loadAgentTools({
       agent, projectId, settings, allAgents,
       mcpStorage: deps.mcpStorage,
-      projectBashToolConfig: project?.config.bashTool,
+      permissionsConfigId: project?.config.permissionsConfigId,
+      permissionsConfigStorage: deps.permissionsConfigStorage,
     })
 
     const allTools = agentToolsResult.tools

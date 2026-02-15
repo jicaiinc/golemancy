@@ -15,13 +15,6 @@ const DEFAULT_SETTINGS: GlobalSettings = {
     email: '',
   },
   defaultWorkingDirectoryBase: '',
-  bashTool: {
-    defaultMode: 'restricted',
-    sandboxPreset: 'balanced',
-  },
-  mcpSafety: {
-    runInSandbox: false,
-  },
 }
 
 export class FileSettingsStorage implements ISettingsService {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 
 import { createSubAgentToolSet, createSubAgentTool, sanitizeToolName } from './sub-agent'
-import type { Agent, GlobalSettings, AgentId, ProjectId } from '@golemancy/shared'
+import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
@@ -32,6 +32,24 @@ const defaultSettings: GlobalSettings = {
   theme: 'dark',
   userProfile: { name: '', email: '' },
   defaultWorkingDirectoryBase: '',
+}
+
+const mockMcpStorage: IMCPService = {
+  list: vi.fn(),
+  getByName: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+  resolveNames: vi.fn().mockResolvedValue([]),
+}
+
+const mockPermissionsConfigStorage: IPermissionsConfigService = {
+  list: vi.fn(),
+  getById: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+  duplicate: vi.fn(),
 }
 
 const mockLoadTools = vi.fn<(params: LoadAgentToolsParams) => Promise<AgentToolsResult>>()
@@ -75,7 +93,7 @@ describe('sanitizeToolName', () => {
 describe('createSubAgentTool', () => {
   it('creates a tool with execute function', () => {
     const child = makeAgent({ name: 'Researcher', description: 'Finds information' })
-    const t = createSubAgentTool(child, [child], defaultSettings, 'proj-1', mockLoadTools)
+    const t = createSubAgentTool(child, [child], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
 
     expect(t).toBeDefined()
     expect(t).toHaveProperty('execute')
@@ -85,7 +103,7 @@ describe('createSubAgentTool', () => {
 describe('createSubAgentToolSet', () => {
   it('returns empty tools when agent has no subAgents', () => {
     const agent = makeAgent({ subAgents: [] })
-    const result = createSubAgentToolSet(agent, [], defaultSettings, 'proj-1', mockLoadTools)
+    const result = createSubAgentToolSet(agent, [], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
 
     expect(result.tools).toEqual({})
   })
@@ -100,7 +118,7 @@ describe('createSubAgentToolSet', () => {
       ],
     })
 
-    const result = createSubAgentToolSet(parent, [child1, child2, parent], defaultSettings, 'proj-1', mockLoadTools)
+    const result = createSubAgentToolSet(parent, [child1, child2, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
 
     expect(Object.keys(result.tools)).toHaveLength(2)
     expect(result.tools).toHaveProperty('delegate_to_agent-child1')
@@ -113,7 +131,7 @@ describe('createSubAgentToolSet', () => {
       subAgents: [{ agentId: 'agent-cn' as AgentId, role: 'assistant' }],
     })
 
-    const result = createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools)
+    const result = createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
 
     expect(result.tools).toHaveProperty('delegate_to_agent-cn')
   })
@@ -127,7 +145,7 @@ describe('createSubAgentToolSet', () => {
     })
     const existing = makeAgent({ id: 'agent-exists' as AgentId, name: 'Existing' })
 
-    const result = createSubAgentToolSet(parent, [existing, parent], defaultSettings, 'proj-1', mockLoadTools)
+    const result = createSubAgentToolSet(parent, [existing, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
 
     expect(Object.keys(result.tools)).toHaveLength(1)
     expect(result.tools).toHaveProperty('delegate_to_agent-exists')
@@ -139,7 +157,7 @@ describe('createSubAgentToolSet', () => {
       subAgents: [{ agentId: 'agent-child' as AgentId, role: 'help' }],
     })
 
-    createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools)
+    createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
 
     expect(mockLoadTools).not.toHaveBeenCalled()
   })

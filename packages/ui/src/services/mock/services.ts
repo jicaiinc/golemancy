@@ -1,19 +1,22 @@
 import type {
   Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
-  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId,
+  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
+  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
   Message, PaginationParams, PaginatedResult, TaskLogEntry,
   SkillCreateData, SkillUpdateData,
 } from '@golemancy/shared'
+import { DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
   ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
+  IPermissionsConfigService,
 } from '../interfaces'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
   SEED_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
   SEED_ACTIVITIES, SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
+  SEED_PERMISSIONS_CONFIGS,
 } from './data'
 
 // Small delay to simulate async I/O
@@ -509,6 +512,73 @@ export class MockSettingsService implements ISettingsService {
     await delay()
     this.settings = { ...this.settings, ...data }
     return { ...this.settings }
+  }
+}
+
+// --- PermissionsConfigService ---
+export class MockPermissionsConfigService implements IPermissionsConfigService {
+  private data = new Map<string, PermissionsConfigFile>(
+    SEED_PERMISSIONS_CONFIGS.map(c => [`${c.id}`, { ...c }])
+  )
+
+  async list(_projectId: ProjectId): Promise<PermissionsConfigFile[]> {
+    await delay()
+    const userConfigs = [...this.data.values()].filter(c => c.id !== ('default' as PermissionsConfigId))
+    return [DEFAULT_PERMISSIONS_CONFIG, ...userConfigs]
+  }
+
+  async getById(_projectId: ProjectId, id: PermissionsConfigId): Promise<PermissionsConfigFile | null> {
+    await delay()
+    if (id === ('default' as PermissionsConfigId)) return { ...DEFAULT_PERMISSIONS_CONFIG }
+    return this.data.get(id) ?? null
+  }
+
+  async create(_projectId: ProjectId, input: Pick<PermissionsConfigFile, 'title' | 'mode' | 'config'>): Promise<PermissionsConfigFile> {
+    await delay()
+    const now = new Date().toISOString()
+    const config: PermissionsConfigFile = {
+      id: genId('perm') as PermissionsConfigId,
+      ...input,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(config.id, config)
+    return config
+  }
+
+  async update(_projectId: ProjectId, id: PermissionsConfigId, data: Partial<Pick<PermissionsConfigFile, 'title' | 'mode' | 'config'>>): Promise<PermissionsConfigFile> {
+    await delay()
+    if (id === ('default' as PermissionsConfigId)) throw new Error('Cannot modify system default config')
+    const existing = this.data.get(id)
+    if (!existing) throw new Error(`Permissions config ${id} not found`)
+    const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
+    this.data.set(id, updated)
+    return updated
+  }
+
+  async delete(_projectId: ProjectId, id: PermissionsConfigId): Promise<void> {
+    await delay()
+    if (id === ('default' as PermissionsConfigId)) throw new Error('Cannot delete system default config')
+    this.data.delete(id)
+  }
+
+  async duplicate(_projectId: ProjectId, sourceId: PermissionsConfigId, newTitle: string): Promise<PermissionsConfigFile> {
+    await delay()
+    const source = sourceId === ('default' as PermissionsConfigId)
+      ? DEFAULT_PERMISSIONS_CONFIG
+      : this.data.get(sourceId)
+    if (!source) throw new Error(`Source config ${sourceId} not found`)
+    const now = new Date().toISOString()
+    const config: PermissionsConfigFile = {
+      id: genId('perm') as PermissionsConfigId,
+      title: newTitle,
+      mode: source.mode,
+      config: { ...source.config },
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(config.id, config)
+    return config
   }
 }
 

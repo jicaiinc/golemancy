@@ -24,8 +24,6 @@ const mockSettings: GlobalSettings = {
   theme: 'dark',
   userProfile: { name: 'Test', email: 'test@test.com' },
   defaultWorkingDirectoryBase: '~/projects',
-  bashTool: { defaultMode: 'sandbox', sandboxPreset: 'balanced' },
-  mcpSafety: { runInSandbox: false },
 }
 
 function createTestServices(): ServiceContainer {
@@ -53,6 +51,14 @@ function createTestServices(): ServiceContainer {
       getActiveAgents: vi.fn().mockResolvedValue([]),
       getRecentTasks: vi.fn().mockResolvedValue([]),
       getActivityFeed: vi.fn().mockResolvedValue([]),
+    },
+    permissionsConfig: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      duplicate: vi.fn(),
     },
   }
 }

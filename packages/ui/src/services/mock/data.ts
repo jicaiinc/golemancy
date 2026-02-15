@@ -1,10 +1,10 @@
 import type {
   Project, Agent, Conversation, Message, Task, Artifact, MemoryEntry, GlobalSettings,
-  ActivityEntry, CronJob, Skill, MCPServerConfig,
+  ActivityEntry, CronJob, Skill, MCPServerConfig, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
-  CronJobId,
+  CronJobId, PermissionsConfigId,
 } from '@golemancy/shared'
-import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
+import { DEFAULT_AGENT_SYSTEM_PROMPT, DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
 
 const now = new Date().toISOString()
 const hourAgo = new Date(Date.now() - 3600_000).toISOString()
@@ -345,13 +345,6 @@ export const SEED_SETTINGS: GlobalSettings = {
     email: 'crafter@golemancy.dev',
   },
   defaultWorkingDirectoryBase: '~/projects',
-  bashTool: {
-    defaultMode: 'sandbox',
-    sandboxPreset: 'balanced',
-  },
-  mcpSafety: {
-    runInSandbox: false,
-  },
 }
 
 // --- Dashboard Activity Feed ---
@@ -521,6 +514,27 @@ export const SEED_SKILLS: Skill[] = [
     name: 'Copywriting',
     description: 'Write product descriptions',
     instructions: '# Copywriting\n\nWrite compelling product descriptions and copy.\n\n## Guidelines\n- Highlight key benefits\n- Use persuasive language\n- Include bullet points for features',
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+]
+
+// --- Permissions Configs ---
+export const SEED_PERMISSIONS_CONFIGS: PermissionsConfigFile[] = [
+  DEFAULT_PERMISSIONS_CONFIG,
+  {
+    id: 'perm-strict-dev' as PermissionsConfigId,
+    title: 'Strict Dev',
+    mode: 'sandbox',
+    config: {
+      allowWrite: ['{{workspaceDir}}'],
+      denyRead: ['~/.ssh', '~/.aws', '**/.env', '**/.env.*', '**/*.pem', '**/*.key'],
+      denyWrite: ['/etc', '/usr', '/bin'],
+      allowedDomains: ['*.github.com', 'registry.npmjs.org'],
+      deniedDomains: [],
+      deniedCommands: ['sudo *', 'rm -rf /'],
+      applyToMCP: false,
+    },
     createdAt: dayAgo,
     updatedAt: dayAgo,
   },

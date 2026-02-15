@@ -1,6 +1,4 @@
 export { ExecutionModeCard } from './ExecutionModeCard'
 export type { ExecutionModeOption } from './ExecutionModeCard'
 export { PathListEditor } from './PathListEditor'
-export { BashPresetSelector } from './BashPresetSelector'
-export { SafetyBashToolSettings } from './SafetyBashToolSettings'
-export { SafetyMCPSettings } from './SafetyMCPSettings'
+export { PermissionsSettings } from './PermissionsSettings'

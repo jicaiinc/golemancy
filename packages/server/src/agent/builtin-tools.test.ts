@@ -30,10 +30,16 @@ vi.mock('./sandbox-pool', () => ({
   },
 }))
 
+vi.mock('./resolve-permissions', () => ({
+  resolvePermissionsConfig: vi.fn().mockResolvedValue(null),
+}))
+
 import { loadBuiltinTools, BUILTIN_TOOL_REGISTRY } from './builtin-tools'
+import { resolvePermissionsConfig } from './resolve-permissions'
 import { createBashTool } from 'bash-tool'
 import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash'
 import nodeFs from 'node:fs/promises'
+import type { IPermissionsConfigService, PermissionsConfigId } from '@golemancy/shared'
 
 const mockCreateBashTool = vi.mocked(createBashTool)
 
@@ -160,19 +166,35 @@ describe('loadBuiltinTools', () => {
     const fakeTool = { execute: vi.fn() }
     mockCreateBashTool.mockResolvedValue({ tools: { bash: fakeTool } } as any)
 
+    // Mock resolvePermissionsConfig to return sandbox mode
+    vi.mocked(resolvePermissionsConfig).mockResolvedValueOnce({
+      mode: 'sandbox',
+      config: {
+        allowWrite: ['/mock-data/projects/proj-1/workspace'],
+        denyRead: [],
+        denyWrite: [],
+        allowedDomains: ['*'],
+        deniedDomains: [],
+        deniedCommands: [],
+        applyToMCP: false,
+      },
+    })
+
+    const mockPermsStorage: IPermissionsConfigService = {
+      list: vi.fn(),
+      getById: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      duplicate: vi.fn(),
+    }
+
     const result = await loadBuiltinTools(
       { bash: true },
       {
         projectId: 'proj-1',
-        settings: {
-          providers: [],
-          defaultProvider: 'google',
-          theme: 'dark',
-          userProfile: { name: '', email: '' },
-          defaultWorkingDirectoryBase: '',
-          bashTool: { defaultMode: 'sandbox', sandboxPreset: 'balanced' },
-          mcpSafety: { runInSandbox: false },
-        },
+        permissionsConfigId: 'cfg-1' as PermissionsConfigId,
+        permissionsConfigStorage: mockPermsStorage,
       },
     )
 

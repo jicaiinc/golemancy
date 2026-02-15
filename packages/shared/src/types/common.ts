@@ -11,6 +11,7 @@ export type MemoryId = Brand<string, 'MemoryId'>
 export type SkillId = Brand<string, 'SkillId'>
 export type ToolId = Brand<string, 'ToolId'>
 export type CronJobId = Brand<string, 'CronJobId'>
+export type PermissionsConfigId = Brand<string, 'PermissionsConfigId'>
 
 // Helper to create branded IDs
 export function createId<T extends string>(value: string): Brand<string, T> {

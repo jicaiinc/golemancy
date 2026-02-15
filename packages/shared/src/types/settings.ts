@@ -1,4 +1,4 @@
-import type { GlobalBashToolConfig, GlobalMCPSafetyConfig, ProjectBashToolConfig, ProjectMCPSafetyConfig } from './bash-tool-config'
+import type { PermissionsConfigId } from './common'
 
 export type AIProvider = 'openai' | 'anthropic' | 'google' | 'custom'
 
@@ -23,15 +23,12 @@ export interface GlobalSettings {
   theme: ThemeMode
   userProfile: UserProfile
   defaultWorkingDirectoryBase: string
-  bashTool: GlobalBashToolConfig
-  mcpSafety: GlobalMCPSafetyConfig
 }
 
 export interface ProjectConfig {
   providerOverride?: Partial<ProviderConfig>
   maxConcurrentAgents: number
-  bashTool?: ProjectBashToolConfig
-  mcpSafety?: ProjectMCPSafetyConfig
+  permissionsConfigId?: PermissionsConfigId
 }
 
 export interface AgentModelConfig {

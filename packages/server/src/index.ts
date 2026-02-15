@@ -14,6 +14,7 @@ import { FileSkillStorage } from './storage/skills'
 import { FileCronJobStorage } from './storage/cronjobs'
 import { FileMCPStorage } from './storage/mcp'
 import { FileSettingsStorage } from './storage/settings'
+import { FilePermissionsConfigStorage } from './storage/permissions-config'
 import { sandboxPool } from './agent/sandbox-pool'
 import { logger } from './logger'
 
@@ -41,6 +42,7 @@ async function main() {
     cronJobStorage: new FileCronJobStorage(),
     settingsStorage: new FileSettingsStorage(),
     mcpStorage: new FileMCPStorage(),
+    permissionsConfigStorage: new FilePermissionsConfigStorage(),
     dashboardService: {
       getSummary: async () => ({ totalProjects: 0, totalAgents: 0, activeAgents: 0, runningTasks: 0, completedTasksToday: 0, totalTokenUsageToday: 0 }),
       getActiveAgents: async () => [],

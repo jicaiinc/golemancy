@@ -4,15 +4,20 @@ import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash
 import type { ToolSet } from 'ai'
 import type {
   BuiltinToolConfig,
-  GlobalSettings,
-  ProjectBashToolConfig,
+  PermissionsConfig,
+  PermissionsConfigId,
   ProjectId,
+  ResolvedPermissionsConfig,
+  SandboxConfig,
+  ResolvedBashToolConfig,
+  SupportedPlatform,
+  IPermissionsConfigService,
 } from '@golemancy/shared'
 import { createBrowserTools, type BrowserToolsConfig } from '@golemancy/tools/browser'
 import { AnthropicSandbox } from './anthropic-sandbox'
 import { NativeSandbox } from './native-sandbox'
 import { sandboxPool } from './sandbox-pool'
-import { resolveBashConfig } from './resolve-bash-config'
+import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
 
@@ -32,22 +37,18 @@ const DEFAULT_BROWSER_CONFIG: BrowserToolsConfig = {
 }
 
 export interface BuiltinToolOptions {
-  /** Project ID — used to resolve workspace directory */
+  /** Project ID — used to resolve workspace directory and permissions config */
   projectId?: string
-  /** Global settings — used to resolve bash tool mode. When undefined, defaults to restricted mode. */
-  settings?: GlobalSettings
-  /** Project-level bash tool config override */
-  projectBashToolConfig?: ProjectBashToolConfig
+  /** Permissions config ID from project config */
+  permissionsConfigId?: PermissionsConfigId
+  /** Permissions config storage service */
+  permissionsConfigStorage?: IPermissionsConfigService
 }
 
 // ── Mode-Aware Sandbox Factory (Strategy Pattern) ──────────
 
 /**
- * Create bash tools using the appropriate sandbox based on the resolved execution mode.
- *
- * Mode resolution:
- *   settings provided → resolveBashConfig(global, project?) → mode
- *   settings absent   → fallback to 'restricted' (backward compat)
+ * Create bash tools using the appropriate sandbox based on the resolved permission mode.
  *
  * Strategy:
  *   restricted   → just-bash virtual sandbox (existing)
@@ -55,33 +56,39 @@ export interface BuiltinToolOptions {
  *   unrestricted → NativeSandbox (no isolation)
  */
 async function createBashToolForMode(options?: BuiltinToolOptions) {
-  const resolvedConfig = options?.settings
-    ? resolveBashConfig(options.settings.bashTool, options.projectBashToolConfig)
-    : null
-
-  const mode = resolvedConfig?.mode ?? 'restricted'
+  const resolved = await resolveEffectivePermissions(options)
+  const mode = resolved?.mode ?? 'restricted'
 
   switch (mode) {
     case 'restricted':
-      return createRestrictedBashTool(options, resolvedConfig?.sandbox)
+      return createRestrictedBashTool(options)
 
     case 'sandbox': {
       try {
         if (!options?.projectId) throw new Error('projectId required for sandbox mode')
+        const workspaceDir = await ensureWorkspaceDir(options.projectId)
+        const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
+
+        // Bridge to existing SandboxPool API
+        const bridgedConfig: ResolvedBashToolConfig = {
+          mode: 'sandbox',
+          sandbox: sandboxConfig,
+          usesDedicatedWorker: true,
+        }
+
         const handle = await sandboxPool.getHandle(
           options.projectId as ProjectId,
-          resolvedConfig!,
+          bridgedConfig,
         )
-        const workspaceDir = await ensureWorkspaceDir(options.projectId)
         const sandbox = new AnthropicSandbox({
-          config: resolvedConfig!.sandbox,
+          config: sandboxConfig,
           workspaceRoot: workspaceDir,
           sandboxManager: handle,
         })
         return createBashTool({ sandbox, destination: workspaceDir })
       } catch (err) {
         log.warn({ err, mode }, 'sandbox mode unavailable, falling back to restricted')
-        return createRestrictedBashTool(options, resolvedConfig?.sandbox)
+        return createRestrictedBashTool(options)
       }
     }
 
@@ -95,19 +102,56 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
   }
 }
 
+// ── Permissions Resolution ─────────────────────────────────
+
+async function resolveEffectivePermissions(
+  options?: BuiltinToolOptions,
+): Promise<ResolvedPermissionsConfig | null> {
+  if (!options?.projectId || !options.permissionsConfigStorage) return null
+
+  const workspaceDir = getProjectPath(options.projectId) + '/workspace'
+  const platform = process.platform as SupportedPlatform
+
+  return resolvePermissionsConfig(
+    options.permissionsConfigStorage,
+    options.projectId as ProjectId,
+    options.permissionsConfigId,
+    workspaceDir,
+    platform,
+  )
+}
+
+// ── Adapter: PermissionsConfig → SandboxConfig ─────────────
+
+/**
+ * Bridge new flat PermissionsConfig to old nested SandboxConfig
+ * used by AnthropicSandbox and SandboxPool.
+ * This adapter will be removed when the runtime layer is migrated.
+ */
+function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig {
+  return {
+    filesystem: {
+      allowWrite: pc.allowWrite,
+      denyRead: pc.denyRead,
+      denyWrite: pc.denyWrite,
+      allowGitConfig: false,
+    },
+    network: {
+      allowedDomains: pc.allowedDomains,
+    },
+    enablePython: true,
+    deniedCommands: pc.deniedCommands,
+  }
+}
+
 // ── Restricted Mode (just-bash) ────────────────────────────
 
 /**
  * Create a just-bash Bash instance with MountableFs:
  *   /project  → OverlayFs (read-only, project root with skills/agents/config)
  *   /workspace → ReadWriteFs (read-write, persistent working directory)
- *
- * When SandboxConfig is provided, maps enablePython to just-bash's native python option.
  */
-async function createRestrictedBashTool(
-  options?: BuiltinToolOptions,
-  sandboxConfig?: import('@golemancy/shared').SandboxConfig,
-) {
+async function createRestrictedBashTool(options?: BuiltinToolOptions) {
   let sandbox: Bash | undefined
   let destination: string | undefined
 
@@ -124,12 +168,9 @@ async function createRestrictedBashTool(
       ],
     })
 
-    // enablePython maps to just-bash's native python option
-    const enablePython = sandboxConfig?.enablePython ?? true
-
     sandbox = new Bash({
       fs: mountableFs,
-      python: enablePython,
+      python: true,
       network: { dangerouslyAllowFullInternetAccess: true },
       cwd: '/workspace',
     })

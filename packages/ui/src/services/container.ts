@@ -10,6 +10,7 @@ import type {
   ISettingsService,
   ICronJobService,
   IDashboardService,
+  IPermissionsConfigService,
 } from './interfaces'
 
 export interface ServiceContainer {
@@ -24,6 +25,7 @@ export interface ServiceContainer {
   settings: ISettingsService
   cronJobs: ICronJobService
   dashboard: IDashboardService
+  permissionsConfig: IPermissionsConfigService
 }
 
 let services: ServiceContainer | null = null

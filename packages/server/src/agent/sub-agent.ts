@@ -1,6 +1,6 @@
 import { tool, streamText, stepCountIs, type ToolSet } from 'ai'
 import { z } from 'zod'
-import type { Agent, GlobalSettings, IMCPService, SubAgentStreamState } from '@golemancy/shared'
+import type { Agent, GlobalSettings, IMCPService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
 import { resolveModel } from './model'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { logger } from '../logger'
@@ -43,6 +43,7 @@ export function createSubAgentTool(
   projectId: string,
   loadTools: LoadToolsFn,
   mcpStorage: IMCPService,
+  permissionsConfigStorage: IPermissionsConfigService,
 ) {
   return tool({
     description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}`,
@@ -59,6 +60,7 @@ export function createSubAgentTool(
         settings,
         allAgents,
         mcpStorage,
+        permissionsConfigStorage,
       })
 
       try {
@@ -158,6 +160,7 @@ export function createSubAgentToolSet(
   projectId: string,
   loadTools: LoadToolsFn,
   mcpStorage: IMCPService,
+  permissionsConfigStorage: IPermissionsConfigService,
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
 
@@ -169,7 +172,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

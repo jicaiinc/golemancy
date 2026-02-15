@@ -14,8 +14,6 @@ describe('useResolvedConfig', () => {
     theme: 'dark',
     userProfile: { name: 'Test User', email: 'test@example.com' },
     defaultWorkingDirectoryBase: '~/projects',
-    bashTool: { defaultMode: 'sandbox', sandboxPreset: 'balanced' },
-    mcpSafety: { runInSandbox: false },
   }
 
   beforeEach(() => {

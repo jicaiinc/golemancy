@@ -71,6 +71,14 @@ function createTestServices(): ServiceContainer {
       getRecentTasks: vi.fn().mockResolvedValue([]),
       getActivityFeed: vi.fn().mockResolvedValue([]),
     },
+    permissionsConfig: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      duplicate: vi.fn(),
+    },
   }
 }
 
