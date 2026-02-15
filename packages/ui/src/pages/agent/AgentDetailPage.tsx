@@ -354,11 +354,19 @@ function MCPTab({ agent, onUpdate }: {
       {/* MCP security warnings */}
       {showRiskWarning && (
         <PixelCard variant="outlined" className="mb-4 border-accent-amber bg-accent-amber/5">
-          <div className="flex items-center gap-2">
-            <span className="font-pixel text-[10px] text-accent-amber shrink-0">{'\u26A0'} WARNING</span>
-            <span className="text-[12px] text-text-secondary">
-              Third-party MCP servers may access or modify files on your computer
-            </span>
+          <div className="flex items-start gap-2">
+            <span className="font-pixel text-[10px] text-accent-amber shrink-0 mt-0.5">{'\u26A0'} WARNING</span>
+            <div className="text-[12px] text-text-secondary">
+              <p>Third-party MCP servers may access or modify files on your computer.</p>
+              {mode === 'sandbox' && sandboxSupported && !applyToMCP && (
+                <p className="mt-1 text-text-dim">
+                  Enable "Apply to MCP" in Settings &gt; Permissions to sandbox MCP servers.
+                </p>
+              )}
+              {mode === 'sandbox' && !sandboxSupported && (
+                <p className="mt-1 text-text-dim">Sandbox runtime is not available on this platform.</p>
+              )}
+            </div>
           </div>
         </PixelCard>
       )}

@@ -297,6 +297,38 @@ export class MCPPool {
     }
   }
 
+  /**
+   * Test connectivity to an MCP server without adding it to the pool.
+   * Creates a temporary connection, lists tools, then closes immediately.
+   *
+   * @returns Object with ok, toolCount, and optional error message
+   */
+  async testConnection(
+    server: MCPServerConfig,
+    options?: MCPLoadOptions,
+  ): Promise<{ ok: boolean; toolCount: number; error?: string }> {
+    const effectiveCwd = server.cwd || options?.workspaceDir || undefined
+    const fingerprint = computeFingerprint(server, options, effectiveCwd)
+
+    try {
+      const transport = await this.buildTransport(server, options, fingerprint, effectiveCwd)
+      if (!transport) {
+        return { ok: false, toolCount: 0, error: 'Missing required configuration (command or url)' }
+      }
+
+      const client = await createMCPClient({ transport })
+      const tools = await client.tools()
+      const toolCount = Object.keys(tools).length
+      await client.close()
+
+      return { ok: true, toolCount }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown connection error'
+      log.warn({ err, serverName: server.name }, 'MCP connectivity test failed')
+      return { ok: false, toolCount: 0, error: message }
+    }
+  }
+
   /** Total number of active connections across all projects. */
   getConnectionCount(): number {
     let count = 0

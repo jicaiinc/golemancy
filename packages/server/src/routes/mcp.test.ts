@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, IMCPService, IAgentService, MCPServerConfig, Agent } from '@golemancy/shared'
+import type { ProjectId, AgentId, IMCPService, IAgentService, IProjectService, IPermissionsConfigService, MCPServerConfig, Agent } from '@golemancy/shared'
 import { createMCPRoutes } from './mcp'
 
 const projId = 'proj-1' as ProjectId
@@ -51,7 +51,22 @@ function createMocks() {
     update: vi.fn(),
     delete: vi.fn(),
   }
-  return { mcpStorage, agentStorage }
+  const projectStorage: IProjectService = {
+    list: vi.fn().mockResolvedValue([]),
+    getById: vi.fn().mockResolvedValue(null),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  }
+  const permissionsConfigStorage: IPermissionsConfigService = {
+    list: vi.fn().mockResolvedValue([]),
+    getById: vi.fn().mockResolvedValue(null),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    duplicate: vi.fn(),
+  }
+  return { mcpStorage, agentStorage, projectStorage, permissionsConfigStorage }
 }
 
 function createTestApp(mocks: ReturnType<typeof createMocks>) {

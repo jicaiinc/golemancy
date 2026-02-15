@@ -224,6 +224,12 @@ export class HttpMCPService implements IMCPService {
     const all = await this.list(projectId)
     return all.filter(s => names.includes(s.name))
   }
+  test(projectId: ProjectId, name: string) {
+    return fetchJson<{ ok: boolean; toolCount: number; error?: string }>(
+      `${this.baseUrl}/api/projects/${projectId}/mcp-servers/${encodeURIComponent(name)}/test`,
+      { method: 'POST' },
+    )
+  }
 }
 
 export class HttpCronJobService implements ICronJobService {

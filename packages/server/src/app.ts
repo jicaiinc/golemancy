@@ -96,6 +96,8 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects/:projectId/mcp-servers', createMCPRoutes({
     mcpStorage: deps.mcpStorage,
     agentStorage: deps.agentStorage,
+    projectStorage: deps.projectStorage,
+    permissionsConfigStorage: deps.permissionsConfigStorage,
   }))
   app.route('/api/chat', createChatRoutes({
     agentStorage: deps.agentStorage,

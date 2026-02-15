@@ -452,6 +452,14 @@ export class MockMCPService implements IMCPService {
     await delay()
     return names.map(n => this.data.get(n)).filter((s): s is MCPServerConfig => s != null)
   }
+
+  async test(_projectId: ProjectId, name: string): Promise<{ ok: boolean; toolCount: number; error?: string }> {
+    await delay()
+    const server = this.data.get(name)
+    if (!server) return { ok: false, toolCount: 0, error: 'MCP server not found' }
+    // Mock: return success with random tool count
+    return { ok: true, toolCount: Math.floor(Math.random() * 8) + 1 }
+  }
 }
 
 // --- CronJobService ---

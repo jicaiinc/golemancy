@@ -514,11 +514,18 @@ function SandboxConfigEditor({
       </PixelCard>
 
       <PixelCard>
-        <PixelToggle
-          checked={config.applyToMCP}
-          onChange={checked => onUpdate({ applyToMCP: checked })}
-          label="Apply to MCP"
-        />
+        <div className="flex items-center gap-2">
+          <PixelToggle
+            checked={config.applyToMCP}
+            onChange={checked => onUpdate({ applyToMCP: checked })}
+            label="Apply to MCP"
+          />
+          {!config.applyToMCP && (
+            <span className="font-mono text-[11px] text-accent-amber">
+              ({'\u26A0'} Disabling this may allow third-party MCP servers to access or modify files on your computer)
+            </span>
+          )}
+        </div>
         <p className="mt-2 font-mono text-[11px] text-text-dim">
           When enabled, MCP server commands will be wrapped with sandbox runtime (srt). This applies the same filesystem, network, and command restrictions to MCP servers.
         </p>
