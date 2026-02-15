@@ -574,7 +574,9 @@ export const useAppStore = create<AppState>()(
       async testMCPServer(name) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
-        return getServices().mcp.test(projectId, name)
+        const svc = getServices().mcp
+        if (!svc.test) throw new Error('MCP test not available')
+        return svc.test(projectId, name)
       },
 
       // --- CronJob state ---

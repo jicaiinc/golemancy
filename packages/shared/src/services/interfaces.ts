@@ -74,8 +74,8 @@ export interface IMCPService {
   delete(projectId: ProjectId, name: string): Promise<void>
   /** Resolve an array of names to full configs (skips missing) */
   resolveNames(projectId: ProjectId, names: string[]): Promise<MCPServerConfig[]>
-  /** Test connectivity to an MCP server. Returns ok/toolCount/error. */
-  test(projectId: ProjectId, name: string): Promise<{ ok: boolean; toolCount: number; error?: string }>
+  /** Test connectivity to an MCP server. Returns ok/toolCount/error. Optional — only implemented by HTTP/mock services, not storage. */
+  test?(projectId: ProjectId, name: string): Promise<{ ok: boolean; toolCount: number; error?: string }>
 }
 
 export interface ISettingsService {

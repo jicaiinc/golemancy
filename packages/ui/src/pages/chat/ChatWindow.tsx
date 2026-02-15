@@ -48,6 +48,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleValue, setTitleValue] = useState('')
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
+  const [toolWarnings, setToolWarnings] = useState<string[]>([])
   const titleInputRef = useRef<HTMLInputElement>(null)
 
   const handleTitleClick = useCallback(() => {
@@ -102,6 +103,18 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     stop,
     sendMessage: chatSendMessage,
   } = useChat({ chat: chat! })
+
+  // Capture transient MCP/tool loading warnings from server via onData
+  useEffect(() => {
+    if (!chat) return
+    setToolWarnings([])
+    chat.onData = (part: { type: string; data?: { message?: string }; transient?: boolean }) => {
+      if (part.type === 'data-warning' && part.transient && part.data?.message) {
+        setToolWarnings(prev => [...prev, part.data!.message!])
+      }
+    }
+    return () => { chat.onData = undefined }
+  }, [chat])
 
   // Track whether this component mounted with pre-existing messages (loaded from cache).
   // If so, skip the stagger entrance animation to avoid a multi-second delay.
@@ -246,6 +259,17 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
           <p className="text-[12px] font-mono text-accent-red">
             Error: {error.message}
           </p>
+        </div>
+      )}
+
+      {/* MCP / tool loading warnings */}
+      {toolWarnings.length > 0 && (
+        <div className="px-4 py-2 border-b-2 border-accent-amber/40 bg-accent-amber/10">
+          {toolWarnings.map((warning, i) => (
+            <p key={i} className="text-[11px] font-mono text-accent-amber">
+              {warning}
+            </p>
+          ))}
         </div>
       )}
 

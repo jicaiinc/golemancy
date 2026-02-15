@@ -4,7 +4,7 @@ vi.mock('./skills', () => ({
   loadAgentSkillTools: vi.fn().mockResolvedValue(null),
 }))
 vi.mock('./mcp', () => ({
-  loadAgentMcpTools: vi.fn().mockResolvedValue({}),
+  loadAgentMcpTools: vi.fn().mockResolvedValue({ tools: {}, warnings: [] }),
 }))
 vi.mock('./builtin-tools', () => ({
   loadBuiltinTools: vi.fn().mockResolvedValue(null),
@@ -138,7 +138,8 @@ describe('loadAgentTools', () => {
 
   it('loads MCP tools', async () => {
     vi.mocked(loadAgentMcpTools).mockResolvedValueOnce({
-      mcp_search: {} as never,
+      tools: { mcp_search: {} as never },
+      warnings: [],
     })
 
     const mcpConfigs: MCPServerConfig[] = [{ name: 'test', enabled: true, transportType: 'stdio', command: 'echo' }]
@@ -223,7 +224,8 @@ describe('loadAgentTools', () => {
       cleanup: vi.fn(),
     })
     vi.mocked(loadAgentMcpTools).mockResolvedValueOnce({
-      mcp_tool: {} as never,
+      tools: { mcp_tool: {} as never },
+      warnings: [],
     })
     vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
       tools: { execute: {} as never },

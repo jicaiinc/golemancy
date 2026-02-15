@@ -14,6 +14,12 @@ export interface MCPLoadOptions {
   resolvedPermissions: import('@golemancy/shared').ResolvedPermissionsConfig
 }
 
+export interface MCPLoadResult {
+  tools: ToolSet
+  /** Warnings about servers that failed to load (for UI display, not for agent context). */
+  warnings: string[]
+}
+
 /**
  * Load all MCP tools for an agent, using the connection pool.
  *
@@ -21,15 +27,15 @@ export interface MCPLoadOptions {
  * - Restricted mode: blocks all stdio servers (requirement #11)
  * - Delegates to mcpPool.getTools() for each server (pool manages lifecycle)
  * - Prefixes tool names when multiple servers are loaded
- *
- * @returns Merged ToolSet, or null if no tools loaded
+ * - Collects warnings for failed connections
  */
 export async function loadAgentMcpTools(
   mcpServers: MCPServerConfig[],
   options?: MCPLoadOptions,
-): Promise<ToolSet> {
+): Promise<MCPLoadResult> {
+  const warnings: string[] = []
   const enabled = mcpServers.filter(s => s.enabled)
-  if (enabled.length === 0) return {}
+  if (enabled.length === 0) return { tools: {}, warnings }
 
   const mode = options?.resolvedPermissions.mode
   const platform = process.platform as SupportedPlatform
@@ -43,12 +49,16 @@ export async function loadAgentMcpTools(
     const blocked = enabled.length - filtered.length
     if (blocked > 0) {
       log.info({ blocked }, 'restricted mode: filtered out stdio MCP servers')
+      const blockedNames = enabled.filter(s => s.transportType === 'stdio').map(s => s.name)
+      for (const name of blockedNames) {
+        warnings.push(`MCP server "${name}" blocked: stdio servers are disabled in restricted mode`)
+      }
     }
   } else {
     filtered = enabled
   }
 
-  if (filtered.length === 0) return {}
+  if (filtered.length === 0) return { tools: {}, warnings }
 
   // ── shouldSandbox Decision Log (Requirement #22) ────────
   const shouldSandbox = !!(
@@ -66,12 +76,15 @@ export async function loadAgentMcpTools(
   const allTools: ToolSet = {}
 
   for (const server of filtered) {
-    const tools = await mcpPool.getTools(server, options)
-    for (const [toolName, toolDef] of Object.entries(tools)) {
+    const result = await mcpPool.getTools(server, options)
+    if (result.error) {
+      warnings.push(`MCP server "${server.name}" failed to load: ${result.error}`)
+    }
+    for (const [toolName, toolDef] of Object.entries(result.tools)) {
       const rawName = filtered.length > 1 ? `${server.name}_${toolName}` : toolName
       allTools[sanitizeToolName(rawName)] = toolDef
     }
   }
 
-  return allTools
+  return { tools: allTools, warnings }
 }

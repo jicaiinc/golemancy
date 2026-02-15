@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mocks = vi.hoisted(() => {
-  const getTools = vi.fn().mockResolvedValue({})
+  const getTools = vi.fn().mockResolvedValue({ tools: {}, })
   const mcpPool = { getTools }
 
   return { mcpPool, getTools }
@@ -49,25 +49,26 @@ function makeOptions(overrides: Partial<MCPLoadOptions> = {}): MCPLoadOptions {
 describe('loadAgentMcpTools', () => {
   beforeEach(() => {
     vi.resetAllMocks()
-    mocks.getTools.mockResolvedValue({})
+    mocks.getTools.mockResolvedValue({ tools: {} })
   })
 
-  it('returns empty object for empty server list', async () => {
+  it('returns empty result for empty server list', async () => {
     const result = await loadAgentMcpTools([])
-    expect(result).toEqual({})
+    expect(result.tools).toEqual({})
+    expect(result.warnings).toEqual([])
   })
 
-  it('returns empty object when all servers are disabled', async () => {
+  it('returns empty result when all servers are disabled', async () => {
     const result = await loadAgentMcpTools([
       makeServer({ enabled: false }),
       makeServer({ name: 'another', enabled: false }),
     ])
-    expect(result).toEqual({})
+    expect(result.tools).toEqual({})
     expect(mocks.getTools).not.toHaveBeenCalled()
   })
 
   it('delegates to mcpPool.getTools for stdio server', async () => {
-    mocks.getTools.mockResolvedValue({ myTool: { execute: vi.fn() } })
+    mocks.getTools.mockResolvedValue({ tools: { myTool: { execute: vi.fn() } } })
 
     const server = makeServer({
       command: '/usr/bin/mcp-server',
@@ -79,11 +80,11 @@ describe('loadAgentMcpTools', () => {
     const result = await loadAgentMcpTools([server], options)
 
     expect(mocks.getTools).toHaveBeenCalledWith(server, options)
-    expect(result).toHaveProperty('myTool')
+    expect(result.tools).toHaveProperty('myTool')
   })
 
   it('delegates to mcpPool.getTools for http server', async () => {
-    mocks.getTools.mockResolvedValue({ httpTool: { execute: vi.fn() } })
+    mocks.getTools.mockResolvedValue({ tools: { httpTool: { execute: vi.fn() } } })
 
     const server = makeServer({
       transportType: 'http',
@@ -96,11 +97,11 @@ describe('loadAgentMcpTools', () => {
     const result = await loadAgentMcpTools([server], options)
 
     expect(mocks.getTools).toHaveBeenCalledWith(server, options)
-    expect(result).toHaveProperty('httpTool')
+    expect(result.tools).toHaveProperty('httpTool')
   })
 
   it('delegates to mcpPool.getTools for sse server', async () => {
-    mocks.getTools.mockResolvedValue({ sseTool: { execute: vi.fn() } })
+    mocks.getTools.mockResolvedValue({ tools: { sseTool: { execute: vi.fn() } } })
 
     const server = makeServer({
       transportType: 'sse',
@@ -111,59 +112,62 @@ describe('loadAgentMcpTools', () => {
     const result = await loadAgentMcpTools([server])
 
     expect(mocks.getTools).toHaveBeenCalledWith(server, undefined)
-    expect(result).toHaveProperty('sseTool')
+    expect(result.tools).toHaveProperty('sseTool')
   })
 
   it('merges tools from multiple servers with name prefixing', async () => {
     mocks.getTools
-      .mockResolvedValueOnce({ toolA: { execute: vi.fn() } })
-      .mockResolvedValueOnce({ toolB: { execute: vi.fn() } })
+      .mockResolvedValueOnce({ tools: { toolA: { execute: vi.fn() } } })
+      .mockResolvedValueOnce({ tools: { toolB: { execute: vi.fn() } } })
 
     const result = await loadAgentMcpTools([
       makeServer({ name: 'server1' }),
       makeServer({ name: 'server2', command: '/usr/bin/other' }),
     ])
 
-    expect(result).toHaveProperty('server1_toolA')
-    expect(result).toHaveProperty('server2_toolB')
+    expect(result.tools).toHaveProperty('server1_toolA')
+    expect(result.tools).toHaveProperty('server2_toolB')
   })
 
   it('does not prefix tool names when single server', async () => {
-    mocks.getTools.mockResolvedValue({ myTool: { execute: vi.fn() } })
+    mocks.getTools.mockResolvedValue({ tools: { myTool: { execute: vi.fn() } } })
 
     const result = await loadAgentMcpTools([makeServer()])
 
-    expect(result).toHaveProperty('myTool')
-    expect(result).not.toHaveProperty('test-server_myTool')
+    expect(result.tools).toHaveProperty('myTool')
+    expect(result.tools).not.toHaveProperty('test-server_myTool')
   })
 
-  it('handles pool returning empty tools gracefully', async () => {
+  it('collects warnings for failed servers', async () => {
     mocks.getTools
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({ okTool: { execute: vi.fn() } })
+      .mockResolvedValueOnce({ tools: {}, error: 'connection refused' })
+      .mockResolvedValueOnce({ tools: { okTool: { execute: vi.fn() } } })
 
     const result = await loadAgentMcpTools([
       makeServer({ name: 'failing' }),
       makeServer({ name: 'working', command: '/usr/bin/other' }),
     ])
 
-    expect(result).toHaveProperty('working_okTool')
+    expect(result.tools).toHaveProperty('working_okTool')
+    expect(result.warnings).toHaveLength(1)
+    expect(result.warnings[0]).toContain('failing')
+    expect(result.warnings[0]).toContain('connection refused')
   })
 
-  it('returns empty object for unknown transport type', async () => {
-    mocks.getTools.mockResolvedValue({})
+  it('returns empty tools for unknown transport type', async () => {
+    mocks.getTools.mockResolvedValue({ tools: {} })
 
     const server = makeServer({ transportType: 'grpc' as any, command: undefined })
     const result = await loadAgentMcpTools([server])
 
     // Pool handles the unknown type and returns empty tools
-    expect(result).toEqual({})
+    expect(result.tools).toEqual({})
   })
 
   // ── Permission Mode Filtering Tests ────────────────────
 
   it('restricted mode: filters out stdio servers', async () => {
-    mocks.getTools.mockResolvedValue({ httpTool: { execute: vi.fn() } })
+    mocks.getTools.mockResolvedValue({ tools: { httpTool: { execute: vi.fn() } } })
 
     const options = makeOptions({
       resolvedPermissions: {
@@ -191,7 +195,9 @@ describe('loadAgentMcpTools', () => {
       expect.objectContaining({ name: 'http-server' }),
       options,
     )
-    expect(result).toHaveProperty('httpTool')
+    expect(result.tools).toHaveProperty('httpTool')
+    expect(result.warnings).toHaveLength(1)
+    expect(result.warnings[0]).toContain('stdio-server')
   })
 
   it('restricted mode: returns empty when all servers are stdio', async () => {
@@ -216,11 +222,12 @@ describe('loadAgentMcpTools', () => {
     ], options)
 
     expect(mocks.getTools).not.toHaveBeenCalled()
-    expect(result).toEqual({})
+    expect(result.tools).toEqual({})
+    expect(result.warnings).toHaveLength(2)
   })
 
   it('sandbox mode: does not filter stdio servers', async () => {
-    mocks.getTools.mockResolvedValue({ tool: { execute: vi.fn() } })
+    mocks.getTools.mockResolvedValue({ tools: { tool: { execute: vi.fn() } } })
 
     const options = makeOptions({
       resolvedPermissions: {

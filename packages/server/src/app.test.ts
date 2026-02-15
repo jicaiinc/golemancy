@@ -7,6 +7,15 @@ vi.mock('ai', () => ({
   streamText: vi.fn(),
   convertToModelMessages: vi.fn().mockResolvedValue([]),
   stepCountIs: vi.fn().mockReturnValue(undefined),
+  createUIMessageStream: vi.fn().mockImplementation(({ execute }: any) => {
+    // Execute the callback to trigger merges, then return a mock stream
+    const writer = { write: vi.fn(), merge: vi.fn() }
+    execute({ writer })
+    return new ReadableStream()
+  }),
+  createUIMessageStreamResponse: vi.fn().mockImplementation(() =>
+    new Response('', { status: 200, headers: { 'Content-Type': 'text/event-stream' } }),
+  ),
 }))
 
 vi.mock('./agent/model', () => ({
@@ -707,7 +716,7 @@ describe('HTTP API routes', () => {
         headers: { 'Content-Type': 'text/event-stream' },
       })
       ;(streamText as any).mockReturnValue({
-        toUIMessageStreamResponse: () => mockResponse,
+        toUIMessageStream: () => mockResponse,
       })
 
       const res = await app.request(jsonRequest('/api/chat', {
@@ -744,7 +753,7 @@ describe('HTTP API routes', () => {
       const mockModelMessages = [{ role: 'user', content: 'converted' }]
       ;(convertToModelMessages as any).mockResolvedValueOnce(mockModelMessages)
       ;(streamText as any).mockReturnValue({
-        toUIMessageStreamResponse: () => new Response('', { status: 200 }),
+        toUIMessageStream: () => new Response('', { status: 200 }),
       })
 
       await app.request(jsonRequest('/api/chat', {

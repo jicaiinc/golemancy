@@ -95,6 +95,13 @@ function fingerprintEquals(a: MCPPoolFingerprint, b: MCPPoolFingerprint): boolea
 
 type MCPPoolStatus = 'connecting' | 'active' | 'error'
 
+/** Result from getTools() — includes tools and optional error for callers to surface warnings. */
+export interface MCPGetToolsResult {
+  tools: ToolSet
+  /** If set, indicates the connection failed. tools will be empty. */
+  error?: string
+}
+
 interface MCPPoolEntry {
   /** Current connection status */
   status: MCPPoolStatus
@@ -107,7 +114,7 @@ interface MCPPoolEntry {
   /** Timestamp of last getTools() access — for idle timeout */
   lastUsedAt: number
   /** Connection creation promise — used to deduplicate concurrent connect attempts */
-  connectPromise: Promise<ToolSet> | null
+  connectPromise: Promise<MCPGetToolsResult> | null
 }
 
 // ── Sandbox Helpers (moved from mcp.ts) ────────────────────────
@@ -180,12 +187,12 @@ export class MCPPool {
    * 4. If entry exists AND fingerprint mismatches → close old, create new
    * 5. If no entry → create new connection
    *
-   * @returns ToolSet from this server, or empty object on connection failure
+   * @returns Tools from this server, plus optional error if connection failed
    */
   async getTools(
     server: MCPServerConfig,
     options: MCPLoadOptions | undefined,
-  ): Promise<ToolSet> {
+  ): Promise<MCPGetToolsResult> {
     const projectId = options?.projectId ?? ('' as ProjectId)
     const effectiveCwd = server.cwd || options?.workspaceDir || undefined
     const newFingerprint = computeFingerprint(server, options, effectiveCwd)
@@ -203,7 +210,7 @@ export class MCPPool {
         if (fingerprintEquals(existing.fingerprint, newFingerprint)) {
           // Cache hit — tools are immutable per connection
           existing.lastUsedAt = Date.now()
-          return existing.tools
+          return { tools: existing.tools }
         }
         // Fingerprint mismatch → close old connection
         log.debug(
@@ -355,7 +362,7 @@ export class MCPPool {
     options: MCPLoadOptions | undefined,
     fingerprint: MCPPoolFingerprint,
     effectiveCwd: string | undefined,
-  ): Promise<ToolSet> {
+  ): Promise<MCPGetToolsResult> {
     const entry: MCPPoolEntry = {
       status: 'connecting',
       fingerprint,
@@ -382,17 +389,17 @@ export class MCPPool {
     fingerprint: MCPPoolFingerprint,
     effectiveCwd: string | undefined,
     entry: MCPPoolEntry,
-  ): Promise<ToolSet> {
+  ): Promise<MCPGetToolsResult> {
     try {
       const transport = await this.buildTransport(server, options, fingerprint, effectiveCwd)
       if (!transport) {
-        // Missing required config (command or url) — skip silently (already logged)
+        // Missing required config (command or url)
         const serverMap = this.pool.get(projectId)
         if (serverMap) {
           serverMap.delete(server.name)
           if (serverMap.size === 0) this.pool.delete(projectId)
         }
-        return {}
+        return { tools: {}, error: 'Missing required configuration (command or url)' }
       }
 
       const client = await createMCPClient({ transport })
@@ -409,16 +416,17 @@ export class MCPPool {
         'MCP pool: connection established',
       )
 
-      return rawTools
+      return { tools: rawTools }
     } catch (err) {
       log.error({ err, projectId, serverName: server.name }, 'MCP pool: connection failed')
+      const message = err instanceof Error ? err.message : 'Unknown connection error'
       // Remove failed entry
       const serverMap = this.pool.get(projectId)
       if (serverMap) {
         serverMap.delete(server.name)
         if (serverMap.size === 0) this.pool.delete(projectId)
       }
-      return {}
+      return { tools: {}, error: message }
     }
   }
 

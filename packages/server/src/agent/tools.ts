@@ -24,6 +24,8 @@ export interface LoadAgentToolsParams {
 export interface AgentToolsResult {
   tools: ToolSet
   instructions: string
+  /** Warnings about tools that failed to load (for UI display, not for agent context). */
+  warnings: string[]
   cleanup: () => Promise<void>
 }
 
@@ -38,6 +40,7 @@ export interface AgentToolsResult {
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
   const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage } = params
   const tools: ToolSet = {}
+  const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
   let instructions = ''
 
@@ -75,9 +78,10 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         }
       }
 
-      const mcpTools = await loadAgentMcpTools(mcpConfigs, mcpOptions)
-      if (mcpTools && Object.keys(mcpTools).length > 0) {
-        Object.assign(tools, mcpTools)
+      const mcpResult = await loadAgentMcpTools(mcpConfigs, mcpOptions)
+      warnings.push(...mcpResult.warnings)
+      if (Object.keys(mcpResult.tools).length > 0) {
+        Object.assign(tools, mcpResult.tools)
         // No cleanup pushed — pool manages MCP connections
       }
     }
@@ -112,6 +116,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   return {
     tools,
     instructions,
+    warnings,
     cleanup: async () => {
       await Promise.all(cleanups.map(fn => fn().catch(() => {})))
     },

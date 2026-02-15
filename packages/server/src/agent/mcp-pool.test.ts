@@ -80,10 +80,11 @@ describe('MCPPool', () => {
     it('creates connection on first getTools() call', async () => {
       mocks.mockToolsFn.mockResolvedValue({ toolA: { execute: vi.fn() } })
 
-      const tools = await pool.getTools(makeServer(), makeOptions())
+      const result = await pool.getTools(makeServer(), makeOptions())
 
       expect(mocks.createMCPClient).toHaveBeenCalledTimes(1)
-      expect(tools).toHaveProperty('toolA')
+      expect(result.tools).toHaveProperty('toolA')
+      expect(result.error).toBeUndefined()
       expect(pool.getConnectionCount()).toBe(1)
     })
 
@@ -92,12 +93,12 @@ describe('MCPPool', () => {
       const server = makeServer()
       const options = makeOptions()
 
-      const tools1 = await pool.getTools(server, options)
-      const tools2 = await pool.getTools(server, options)
+      const result1 = await pool.getTools(server, options)
+      const result2 = await pool.getTools(server, options)
 
       // Only one client creation
       expect(mocks.createMCPClient).toHaveBeenCalledTimes(1)
-      expect(tools1).toBe(tools2)
+      expect(result1.tools).toBe(result2.tools)
       expect(pool.getConnectionCount()).toBe(1)
     })
 
@@ -124,11 +125,11 @@ describe('MCPPool', () => {
       expect(pool.getConnectionCount()).toBe(1)
 
       // Second call with different command → fingerprint mismatch
-      const tools2 = await pool.getTools(makeServer({ command: '/usr/bin/v2' }), options)
+      const result2 = await pool.getTools(makeServer({ command: '/usr/bin/v2' }), options)
 
       expect(mocks.createMCPClient).toHaveBeenCalledTimes(2)
       expect(close1).toHaveBeenCalled() // old connection closed
-      expect(tools2).toHaveProperty('new')
+      expect(result2.tools).toHaveProperty('new')
       expect(pool.getConnectionCount()).toBe(1) // still only 1 entry
     })
 
@@ -194,12 +195,13 @@ describe('MCPPool', () => {
   // ── Connection Failure ───────────────────────────────────
 
   describe('connection failure', () => {
-    it('returns empty tools on connection failure', async () => {
+    it('returns empty tools with error on connection failure', async () => {
       mocks.createMCPClient.mockRejectedValue(new Error('connection refused'))
 
-      const tools = await pool.getTools(makeServer(), makeOptions())
+      const result = await pool.getTools(makeServer(), makeOptions())
 
-      expect(tools).toEqual({})
+      expect(result.tools).toEqual({})
+      expect(result.error).toBe('connection refused')
       expect(pool.getConnectionCount()).toBe(0)
     })
 
@@ -215,33 +217,37 @@ describe('MCPPool', () => {
       const options = makeOptions()
 
       // First call fails
-      const tools1 = await pool.getTools(server, options)
-      expect(tools1).toEqual({})
+      const result1 = await pool.getTools(server, options)
+      expect(result1.tools).toEqual({})
+      expect(result1.error).toBeDefined()
       expect(pool.getConnectionCount()).toBe(0)
 
       // Second call succeeds (entry was removed, so fresh creation)
-      const tools2 = await pool.getTools(server, options)
-      expect(tools2).toHaveProperty('recovered')
+      const result2 = await pool.getTools(server, options)
+      expect(result2.tools).toHaveProperty('recovered')
+      expect(result2.error).toBeUndefined()
       expect(pool.getConnectionCount()).toBe(1)
     })
 
-    it('returns empty tools when stdio server has no command', async () => {
-      const tools = await pool.getTools(
+    it('returns error when stdio server has no command', async () => {
+      const result = await pool.getTools(
         makeServer({ command: undefined }),
         makeOptions(),
       )
 
-      expect(tools).toEqual({})
+      expect(result.tools).toEqual({})
+      expect(result.error).toContain('Missing required configuration')
       expect(mocks.createMCPClient).not.toHaveBeenCalled()
     })
 
-    it('returns empty tools when http server has no url', async () => {
-      const tools = await pool.getTools(
+    it('returns error when http server has no url', async () => {
+      const result = await pool.getTools(
         makeServer({ transportType: 'http', command: undefined, url: undefined }),
         makeOptions(),
       )
 
-      expect(tools).toEqual({})
+      expect(result.tools).toEqual({})
+      expect(result.error).toContain('Missing required configuration')
       expect(mocks.createMCPClient).not.toHaveBeenCalled()
     })
   })
@@ -465,14 +471,14 @@ describe('MCPPool', () => {
 
       const server = makeServer({ name: 'shared-server' })
 
-      const tools1 = await pool.getTools(server, makeOptions({ projectId: 'proj-1' as ProjectId }))
-      const tools2 = await pool.getTools(server, makeOptions({ projectId: 'proj-2' as ProjectId }))
+      const result1 = await pool.getTools(server, makeOptions({ projectId: 'proj-1' as ProjectId }))
+      const result2 = await pool.getTools(server, makeOptions({ projectId: 'proj-2' as ProjectId }))
 
       // Two separate connections
       expect(mocks.createMCPClient).toHaveBeenCalledTimes(2)
       expect(pool.getConnectionCount()).toBe(2)
-      expect(tools1).toHaveProperty('toolA')
-      expect(tools2).toHaveProperty('toolB')
+      expect(result1.tools).toHaveProperty('toolA')
+      expect(result2.tools).toHaveProperty('toolB')
     })
 
     it('invalidating one project does not affect another', async () => {
@@ -535,9 +541,9 @@ describe('MCPPool', () => {
     it('works with undefined options', async () => {
       mocks.mockToolsFn.mockResolvedValue({ tool: {} })
 
-      const tools = await pool.getTools(makeServer(), undefined)
+      const result = await pool.getTools(makeServer(), undefined)
 
-      expect(tools).toHaveProperty('tool')
+      expect(result.tools).toHaveProperty('tool')
       expect(pool.getConnectionCount()).toBe(1)
     })
   })
