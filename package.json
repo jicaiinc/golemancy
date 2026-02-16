@@ -8,7 +8,9 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "test:e2e": "pnpm --filter @golemancy/desktop test:e2e",
-    "test:e2e:ai": "pnpm --filter @golemancy/desktop test:e2e:ai"
+    "test:e2e:ai": "pnpm --filter @golemancy/desktop test:e2e:ai",
+    "pack": "turbo build && pnpm --filter @golemancy/desktop run pack",
+    "dist": "turbo build && pnpm --filter @golemancy/desktop run dist"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

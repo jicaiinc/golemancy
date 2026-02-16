@@ -1,9 +1,17 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage } from 'electron'
 import { join } from 'path'
 import { fork, type ChildProcess } from 'child_process'
+import { readFileSync } from 'fs'
 import { logger } from './logger'
 
-const APP_VERSION = '0.1.0'
+const APP_VERSION: string = JSON.parse(
+  readFileSync(
+    app.isPackaged
+      ? join(app.getAppPath(), 'package.json')
+      : join(process.env.GOLEMANCY_ROOT_DIR || join(app.getAppPath(), '../..'), 'apps/desktop/package.json'),
+    'utf-8',
+  ),
+).version
 
 let serverProcess: ChildProcess | null = null
 let serverPort: number | null = null
@@ -18,7 +26,7 @@ function startServer(): Promise<number> {
     // out/main/ when Playwright launches the built JS directly.
     const rootDir = process.env.GOLEMANCY_ROOT_DIR || join(app.getAppPath(), '../..')
     const serverEntry = app.isPackaged
-      ? join(process.resourcesPath, 'server', 'index.js')
+      ? join(process.resourcesPath, 'server', 'deps', 'index.js')
       : join(rootDir, 'packages/server/src/index.ts')
     const serverCwd = app.isPackaged
       ? join(process.resourcesPath, 'server')
@@ -27,13 +35,19 @@ function startServer(): Promise<number> {
       env: {
         ...process.env,
         PORT: '0',
-        // Pass Electron resources path to server for bundled runtime resolution
-        ...(app.isPackaged ? { GOLEMANCY_RESOURCES_PATH: process.resourcesPath } : {}),
+        // Pass Electron resources path to server for bundled runtime resolution.
+        // NODE_ENV=production disables pino-pretty (dev-only transport) to prevent crash.
+        ...(app.isPackaged ? {
+          GOLEMANCY_RESOURCES_PATH: process.resourcesPath,
+          NODE_ENV: 'production',
+        } : {}),
       },
       // Dev: use system node (Electron's embedded Node has different ABI for native modules)
       // GOLEMANCY_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
       // (GUI apps on macOS don't inherit shell PATH, so bare 'node' may fail).
-      execPath: app.isPackaged ? process.execPath : (process.env.GOLEMANCY_FORK_EXEC_PATH || 'node'),
+      execPath: app.isPackaged
+        ? join(process.resourcesPath, 'runtime', 'node', 'bin', 'node')
+        : (process.env.GOLEMANCY_FORK_EXEC_PATH || 'node'),
       execArgv: app.isPackaged ? [] : ['--import', 'tsx'],
       cwd: serverCwd,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],

@@ -1,0 +1,45 @@
+appId: app.golemancy
+productName: Golemancy
+copyright: Copyright © 2026 Caiyongji
+
+directories:
+  output: release
+  buildResources: resources/build
+
+files:
+  - out/**/*
+  - package.json
+
+extraResources:
+  - from: resources/runtime
+    to: runtime
+    filter: ["**/*"]
+  - from: resources/server
+    to: server
+
+asar: true
+asarUnpack: []  # native modules are in extraResources, not in ASAR
+
+mac:
+  category: public.app-category.developer-tools
+  icon: resources/build/icons/mac/icon.icns
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
+  hardenedRuntime: true
+  entitlements: resources/build/entitlements.mac.plist
+  entitlementsInherit: resources/build/entitlements.mac.plist
+
+dmg:
+  artifactName: ${productName}-${version}-mac-${arch}.${ext}
+
+linux:
+  target: [AppImage, deb]
+  category: Development
+  icon: resources/build/icons/png
+
+win:
+  target: [nsis]
+  icon: resources/build/icons/win/icon.ico
