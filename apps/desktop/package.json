@@ -17,11 +17,12 @@
     "test:e2e:only": "npx playwright test --config=e2e/playwright.config.ts",
     "download-runtime": "bash ../../scripts/download-runtime.sh",
     "bundle-server": "node ../../scripts/bundle-server.mjs",
-    "pack": "electron-vite build && node ../../scripts/bundle-server.mjs && electron-builder --dir",
-    "dist": "electron-vite build && node ../../scripts/bundle-server.mjs && electron-builder",
-    "dist:mac": "electron-vite build && node ../../scripts/bundle-server.mjs && electron-builder --mac",
-    "dist:linux": "electron-vite build && node ../../scripts/bundle-server.mjs && electron-builder --linux",
-    "dist:win": "electron-vite build && node ../../scripts/bundle-server.mjs && electron-builder --win"
+    "preflight-check": "node ../../scripts/preflight-check.mjs",
+    "pack": "bash ../../scripts/download-runtime.sh && electron-vite build && node ../../scripts/bundle-server.mjs && node ../../scripts/preflight-check.mjs && electron-builder --dir",
+    "dist": "bash ../../scripts/download-runtime.sh && electron-vite build && node ../../scripts/bundle-server.mjs && node ../../scripts/preflight-check.mjs && electron-builder",
+    "dist:mac": "bash ../../scripts/download-runtime.sh && electron-vite build && node ../../scripts/bundle-server.mjs && node ../../scripts/preflight-check.mjs --target mac && electron-builder --mac",
+    "dist:linux": "bash ../../scripts/download-runtime.sh && electron-vite build && node ../../scripts/bundle-server.mjs && node ../../scripts/preflight-check.mjs --target linux && electron-builder --linux",
+    "dist:win": "bash ../../scripts/download-runtime.sh && electron-vite build && node ../../scripts/bundle-server.mjs && node ../../scripts/preflight-check.mjs --target win && electron-builder --win"
   },
   "dependencies": {
     "@golemancy/shared": "workspace:*",
