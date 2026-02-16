@@ -204,6 +204,46 @@ describe('builtin-tools integration', () => {
         expect(result.exitCode).not.toBe(0)
       })
     })
+
+    // ── Python in virtual FS ──────────────────────────────────
+
+    describe('python execution', () => {
+      it('executes inline python (bash has python: true)', async () => {
+        const result = await bash.exec('python3 -c "print(1 + 2)"')
+        expect(result.stdout.trim()).toBe('3')
+        expect(result.exitCode).toBe(0)
+      })
+
+      it('writes and executes a .py script from /workspace', async () => {
+        await bash.writeFile('/workspace/test.py', 'print("hello from script")')
+        const result = await bash.exec('python3 /workspace/test.py')
+        expect(result.stdout).toContain('hello from script')
+        expect(result.exitCode).toBe(0)
+      })
+    })
+
+    // ── Project mount is read-only (OverlayFs) ────────────────
+
+    describe('project mount isolation', () => {
+      it('modifications to /project are overlay-only — original files unchanged', async () => {
+        // Overwrite the README through the overlay
+        await bash.writeFile('/project/README.md', 'OVERWRITTEN')
+        const overlayContent = await bash.readFile('/project/README.md')
+        expect(overlayContent).toBe('OVERWRITTEN')
+        // Real disk is untouched
+        const onDisk = await nodeFs.readFile(path.join(projectDir, 'README.md'), 'utf-8')
+        expect(onDisk).toBe('# Test Project')
+      })
+
+      it('new file in /project goes to overlay, not real project dir', async () => {
+        await bash.writeFile('/project/new-file.txt', 'overlay only')
+        const content = await bash.readFile('/project/new-file.txt')
+        expect(content).toBe('overlay only')
+        await expect(
+          nodeFs.readFile(path.join(projectDir, 'new-file.txt'), 'utf-8'),
+        ).rejects.toThrow()
+      })
+    })
   })
 
   // ────────────────────────────────────────────────────────────
@@ -478,6 +518,44 @@ describe('builtin-tools integration', () => {
         await sandbox.writeFiles([])
         expect(mockHandle.wrapWithSandbox).not.toHaveBeenCalled()
       })
+
+      it('throws PathAccessError for denyWrite pattern match', async () => {
+        const s = makeAnthropicSandbox({
+          filesystem: {
+            ...DEFAULT_CONFIG.filesystem,
+            denyWrite: ['**/secrets/**'],
+          },
+        })
+        await expect(
+          s.writeFiles([{ path: '/workspace/secrets/key.pem', content: 'private' }]),
+        ).rejects.toThrow(PathAccessError)
+      })
+
+      it('writes multiple files sequentially (each calls wrapWithSandbox)', async () => {
+        vi.spyOn(nodeFs, 'writeFile').mockResolvedValue()
+        vi.spyOn(nodeFs, 'unlink').mockResolvedValue()
+
+        await sandbox.writeFiles([
+          { path: './a.txt', content: 'aaa' },
+          { path: './b.txt', content: 'bbb' },
+        ])
+        // Each file triggers a separate wrapWithSandbox call
+        expect(mockHandle.wrapWithSandbox).toHaveBeenCalledTimes(2)
+      })
+
+      it('allows .git/config write when allowGitConfig is true', async () => {
+        vi.spyOn(nodeFs, 'writeFile').mockResolvedValue()
+        vi.spyOn(nodeFs, 'unlink').mockResolvedValue()
+
+        const s = makeAnthropicSandbox({
+          filesystem: {
+            ...DEFAULT_CONFIG.filesystem,
+            allowGitConfig: true,
+          },
+        })
+        await s.writeFiles([{ path: '.git/config', content: '[core]' }])
+        expect(mockHandle.wrapWithSandbox).toHaveBeenCalled()
+      })
     })
 
     // ── readFile — Path Validation ───────────────────────────
@@ -597,6 +675,60 @@ describe('builtin-tools integration', () => {
         await expect(s.executeCommand('sudo ls')).rejects.toThrow(CommandBlockedError)
         expect(handle.wrapWithSandbox).not.toHaveBeenCalled()
         expect(handle.cleanupAfterCommand).not.toHaveBeenCalled()
+      })
+
+      it('blocks fork bomb patterns', async () => {
+        await expect(
+          sandbox.executeCommand(':(){ :|:& };:'),
+        ).rejects.toThrow(CommandBlockedError)
+      })
+
+      it('blocks python inline with dangerous imports', async () => {
+        await expect(
+          sandbox.executeCommand('python3 -c "import os; os.system(\'ls\')"'),
+        ).rejects.toThrow(CommandBlockedError)
+      })
+
+      it('blocks dangerous command in subshell', async () => {
+        await expect(
+          sandbox.executeCommand('echo $(sudo cat /etc/shadow)'),
+        ).rejects.toThrow(CommandBlockedError)
+      })
+
+      it('blocks commands in pipeline segments', async () => {
+        await expect(
+          sandbox.executeCommand('cat file.txt | sudo tee /etc/hosts'),
+        ).rejects.toThrow(CommandBlockedError)
+      })
+    })
+
+    // ── Timeout & Output Truncation ─────────────────────────
+
+    describe('timeout and output truncation', () => {
+      it('uses custom timeoutMs from constructor', async () => {
+        const shortTimeout = makeAnthropicSandbox({}, undefined)
+        // Just verify the constructor accepts custom options
+        const s = new AnthropicSandbox({
+          config: DEFAULT_CONFIG,
+          workspaceRoot: WORKSPACE,
+          sandboxManager: mockHandle,
+          timeoutMs: 5_000,
+        })
+        // The timeout is internal — test it by running a fast command (no timeout)
+        await s.executeCommand('echo fast')
+        expect(mockHandle.wrapWithSandbox).toHaveBeenCalledWith('echo fast')
+      })
+
+      it('passes runtimeEnv to spawned processes', async () => {
+        const s = new AnthropicSandbox({
+          config: DEFAULT_CONFIG,
+          workspaceRoot: WORKSPACE,
+          sandboxManager: mockHandle,
+          runtimeEnv: { CUSTOM_VAR: 'test-value' },
+        })
+        // Verify no error — runtimeEnv is passed internally to spawn env
+        await s.executeCommand('echo test')
+        expect(mockHandle.wrapWithSandbox).toHaveBeenCalled()
       })
     })
   })

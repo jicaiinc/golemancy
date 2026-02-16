@@ -116,6 +116,53 @@ describe('chat-instances', () => {
 
       expect(chatConstructorCalls[0].transport).toBeUndefined()
     })
+
+    it('configures transport with correct API URL and auth header', () => {
+      getOrCreateChat(makeConfig({
+        projectId: 'proj-x' as ProjectId,
+        agentId: 'agent-y' as AgentId,
+        conversationId: 'conv-z' as ConversationId,
+        serverConfig: { baseUrl: 'http://localhost:4000', token: 'my-token' },
+      }))
+
+      const transport = chatConstructorCalls[0].transport
+      expect(transport.opts.api).toBe('http://localhost:4000/api/chat')
+      expect(transport.opts.headers).toEqual({ Authorization: 'Bearer my-token' })
+      expect(transport.opts.body).toEqual({
+        projectId: 'proj-x',
+        agentId: 'agent-y',
+        conversationId: 'conv-z',
+      })
+    })
+
+    it('converts initialMessages to UIMessages format', () => {
+      const msgs: Message[] = [
+        makeMessage({ id: 'msg-1' as any, role: 'user', parts: [{ type: 'text', text: 'Hi' }] }),
+        makeMessage({ id: 'msg-2' as any, role: 'assistant', parts: [{ type: 'text', text: 'Hello' }] }),
+      ]
+      getOrCreateChat(makeConfig({ initialMessages: msgs }))
+
+      const passedMessages = chatConstructorCalls[0].messages
+      expect(passedMessages).toHaveLength(2)
+      expect(passedMessages[0]).toEqual({ id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hi' }] })
+      expect(passedMessages[1]).toEqual({ id: 'msg-2', role: 'assistant', parts: [{ type: 'text', text: 'Hello' }] })
+    })
+
+    it('sets onError callback on the Chat instance', () => {
+      const chat = getOrCreateChat(makeConfig())
+      expect(chat.onError).toBeDefined()
+      expect(typeof chat.onError).toBe('function')
+    })
+
+    it('creates fresh instance after destroy + re-create', () => {
+      const convId = 'conv-recycle' as ConversationId
+      const first = getOrCreateChat(makeConfig({ conversationId: convId }))
+      destroyChat(convId)
+      const second = getOrCreateChat(makeConfig({ conversationId: convId }))
+
+      expect(first).not.toBe(second)
+      expect(chatConstructorCalls).toHaveLength(2)
+    })
   })
 
   describe('destroyChat', () => {
@@ -131,7 +178,6 @@ describe('chat-instances', () => {
     it('stops a streaming chat before destroying', () => {
       const convId = 'conv-1' as ConversationId
       const chat = getOrCreateChat(makeConfig({ conversationId: convId }))
-      // Simulate streaming state
       ;(chat as any).status = 'streaming'
 
       destroyChat(convId)
@@ -139,8 +185,27 @@ describe('chat-instances', () => {
       expect(mockStop).toHaveBeenCalledOnce()
     })
 
+    it('stops a submitted chat before destroying', () => {
+      const convId = 'conv-sub' as ConversationId
+      const chat = getOrCreateChat(makeConfig({ conversationId: convId }))
+      ;(chat as any).status = 'submitted'
+
+      destroyChat(convId)
+
+      expect(mockStop).toHaveBeenCalledOnce()
+    })
+
+    it('does NOT stop a ready chat', () => {
+      const convId = 'conv-ready' as ConversationId
+      const chat = getOrCreateChat(makeConfig({ conversationId: convId }))
+      ;(chat as any).status = 'ready'
+
+      destroyChat(convId)
+
+      expect(mockStop).not.toHaveBeenCalled()
+    })
+
     it('is a no-op for non-existent conversation', () => {
-      // Should not throw
       destroyChat('nonexistent' as ConversationId)
     })
   })

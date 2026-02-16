@@ -12,7 +12,8 @@
     "build": "tsc --build",
     "dev": "node --import tsx src/index.ts",
     "lint": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "test:live": "vitest run --config vitest.config.live.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.42",

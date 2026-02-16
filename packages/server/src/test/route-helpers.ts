@@ -1,0 +1,165 @@
+import { vi } from 'vitest'
+import { Hono } from 'hono'
+import type {
+  IProjectService, IAgentService, IConversationService, ITaskService,
+  IArtifactService, IMemoryService, ISkillService, ISettingsService,
+  IDashboardService, ICronJobService, IMCPService, IPermissionsConfigService,
+} from '@golemancy/shared'
+import { createApp, type ServerDependencies } from '../app'
+
+/** All mock storage services, each method a `vi.fn()` stub. */
+export interface MockStorage extends ServerDependencies {
+  projectStorage: MockedService<IProjectService>
+  agentStorage: MockedService<IAgentService>
+  conversationStorage: MockedService<IConversationService>
+  taskStorage: MockedService<ITaskService>
+  artifactStorage: MockedService<IArtifactService>
+  memoryStorage: MockedService<IMemoryService>
+  skillStorage: MockedService<ISkillService>
+  settingsStorage: MockedService<ISettingsService>
+  dashboardService: MockedService<IDashboardService>
+  cronJobStorage: MockedService<ICronJobService>
+  mcpStorage: MockedService<IMCPService>
+  permissionsConfigStorage: MockedService<IPermissionsConfigService>
+}
+
+/** Turn every method of T into a vi.fn() mock */
+type MockedService<T> = {
+  [K in keyof T]: T[K] extends (...args: infer A) => infer R
+    ? ReturnType<typeof vi.fn<(...args: A) => R>>
+    : T[K]
+}
+
+/** Create stub implementations for all server dependencies. */
+export function createMockStorage(): MockStorage {
+  return {
+    projectStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+    },
+    agentStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+    },
+    conversationStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+      saveMessage: vi.fn().mockResolvedValue(undefined),
+      getMessages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      searchMessages: vi.fn().mockResolvedValue({ items: [], total: 0 }),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+    },
+    taskStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      cancel: vi.fn().mockResolvedValue(undefined),
+      getLogs: vi.fn().mockResolvedValue([]),
+    },
+    artifactStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      delete: vi.fn().mockResolvedValue(undefined),
+    },
+    memoryStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+    },
+    skillStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+      importZip: vi.fn(),
+    },
+    settingsStorage: {
+      get: vi.fn().mockResolvedValue({
+        providers: [],
+        defaultProvider: 'openai',
+        theme: 'dark',
+        userProfile: { name: 'Test', email: 'test@test.com' },
+        defaultWorkingDirectoryBase: '/tmp',
+      }),
+      update: vi.fn(),
+    },
+    dashboardService: {
+      getSummary: vi.fn().mockResolvedValue({ totalProjects: 0, totalAgents: 0, totalConversations: 0, totalTasks: 0, activeTasks: 0 }),
+      getActiveAgents: vi.fn().mockResolvedValue([]),
+      getRecentTasks: vi.fn().mockResolvedValue([]),
+      getActivityFeed: vi.fn().mockResolvedValue([]),
+    },
+    cronJobStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+    },
+    mcpStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getByName: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+      resolveNames: vi.fn().mockResolvedValue([]),
+    },
+    permissionsConfigStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+      duplicate: vi.fn(),
+    },
+  }
+}
+
+/**
+ * Create a full Hono app with all routes mounted and mock storage injected.
+ * Optionally pass an authToken to enable Bearer auth (same as production).
+ */
+export function createTestApp(
+  mocks?: MockStorage,
+  authToken?: string,
+): { app: Hono; mocks: MockStorage } {
+  const storage = mocks ?? createMockStorage()
+  const app = createApp(storage, authToken)
+  return { app, mocks: storage }
+}
+
+/**
+ * Convenience helper to make requests against a Hono app.
+ * Returns the Response directly for assertion.
+ */
+export async function makeRequest(
+  app: Hono,
+  method: string,
+  path: string,
+  body?: unknown,
+  token?: string,
+): Promise<Response> {
+  const headers: Record<string, string> = {}
+  if (body !== undefined) {
+    headers['Content-Type'] = 'application/json'
+  }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  return app.request(path, {
+    method,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  })
+}
