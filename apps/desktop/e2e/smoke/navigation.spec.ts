@@ -30,9 +30,9 @@ test.describe('Navigation', () => {
 
     // Navigate to chat page
     await helper.clickNav('chat')
-    // Chat page shows "Start a conversation" text in the empty state
+    // Chat page shows empty state with prompt to start chatting
     await expect(
-      window.getByText('Start a conversation').first()
+      window.getByText('Start Chatting').or(window.getByText('No conversations')).first()
     ).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
     // Navigate to tasks page

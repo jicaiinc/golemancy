@@ -27,12 +27,19 @@ export interface WsAgentEvent {
   currentTaskId?: TaskId
 }
 
+export interface WsModeDegradedEvent {
+  event: 'mode_degraded'
+  requestedMode: string
+  actualMode: string
+  reason: string
+}
+
 export interface WsSystemEvent {
   event: 'server:ready' | 'server:error'
   message?: string
 }
 
-export type WsServerEvent = WsMessageEvent | WsTaskEvent | WsAgentEvent | WsSystemEvent
+export type WsServerEvent = WsMessageEvent | WsTaskEvent | WsAgentEvent | WsModeDegradedEvent | WsSystemEvent
 
 export interface WsClientMessage {
   type: 'subscribe' | 'unsubscribe' | 'ping'

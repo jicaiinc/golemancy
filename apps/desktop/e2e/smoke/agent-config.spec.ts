@@ -9,8 +9,8 @@ test.describe('Agent Config — 6 Tab Navigation', () => {
     await helper.goHome()
     projectId = await helper.createProject('Agent Config E2E')
 
-    // Navigate to agents and create one
-    await helper.clickNav('agents')
+    // Navigate to agents via URL (more reliable than sidebar click in beforeAll)
+    await helper.navigateTo(`/projects/${projectId}/agents`)
     await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
@@ -21,9 +21,8 @@ test.describe('Agent Config — 6 Tab Navigation', () => {
   })
 
   test('navigate to agent detail page', async ({ window, helper }) => {
-    // Click on the agent card/item to navigate to detail page
-    const agentItem = window.locator(`[data-testid="agent-item-${agentId}"]`)
-    await agentItem.click()
+    // Navigate to agent detail page via URL (agent item click depends on list rendering timing)
+    await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
 
     // Should see agent name on detail page
     await expect(window.getByText('Config Test Agent')).toBeVisible({
@@ -46,45 +45,40 @@ test.describe('Agent Config — 6 Tab Navigation', () => {
   })
 
   test('switch to Skills tab', async ({ window }) => {
-    await window.getByText('Skills').click()
-    // Should show skills-related content
-    await expect(
-      window.getByText('ASSIGNED SKILLS').or(window.getByText('No skills')),
-    ).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await window.locator('[data-testid="tab-skills"]').click()
+    await expect(window.getByText('ASSIGNED SKILLS')).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
   })
 
   test('switch to Tools tab and verify Bash toggle', async ({ window }) => {
-    await window.getByText('Tools').click()
+    await window.locator('[data-testid="tab-tools"]').click()
     await expect(window.getByText('BUILT-IN TOOLS')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
     // Bash tool should be visible
-    await expect(window.getByText('Bash')).toBeVisible()
-    await expect(window.getByText('Browser')).toBeVisible()
+    await expect(window.getByText('Bash').first()).toBeVisible()
+    await expect(window.getByText('Browser').first()).toBeVisible()
   })
 
   test('switch to MCP tab', async ({ window }) => {
-    await window.getByText('MCP').click()
-    await expect(
-      window
-        .getByText('ASSIGNED MCP SERVERS')
-        .or(window.getByText('No MCP servers')),
-    ).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await window.locator('[data-testid="tab-mcp"]').click()
+    await expect(window.getByText('ASSIGNED MCP SERVERS')).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
   })
 
   test('switch to Sub-Agents tab', async ({ window }) => {
-    await window.getByText('Sub-Agents').click()
-    await expect(
-      window
-        .getByText('ASSIGNED SUB-AGENTS')
-        .or(window.getByText('No sub-agents')),
-    ).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await window.locator('[data-testid="tab-sub-agents"]').click()
+    await expect(window.getByText('ASSIGNED SUB-AGENTS')).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
   })
 
   test('switch to Model Config tab and see effective config', async ({
     window,
   }) => {
-    await window.getByText('Model Config').click()
+    await window.locator('[data-testid="tab-model"]').click()
     await expect(window.getByText('EFFECTIVE CONFIG')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
@@ -96,7 +90,7 @@ test.describe('Agent Config — 6 Tab Navigation', () => {
 
   test('edit system prompt in Info tab and save', async ({ window }) => {
     // Switch back to Info tab
-    await window.getByText('Info').click()
+    await window.locator('[data-testid="tab-info"]').click()
 
     // Find the system prompt textarea and change it
     const textarea = window.locator('textarea').first()

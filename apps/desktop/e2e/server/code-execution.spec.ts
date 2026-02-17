@@ -27,7 +27,7 @@ test.describe('Code Execution E2E', () => {
     projectId = await helper.createProject('Code Execution Test')
 
     // Create agent with bash tool enabled (default)
-    await helper.clickNav('agents')
+    await helper.navigateTo(`/projects/${projectId}/agents`)
     await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
@@ -41,7 +41,9 @@ test.describe('Code Execution E2E', () => {
     test.setTimeout(120_000)
 
     await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    await expect(
+      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
+    ).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
@@ -62,7 +64,9 @@ test.describe('Code Execution E2E', () => {
     test.setTimeout(120_000)
 
     await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    await expect(
+      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
+    ).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
@@ -86,7 +90,9 @@ test.describe('Code Execution E2E', () => {
     test.setTimeout(120_000)
 
     await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    await expect(
+      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
+    ).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 

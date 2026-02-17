@@ -7,8 +7,9 @@
  *
  * Run via: pnpm --filter @golemancy/server test:live
  */
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { spawn } from 'node:child_process'
+import { Bash } from 'just-bash'
 import { describeWithApiKey } from '../test/live-settings'
 import { resolveModel } from './model'
 import { generateText, tool } from 'ai'
@@ -31,16 +32,6 @@ function exec(cmd: string, args: string[], timeout = 10_000): Promise<{ stdout: 
     child.on('error', reject)
   })
 }
-
-// Check if just-bash is available
-let justBashAvailable = false
-beforeAll(async () => {
-  try {
-    // just-bash is a dependency — check if the module exists
-    await import('just-bash')
-    justBashAvailable = true
-  } catch { /* not installed */ }
-})
 
 // ── Unrestricted Mode (Native Execution) ─────────────────────
 
@@ -78,22 +69,27 @@ describe('sandbox-modes.live — unrestricted (native execution)', () => {
 
 // ── Restricted Mode (just-bash) ──────────────────────────────
 
-describe.skipIf(!justBashAvailable)('sandbox-modes.live — restricted (just-bash)', () => {
-  let justBash: any
-
-  beforeAll(async () => {
-    justBash = await import('just-bash')
-  })
-
+describe('sandbox-modes.live — restricted (just-bash)', () => {
   it('executes simple bash commands', async () => {
-    const result = await justBash.default('echo hello')
-    expect(result.stdout?.trim() ?? result.trim()).toContain('hello')
+    const bash = new Bash()
+    const result = await bash.exec('echo hello')
+    expect(result.stdout.trim()).toContain('hello')
+    expect(result.exitCode).toBe(0)
   })
 
   it('executes piped commands', async () => {
-    const result = await justBash.default('echo "line1\nline2\nline3" | wc -l')
-    const output = (result.stdout ?? result).trim()
-    expect(parseInt(output)).toBeGreaterThan(0)
+    const bash = new Bash()
+    const result = await bash.exec('echo "line1\nline2\nline3" | wc -l')
+    expect(parseInt(result.stdout.trim())).toBeGreaterThan(0)
+    expect(result.exitCode).toBe(0)
+  })
+
+  it('dangerous commands are not available in virtual sandbox', async () => {
+    const bash = new Bash()
+    const result = await bash.exec('sudo echo test')
+    // just-bash is a virtual shell — sudo doesn't exist in its command set
+    expect(result.exitCode).not.toBe(0)
+    expect(result.stderr).toContain('command not found')
   })
 })
 

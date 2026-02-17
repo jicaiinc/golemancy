@@ -1,8 +1,8 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, PermissionsConfigId, ProjectId, SupportedPlatform, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
+import type { Agent, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, SupportedPlatform, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
-import { loadBuiltinTools } from './builtin-tools'
+import { loadBuiltinTools, type ModeDegradation } from './builtin-tools'
 import { createSubAgentToolSet } from './sub-agent'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
@@ -26,6 +26,10 @@ export interface AgentToolsResult {
   instructions: string
   /** Warnings about tools that failed to load (for UI display, not for agent context). */
   warnings: string[]
+  /** The actual permission mode used (may differ from configured if degraded) */
+  actualMode?: PermissionMode
+  /** Present when permission mode was degraded from requested to fallback */
+  degradation?: ModeDegradation
   cleanup: () => Promise<void>
 }
 
@@ -43,6 +47,8 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
   let instructions = ''
+  let actualMode: PermissionMode | undefined
+  let degradation: ModeDegradation | undefined
 
   // 1. Skills — returns only the `skill` selector tool
   if (agent.skillIds?.length > 0) {
@@ -97,6 +103,13 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     if (builtinResult) {
       Object.assign(tools, builtinResult.tools)
       cleanups.push(builtinResult.cleanup)
+      actualMode = builtinResult.actualMode
+      if (builtinResult.degradation) {
+        degradation = builtinResult.degradation
+        warnings.push(
+          `Permission mode degraded: ${builtinResult.degradation.requestedMode} → ${builtinResult.degradation.actualMode} (${builtinResult.degradation.reason})`,
+        )
+      }
     }
   }
 
@@ -117,6 +130,8 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     tools,
     instructions,
     warnings,
+    actualMode,
+    degradation,
     cleanup: async () => {
       await Promise.all(cleanups.map(fn => fn().catch(() => {})))
     },

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import type { PermissionMode, PermissionsConfig, PermissionsConfigFile, PermissionsConfigId, ProjectId } from '@golemancy/shared'
+import type { PermissionMode, PermissionsConfig, PermissionsConfigFile, PermissionsConfigId, ProjectId, SandboxReadinessIssue, SandboxReadinessResult } from '@golemancy/shared'
 import { DEFAULT_PERMISSIONS_CONFIG, isSandboxRuntimeSupported, type SupportedPlatform } from '@golemancy/shared'
+import { fetchJson, getBaseUrl } from '../../services/http/base'
 import { PixelCard, PixelButton, PixelInput, PixelModal, PixelToggle } from '../base'
 import { PixelDropdown } from '../base/PixelDropdown'
 import { ExecutionModeCard, type ExecutionModeOption } from './ExecutionModeCard'
@@ -61,6 +62,9 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [modalTitle, setModalTitle] = useState('')
   const [showUnrestrictedModal, setShowUnrestrictedModal] = useState(false)
+  const [showSandboxUnavailableModal, setShowSandboxUnavailableModal] = useState(false)
+  const [sandboxIssues, setSandboxIssues] = useState<SandboxReadinessIssue[]>([])
+
 
   const isDefault = selectedConfigId === ('default' as PermissionsConfigId)
 
@@ -128,10 +132,24 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
     showSavedIndicator()
   }
 
-  function handleModeChange(newMode: string) {
+  async function handleModeChange(newMode: string) {
     if (newMode === 'unrestricted') {
       setShowUnrestrictedModal(true)
       return
+    }
+    if (newMode === 'sandbox') {
+      try {
+        const result = await fetchJson<SandboxReadinessResult>(
+          `${getBaseUrl()}/api/sandbox/readiness?projectId=${projectId}`,
+        )
+        if (!result.available) {
+          setSandboxIssues(result.issues)
+          setShowSandboxUnavailableModal(true)
+          return
+        }
+      } catch {
+        // If readiness check fails, let the user proceed — runtime will degrade gracefully
+      }
     }
     persistModeChange(newMode as PermissionMode)
   }
@@ -139,6 +157,12 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
   function confirmUnrestricted() {
     setShowUnrestrictedModal(false)
     persistModeChange('unrestricted')
+  }
+
+  function confirmSandboxAnyway() {
+    setShowSandboxUnavailableModal(false)
+    setSandboxIssues([])
+    persistModeChange('sandbox')
   }
 
   function updateConfig(partial: Partial<PermissionsConfig>) {
@@ -366,6 +390,46 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
           </ul>
           <p className="text-text-dim">
             Only use this for local development in trusted environments.
+          </p>
+        </div>
+      </PixelModal>
+
+      {/* Sandbox Unavailable Modal */}
+      <PixelModal
+        open={showSandboxUnavailableModal}
+        onClose={() => setShowSandboxUnavailableModal(false)}
+        title="Sandbox Mode Unavailable"
+        size="sm"
+        footer={
+          <>
+            <PixelButton variant="ghost" size="sm" onClick={() => setShowSandboxUnavailableModal(false)}>
+              Cancel
+            </PixelButton>
+            <PixelButton variant="secondary" size="sm" className="text-accent-amber border-accent-amber" onClick={confirmSandboxAnyway}>
+              Enable Anyway
+            </PixelButton>
+          </>
+        }
+      >
+        <div className="text-[12px] text-text-secondary leading-relaxed">
+          <p className="mb-3">
+            Sandbox runtime prerequisites are not met. The following issues were found:
+          </p>
+          <div className="flex flex-col gap-2">
+            {sandboxIssues.map((issue, i) => (
+              <div key={i} className="border-2 border-border-dim p-2 bg-deep">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-accent-amber font-pixel text-[9px]">{issue.component}</span>
+                </div>
+                <p className="text-text-dim text-[11px]">{issue.message}</p>
+                {issue.fix && (
+                  <p className="font-mono text-[10px] text-text-dim mt-1 opacity-70">{issue.fix}</p>
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="text-text-dim mt-3">
+            Enabling sandbox mode anyway will cause runtime degradation to restricted mode.
           </p>
         </div>
       </PixelModal>

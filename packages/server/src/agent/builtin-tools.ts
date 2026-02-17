@@ -4,6 +4,7 @@ import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash
 import type { ToolSet } from 'ai'
 import type {
   BuiltinToolConfig,
+  PermissionMode,
   PermissionsConfig,
   PermissionsConfigId,
   ProjectId,
@@ -16,6 +17,7 @@ import type {
 import { createBrowserTools, type BrowserToolsConfig } from '@golemancy/tools/browser'
 import { AnthropicSandbox } from './anthropic-sandbox'
 import { NativeSandbox } from './native-sandbox'
+import { SandboxUnavailableError } from './errors'
 import { sandboxPool } from './sandbox-pool'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { buildRuntimeEnv } from '../runtime/env-builder'
@@ -67,8 +69,10 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
       return createRestrictedBashTool(options)
 
     case 'sandbox': {
+      if (!options?.projectId) {
+        throw new SandboxUnavailableError('projectId required for sandbox mode')
+      }
       try {
-        if (!options?.projectId) throw new Error('projectId required for sandbox mode')
         const workspaceDir = await ensureWorkspaceDir(options.projectId)
         const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
         const runtimeEnv = buildRuntimeEnv(options.projectId)
@@ -92,8 +96,10 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
         })
         return createBashTool({ sandbox, destination: workspaceDir })
       } catch (err) {
-        log.warn({ err, mode }, 'sandbox mode unavailable, falling back to restricted')
-        return createRestrictedBashTool(options)
+        // Wrap any sandbox setup failure as SandboxUnavailableError
+        if (err instanceof SandboxUnavailableError) throw err
+        const message = err instanceof Error ? err.message : String(err)
+        throw new SandboxUnavailableError(`Sandbox setup failed: ${message}`)
       }
     }
 
@@ -199,14 +205,38 @@ async function ensureWorkspaceDir(projectId: string): Promise<string> {
   return workspaceDir
 }
 
+// ── Mode Degradation Info ──────────────────────────────────
+
+export interface ModeDegradation {
+  requestedMode: PermissionMode
+  actualMode: PermissionMode
+  reason: string
+}
+
 // ── Public API ─────────────────────────────────────────────
+
+export interface BuiltinToolsResult {
+  tools: ToolSet
+  /** The actual permission mode used (may differ from configured if degraded) */
+  actualMode: PermissionMode
+  /** Present when mode was degraded from requested to fallback */
+  degradation?: ModeDegradation
+  cleanup: () => Promise<void>
+}
 
 export async function loadBuiltinTools(
   config: BuiltinToolConfig,
   options?: BuiltinToolOptions,
-): Promise<{ tools: ToolSet; cleanup: () => Promise<void> } | null> {
+): Promise<BuiltinToolsResult | null> {
   const tools: ToolSet = {}
   const cleanups: Array<() => Promise<void>> = []
+  let actualMode: PermissionMode = 'restricted'
+  let degradation: ModeDegradation | undefined
+
+  // Resolve the intended mode before loading tools
+  const resolved = await resolveEffectivePermissions(options)
+  const requestedMode = resolved?.mode ?? 'restricted'
+  actualMode = requestedMode
 
   // Bash tools — single entry point for bash/readFile/writeFile
   if (config.bash !== false) {
@@ -215,7 +245,27 @@ export async function loadBuiltinTools(
       Object.assign(tools, bashToolkit.tools)
       log.debug({ toolNames: Object.keys(bashToolkit.tools) }, 'loaded bash built-in tools')
     } catch (err) {
-      log.error({ err }, 'failed to create bash tools')
+      if (err instanceof SandboxUnavailableError) {
+        // Degrade to restricted mode but notify the caller
+        log.warn(
+          { err: err.message, requestedMode: err.requestedMode, fallbackMode: err.fallbackMode },
+          'sandbox unavailable, degrading to restricted mode',
+        )
+        actualMode = err.fallbackMode
+        degradation = {
+          requestedMode: err.requestedMode,
+          actualMode: err.fallbackMode,
+          reason: err.message,
+        }
+        try {
+          const bashToolkit = await createRestrictedBashTool(options)
+          Object.assign(tools, bashToolkit.tools)
+        } catch (fallbackErr) {
+          log.error({ err: fallbackErr }, 'failed to create fallback restricted bash tools')
+        }
+      } else {
+        log.error({ err }, 'failed to create bash tools')
+      }
     }
   }
 
@@ -239,6 +289,8 @@ export async function loadBuiltinTools(
 
   return {
     tools,
+    actualMode,
+    degradation,
     cleanup: async () => {
       await Promise.all(cleanups.map(fn => fn().catch(() => {})))
     },

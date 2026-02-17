@@ -121,6 +121,7 @@ export function ChatPage() {
             onToggleChatHistory={toggleChatHistory}
           />
         )}
+        {/* TODO: Pass actualMode from WS mode_degraded events once WebSocket integration is wired up */}
         <StatusBar permissionMode={permissionMode} />
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage } from 'electron'
 import { join } from 'path'
 import { fork, type ChildProcess } from 'child_process'
-import { readFileSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
 
 const APP_VERSION: string = JSON.parse(
@@ -17,6 +17,17 @@ let serverProcess: ChildProcess | null = null
 let serverPort: number | null = null
 let serverToken: string | null = null
 let isQuitting = false
+
+function detectDevResourcesPath(rootDir: string): Record<string, string> {
+  const resourcesDir = join(rootDir, 'apps/desktop/resources')
+  const runtimeDir = join(resourcesDir, 'runtime')
+  try {
+    if (existsSync(runtimeDir)) {
+      return { GOLEMANCY_RESOURCES_PATH: resourcesDir }
+    }
+  } catch {}
+  return {}
+}
 
 function startServer(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -40,7 +51,9 @@ function startServer(): Promise<number> {
         ...(app.isPackaged ? {
           GOLEMANCY_RESOURCES_PATH: process.resourcesPath,
           NODE_ENV: 'production',
-        } : {}),
+        } : {
+          ...detectDevResourcesPath(rootDir),
+        }),
       },
       // Dev: use system node (Electron's embedded Node has different ABI for native modules)
       // GOLEMANCY_FORK_EXEC_PATH allows E2E tests to pass an absolute node path

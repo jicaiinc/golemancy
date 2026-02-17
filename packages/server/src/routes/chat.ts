@@ -158,8 +158,22 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     // Wrap in createUIMessageStream to inject transient warnings before LLM output
     const toolWarnings = agentToolsResult.warnings
+    const modeDegradation = agentToolsResult.degradation
     const stream = createUIMessageStream({
       execute: ({ writer }) => {
+        // Send mode degradation event if permission mode was downgraded
+        if (modeDegradation) {
+          writer.write({
+            type: 'data-mode_degraded' as `data-${string}`,
+            data: {
+              requestedMode: modeDegradation.requestedMode,
+              actualMode: modeDegradation.actualMode,
+              reason: modeDegradation.reason,
+            },
+            transient: true,
+          })
+        }
+
         // Send tool loading warnings as transient data (not persisted in message history)
         for (const warning of toolWarnings) {
           writer.write({

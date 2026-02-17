@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { DashboardPage } from './DashboardPage'
@@ -125,6 +125,8 @@ describe('DashboardPage', () => {
   })
 
   it('shows loading spinner initially', () => {
+    // Sync render intentional — we test the transient loading state
+    // before the async useEffect resolves.
     useAppStore.setState({ dashboardLoading: true })
     renderWithRouter(<DashboardPage />)
     expect(screen.getByText('Loading dashboard...')).toBeInTheDocument()
