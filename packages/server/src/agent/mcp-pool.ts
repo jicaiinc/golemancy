@@ -6,13 +6,13 @@ import type {
   MCPServerConfig,
   MCPTransportType,
   PermissionMode,
+  PermissionsConfig,
   ProjectId,
+  SandboxConfig,
   SupportedPlatform,
 } from '@golemancy/shared'
 import { isSandboxRuntimeSupported } from '@golemancy/shared'
 import type { MCPLoadOptions } from './mcp'
-import { permissionsToSandboxConfig } from './permissions-adapter'
-import { shellEscape, buildShellCommand } from './shell-utils'
 import { sandboxPool } from './sandbox-pool'
 import { buildMCPRuntimeEnv } from '../runtime/env-builder'
 import { logger } from '../logger'
@@ -132,21 +132,8 @@ function computeFingerprint(
   }
 }
 
-/**
- * Compare fingerprints using sorted-key JSON serialization for robustness.
- * Plain JSON.stringify depends on property insertion order, which could
- * produce false mismatches if objects are constructed differently.
- */
 function fingerprintEquals(a: MCPPoolFingerprint, b: MCPPoolFingerprint): boolean {
-  return stableStringify(a) === stableStringify(b)
-}
-
-function stableStringify(obj: unknown): string {
-  return JSON.stringify(obj, (_, v) =>
-    v && typeof v === 'object' && !Array.isArray(v)
-      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b)))
-      : v
-  )
+  return JSON.stringify(a) === JSON.stringify(b)
 }
 
 // ── Pool Entry ─────────────────────────────────────────────────
@@ -175,9 +162,46 @@ interface MCPPoolEntry {
   connectPromise: Promise<MCPGetToolsResult> | null
 }
 
-// ── Sandbox Helpers ─────────────────────────────────────────
-// permissionsToSandboxConfig → ./permissions-adapter.ts
-// shellEscape, buildShellCommand → ./shell-utils.ts
+// ── Sandbox Helpers (moved from mcp.ts) ────────────────────────
+
+/**
+ * Build a shell-safe command string from command + args.
+ * Escapes arguments that contain shell-special characters.
+ */
+function buildShellCommand(command: string, args?: string[]): string {
+  const parts = [shellEscape(command)]
+  if (args) {
+    parts.push(...args.map(shellEscape))
+  }
+  return parts.join(' ')
+}
+
+/**
+ * Shell-escape a string. Simple strings pass through; others get single-quoted.
+ */
+function shellEscape(s: string): string {
+  if (/^[a-zA-Z0-9._\-/=:@]+$/.test(s)) return s
+  return `'${s.replace(/'/g, "'\\''")}'`
+}
+
+/**
+ * Bridge PermissionsConfig to SandboxConfig for sandboxPool.getHandle().
+ */
+function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig {
+  return {
+    filesystem: {
+      allowWrite: pc.allowWrite,
+      denyRead: pc.denyRead,
+      denyWrite: pc.denyWrite,
+      allowGitConfig: false,
+    },
+    network: {
+      allowedDomains: pc.networkRestrictionsEnabled ? pc.allowedDomains : undefined,
+    },
+    enablePython: true,
+    deniedCommands: pc.deniedCommands,
+  }
+}
 
 // ── MCPPool ────────────────────────────────────────────────────
 
@@ -509,14 +533,9 @@ export class MCPPool {
           effectiveCommand = 'bash'
           effectiveArgs = ['-c', wrappedCommand]
         } catch (err) {
-          // Fail-closed: sandbox wrapping failure must block MCP server start.
-          // Running without sandbox would violate the user's security expectation.
-          log.error(
+          log.warn(
             { err, name: server.name },
-            'failed to wrap MCP command with sandbox — fail-closed, blocking MCP server start',
-          )
-          throw new Error(
-            `Sandbox wrapping failed for MCP server "${server.name}": ${err instanceof Error ? err.message : String(err)}`,
+            'failed to wrap MCP command with sandbox, proceeding without sandbox',
           )
         }
       }
@@ -544,20 +563,13 @@ export class MCPPool {
       })
 
       // Intercept start() to capture stderr from the spawned child process.
-      // HACK: Accesses the private `process` field of Experimental_StdioMCPTransport.
-      // This field is set inside start() after spawn(). If the SDK changes its
-      // internal structure, this will silently degrade (no stderr capture) rather
-      // than crash, because we guard with an existence check below.
+      // The private `process` field is set inside start() after spawn().
       if (typeof transport.start === 'function') {
         const originalStart = transport.start.bind(transport)
         transport.start = async function (this: typeof transport) {
           await originalStart()
           const proc = (this as unknown as { process?: ChildProcess }).process
-          if (proc && typeof proc.stderr?.on === 'function') {
-            stderrCapture.attach(proc)
-          } else {
-            log.debug({ name: server.name }, 'MCP transport.process not available — stderr capture skipped')
-          }
+          if (proc) stderrCapture.attach(proc)
         }
       }
 

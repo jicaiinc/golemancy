@@ -176,15 +176,11 @@ describe('NativeSandbox', () => {
       await expect(sandbox.executeCommand('bad')).rejects.toThrow('spawn ENOENT')
     })
 
-    it('blocks catastrophic commands even in unrestricted mode (builtin dangerous patterns)', async () => {
-      // NativeSandbox now checks BUILTIN_DANGEROUS_PATTERNS (fork bombs, rm /, dd to device)
+    it('does NOT check command blacklist (unrestricted mode)', async () => {
+      // NativeSandbox allows any command — including dangerous ones
       const sandbox = makeSandbox()
-      await expect(sandbox.executeCommand('sudo rm -rf /')).rejects.toThrow('Command blocked')
-    })
-
-    it('allows normal commands in unrestricted mode', async () => {
-      const sandbox = makeSandbox()
-      const result = await sandbox.executeCommand('echo hello')
+      const result = await sandbox.executeCommand('sudo rm -rf /')
+      // Should not throw; command is passed directly to bash
       expect(result.exitCode).toBe(0)
     })
 

@@ -46,12 +46,9 @@ export function validatePermissionsConfig(config: unknown, prefix = ''): Validat
     }
   }
 
-  // Boolean fields
+  // applyToMCP
   if (c.applyToMCP !== undefined && typeof c.applyToMCP !== 'boolean') {
     errors.push({ field: `${p}applyToMCP`, message: 'Must be a boolean' })
-  }
-  if (c.networkRestrictionsEnabled !== undefined && typeof c.networkRestrictionsEnabled !== 'boolean') {
-    errors.push({ field: `${p}networkRestrictionsEnabled`, message: 'Must be a boolean' })
   }
 
   return errors
@@ -62,10 +59,7 @@ export function validatePermissionsConfig(config: unknown, prefix = ''): Validat
 /**
  * Validate a full PermissionsConfigFile payload (title, mode, config).
  */
-export function validatePermissionsConfigFile(
-  data: unknown,
-  options?: { requireModeAndConfig?: boolean },
-): ValidationResult {
+export function validatePermissionsConfigFile(data: unknown): ValidationResult {
   const errors: ValidationError[] = []
 
   if (!data || typeof data !== 'object') {
@@ -73,16 +67,6 @@ export function validatePermissionsConfigFile(
   }
 
   const d = data as Record<string, unknown>
-
-  // Required fields for creation (POST)
-  if (options?.requireModeAndConfig) {
-    if (d.mode === undefined) {
-      errors.push({ field: 'mode', message: 'Required field' })
-    }
-    if (d.config === undefined) {
-      errors.push({ field: 'config', message: 'Required field' })
-    }
-  }
 
   // title
   if (d.title !== undefined) {
@@ -93,14 +77,14 @@ export function validatePermissionsConfigFile(
     }
   }
 
-  // mode (required for creation)
+  // mode
   if (d.mode !== undefined) {
     if (!VALID_MODES.includes(d.mode as PermissionMode)) {
       errors.push({ field: 'mode', message: `Must be one of: ${VALID_MODES.join(', ')}` })
     }
   }
 
-  // config (required for creation)
+  // config
   if (d.config !== undefined) {
     const configErrors = validatePermissionsConfig(d.config, 'config')
     errors.push(...configErrors)

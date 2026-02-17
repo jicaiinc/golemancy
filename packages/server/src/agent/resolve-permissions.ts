@@ -50,13 +50,13 @@ export async function resolvePermissionsConfig(
       // Expand all template variables
       let expanded = p
       if (expanded.includes('{{workspaceDir}}')) {
-        expanded = expanded.replaceAll('{{workspaceDir}}', workspaceDir)
+        expanded = expanded.replace('{{workspaceDir}}', workspaceDir)
       }
       if (expanded.includes('{{projectRuntimeDir}}')) {
-        expanded = expanded.replaceAll('{{projectRuntimeDir}}', projectRuntimeDir)
+        expanded = expanded.replace('{{projectRuntimeDir}}', projectRuntimeDir)
       }
       if (expanded.includes('{{globalRuntimeDir}}')) {
-        expanded = expanded.replaceAll('{{globalRuntimeDir}}', globalRuntimeDir)
+        expanded = expanded.replace('{{globalRuntimeDir}}', globalRuntimeDir)
       }
 
       // Path traversal check for template-expanded paths

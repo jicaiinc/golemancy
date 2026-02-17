@@ -167,13 +167,6 @@ export function validatePath(options: ValidatePathOptions): string {
 /**
  * Async variant that also resolves symlinks to defend against symlink attacks.
  * Runs synchronous checks first (fast-fail), then resolves real path.
- *
- * NOTE: There is an inherent TOCTOU (time-of-check-time-of-use) gap between
- * realpath() resolution and actual file access by the subprocess. A malicious
- * process could swap a symlink target between validation and use. This is a
- * known limitation of userspace path validation — the OS-level sandbox
- * (sandbox-exec on macOS, bubblewrap on Linux) is the authoritative boundary
- * that enforces filesystem permissions at the kernel level, closing this gap.
  */
 export async function validatePathAsync(options: ValidatePathOptions): Promise<string> {
   // Run synchronous checks first (fast-fail)

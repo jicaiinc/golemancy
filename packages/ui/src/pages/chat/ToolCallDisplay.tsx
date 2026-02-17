@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAppStore } from '../../stores'
 import type { SubAgentStreamState, SubAgentToolCallState } from '@golemancy/shared'
@@ -226,7 +226,7 @@ function SubAgentDisplay({ state, chatStatus, task }: SubAgentDisplayProps) {
 
 // --- Main ToolCallDisplay ---
 
-export const ToolCallDisplay = memo(function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProps) {
+export function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProps) {
   const [expanded, setExpanded] = useState(false)
   const displayName = useToolDisplayName(toolInvocation.toolName)
 
@@ -318,4 +318,4 @@ export const ToolCallDisplay = memo(function ToolCallDisplay({ toolInvocation, c
       </AnimatePresence>
     </div>
   )
-})
+}

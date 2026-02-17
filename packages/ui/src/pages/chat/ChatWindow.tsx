@@ -108,14 +108,12 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   useEffect(() => {
     if (!chat) return
     setToolWarnings([])
-    // onData is private in AbstractChat but we need to set it to capture transient warnings.
-    // AI SDK provides no public API for this — cast to any as a workaround.
-    ;(chat as any).onData = (part: { type: string; data?: { message?: string }; transient?: boolean }) => {
+    chat.onData = (part: { type: string; data?: { message?: string }; transient?: boolean }) => {
       if (part.type === 'data-warning' && part.transient && part.data?.message) {
         setToolWarnings(prev => [...prev, part.data!.message!])
       }
     }
-    return () => { (chat as any).onData = undefined }
+    return () => { chat.onData = undefined }
   }, [chat])
 
   // Track whether this component mounted with pre-existing messages (loaded from cache).

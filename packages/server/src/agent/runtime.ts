@@ -5,9 +5,6 @@ import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:runtime' })
 
-/** Maximum number of agentic tool-use steps per run. Shared with sub-agent.ts. */
-export const MAX_AGENT_STEPS = 10
-
 export interface AgentEvent {
   type: 'tool_call' | 'token_usage' | 'step_finish'
   toolName?: string
@@ -37,7 +34,7 @@ export async function runAgent(params: RunAgentParams) {
     system: agent.systemPrompt,
     messages,
     tools,
-    stopWhen: stepCountIs(MAX_AGENT_STEPS),
+    stopWhen: stepCountIs(10),
     abortSignal,
     temperature: agent.modelConfig.temperature,
     maxOutputTokens: agent.modelConfig.maxTokens,

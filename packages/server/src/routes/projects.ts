@@ -25,18 +25,6 @@ export function createProjectRoutes(storage: IProjectService) {
 
   app.post('/', async (c) => {
     const data = await c.req.json()
-
-    // Basic input validation: name is required and has a max length
-    if (typeof data.name !== 'string' || data.name.trim().length === 0) {
-      return c.json({ error: 'name is required' }, 400)
-    }
-    if (data.name.length > 200) {
-      return c.json({ error: 'name must be 200 characters or fewer' }, 400)
-    }
-    if (data.description !== undefined && typeof data.description !== 'string') {
-      return c.json({ error: 'description must be a string' }, 400)
-    }
-
     log.debug('creating project')
     const project = await storage.create(data)
     log.debug({ projectId: project.id }, 'created project')
@@ -52,18 +40,6 @@ export function createProjectRoutes(storage: IProjectService) {
   app.patch('/:id', async (c) => {
     const id = c.req.param('id') as ProjectId
     const data = await c.req.json()
-
-    // Basic input validation
-    if (data.name !== undefined && (typeof data.name !== 'string' || data.name.trim().length === 0)) {
-      return c.json({ error: 'name must be a non-empty string' }, 400)
-    }
-    if (data.name !== undefined && data.name.length > 200) {
-      return c.json({ error: 'name must be 200 characters or fewer' }, 400)
-    }
-    if (data.description !== undefined && typeof data.description !== 'string') {
-      return c.json({ error: 'description must be a string' }, 400)
-    }
-
     log.debug({ projectId: id }, 'updating project')
     const project = await storage.update(id, data)
     return c.json(project)

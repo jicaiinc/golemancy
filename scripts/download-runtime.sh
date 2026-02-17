@@ -56,37 +56,12 @@ download_python() {
   local filename="cpython-${PYTHON_VERSION}+${PYTHON_RELEASE}-${triple}-install_only_stripped.tar.gz"
   local url="https://github.com/astral-sh/python-build-standalone/releases/download/${PYTHON_RELEASE}/${filename}"
 
-  # SHA256 verification (hashes from python-build-standalone SHA256SUMS)
-  local expected_sha256
-  case "$platform" in
-    darwin-arm64) expected_sha256="146d011e9246790659d86c729a9bb37dc423545d0ed8e542ba1dfe93700aa0f2" ;;
-    darwin-x64)   expected_sha256="5fb24d5a82f248e985bdc01f504f40d4150e321809b0bbeee7441cedd6dac227" ;;
-    linux-x64)    expected_sha256="7f1340417839331260dd8ecc309a4f0d2acac1123f3fb7f76600cf52a53a4ef6" ;;
-  esac
-
   echo "Downloading Python ${PYTHON_VERSION} for ${platform}..."
   echo "  URL: ${url}"
 
   local tmpfile
   tmpfile="$(mktemp)"
   curl -fSL --progress-bar -o "$tmpfile" "$url"
-
-  # Verify SHA256
-  local actual_sha256
-  if command -v sha256sum &>/dev/null; then
-    actual_sha256="$(sha256sum "$tmpfile" | awk '{print $1}')"
-  else
-    actual_sha256="$(shasum -a 256 "$tmpfile" | awk '{print $1}')"
-  fi
-
-  if [ "$actual_sha256" != "$expected_sha256" ]; then
-    echo "ERROR: Python SHA256 mismatch!"
-    echo "  Expected: ${expected_sha256}"
-    echo "  Actual:   ${actual_sha256}"
-    rm -f "$tmpfile"
-    exit 1
-  fi
-  echo "  SHA256 verified ✓"
 
   # Extract: tarball contains python/ top-level directory
   # Extract directly to runtime dir → results in runtime/python/

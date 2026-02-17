@@ -209,11 +209,10 @@ describe('builtin-tools integration', () => {
 
     describe('python execution', () => {
       it('executes inline python (bash has python: true)', async () => {
-        // python3 WASM startup in just-bash can be slow — extend timeout
         const result = await bash.exec('python3 -c "print(1 + 2)"')
         expect(result.stdout.trim()).toBe('3')
         expect(result.exitCode).toBe(0)
-      }, 15_000)
+      })
 
       it('writes and executes a .py script from /workspace', async () => {
         await bash.writeFile('/workspace/test.py', 'print("hello from script")')

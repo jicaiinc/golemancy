@@ -53,7 +53,6 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // Modal state
@@ -170,14 +169,11 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       return
     }
     setSaving(true)
-    setSaveError(null)
     try {
       await service.update(projectId, selectedConfigId, { mode, config })
       await saveProjectRef(selectedConfigId)
       await loadConfigs()
       showSavedIndicator()
-    } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to save configuration')
     } finally {
       setSaving(false)
     }
@@ -325,7 +321,6 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
               )}
 
               {saved && <span className="text-[11px] text-accent-green ml-2 shrink-0">Saved!</span>}
-              {saveError && <span className="text-[11px] text-accent-red ml-2 shrink-0">{saveError}</span>}
             </div>
             {isDefault && (
               <div className="mt-2 text-[10px] text-text-dim font-mono">

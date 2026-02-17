@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useCallback, useEffect, memo } from 'react'
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
 import type { Agent, Conversation, ConversationId } from '@golemancy/shared'
 import { PixelButton } from '../../components'
 
@@ -22,7 +22,7 @@ function relativeTime(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-export const ChatSidebar = memo(function ChatSidebar({
+export function ChatSidebar({
   agents,
   conversations,
   selectedConversationId,
@@ -149,4 +149,4 @@ export const ChatSidebar = memo(function ChatSidebar({
       </div>
     </div>
   )
-})
+}

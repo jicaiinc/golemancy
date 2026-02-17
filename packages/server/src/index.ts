@@ -56,14 +56,13 @@ async function main() {
   const authToken = crypto.randomUUID()
   const app = createApp(deps, authToken)
 
-  // Graceful shutdown: clean up sandbox workers, MCP connections, and database connections
+  // Graceful shutdown: clean up sandbox workers and MCP connections
   process.on('SIGTERM', async () => {
     logger.info('SIGTERM received, shutting down')
     await Promise.allSettled([
       sandboxPool.shutdown(),
       mcpPool.shutdown(),
     ])
-    dbManager.closeAll()
   })
 
   // Start MCP pool idle connection scanner

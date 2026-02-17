@@ -6,15 +6,16 @@
  * - sandbox: OS-level isolation via Anthropic Sandbox Runtime (default)
  * - unrestricted: No sandbox, full system access (dangerous)
  *
- * Also exported as PermissionMode from permissions.ts.
- * Both types are actively used: this one by the sandbox runtime layer,
- * PermissionMode by the permissions config layer.
+ * @deprecated Use PermissionMode from permissions.ts instead.
+ * Kept temporarily for server-side code that hasn't migrated yet.
  */
 export type BashExecutionMode = 'restricted' | 'sandbox' | 'unrestricted'
 
 // ── Filesystem Config ──────────────────────────────────────
 
-/** Filesystem permission config consumed by sandbox runtime layer. */
+/**
+ * @deprecated Use PermissionsConfig from permissions.ts instead.
+ */
 export interface FilesystemConfig {
   /** Directories where write operations are allowed (glob patterns) */
   allowWrite: string[]
@@ -28,7 +29,9 @@ export interface FilesystemConfig {
 
 // ── Network Config ─────────────────────────────────────────
 
-/** Network permission config consumed by sandbox runtime layer. */
+/**
+ * @deprecated Use PermissionsConfig from permissions.ts instead.
+ */
 export interface NetworkConfig {
   /** Allowed domain patterns (supports wildcards like "*.github.com"). undefined = all allowed (no proxy). */
   allowedDomains?: string[]
@@ -38,7 +41,8 @@ export interface NetworkConfig {
 
 /**
  * Complete sandbox configuration — the "leaf" config with all resolved values.
- * Consumed by SandboxPool, AnthropicSandbox, and MCP sandbox wrapping.
+ *
+ * @deprecated Use PermissionsConfig from permissions.ts instead.
  */
 export interface SandboxConfig {
   filesystem: FilesystemConfig
@@ -52,6 +56,8 @@ export interface SandboxConfig {
 /**
  * Fully-resolved Bash Tool config after inheritance merging.
  * This is what the runtime (SandboxPool, AnthropicSandbox) consumes.
+ *
+ * @deprecated Use ResolvedPermissionsConfig from permissions.ts instead.
  */
 export interface ResolvedBashToolConfig {
   mode: BashExecutionMode
@@ -63,7 +69,8 @@ export interface ResolvedBashToolConfig {
 
 /**
  * Fully-resolved MCP safety config.
- * MCP safety is also configurable via PermissionsConfig.applyToMCP.
+ *
+ * @deprecated MCP safety is now part of PermissionsConfig.applyToMCP.
  */
 export interface ResolvedMCPSafetyConfig {
   runInSandbox: boolean

@@ -56,16 +56,6 @@ const BUILTIN_DANGEROUS_PATTERNS: Array<{ regex: RegExp; description: string }> 
   { regex: /\bcurl\b.*\|\s*\bbash\b/, description: 'curl pipe to bash' },
   { regex: /\bwget\b.*\|\s*\bsh\b/, description: 'wget pipe to shell' },
 
-  // Shell interpreter bypass vectors — eval, bash -c, sh -c can be used to evade
-  // blacklist string matching. These patterns are a best-effort first layer.
-  // NOTE: Command blacklists are inherently limited (industry-known limitation).
-  // Bypass vectors include: variable expansion ($cmd), heredocs, encoding tricks,
-  // aliasing, and nested quoting. The OS-level sandbox (sandbox-exec on macOS,
-  // bubblewrap on Linux) is the authoritative security boundary.
-  { regex: /\beval\s+/, description: 'eval command (potential blacklist bypass)' },
-  { regex: /\bbash\s+-c\s+/, description: 'bash -c (potential blacklist bypass)' },
-  { regex: /\bsh\s+-c\s+/, description: 'sh -c (potential blacklist bypass)' },
-
   // Crontab modification
   { regex: /\bcrontab\b\s+-r/, description: 'crontab removal' },
 
@@ -174,12 +164,7 @@ export function extractCommandName(command: string): string {
     if (/^[A-Za-z_][A-Za-z0-9_]*=/.test(token)) continue
     // Strip inline quotes to prevent bypass (su'do' → sudo, s"u"do → sudo)
     const unquoted = token.replace(/['"]/g, '')
-    // Skip common wrappers (check both original and unquoted).
-    // Note: `nice` with `-n <priority>` has its argument consumed here as a side effect —
-    // the priority number token is skipped because it doesn't match any wrapper name
-    // and will be returned as the "command name". This is acceptable because the next
-    // token after the priority is the actual command, and Tier 2 (pipeline analysis)
-    // will catch it. The trade-off is simplicity over perfect single-pass parsing.
+    // Skip common wrappers (check both original and unquoted)
     if (['env', 'command', 'exec', 'nohup', 'nice', 'time'].includes(unquoted)) continue
     return unquoted
   }
@@ -232,11 +217,7 @@ export function splitCommandSegments(command: string): string[] {
         current = ''
         i += 2
       } else if (ch === '$' && command[i + 1] === '(') {
-        // Subshell $() — extract inner command as a segment.
-        // LIMITATION: Only handles single-level nesting. Nested $($(...)) will not
-        // have the innermost subshell extracted. This is an industry-known limitation
-        // of static command parsing — full shell grammar parsing would be needed for
-        // complete coverage. The OS-level sandbox is the authoritative boundary.
+        // Subshell $() — extract inner command as a segment
         const end = command.indexOf(')', i + 2)
         if (end !== -1) {
           segments.push(command.slice(i + 2, end))
@@ -247,8 +228,7 @@ export function splitCommandSegments(command: string): string[] {
           i++
         }
       } else if (ch === '`') {
-        // Backtick subshell — extract inner command as a segment.
-        // Same nesting limitation as $() above.
+        // Backtick subshell — extract inner command as a segment
         const end = command.indexOf('`', i + 1)
         if (end !== -1) {
           segments.push(command.slice(i + 1, end))

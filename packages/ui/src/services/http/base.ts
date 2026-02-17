@@ -7,13 +7,6 @@ export class HttpError extends Error {
 
 let authToken: string | null = null
 let baseUrl: string | null = null
-let scopedSignal: AbortSignal | null = null
-
-/** Set a scoped AbortSignal that will be attached to all subsequent fetchJson calls.
- *  Call with null to clear. Used by store to cancel in-flight requests on project switch. */
-export function setScopedSignal(signal: AbortSignal | null): void {
-  scopedSignal = signal
-}
 
 export function setAuthToken(token: string | null): void {
   authToken = token
@@ -32,7 +25,7 @@ export function getBaseUrl(): string {
   return baseUrl
 }
 
-export async function fetchJson<T>(url: string, init?: RequestInit & { signal?: AbortSignal }): Promise<T> {
+export async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(init?.headers as Record<string, string>),
@@ -40,7 +33,7 @@ export async function fetchJson<T>(url: string, init?: RequestInit & { signal?: 
   if (authToken) {
     headers['Authorization'] = `Bearer ${authToken}`
   }
-  const res = await fetch(url, { ...init, headers, signal: init?.signal ?? scopedSignal })
+  const res = await fetch(url, { ...init, headers })
   if (!res.ok) {
     const body = await res.text().catch(() => '')
     throw new HttpError(res.status, `${res.status}: ${body}`)
