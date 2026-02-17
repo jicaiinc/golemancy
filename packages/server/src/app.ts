@@ -22,6 +22,7 @@ import { createMCPRoutes } from './routes/mcp'
 import { createTopologyRoutes } from './routes/topology'
 import { createPermissionsConfigRoutes } from './routes/permissions-config'
 import { createRuntimeRoutes } from './routes/runtime'
+import { createSandboxRoutes } from './routes/sandbox'
 import { logger } from './logger'
 
 export interface ServerDependencies {
@@ -114,6 +115,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects/:projectId/topology-layout', createTopologyRoutes())
   app.route('/api/projects/:projectId/permissions-config', createPermissionsConfigRoutes(deps.permissionsConfigStorage))
   app.route('/api/projects/:projectId/runtime', createRuntimeRoutes())
+  app.route('/api/sandbox', createSandboxRoutes())
 
   return app
 }

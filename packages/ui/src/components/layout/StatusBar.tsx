@@ -8,11 +8,12 @@ const MODE_STYLES: Record<PermissionMode, { label: string; className: string }> 
 
 interface StatusBarProps {
   permissionMode?: PermissionMode
+  actualMode?: PermissionMode
   tokenUsage?: string
   activeAgents?: number
 }
 
-export function StatusBar({ permissionMode, tokenUsage = '0', activeAgents = 0 }: StatusBarProps) {
+export function StatusBar({ permissionMode, actualMode, tokenUsage = '0', activeAgents = 0 }: StatusBarProps) {
   const modeStyle = permissionMode ? MODE_STYLES[permissionMode] : null
 
   return (
@@ -20,7 +21,14 @@ export function StatusBar({ permissionMode, tokenUsage = '0', activeAgents = 0 }
       {/* Left: permission mode */}
       <span className="font-mono text-[11px]">
         {modeStyle ? (
-          <span className={modeStyle.className}>{modeStyle.label}</span>
+          <>
+            <span className={modeStyle.className}>{modeStyle.label}</span>
+            {actualMode && actualMode !== permissionMode && (
+              <span className="text-accent-amber text-[10px] ml-1">
+                (degraded → {MODE_STYLES[actualMode].label})
+              </span>
+            )}
+          </>
         ) : (
           <span className="text-text-dim">--</span>
         )}

@@ -284,6 +284,39 @@ export function getDefaultPermissionsConfig(platform: SupportedPlatform): Permis
   }
 }
 
+// ── Sandbox Readiness Check ────────────────────────────────────
+
+/** Component names for sandbox readiness checks */
+export type SandboxReadinessComponent =
+  | 'platform'
+  | 'sandbox-runtime'
+  | 'ripgrep'
+  | 'resources-path'
+  | 'workspace'
+
+/** A single readiness issue with optional fix suggestion */
+export interface SandboxReadinessIssue {
+  component: SandboxReadinessComponent
+  message: string
+  fix?: string
+}
+
+/** Result of a sandbox readiness check */
+export interface SandboxReadinessResult {
+  available: boolean
+  issues: SandboxReadinessIssue[]
+}
+
+// ── Sandbox Unavailable Error ──────────────────────────────────
+
+/** Shape of a sandbox unavailable error (for type-checking in UI and server) */
+export interface SandboxUnavailableErrorInfo {
+  name: 'SandboxUnavailableError'
+  message: string
+  requestedMode: PermissionMode
+  fallbackMode: PermissionMode
+}
+
 // ── IPC Message Types (Sandbox Worker Pool) ────────────────────
 
 /** Messages from main process to sandbox worker */
