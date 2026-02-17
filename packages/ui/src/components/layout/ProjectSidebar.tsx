@@ -6,22 +6,24 @@ interface NavItem {
   label: string
   path: string
   icon: string
+  /** Stable testid suffix for E2E selectors (e.g., 'agents' → data-testid="nav-agents") */
+  testId: string
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '', icon: '[]' },
-  { label: 'Chats', path: '/chat', icon: '>_' },
-  { label: 'Agents', path: '/agents', icon: '{}' },
-  { label: 'Skills', path: '/skills', icon: '<>' },
-  { label: 'MCP Servers', path: '/mcp-servers', icon: '~>' },
-  { label: 'Tasks', path: '/tasks', icon: '#' },
-  { label: 'Cron Jobs', path: '/cron', icon: '::' },
-  { label: 'Artifacts', path: '/artifacts', icon: '[]' },
-  { label: 'Memory', path: '/memory', icon: '()' },
+  { label: 'Dashboard', path: '', icon: '[]', testId: 'dashboard' },
+  { label: 'Chats', path: '/chat', icon: '>_', testId: 'chat' },
+  { label: 'Agents', path: '/agents', icon: '{}', testId: 'agents' },
+  { label: 'Skills', path: '/skills', icon: '<>', testId: 'skills' },
+  { label: 'MCP Servers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
+  { label: 'Tasks', path: '/tasks', icon: '#', testId: 'tasks' },
+  { label: 'Cron Jobs', path: '/cron', icon: '::', testId: 'cron' },
+  { label: 'Artifacts', path: '/artifacts', icon: '[]', testId: 'artifacts' },
+  { label: 'Memory', path: '/memory', icon: '()', testId: 'memory' },
 ]
 
 const configItems: NavItem[] = [
-  { label: 'Settings', path: '/settings', icon: '*' },
+  { label: 'Settings', path: '/settings', icon: '*', testId: 'settings' },
 ]
 
 export function ProjectSidebar() {
@@ -82,7 +84,7 @@ export function ProjectSidebar() {
           {navItems.map(item => (
             <button
               key={item.path}
-              data-testid={`nav-${item.label.toLowerCase()}`}
+              data-testid={`nav-${item.testId}`}
               onClick={() => navigate(basePath + item.path)}
               className={`w-full h-10 flex items-center justify-center font-mono text-[12px] cursor-pointer ${
                 isActive(item.path)
@@ -132,7 +134,7 @@ export function ProjectSidebar() {
         {navItems.map(item => (
           <button
             key={item.path}
-            data-testid={`nav-${item.label.toLowerCase()}`}
+            data-testid={`nav-${item.testId}`}
             onClick={() => navigate(basePath + item.path)}
             className={`w-full text-left px-3 py-2 flex items-center gap-2 font-mono text-[12px] cursor-pointer ${
               isActive(item.path)
@@ -151,7 +153,7 @@ export function ProjectSidebar() {
         {configItems.map(item => (
           <button
             key={item.path}
-            data-testid={`nav-${item.label.toLowerCase()}`}
+            data-testid={`nav-${item.testId}`}
             onClick={() => navigate(basePath + item.path)}
             className={`w-full text-left px-3 py-2 flex items-center gap-2 font-mono text-[12px] cursor-pointer ${
               isActive(item.path)

@@ -20,6 +20,7 @@ export function PixelTabs({ tabs, activeTab, onTabChange }: PixelTabsProps) {
         return (
           <button
             key={tab.id}
+            data-testid={`tab-${tab.id}`}
             onClick={() => onTabChange(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 font-mono text-[12px] cursor-pointer transition-colors border-b-2 -mb-[2px] ${
               isActive

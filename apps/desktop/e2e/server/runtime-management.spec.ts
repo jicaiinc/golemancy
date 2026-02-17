@@ -18,8 +18,8 @@ test.describe('Runtime Management E2E', () => {
     await helper.goHome()
     projectId = await helper.createProject('Runtime Management Test')
 
-    // Create agent
-    await helper.clickNav('agents')
+    // Create agent via URL navigation for reliability
+    await helper.navigateTo(`/projects/${projectId}/agents`)
     await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
@@ -30,16 +30,16 @@ test.describe('Runtime Management E2E', () => {
     window,
     helper,
   }) => {
-    // Navigate to agent detail
-    const agentItem = window.locator(`[data-testid="agent-item-${agentId}"]`)
-    await agentItem.click()
+    // Navigate to agent detail page directly via URL
+    await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
 
-    await expect(window.getByText('Model Config')).toBeVisible({
+    // Wait for tabs to render
+    await expect(window.locator('[data-testid="tab-model"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Switch to Model Config tab
-    await window.getByText('Model Config').click()
+    // Switch to Model Config tab using testid
+    await window.locator('[data-testid="tab-model"]').click()
 
     // Should show EFFECTIVE CONFIG section
     await expect(window.getByText('EFFECTIVE CONFIG')).toBeVisible({
@@ -52,9 +52,17 @@ test.describe('Runtime Management E2E', () => {
 
   test('model config tab shows provider selector with inherit option', async ({
     window,
+    helper,
   }) => {
-    // Provider dropdown should have "Inherit" option
-    await expect(window.getByText('PROVIDER')).toBeVisible()
+    // Ensure we're on Model Config tab (re-navigate for resilience)
+    await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
+    await window.locator('[data-testid="tab-model"]').click()
+    await expect(window.getByText('EFFECTIVE CONFIG')).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
+
+    // Provider label (exact match to avoid matching "Provider: " in effective config)
+    await expect(window.getByText('PROVIDER', { exact: true })).toBeVisible()
     const providerSelect = window.locator('select').first()
     await expect(providerSelect).toBeVisible()
 
@@ -62,7 +70,7 @@ test.describe('Runtime Management E2E', () => {
     await expect(
       window.getByText('Inherited from global').or(
         window.getByText('Inherited from project'),
-      ),
+      ).first()
     ).toBeVisible()
   })
 
@@ -70,8 +78,15 @@ test.describe('Runtime Management E2E', () => {
     window,
     helper,
   }) => {
-    // Change temperature
+    // Ensure we're on Model Config tab
+    await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
+    await window.locator('[data-testid="tab-model"]').click()
+    await expect(window.getByText('EFFECTIVE CONFIG')).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
+
     const tempInput = window.locator('input[type="number"]').first()
+    await expect(tempInput).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     await tempInput.fill('0.3')
 
     // Save
@@ -89,14 +104,14 @@ test.describe('Runtime Management E2E', () => {
     helper,
   }) => {
     // Navigate to project settings
-    await helper.clickNav('settings')
+    await helper.navigateTo(`/projects/${projectId}/settings`)
 
     await expect(window.getByText('Project Settings')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Click Provider tab
-    await window.getByText('Provider').click()
+    // Click Provider tab using testid
+    await window.locator('[data-testid="tab-provider"]').click()
     await expect(window.getByText('PROVIDER OVERRIDE')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
@@ -108,8 +123,8 @@ test.describe('Runtime Management E2E', () => {
   test('general tab shows project info and working directory', async ({
     window,
   }) => {
-    // Click General tab
-    await window.getByText('General').click()
+    // Click General tab using testid
+    await window.locator('[data-testid="tab-general"]').click()
 
     await expect(window.getByText('BASIC INFO')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
