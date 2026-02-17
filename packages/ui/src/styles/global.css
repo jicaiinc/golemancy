@@ -241,3 +241,33 @@ img[data-pixel],
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+
+/* Unrestricted-mode border: wide-spaced dashes on all 4 sides.
+   Uses ::after so the dashes render above child opaque backgrounds. */
+.border-unrestricted {
+  position: relative;
+}
+.border-unrestricted::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  --_dash-color: color-mix(in srgb, var(--color-accent-red) 60%, transparent);
+  background-image:
+    repeating-linear-gradient(to right, var(--_dash-color) 0 8px, transparent 8px 16px),
+    repeating-linear-gradient(to right, var(--_dash-color) 0 8px, transparent 8px 16px),
+    repeating-linear-gradient(to bottom, var(--_dash-color) 0 8px, transparent 8px 16px),
+    repeating-linear-gradient(to bottom, var(--_dash-color) 0 8px, transparent 8px 16px);
+  background-size:
+    100% 2px,
+    100% 2px,
+    2px 100%,
+    2px 100%;
+  background-position:
+    0 0,
+    0 100%,
+    0 0,
+    100% 0;
+  background-repeat: no-repeat;
+}
