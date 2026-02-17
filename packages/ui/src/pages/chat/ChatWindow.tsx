@@ -177,7 +177,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   const showThinking = isBusy && !hasVisibleContent
 
   return (
-    <div data-testid="chat-window" className="flex flex-col h-full">
+    <div data-testid="chat-window" className="flex-1 flex flex-col min-h-0">
       {/* Header — 3-section layout: left (toggle + new), center (title), right (actions) */}
       <div className="flex items-center px-4 py-3 border-b-2 border-border-dim bg-deep">
         {/* Left: toggle + new chat */}

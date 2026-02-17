@@ -83,7 +83,7 @@ export function ChatPage() {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full overflow-hidden">
       {chatHistoryExpanded && (
         <ChatSidebar
           agents={agents}
@@ -97,8 +97,8 @@ export function ChatPage() {
       )}
 
       {/* Right side: chat panel + status bar */}
-      <div className={`flex-1 flex flex-col min-w-0 ${
-        isUnrestricted ? 'border-2 border-dashed border-accent-red/60' : ''
+      <div className={`flex-1 flex flex-col min-w-0 min-h-0 ${
+        isUnrestricted ? 'border-unrestricted' : ''
       }`}>
         {currentConversation ? (
           <ChatWindow
