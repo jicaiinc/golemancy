@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MCPServersPage } from './MCPServersPage'
 import { useAppStore } from '../../stores'
@@ -126,50 +126,53 @@ describe('MCPServersPage', () => {
     })
   })
 
-  it('shows spinner when loading', () => {
+  it('shows spinner when loading', async () => {
     useAppStore.setState({ mcpServersLoading: true })
-    const { container } = render(<MCPServersPage />)
-    expect(container.querySelector('[class*="animate-"]')).toBeTruthy()
+    let container: HTMLElement
+    await act(async () => {
+      ;({ container } = render(<MCPServersPage />))
+    })
+    expect(container!.querySelector('[class*="animate-"]')).toBeTruthy()
   })
 
-  it('shows empty state when no servers', () => {
-    render(<MCPServersPage />)
+  it('shows empty state when no servers', async () => {
+    await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('No MCP servers configured')).toBeInTheDocument()
     expect(screen.getByText('Add Your First Server')).toBeInTheDocument()
   })
 
-  it('renders server count in header', () => {
+  it('renders server count in header', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('MCP Servers')).toBeInTheDocument()
     expect(screen.getByText('3 servers')).toBeInTheDocument()
   })
 
-  it('renders server names', () => {
+  it('renders server names', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('filesystem')).toBeInTheDocument()
     expect(screen.getByText('web-search')).toBeInTheDocument()
     expect(screen.getByText('api-gateway')).toBeInTheDocument()
   })
 
-  it('shows transport type badge for each server', () => {
+  it('shows transport type badge for each server', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('STDIO')).toBeInTheDocument()
     expect(screen.getByText('SSE')).toBeInTheDocument()
     expect(screen.getByText('HTTP')).toBeInTheDocument()
   })
 
-  it('shows description when available', () => {
+  it('shows description when available', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('Access local files')).toBeInTheDocument()
   })
 
-  it('shows agent reference count', () => {
+  it('shows agent reference count', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
     // filesystem is used by 2 agents (Writer + Researcher)
     expect(screen.getByText('Used by 2 agents')).toBeInTheDocument()
     // web-search is used by 1 agent (Researcher)
@@ -181,7 +184,7 @@ describe('MCPServersPage', () => {
   it('toggle calls updateMCPServer', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
     vi.mocked(services.mcp.update).mockResolvedValue({ ...mockMCPServers[0], enabled: false })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
 
     const toggles = screen.getAllByRole('switch')
     // First toggle is for 'filesystem' (enabled: true)
@@ -194,7 +197,7 @@ describe('MCPServersPage', () => {
 
   it('shows error when deleting server referenced by agents', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
 
     // Click the delete button (×) for 'filesystem' which is referenced by 2 agents
     const deleteButtons = screen.getAllByText('\u00d7')
@@ -205,40 +208,40 @@ describe('MCPServersPage', () => {
     })
   })
 
-  it('shows "+ New Server" button', () => {
-    render(<MCPServersPage />)
+  it('shows "+ New Server" button', async () => {
+    await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('+ New Server')).toBeInTheDocument()
   })
 
-  it('opens form modal when clicking "+ New Server"', () => {
-    render(<MCPServersPage />)
+  it('opens form modal when clicking "+ New Server"', async () => {
+    await act(async () => { render(<MCPServersPage />) })
     fireEvent.click(screen.getByText('+ New Server'))
     expect(screen.getByText('New MCP Server')).toBeInTheDocument()
   })
 
-  it('opens form modal when clicking empty state button', () => {
-    render(<MCPServersPage />)
+  it('opens form modal when clicking empty state button', async () => {
+    await act(async () => { render(<MCPServersPage />) })
     fireEvent.click(screen.getByText('Add Your First Server'))
     expect(screen.getByText('New MCP Server')).toBeInTheDocument()
   })
 
-  it('opens edit modal when clicking Edit', () => {
+  it('opens edit modal when clicking Edit', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
     const editButtons = screen.getAllByText('Edit')
     fireEvent.click(editButtons[0])
     expect(screen.getByText('Edit MCP Server')).toBeInTheDocument()
   })
 
-  it('has Edit and delete buttons for each server', () => {
+  it('has Edit and delete buttons for each server', async () => {
     useAppStore.setState({ mcpServers: mockMCPServers })
-    render(<MCPServersPage />)
+    await act(async () => { render(<MCPServersPage />) })
     expect(screen.getAllByText('Edit')).toHaveLength(3)
     expect(screen.getAllByText('\u00d7')).toHaveLength(3)
   })
 
-  it('shows "Coming Soon" for marketplace tab', () => {
-    render(<MCPServersPage />)
+  it('shows "Coming Soon" for marketplace tab', async () => {
+    await act(async () => { render(<MCPServersPage />) })
     fireEvent.click(screen.getByText('Marketplace'))
     expect(screen.getByText('Coming Soon')).toBeInTheDocument()
   })

@@ -104,16 +104,17 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     sendMessage: chatSendMessage,
   } = useChat({ chat: chat! })
 
-  // Capture transient MCP/tool loading warnings from server via onData
+  // Capture transient MCP/tool loading warnings from server via onData.
+  // onData is typed as private in AbstractChat but needs to be set externally.
   useEffect(() => {
     if (!chat) return
-    setToolWarnings([])
-    chat.onData = (part: { type: string; data?: { message?: string }; transient?: boolean }) => {
+    setToolWarnings([]);
+    (chat as any).onData = (part: { type: string; data?: { message?: string }; transient?: boolean }) => {
       if (part.type === 'data-warning' && part.transient && part.data?.message) {
         setToolWarnings(prev => [...prev, part.data!.message!])
       }
     }
-    return () => { chat.onData = undefined }
+    return () => { (chat as any).onData = undefined }
   }, [chat])
 
   // Track whether this component mounted with pre-existing messages (loaded from cache).
