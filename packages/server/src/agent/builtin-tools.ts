@@ -4,11 +4,9 @@ import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash
 import type { ToolSet } from 'ai'
 import type {
   BuiltinToolConfig,
-  PermissionsConfig,
   PermissionsConfigId,
   ProjectId,
   ResolvedPermissionsConfig,
-  SandboxConfig,
   ResolvedBashToolConfig,
   SupportedPlatform,
   IPermissionsConfigService,
@@ -16,6 +14,7 @@ import type {
 import { createBrowserTools, type BrowserToolsConfig } from '@golemancy/tools/browser'
 import { AnthropicSandbox } from './anthropic-sandbox'
 import { NativeSandbox } from './native-sandbox'
+import { permissionsToSandboxConfig } from './permissions-adapter'
 import { sandboxPool } from './sandbox-pool'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { buildRuntimeEnv } from '../runtime/env-builder'
@@ -92,8 +91,11 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
         })
         return createBashTool({ sandbox, destination: workspaceDir })
       } catch (err) {
-        log.warn({ err, mode }, 'sandbox mode unavailable, falling back to restricted')
-        return createRestrictedBashTool(options)
+        // Fail-closed: sandbox creation failure must not silently degrade to restricted mode.
+        // Restricted mode has different security properties (e.g., full network access via
+        // dangerouslyAllowFullInternetAccess), violating the user's security expectation.
+        log.error({ err, mode }, 'sandbox mode unavailable — fail-closed, refusing to create bash tools')
+        throw new Error(`Sandbox mode creation failed: ${err instanceof Error ? err.message : String(err)}`)
       }
     }
 
@@ -130,27 +132,7 @@ async function resolveEffectivePermissions(
 }
 
 // ── Adapter: PermissionsConfig → SandboxConfig ─────────────
-
-/**
- * Bridge new flat PermissionsConfig to old nested SandboxConfig
- * used by AnthropicSandbox and SandboxPool.
- * This adapter will be removed when the runtime layer is migrated.
- */
-function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig {
-  return {
-    filesystem: {
-      allowWrite: pc.allowWrite,
-      denyRead: pc.denyRead,
-      denyWrite: pc.denyWrite,
-      allowGitConfig: false,
-    },
-    network: {
-      allowedDomains: pc.networkRestrictionsEnabled ? pc.allowedDomains : undefined,
-    },
-    enablePython: true,
-    deniedCommands: pc.deniedCommands,
-  }
-}
+// Moved to ./permissions-adapter.ts (single source of truth)
 
 // ── Restricted Mode (just-bash) ────────────────────────────
 

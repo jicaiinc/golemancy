@@ -12,6 +12,20 @@ interface WsClient {
 export class WebSocketManager {
   private clients = new Map<string, WsClient>()
   private nextId = 0
+  private authToken: string | undefined
+
+  setAuthToken(token: string) {
+    this.authToken = token
+  }
+
+  /**
+   * Validate WebSocket connection token from URL query param `?token=xxx`.
+   * Returns true if auth is disabled or token matches.
+   */
+  validateToken(token: string | undefined): boolean {
+    if (!this.authToken) return true
+    return token === this.authToken
+  }
 
   addClient(ws: WSContext): string {
     const id = `ws-${++this.nextId}`

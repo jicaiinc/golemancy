@@ -10,7 +10,7 @@ import type {
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import { getServices } from '../services'
-import { fetchJson, getBaseUrl } from '../services/http/base'
+import { fetchJson, getBaseUrl, setScopedSignal } from '../services/http/base'
 import { destroyChat, destroyAllChats } from '../lib/chat-instances'
 
 // --- Theme helper ---
@@ -209,6 +209,7 @@ export const useAppStore = create<AppState>()(
         // Cancel any in-flight requests for previous project
         projectAbort?.abort()
         projectAbort = new AbortController()
+        const signal = projectAbort.signal
 
         const prevId = get().currentProjectId
         if (prevId === id) return
@@ -239,6 +240,9 @@ export const useAppStore = create<AppState>()(
           cronJobsLoading: true,
         })
 
+        // Attach abort signal to all HTTP requests during this project load
+        setScopedSignal(signal)
+
         // Load project data in parallel (individual failures resolve to empty arrays)
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
@@ -252,6 +256,9 @@ export const useAppStore = create<AppState>()(
           safe(svc.mcp.list(id)),
           safe(svc.cronJobs.list(id)),
         ])
+
+        // Clear scoped signal after requests complete
+        setScopedSignal(null)
 
         // Guard: only apply if still the active project
         if (get().currentProjectId !== id) return
@@ -398,7 +405,6 @@ export const useAppStore = create<AppState>()(
             conversations: s.conversations.map(c => c.id === id ? full : c),
             currentConversationId: id,
           }))
-          console.debug('[store] selectConversation loaded', id, 'messages:', full.messages.length)
         } else {
           set({ currentConversationId: id })
         }

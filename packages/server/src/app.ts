@@ -45,7 +45,10 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   // Request body size limit (2 MB)
   app.use('/api/*', bodyLimit({ maxSize: 2 * 1024 * 1024 }))
 
-  // SEC-03: Restrict CORS to localhost origins only
+  // SEC-03: Restrict CORS to localhost origins only.
+  // Port is optional in the regex to allow default ports (80/443).
+  // This is safe because the server binds to 127.0.0.1 — network binding
+  // is the primary security boundary, not CORS.
   app.use('/api/*', cors({
     origin: (origin) => {
       return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
@@ -77,6 +80,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     }, 500)
   })
 
+  // Health check — timestamp is acceptable because server binds to localhost only (SEC-09).
   app.get('/api/health', (c) => {
     return c.json({ status: 'ok', timestamp: new Date().toISOString() })
   })

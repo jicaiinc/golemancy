@@ -150,8 +150,9 @@ describe('chat-instances', () => {
 
     it('sets onError callback on the Chat instance', () => {
       const chat = getOrCreateChat(makeConfig())
-      expect(chat.onError).toBeDefined()
-      expect(typeof chat.onError).toBe('function')
+      // onError is private in AbstractChat but our mock exposes it for testing
+      expect((chat as any).onError).toBeDefined()
+      expect(typeof (chat as any).onError).toBe('function')
     })
 
     it('creates fresh instance after destroy + re-create', () => {

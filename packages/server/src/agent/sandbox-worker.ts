@@ -12,21 +12,7 @@
  */
 
 import type { SandboxWorkerRequest, SandboxWorkerResponse } from '@golemancy/shared'
-
-// ── SandboxManager Type (dynamic import) ───────────────────
-
-interface SandboxManagerAPI {
-  checkDependencies(): unknown
-  initialize(config: Record<string, unknown>): Promise<void>
-  wrapWithSandbox(
-    command: string,
-    binShell?: string,
-    customConfig?: unknown,
-    abortSignal?: AbortSignal,
-  ): Promise<string>
-  cleanupAfterCommand(): void
-  reset(): Promise<void>
-}
+import type { SandboxManagerAPI } from './sandbox-types'
 
 let manager: SandboxManagerAPI | null = null
 

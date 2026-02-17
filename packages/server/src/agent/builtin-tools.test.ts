@@ -162,7 +162,7 @@ describe('loadBuiltinTools', () => {
     await expect(result!.cleanup()).resolves.toBeUndefined()
   })
 
-  it('falls back to restricted mode when sandbox runtime is unavailable', async () => {
+  it('fails closed when sandbox runtime is unavailable (no fallback to restricted)', async () => {
     const fakeTool = { execute: vi.fn() }
     mockCreateBashTool.mockResolvedValue({ tools: { bash: fakeTool } } as any)
 
@@ -199,14 +199,8 @@ describe('loadBuiltinTools', () => {
       },
     )
 
-    // Should succeed via fallback, not fail
-    expect(result).not.toBeNull()
-    expect(result!.tools).toHaveProperty('bash')
-
-    // Falls back to restricted mode (MountableFs-based sandbox)
-    expect(MountableFs).toHaveBeenCalled()
-    expect(Bash).toHaveBeenCalledWith(expect.objectContaining({
-      cwd: '/workspace',
-    }))
+    // Fail-closed: sandbox creation failure must not silently degrade to restricted mode
+    // loadBuiltinTools catches the error from createBashToolForMode, so result is null
+    expect(result).toBeNull()
   })
 })

@@ -28,7 +28,7 @@ export async function deleteFile(filePath: string): Promise<void> {
   }
 }
 
-const BATCH_SIZE = 20
+const BATCH_SIZE = 100
 
 export async function listJsonFiles<T>(dirPath: string): Promise<T[]> {
   try {

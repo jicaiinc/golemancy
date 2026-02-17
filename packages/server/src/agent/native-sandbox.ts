@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { Sandbox, CommandResult } from 'bash-tool'
+import { checkCommandBlacklist } from './check-command-blacklist'
 
 // ── Constants ───────────────────────────────────────────────
 
@@ -37,6 +38,9 @@ export class NativeSandbox implements Sandbox {
   // ── Sandbox Interface ─────────────────────────────────────
 
   async executeCommand(command: string): Promise<CommandResult> {
+    // Even in unrestricted mode, check for catastrophic commands (fork bombs, rm /, dd to device).
+    // Passing empty deniedCommands so only BUILTIN_DANGEROUS_PATTERNS (Tier 3) are checked.
+    checkCommandBlacklist(command, { deniedCommands: [] })
     return this.spawnCommand(command)
   }
 
@@ -92,15 +96,17 @@ export class NativeSandbox implements Sandbox {
         }
       })
 
+      let killTimer: ReturnType<typeof setTimeout> | undefined
       const timer = setTimeout(() => {
         child.kill('SIGTERM')
-        setTimeout(() => {
+        killTimer = setTimeout(() => {
           if (!child.killed) child.kill('SIGKILL')
         }, KILL_GRACE_MS)
       }, this.timeoutMs)
 
       child.on('close', (code, signal) => {
         clearTimeout(timer)
+        if (killTimer) clearTimeout(killTimer)
         if (signal === 'SIGTERM' || signal === 'SIGKILL') {
           resolve({
             stdout,

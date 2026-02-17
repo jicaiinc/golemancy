@@ -106,19 +106,10 @@ export class SqliteConversationStorage implements IConversationService {
     const db = this.getProjectDb(projectId)
     await this.verifyOwnership(db, projectId, conversationId)
 
-    // Dedup: skip if message with this ID already exists
-    const existing = await db
-      .select({ id: schema.messages.id })
-      .from(schema.messages)
-      .where(eq(schema.messages.id, data.id))
-      .limit(1)
-
-    if (existing.length > 0) {
-      log.debug({ messageId: data.id }, 'message already exists, skipping')
-      return
-    }
-
     const now = new Date().toISOString()
+
+    // Use onConflictDoNothing to skip duplicate messages in a single query
+    // (replaces previous SELECT+INSERT pattern for better performance)
     await db.insert(schema.messages).values({
       id: data.id,
       conversationId,
@@ -126,7 +117,7 @@ export class SqliteConversationStorage implements IConversationService {
       parts: data.parts,
       content: data.content,
       createdAt: now,
-    })
+    }).onConflictDoNothing()
 
     await db
       .update(schema.conversations)
@@ -147,9 +138,15 @@ export class SqliteConversationStorage implements IConversationService {
       .set(updateFields)
       .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))
 
-    const updated = await this.getById(projectId, id)
-    if (!updated) throw new Error(`Conversation ${id} not found in project ${projectId}`)
-    return updated
+    // Return updated row without loading all messages (avoid unnecessary I/O)
+    const rows = await db
+      .select()
+      .from(schema.conversations)
+      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))
+      .limit(1)
+
+    if (rows.length === 0) throw new Error(`Conversation ${id} not found in project ${projectId}`)
+    return this.rowToConversation(rows[0])
   }
 
   async delete(projectId: ProjectId, id: ConversationId): Promise<void> {
@@ -203,17 +200,19 @@ export class SqliteConversationStorage implements IConversationService {
     const offset = (page - 1) * pageSize
     const sanitized = '"' + query.replace(/"/g, '""') + '"'
 
-    interface FtsMessageRow {
+    interface FtsMessageRowWithTotal {
       id: string
       conversation_id: string
       role: string
       parts: string
       content: string
       created_at: string
+      total: number
     }
 
-    const items = db.all<FtsMessageRow>(sql`
-      SELECT m.*
+    // Single query with count(*) OVER() window function to get items + total in one pass
+    const rows = db.all<FtsMessageRowWithTotal>(sql`
+      SELECT m.*, count(*) OVER() as total
       FROM messages_fts fts
       JOIN messages m ON m.rowid = fts.rowid
       JOIN conversations c ON c.id = m.conversation_id
@@ -224,17 +223,8 @@ export class SqliteConversationStorage implements IConversationService {
       OFFSET ${offset}
     `)
 
-    const countRows = db.all<{ cnt: number }>(sql`
-      SELECT count(*) as cnt
-      FROM messages_fts fts
-      JOIN messages m ON m.rowid = fts.rowid
-      JOIN conversations c ON c.id = m.conversation_id
-      WHERE fts.content MATCH ${sanitized}
-        AND c.project_id = ${projectId}
-    `)
-
     return {
-      items: items.map((r): Message => ({
+      items: rows.map((r): Message => ({
         id: r.id as MessageId,
         conversationId: r.conversation_id as ConversationId,
         role: r.role as Message['role'],
@@ -243,7 +233,7 @@ export class SqliteConversationStorage implements IConversationService {
         createdAt: r.created_at,
         updatedAt: r.created_at,
       })),
-      total: countRows[0]?.cnt ?? 0,
+      total: rows[0]?.total ?? 0,
       page,
       pageSize,
     }

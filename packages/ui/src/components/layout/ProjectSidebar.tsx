@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router'
 import { useAppStore } from '../../stores'
 import { PixelDropdown } from '../base'
@@ -31,7 +32,11 @@ export function ProjectSidebar() {
   const sidebarCollapsed = useAppStore(s => s.sidebarCollapsed)
   const toggleSidebar = useAppStore(s => s.toggleSidebar)
   const projects = useAppStore(s => s.projects)
-  const currentProject = useAppStore(s => s.projects.find(p => p.id === s.currentProjectId))
+  const currentProjectId = useAppStore(s => s.currentProjectId)
+  const currentProject = useMemo(
+    () => projects.find(p => p.id === currentProjectId),
+    [projects, currentProjectId],
+  )
 
   const basePath = `/projects/${projectId}`
 

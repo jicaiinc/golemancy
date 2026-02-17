@@ -10,10 +10,7 @@ import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:anthropic-sandbox' })
 
-/** Escape a string for safe use inside single-quoted shell argument */
-function shellEscape(s: string): string {
-  return "'" + s.replace(/'/g, "'\\''") + "'"
-}
+import { shellEscape } from './shell-utils'
 
 // ── SandboxManagerHandle ────────────────────────────────────
 
@@ -206,15 +203,17 @@ export class AnthropicSandbox implements Sandbox {
         }
       })
 
+      let killTimer: ReturnType<typeof setTimeout> | undefined
       const timer = setTimeout(() => {
         child.kill('SIGTERM')
-        setTimeout(() => {
+        killTimer = setTimeout(() => {
           if (!child.killed) child.kill('SIGKILL')
         }, KILL_GRACE_MS)
       }, this.timeoutMs)
 
       child.on('close', (code, signal) => {
         clearTimeout(timer)
+        if (killTimer) clearTimeout(killTimer)
         if (signal === 'SIGTERM' || signal === 'SIGKILL') {
           resolve({
             stdout,

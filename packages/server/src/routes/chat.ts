@@ -9,6 +9,7 @@ import type {
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { resolveModel } from '../agent/model'
+import { MAX_AGENT_STEPS } from '../agent/runtime'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
@@ -96,6 +97,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     log.debug({ projectId, agentId, conversationId, messageCount: messages.length }, 'starting chat stream')
 
     // Save user's latest message before streaming
+    const messageSaveWarnings: string[] = []
     if (conversationId) {
       try {
         const lastUserMsg = messages.filter(m => m.role === 'user').at(-1)
@@ -113,6 +115,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
         }
       } catch (err) {
         log.error({ err, conversationId }, 'failed to save user message')
+        messageSaveWarnings.push('Failed to save user message — conversation history may be incomplete')
       }
     }
 
@@ -148,7 +151,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       system: systemPrompt,
       messages: modelMessages,
       tools: hasTools ? allTools : undefined,
-      stopWhen: hasTools ? stepCountIs(10) : undefined,
+      stopWhen: hasTools ? stepCountIs(MAX_AGENT_STEPS) : undefined,
       temperature: agent.modelConfig.temperature,
       maxOutputTokens: agent.modelConfig.maxTokens,
       abortSignal: c.req.raw.signal,
@@ -157,7 +160,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     })
 
     // Wrap in createUIMessageStream to inject transient warnings before LLM output
-    const toolWarnings = agentToolsResult.warnings
+    const toolWarnings = [...messageSaveWarnings, ...agentToolsResult.warnings]
     const stream = createUIMessageStream({
       execute: ({ writer }) => {
         // Send tool loading warnings as transient data (not persisted in message history)

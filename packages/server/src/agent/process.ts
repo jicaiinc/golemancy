@@ -1,5 +1,4 @@
-import { fork, type ChildProcess } from 'node:child_process'
-import path from 'node:path'
+import type { ChildProcess } from 'node:child_process'
 import type { TaskId } from '@golemancy/shared'
 import { logger } from '../logger'
 
@@ -14,39 +13,15 @@ export class AgentProcessManager {
     this.maxConcurrent = maxConcurrent
   }
 
+  // TODO: worker.js is a placeholder — replace with actual agent worker implementation.
+  // Depends on: agent runtime loop, task execution pipeline, IPC message protocol.
   async spawnAgent(
-    taskId: TaskId,
-    workerData: Record<string, unknown>,
-    onMessage?: (msg: unknown) => void,
-    onExit?: (code: number | null) => void,
+    _taskId: TaskId,
+    _workerData: Record<string, unknown>,
+    _onMessage?: (msg: unknown) => void,
+    _onExit?: (code: number | null) => void,
   ): Promise<void> {
-    if (this.processes.size >= this.maxConcurrent) {
-      throw new Error(`Max concurrent agents (${this.maxConcurrent}) reached`)
-    }
-
-    log.debug({ taskId, running: this.processes.size }, 'spawning agent process')
-
-    // TODO: worker.js is a placeholder — replace with actual agent worker implementation
-    const workerPath = path.join(import.meta.dirname, 'worker.js')
-    const child = fork(workerPath, { serialization: 'json' })
-
-    child.send({ type: 'run', ...workerData, taskId })
-    this.processes.set(taskId, child)
-
-    if (onMessage) {
-      child.on('message', onMessage)
-    }
-
-    child.on('exit', (code) => {
-      log.debug({ taskId, code }, 'agent process exited')
-      this.processes.delete(taskId)
-      const timer = this.killTimers.get(taskId)
-      if (timer) {
-        clearTimeout(timer)
-        this.killTimers.delete(taskId)
-      }
-      onExit?.(code)
-    })
+    throw new Error('AgentProcessManager: worker not implemented yet')
   }
 
   async cancelAgent(taskId: TaskId): Promise<void> {

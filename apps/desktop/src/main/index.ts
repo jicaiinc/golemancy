@@ -181,7 +181,16 @@ function createWindow(options?: { projectId?: string }): void {
     icon: getIconPath(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
+      // TODO [S-M-001]: sandbox should ideally be true per Electron security best practices.
+      // Currently false because preload reads process.argv for --server-port/--server-token.
+      // Future improvement: pass port/token via IPC (ipcMain.handle) instead of additionalArguments,
+      // then enable sandbox:true. This also removes the need to expose the raw auth token
+      // to the renderer (see S-H-001 below).
       sandbox: false,
+      // TODO [S-H-001]: Auth token is passed via additionalArguments → preload → contextBridge,
+      // making it accessible to any renderer-side code. In a future refactor, encapsulate
+      // authenticated fetch inside preload (preload exposes an IPC-based `fetchAPI(path, init)`
+      // that injects the Bearer token internally), so the raw token never reaches the renderer.
       additionalArguments: [
         `--server-port=${serverPort}`,
         ...(serverToken ? [`--server-token=${serverToken}`] : []),

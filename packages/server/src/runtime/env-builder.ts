@@ -1,3 +1,4 @@
+import path from 'node:path'
 import {
   getBundledNodeBinDir,
   getProjectPythonEnvPath,
@@ -50,7 +51,7 @@ export function buildRuntimeEnv(projectId: string, basePath?: string): RuntimeEn
   pathParts.push(currentPath)
 
   return {
-    PATH: pathParts.join(':'),
+    PATH: pathParts.join(path.delimiter),
     PIP_CACHE_DIR: getPipCachePath(),
     VIRTUAL_ENV: getProjectPythonEnvPath(projectId),
     npm_config_cache: getNpmCachePath(),
@@ -73,7 +74,7 @@ export function buildMCPRuntimeEnv(basePath?: string): Record<string, string> {
 
   const currentPath = basePath ?? process.env.PATH ?? ''
   return {
-    PATH: `${nodeBinDir}:${currentPath}`,
+    PATH: `${nodeBinDir}${path.delimiter}${currentPath}`,
     npm_config_cache: getNpmCachePath(),
     NPM_CONFIG_PREFIX: getNpmGlobalPath(),
   }

@@ -2,6 +2,7 @@ import { tool, streamText, stepCountIs, type ToolSet } from 'ai'
 import { z } from 'zod'
 import type { Agent, GlobalSettings, IMCPService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
 import { resolveModel } from './model'
+import { MAX_AGENT_STEPS } from './runtime'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { logger } from '../logger'
 
@@ -84,7 +85,7 @@ export function createSubAgentTool(
           model: childModel,
           system: systemPrompt,
           tools: hasTools ? childToolsResult.tools : undefined,
-          stopWhen: hasTools ? stepCountIs(10) : undefined,
+          stopWhen: hasTools ? stepCountIs(MAX_AGENT_STEPS) : undefined,
           prompt: context ? `${task}\n\nContext: ${context}` : task,
           abortSignal,
         })

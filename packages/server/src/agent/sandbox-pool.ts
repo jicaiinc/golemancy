@@ -10,6 +10,7 @@ import type {
   SandboxWorkerRequest,
   SandboxWorkerResponse,
 } from '@golemancy/shared'
+import type { SandboxManagerAPI } from './sandbox-types'
 import type { SandboxManagerHandle } from './anthropic-sandbox'
 import { logger } from '../logger'
 
@@ -45,25 +46,18 @@ function resolveRipgrepPath(): string | null {
   return null
 }
 
-/** Resolved once at module load. null = not available. */
-const resolvedRgPath = resolveRipgrepPath()
+/** Lazily resolved on first use. undefined = not yet resolved, null = not available. */
+let _resolvedRgPath: string | null | undefined
+
+function getResolvedRgPath(): string | null {
+  if (_resolvedRgPath === undefined) {
+    _resolvedRgPath = resolveRipgrepPath()
+  }
+  return _resolvedRgPath
+}
 
 // ── SandboxManager Type Declaration ────────────────────────
-// @anthropic-ai/sandbox-runtime is dynamically imported at runtime.
-// We define the subset of the API we use.
-
-interface SandboxManagerAPI {
-  checkDependencies(): unknown
-  initialize(config: Record<string, unknown>): Promise<void>
-  wrapWithSandbox(
-    command: string,
-    binShell?: string,
-    customConfig?: unknown,
-    abortSignal?: AbortSignal,
-  ): Promise<string>
-  cleanupAfterCommand(): void
-  reset(): Promise<void>
-}
+// SandboxManagerAPI → ./sandbox-types.ts (shared with sandbox-worker.ts)
 
 // ── LocalSandboxManagerHandle ──────────────────────────────
 
@@ -461,8 +455,21 @@ export class SandboxPool {
 
 // ── Config Comparison ──────────────────────────────────────
 
+/**
+ * Compare sandbox configs using sorted-key JSON serialization for robustness.
+ * Plain JSON.stringify depends on property insertion order, which could
+ * produce false mismatches if objects are constructed differently.
+ */
 function sandboxConfigEquals(a: SandboxConfig, b: SandboxConfig): boolean {
-  return JSON.stringify(a) === JSON.stringify(b)
+  return stableStringify(a) === stableStringify(b)
+}
+
+function stableStringify(obj: unknown): string {
+  return JSON.stringify(obj, (_, v) =>
+    v && typeof v === 'object' && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b)))
+      : v
+  )
 }
 
 // ── Config Mapping ─────────────────────────────────────────
@@ -481,8 +488,9 @@ function sandboxConfigToRuntimeConfig(config: SandboxConfig): Record<string, unk
   //   1. resolvedRgPath from bundled @vscode/ripgrep or system PATH → use it
   //   2. macOS: rg not used at runtime, but initialize() checks for it → placeholder
   //   3. Linux: rg is required → omit field, let initialize() throw a clear error
-  const ripgrep = resolvedRgPath
-    ? { command: resolvedRgPath }
+  const rgPath = getResolvedRgPath()
+  const ripgrep = rgPath
+    ? { command: rgPath }
     : process.platform === 'darwin'
       ? { command: '/usr/bin/true' }  // macOS doesn't use rg at runtime
       : undefined

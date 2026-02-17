@@ -152,7 +152,7 @@ async function main() {
 
   // ── 4. Build resources ─────────────────────────────────────
 
-  if (process.platform === 'darwin') {
+  if (targetPlatform === 'darwin') {
     await checkFile(
       join(DESKTOP, 'resources/build/entitlements.mac.plist'),
       'macOS entitlements plist',

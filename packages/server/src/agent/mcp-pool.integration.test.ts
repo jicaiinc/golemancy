@@ -194,7 +194,7 @@ describe('MCPPool integration — sandbox wrapping & fingerprint', () => {
       expect(mocks.getHandleFn).not.toHaveBeenCalled()
     })
 
-    it('falls back to unwrapped command when sandbox wrapping fails', async () => {
+    it('fails closed when sandbox wrapping fails (no fallback to unwrapped)', async () => {
       mocks.getHandleFn.mockRejectedValue(new Error('sandbox unavailable'))
       mocks.mockToolsFn.mockResolvedValue({ tool: {} })
 
@@ -202,14 +202,10 @@ describe('MCPPool integration — sandbox wrapping & fingerprint', () => {
 
       const result = await pool.getTools(server, makeSandboxOptions())
 
-      // Should still succeed with original command
-      expect(mocks.StdioTransport).toHaveBeenCalledWith(
-        expect.objectContaining({
-          command: '/usr/bin/test-mcp',
-          args: ['--flag'],
-        }),
-      )
-      expect(result.tools).toHaveProperty('tool')
+      // Fail-closed: sandbox wrapping failure should prevent MCP server start
+      expect(result.error).toBeDefined()
+      expect(result.error).toContain('Sandbox wrapping failed')
+      expect(result.tools).toEqual({})
     })
   })
 
