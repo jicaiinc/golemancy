@@ -16,6 +16,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@vscode/ripgrep",
       "electron",
       "esbuild",
       "@tailwindcss/oxide",
