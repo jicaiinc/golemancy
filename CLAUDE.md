@@ -33,6 +33,16 @@ pnpm --filter @golemancy/ui exec vitest src/components/base/PixelButton.test.tsx
 
 # Run server standalone (outside Electron)
 pnpm --filter @golemancy/server dev
+
+# Live tests (requires running server + API keys)
+pnpm test:live
+
+# Build preflight checks
+pnpm test:build
+
+# Package for distribution
+pnpm pack    # build + electron-builder --dir (local test)
+pnpm dist    # build + electron-builder (distributable)
 ```
 
 ## Monorepo Structure
@@ -42,17 +52,39 @@ apps/desktop/      @golemancy/desktop  — Electron shell, forks server as child
 packages/ui/       @golemancy/ui       — React UI, business logic, store, services
 packages/server/   @golemancy/server   — Hono HTTP server, SQLite, AI agent runtime
 packages/shared/   @golemancy/shared   — Pure TypeScript types + service interfaces (zero runtime)
+packages/tools/    @golemancy/tools    — Browser automation tool (Playwright-based)
 ```
 
-Strict one-way dependency: `desktop → ui → shared ← server`
+Strict one-way dependency: `desktop → ui → shared ← server ← tools`
 
 Turborepo orchestrates tasks. pnpm v10 workspaces.
 
 ## Architecture
 
-### Electron-Server Integration
+### Electron-Server Communication Flow
 
-Desktop forks the server via `child_process.fork()` (`apps/desktop/src/main/index.ts`). Server sends `{ type: 'ready', port, token }` over IPC. Port and token are passed to renderer via `additionalArguments` → preload script.
+The full startup and communication chain spans 5 files:
+
+```
+Electron Main (apps/desktop/src/main/index.ts)
+  │ fork() child process, PORT=0 (OS picks port)
+  ▼
+Server (packages/server/src/index.ts)
+  │ IPC: { type: 'ready', port, token }
+  ▼
+Main Process receives port+token
+  │ additionalArguments: [--server-port=X, --server-token=Y]
+  ▼
+Preload (apps/desktop/src/preload/index.ts)
+  │ contextBridge.exposeInMainWorld('electronAPI', { getServerBaseUrl, getServerToken })
+  ▼
+Renderer (packages/ui/src/services/ServiceProvider.tsx)
+  │ window.electronAPI → configureServices(HttpServices) with Bearer token
+  ▼
+All UI ↔ Server communication via HTTP to localhost:X
+```
+
+Auth token is generated per-session (`crypto.randomUUID()`), passed as Bearer header. Server binds to `127.0.0.1` only. If `electronAPI` is unavailable (dev without Electron), UI falls back to mock services.
 
 **Known pitfalls** (documented in `_pitfalls/electron-server-fork.md`):
 - `__dirname` changes after electron-vite compilation → use `app.getAppPath()` instead
@@ -63,26 +95,34 @@ Desktop forks the server via `child_process.fork()` (`apps/desktop/src/main/inde
 ### Server (Hono + SQLite + AI SDK)
 
 `packages/server/src/` layout:
-- `app.ts` — Hono app factory (CORS, auth, error handling)
-- `db/` — SQLite schema (drizzle-orm), FTS5 for message search, migrations
+- `app.ts` — Hono app factory (CORS, auth, error handling). Routes inject storage dependencies.
+- `db/` — SQLite schema (drizzle-orm), FTS5 for message search, migrations. **Per-project databases** via `ProjectDbManager` (lazy-loads on first access).
 - `storage/` — Service implementations (file-based for config data, SQLite for messages/logs)
-- `routes/` — RESTful endpoints (projects, agents, conversations, tasks, artifacts, memories, settings, dashboard)
-- `agent/` — AI runtime (model provider resolution, streamText, sub-agent orchestration)
+- `routes/` — RESTful endpoints: projects, agents, conversations, chat (SSE streaming), tasks, artifacts, memories, skills, mcp, cron-jobs, settings, dashboard, topology, permissions-config, runtime, sandbox
+- `agent/` — AI runtime engine:
+  - `runtime.ts` / `process.ts` — Agent execution with Vercel AI SDK `streamText`
+  - `sub-agent.ts` — Recursive sub-agent orchestration (unlimited nesting)
+  - `builtin-tools.ts` / `tools.ts` — Tool system (Bash, browser, OS control)
+  - `mcp.ts` / `mcp-pool.ts` — MCP server connections with idle scanning pool
+  - `sandbox-pool.ts` / `native-sandbox.ts` / `anthropic-sandbox.ts` — Two sandbox implementations
+  - `skills.ts` — Prompt injection from skill templates
+  - `resolve-permissions.ts` — Three-tier permission mode resolution
+- `runtime/` — Node.js and Python runtime management (env builder, path resolution)
 - `ws/` — WebSocket real-time events (Channel pub/sub)
 
-**Storage split**: SQLite for high-frequency queryable data (messages, task logs); file system for human-readable config (projects, agents, settings JSON).
+**Storage split**: SQLite for high-frequency queryable data (messages, task logs); file system for human-readable config (projects, agents, settings JSON). Each project gets its own SQLite database file.
 
 ### State (Zustand v5)
 
-Single store at `packages/ui/src/stores/useAppStore.ts` with slices: project, agent, conversation, task, artifact, memory, settings, ui, dashboard.
+Single store at `packages/ui/src/stores/useAppStore.ts` with 13 slices: project, agent, conversation, task, artifact, memory, skill, mcp, cronJob, settings, ui, dashboard, topology.
 
 Zustand v5 requires double-parenthesis pattern: `create<T>()(...)`.
 
-Store persists theme + sidebar state to localStorage. Uses AbortController to cancel in-flight requests on project switch.
+Store persists theme + sidebar state to localStorage (`golemancy-prefs`). Uses AbortController to cancel in-flight requests on project switch. Store exposed as `window.__GOLEMANCY_STORE__` in non-production builds for E2E test access.
 
 ### Service Layer (DI)
 
-- Interfaces: `packages/shared/src/services/interfaces.ts` (8 services, shared by UI and server)
+- Interfaces: `packages/shared/src/services/interfaces.ts` — 12 services: IProjectService, IAgentService, IConversationService, ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService, IPermissionsConfigService
 - Container: `packages/ui/src/services/container.ts` — module-level singleton via `getServices()`/`configureServices()`
 - Mock implementations: `packages/ui/src/services/mock/` (seed data centralized in `data.ts` — never scatter)
 - HTTP implementations: `packages/ui/src/services/http/services.ts` (real backend integration)
@@ -101,9 +141,13 @@ Two core abstractions: **Project** (top container) and **Agent** (core unit with
 
 Three-layer resolution: Global Settings → Project Config → Agent Config. See `useResolvedConfig()` hook.
 
+### Permissions System
+
+Three permission modes for agent tool execution: `restricted` (no execution), `sandbox` (default — Anthropic API sandbox or native process sandbox), `unrestricted`. Configured per-project via reusable `PermissionsConfigFile` templates. Permissions control filesystem access (allow/deny paths), network (domain filtering), and command blacklists. Config supports template variables (`{{workspaceDir}}`, `{{projectRuntimeDir}}`). See `packages/shared/src/types/permissions.ts` and `packages/server/src/agent/resolve-permissions.ts`.
+
 ### Type System
 
-Branded ID types in `packages/shared/src/types/common.ts` (`ProjectId`, `AgentId`, etc.) prevent mixing IDs at compile time.
+Branded ID types in `packages/shared/src/types/common.ts` (`ProjectId`, `AgentId`, etc.) prevent mixing IDs at compile time. 11 branded types total — never pass a raw string where a branded ID is expected.
 
 ## Critical Library Choices
 
@@ -160,22 +204,18 @@ E2E pitfalls: macOS GUI processes don't inherit shell PATH → use `GOLEMANCY_FO
 
 ## Team
 
-When creating a team, follow `_team/team.md`. **NEVER use Plan Mode to start a team** — create the team directly.
+Full team process defined in `_team/team.md`. **NEVER use Plan Mode to start a team** — create the team directly.
 
-- **Step 0 (mandatory)**: Before creating a team, Team Lead MUST recap ALL user requirements (features, tech constraints, process requirements, style, notes) back to the user in a numbered list and get confirmation. After confirmation, save to `_requirement/{YYYYMMDD-HHmm}-{name}.md` and broadcast to all team members. This file is the **single source of truth** — all subsequent phases must verify against it.
+Key rules (read `_team/team.md` for complete role definitions, phase details, and workflows):
+
+- **Step 0 (mandatory)**: Team Lead MUST recap ALL user requirements back to the user, get confirmation, then save to `_requirement/{YYYYMMDD-HHmm}-{name}.md` and broadcast to all members. This file is the **single source of truth**.
 - **12 roles**: Team Lead, Architect, Requirements Analyst, Abstraction Strategist, Fact Checker, UI/UX Designer, Full-stack Engineer, Test Engineer, Reference Analyst (on-demand), CR-Quality, CR-Security, CR-Performance
-- **Five phases**: Step 0 → Design → Implement → Test → Review (auto-transition between phases)
-  - **Design** — architecture, research, requirements confirmation (all roles except engineers and reviewers). All artifacts saved to `_design/{YYYYMMDD-HHmm}-{name}/` as markdown files to persist across team sessions.
-  - **Implement** — write code (Team Lead + Engineer + Fact Checker, others on-demand)
-  - **Test** — run all tests (Test Engineer + Engineer for fixes)
-  - **Review** — three CR roles run in parallel
-- **Phase flow**: Implement done → auto-enter Test → tests pass → auto-enter Review. If CR finds P0 issues → back to Implement → Test → Review. Loop until no P0. If loop exceeds 3 rounds, pause and ask user.
+- **Five phases**: Step 0 → Design → Implement → Test → Review (auto-transition). Design artifacts saved to `_design/{YYYYMMDD-HHmm}-{name}/`.
 - **Team Lead only coordinates, never writes code**
-- **Implementation verification (mandatory)**: After each implementation task, Team Lead MUST personally read the actual code and verify it against the user's original requirements from Step 0. Never trust agent reports alone — always verify by reading the code yourself. If implementation doesn't match requirements, reject and send back for rework.
-- **Parallel strategy**: independent tasks must run in parallel; use `blockedBy` in Task List for dependencies
-- **Escalation strategy**: Phase 1 — strict (any ambiguity/choice must be reported to user); Phase 2 — autonomous (only escalate fundamental blockers)
+- **Implementation verification (mandatory)**: After each task, Team Lead MUST personally read code and verify against requirements. Never trust reports alone.
+- **Parallel strategy**: independent tasks must run in parallel; use `blockedBy` for dependencies
+- **Escalation**: Design phase — strict (any ambiguity must be reported to user); Implement/Test — autonomous (only escalate fundamental blockers)
 - **Fact Checker is mandatory** — no tech enters code without verification via WebSearch / Context7 / source code
-- **Reference Analyst is on-demand** — only activated when user provides a reference project (source path or doc) to study; analyzes architecture, patterns, and best practices for team reuse
 
 ## Note: Fact-Based Analysis
 
