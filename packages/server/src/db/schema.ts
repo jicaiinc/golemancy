@@ -17,6 +17,8 @@ export const messages = sqliteTable('messages', {
   role: text('role').notNull(), // 'user' | 'assistant'
   parts: text('parts', { mode: 'json' }).notNull(), // UIMessage['parts']
   content: text('content').notNull().default(''), // plain text for FTS
+  inputTokens: integer('input_tokens').notNull().default(0),
+  outputTokens: integer('output_tokens').notNull().default(0),
   createdAt: text('created_at').notNull(),
 })
 

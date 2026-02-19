@@ -39,6 +39,7 @@ export interface SubAgentStreamState {
   text: string
   toolCalls: SubAgentToolCallState[]
   status: 'running' | 'done'
+  usage?: { inputTokens: number; outputTokens: number; totalTokens: number }
 }
 
 // ── Agent Events ───────────────────────────────────────────────

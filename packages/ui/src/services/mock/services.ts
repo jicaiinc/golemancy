@@ -2,7 +2,7 @@ import type {
   Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
-  DashboardSummary, DashboardAgentSummary, ActivityEntry,
+  DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
 } from '@golemancy/shared'
@@ -15,8 +15,9 @@ import type {
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
   SEED_CONVERSATION_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
-  SEED_ACTIVITIES, SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
+  SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
   SEED_PERMISSIONS_CONFIGS,
+  SEED_DASHBOARD_SUMMARY, SEED_DASHBOARD_AGENT_STATS, SEED_DASHBOARD_RECENT_CHATS, SEED_DASHBOARD_TOKEN_TREND,
 } from './data'
 
 // Small delay to simulate async I/O
@@ -178,6 +179,8 @@ export class MockConversationService implements IConversationService {
       role: 'user',
       parts: [{ type: 'text', text: content }],
       content,
+      inputTokens: 0,
+      outputTokens: 0,
       createdAt: now,
       updatedAt: now,
     })
@@ -189,6 +192,8 @@ export class MockConversationService implements IConversationService {
       role: 'assistant',
       parts: [{ type: 'text', text: responseText }],
       content: responseText,
+      inputTokens: 0,
+      outputTokens: 0,
       createdAt: now,
       updatedAt: now,
     })
@@ -207,6 +212,8 @@ export class MockConversationService implements IConversationService {
       role: data.role as Message['role'],
       parts: data.parts,
       content: data.content,
+      inputTokens: 0,
+      outputTokens: 0,
       createdAt: now,
       updatedAt: now,
     })
@@ -576,46 +583,23 @@ export class MockPermissionsConfigService implements IPermissionsConfigService {
 
 // --- DashboardService ---
 export class MockDashboardService implements IDashboardService {
-  private projects: Project[]
-  private agents: Agent[]
-  private activities: ActivityEntry[]
-
-  constructor(projects: Project[], agents: Agent[], activities: ActivityEntry[]) {
-    this.projects = projects
-    this.agents = agents
-    this.activities = activities
+  async getSummary(_projectId: ProjectId): Promise<DashboardSummary> {
+    await delay()
+    return { ...SEED_DASHBOARD_SUMMARY }
   }
 
-  async getSummary(): Promise<DashboardSummary> {
+  async getAgentStats(_projectId: ProjectId): Promise<DashboardAgentStats[]> {
     await delay()
-    return {
-      totalProjects: this.projects.length,
-      totalAgents: this.agents.length,
-      activeAgents: this.agents.filter(a => a.status === 'running').length,
-      totalTokenUsageToday: 0,
-    }
+    return [...SEED_DASHBOARD_AGENT_STATS]
   }
 
-  async getActiveAgents(): Promise<DashboardAgentSummary[]> {
+  async getRecentChats(_projectId: ProjectId, limit = 20): Promise<DashboardRecentChat[]> {
     await delay()
-    return this.agents
-      .filter(a => a.status === 'running')
-      .map(a => {
-        const project = this.projects.find(p => p.id === a.projectId)
-        return {
-          agentId: a.id,
-          projectId: a.projectId,
-          projectName: project?.name ?? 'Unknown',
-          agentName: a.name,
-          status: a.status,
-        }
-      })
+    return SEED_DASHBOARD_RECENT_CHATS.slice(0, limit)
   }
 
-  async getActivityFeed(limit = 20): Promise<ActivityEntry[]> {
+  async getTokenTrend(_projectId: ProjectId, days = 14): Promise<DashboardTokenTrend[]> {
     await delay()
-    return [...this.activities]
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, limit)
+    return SEED_DASHBOARD_TOKEN_TREND.slice(-days)
   }
 }

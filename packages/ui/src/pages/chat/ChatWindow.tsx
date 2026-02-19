@@ -36,9 +36,10 @@ interface ChatWindowProps {
   onNewChat: () => void
   canNewChat: boolean
   onSwitchAgent: (agentId: AgentId) => void
+  onUsageUpdate?: (usage: { inputTokens: number; outputTokens: number }) => void
 }
 
-export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent }: ChatWindowProps) {
+export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate }: ChatWindowProps) {
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
@@ -104,18 +105,24 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     sendMessage: chatSendMessage,
   } = useChat({ chat: chat! })
 
-  // Capture transient MCP/tool loading warnings from server via onData.
+  // Capture transient MCP/tool loading warnings and token usage from server via onData.
   // onData is typed as private in AbstractChat but needs to be set externally.
   useEffect(() => {
     if (!chat) return
     setToolWarnings([]);
-    (chat as any).onData = (part: { type: string; data?: { message?: string }; transient?: boolean }) => {
+    (chat as any).onData = (part: { type: string; data?: { message?: string; inputTokens?: number; outputTokens?: number }; transient?: boolean }) => {
       if (part.type === 'data-warning' && part.transient && part.data?.message) {
         setToolWarnings(prev => [...prev, part.data!.message!])
       }
+      if (part.type === 'data-usage' && part.data && onUsageUpdate) {
+        onUsageUpdate({
+          inputTokens: part.data.inputTokens ?? 0,
+          outputTokens: part.data.outputTokens ?? 0,
+        })
+      }
     }
     return () => { (chat as any).onData = undefined }
-  }, [chat])
+  }, [chat, onUsageUpdate])
 
   // Track whether this component mounted with pre-existing messages (loaded from cache).
   // If so, skip the stagger entrance animation to avoid a multi-second delay.

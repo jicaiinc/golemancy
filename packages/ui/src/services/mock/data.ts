@@ -1,6 +1,7 @@
 import type {
   Project, Agent, Conversation, Message, ConversationTask, Artifact, MemoryEntry, GlobalSettings,
-  ActivityEntry, CronJob, Skill, MCPServerConfig, PermissionsConfigFile,
+  CronJob, Skill, MCPServerConfig, PermissionsConfigFile,
+  DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
   CronJobId, PermissionsConfigId,
 } from '@golemancy/shared'
@@ -148,6 +149,8 @@ export const SEED_CONVERSATIONS: Conversation[] = [
         role: 'user',
         parts: [{ type: 'text', text: 'Write a blog post about AI trends in 2025.' }],
         content: 'Write a blog post about AI trends in 2025.',
+        inputTokens: 0,
+        outputTokens: 0,
         createdAt: hourAgo,
         updatedAt: hourAgo,
       },
@@ -157,6 +160,8 @@ export const SEED_CONVERSATIONS: Conversation[] = [
         role: 'assistant',
         parts: [{ type: 'text', text: 'I\'ll research and write that for you. Let me start by searching for the latest trends...' }],
         content: 'I\'ll research and write that for you. Let me start by searching for the latest trends...',
+        inputTokens: 1250,
+        outputTokens: 480,
         createdAt: hourAgo,
         updatedAt: hourAgo,
       },
@@ -311,52 +316,143 @@ export const SEED_SETTINGS: GlobalSettings = {
   defaultWorkingDirectoryBase: '~/projects',
 }
 
-// --- Dashboard Activity Feed ---
-const twoHoursAgo = new Date(Date.now() - 7200_000).toISOString()
-const threeHoursAgo = new Date(Date.now() - 10800_000).toISOString()
+// --- Dashboard Seed Data ---
+export const SEED_DASHBOARD_SUMMARY: DashboardSummary = {
+  todayTokens: { total: 48_520, input: 32_180, output: 16_340 },
+  totalAgents: 5,
+  activeChats: 2,
+  totalChats: 8,
+}
 
-export const SEED_ACTIVITIES: ActivityEntry[] = [
+export const SEED_DASHBOARD_AGENT_STATS: DashboardAgentStats[] = [
   {
-    id: 'activity-1',
-    type: 'agent_started',
+    agentId: 'agent-1' as AgentId,
     projectId: 'proj-1' as ProjectId,
     projectName: 'Content Biz',
-    agentId: 'agent-1' as AgentId,
     agentName: 'Writer',
-    description: 'Writer agent started working',
-    timestamp: hourAgo,
+    model: 'gpt-4o',
+    status: 'running',
+    totalTokens: 125_430,
+    conversationCount: 4,
+    taskCount: 6,
+    completedTasks: 4,
+    failedTasks: 0,
+    lastActiveAt: hourAgo,
   },
   {
-    id: 'activity-4',
-    type: 'artifact_created',
+    agentId: 'agent-2' as AgentId,
     projectId: 'proj-1' as ProjectId,
     projectName: 'Content Biz',
-    agentId: 'agent-1' as AgentId,
-    agentName: 'Writer',
-    description: 'Created artifact: blog-post-draft.md',
-    timestamp: twoHoursAgo,
+    agentName: 'Researcher',
+    model: 'claude-sonnet-4-5-20250929',
+    status: 'idle',
+    totalTokens: 89_200,
+    conversationCount: 3,
+    taskCount: 5,
+    completedTasks: 5,
+    failedTasks: 0,
+    lastActiveAt: dayAgo,
   },
   {
-    id: 'activity-5',
-    type: 'agent_stopped',
+    agentId: 'agent-3' as AgentId,
+    projectId: 'proj-1' as ProjectId,
+    projectName: 'Content Biz',
+    agentName: 'Team Lead',
+    model: 'gpt-4o',
+    status: 'idle',
+    totalTokens: 45_600,
+    conversationCount: 2,
+    taskCount: 3,
+    completedTasks: 2,
+    failedTasks: 1,
+    lastActiveAt: dayAgo,
+  },
+  {
+    agentId: 'agent-4' as AgentId,
     projectId: 'proj-2' as ProjectId,
     projectName: 'E-Commerce Ops',
-    agentId: 'agent-4' as AgentId,
-    agentName: 'Inventory Bot',
-    description: 'Inventory Bot stopped after completing all tasks',
-    timestamp: threeHoursAgo,
+    agentName: 'Product Scout',
+    model: 'gpt-4o',
+    status: 'idle',
+    totalTokens: 32_100,
+    conversationCount: 2,
+    taskCount: 4,
+    completedTasks: 3,
+    failedTasks: 0,
+    lastActiveAt: dayAgo,
   },
   {
-    id: 'activity-7',
-    type: 'message_sent',
+    agentId: 'agent-5' as AgentId,
+    projectId: 'proj-2' as ProjectId,
+    projectName: 'E-Commerce Ops',
+    agentName: 'Listing Writer',
+    model: 'gpt-4o',
+    status: 'idle',
+    totalTokens: 18_750,
+    conversationCount: 1,
+    taskCount: 2,
+    completedTasks: 2,
+    failedTasks: 0,
+    lastActiveAt: dayAgo,
+  },
+]
+
+export const SEED_DASHBOARD_RECENT_CHATS: DashboardRecentChat[] = [
+  {
+    conversationId: 'conv-1' as ConversationId,
+    projectId: 'proj-1' as ProjectId,
+    projectName: 'Content Biz',
+    agentId: 'agent-1' as AgentId,
+    agentName: 'Writer',
+    title: 'Blog Draft: AI Trends',
+    messageCount: 12,
+    totalTokens: 24_500,
+    lastMessageAt: hourAgo,
+  },
+  {
+    conversationId: 'conv-2' as ConversationId,
     projectId: 'proj-1' as ProjectId,
     projectName: 'Content Biz',
     agentId: 'agent-2' as AgentId,
     agentName: 'Researcher',
-    description: 'Researcher sent keywords list to Writer',
-    timestamp: dayAgo,
+    title: 'Keyword Research Q1',
+    messageCount: 8,
+    totalTokens: 18_200,
+    lastMessageAt: dayAgo,
+  },
+  {
+    conversationId: 'conv-3' as ConversationId,
+    projectId: 'proj-2' as ProjectId,
+    projectName: 'E-Commerce Ops',
+    agentId: 'agent-4' as AgentId,
+    agentName: 'Product Scout',
+    title: 'Trending Products Feb 2026',
+    messageCount: 6,
+    totalTokens: 12_800,
+    lastMessageAt: dayAgo,
   },
 ]
+
+// Generate 14 days of token trend data
+function generateTokenTrend(days: number): DashboardTokenTrend[] {
+  const result: DashboardTokenTrend[] = []
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const date = d.toISOString().split('T')[0]
+    // Vary tokens to make the chart interesting
+    const base = 20_000 + Math.floor(Math.random() * 30_000)
+    const inputRatio = 0.55 + Math.random() * 0.15
+    result.push({
+      date,
+      inputTokens: Math.floor(base * inputRatio),
+      outputTokens: Math.floor(base * (1 - inputRatio)),
+    })
+  }
+  return result
+}
+
+export const SEED_DASHBOARD_TOKEN_TREND: DashboardTokenTrend[] = generateTokenTrend(30)
 
 // --- Cron Jobs ---
 export const SEED_CRON_JOBS: CronJob[] = [

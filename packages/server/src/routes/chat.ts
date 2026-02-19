@@ -205,6 +205,12 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           generateMessageId: () => generateId('msg'),
           onFinish: async ({ responseMessage }) => {
             try {
+              // Capture total token usage from the stream
+              const usage = await result.totalUsage
+              const inputTokens = usage.inputTokens ?? 0
+              const outputTokens = usage.outputTokens ?? 0
+              const totalTokens = usage.totalTokens ?? 0
+
               if (conversationId) {
                 // Extract any base64 images from assistant response before saving
                 const extractedParts = await extractUploads(projectId, responseMessage.parts)
@@ -216,10 +222,18 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                     role: 'assistant',
                     parts: extractedParts,
                     content: extractTextContent(responseMessage.parts),
+                    inputTokens,
+                    outputTokens,
                   },
                 )
-                log.debug({ conversationId, role: 'assistant' }, 'saved assistant message in onFinish')
+                log.debug({ conversationId, role: 'assistant', inputTokens, outputTokens }, 'saved assistant message in onFinish')
               }
+
+              // Send token usage data to client
+              writer.write({
+                type: 'data-usage' as `data-${string}`,
+                data: { inputTokens, outputTokens, totalTokens },
+              })
             } catch (err) {
               log.error({ err, conversationId }, 'failed to save assistant message')
             }

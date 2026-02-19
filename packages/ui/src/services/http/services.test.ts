@@ -484,17 +484,30 @@ describe('HttpSettingsService', () => {
 
 describe('HttpDashboardService', () => {
   const svc = new HttpDashboardService(BASE)
+  const PID = 'proj-1' as ProjectId
 
-  it('getSummary() → GET /api/dashboard/summary', async () => {
+  it('getSummary() → GET /api/projects/:projectId/dashboard/summary', async () => {
     mockFetch.mockResolvedValue(jsonResponse({}))
-    await svc.getSummary()
-    expect(mockFetch).toHaveBeenCalledWith(`${BASE}/api/dashboard/summary`, expect.any(Object))
+    await svc.getSummary(PID)
+    expect(mockFetch).toHaveBeenCalledWith(`${BASE}/api/projects/${PID}/dashboard/summary`, expect.any(Object))
   })
 
-  it('getActivityFeed() uses default limit of 20', async () => {
+  it('getAgentStats() calls correct endpoint', async () => {
     mockFetch.mockResolvedValue(jsonResponse([]))
-    await svc.getActivityFeed()
-    expect(mockFetch).toHaveBeenCalledWith(`${BASE}/api/dashboard/activity?limit=20`, expect.any(Object))
+    await svc.getAgentStats(PID)
+    expect(mockFetch).toHaveBeenCalledWith(`${BASE}/api/projects/${PID}/dashboard/agent-stats`, expect.any(Object))
+  })
+
+  it('getRecentChats() uses default limit of 20', async () => {
+    mockFetch.mockResolvedValue(jsonResponse([]))
+    await svc.getRecentChats(PID)
+    expect(mockFetch).toHaveBeenCalledWith(`${BASE}/api/projects/${PID}/dashboard/recent-chats?limit=20`, expect.any(Object))
+  })
+
+  it('getTokenTrend() uses default days of 14', async () => {
+    mockFetch.mockResolvedValue(jsonResponse([]))
+    await svc.getTokenTrend(PID)
+    expect(mockFetch).toHaveBeenCalledWith(`${BASE}/api/projects/${PID}/dashboard/token-trend?days=14`, expect.any(Object))
   })
 })
 

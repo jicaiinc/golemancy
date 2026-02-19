@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import type {
   Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
-  DashboardSummary, DashboardAgentSummary, ActivityEntry,
+  DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   ThemeMode,
   ProjectId, AgentId, ConversationId, ArtifactId, MemoryId, SkillId, CronJobId,
   SkillCreateData, SkillUpdateData,
@@ -84,8 +84,9 @@ interface UISlice {
 
 interface DashboardSlice {
   dashboardSummary: DashboardSummary | null
-  dashboardActiveAgents: DashboardAgentSummary[]
-  dashboardActivityFeed: ActivityEntry[]
+  dashboardAgentStats: DashboardAgentStats[]
+  dashboardRecentChats: DashboardRecentChat[]
+  dashboardTokenTrend: DashboardTokenTrend[]
   dashboardLoading: boolean
 }
 
@@ -171,9 +172,7 @@ interface UIActions {
 }
 
 interface DashboardActions {
-  loadDashboard(): Promise<void>
-  loadDashboardActiveAgents(): Promise<void>
-  loadDashboardActivityFeed(limit?: number): Promise<void>
+  loadDashboard(projectId: ProjectId): Promise<void>
 }
 
 interface TopologyActions {
@@ -646,34 +645,27 @@ export const useAppStore = create<AppState>()(
 
       // --- Dashboard state ---
       dashboardSummary: null,
-      dashboardActiveAgents: [],
-      dashboardActivityFeed: [],
+      dashboardAgentStats: [],
+      dashboardRecentChats: [],
+      dashboardTokenTrend: [],
       dashboardLoading: false,
 
-      async loadDashboard() {
+      async loadDashboard(projectId: ProjectId) {
         set({ dashboardLoading: true })
         const svc = getServices().dashboard
-        const [summary, activeAgents, activityFeed] = await Promise.all([
-          svc.getSummary(),
-          svc.getActiveAgents(),
-          svc.getActivityFeed(),
+        const [summary, agentStats, recentChats, tokenTrend] = await Promise.all([
+          svc.getSummary(projectId),
+          svc.getAgentStats(projectId),
+          svc.getRecentChats(projectId),
+          svc.getTokenTrend(projectId),
         ])
         set({
           dashboardSummary: summary,
-          dashboardActiveAgents: activeAgents,
-          dashboardActivityFeed: activityFeed,
+          dashboardAgentStats: agentStats,
+          dashboardRecentChats: recentChats,
+          dashboardTokenTrend: tokenTrend,
           dashboardLoading: false,
         })
-      },
-
-      async loadDashboardActiveAgents() {
-        const activeAgents = await getServices().dashboard.getActiveAgents()
-        set({ dashboardActiveAgents: activeAgents })
-      },
-
-      async loadDashboardActivityFeed(limit?: number) {
-        const activityFeed = await getServices().dashboard.getActivityFeed(limit)
-        set({ dashboardActivityFeed: activityFeed })
       },
 
       // --- Topology state ---

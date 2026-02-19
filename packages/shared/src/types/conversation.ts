@@ -6,6 +6,8 @@ export interface Message extends Timestamped {
   role: 'user' | 'assistant'
   parts: unknown[] // serialized UIMessage['parts'] — opaque to shared package
   content: string  // plain text for display/search (derived from parts)
+  inputTokens: number
+  outputTokens: number
 }
 
 export interface Conversation extends Timestamped {

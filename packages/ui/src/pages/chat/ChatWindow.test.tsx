@@ -101,7 +101,7 @@ function createTestServices(): ServiceContainer {
     artifacts: { list: vi.fn(), getById: vi.fn(), delete: vi.fn() },
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     settings: { get: vi.fn(), update: vi.fn() },
-    dashboard: { getSummary: vi.fn(), getActiveAgents: vi.fn(), getActivityFeed: vi.fn() },
+    dashboard: { getSummary: vi.fn(), getAgentStats: vi.fn(), getRecentChats: vi.fn(), getTokenTrend: vi.fn() },
   } as unknown as ServiceContainer
 }
 

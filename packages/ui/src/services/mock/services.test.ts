@@ -10,7 +10,7 @@ import {
   MockSettingsService,
   MockDashboardService,
 } from './services'
-import { SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATION_TASKS, SEED_ACTIVITIES } from './data'
+import { SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATION_TASKS, SEED_DASHBOARD_SUMMARY, SEED_DASHBOARD_AGENT_STATS, SEED_DASHBOARD_RECENT_CHATS, SEED_DASHBOARD_TOKEN_TREND } from './data'
 
 describe('MockProjectService', () => {
   let service: MockProjectService
@@ -304,52 +304,62 @@ describe('MockSettingsService', () => {
 
 describe('MockDashboardService', () => {
   let service: MockDashboardService
+  const PID = 'proj-1' as ProjectId
 
   beforeEach(() => {
-    service = new MockDashboardService(SEED_PROJECTS, SEED_AGENTS, SEED_ACTIVITIES)
+    service = new MockDashboardService()
   })
 
-  it('getSummary() returns dashboard summary with correct counts', async () => {
-    const summary = await service.getSummary()
-    expect(summary.totalProjects).toBe(SEED_PROJECTS.length)
-    expect(summary.totalAgents).toBe(SEED_AGENTS.length)
-    expect(summary.activeAgents).toBeGreaterThanOrEqual(0)
-    expect(summary.totalTokenUsageToday).toBeGreaterThanOrEqual(0)
+  it('getSummary() returns dashboard summary with correct shape', async () => {
+    const summary = await service.getSummary(PID)
+    expect(summary.todayTokens).toBeDefined()
+    expect(summary.todayTokens.total).toBeGreaterThanOrEqual(0)
+    expect(summary.todayTokens.input).toBeGreaterThanOrEqual(0)
+    expect(summary.todayTokens.output).toBeGreaterThanOrEqual(0)
+    expect(summary.totalAgents).toBeGreaterThanOrEqual(0)
+    expect(summary.activeChats).toBeGreaterThanOrEqual(0)
+    expect(summary.totalChats).toBeGreaterThanOrEqual(0)
   })
 
-  it('getActiveAgents() returns only running agents', async () => {
-    const active = await service.getActiveAgents()
-    active.forEach(a => {
-      expect(a.status).toBe('running')
+  it('getAgentStats() returns agent stats array', async () => {
+    const stats = await service.getAgentStats(PID)
+    expect(Array.isArray(stats)).toBe(true)
+    stats.forEach(a => {
       expect(a.agentId).toBeTruthy()
       expect(a.projectName).toBeTruthy()
       expect(a.agentName).toBeTruthy()
+      expect(a.model).toBeTruthy()
+      expect(a.totalTokens).toBeGreaterThanOrEqual(0)
     })
   })
 
-  it('getActivityFeed() returns sorted activities', async () => {
-    const feed = await service.getActivityFeed()
-    expect(feed.length).toBeLessThanOrEqual(20)
-    for (let i = 1; i < feed.length; i++) {
-      expect(new Date(feed[i - 1].timestamp).getTime())
-        .toBeGreaterThanOrEqual(new Date(feed[i].timestamp).getTime())
-    }
-  })
-
-  it('getActivityFeed() respects limit', async () => {
-    const feed = await service.getActivityFeed(3)
-    expect(feed.length).toBeLessThanOrEqual(3)
-  })
-
-  it('getActivityFeed() entries have required fields', async () => {
-    const feed = await service.getActivityFeed()
-    feed.forEach(entry => {
-      expect(entry.id).toBeTruthy()
-      expect(entry.type).toBeTruthy()
-      expect(entry.projectId).toBeTruthy()
-      expect(entry.projectName).toBeTruthy()
-      expect(entry.description).toBeTruthy()
-      expect(entry.timestamp).toBeTruthy()
+  it('getRecentChats() returns recent chats array', async () => {
+    const chats = await service.getRecentChats(PID)
+    expect(Array.isArray(chats)).toBe(true)
+    chats.forEach(c => {
+      expect(c.conversationId).toBeTruthy()
+      expect(c.title).toBeTruthy()
+      expect(c.messageCount).toBeGreaterThanOrEqual(0)
     })
+  })
+
+  it('getRecentChats() respects limit', async () => {
+    const chats = await service.getRecentChats(PID, 1)
+    expect(chats.length).toBeLessThanOrEqual(1)
+  })
+
+  it('getTokenTrend() returns daily token data', async () => {
+    const trend = await service.getTokenTrend(PID)
+    expect(Array.isArray(trend)).toBe(true)
+    trend.forEach(d => {
+      expect(d.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(d.inputTokens).toBeGreaterThanOrEqual(0)
+      expect(d.outputTokens).toBeGreaterThanOrEqual(0)
+    })
+  })
+
+  it('getTokenTrend() respects days parameter', async () => {
+    const trend = await service.getTokenTrend(PID, 7)
+    expect(trend.length).toBeLessThanOrEqual(7)
   })
 })

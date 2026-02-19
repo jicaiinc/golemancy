@@ -114,7 +114,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes(deps.cronJobStorage))
-  app.route('/api/dashboard', createDashboardRoutes(deps.dashboardService))
+  app.route('/api/projects/:projectId/dashboard', createDashboardRoutes(deps.dashboardService))
   app.route('/api/projects/:projectId/topology-layout', createTopologyRoutes())
   app.route('/api/projects/:projectId/permissions-config', createPermissionsConfigRoutes(deps.permissionsConfigStorage))
   app.route('/api/projects/:projectId/runtime', createRuntimeRoutes())

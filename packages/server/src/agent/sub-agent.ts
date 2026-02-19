@@ -141,6 +141,14 @@ export function createSubAgentTool(
           }
         }
 
+        // Capture child agent token usage
+        const childUsage = await result.totalUsage
+        state.usage = {
+          inputTokens: childUsage.inputTokens ?? 0,
+          outputTokens: childUsage.outputTokens ?? 0,
+          totalTokens: childUsage.totalTokens ?? 0,
+        }
+
         // Final yield — becomes the persisted tool output
         state.status = 'done'
         yield state

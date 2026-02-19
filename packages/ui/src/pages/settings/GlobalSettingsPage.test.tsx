@@ -34,8 +34,9 @@ function createTestServices(): ServiceContainer {
     mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({}),
-      getActiveAgents: vi.fn().mockResolvedValue([]),
-      getActivityFeed: vi.fn().mockResolvedValue([]),
+      getAgentStats: vi.fn().mockResolvedValue([]),
+      getRecentChats: vi.fn().mockResolvedValue([]),
+      getTokenTrend: vi.fn().mockResolvedValue([]),
     },
     permissionsConfig: {
       list: vi.fn().mockResolvedValue([]),

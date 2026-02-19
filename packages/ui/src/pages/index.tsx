@@ -1,5 +1,5 @@
 // Project management pages
-export { ProjectListPage, ProjectDashboardPage, ProjectSettingsPage } from './project'
+export { ProjectListPage, ProjectSettingsPage } from './project'
 
 // Agent management pages
 export { AgentListPage, AgentDetailPage } from './agent'
@@ -24,6 +24,9 @@ export { ArtifactsPage } from './artifact'
 
 // Memory
 export { MemoryPage } from './memory'
+
+// Dashboard
+export { DashboardPage } from './dashboard'
 
 // Settings
 export { GlobalSettingsPage } from './settings'

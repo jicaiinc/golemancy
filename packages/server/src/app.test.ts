@@ -99,13 +99,14 @@ function createMockDeps() {
     },
     dashboardService: {
       getSummary: vi.fn().mockResolvedValue({
-        totalProjects: 2, totalAgents: 5, activeAgents: 1,
-        totalTokenUsageToday: 5000,
+        todayTokens: { total: 5000, input: 3000, output: 2000 },
+        totalAgents: 5, activeChats: 1, totalChats: 8,
       }),
-      getActiveAgents: vi.fn().mockResolvedValue([
-        { agentId: 'agent-1', agentName: 'Writer', projectName: 'P1', status: 'running' },
+      getAgentStats: vi.fn().mockResolvedValue([
+        { agentId: 'agent-1', projectId: 'proj-1', projectName: 'P1', agentName: 'Writer', model: 'gpt-4o', status: 'running', totalTokens: 5000, conversationCount: 2, taskCount: 3, completedTasks: 2, failedTasks: 0, lastActiveAt: null },
       ]),
-      getActivityFeed: vi.fn().mockResolvedValue([]),
+      getRecentChats: vi.fn().mockResolvedValue([]),
+      getTokenTrend: vi.fn().mockResolvedValue([]),
     },
     mcpStorage: {
       list: vi.fn().mockResolvedValue([
@@ -457,30 +458,30 @@ describe('HTTP API routes', () => {
   // ---- Dashboard ----
 
   describe('dashboard routes', () => {
-    it('GET /api/dashboard/summary returns summary', async () => {
-      const res = await app.request('/api/dashboard/summary')
+    it('GET /api/projects/:projectId/dashboard/summary returns summary', async () => {
+      const res = await app.request('/api/projects/proj-1/dashboard/summary')
       expect(res.status).toBe(200)
       const body = await res.json()
-      expect(body.totalProjects).toBe(2)
-      expect(body.activeAgents).toBe(1)
+      expect(body.totalAgents).toBe(5)
+      expect(body.activeChats).toBe(1)
     })
 
-    it('GET /api/dashboard/active-agents returns agents', async () => {
-      const res = await app.request('/api/dashboard/active-agents')
+    it('GET /api/projects/:projectId/dashboard/agent-stats returns stats', async () => {
+      const res = await app.request('/api/projects/proj-1/dashboard/agent-stats')
       expect(res.status).toBe(200)
       const body = await res.json()
       expect(body).toHaveLength(1)
       expect(body[0].agentName).toBe('Writer')
     })
 
-    it('GET /api/dashboard/activity passes limit', async () => {
-      await app.request('/api/dashboard/activity?limit=5')
-      expect(deps.dashboardService.getActivityFeed).toHaveBeenCalledWith(5)
+    it('GET /api/projects/:projectId/dashboard/recent-chats passes limit', async () => {
+      await app.request('/api/projects/proj-1/dashboard/recent-chats?limit=5')
+      expect(deps.dashboardService.getRecentChats).toHaveBeenCalledWith('proj-1', 5)
     })
 
-    it('GET /api/dashboard/activity uses default limit', async () => {
-      await app.request('/api/dashboard/activity')
-      expect(deps.dashboardService.getActivityFeed).toHaveBeenCalledWith(20)
+    it('GET /api/projects/:projectId/dashboard/token-trend passes days', async () => {
+      await app.request('/api/projects/proj-1/dashboard/token-trend?days=30')
+      expect(deps.dashboardService.getTokenTrend).toHaveBeenCalledWith('proj-1', 30)
     })
   })
 

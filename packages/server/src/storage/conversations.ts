@@ -101,7 +101,7 @@ export class SqliteConversationStorage implements IConversationService {
   async saveMessage(
     projectId: ProjectId,
     conversationId: ConversationId,
-    data: { id: MessageId; role: string; parts: unknown[]; content: string },
+    data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number },
   ): Promise<void> {
     const db = this.getProjectDb(projectId)
     await this.verifyOwnership(db, projectId, conversationId)
@@ -125,6 +125,8 @@ export class SqliteConversationStorage implements IConversationService {
       role: data.role,
       parts: data.parts,
       content: data.content,
+      inputTokens: data.inputTokens ?? 0,
+      outputTokens: data.outputTokens ?? 0,
       createdAt: now,
     })
 
@@ -209,6 +211,8 @@ export class SqliteConversationStorage implements IConversationService {
       role: string
       parts: string
       content: string
+      input_tokens: number
+      output_tokens: number
       created_at: string
     }
 
@@ -240,6 +244,8 @@ export class SqliteConversationStorage implements IConversationService {
         role: r.role as Message['role'],
         parts: typeof r.parts === 'string' ? JSON.parse(r.parts) : r.parts,
         content: r.content,
+        inputTokens: r.input_tokens ?? 0,
+        outputTokens: r.output_tokens ?? 0,
         createdAt: r.created_at,
         updatedAt: r.created_at,
       })),
@@ -294,6 +300,8 @@ export class SqliteConversationStorage implements IConversationService {
       role: row.role as Message['role'],
       parts: row.parts as unknown[],
       content: row.content,
+      inputTokens: row.inputTokens,
+      outputTokens: row.outputTokens,
       createdAt: row.createdAt,
       updatedAt: row.createdAt,
     }

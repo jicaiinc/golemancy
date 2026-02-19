@@ -2,7 +2,7 @@ import type {
   Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, CronJob, Skill,
   GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
   PermissionsConfigId,
-  DashboardSummary, DashboardAgentSummary, ActivityEntry,
+  DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
@@ -30,7 +30,7 @@ export interface IConversationService {
   getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null>
   create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation>
   sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void>
-  saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string }): Promise<void>
+  saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number }): Promise<void>
   getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>>
   searchMessages(projectId: ProjectId, query: string, params: PaginationParams): Promise<PaginatedResult<Message>>
   update(projectId: ProjectId, id: ConversationId, data: { title?: string }): Promise<Conversation>
@@ -90,9 +90,10 @@ export interface ICronJobService {
 }
 
 export interface IDashboardService {
-  getSummary(): Promise<DashboardSummary>
-  getActiveAgents(): Promise<DashboardAgentSummary[]>
-  getActivityFeed(limit?: number): Promise<ActivityEntry[]>
+  getSummary(projectId: ProjectId): Promise<DashboardSummary>
+  getAgentStats(projectId: ProjectId): Promise<DashboardAgentStats[]>
+  getRecentChats(projectId: ProjectId, limit?: number): Promise<DashboardRecentChat[]>
+  getTokenTrend(projectId: ProjectId, days?: number): Promise<DashboardTokenTrend[]>
 }
 
 export interface IPermissionsConfigService {

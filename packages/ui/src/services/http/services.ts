@@ -2,7 +2,7 @@ import type {
   Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
-  DashboardSummary, DashboardAgentSummary, ActivityEntry,
+  DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   IProjectService, IAgentService, IConversationService,
@@ -262,14 +262,17 @@ export class HttpSettingsService implements ISettingsService {
 export class HttpDashboardService implements IDashboardService {
   constructor(private baseUrl: string) {}
 
-  getSummary() {
-    return fetchJson<DashboardSummary>(`${this.baseUrl}/api/dashboard/summary`)
+  getSummary(projectId: ProjectId) {
+    return fetchJson<DashboardSummary>(`${this.baseUrl}/api/projects/${projectId}/dashboard/summary`)
   }
-  getActiveAgents() {
-    return fetchJson<DashboardAgentSummary[]>(`${this.baseUrl}/api/dashboard/active-agents`)
+  getAgentStats(projectId: ProjectId) {
+    return fetchJson<DashboardAgentStats[]>(`${this.baseUrl}/api/projects/${projectId}/dashboard/agent-stats`)
   }
-  getActivityFeed(limit = 20) {
-    return fetchJson<ActivityEntry[]>(`${this.baseUrl}/api/dashboard/activity?limit=${limit}`)
+  getRecentChats(projectId: ProjectId, limit = 20) {
+    return fetchJson<DashboardRecentChat[]>(`${this.baseUrl}/api/projects/${projectId}/dashboard/recent-chats?limit=${limit}`)
+  }
+  getTokenTrend(projectId: ProjectId, days = 14) {
+    return fetchJson<DashboardTokenTrend[]>(`${this.baseUrl}/api/projects/${projectId}/dashboard/token-trend?days=${days}`)
   }
 }
 

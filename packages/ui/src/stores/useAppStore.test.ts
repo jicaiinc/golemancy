@@ -107,10 +107,11 @@ function createTestServices(): ServiceContainer {
     },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({
-        totalProjects: 0, totalAgents: 0, activeAgents: 0, totalTokenUsageToday: 0,
+        todayTokens: { total: 0, input: 0, output: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0,
       }),
-      getActiveAgents: vi.fn().mockResolvedValue([]),
-      getActivityFeed: vi.fn().mockResolvedValue([]),
+      getAgentStats: vi.fn().mockResolvedValue([]),
+      getRecentChats: vi.fn().mockResolvedValue([]),
+      getTokenTrend: vi.fn().mockResolvedValue([]),
     },
     permissionsConfig: {
       list: vi.fn().mockResolvedValue([]),
@@ -145,8 +146,9 @@ describe('useAppStore', () => {
       sidebarCollapsed: false,
       themeMode: 'dark',
       dashboardSummary: null,
-      dashboardActiveAgents: [],
-      dashboardActivityFeed: [],
+      dashboardAgentStats: [],
+      dashboardRecentChats: [],
+      dashboardTokenTrend: [],
       dashboardLoading: false,
     })
     // Clean DOM classes for theme tests
@@ -402,43 +404,28 @@ describe('useAppStore', () => {
     it('has empty dashboard state initially', () => {
       const state = useAppStore.getState()
       expect(state.dashboardSummary).toBeNull()
-      expect(state.dashboardActiveAgents).toEqual([])
-      expect(state.dashboardActivityFeed).toEqual([])
+      expect(state.dashboardAgentStats).toEqual([])
+      expect(state.dashboardRecentChats).toEqual([])
+      expect(state.dashboardTokenTrend).toEqual([])
       expect(state.dashboardLoading).toBe(false)
     })
 
     it('loadDashboard populates all dashboard state', async () => {
-      await useAppStore.getState().loadDashboard()
+      await useAppStore.getState().loadDashboard('proj-1' as ProjectId)
       const state = useAppStore.getState()
       expect(state.dashboardSummary).not.toBeNull()
       expect(state.dashboardLoading).toBe(false)
       expect(mockServices.dashboard.getSummary).toHaveBeenCalledOnce()
-      expect(mockServices.dashboard.getActiveAgents).toHaveBeenCalledOnce()
-      expect(mockServices.dashboard.getActivityFeed).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getAgentStats).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getRecentChats).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getTokenTrend).toHaveBeenCalledOnce()
     })
 
     it('loadDashboard sets loading true then false', async () => {
-      const promise = useAppStore.getState().loadDashboard()
+      const promise = useAppStore.getState().loadDashboard('proj-1' as ProjectId)
       expect(useAppStore.getState().dashboardLoading).toBe(true)
       await promise
       expect(useAppStore.getState().dashboardLoading).toBe(false)
-    })
-
-    it('loadDashboardActiveAgents updates only active agents', async () => {
-      ;(mockServices.dashboard.getActiveAgents as any).mockResolvedValue([
-        { agentId: 'a1', agentName: 'Writer', status: 'running' },
-      ])
-      await useAppStore.getState().loadDashboardActiveAgents()
-      expect(useAppStore.getState().dashboardActiveAgents).toHaveLength(1)
-    })
-
-    it('loadDashboardActivityFeed updates only activity feed', async () => {
-      ;(mockServices.dashboard.getActivityFeed as any).mockResolvedValue([
-        { id: 'act-1', type: 'task_completed' },
-      ])
-      await useAppStore.getState().loadDashboardActivityFeed(10)
-      expect(useAppStore.getState().dashboardActivityFeed).toHaveLength(1)
-      expect(mockServices.dashboard.getActivityFeed).toHaveBeenCalledWith(10)
     })
   })
 

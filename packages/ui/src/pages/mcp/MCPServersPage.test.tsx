@@ -96,8 +96,9 @@ function createTestServices(): ServiceContainer {
     },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({}),
-      getActiveAgents: vi.fn().mockResolvedValue([]),
-      getActivityFeed: vi.fn().mockResolvedValue([]),
+      getAgentStats: vi.fn().mockResolvedValue([]),
+      getRecentChats: vi.fn().mockResolvedValue([]),
+      getTokenTrend: vi.fn().mockResolvedValue([]),
     },
     permissionsConfig: {
       list: vi.fn().mockResolvedValue([]),

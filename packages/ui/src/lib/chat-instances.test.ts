@@ -53,6 +53,8 @@ function makeMessage(overrides?: Partial<Message>): Message {
     role: 'user',
     parts: [{ type: 'text', text: 'Hello' }],
     content: 'Hello',
+    inputTokens: 0,
+    outputTokens: 0,
     createdAt: now,
     updatedAt: now,
     ...overrides,

@@ -77,7 +77,7 @@ function createTestServices(): ServiceContainer {
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
     mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
-    dashboard: { getSummary: vi.fn(), getActiveAgents: vi.fn(), getActivityFeed: vi.fn() },
+    dashboard: { getSummary: vi.fn(), getAgentStats: vi.fn(), getRecentChats: vi.fn(), getTokenTrend: vi.fn() },
     permissionsConfig: {
       list: vi.fn().mockResolvedValue([]),
       getById: vi.fn().mockResolvedValue(null),

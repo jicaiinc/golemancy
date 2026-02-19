@@ -13,8 +13,6 @@ import {
   MockDashboardService,
   MockPermissionsConfigService,
 } from './services'
-import { SEED_PROJECTS, SEED_AGENTS, SEED_ACTIVITIES } from './data'
-
 export function createMockServices(): ServiceContainer {
   const agents = new MockAgentService()
   return {
@@ -28,7 +26,7 @@ export function createMockServices(): ServiceContainer {
     mcp: new MockMCPService(agents),
     settings: new MockSettingsService(),
     cronJobs: new MockCronJobService(),
-    dashboard: new MockDashboardService(SEED_PROJECTS, SEED_AGENTS, SEED_ACTIVITIES),
+    dashboard: new MockDashboardService(),
     permissionsConfig: new MockPermissionsConfigService(),
   }
 }

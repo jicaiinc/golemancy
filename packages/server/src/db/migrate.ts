@@ -83,6 +83,21 @@ export function migrateDatabase(db: AppDatabase) {
     db.run(sql`ALTER TABLE messages DROP COLUMN token_usage`)
   }
 
+  // --- Migration v3: token tracking columns ---
+  const columnsV3 = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+
+  const hasInputTokens = columnsV3.some(col => col.name === 'input_tokens')
+  if (!hasInputTokens) {
+    log.info('migrating messages table: adding input_tokens column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN input_tokens INTEGER NOT NULL DEFAULT 0`)
+  }
+
+  const hasOutputTokens = columnsV3.some(col => col.name === 'output_tokens')
+  if (!hasOutputTokens) {
+    log.info('migrating messages table: adding output_tokens column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN output_tokens INTEGER NOT NULL DEFAULT 0`)
+  }
+
   // Set up FTS5
   setupFTS(db)
   log.info('database migrations complete')

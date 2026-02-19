@@ -11,13 +11,18 @@ const MODE_STYLES: Record<PermissionMode, { label: string; className: string }> 
 interface StatusBarProps {
   permissionMode?: PermissionMode
   actualMode?: PermissionMode
-  tokenUsage?: string
-  activeAgents?: number
+  tokenUsage?: { inputTokens: number; outputTokens: number } | null
   taskSummary?: { completed: number; total: number } | null
   taskList?: ConversationTask[]
 }
 
-export function StatusBar({ permissionMode, actualMode, tokenUsage = '0', activeAgents = 0, taskSummary, taskList }: StatusBarProps) {
+function formatTokenCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`
+  return n.toLocaleString()
+}
+
+export function StatusBar({ permissionMode, actualMode, tokenUsage, taskSummary, taskList }: StatusBarProps) {
   const modeStyle = permissionMode ? MODE_STYLES[permissionMode] : null
   const [showTaskPopover, setShowTaskPopover] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -95,10 +100,9 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage = '0', active
           </div>
         )}
         <span className="font-mono text-[11px] text-text-dim">
-          Token Usage: {tokenUsage} today
-        </span>
-        <span className="font-mono text-[11px] text-text-dim">
-          {activeAgents} agent{activeAgents !== 1 ? 's' : ''} running
+          {tokenUsage
+            ? `Tokens: ${formatTokenCount(tokenUsage.inputTokens)} in / ${formatTokenCount(tokenUsage.outputTokens)} out`
+            : 'Tokens: --'}
         </span>
       </div>
     </footer>

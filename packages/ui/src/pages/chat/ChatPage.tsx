@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import type { AgentId, ConversationId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -21,6 +21,21 @@ export function ChatPage() {
   const toggleChatHistory = useAppStore(s => s.toggleChatHistory)
   const currentProject = useCurrentProject()
   const permissionMode = usePermissionMode()
+
+  // Token usage tracking for current conversation
+  const [conversationUsage, setConversationUsage] = useState<{ inputTokens: number; outputTokens: number } | null>(null)
+
+  // Reset usage when conversation changes
+  useEffect(() => {
+    setConversationUsage(null)
+  }, [currentConversationId])
+
+  const handleUsageUpdate = useCallback((usage: { inputTokens: number; outputTokens: number }) => {
+    setConversationUsage(prev => prev
+      ? { inputTokens: prev.inputTokens + usage.inputTokens, outputTokens: prev.outputTokens + usage.outputTokens }
+      : usage
+    )
+  }, [])
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -126,6 +141,7 @@ export function ChatPage() {
             onNewChat={handleNewChat}
             canNewChat={canNewChat}
             onSwitchAgent={handleSwitchAgent}
+            onUsageUpdate={handleUsageUpdate}
           />
         ) : (
           <ChatEmptyState
@@ -137,7 +153,7 @@ export function ChatPage() {
           />
         )}
         {/* TODO: Pass actualMode from WS mode_degraded events once WebSocket integration is wired up */}
-        <StatusBar permissionMode={permissionMode} taskSummary={taskSummary} taskList={currentConvTasks} />
+        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} taskSummary={taskSummary} taskList={currentConvTasks} />
       </div>
     </div>
   )

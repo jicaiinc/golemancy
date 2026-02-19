@@ -15,6 +15,7 @@ import { FileCronJobStorage } from './storage/cronjobs'
 import { FileMCPStorage } from './storage/mcp'
 import { FileSettingsStorage } from './storage/settings'
 import { FilePermissionsConfigStorage } from './storage/permissions-config'
+import { DashboardService } from './storage/dashboard'
 import { sandboxPool } from './agent/sandbox-pool'
 import { mcpPool } from './agent/mcp-pool'
 import { logger } from './logger'
@@ -31,9 +32,10 @@ async function main() {
   const dbManager = new ProjectDbManager()
 
   // Construct dependencies
+  const projectStorage = new FileProjectStorage()
   const agentStorage = new FileAgentStorage()
   const deps: ServerDependencies = {
-    projectStorage: new FileProjectStorage(),
+    projectStorage,
     agentStorage,
     conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb),
     taskStorage: new SqliteConversationTaskStorage(dbManager.getProjectDb),
@@ -44,11 +46,11 @@ async function main() {
     settingsStorage: new FileSettingsStorage(),
     mcpStorage: new FileMCPStorage(),
     permissionsConfigStorage: new FilePermissionsConfigStorage(),
-    dashboardService: {
-      getSummary: async () => ({ totalProjects: 0, totalAgents: 0, activeAgents: 0, totalTokenUsageToday: 0 }),
-      getActiveAgents: async () => [],
-      getActivityFeed: async () => [],
-    },
+    dashboardService: new DashboardService({
+      projectStorage,
+      agentStorage,
+      getProjectDb: dbManager.getProjectDb,
+    }),
   }
 
   // SEC-07: Generate auth token for IPC-based authentication

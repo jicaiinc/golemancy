@@ -1,34 +1,42 @@
-import type { AgentId, ProjectId } from './common'
+import type { AgentId, ConversationId, ProjectId } from './common'
 import type { AgentStatus } from './agent'
 
 export interface DashboardSummary {
-  totalProjects: number
+  todayTokens: { total: number; input: number; output: number }
   totalAgents: number
-  activeAgents: number
-  totalTokenUsageToday: number
+  activeChats: number
+  totalChats: number
 }
 
-export interface DashboardAgentSummary {
+export interface DashboardAgentStats {
   agentId: AgentId
   projectId: ProjectId
   projectName: string
   agentName: string
+  model: string
   status: AgentStatus
+  totalTokens: number
+  conversationCount: number
+  taskCount: number
+  completedTasks: number
+  failedTasks: number
+  lastActiveAt: string | null
 }
 
-export type ActivityType =
-  | 'agent_started'
-  | 'agent_stopped'
-  | 'message_sent'
-  | 'artifact_created'
-
-export interface ActivityEntry {
-  id: string
-  type: ActivityType
+export interface DashboardRecentChat {
+  conversationId: ConversationId
   projectId: ProjectId
   projectName: string
-  agentId?: AgentId
-  agentName?: string
-  description: string
-  timestamp: string
+  agentId: AgentId
+  agentName: string
+  title: string
+  messageCount: number
+  totalTokens: number
+  lastMessageAt: string | null
+}
+
+export interface DashboardTokenTrend {
+  date: string // YYYY-MM-DD
+  inputTokens: number
+  outputTokens: number
 }
