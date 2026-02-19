@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
-import type { UIMessage } from 'ai'
+import type { UIMessage, FileUIPart } from 'ai'
 import { motion } from 'motion/react'
 import type { Agent, AgentId, Conversation } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -128,18 +128,24 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   }, [messages.length, status])
 
   // --- Send handler ---
-  const handleSend = useCallback(async (content: string) => {
+  const handleSend = useCallback(async (content: string, files?: FileUIPart[]) => {
     if (!currentProjectId || !chat) return
 
     // Auto-title: if first message and user hasn't manually renamed
     const isFirstMessage = messages.length === 0
     if (isFirstMessage && !titleManuallyEdited) {
-      const autoTitle = generateAutoTitle(content)
+      const autoTitle = content ? generateAutoTitle(content) : 'Image message'
       updateConversationTitle(conversation.id, autoTitle)
     }
 
     if (useServer) {
-      chatSendMessage({ text: content })
+      if (content && files) {
+        chatSendMessage({ text: content, files })
+      } else if (files) {
+        chatSendMessage({ files })
+      } else {
+        chatSendMessage({ text: content })
+      }
     } else {
       // Mock mode: call service, then sync back to Chat
       const svc = getServices()

@@ -20,3 +20,42 @@ export function OpenExternalIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+/** Pixel-art SVG: image icon (landscape frame with mountain + sun) */
+export function ImageAttachIcon({ className }: { className?: string }) {
+  return (
+    <svg width="16" height="14" viewBox="0 0 16 14" fill="none" className={className}>
+      <rect x="1" y="1" width="14" height="12" stroke="currentColor" strokeWidth="2" />
+      <rect x="10" y="3" width="2" height="2" fill="currentColor" />
+      <path d="M1 11 5 6 8 9 10 7 15 11" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: small close/X icon */
+export function CloseSmallIcon({ className }: { className?: string }) {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className={className}>
+      <path d="M2 2 8 8M8 2 2 8" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: copy icon (overlapping rectangles) */
+export function CopyIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <rect x="4" y="4" width="9" height="9" stroke="currentColor" strokeWidth="2" />
+      <path d="M10 4V1H1v9h3" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: checkmark icon */
+export function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <path d="M2 7 5 10 12 3" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}

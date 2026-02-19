@@ -1,6 +1,7 @@
-import { memo, useState } from 'react'
+import { memo, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { UIMessage } from 'ai'
+import { CopyIcon, CheckIcon } from '../../components'
 import { ToolCallDisplay } from './ToolCallDisplay'
 
 /** Blinking pixel cursor shown during streaming */
@@ -127,6 +128,42 @@ function extractToolInvocation(part: { type: string; [key: string]: unknown }) {
   return null
 }
 
+/** Copy-to-clipboard button — floats to the side of the text bubble, never overlapping content */
+function CopyButton({ text, position }: { text: string; position: 'left' | 'right' }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      // Fallback for non-secure contexts
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+    }
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }, [text])
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={`absolute top-1 ${position === 'left' ? '-left-8' : '-right-8'} p-1 opacity-0 group-hover/text:opacity-100 transition-opacity text-text-dim hover:text-text-primary`}
+      title="Copy"
+    >
+      {copied
+        ? <CheckIcon className="w-3.5 h-3.5 text-accent-green" />
+        : <CopyIcon className="w-3.5 h-3.5" />
+      }
+    </button>
+  )
+}
+
 interface MessageBubbleProps {
   message: UIMessage
   chatStatus?: string
@@ -159,18 +196,20 @@ export const MessageBubble = memo(function MessageBubble({ message, chatStatus }
           switch (part.type) {
             case 'text':
               return (
-                <div
-                  key={i}
-                  className={`px-3 py-2 border-2 ${
-                    isUser
-                      ? 'bg-accent-blue/15 border-accent-blue/30'
-                      : 'bg-surface border-border-dim'
-                  }`}
-                >
-                  <p className="text-[13px] font-mono text-text-primary whitespace-pre-wrap break-words">
-                    {part.text}
-                    {part.state === 'streaming' && <BlinkingCursor />}
-                  </p>
+                <div key={i} className="relative group/text">
+                  <div
+                    className={`px-3 py-2 border-2 ${
+                      isUser
+                        ? 'bg-accent-blue/15 border-accent-blue/30'
+                        : 'bg-surface border-border-dim'
+                    }`}
+                  >
+                    <p className="text-[13px] font-mono text-text-primary whitespace-pre-wrap break-words">
+                      {part.text}
+                      {part.state === 'streaming' && <BlinkingCursor />}
+                    </p>
+                  </div>
+                  <CopyButton text={part.text} position={isUser ? 'left' : 'right'} />
                 </div>
               )
 
