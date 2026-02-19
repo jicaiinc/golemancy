@@ -65,6 +65,7 @@ export function AgentListPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const agents = useAppStore(s => s.agents)
   const agentsLoading = useAppStore(s => s.agentsLoading)
+  const mainAgentId = useAppStore(s => s.projects.find(p => p.id === projectId)?.mainAgentId)
   const navigate = useNavigate()
   const location = useLocation()
   const [showCreate, setShowCreate] = useState(false)
@@ -117,18 +118,27 @@ export function AgentListPage() {
               initial="initial"
               animate="animate"
             >
-              {agents.map(agent => (
+              {agents.map(agent => {
+                const isMain = agent.id === mainAgentId
+                return (
                 <motion.div key={agent.id} {...staggerItem} className="h-full">
                   <PixelCard
                     data-testid={`agent-item-${agent.id}`}
                     variant="interactive"
-                    className="relative overflow-hidden group h-full flex flex-col"
+                    className={`relative overflow-hidden group h-full flex flex-col ${isMain ? '!border-mc-gold/60' : ''}`}
                     onClick={() => navigate(`/projects/${projectId}/agents/${agent.id}`)}
                   >
                     {/* Status bar - 4px colored top bar */}
                     <div className={`absolute top-0 left-0 right-0 h-1 ${statusBarColor[agent.status]} ${statusAnimation[agent.status]}`} />
 
-                    <div className="flex items-start gap-3 mt-1">
+                    {/* Main agent label */}
+                    {isMain && (
+                      <div className="mt-1" title="Current selected main agent for this project">
+                        <span className="font-pixel text-[8px] text-mc-gold">CURRENT MAIN</span>
+                      </div>
+                    )}
+
+                    <div className={`flex items-start gap-3 ${isMain ? '' : 'mt-1'}`}>
                       <PixelAvatar
                         size="md"
                         initials={agent.name}
@@ -172,7 +182,8 @@ export function AgentListPage() {
                     </div>
                   </PixelCard>
                 </motion.div>
-              ))}
+                )
+              })}
             </motion.div>
           )}
 
