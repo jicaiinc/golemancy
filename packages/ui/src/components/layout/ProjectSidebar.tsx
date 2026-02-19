@@ -46,13 +46,13 @@ export function ProjectSidebar() {
 
   // Project switcher items
   const switcherItems = [
+    { label: '← All Projects', value: '__lobby__' },
+    { label: '⚙ Settings', value: '__settings__' },
     ...projects.map(p => ({
       label: p.name,
       value: p.id,
       selected: p.id === projectId,
     })),
-    { label: '← All Projects', value: '__lobby__' },
-    { label: '⚙ Settings', value: '__settings__' },
   ]
 
   function handleProjectSwitch(value: string) {
@@ -70,7 +70,7 @@ export function ProjectSidebar() {
       <aside data-testid="sidebar" className="w-14 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
         <div className="p-2 border-b-2 border-border-dim">
           <PixelDropdown
-            maxHeight="320px"
+            maxHeight="480px"
             trigger={
               <button className="w-10 h-10 flex items-center justify-center font-pixel text-[10px] text-accent-green hover:bg-elevated cursor-pointer">
                 SC
@@ -78,7 +78,7 @@ export function ProjectSidebar() {
             }
             items={switcherItems}
             onSelect={handleProjectSwitch}
-            dividerAfter={[projects.length - 1]}
+            dividerAfter={[1]}
           />
         </div>
         <nav className="flex-1 py-2">
@@ -114,7 +114,7 @@ export function ProjectSidebar() {
       <div className="pl-2 pr-1 py-1.5 border-b-2 border-border-dim">
         <PixelDropdown
           className="w-full"
-          maxHeight="320px"
+          maxHeight="480px"
           trigger={
             <button className="w-full text-left flex items-center gap-1.5 hover:bg-elevated/50 pl-1.5 pr-1 py-1 cursor-pointer transition-colors min-w-0">
               <span className="font-pixel text-[10px] text-accent-green truncate flex-1 min-w-0">
@@ -125,7 +125,7 @@ export function ProjectSidebar() {
           }
           items={switcherItems}
           onSelect={handleProjectSwitch}
-          dividerAfter={[projects.length - 1]}
+          dividerAfter={[1]}
         />
       </div>
 

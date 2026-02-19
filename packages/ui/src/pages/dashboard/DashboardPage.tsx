@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import type { ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
-import { PixelCard, PixelButton, PixelSpinner } from '../../components'
+import { PixelCard, PixelButton, PixelSpinner, PageContainer, PageHeader } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 
 function formatTokens(n: number): string {
@@ -341,30 +341,27 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="max-w-[1400px] mx-auto p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="font-pixel text-[14px] text-text-primary">{project?.name ?? 'Dashboard'}</h1>
-          <p className="mt-1 text-text-secondary text-[13px]">{project?.description ?? 'Project overview'}</p>
-        </div>
+    <PageContainer>
+      <PageHeader
+        title={project?.name ?? 'Dashboard'}
+        subtitle={project?.description ?? 'Project overview'}
+      />
 
-        {/* Summary Cards */}
-        <div className="mb-6">
-          <SummaryCards />
-        </div>
-
-        {/* Token Trend Chart */}
-        <div className="mb-6">
-          <TokenTrendChart />
-        </div>
-
-        {/* Agent Ranking + Recent Chats — side by side on wide screens */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <AgentRanking />
-          <RecentChats />
-        </div>
+      {/* Summary Cards */}
+      <div className="mb-6">
+        <SummaryCards />
       </div>
-    </div>
+
+      {/* Token Trend Chart */}
+      <div className="mb-6">
+        <TokenTrendChart />
+      </div>
+
+      {/* Agent Ranking + Recent Chats — side by side on wide screens */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AgentRanking />
+        <RecentChats />
+      </div>
+    </PageContainer>
   )
 }

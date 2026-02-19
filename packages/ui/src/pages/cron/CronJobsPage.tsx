@@ -6,7 +6,7 @@ import type { CronJob, CronJobId, CronJobRun } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import {
   PixelButton, PixelCard, PixelBadge, PixelToggle,
-  PixelSpinner, PixelModal,
+  PixelSpinner, PixelModal, PageContainer, PageHeader,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { CronJobFormModal } from './CronJobFormModal'
@@ -102,17 +102,16 @@ export function CronJobsPage() {
   }
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="font-pixel text-[14px] text-text-primary">Automations</h1>
-          <PixelBadge variant="info">{cronJobs.length}</PixelBadge>
-        </div>
-        <PixelButton variant="primary" onClick={() => setShowForm(true)}>
-          + New
-        </PixelButton>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Automations"
+        subtitle={<PixelBadge variant="info">{cronJobs.length}</PixelBadge>}
+        actions={
+          <PixelButton variant="primary" onClick={() => setShowForm(true)}>
+            + New
+          </PixelButton>
+        }
+      />
 
       {/* List */}
       {cronJobs.length === 0 ? (
@@ -256,6 +255,6 @@ export function CronJobsPage() {
         cronJobId={historyJobId}
         cronJobName={historyJobId ? cronJobs.find(j => j.id === historyJobId)?.name : undefined}
       />
-    </div>
+    </PageContainer>
   )
 }

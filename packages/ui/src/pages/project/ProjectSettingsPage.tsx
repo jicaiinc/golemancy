@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import type { AIProvider, AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
-import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
+import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings, PageContainer, PageHeader } from '../../components'
 
 const ICONS = [
   { id: 'pickaxe', label: '\u26CF' },
@@ -82,8 +82,8 @@ export function ProjectSettingsPage() {
   }
 
   return (
-    <div className={`p-6 ${activeTab === 'permissions' ? 'max-w-[960px]' : 'max-w-[640px]'}`}>
-      <h1 className="font-pixel text-[14px] text-text-primary mb-6">Project Settings</h1>
+    <PageContainer maxWidth={activeTab === 'permissions' ? '960px' : '640px'}>
+      <PageHeader title="Project Settings" />
 
       <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -129,7 +129,7 @@ export function ProjectSettingsPage() {
           <PermissionsSettings projectId={projectId! as ProjectId} />
         )}
       </div>
-    </div>
+    </PageContainer>
   )
 }
 

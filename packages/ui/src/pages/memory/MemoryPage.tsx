@@ -5,7 +5,7 @@ import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {
   PixelCard, PixelButton, PixelInput, PixelTextArea,
-  PixelModal, PixelSpinner, PixelBadge,
+  PixelModal, PixelSpinner, PixelBadge, PageContainer, PageHeader,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 
@@ -56,17 +56,13 @@ export function MemoryPage() {
   if (!project) return null
 
   return (
-    <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-pixel text-[14px] text-text-primary">Memory Bank</h1>
-          <p className="text-[12px] text-text-secondary mt-1">
-            {memories.length} memor{memories.length !== 1 ? 'ies' : 'y'}
-          </p>
-        </div>
-        <PixelButton variant="primary" onClick={() => setShowAdd(true)}>+ Add Entry</PixelButton>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Memory Bank"
+        subtitle={`${memories.length} memor${memories.length !== 1 ? 'ies' : 'y'}`}
+        actions={<PixelButton variant="primary" onClick={() => setShowAdd(true)}>+ Add Entry</PixelButton>}
+      />
+      <motion.div {...staggerContainer} initial="initial" animate="animate">
 
       {/* Search */}
       <motion.div {...staggerItem} className="mb-4">
@@ -182,7 +178,8 @@ export function MemoryPage() {
           sourceReadonly
         />
       )}
-    </motion.div>
+      </motion.div>
+    </PageContainer>
   )
 }
 

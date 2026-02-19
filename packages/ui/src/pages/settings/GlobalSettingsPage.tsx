@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { AIProvider, ProviderConfig, ThemeMode } from '@golemancy/shared'
 import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
+import { PixelCard, PixelButton, PixelInput, PixelTabs, PageContainer } from '../../components'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 
 const SETTINGS_TABS = [
@@ -28,7 +28,7 @@ export function GlobalSettingsPage() {
 
   return (
     <GlobalLayout title="Global Settings" showBack backLabel="All Projects">
-      <div data-testid="settings-form" className="max-w-[1000px] mx-auto p-8">
+      <PageContainer maxWidth="1000px">
         <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="mt-4">
@@ -46,7 +46,7 @@ export function GlobalSettingsPage() {
             Golemancy v{APP_VERSION} — AI Agent Orchestrator for Solo Creators
           </span>
         </div>
-      </div>
+      </PageContainer>
     </GlobalLayout>
   )
 }

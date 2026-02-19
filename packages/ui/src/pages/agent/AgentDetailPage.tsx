@@ -5,7 +5,7 @@ import { useAppStore } from '../../stores'
 import { useCurrentProject, useResolvedConfig, usePermissionConfig } from '../../hooks'
 import {
   PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelTabs,
-  PixelInput, PixelTextArea,
+  PixelInput, PixelTextArea, PageContainer,
 } from '../../components'
 
 // --- Status helpers ---
@@ -45,7 +45,7 @@ export function AgentDetailPage() {
 
   if (!agent) {
     return (
-      <div className="p-6">
+      <PageContainer>
         <p className="text-text-dim">Agent not found.</p>
         <PixelButton
           variant="ghost"
@@ -54,12 +54,12 @@ export function AgentDetailPage() {
         >
           &lt; Back to Agents
         </PixelButton>
-      </div>
+      </PageContainer>
     )
   }
 
   return (
-    <div className="p-6">
+    <PageContainer>
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <PixelButton
@@ -109,7 +109,7 @@ export function AgentDetailPage() {
         {activeTab === 'sub-agents' && <SubAgentsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'model' && <ModelConfigTab agent={agent} onUpdate={updateAgent} />}
       </div>
-    </div>
+    </PageContainer>
   )
 }
 
