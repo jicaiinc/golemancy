@@ -73,8 +73,9 @@ function createTestServices(): ServiceContainer {
     },
     settings: {
       get: vi.fn().mockResolvedValue({
-        providers: [{ provider: 'openai', apiKey: 'test', defaultModel: 'gpt-4o' }],
-        defaultProvider: 'openai',
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'test', models: ['gpt-4o'] },
+        },
         theme: 'dark',
         userProfile: { name: 'Test', email: 'test@test.com' },
         defaultWorkingDirectoryBase: '~/projects',
@@ -82,6 +83,7 @@ function createTestServices(): ServiceContainer {
       update: vi.fn().mockImplementation((data) =>
         Promise.resolve({ ...data }),
       ),
+      testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }),
     },
     cronJobs: {
       list: vi.fn().mockResolvedValue([]),
@@ -357,7 +359,7 @@ describe('useAppStore', () => {
     it('loads settings from service', async () => {
       await useAppStore.getState().loadSettings()
       expect(useAppStore.getState().settings).not.toBeNull()
-      expect(useAppStore.getState().settings!.defaultProvider).toBe('openai')
+      expect(useAppStore.getState().settings!.theme).toBe('dark')
     })
   })
 

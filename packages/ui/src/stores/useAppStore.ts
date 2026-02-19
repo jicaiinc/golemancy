@@ -322,12 +322,24 @@ export const useAppStore = create<AppState>()(
         const svc = getServices()
         const project = await svc.projects.create(data)
 
+        // Resolve default model: settings.defaultModel → first available provider → empty
+        const settings = get().settings
+        let modelConfig = settings?.defaultModel
+        if (!modelConfig) {
+          const entry = Object.entries(settings?.providers ?? {}).find(
+            ([, e]) => e.apiKey || e.baseUrl?.includes('localhost'),
+          )
+          if (entry) {
+            modelConfig = { provider: entry[0], model: entry[1].models[0] ?? '' }
+          }
+        }
+
         // Auto-create default Main Agent
         const agent = await svc.agents.create(project.id, {
           name: 'Main Agent',
           description: 'Default AI assistant for this project',
           systemPrompt: DEFAULT_AGENT_SYSTEM_PROMPT,
-          modelConfig: { temperature: 0.7, maxTokens: 4096 },
+          modelConfig: modelConfig ?? { provider: '', model: '' },
         })
 
         // Set as Main Agent

@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import type { AIProvider } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../components'
 
@@ -13,31 +12,58 @@ interface Props {
 export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
   const { projectId } = useParams<{ projectId: string }>()
   const createAgent = useAppStore(s => s.createAgent)
+  const settings = useAppStore(s => s.settings)
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
-  const [provider, setProvider] = useState<AIProvider | undefined>(undefined)
+  const [providerSlug, setProviderSlug] = useState('')
   const [model, setModel] = useState('')
   const [saving, setSaving] = useState(false)
+
+  // Available providers: has apiKey or baseUrl contains localhost
+  const availableProviders = Object.entries(settings?.providers ?? {}).filter(
+    ([, entry]) => entry.apiKey || entry.baseUrl?.includes('localhost'),
+  )
+
+  // Pre-select default model or first available provider when modal opens
+  useEffect(() => {
+    if (open && availableProviders.length > 0 && !providerSlug) {
+      const dm = settings?.defaultModel
+      if (dm && settings?.providers[dm.provider]) {
+        setProviderSlug(dm.provider)
+        setModel(dm.model)
+      } else {
+        const [slug, entry] = availableProviders[0]
+        setProviderSlug(slug)
+        setModel(entry.models[0] ?? '')
+      }
+    }
+  }, [open, availableProviders.length, settings?.defaultModel])
+
+  function handleProviderChange(slug: string) {
+    setProviderSlug(slug)
+    const entry = settings?.providers[slug]
+    setModel(entry?.models[0] ?? '')
+  }
 
   function reset() {
     setName('')
     setDescription('')
     setSystemPrompt('')
-    setProvider(undefined)
+    setProviderSlug('')
     setModel('')
   }
 
   async function handleSubmit() {
-    if (!name.trim()) return
+    if (!name.trim() || !providerSlug || !model) return
     setSaving(true)
     try {
       const agent = await createAgent({
         name: name.trim(),
         description: description.trim(),
         systemPrompt: systemPrompt.trim(),
-        modelConfig: { provider, model: model || undefined },
+        modelConfig: { provider: providerSlug, model },
       })
       reset()
       onClose()
@@ -49,6 +75,9 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
     }
   }
 
+  const selectedProvider = settings?.providers[providerSlug]
+  const models = selectedProvider?.models ?? []
+
   return (
     <PixelModal
       open={open}
@@ -58,7 +87,7 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
       footer={
         <>
           <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>Cancel</PixelButton>
-          <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
+          <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || !providerSlug || !model || saving} onClick={handleSubmit}>
             {saving ? 'Creating...' : 'Create Agent'}
           </PixelButton>
         </>
@@ -94,29 +123,29 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
           <div className="flex flex-col gap-1">
             <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
             <select
-              value={provider ?? ''}
-              onChange={e => setProvider(e.target.value ? e.target.value as AIProvider : undefined)}
+              value={providerSlug}
+              onChange={e => handleProviderChange(e.target.value)}
               className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
             >
-              <option value="">Inherit (from project/global)</option>
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="google">Google</option>
-              <option value="custom">Custom</option>
+              {availableProviders.length === 0 && <option value="">No providers configured</option>}
+              {availableProviders.map(([slug, entry]) => (
+                <option key={slug} value={slug}>{entry.name}</option>
+              ))}
             </select>
           </div>
-          <PixelInput
-            label="MODEL"
-            placeholder={
-              !provider ? 'Inherit (from provider)' :
-              provider === 'openai' ? 'gpt-4o' :
-              provider === 'anthropic' ? 'claude-sonnet-4-5-20250929' :
-              provider === 'google' ? 'gemini-2.0-flash' :
-              'model-name'
-            }
-            value={model}
-            onChange={e => setModel(e.target.value)}
-          />
+          <div className="flex flex-col gap-1">
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+            <select
+              value={model}
+              onChange={e => setModel(e.target.value)}
+              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+            >
+              {models.length === 0 && <option value="">No models available</option>}
+              {models.map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </PixelModal>

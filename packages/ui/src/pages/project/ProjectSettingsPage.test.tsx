@@ -32,11 +32,10 @@ const PROJECT_ID = 'proj-ps1' as ProjectId
 const now = new Date().toISOString()
 
 const baseSettings: GlobalSettings = {
-  providers: [
-    { provider: 'openai', apiKey: 'sk-test', defaultModel: 'gpt-4o' },
-    { provider: 'anthropic', apiKey: 'sk-ant', defaultModel: 'claude-sonnet-4-5-20250929' },
-  ],
-  defaultProvider: 'openai',
+  providers: {
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'] },
+    anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant', models: ['claude-sonnet-4-5-20250929'] },
+  },
   theme: 'dark',
   userProfile: { name: 'Test', email: 'test@test.com' },
   defaultWorkingDirectoryBase: '~/projects',
@@ -64,7 +63,7 @@ function makeAgent(overrides?: Partial<Agent>): Agent {
     description: 'The default agent',
     status: 'idle',
     systemPrompt: 'You are helpful.',
-    modelConfig: {},
+    modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: [],
     tools: [],
     subAgents: [],
@@ -84,7 +83,7 @@ function createTestServices(): ServiceContainer {
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    settings: { get: vi.fn(), update: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
     mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
@@ -135,11 +134,10 @@ describe('ProjectSettingsPage', () => {
     expect(screen.getByText('Project Settings')).toBeInTheDocument()
   })
 
-  it('renders all 4 tab labels', () => {
+  it('renders all 3 tab labels', () => {
     renderAtRoute()
     expect(screen.getByText('Agent')).toBeInTheDocument()
     expect(screen.getByText('General')).toBeInTheDocument()
-    expect(screen.getByText('Provider')).toBeInTheDocument()
     expect(screen.getByText('Permissions')).toBeInTheDocument()
   })
 
@@ -213,27 +211,6 @@ describe('ProjectSettingsPage', () => {
         description: 'A test project for settings',
         icon: 'sword',
       }))
-    })
-  })
-
-  // ── Provider Tab ──
-
-  it('shows provider override section in Provider tab', async () => {
-    renderAtRoute()
-    fireEvent.click(screen.getByText('Provider'))
-
-    await waitFor(() => {
-      expect(screen.getByText('PROVIDER OVERRIDE')).toBeInTheDocument()
-      expect(screen.getByText(/Inherit from global/)).toBeInTheDocument()
-    })
-  })
-
-  it('shows global default provider name in description', async () => {
-    renderAtRoute()
-    fireEvent.click(screen.getByText('Provider'))
-
-    await waitFor(() => {
-      expect(screen.getByText(/openai/)).toBeInTheDocument()
     })
   })
 

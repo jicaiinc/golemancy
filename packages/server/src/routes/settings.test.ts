@@ -4,8 +4,9 @@ import { createTestApp, makeRequest, type MockStorage } from '../test/route-help
 import type { Hono } from 'hono'
 
 const defaultSettings: GlobalSettings = {
-  providers: [{ provider: 'openai', apiKey: 'sk-test', defaultModel: 'gpt-4o' }],
-  defaultProvider: 'openai',
+  providers: {
+    openai: { name: 'OpenAI', sdkType: 'openai' as const, apiKey: 'sk-test', models: ['gpt-4o'] },
+  },
   theme: 'dark',
   userProfile: { name: 'Test', email: 'test@test.com' },
   defaultWorkingDirectoryBase: '/tmp',
@@ -25,8 +26,8 @@ describe('Settings routes', () => {
       const res = await makeRequest(app, 'GET', '/api/settings')
       expect(res.status).toBe(200)
       const body = await res.json()
-      expect(body.defaultProvider).toBe('openai')
-      expect(body.providers).toHaveLength(1)
+      expect(body.theme).toBe('dark')
+      expect(Object.keys(body.providers)).toHaveLength(1)
     })
   })
 

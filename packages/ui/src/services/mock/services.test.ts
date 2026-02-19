@@ -293,18 +293,18 @@ describe('MockSettingsService', () => {
 
   it('get() returns settings', async () => {
     const settings = await service.get()
-    expect(settings.defaultProvider).toBe('openai')
+    expect(settings.providers).toBeDefined()
     expect(settings.theme).toBe('dark')
   })
 
   it('update() merges settings', async () => {
-    const updated = await service.update({ defaultProvider: 'anthropic' })
-    expect(updated.defaultProvider).toBe('anthropic')
-    expect(updated.theme).toBe('dark') // unchanged
+    const updated = await service.update({ theme: 'light' })
+    expect(updated.theme).toBe('light')
+    expect(updated.providers).toBeDefined() // unchanged
 
     // Verify persistence
     const fetched = await service.get()
-    expect(fetched.defaultProvider).toBe('anthropic')
+    expect(fetched.theme).toBe('light')
   })
 })
 

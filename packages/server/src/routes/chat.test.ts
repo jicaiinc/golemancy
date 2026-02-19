@@ -97,8 +97,9 @@ function makeProject(overrides: Partial<Project> = {}): Project {
 }
 
 const defaultSettings: GlobalSettings = {
-  providers: [{ provider: 'openai', apiKey: 'sk-test', defaultModel: 'gpt-4o' }],
-  defaultProvider: 'openai',
+  providers: {
+    openai: { name: 'OpenAI', sdkType: 'openai' as const, apiKey: 'sk-test', models: ['gpt-4o'] },
+  },
   theme: 'dark',
   userProfile: { name: 'Test', email: 'test@test.com' },
   defaultWorkingDirectoryBase: '/tmp',

@@ -85,11 +85,11 @@ function createMockDeps() {
     },
     settingsStorage: {
       get: vi.fn().mockResolvedValue({
-        defaultProvider: 'google', theme: 'dark', providers: [],
+        theme: 'dark', providers: {},
         userProfile: { name: '', email: '' }, defaultWorkingDirectoryBase: '',
       }),
       update: vi.fn().mockImplementation((data: any) =>
-        Promise.resolve({ defaultProvider: 'google', theme: 'dark', providers: [], userProfile: { name: '', email: '' }, defaultWorkingDirectoryBase: '', ...data }),
+        Promise.resolve({ theme: 'dark', providers: {}, userProfile: { name: '', email: '' }, defaultWorkingDirectoryBase: '', ...data }),
       ),
     },
     dashboardService: {
@@ -414,19 +414,19 @@ describe('HTTP API routes', () => {
       const res = await app.request('/api/settings')
       expect(res.status).toBe(200)
       const body = await res.json()
-      expect(body.defaultProvider).toBe('google')
+      expect(body.theme).toBe('dark')
       expect(deps.settingsStorage.get).toHaveBeenCalledOnce()
     })
 
     it('PATCH /api/settings updates settings', async () => {
       const res = await app.request(jsonRequest('/api/settings', {
         method: 'PATCH',
-        body: JSON.stringify({ defaultProvider: 'anthropic' }),
+        body: JSON.stringify({ theme: 'light' }),
       }))
       expect(res.status).toBe(200)
       const body = await res.json()
-      expect(body.defaultProvider).toBe('anthropic')
-      expect(deps.settingsStorage.update).toHaveBeenCalledWith({ defaultProvider: 'anthropic' })
+      expect(body.theme).toBe('light')
+      expect(deps.settingsStorage.update).toHaveBeenCalledWith({ theme: 'light' })
     })
   })
 
@@ -641,7 +641,7 @@ describe('HTTP API routes', () => {
         id: 'agent-1', projectId: 'proj-1', name: 'Writer',
         description: 'Test agent', status: 'idle',
         systemPrompt: 'You are helpful.',
-        modelConfig: { provider: 'google', temperature: 0.7, maxTokens: 1024 },
+        modelConfig: { provider: 'google', model: 'gemini-2.5-flash' },
         skills: [], tools: [], subAgents: [],
         createdAt: '2024-01-01', updatedAt: '2024-01-01',
       }
@@ -668,8 +668,6 @@ describe('HTTP API routes', () => {
       expect(resolveModel).toHaveBeenCalled()
       expect(streamText).toHaveBeenCalledWith(expect.objectContaining({
         system: 'You are helpful.',
-        temperature: 0.7,
-        maxOutputTokens: 1024,
       }))
     })
 

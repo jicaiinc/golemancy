@@ -51,7 +51,7 @@ export const SEED_AGENTS: Agent[] = [
     description: 'Content creation and blog writing assistant',
     status: 'running',
     systemPrompt: DEFAULT_AGENT_SYSTEM_PROMPT,
-    modelConfig: { provider: 'openai', model: 'gpt-4o', temperature: 0.7 },
+    modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: ['skill-1' as SkillId, 'skill-2' as SkillId],
     tools: [
       { id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: { type: 'object', properties: { query: { type: 'string' } } } },
@@ -252,10 +252,11 @@ export const SEED_MEMORIES: MemoryEntry[] = [
 
 // --- Global Settings ---
 export const SEED_SETTINGS: GlobalSettings = {
-  providers: [
-    { provider: 'openai', apiKey: 'sk-***', defaultModel: 'gpt-4o' },
-  ],
-  defaultProvider: 'openai',
+  providers: {
+    anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant-mock-key', models: ['claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-6'] },
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-mock-key', models: ['gpt-4o', 'gpt-4o-mini'] },
+  },
+  defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
   theme: 'dark',
   userProfile: {
     name: 'Solo Crafter',

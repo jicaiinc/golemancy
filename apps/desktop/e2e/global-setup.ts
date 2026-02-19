@@ -35,38 +35,42 @@ export default async function globalSetup() {
   const testDataDir = path.join(os.tmpdir(), `golemancy-e2e-${process.pid}`)
   fs.mkdirSync(testDataDir, { recursive: true })
 
-  // Seed settings.json matching FileSettingsStorage format (GlobalSettings)
-  const providers: Array<{
-    provider: string
-    apiKey: string
-    defaultModel: string
-  }> = []
+  // Seed settings.json in V2 Record format (GlobalSettings.providers: Record<string, ProviderEntry>)
+  const providers: Record<string, {
+    name: string
+    sdkType: string
+    apiKey?: string
+    baseUrl?: string
+    models: string[]
+  }> = {
+    // Always seed Anthropic and OpenAI with dummy keys for smoke tests
+    anthropic: {
+      name: 'Anthropic',
+      sdkType: 'anthropic',
+      apiKey: envVars.TEST_ANTHROPIC_API_KEY || 'sk-ant-test-dummy-key',
+      models: ['claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-6'],
+    },
+    openai: {
+      name: 'OpenAI',
+      sdkType: 'openai',
+      apiKey: envVars.TEST_OPENAI_API_KEY || 'sk-test-dummy-key',
+      models: ['gpt-4o', 'gpt-4o-mini'],
+    },
+  }
 
+  // Add real provider keys from env if available
   if (envVars.TEST_GOOGLE_API_KEY) {
-    providers.push({
-      provider: 'google',
+    providers.google = {
+      name: 'Google',
+      sdkType: 'google',
       apiKey: envVars.TEST_GOOGLE_API_KEY,
-      defaultModel: 'gemini-2.0-flash',
-    })
-  }
-  if (envVars.TEST_OPENAI_API_KEY) {
-    providers.push({
-      provider: 'openai',
-      apiKey: envVars.TEST_OPENAI_API_KEY,
-      defaultModel: 'gpt-4o-mini',
-    })
-  }
-  if (envVars.TEST_ANTHROPIC_API_KEY) {
-    providers.push({
-      provider: 'anthropic',
-      apiKey: envVars.TEST_ANTHROPIC_API_KEY,
-      defaultModel: 'claude-sonnet-4-5-20250929',
-    })
+      models: ['gemini-2.5-flash', 'gemini-2.5-pro'],
+    }
   }
 
   const settings = {
     providers,
-    defaultProvider: envVars.TEST_ACTIVE_PROVIDER || 'google',
+    defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
     theme: 'dark' as const,
     userProfile: {
       name: 'E2E Test User',
@@ -84,5 +88,5 @@ export default async function globalSetup() {
   process.env.GOLEMANCY_TEST_DATA_DIR = testDataDir
 
   console.log(`[e2e] Test data dir: ${testDataDir}`)
-  console.log(`[e2e] Providers configured: ${providers.map((p) => p.provider).join(', ') || 'none'}`)
+  console.log(`[e2e] Providers configured: ${Object.keys(providers).join(', ') || 'none'}`)
 }

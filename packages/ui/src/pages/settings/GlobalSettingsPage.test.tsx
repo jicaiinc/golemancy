@@ -4,14 +4,14 @@ import { MemoryRouter } from 'react-router'
 import { GlobalSettingsPage } from './GlobalSettingsPage'
 import { useAppStore } from '../../stores'
 import { configureServices } from '../../services/container'
+import { ServiceProvider } from '../../services/ServiceProvider'
 import type { ServiceContainer } from '../../services/container'
 import type { GlobalSettings } from '@golemancy/shared'
 
 const mockSettings: GlobalSettings = {
-  providers: [
-    { provider: 'openai', apiKey: 'sk-test-key', defaultModel: 'gpt-4o' },
-  ],
-  defaultProvider: 'openai',
+  providers: {
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test-key', models: ['gpt-4o'] },
+  },
   theme: 'dark',
   userProfile: { name: 'Test User', email: 'test@example.com' },
   defaultWorkingDirectoryBase: '~/projects',
@@ -28,6 +28,7 @@ function createTestServices(): ServiceContainer {
     settings: {
       get: vi.fn().mockResolvedValue(mockSettings),
       update: vi.fn().mockImplementation((data) => Promise.resolve({ ...mockSettings, ...data })),
+      testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }),
     },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
@@ -50,7 +51,7 @@ function createTestServices(): ServiceContainer {
 }
 
 function renderWithRouter(ui: React.ReactElement) {
-  return render(<MemoryRouter>{ui}</MemoryRouter>)
+  return render(<MemoryRouter><ServiceProvider>{ui}</ServiceProvider></MemoryRouter>)
 }
 
 describe('GlobalSettingsPage', () => {
@@ -84,8 +85,8 @@ describe('GlobalSettingsPage', () => {
 
   it('shows Providers tab by default', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText('DEFAULT PROVIDER')).toBeInTheDocument()
-    // OpenAI appears in both the provider selector and the configured provider card
+    expect(screen.getByText('PROVIDERS')).toBeInTheDocument()
+    // OpenAI appears in the configured provider card
     expect(screen.getAllByText('OpenAI').length).toBeGreaterThanOrEqual(1)
   })
 

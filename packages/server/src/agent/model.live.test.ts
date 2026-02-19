@@ -12,12 +12,12 @@ import { it, expect } from 'vitest'
 import { generateText } from 'ai'
 import { resolveModel } from './model'
 import { loadLiveSettings, describeWithApiKey } from '../test/live-settings'
-import type { GlobalSettings, AIProvider } from '@golemancy/shared'
+import type { GlobalSettings } from '@golemancy/shared'
 
 // ── Helper ────────────────────────────────────────────────────
 
-function hasProvider(settings: GlobalSettings, provider: AIProvider): boolean {
-  return settings.providers.some(p => p.provider === provider)
+function hasProvider(settings: GlobalSettings, provider: string): boolean {
+  return provider in settings.providers
 }
 
 // ── Google ────────────────────────────────────────────────────
@@ -40,15 +40,6 @@ describeWithApiKey('model.live — Google (Gemini)', (settings) => {
       expect(result.text.length).toBeGreaterThan(0)
     },
     20_000,
-  )
-
-  it.skipIf(!hasProvider(settings, 'google'))(
-    'uses default model when none specified',
-    async () => {
-      const googleSettings: GlobalSettings = { ...settings, defaultProvider: 'google' }
-      const model = await resolveModel(googleSettings)
-      expect(model).toBeDefined()
-    },
   )
 })
 
@@ -101,16 +92,17 @@ describeWithApiKey('model.live — Anthropic', (settings) => {
 describeWithApiKey('model.live — error handling', (settings) => {
   it('throws for unknown provider', async () => {
     await expect(
-      resolveModel(settings, { provider: 'nonexistent' as any }),
+      resolveModel(settings, { provider: 'nonexistent', model: 'some-model' }),
     ).rejects.toThrow()
   })
 
   it('throws for provider not in settings', async () => {
     const emptySettings: GlobalSettings = {
       ...settings,
-      providers: [],
-      defaultProvider: 'google',
+      providers: {},
     }
-    await expect(resolveModel(emptySettings)).rejects.toThrow('not configured')
+    await expect(
+      resolveModel(emptySettings, { provider: 'google', model: 'gemini-2.5-flash' }),
+    ).rejects.toThrow('not configured')
   })
 })

@@ -75,17 +75,17 @@ test.describe('Agent Config — 6 Tab Navigation', () => {
     })
   })
 
-  test('switch to Model Config tab and see effective config', async ({
+  test('switch to Model Config tab and see provider/model selects', async ({
     window,
   }) => {
     await window.locator('[data-testid="tab-model"]').click()
-    await expect(window.getByText('EFFECTIVE CONFIG')).toBeVisible({
+    // New ModelConfigTab shows PROVIDER and MODEL labels with dropdowns
+    await expect(window.getByText('PROVIDER', { exact: true })).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    // Should display provider and model info
-    await expect(window.getByText('Provider:')).toBeVisible()
-    await expect(window.getByText('Model:')).toBeVisible()
-    await expect(window.getByText('Temperature:')).toBeVisible()
+    await expect(window.getByText('MODEL', { exact: true })).toBeVisible()
+    // Should have a save button
+    await expect(window.getByRole('button', { name: 'Save Model Config' })).toBeVisible()
   })
 
   test('edit system prompt in Info tab and save', async ({ window }) => {

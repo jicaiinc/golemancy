@@ -121,8 +121,6 @@ export class CronJobExecutor {
         messages: modelMessages,
         tools: hasTools ? allTools : undefined,
         stopWhen: hasTools ? stepCountIs(10) : undefined,
-        temperature: agent.modelConfig.temperature,
-        maxOutputTokens: agent.modelConfig.maxTokens,
       })
 
       // Consume the stream fully, capturing the response message with all parts (including tool calls)

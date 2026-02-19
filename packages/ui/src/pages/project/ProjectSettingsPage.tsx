@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import type { AIProvider, AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
+import type { AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
@@ -19,7 +19,6 @@ const ICONS = [
 const SETTINGS_TABS = [
   { id: 'agent', label: 'Agent' },
   { id: 'general', label: 'General' },
-  { id: 'provider', label: 'Provider' },
   { id: 'permissions', label: 'Permissions' },
 ]
 
@@ -27,7 +26,6 @@ export function ProjectSettingsPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const project = useCurrentProject()
   const updateProject = useAppStore(s => s.updateProject)
-  const settings = useAppStore(s => s.settings)
   const agents = useAppStore(s => s.agents)
   const navigate = useNavigate()
 
@@ -36,7 +34,6 @@ export function ProjectSettingsPage() {
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('pickaxe')
   const [maxConcurrentAgents, setMaxConcurrentAgents] = useState(3)
-  const [providerOverride, setProviderOverride] = useState<AIProvider | ''>('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -47,7 +44,6 @@ export function ProjectSettingsPage() {
     setDescription(project.description)
     setIcon(project.icon)
     setMaxConcurrentAgents(project.config.maxConcurrentAgents)
-    setProviderOverride(project.config.providerOverride?.provider ?? '')
   }, [project])
 
   useEffect(() => () => { clearTimeout(timerRef.current) }, [])
@@ -67,7 +63,6 @@ export function ProjectSettingsPage() {
     const config: ProjectConfig = {
       ...project.config,
       maxConcurrentAgents,
-      ...(providerOverride ? { providerOverride: { provider: providerOverride as AIProvider } } : { providerOverride: undefined }),
     }
     await updateProject(project.id, {
       name: name.trim(),
@@ -110,19 +105,6 @@ export function ProjectSettingsPage() {
             saving={saving}
             saved={saved}
             onSave={handleSave}
-          />
-        )}
-        {activeTab === 'provider' && (
-          <ProviderTab
-            settings={settings}
-            providerOverride={providerOverride}
-            setProviderOverride={setProviderOverride}
-            maxConcurrentAgents={maxConcurrentAgents}
-            setMaxConcurrentAgents={setMaxConcurrentAgents}
-            saving={saving}
-            saved={saved}
-            onSave={handleSave}
-            name={name}
           />
         )}
         {activeTab === 'permissions' && (
@@ -283,69 +265,4 @@ function GeneralTab({
   )
 }
 
-// ========== Provider Tab ==========
-function ProviderTab({
-  settings,
-  providerOverride,
-  setProviderOverride,
-  maxConcurrentAgents,
-  setMaxConcurrentAgents,
-  saving,
-  saved,
-  onSave,
-  name,
-}: {
-  settings: ReturnType<typeof useAppStore.getState>['settings']
-  providerOverride: AIProvider | ''
-  setProviderOverride: (v: AIProvider | '') => void
-  maxConcurrentAgents: number
-  setMaxConcurrentAgents: (v: number) => void
-  saving: boolean
-  saved: boolean
-  onSave: () => void
-  name: string
-}) {
-  return (
-    <div className="flex flex-col gap-4">
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-4">PROVIDER OVERRIDE</div>
-        <p className="text-[12px] text-text-dim mb-3">
-          Override the global default provider for all agents in this project.
-          Leave empty to inherit from global settings ({settings?.defaultProvider ?? 'openai'}).
-        </p>
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
-            <select
-              value={providerOverride}
-              onChange={e => setProviderOverride(e.target.value as AIProvider | '')}
-              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-            >
-              <option value="">Inherit from global</option>
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="google">Google</option>
-              <option value="custom">Custom</option>
-            </select>
-          </div>
-          <PixelInput
-            label="MAX CONCURRENT AGENTS"
-            type="number"
-            min={1}
-            max={20}
-            value={maxConcurrentAgents}
-            onChange={e => setMaxConcurrentAgents(Number(e.target.value))}
-          />
-        </div>
-      </PixelCard>
-
-      <div className="flex items-center gap-3">
-        <PixelButton variant="primary" onClick={onSave} disabled={saving || !name.trim()}>
-          {saving ? 'Saving...' : 'Save Changes'}
-        </PixelButton>
-        {saved && <span className="text-[12px] text-accent-green">Saved!</span>}
-      </div>
-    </div>
-  )
-}
 

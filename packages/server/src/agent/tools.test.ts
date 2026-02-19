@@ -55,10 +55,9 @@ function makeAgent(overrides: Partial<Agent> = {}): Agent {
 }
 
 const defaultSettings: GlobalSettings = {
-  providers: [
-    { provider: 'openai', apiKey: 'test-key', defaultModel: 'gpt-4o' },
-  ],
-  defaultProvider: 'openai',
+  providers: {
+    openai: { name: 'OpenAI', sdkType: 'openai' as const, apiKey: 'test-key', models: ['gpt-4o'] },
+  },
   theme: 'dark',
   userProfile: { name: '', email: '' },
   defaultWorkingDirectoryBase: '',

@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { describe } from 'vitest'
-import type { GlobalSettings, AIProvider, ProviderConfig } from '@golemancy/shared'
+import type { GlobalSettings, ProviderEntry } from '@golemancy/shared'
 
 /** Monorepo root — two levels up from packages/server/ */
 const ROOT_DIR = path.resolve(__dirname, '../../../../')
@@ -24,45 +24,46 @@ export function loadLiveSettings(): GlobalSettings | null {
     env[trimmed.slice(0, eqIdx).trim()] = trimmed.slice(eqIdx + 1).trim()
   }
 
-  const providers: ProviderConfig[] = []
+  const providers: Record<string, ProviderEntry> = {}
 
   if (env.OPENAI_API_KEY) {
-    providers.push({
-      provider: 'openai',
+    providers.openai = {
+      name: 'OpenAI',
       apiKey: env.OPENAI_API_KEY,
-      defaultModel: env.OPENAI_MODEL || 'gpt-4o-mini',
-    })
+      sdkType: 'openai',
+      models: [env.OPENAI_MODEL || 'gpt-4o-mini'],
+    }
   }
   if (env.ANTHROPIC_API_KEY) {
-    providers.push({
-      provider: 'anthropic',
+    providers.anthropic = {
+      name: 'Anthropic',
       apiKey: env.ANTHROPIC_API_KEY,
-      defaultModel: env.ANTHROPIC_MODEL || 'claude-haiku-4-5',
-    })
+      sdkType: 'anthropic',
+      models: [env.ANTHROPIC_MODEL || 'claude-haiku-4-5'],
+    }
   }
   if (env.GOOGLE_API_KEY) {
-    providers.push({
-      provider: 'google',
+    providers.google = {
+      name: 'Google',
       apiKey: env.GOOGLE_API_KEY,
-      defaultModel: env.GOOGLE_MODEL || 'gemini-2.5-flash',
-    })
+      sdkType: 'google',
+      models: [env.GOOGLE_MODEL || 'gemini-2.5-flash'],
+    }
   }
   if (env.AI_GATEWAY_API_KEY) {
-    providers.push({
-      provider: 'custom',
+    providers['ai-gateway'] = {
+      name: 'AI Gateway',
       apiKey: env.AI_GATEWAY_API_KEY,
-      defaultModel: 'gpt-4o-mini',
       baseUrl: env.AI_GATEWAY_BASE_URL,
-    })
+      sdkType: 'openai-compatible',
+      models: ['gpt-4o-mini'],
+    }
   }
 
-  if (providers.length === 0) return null
-
-  const defaultProvider = (env.ACTIVE_PROVIDER as AIProvider) || providers[0].provider
+  if (Object.keys(providers).length === 0) return null
 
   return {
     providers,
-    defaultProvider,
     theme: 'dark',
     userProfile: { name: 'Test User', email: 'test@golemancy.dev' },
     defaultWorkingDirectoryBase: '/tmp/golemancy-test',

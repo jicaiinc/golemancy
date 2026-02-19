@@ -67,7 +67,7 @@ function makeAgent(overrides?: Partial<Agent>): Agent {
     description: 'A writing agent',
     status: 'idle',
     systemPrompt: 'You are a writer.',
-    modelConfig: { provider: 'google' },
+    modelConfig: { provider: 'google', model: 'gemini-pro' },
     skillIds: [],
     tools: [],
     subAgents: [],
@@ -100,7 +100,7 @@ function createTestServices(): ServiceContainer {
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    settings: { get: vi.fn(), update: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
     dashboard: { getSummary: vi.fn(), getAgentStats: vi.fn(), getRecentChats: vi.fn(), getTokenTrend: vi.fn() },
   } as unknown as ServiceContainer
 }

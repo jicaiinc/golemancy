@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
-import type { Agent, AgentId, AgentStatus, AIProvider, SkillId } from '@golemancy/shared'
+import type { Agent, AgentId, AgentStatus, SkillId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { useCurrentProject, useResolvedConfig, usePermissionConfig } from '../../hooks'
+import { usePermissionConfig } from '../../hooks'
 import {
   PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelTabs,
   PixelInput, PixelTextArea,
@@ -541,126 +541,85 @@ function ModelConfigTab({ agent, onUpdate }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
-  const project = useCurrentProject()
   const settings = useAppStore(s => s.settings)
-  const resolvedConfig = useResolvedConfig(project?.config, agent.modelConfig)
 
-  const [provider, setProvider] = useState(agent.modelConfig.provider ?? '')
-  const [model, setModel] = useState(agent.modelConfig.model ?? '')
-  const [temperature, setTemperature] = useState(agent.modelConfig.temperature ?? 0.7)
-  const [maxTokens, setMaxTokens] = useState(agent.modelConfig.maxTokens ?? '')
+  // Filter to available providers: has apiKey or baseUrl contains localhost
+  const availableProviders = Object.entries(settings?.providers ?? {}).filter(
+    ([, entry]) => entry.apiKey || entry.baseUrl?.includes('localhost'),
+  )
+
+  const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)
+  const [model, setModel] = useState(agent.modelConfig.model)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    setProvider(agent.modelConfig.provider ?? '')
-    setModel(agent.modelConfig.model ?? '')
-    setTemperature(agent.modelConfig.temperature ?? 0.7)
-    setMaxTokens(agent.modelConfig.maxTokens ?? '')
+    setProviderSlug(agent.modelConfig.provider)
+    setModel(agent.modelConfig.model)
   }, [agent.id])
+
+  // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available
+  useEffect(() => {
+    if (availableProviders.length > 0 && !settings?.providers[providerSlug]) {
+      const [slug, entry] = availableProviders[0]
+      setProviderSlug(slug)
+      setModel(entry.models[0] ?? '')
+    }
+  }, [availableProviders.length, providerSlug, settings?.providers])
+
+  // Models for the selected provider
+  const selectedProvider = settings?.providers[providerSlug]
+  const models = selectedProvider?.models ?? []
+
+  function handleProviderChange(slug: string) {
+    setProviderSlug(slug)
+    // Auto-select first model of new provider
+    const entry = settings?.providers[slug]
+    setModel(entry?.models[0] ?? '')
+  }
 
   async function handleSave() {
     setSaving(true)
     await onUpdate(agent.id, {
-      modelConfig: {
-        ...(provider ? { provider: provider as AIProvider } : {}),
-        ...(model ? { model } : {}),
-        temperature,
-        ...(maxTokens ? { maxTokens: Number(maxTokens) } : {}),
-      },
+      modelConfig: { provider: providerSlug, model },
     })
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
 
-  // Determine inheritance source for each field
-  function inheritLabel(field: 'provider' | 'model'): string {
-    if (field === 'provider') {
-      if (agent.modelConfig.provider) return 'Custom'
-      if (project?.config.providerOverride?.provider) return 'Inherited from project'
-      return 'Inherited from global'
-    }
-    if (agent.modelConfig.model) return 'Custom'
-    if (project?.config.providerOverride?.defaultModel) return 'Inherited from project'
-    return 'Inherited from global'
-  }
-
   return (
     <div className="max-w-[640px] flex flex-col gap-4">
-      {/* Effective config display */}
-      {resolvedConfig && (
-        <PixelCard className="bg-deep">
-          <div className="font-pixel text-[8px] text-text-dim mb-2">EFFECTIVE CONFIG</div>
-          <div className="grid grid-cols-2 gap-2 text-[12px]">
-            <div>
-              <span className="text-text-dim">Provider: </span>
-              <span className="text-accent-green font-mono">{resolvedConfig.provider}</span>
-            </div>
-            <div>
-              <span className="text-text-dim">Model: </span>
-              <span className="text-accent-green font-mono">{resolvedConfig.model}</span>
-            </div>
-            <div>
-              <span className="text-text-dim">Temperature: </span>
-              <span className="text-accent-green font-mono">{resolvedConfig.temperature}</span>
-            </div>
-            {resolvedConfig.maxTokens && (
-              <div>
-                <span className="text-text-dim">Max Tokens: </span>
-                <span className="text-accent-green font-mono">{resolvedConfig.maxTokens}</span>
-              </div>
-            )}
-          </div>
-        </PixelCard>
-      )}
-
       <div className="flex flex-col gap-1">
         <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
-        <div className="flex items-center gap-2">
-          <select
-            value={provider}
-            onChange={e => setProvider(e.target.value)}
-            className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer flex-1"
-          >
-            <option value="">Inherit</option>
-            <option value="openai">OpenAI</option>
-            <option value="anthropic">Anthropic</option>
-            <option value="google">Google</option>
-            <option value="custom">Custom</option>
-          </select>
-          <span className="text-[10px] text-text-dim">{inheritLabel('provider')}</span>
-        </div>
+        <select
+          value={providerSlug}
+          onChange={e => handleProviderChange(e.target.value)}
+          className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+        >
+          {availableProviders.length === 0 && <option value="">No providers configured</option>}
+          {availableProviders.map(([slug, entry]) => (
+            <option key={slug} value={slug}>{entry.name}</option>
+          ))}
+        </select>
       </div>
 
-      <div className="flex items-end gap-2">
-        <div className="flex-1">
-          <PixelInput label="MODEL" value={model} onChange={e => setModel(e.target.value)} placeholder="Inherit" />
-        </div>
-        <span className="text-[10px] text-text-dim pb-2">{inheritLabel('model')}</span>
+      <div className="flex flex-col gap-1">
+        <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+        <select
+          value={model}
+          onChange={e => setModel(e.target.value)}
+          className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+        >
+          {models.length === 0 && <option value="">No models available</option>}
+          {models.map(m => (
+            <option key={m} value={m}>{m}</option>
+          ))}
+        </select>
       </div>
-
-      <PixelInput
-        label="TEMPERATURE"
-        type="number"
-        min={0}
-        max={2}
-        step={0.1}
-        value={temperature}
-        onChange={e => setTemperature(Number(e.target.value))}
-      />
-
-      <PixelInput
-        label="MAX TOKENS"
-        type="number"
-        min={1}
-        value={maxTokens}
-        onChange={e => setMaxTokens(e.target.value ? Number(e.target.value) : '')}
-        placeholder="Default"
-      />
 
       <div className="flex items-center gap-3">
-        <PixelButton variant="primary" onClick={handleSave} disabled={saving}>
+        <PixelButton variant="primary" onClick={handleSave} disabled={saving || !providerSlug || !model}>
           {saving ? 'Saving...' : 'Save Model Config'}
         </PixelButton>
         {saved && <span className="text-[12px] text-accent-green">Saved!</span>}

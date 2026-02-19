@@ -588,6 +588,14 @@ export class MockSettingsService implements ISettingsService {
     this.settings = { ...this.settings, ...data }
     return { ...this.settings }
   }
+
+  async testProvider(slug: string): Promise<{ ok: boolean; error?: string; latencyMs?: number }> {
+    await delay(200)
+    const entry = this.settings.providers[slug]
+    if (!entry) return { ok: false, error: `Provider "${slug}" not found` }
+    if (!entry.apiKey && !entry.baseUrl?.includes('localhost')) return { ok: false, error: 'No API key configured' }
+    return { ok: true, latencyMs: 120 + Math.floor(Math.random() * 200) }
+  }
 }
 
 // --- PermissionsConfigService ---

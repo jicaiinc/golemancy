@@ -36,8 +36,6 @@ export async function runAgent(params: RunAgentParams) {
     tools,
     stopWhen: stepCountIs(10),
     abortSignal,
-    temperature: agent.modelConfig.temperature,
-    maxOutputTokens: agent.modelConfig.maxTokens,
     onStepFinish: ({ toolCalls, usage }) => {
       if (onEvent) {
         if (toolCalls) {

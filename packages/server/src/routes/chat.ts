@@ -165,8 +165,6 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       messages: modelMessages,
       tools: hasTools ? allTools : undefined,
       stopWhen: hasTools ? stepCountIs(10) : undefined,
-      temperature: agent.modelConfig.temperature,
-      maxOutputTokens: agent.modelConfig.maxTokens,
       abortSignal: c.req.raw.signal,
       onFinish: ensureCleanup,
       onAbort: ensureCleanup,

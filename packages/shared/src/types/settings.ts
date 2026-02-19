@@ -1,12 +1,13 @@
 import type { PermissionsConfigId } from './common'
 
-export type AIProvider = 'openai' | 'anthropic' | 'google' | 'custom'
+export type ProviderSdkType = 'anthropic' | 'openai' | 'google' | 'openai-compatible'
 
-export interface ProviderConfig {
-  provider: AIProvider
-  apiKey: string
+export interface ProviderEntry {
+  name: string
+  apiKey?: string
   baseUrl?: string
-  defaultModel: string
+  sdkType: ProviderSdkType
+  models: string[]
 }
 
 export type ThemeMode = 'light' | 'dark' | 'system'
@@ -18,22 +19,19 @@ export interface UserProfile {
 }
 
 export interface GlobalSettings {
-  providers: ProviderConfig[]
-  defaultProvider: AIProvider
+  providers: Record<string, ProviderEntry>
+  defaultModel?: AgentModelConfig
   theme: ThemeMode
   userProfile: UserProfile
   defaultWorkingDirectoryBase: string
 }
 
 export interface ProjectConfig {
-  providerOverride?: Partial<ProviderConfig>
   maxConcurrentAgents: number
   permissionsConfigId?: PermissionsConfigId
 }
 
 export interface AgentModelConfig {
-  provider?: AIProvider
-  model?: string
-  temperature?: number
-  maxTokens?: number
+  provider: string
+  model: string
 }

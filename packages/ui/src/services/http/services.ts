@@ -283,6 +283,12 @@ export class HttpSettingsService implements ISettingsService {
       method: 'PATCH', body: JSON.stringify(data),
     })
   }
+  testProvider(slug: string) {
+    return fetchJson<{ ok: boolean; error?: string; latencyMs?: number }>(
+      `${this.baseUrl}/api/settings/providers/${encodeURIComponent(slug)}/test`,
+      { method: 'POST' },
+    )
+  }
 }
 
 export class HttpDashboardService implements IDashboardService {
