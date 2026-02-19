@@ -71,7 +71,7 @@ describe('FileProjectStorage', () => {
       })
 
       const projectDir = `${state.tmpDir}/projects/${project.id}`
-      for (const sub of ['agents', 'tasks', 'artifacts', 'memory', 'skills']) {
+      for (const sub of ['agents', 'tasks', 'workspace', 'memory', 'skills']) {
         const stat = await fs.stat(path.join(projectDir, sub))
         expect(stat.isDirectory()).toBe(true)
       }

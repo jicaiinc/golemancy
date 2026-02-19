@@ -1,11 +1,11 @@
 import { nanoid } from 'nanoid'
 import type {
   ProjectId, AgentId, ConversationId, MessageId,
-  TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
+  TaskId, MemoryId, SkillId, CronJobId,
   PermissionsConfigId,
 } from '@golemancy/shared'
 
-type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'art' | 'mem' | 'skill' | 'cron' | 'perm'
+type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'mem' | 'skill' | 'cron' | 'perm'
 
 type IdMap = {
   proj: ProjectId
@@ -13,7 +13,6 @@ type IdMap = {
   conv: ConversationId
   msg: MessageId
   task: TaskId
-  art: ArtifactId
   mem: MemoryId
   skill: SkillId
   cron: CronJobId

@@ -10,7 +10,7 @@ import {
   ChatPage,
   TaskListPage,
   CronJobsPage,
-  ArtifactsPage,
+  WorkspacePage,
   MemoryPage,
   ProjectSettingsPage,
   GlobalSettingsPage,
@@ -40,7 +40,7 @@ export function AppRoutes() {
           <Route path="chat" element={<ChatPage />} />
           <Route path="tasks" element={<TaskListPage />} />
           <Route path="cron" element={<CronJobsPage />} />
-          <Route path="artifacts" element={<ArtifactsPage />} />
+          <Route path="workspace" element={<WorkspacePage />} />
           <Route path="memory" element={<MemoryPage />} />
           <Route path="settings" element={<ProjectSettingsPage />} />
         </Route>

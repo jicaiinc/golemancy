@@ -3,7 +3,7 @@ import type {
   IAgentService,
   IConversationService,
   ITaskService,
-  IArtifactService,
+  IWorkspaceService,
   IMemoryService,
   ISkillService,
   IMCPService,
@@ -18,7 +18,7 @@ export interface ServiceContainer {
   agents: IAgentService
   conversations: IConversationService
   tasks: ITaskService
-  artifacts: IArtifactService
+  workspace: IWorkspaceService
   memory: IMemoryService
   skills: ISkillService
   mcp: IMCPService

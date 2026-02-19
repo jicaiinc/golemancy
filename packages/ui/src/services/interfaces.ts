@@ -3,7 +3,7 @@ export type {
   IAgentService,
   IConversationService,
   ITaskService,
-  IArtifactService,
+  IWorkspaceService,
   IMemoryService,
   ISkillService,
   IMCPService,

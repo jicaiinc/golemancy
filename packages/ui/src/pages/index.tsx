@@ -19,8 +19,8 @@ export { TaskListPage } from './task'
 // Cron Jobs
 export { CronJobsPage } from './cron'
 
-// Artifacts
-export { ArtifactsPage } from './artifact'
+// Workspace
+export { WorkspacePage } from './workspace'
 
 // Memory
 export { MemoryPage } from './memory'

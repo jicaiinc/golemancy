@@ -59,10 +59,11 @@ function createTestServices(): ServiceContainer {
       ]),
       getById: vi.fn(),
     },
-    artifacts: {
-      list: vi.fn().mockResolvedValue([]),
-      getById: vi.fn(),
-      delete: vi.fn(),
+    workspace: {
+      listDir: vi.fn().mockResolvedValue([]),
+      readFile: vi.fn().mockResolvedValue(null),
+      deleteFile: vi.fn().mockResolvedValue(undefined),
+      getFileUrl: vi.fn().mockReturnValue(''),
     },
     memory: {
       list: vi.fn().mockResolvedValue([]),

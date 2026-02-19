@@ -1,12 +1,13 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, CronJob, Skill,
-  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
+  Project, Agent, Conversation, ConversationTask, MemoryEntry, CronJob, Skill,
+  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, CronJobId,
   PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   PermissionsConfigFile,
+  WorkspaceEntry, FilePreviewData,
 } from '../types'
 
 export interface IProjectService {
@@ -42,10 +43,18 @@ export interface ITaskService {
   getById(projectId: ProjectId, id: TaskId): Promise<ConversationTask | null>
 }
 
-export interface IArtifactService {
-  list(projectId: ProjectId, agentId?: AgentId): Promise<Artifact[]>
-  getById(projectId: ProjectId, id: ArtifactId): Promise<Artifact | null>
-  delete(projectId: ProjectId, id: ArtifactId): Promise<void>
+export interface IWorkspaceService {
+  /** List entries in a directory. `dirPath` is relative to workspace root. Empty string = root. */
+  listDir(projectId: ProjectId, dirPath: string): Promise<WorkspaceEntry[]>
+
+  /** Read a file for preview. Returns text content for tier-1, meta-only for tier-2. */
+  readFile(projectId: ProjectId, filePath: string): Promise<FilePreviewData>
+
+  /** Delete a file or empty directory. `filePath` is relative to workspace root. */
+  deleteFile(projectId: ProjectId, filePath: string): Promise<void>
+
+  /** Get the full URL to download/serve a workspace file (for images, downloads). */
+  getFileUrl(projectId: ProjectId, filePath: string): string
 }
 
 export interface IMemoryService {
