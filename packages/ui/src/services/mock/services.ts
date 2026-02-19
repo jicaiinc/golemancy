@@ -1,9 +1,9 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
-  DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
-  Message, PaginationParams, PaginatedResult, TaskLogEntry,
+  DashboardSummary, DashboardAgentSummary, ActivityEntry,
+  Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
 } from '@golemancy/shared'
 import { DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
@@ -14,7 +14,7 @@ import type {
 } from '../interfaces'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
-  SEED_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
+  SEED_CONVERSATION_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
   SEED_ACTIVITIES, SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
   SEED_PERMISSIONS_CONFIGS,
 } from './data'
@@ -245,34 +245,18 @@ export class MockConversationService implements IConversationService {
 
 // --- TaskService ---
 export class MockTaskService implements ITaskService {
-  private data = new Map<TaskId, Task>(SEED_TASKS.map(t => [t.id, { ...t }]))
+  private data = new Map<TaskId, ConversationTask>(SEED_CONVERSATION_TASKS.map(t => [t.id, { ...t }]))
 
-  async list(projectId: ProjectId, agentId?: AgentId): Promise<Task[]> {
+  async list(_projectId: ProjectId, conversationId?: ConversationId): Promise<ConversationTask[]> {
     await delay()
-    return [...this.data.values()].filter(t =>
-      t.projectId === projectId && (!agentId || t.agentId === agentId)
-    )
+    const all = [...this.data.values()]
+    if (conversationId) return all.filter(t => t.conversationId === conversationId)
+    return all
   }
 
-  async getById(projectId: ProjectId, id: TaskId): Promise<Task | null> {
+  async getById(_projectId: ProjectId, id: TaskId): Promise<ConversationTask | null> {
     await delay()
-    const task = this.data.get(id)
-    return task && task.projectId === projectId ? task : null
-  }
-
-  async cancel(projectId: ProjectId, id: TaskId): Promise<void> {
-    await delay()
-    const task = this.data.get(id)
-    if (task && task.projectId === projectId) {
-      task.status = 'cancelled'
-      task.updatedAt = new Date().toISOString()
-    }
-  }
-
-  async getLogs(taskId: TaskId, _cursor?: number, _limit?: number): Promise<TaskLogEntry[]> {
-    await delay()
-    const task = this.data.get(taskId)
-    return task?.log ?? []
+    return this.data.get(id) ?? null
   }
 }
 
@@ -594,30 +578,21 @@ export class MockPermissionsConfigService implements IPermissionsConfigService {
 export class MockDashboardService implements IDashboardService {
   private projects: Project[]
   private agents: Agent[]
-  private tasks: Task[]
   private activities: ActivityEntry[]
 
-  constructor(projects: Project[], agents: Agent[], tasks: Task[], activities: ActivityEntry[]) {
+  constructor(projects: Project[], agents: Agent[], activities: ActivityEntry[]) {
     this.projects = projects
     this.agents = agents
-    this.tasks = tasks
     this.activities = activities
   }
 
   async getSummary(): Promise<DashboardSummary> {
     await delay()
-    const today = new Date().toDateString()
     return {
       totalProjects: this.projects.length,
       totalAgents: this.agents.length,
       activeAgents: this.agents.filter(a => a.status === 'running').length,
-      runningTasks: this.tasks.filter(t => t.status === 'running').length,
-      completedTasksToday: this.tasks.filter(
-        t => t.status === 'completed' && t.completedAt && new Date(t.completedAt).toDateString() === today
-      ).length,
-      totalTokenUsageToday: this.tasks
-        .filter(t => new Date(t.updatedAt).toDateString() === today)
-        .reduce((sum, t) => sum + t.tokenUsage, 0),
+      totalTokenUsageToday: 0,
     }
   }
 
@@ -627,36 +602,12 @@ export class MockDashboardService implements IDashboardService {
       .filter(a => a.status === 'running')
       .map(a => {
         const project = this.projects.find(p => p.id === a.projectId)
-        const task = a.currentTaskId ? this.tasks.find(t => t.id === a.currentTaskId) : undefined
         return {
           agentId: a.id,
           projectId: a.projectId,
           projectName: project?.name ?? 'Unknown',
           agentName: a.name,
           status: a.status,
-          currentTaskTitle: task?.title,
-        }
-      })
-  }
-
-  async getRecentTasks(limit = 10): Promise<DashboardTaskSummary[]> {
-    await delay()
-    return [...this.tasks]
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      .slice(0, limit)
-      .map(t => {
-        const project = this.projects.find(p => p.id === t.projectId)
-        const agent = this.agents.find(a => a.id === t.agentId)
-        return {
-          taskId: t.id,
-          projectId: t.projectId,
-          projectName: project?.name ?? 'Unknown',
-          agentId: t.agentId,
-          agentName: agent?.name ?? 'Unknown',
-          title: t.title,
-          status: t.status,
-          progress: t.progress,
-          updatedAt: t.updatedAt,
         }
       })
   }

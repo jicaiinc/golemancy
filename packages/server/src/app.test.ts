@@ -67,13 +67,9 @@ function createMockDeps() {
     },
     taskStorage: {
       list: vi.fn().mockResolvedValue([
-        { id: 'task-1', projectId: 'proj-1', title: 'Research' },
+        { id: 'task-1', conversationId: 'conv-1', subject: 'Research', status: 'pending', blocks: [], blockedBy: [] },
       ]),
       getById: vi.fn().mockResolvedValue(null),
-      cancel: vi.fn().mockResolvedValue(undefined),
-      getLogs: vi.fn().mockResolvedValue([
-        { timestamp: '2024-01-01', type: 'start', content: 'Started' },
-      ]),
     },
     artifactStorage: {
       list: vi.fn().mockResolvedValue([]),
@@ -104,12 +100,11 @@ function createMockDeps() {
     dashboardService: {
       getSummary: vi.fn().mockResolvedValue({
         totalProjects: 2, totalAgents: 5, activeAgents: 1,
-        runningTasks: 1, completedTasksToday: 3, totalTokenUsageToday: 5000,
+        totalTokenUsageToday: 5000,
       }),
       getActiveAgents: vi.fn().mockResolvedValue([
         { agentId: 'agent-1', agentName: 'Writer', projectName: 'P1', status: 'running' },
       ]),
-      getRecentTasks: vi.fn().mockResolvedValue([]),
       getActivityFeed: vi.fn().mockResolvedValue([]),
     },
     mcpStorage: {
@@ -356,9 +351,9 @@ describe('HTTP API routes', () => {
       expect(deps.taskStorage.list).toHaveBeenCalledWith('proj-1', undefined)
     })
 
-    it('GET list passes agentId filter', async () => {
-      await app.request('/api/projects/proj-1/tasks?agentId=agent-1')
-      expect(deps.taskStorage.list).toHaveBeenCalledWith('proj-1', 'agent-1')
+    it('GET list passes conversationId filter', async () => {
+      await app.request('/api/projects/proj-1/tasks?conversationId=conv-1')
+      expect(deps.taskStorage.list).toHaveBeenCalledWith('proj-1', 'conv-1')
     })
 
     it('GET /:id returns 404 when not found', async () => {
@@ -367,35 +362,10 @@ describe('HTTP API routes', () => {
     })
 
     it('GET /:id returns task when found', async () => {
-      ;(deps.taskStorage.getById as any).mockResolvedValueOnce({ id: 'task-1', title: 'Research' })
+      ;(deps.taskStorage.getById as any).mockResolvedValueOnce({ id: 'task-1', subject: 'Research' })
       const res = await app.request('/api/projects/proj-1/tasks/task-1')
       expect(res.status).toBe(200)
       expect(deps.taskStorage.getById).toHaveBeenCalledWith('proj-1', 'task-1')
-    })
-
-    it('POST /:id/cancel cancels task', async () => {
-      const res = await app.request('/api/projects/proj-1/tasks/task-1/cancel', { method: 'POST' })
-      expect(res.status).toBe(200)
-      expect(deps.taskStorage.cancel).toHaveBeenCalledWith('proj-1', 'task-1')
-    })
-
-    it('GET /:id/logs returns logs with cursor and limit', async () => {
-      ;(deps.taskStorage.getById as any).mockResolvedValueOnce({ id: 'task-1', title: 'Research' })
-      const res = await app.request('/api/projects/proj-1/tasks/task-1/logs?cursor=5&limit=50')
-      expect(res.status).toBe(200)
-      expect(deps.taskStorage.getById).toHaveBeenCalledWith('proj-1', 'task-1')
-      expect(deps.taskStorage.getLogs).toHaveBeenCalledWith('task-1', 5, 50)
-    })
-
-    it('GET /:id/logs uses defaults when no params', async () => {
-      ;(deps.taskStorage.getById as any).mockResolvedValueOnce({ id: 'task-1', title: 'Research' })
-      await app.request('/api/projects/proj-1/tasks/task-1/logs')
-      expect(deps.taskStorage.getLogs).toHaveBeenCalledWith('task-1', undefined, 100)
-    })
-
-    it('GET /:id/logs returns 404 when task not found', async () => {
-      const res = await app.request('/api/projects/proj-1/tasks/task-missing/logs')
-      expect(res.status).toBe(404)
     })
   })
 
@@ -501,16 +471,6 @@ describe('HTTP API routes', () => {
       const body = await res.json()
       expect(body).toHaveLength(1)
       expect(body[0].agentName).toBe('Writer')
-    })
-
-    it('GET /api/dashboard/recent-tasks passes limit', async () => {
-      await app.request('/api/dashboard/recent-tasks?limit=5')
-      expect(deps.dashboardService.getRecentTasks).toHaveBeenCalledWith(5)
-    })
-
-    it('GET /api/dashboard/recent-tasks uses default limit', async () => {
-      await app.request('/api/dashboard/recent-tasks')
-      expect(deps.dashboardService.getRecentTasks).toHaveBeenCalledWith(10)
     })
 
     it('GET /api/dashboard/activity passes limit', async () => {

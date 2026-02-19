@@ -61,8 +61,6 @@ export function createMockStorage(): MockStorage {
     taskStorage: {
       list: vi.fn().mockResolvedValue([]),
       getById: vi.fn().mockResolvedValue(null),
-      cancel: vi.fn().mockResolvedValue(undefined),
-      getLogs: vi.fn().mockResolvedValue([]),
     },
     artifactStorage: {
       list: vi.fn().mockResolvedValue([]),
@@ -94,9 +92,8 @@ export function createMockStorage(): MockStorage {
       update: vi.fn(),
     },
     dashboardService: {
-      getSummary: vi.fn().mockResolvedValue({ totalProjects: 0, totalAgents: 0, totalConversations: 0, totalTasks: 0, activeTasks: 0 }),
+      getSummary: vi.fn().mockResolvedValue({ totalProjects: 0, totalAgents: 0, activeAgents: 0, totalTokenUsageToday: 0 }),
       getActiveAgents: vi.fn().mockResolvedValue([]),
-      getRecentTasks: vi.fn().mockResolvedValue([]),
       getActivityFeed: vi.fn().mockResolvedValue([]),
     },
     cronJobStorage: {

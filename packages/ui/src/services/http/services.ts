@@ -1,9 +1,9 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
-  DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
-  Message, PaginationParams, PaginatedResult, TaskLogEntry,
+  DashboardSummary, DashboardAgentSummary, ActivityEntry,
+  Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   IProjectService, IAgentService, IConversationService,
   ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
@@ -106,22 +106,12 @@ export class HttpConversationService implements IConversationService {
 export class HttpTaskService implements ITaskService {
   constructor(private baseUrl: string) {}
 
-  list(projectId: ProjectId, agentId?: AgentId) {
-    const params = agentId ? `?agentId=${agentId}` : ''
-    return fetchJson<Task[]>(`${this.baseUrl}/api/projects/${projectId}/tasks${params}`)
+  list(projectId: ProjectId, conversationId?: ConversationId) {
+    const params = conversationId ? `?conversationId=${conversationId}` : ''
+    return fetchJson<ConversationTask[]>(`${this.baseUrl}/api/projects/${projectId}/tasks${params}`)
   }
   getById(projectId: ProjectId, id: TaskId) {
-    return fetchJson<Task | null>(`${this.baseUrl}/api/projects/${projectId}/tasks/${id}`)
-  }
-  async cancel(projectId: ProjectId, id: TaskId) {
-    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/tasks/${id}/cancel`, { method: 'POST' })
-  }
-  getLogs(taskId: TaskId, cursor?: number, limit?: number) {
-    const params = new URLSearchParams()
-    if (cursor !== undefined) params.set('cursor', String(cursor))
-    if (limit !== undefined) params.set('limit', String(limit))
-    const qs = params.toString()
-    return fetchJson<TaskLogEntry[]>(`${this.baseUrl}/api/tasks/${taskId}/logs${qs ? `?${qs}` : ''}`)
+    return fetchJson<ConversationTask | null>(`${this.baseUrl}/api/projects/${projectId}/tasks/${id}`)
   }
 }
 
@@ -277,9 +267,6 @@ export class HttpDashboardService implements IDashboardService {
   }
   getActiveAgents() {
     return fetchJson<DashboardAgentSummary[]>(`${this.baseUrl}/api/dashboard/active-agents`)
-  }
-  getRecentTasks(limit = 10) {
-    return fetchJson<DashboardTaskSummary[]>(`${this.baseUrl}/api/dashboard/recent-tasks?limit=${limit}`)
   }
   getActivityFeed(limit = 20) {
     return fetchJson<ActivityEntry[]>(`${this.baseUrl}/api/dashboard/activity?limit=${limit}`)

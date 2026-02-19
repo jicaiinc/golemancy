@@ -97,11 +97,11 @@ function createTestServices(): ServiceContainer {
       sendMessage: vi.fn().mockResolvedValue(undefined),
       getMessages: vi.fn(), searchMessages: vi.fn(), delete: vi.fn(),
     },
-    tasks: { list: vi.fn(), getById: vi.fn(), cancel: vi.fn(), getLogs: vi.fn() },
+    tasks: { list: vi.fn(), getById: vi.fn() },
     artifacts: { list: vi.fn(), getById: vi.fn(), delete: vi.fn() },
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     settings: { get: vi.fn(), update: vi.fn() },
-    dashboard: { getSummary: vi.fn(), getActiveAgents: vi.fn(), getRecentTasks: vi.fn(), getActivityFeed: vi.fn() },
+    dashboard: { getSummary: vi.fn(), getActiveAgents: vi.fn(), getActivityFeed: vi.fn() },
   } as unknown as ServiceContainer
 }
 

@@ -1,4 +1,4 @@
-import type { ConversationId, MessageId, TaskId, AgentId } from '@golemancy/shared'
+import type { ConversationId, MessageId, AgentId } from '@golemancy/shared'
 
 export interface WsMessageEvent {
   event: 'message:start' | 'message:delta' | 'message:tool_call' | 'message:end'
@@ -9,22 +9,10 @@ export interface WsMessageEvent {
   tokenUsage?: { promptTokens: number; completionTokens: number }
 }
 
-export interface WsTaskEvent {
-  event: 'task:started' | 'task:progress' | 'task:completed' | 'task:failed'
-  taskId: TaskId
-  agentId?: AgentId
-  title?: string
-  progress?: number
-  log?: string
-  result?: string
-  error?: string
-}
-
 export interface WsAgentEvent {
   event: 'agent:status_changed'
   agentId: AgentId
   status: string
-  currentTaskId?: TaskId
 }
 
 export interface WsModeDegradedEvent {
@@ -39,7 +27,7 @@ export interface WsSystemEvent {
   message?: string
 }
 
-export type WsServerEvent = WsMessageEvent | WsTaskEvent | WsAgentEvent | WsModeDegradedEvent | WsSystemEvent
+export type WsServerEvent = WsMessageEvent | WsAgentEvent | WsModeDegradedEvent | WsSystemEvent
 
 export interface WsClientMessage {
   type: 'subscribe' | 'unsubscribe' | 'ping'

@@ -1,11 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
-  DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
+  DashboardSummary, DashboardAgentSummary, ActivityEntry,
   ThemeMode,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
+  ProjectId, AgentId, ConversationId, ArtifactId, MemoryId, SkillId, CronJobId,
   SkillCreateData, SkillUpdateData,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
@@ -43,7 +43,7 @@ interface ConversationSlice {
 }
 
 interface TaskSlice {
-  tasks: Task[]
+  conversationTasks: ConversationTask[]
   tasksLoading: boolean
 }
 
@@ -85,7 +85,6 @@ interface UISlice {
 interface DashboardSlice {
   dashboardSummary: DashboardSummary | null
   dashboardActiveAgents: DashboardAgentSummary[]
-  dashboardRecentTasks: DashboardTaskSummary[]
   dashboardActivityFeed: ActivityEntry[]
   dashboardLoading: boolean
 }
@@ -121,8 +120,8 @@ interface ConversationActions {
 }
 
 interface TaskActions {
-  loadTasks(projectId: ProjectId): Promise<void>
-  cancelTask(taskId: TaskId): Promise<void>
+  loadConversationTasks(projectId: ProjectId): Promise<void>
+  refreshConversationTasks(): Promise<void>
 }
 
 interface ArtifactActions {
@@ -174,7 +173,6 @@ interface UIActions {
 interface DashboardActions {
   loadDashboard(): Promise<void>
   loadDashboardActiveAgents(): Promise<void>
-  loadDashboardRecentTasks(limit?: number): Promise<void>
   loadDashboardActivityFeed(limit?: number): Promise<void>
 }
 
@@ -221,7 +219,7 @@ export const useAppStore = create<AppState>()(
           currentProjectId: id,
           agents: [],
           conversations: [],
-          tasks: [],
+          conversationTasks: [],
           artifacts: [],
           memories: [],
           skills: [],
@@ -242,7 +240,7 @@ export const useAppStore = create<AppState>()(
         // Load project data in parallel (individual failures resolve to empty arrays)
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
-        const [agents, conversations, tasks, artifacts, memories, skills, mcpServers, cronJobs] = await Promise.all([
+        const [agents, conversations, conversationTasks, artifacts, memories, skills, mcpServers, cronJobs] = await Promise.all([
           safe(svc.agents.list(id)),
           safe(svc.conversations.list(id)),
           safe(svc.tasks.list(id)),
@@ -259,7 +257,7 @@ export const useAppStore = create<AppState>()(
         set({
           agents,
           conversations,
-          tasks,
+          conversationTasks,
           artifacts,
           memories,
           skills,
@@ -283,7 +281,7 @@ export const useAppStore = create<AppState>()(
           currentProjectId: null,
           agents: [],
           conversations: [],
-          tasks: [],
+          conversationTasks: [],
           artifacts: [],
           memories: [],
           skills: [],
@@ -325,7 +323,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], tasks: [], artifacts: [], memories: [], skills: [], mcpServers: [], cronJobs: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], artifacts: [], memories: [], skills: [], mcpServers: [], cronJobs: [] } : {}),
         }))
       },
 
@@ -431,22 +429,20 @@ export const useAppStore = create<AppState>()(
       },
 
       // --- Task state ---
-      tasks: [],
+      conversationTasks: [],
       tasksLoading: false,
 
-      async loadTasks(projectId: ProjectId) {
+      async loadConversationTasks(projectId: ProjectId) {
         set({ tasksLoading: true })
         const tasks = await getServices().tasks.list(projectId)
-        set({ tasks, tasksLoading: false })
+        set({ conversationTasks: tasks, tasksLoading: false })
       },
 
-      async cancelTask(taskId: TaskId) {
+      async refreshConversationTasks() {
         const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().tasks.cancel(projectId, taskId)
-        set(s => ({
-          tasks: s.tasks.map(t => t.id === taskId ? { ...t, status: 'cancelled' as const, updatedAt: new Date().toISOString() } : t),
-        }))
+        if (!projectId) return
+        const tasks = await getServices().tasks.list(projectId)
+        set({ conversationTasks: tasks })
       },
 
       // --- Artifact state ---
@@ -651,23 +647,20 @@ export const useAppStore = create<AppState>()(
       // --- Dashboard state ---
       dashboardSummary: null,
       dashboardActiveAgents: [],
-      dashboardRecentTasks: [],
       dashboardActivityFeed: [],
       dashboardLoading: false,
 
       async loadDashboard() {
         set({ dashboardLoading: true })
         const svc = getServices().dashboard
-        const [summary, activeAgents, recentTasks, activityFeed] = await Promise.all([
+        const [summary, activeAgents, activityFeed] = await Promise.all([
           svc.getSummary(),
           svc.getActiveAgents(),
-          svc.getRecentTasks(),
           svc.getActivityFeed(),
         ])
         set({
           dashboardSummary: summary,
           dashboardActiveAgents: activeAgents,
-          dashboardRecentTasks: recentTasks,
           dashboardActivityFeed: activityFeed,
           dashboardLoading: false,
         })
@@ -676,11 +669,6 @@ export const useAppStore = create<AppState>()(
       async loadDashboardActiveAgents() {
         const activeAgents = await getServices().dashboard.getActiveAgents()
         set({ dashboardActiveAgents: activeAgents })
-      },
-
-      async loadDashboardRecentTasks(limit?: number) {
-        const recentTasks = await getServices().dashboard.getRecentTasks(limit)
-        set({ dashboardRecentTasks: recentTasks })
       },
 
       async loadDashboardActivityFeed(limit?: number) {

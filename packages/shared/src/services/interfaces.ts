@@ -1,9 +1,9 @@
 import type {
-  Project, Agent, Conversation, Task, Artifact, MemoryEntry, CronJob, Skill,
+  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, CronJob, Skill,
   GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
   PermissionsConfigId,
-  DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry,
-  Message, PaginationParams, PaginatedResult, TaskLogEntry,
+  DashboardSummary, DashboardAgentSummary, ActivityEntry,
+  Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   PermissionsConfigFile,
@@ -38,10 +38,8 @@ export interface IConversationService {
 }
 
 export interface ITaskService {
-  list(projectId: ProjectId, agentId?: AgentId): Promise<Task[]>
-  getById(projectId: ProjectId, id: TaskId): Promise<Task | null>
-  cancel(projectId: ProjectId, id: TaskId): Promise<void>
-  getLogs(taskId: TaskId, cursor?: number, limit?: number): Promise<TaskLogEntry[]>
+  list(projectId: ProjectId, conversationId?: ConversationId): Promise<ConversationTask[]>
+  getById(projectId: ProjectId, id: TaskId): Promise<ConversationTask | null>
 }
 
 export interface IArtifactService {
@@ -94,7 +92,6 @@ export interface ICronJobService {
 export interface IDashboardService {
   getSummary(): Promise<DashboardSummary>
   getActiveAgents(): Promise<DashboardAgentSummary[]>
-  getRecentTasks(limit?: number): Promise<DashboardTaskSummary[]>
   getActivityFeed(limit?: number): Promise<ActivityEntry[]>
 }
 

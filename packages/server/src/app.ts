@@ -110,6 +110,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     settingsStorage: deps.settingsStorage,
     mcpStorage: deps.mcpStorage,
     permissionsConfigStorage: deps.permissionsConfigStorage,
+    taskStorage: deps.taskStorage as import('./storage/tasks').SqliteConversationTaskStorage,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes(deps.cronJobStorage))
