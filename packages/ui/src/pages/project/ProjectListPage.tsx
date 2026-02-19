@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { motion } from 'motion/react'
 import { useAppStore } from '../../stores'
-import { PixelButton, PixelCard, PixelBadge, PixelSpinner, OpenExternalIcon, PageContainer, PageHeader } from '../../components'
+import { PixelButton, PixelCard, PixelBadge, PixelSpinner, OpenExternalIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { ProjectCreateModal } from './ProjectCreateModal'
@@ -51,16 +51,19 @@ export function ProjectListPage() {
         </PixelButton>
       }
     >
-      <PageContainer>
-        <PageHeader
-          title="Your Projects"
-          subtitle={`${projects.length} project${projects.length !== 1 ? 's' : ''} in your workspace`}
-          actions={
-            <PixelButton data-testid="create-project-btn" variant="primary" onClick={() => setShowCreate(true)}>
-              + New Project
-            </PixelButton>
-          }
-        />
+      <div className="max-w-[1200px] mx-auto p-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="font-pixel text-[12px] text-text-primary">Your Projects</h2>
+            <p className="mt-2 text-text-secondary text-[13px]">
+              {projects.length} project{projects.length !== 1 ? 's' : ''} in your workspace
+            </p>
+          </div>
+          <PixelButton data-testid="create-project-btn" variant="primary" onClick={() => setShowCreate(true)}>
+            + New Project
+          </PixelButton>
+        </div>
 
         {/* Project grid */}
         {projects.length === 0 ? (
@@ -131,9 +134,9 @@ export function ProjectListPage() {
             ))}
           </motion.div>
         )}
+      </div>
 
-        <ProjectCreateModal open={showCreate} onClose={() => setShowCreate(false)} />
-      </PageContainer>
+      <ProjectCreateModal open={showCreate} onClose={() => setShowCreate(false)} />
     </GlobalLayout>
   )
 }

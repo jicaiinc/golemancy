@@ -4,7 +4,7 @@ import type { Skill, SkillId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {
-  PixelCard, PixelButton, PixelTabs, PixelSpinner, PixelDropZone, PageContainer, PageHeader,
+  PixelCard, PixelButton, PixelTabs, PixelSpinner, PixelDropZone,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { SkillFormModal } from './SkillFormModal'
@@ -88,13 +88,17 @@ export function SkillsPage() {
   }, [createSkill])
 
   return (
-    <PageContainer>
-      <PageHeader
-        title="Skills"
-        subtitle={`${skills.length} skill${skills.length !== 1 ? 's' : ''}`}
-        actions={<PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Skill</PixelButton>}
-      />
-      <motion.div {...staggerContainer} initial="initial" animate="animate">
+    <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="font-pixel text-[14px] text-text-primary">Skills</h1>
+          <p className="text-[12px] text-text-secondary mt-1">
+            {skills.length} skill{skills.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        <PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Skill</PixelButton>
+      </div>
 
       {/* Drop zone for skill import */}
       <PixelDropZone accept={['.md', '.zip']} onDrop={handleSkillDrop} className="mb-4" />
@@ -208,7 +212,6 @@ export function SkillsPage() {
           initialInstructions={editSkill.instructions}
         />
       )}
-      </motion.div>
-    </PageContainer>
+    </motion.div>
   )
 }

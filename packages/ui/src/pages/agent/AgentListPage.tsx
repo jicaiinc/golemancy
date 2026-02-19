@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router'
 import { motion } from 'motion/react'
 import type { AgentStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelSpinner, PageContainer, PageHeader } from '../../components'
+import { PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelSpinner } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { AgentCreateModal } from './AgentCreateModal'
 
@@ -80,45 +80,29 @@ export function AgentListPage() {
     )
   }
 
-  const headerActions = (
-    <div className="flex items-center gap-2">
-      <ViewSwitcher mode={viewMode} onChange={setViewMode} />
-      <PixelButton data-testid="create-agent-btn" variant="primary" onClick={() => setShowCreate(true)}>
-        + New Agent
-      </PixelButton>
-    </div>
-  )
-
-  if (viewMode === 'topology') {
-    return (
-      <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between px-6 pt-6 pb-3">
-          <div>
-            <h1 className="font-pixel text-[14px] text-text-primary">Agents</h1>
-            <p className="mt-1 text-text-secondary text-[13px]">
-              {agents.length} agent{agents.length !== 1 ? 's' : ''} in this project
-            </p>
-          </div>
-          {headerActions}
-        </div>
-        <Suspense fallback={<div className="flex items-center justify-center h-full"><PixelSpinner /></div>}>
-          <LazyTopologyView onCreateAgent={() => setShowCreate(true)} />
-        </Suspense>
-        <AgentCreateModal open={showCreate} onClose={() => setShowCreate(false)} skipNavigation />
-      </div>
-    )
-  }
-
   return (
-    <PageContainer>
-      <PageHeader
-        title="Agents"
-        subtitle={`${agents.length} agent${agents.length !== 1 ? 's' : ''} in this project`}
-        actions={headerActions}
-      />
+    <div className={viewMode === 'topology' ? 'h-full flex flex-col' : 'p-6'}>
+      {/* Header */}
+      <div className={`flex items-center justify-between ${viewMode === 'topology' ? 'px-6 pt-6 pb-3' : 'mb-6'}`}>
+        <div>
+          <h1 className="font-pixel text-[14px] text-text-primary">Agents</h1>
+          <p className="mt-1 text-text-secondary text-[13px]">
+            {agents.length} agent{agents.length !== 1 ? 's' : ''} in this project
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <ViewSwitcher mode={viewMode} onChange={setViewMode} />
+          <PixelButton data-testid="create-agent-btn" variant="primary" onClick={() => setShowCreate(true)}>
+            + New Agent
+          </PixelButton>
+        </div>
+      </div>
 
-      {/* Agent grid */}
-      {agents.length === 0 ? (
+      {/* Conditional view */}
+      {viewMode === 'grid' ? (
+        <>
+          {/* Agent grid */}
+          {agents.length === 0 ? (
             <PixelCard variant="outlined" className="text-center py-12">
               <div className="font-pixel text-[20px] text-text-dim mb-4">{'{}'}</div>
               <p className="font-pixel text-[10px] text-text-secondary mb-4">No agents yet</p>
@@ -192,7 +176,18 @@ export function AgentListPage() {
             </motion.div>
           )}
 
-      <AgentCreateModal open={showCreate} onClose={() => setShowCreate(false)} />
-    </PageContainer>
+          <AgentCreateModal open={showCreate} onClose={() => setShowCreate(false)} />
+        </>
+      ) : (
+        <Suspense fallback={<div className="flex items-center justify-center h-full"><PixelSpinner /></div>}>
+          <LazyTopologyView onCreateAgent={() => setShowCreate(true)} />
+        </Suspense>
+      )}
+
+      {/* Shared modal for topology view with skipNavigation */}
+      {viewMode === 'topology' && (
+        <AgentCreateModal open={showCreate} onClose={() => setShowCreate(false)} skipNavigation />
+      )}
+    </div>
   )
 }

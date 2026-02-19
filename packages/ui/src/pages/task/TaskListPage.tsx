@@ -6,7 +6,6 @@ import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {
   PixelCard, PixelBadge, PixelButton, PixelSpinner, PixelDropdown,
-  PageContainer, PageHeader,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 
@@ -100,34 +99,37 @@ export function TaskListPage() {
   ]
 
   return (
-    <PageContainer>
-      <PageHeader
-        title="Tasks"
-        subtitle={`${tasks.length} task${tasks.length !== 1 ? 's' : ''} total`}
-        actions={
-          <div className="flex items-center gap-2">
-            <PixelDropdown
-              trigger={
-                <PixelButton size="sm" variant="ghost">
-                  {filterConv === 'all' ? 'All Conversations' : conversations.find(c => c.id === filterConv)?.title ?? 'Conversation'}
-                </PixelButton>
-              }
-              items={convItems}
-              onSelect={setFilterConv}
-            />
-            <PixelDropdown
-              trigger={
-                <PixelButton size="sm" variant="ghost">
-                  {filterStatus === 'all' ? 'All Status' : filterStatus.replace('_', ' ')}
-                </PixelButton>
-              }
-              items={statusItems}
-              onSelect={setFilterStatus}
-            />
-          </div>
-        }
-      />
-      <motion.div data-testid="task-list-page" {...staggerContainer} initial="initial" animate="animate">
+    <motion.div className="p-6" data-testid="task-list-page" {...staggerContainer} initial="initial" animate="animate">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="font-pixel text-[14px] text-text-primary" data-testid="task-list-header">Tasks</h1>
+          <p className="text-[12px] text-text-secondary mt-1">
+            {tasks.length} task{tasks.length !== 1 ? 's' : ''} total
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <PixelDropdown
+            trigger={
+              <PixelButton size="sm" variant="ghost">
+                {filterConv === 'all' ? 'All Conversations' : conversations.find(c => c.id === filterConv)?.title ?? 'Conversation'}
+              </PixelButton>
+            }
+            items={convItems}
+            onSelect={setFilterConv}
+          />
+          <PixelDropdown
+            trigger={
+              <PixelButton size="sm" variant="ghost">
+                {filterStatus === 'all' ? 'All Status' : filterStatus.replace('_', ' ')}
+              </PixelButton>
+            }
+            items={statusItems}
+            onSelect={setFilterStatus}
+          />
+        </div>
+      </div>
 
       {/* Task list */}
       {tasksLoading ? (
@@ -268,7 +270,6 @@ export function TaskListPage() {
           })}
         </div>
       )}
-      </motion.div>
-    </PageContainer>
+    </motion.div>
   )
 }

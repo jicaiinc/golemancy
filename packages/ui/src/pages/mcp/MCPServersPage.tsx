@@ -5,7 +5,6 @@ import { useAppStore } from '../../stores'
 import { useCurrentProject, usePermissionConfig } from '../../hooks'
 import {
   PixelCard, PixelButton, PixelBadge, PixelTabs, PixelToggle, PixelSpinner, PixelDropZone,
-  PageContainer, PageHeader,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { MCPFormModal } from './MCPFormModal'
@@ -137,13 +136,17 @@ export function MCPServersPage() {
   }, [createMCPServer])
 
   return (
-    <PageContainer>
-      <PageHeader
-        title="MCP Servers"
-        subtitle={`${mcpServers.length} server${mcpServers.length !== 1 ? 's' : ''}`}
-        actions={<PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Server</PixelButton>}
-      />
-      <motion.div {...staggerContainer} initial="initial" animate="animate">
+    <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="font-pixel text-[14px] text-text-primary">MCP Servers</h1>
+          <p className="text-[12px] text-text-secondary mt-1">
+            {mcpServers.length} server{mcpServers.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        <PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Server</PixelButton>
+      </div>
 
       {/* MCP security warning */}
       {mcpWarning === 'restricted' && (
@@ -320,7 +323,6 @@ export function MCPServersPage() {
           initial={editServer}
         />
       )}
-      </motion.div>
-    </PageContainer>
+    </motion.div>
   )
 }
