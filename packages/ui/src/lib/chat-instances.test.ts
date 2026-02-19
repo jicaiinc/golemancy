@@ -41,6 +41,7 @@ import {
   getOrCreateChat,
   destroyChat,
   destroyAllChats,
+  releaseIdleChats,
   hasChat,
 } from './chat-instances'
 
@@ -74,10 +75,11 @@ function makeConfig(overrides?: Partial<Parameters<typeof getOrCreateChat>[0]>) 
 
 describe('chat-instances', () => {
   beforeEach(() => {
+    // Clear the module-level cache first (may call stop on streaming chats),
+    // then reset mocks so stop calls from cleanup don't leak into next test.
+    destroyAllChats()
     vi.clearAllMocks()
     chatConstructorCalls.length = 0
-    // Clear the module-level cache between tests
-    destroyAllChats()
   })
 
   describe('getOrCreateChat', () => {
@@ -225,6 +227,49 @@ describe('chat-instances', () => {
 
       expect(hasChat('conv-1' as ConversationId)).toBe(false)
       expect(hasChat('conv-2' as ConversationId)).toBe(false)
+    })
+  })
+
+  describe('releaseIdleChats', () => {
+    it('removes idle chats from cache', () => {
+      getOrCreateChat(makeConfig({ conversationId: 'conv-idle' as ConversationId }))
+      expect(hasChat('conv-idle' as ConversationId)).toBe(true)
+
+      releaseIdleChats()
+
+      expect(hasChat('conv-idle' as ConversationId)).toBe(false)
+    })
+
+    it('keeps streaming chats alive', () => {
+      const chat = getOrCreateChat(makeConfig({ conversationId: 'conv-active' as ConversationId }))
+      ;(chat as any).status = 'streaming'
+
+      releaseIdleChats()
+
+      expect(hasChat('conv-active' as ConversationId)).toBe(true)
+      expect(mockStop).not.toHaveBeenCalled()
+    })
+
+    it('keeps submitted chats alive', () => {
+      const chat = getOrCreateChat(makeConfig({ conversationId: 'conv-sub' as ConversationId }))
+      ;(chat as any).status = 'submitted'
+
+      releaseIdleChats()
+
+      expect(hasChat('conv-sub' as ConversationId)).toBe(true)
+      expect(mockStop).not.toHaveBeenCalled()
+    })
+
+    it('removes idle chats while keeping active ones', () => {
+      const idle = getOrCreateChat(makeConfig({ conversationId: 'conv-idle' as ConversationId }))
+      ;(idle as any).status = 'ready'
+      const active = getOrCreateChat(makeConfig({ conversationId: 'conv-active' as ConversationId }))
+      ;(active as any).status = 'streaming'
+
+      releaseIdleChats()
+
+      expect(hasChat('conv-idle' as ConversationId)).toBe(false)
+      expect(hasChat('conv-active' as ConversationId)).toBe(true)
     })
   })
 

@@ -11,7 +11,7 @@ import type {
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import { getServices } from '../services'
 import { fetchJson, getBaseUrl } from '../services/http/base'
-import { destroyChat, destroyAllChats } from '../lib/chat-instances'
+import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
 
 // --- Theme helper ---
 function applyThemeToDOM(mode: ThemeMode): void {
@@ -228,8 +228,9 @@ export const useAppStore = create<AppState>()(
         const prevId = get().currentProjectId
         if (prevId === id) return
 
-        // Destroy all Chat instances from previous project
-        destroyAllChats()
+        // Release idle Chat instances; keep streaming ones alive so
+        // server-side execution completes and saves messages to DB.
+        releaseIdleChats()
 
         // Clear → set new → populate
         set({
