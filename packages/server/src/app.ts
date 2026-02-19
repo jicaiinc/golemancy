@@ -23,6 +23,7 @@ import { createTopologyRoutes } from './routes/topology'
 import { createPermissionsConfigRoutes } from './routes/permissions-config'
 import { createRuntimeRoutes } from './routes/runtime'
 import { createSandboxRoutes } from './routes/sandbox'
+import { createUploadRoutes } from './routes/uploads'
 import { logger } from './logger'
 
 export interface ServerDependencies {
@@ -43,7 +44,8 @@ export interface ServerDependencies {
 export function createApp(deps: ServerDependencies, authToken?: string) {
   const app = new Hono()
 
-  // Request body size limit (2 MB)
+  // Request body size limit: 50 MB for chat (images as base64), 2 MB for everything else
+  app.use('/api/chat', bodyLimit({ maxSize: 50 * 1024 * 1024 }))
   app.use('/api/*', bodyLimit({ maxSize: 2 * 1024 * 1024 }))
 
   // SEC-03: Restrict CORS to localhost origins only
@@ -116,6 +118,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects/:projectId/permissions-config', createPermissionsConfigRoutes(deps.permissionsConfigStorage))
   app.route('/api/projects/:projectId/runtime', createRuntimeRoutes())
   app.route('/api/sandbox', createSandboxRoutes())
+  app.route('/api/projects/:projectId/uploads', createUploadRoutes())
 
   return app
 }

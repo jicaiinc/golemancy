@@ -203,6 +203,23 @@ function createWindow(options?: { projectId?: string }): void {
     },
   })
 
+  // SEC: Inject Bearer token for <img src> requests to upload endpoints.
+  // Browser <img> tags cannot set Authorization headers, so we intercept
+  // matching requests in the Electron session and add the header automatically.
+  // Match both localhost and 127.0.0.1 since the client may use either hostname.
+  if (serverToken && serverPort) {
+    win.webContents.session.webRequest.onBeforeSendHeaders(
+      { urls: [
+        `http://127.0.0.1:${serverPort}/api/projects/*/uploads/*`,
+        `http://localhost:${serverPort}/api/projects/*/uploads/*`,
+      ] },
+      (details, callback) => {
+        details.requestHeaders['Authorization'] = `Bearer ${serverToken}`
+        callback({ requestHeaders: details.requestHeaders })
+      },
+    )
+  }
+
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {

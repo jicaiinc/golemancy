@@ -11,6 +11,7 @@ import type {
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
+import { extractUploads, rehydrateUploadsForAI } from '../utils/message-parts'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:chat' })
@@ -95,18 +96,21 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     log.debug({ projectId, agentId, conversationId, messageCount: messages.length }, 'starting chat stream')
 
-    // Save user's latest message before streaming
+    // Save user's latest message before streaming (extract base64 uploads to disk)
     if (conversationId) {
       try {
         const lastUserMsg = messages.filter(m => m.role === 'user').at(-1)
         if (lastUserMsg) {
+          const extractedParts = await extractUploads(projectId, lastUserMsg.parts)
+          // Update in-place so the extracted references are used for AI rehydration below
+          lastUserMsg.parts = extractedParts as UIMessage['parts']
           await deps.conversationStorage.saveMessage(
             projectId as ProjectId,
             conversationId as ConversationId,
             {
               id: lastUserMsg.id as MessageId,
               role: 'user',
-              parts: lastUserMsg.parts,
+              parts: extractedParts,
               content: extractTextContent(lastUserMsg.parts),
             },
           )
@@ -133,7 +137,15 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       ? agent.systemPrompt + '\n\n' + agentToolsResult.instructions
       : agent.systemPrompt
 
-    const modelMessages = await convertToModelMessages(messages)
+    // Rehydrate upload references/HTTP URLs back to data URLs for AI consumption
+    const rehydratedMessages = await Promise.all(
+      messages.map(async (msg) => ({
+        ...msg,
+        parts: (await rehydrateUploadsForAI(projectId, msg.parts)) as UIMessage['parts'],
+      })),
+    )
+
+    const modelMessages = await convertToModelMessages(rehydratedMessages)
     const hasTools = Object.keys(allTools).length > 0
 
     let cleaned = false
@@ -185,18 +197,20 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
         // Merge the LLM stream
         writer.merge(result.toUIMessageStream({
-          originalMessages: messages,
+          originalMessages: rehydratedMessages,
           generateMessageId: () => generateId('msg'),
           onFinish: async ({ responseMessage }) => {
             try {
               if (conversationId) {
+                // Extract any base64 images from assistant response before saving
+                const extractedParts = await extractUploads(projectId, responseMessage.parts)
                 await deps.conversationStorage.saveMessage(
                   projectId as ProjectId,
                   conversationId as ConversationId,
                   {
                     id: responseMessage.id as MessageId,
                     role: 'assistant',
-                    parts: responseMessage.parts,
+                    parts: extractedParts,
                     content: extractTextContent(responseMessage.parts),
                   },
                 )

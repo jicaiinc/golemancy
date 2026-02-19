@@ -1,8 +1,6 @@
 import os from 'node:os'
 import path from 'node:path'
 
-const DATA_DIR = process.env.GOLEMANCY_DATA_DIR ?? path.join(os.homedir(), '.golemancy')
-
 const ID_PATTERN = /^[a-z]+-[A-Za-z0-9_-]+$/
 
 export function validateId(id: string): void {
@@ -20,19 +18,19 @@ export function validateFilePath(basePath: string, filePath: string): string {
 }
 
 export function getDataDir(): string {
-  return DATA_DIR
+  return process.env.GOLEMANCY_DATA_DIR ?? path.join(os.homedir(), '.golemancy')
 }
 
 export function getProjectPath(projectId: string): string {
   validateId(projectId)
-  return path.join(DATA_DIR, 'projects', projectId)
+  return path.join(getDataDir(), 'projects', projectId)
 }
 
 export function getDbPath(): string {
-  return path.join(DATA_DIR, 'data.db')
+  return path.join(getDataDir(), 'data.db')
 }
 
 export function getProjectDbPath(projectId: string): string {
   validateId(projectId)
-  return path.join(DATA_DIR, 'projects', projectId, 'data', 'data.db')
+  return path.join(getDataDir(), 'projects', projectId, 'data', 'data.db')
 }

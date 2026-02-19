@@ -1,8 +1,15 @@
 import { Hono } from 'hono'
 import type { ProjectId, AgentId, ConversationId, MessageId, IConversationService } from '@golemancy/shared'
+import { resolveUploadsForClient, extractUploads } from '../utils/message-parts'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:conversations' })
+
+/** Derive the server's base URL from the incoming request for upload URL resolution */
+function getBaseUrl(c: { req: { url: string } }): string {
+  const url = new URL(c.req.url)
+  return `${url.protocol}//${url.host}`
+}
 
 export function createConversationRoutes(storage: IConversationService) {
   const app = new Hono()
@@ -22,7 +29,16 @@ export function createConversationRoutes(storage: IConversationService) {
     log.debug({ projectId, conversationId: convId }, 'getting conversation')
     const conv = await storage.getById(projectId, convId)
     if (!conv) return c.json({ error: 'Not found' }, 404)
-    return c.json(conv)
+    // Resolve golemancy-upload: references to HTTP URLs for client rendering
+    const baseUrl = getBaseUrl(c)
+    const resolved = {
+      ...conv,
+      messages: conv.messages.map(m => ({
+        ...m,
+        parts: resolveUploadsForClient(projectId, baseUrl, m.parts),
+      })),
+    }
+    return c.json(resolved)
   })
 
   app.post('/', async (c) => {
@@ -51,7 +67,7 @@ export function createConversationRoutes(storage: IConversationService) {
     return c.json({ ok: true })
   })
 
-  // Save a message (with dedup by ID)
+  // Save a message (with dedup by ID) — extracts base64 uploads to disk
   app.post('/:convId/messages', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('convId') as ConversationId
@@ -67,11 +83,12 @@ export function createConversationRoutes(storage: IConversationService) {
     }
 
     log.debug({ projectId, conversationId: convId, messageId: id, role }, 'saving message')
-    await storage.saveMessage(projectId, convId, { id: id as MessageId, role, parts, content: content ?? '' })
+    const extractedParts = await extractUploads(projectId, parts)
+    await storage.saveMessage(projectId, convId, { id: id as MessageId, role, parts: extractedParts, content: content ?? '' })
     return c.json({ ok: true }, 201)
   })
 
-  // Paginated messages
+  // Paginated messages — resolve upload references to HTTP URLs
   app.get('/:convId/messages', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('convId') as ConversationId
@@ -79,10 +96,17 @@ export function createConversationRoutes(storage: IConversationService) {
     const pageSize = Math.min(100, Math.max(1, parseInt(c.req.query('pageSize') ?? '50', 10) || 50))
     log.debug({ projectId, conversationId: convId, page, pageSize }, 'listing messages')
     const result = await storage.getMessages(projectId, convId, { page, pageSize })
-    return c.json(result)
+    const baseUrl = getBaseUrl(c)
+    return c.json({
+      ...result,
+      items: result.items.map(m => ({
+        ...m,
+        parts: resolveUploadsForClient(projectId, baseUrl, m.parts),
+      })),
+    })
   })
 
-  // FTS5 message search
+  // FTS5 message search — resolve upload references to HTTP URLs
   app.get('/messages/search', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const q = c.req.query('q') ?? ''
@@ -91,7 +115,14 @@ export function createConversationRoutes(storage: IConversationService) {
     log.debug({ projectId, page, pageSize }, 'searching messages')
     const result = await storage.searchMessages(projectId, q, { page, pageSize })
     log.debug({ projectId, resultCount: result.items.length, total: result.total }, 'search results')
-    return c.json(result)
+    const baseUrl = getBaseUrl(c)
+    return c.json({
+      ...result,
+      items: result.items.map(m => ({
+        ...m,
+        parts: resolveUploadsForClient(projectId, baseUrl, m.parts),
+      })),
+    })
   })
 
   return app
