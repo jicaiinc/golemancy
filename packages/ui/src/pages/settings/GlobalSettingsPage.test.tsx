@@ -97,7 +97,7 @@ describe('GlobalSettingsPage', () => {
   it('renders about footer with version', () => {
     renderWithRouter(<GlobalSettingsPage />)
     expect(screen.getByText(/Golemancy v0\.1\.0/)).toBeInTheDocument()
-    expect(screen.getByText(/AI Agent Orchestrator for Solo Creators/)).toBeInTheDocument()
+    expect(screen.getByText(/AI Agent Orchestrator for Super Individuals/)).toBeInTheDocument()
   })
 
   it('renders home icon button in header', () => {

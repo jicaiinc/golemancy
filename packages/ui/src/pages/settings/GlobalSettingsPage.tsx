@@ -89,7 +89,7 @@ export function GlobalSettingsPage() {
         {/* About footer */}
         <div className="mt-8 pt-4 border-t-2 border-border-dim text-center">
           <span className="text-[11px] text-text-dim">
-            Golemancy v{APP_VERSION} — AI Agent Orchestrator for Solo Creators
+            Golemancy v{APP_VERSION} — AI Agent Orchestrator for Super Individuals
           </span>
         </div>
       </div>
