@@ -40,7 +40,7 @@ export function AppRoutes() {
           <Route path="chat" element={<ChatPage />} />
           <Route path="tasks" element={<TaskListPage />} />
           <Route path="cron" element={<CronJobsPage />} />
-          <Route path="workspace" element={<WorkspacePage />} />
+          <Route path="artifacts" element={<WorkspacePage />} />
           <Route path="memory" element={<MemoryPage />} />
           <Route path="settings" element={<ProjectSettingsPage />} />
         </Route>

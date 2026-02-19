@@ -18,7 +18,7 @@ const navItems: NavItem[] = [
   { label: 'MCP Servers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
   { label: 'Tasks', path: '/tasks', icon: '#', testId: 'tasks' },
   { label: 'Cron Jobs', path: '/cron', icon: '::', testId: 'cron' },
-  { label: 'Workspace', path: '/workspace', icon: '..', testId: 'workspace' },
+  { label: 'Artifacts', path: '/artifacts', icon: '..', testId: 'artifacts' },
   { label: 'Memory', path: '/memory', icon: '()', testId: 'memory' },
 ]
 

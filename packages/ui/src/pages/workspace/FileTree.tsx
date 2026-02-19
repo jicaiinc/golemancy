@@ -39,7 +39,7 @@ export function FileTree({ entries, currentPath, loading, selectedFile, onNaviga
           onClick={() => onNavigate('')}
           className="font-pixel text-[10px] text-accent-blue hover:text-accent-green cursor-pointer"
         >
-          workspace
+          artifacts
         </button>
         {pathSegments.map((seg, i) => {
           const path = pathSegments.slice(0, i + 1).join('/')
