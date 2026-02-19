@@ -74,13 +74,13 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, taskSummary,
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.12 }}
-                  className="absolute bottom-7 right-0 w-96 bg-elevated border-2 border-border-dim shadow-pixel-drop z-50"
+                  className="absolute bottom-7 right-0 w-[28rem] bg-elevated border-2 border-border-dim shadow-pixel-drop z-50"
                   data-testid="task-popover"
                 >
                   <div className="px-3 py-2 border-b-2 border-border-dim">
                     <span className="font-pixel text-[9px] text-text-dim">CONVERSATION TASKS</span>
                   </div>
-                  <div className="max-h-72 overflow-y-auto">
+                  <div className="max-h-96 overflow-y-auto">
                     {taskList.filter(t => t.status !== 'deleted').map(t => (
                       <div key={t.id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-deep/50">
                         <span className="text-[12px] font-mono">

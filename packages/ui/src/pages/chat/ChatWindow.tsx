@@ -130,8 +130,13 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
 
   // Auto-scroll to bottom — also triggers during streaming (content updates
   // within the last message don't change messages.length, so we need status).
+  // Use 'instant' on initial mount to avoid a visible scroll animation when
+  // loading a conversation with existing messages.
+  const hasScrolledRef = useRef(false)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const behavior = hasScrolledRef.current ? 'smooth' : 'instant'
+    messagesEndRef.current?.scrollIntoView({ behavior })
+    hasScrolledRef.current = true
   }, [messages.length, status])
 
   // Refresh conversation tasks after streaming completes.
