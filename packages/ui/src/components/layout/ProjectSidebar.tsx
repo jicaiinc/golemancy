@@ -70,6 +70,7 @@ export function ProjectSidebar() {
       <aside data-testid="sidebar" className="w-14 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
         <div className="p-2 border-b-2 border-border-dim">
           <PixelDropdown
+            maxHeight="320px"
             trigger={
               <button className="w-10 h-10 flex items-center justify-center font-pixel text-[10px] text-accent-green hover:bg-elevated cursor-pointer">
                 SC
@@ -110,14 +111,16 @@ export function ProjectSidebar() {
   return (
     <aside data-testid="sidebar" className="w-60 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
       {/* Project header with switcher */}
-      <div className="p-3 border-b-2 border-border-dim">
+      <div className="pl-2 pr-1 py-1.5 border-b-2 border-border-dim">
         <PixelDropdown
+          className="w-full"
+          maxHeight="320px"
           trigger={
-            <button className="w-full text-left flex items-center gap-2 hover:bg-elevated/50 p-1 cursor-pointer transition-colors">
-              <span className="font-pixel text-[10px] text-accent-green truncate flex-1">
+            <button className="w-full text-left flex items-center gap-1.5 hover:bg-elevated/50 pl-1.5 pr-1 py-1 cursor-pointer transition-colors min-w-0">
+              <span className="font-pixel text-[10px] text-accent-green truncate flex-1 min-w-0">
                 {currentProject?.name ?? 'Golemancy'}
               </span>
-              <span className="text-text-dim text-[10px]">▼</span>
+              <span className="text-text-dim text-[10px] shrink-0">▼</span>
             </button>
           }
           items={switcherItems}
