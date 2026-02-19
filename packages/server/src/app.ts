@@ -4,7 +4,7 @@ import { bodyLimit } from 'hono/body-limit'
 import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
-  IArtifactService, IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
+  IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
   IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
@@ -13,7 +13,7 @@ import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'
 import { createChatRoutes } from './routes/chat'
 import { createTaskRoutes } from './routes/tasks'
-import { createArtifactRoutes } from './routes/artifacts'
+import { createWorkspaceRoutes } from './routes/workspace'
 import { createMemoryRoutes } from './routes/memories'
 import { createSettingsRoutes } from './routes/settings'
 import { createDashboardRoutes } from './routes/dashboard'
@@ -32,7 +32,6 @@ export interface ServerDependencies {
   agentStorage: IAgentService
   conversationStorage: IConversationService
   taskStorage: ITaskService
-  artifactStorage: IArtifactService
   memoryStorage: IMemoryService
   skillStorage: ISkillService
   settingsStorage: ISettingsService
@@ -93,7 +92,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   }))
   app.route('/api/projects/:projectId/conversations', createConversationRoutes(deps.conversationStorage))
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
-  app.route('/api/projects/:projectId/artifacts', createArtifactRoutes(deps.artifactStorage))
+  app.route('/api/projects/:projectId/workspace', createWorkspaceRoutes())
   app.route('/api/projects/:projectId/memories', createMemoryRoutes(deps.memoryStorage))
   app.route('/api/projects/:projectId/skills', createSkillRoutes({
     skillStorage: deps.skillStorage,

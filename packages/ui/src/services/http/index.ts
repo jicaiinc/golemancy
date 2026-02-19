@@ -4,7 +4,7 @@ import {
   HttpAgentService,
   HttpConversationService,
   HttpTaskService,
-  HttpArtifactService,
+  HttpWorkspaceService,
   HttpMemoryService,
   HttpSkillService,
   HttpMCPService,
@@ -20,7 +20,7 @@ export function createHttpServices(baseUrl: string): ServiceContainer {
     agents: new HttpAgentService(baseUrl),
     conversations: new HttpConversationService(baseUrl),
     tasks: new HttpTaskService(baseUrl),
-    artifacts: new HttpArtifactService(baseUrl),
+    workspace: new HttpWorkspaceService(baseUrl),
     memory: new HttpMemoryService(baseUrl),
     skills: new HttpSkillService(baseUrl),
     mcp: new HttpMCPService(baseUrl),
@@ -31,5 +31,5 @@ export function createHttpServices(baseUrl: string): ServiceContainer {
   }
 }
 
-export { HttpProjectService, HttpAgentService, HttpConversationService, HttpTaskService, HttpArtifactService, HttpMemoryService, HttpSkillService, HttpMCPService, HttpSettingsService, HttpCronJobService, HttpDashboardService, HttpPermissionsConfigService } from './services'
+export { HttpProjectService, HttpAgentService, HttpConversationService, HttpTaskService, HttpWorkspaceService, HttpMemoryService, HttpSkillService, HttpMCPService, HttpSettingsService, HttpCronJobService, HttpDashboardService, HttpPermissionsConfigService } from './services'
 export { setAuthToken, getAuthToken, setBaseUrl, getBaseUrl } from './base'

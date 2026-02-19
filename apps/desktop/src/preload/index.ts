@@ -17,4 +17,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getServerToken: () => serverToken,
   getInitialProjectId: () => initialProjectId,
   openNewWindow: (projectId?: string) => ipcRenderer.invoke('window:open', projectId),
+  openPath: (fullPath: string) => ipcRenderer.invoke('shell:openPath', fullPath),
 })

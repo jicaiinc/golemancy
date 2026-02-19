@@ -4,6 +4,7 @@ interface ElectronAPI {
   getServerToken: () => string | null
   getInitialProjectId: () => string | null
   openNewWindow: (projectId?: string) => Promise<void>
+  openPath: (fullPath: string) => Promise<string>
 }
 
 interface Window {

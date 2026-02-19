@@ -9,14 +9,14 @@
  * - Network errors
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId, PermissionsConfigId, MessageId } from '@golemancy/shared'
+import type { ProjectId, AgentId, ConversationId, TaskId, MemoryId, SkillId, CronJobId, PermissionsConfigId, MessageId } from '@golemancy/shared'
 import { setAuthToken } from './base'
 import {
   HttpProjectService,
   HttpAgentService,
   HttpConversationService,
   HttpTaskService,
-  HttpArtifactService,
+  HttpWorkspaceService,
   HttpMemoryService,
   HttpSkillService,
   HttpMCPService,
@@ -315,27 +315,41 @@ describe('HttpTaskService', () => {
   })
 })
 
-// ── HttpArtifactService ───────────────────────────────────────
+// ── HttpWorkspaceService ─────────────────────────────────────
 
-describe('HttpArtifactService', () => {
-  const svc = new HttpArtifactService(BASE)
+describe('HttpWorkspaceService', () => {
+  const svc = new HttpWorkspaceService(BASE)
 
-  it('list() with optional agentId', async () => {
+  it('listDir() → GET /workspace?path=', async () => {
     mockFetch.mockResolvedValue(jsonResponse([]))
-    await svc.list(PROJ, AGENT)
+    await svc.listDir(PROJ, '/')
     expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/artifacts?agentId=${AGENT}`,
+      `${BASE}/api/projects/${PROJ}/workspace?path=${encodeURIComponent('/')}`,
       expect.any(Object),
     )
   })
 
-  it('delete() → DELETE /artifacts/:id', async () => {
-    mockFetch.mockResolvedValue(jsonResponse(null))
-    await svc.delete(PROJ, 'art-1' as ArtifactId)
+  it('readFile() → GET /workspace/file?path=', async () => {
+    mockFetch.mockResolvedValue(jsonResponse({}))
+    await svc.readFile(PROJ, 'report.md')
     expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/artifacts/art-1`,
+      `${BASE}/api/projects/${PROJ}/workspace/file?path=${encodeURIComponent('report.md')}`,
+      expect.any(Object),
+    )
+  })
+
+  it('deleteFile() → DELETE /workspace/file?path=', async () => {
+    mockFetch.mockResolvedValue(jsonResponse(null))
+    await svc.deleteFile(PROJ, 'old.txt')
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/workspace/file?path=${encodeURIComponent('old.txt')}`,
       expect.objectContaining({ method: 'DELETE' }),
     )
+  })
+
+  it('getFileUrl() returns correct URL', () => {
+    const url = svc.getFileUrl(PROJ, 'image.png')
+    expect(url).toBe(`${BASE}/api/projects/${PROJ}/workspace/raw?path=${encodeURIComponent('image.png')}`)
   })
 })
 

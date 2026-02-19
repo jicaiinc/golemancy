@@ -1,13 +1,14 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  ProjectId, AgentId, ConversationId, TaskId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
+  WorkspaceEntry, FilePreviewData,
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-  IPermissionsConfigService,
+  ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
+  IPermissionsConfigService, IWorkspaceService,
 } from '@golemancy/shared'
 import { fetchJson } from './base'
 
@@ -115,18 +116,31 @@ export class HttpTaskService implements ITaskService {
   }
 }
 
-export class HttpArtifactService implements IArtifactService {
+export class HttpWorkspaceService implements IWorkspaceService {
   constructor(private baseUrl: string) {}
 
-  list(projectId: ProjectId, agentId?: AgentId) {
-    const params = agentId ? `?agentId=${agentId}` : ''
-    return fetchJson<Artifact[]>(`${this.baseUrl}/api/projects/${projectId}/artifacts${params}`)
+  listDir(projectId: ProjectId, dirPath: string) {
+    const params = dirPath ? `?path=${encodeURIComponent(dirPath)}` : ''
+    return fetchJson<WorkspaceEntry[]>(
+      `${this.baseUrl}/api/projects/${projectId}/workspace${params}`
+    )
   }
-  getById(projectId: ProjectId, id: ArtifactId) {
-    return fetchJson<Artifact | null>(`${this.baseUrl}/api/projects/${projectId}/artifacts/${id}`)
+
+  readFile(projectId: ProjectId, filePath: string) {
+    return fetchJson<FilePreviewData>(
+      `${this.baseUrl}/api/projects/${projectId}/workspace/file?path=${encodeURIComponent(filePath)}`
+    )
   }
-  async delete(projectId: ProjectId, id: ArtifactId) {
-    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/artifacts/${id}`, { method: 'DELETE' })
+
+  async deleteFile(projectId: ProjectId, filePath: string) {
+    await fetchJson(
+      `${this.baseUrl}/api/projects/${projectId}/workspace/file?path=${encodeURIComponent(filePath)}`,
+      { method: 'DELETE' }
+    )
+  }
+
+  getFileUrl(projectId: ProjectId, filePath: string): string {
+    return `${this.baseUrl}/api/projects/${projectId}/workspace/raw?path=${encodeURIComponent(filePath)}`
   }
 }
 

@@ -1,5 +1,6 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage } from 'electron'
-import { join } from 'path'
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell } from 'electron'
+import { join, resolve } from 'path'
+import { homedir } from 'os'
 import { fork, type ChildProcess } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
@@ -257,6 +258,16 @@ app.whenReady().then(async () => {
 
   ipcMain.handle('window:open', (_event, projectId?: string) => {
     createWindow(projectId ? { projectId } : undefined)
+  })
+
+  ipcMain.handle('shell:openPath', async (_event, fullPath: string) => {
+    // Security: only allow opening files under the golemancy data directory
+    const dataDir = join(homedir(), '.golemancy')
+    const resolved = resolve(fullPath)
+    if (!resolved.startsWith(dataDir)) {
+      throw new Error('Cannot open paths outside data directory')
+    }
+    return shell.openPath(resolved)
   })
 
   app.on('activate', () => {

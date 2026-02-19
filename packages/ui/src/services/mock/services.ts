@@ -1,20 +1,21 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  ProjectId, AgentId, ConversationId, TaskId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
+  WorkspaceEntry, FilePreviewData,
 } from '@golemancy/shared'
-import { DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
+import { DEFAULT_PERMISSIONS_CONFIG, getFileCategory, getMimeType } from '@golemancy/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-  IPermissionsConfigService,
+  ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
+  IPermissionsConfigService, IWorkspaceService,
 } from '../interfaces'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
-  SEED_CONVERSATION_TASKS, SEED_ARTIFACTS, SEED_MEMORIES, SEED_SETTINGS,
+  SEED_CONVERSATION_TASKS, SEED_MEMORIES, SEED_SETTINGS,
   SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
   SEED_PERMISSIONS_CONFIGS,
   SEED_DASHBOARD_SUMMARY, SEED_DASHBOARD_AGENT_STATS, SEED_DASHBOARD_RECENT_CHATS, SEED_DASHBOARD_TOKEN_TREND,
@@ -267,27 +268,81 @@ export class MockTaskService implements ITaskService {
   }
 }
 
-// --- ArtifactService ---
-export class MockArtifactService implements IArtifactService {
-  private data = new Map<ArtifactId, Artifact>(SEED_ARTIFACTS.map(a => [a.id, { ...a }]))
+// --- WorkspaceService ---
+export class MockWorkspaceService implements IWorkspaceService {
+  // In-memory fake filesystem for dev
+  private files: Array<{ path: string; content: string; size: number; modifiedAt: string }> = [
+    { path: 'report.md', content: '# Analysis Report\n\nSample content...', size: 2048, modifiedAt: new Date().toISOString() },
+    { path: 'data/results.csv', content: 'name,value,score\nAlpha,100,0.95\nBeta,85,0.87\nGamma,72,0.81', size: 512, modifiedAt: new Date().toISOString() },
+    { path: 'scripts/analyze.py', content: 'import pandas as pd\n\ndef analyze(data):\n    return data.describe()', size: 1024, modifiedAt: new Date().toISOString() },
+    { path: 'output/chart.png', content: '', size: 45000, modifiedAt: new Date().toISOString() },
+  ]
 
-  async list(projectId: ProjectId, agentId?: AgentId): Promise<Artifact[]> {
+  async listDir(_projectId: ProjectId, dirPath: string): Promise<WorkspaceEntry[]> {
     await delay()
-    return [...this.data.values()].filter(a =>
-      a.projectId === projectId && (!agentId || a.agentId === agentId)
-    )
+    const prefix = dirPath ? dirPath + '/' : ''
+    const entries = new Map<string, WorkspaceEntry>()
+
+    for (const file of this.files) {
+      if (!file.path.startsWith(prefix)) continue
+      const rest = file.path.slice(prefix.length)
+      const parts = rest.split('/')
+
+      if (parts.length === 1) {
+        // Direct file
+        entries.set(parts[0], {
+          name: file.path,
+          type: 'file',
+          size: file.size,
+          modifiedAt: file.modifiedAt,
+          category: getFileCategory(parts[0]),
+        })
+      } else {
+        // Directory entry
+        const dirName = prefix + parts[0]
+        if (!entries.has(parts[0])) {
+          entries.set(parts[0], {
+            name: dirName,
+            type: 'directory',
+            size: 0,
+            modifiedAt: file.modifiedAt,
+          })
+        }
+      }
+    }
+
+    const result = [...entries.values()]
+    result.sort((a, b) => {
+      if (a.type !== b.type) return a.type === 'directory' ? -1 : 1
+      return a.name.localeCompare(b.name)
+    })
+    return result
   }
 
-  async getById(projectId: ProjectId, id: ArtifactId): Promise<Artifact | null> {
+  async readFile(_projectId: ProjectId, filePath: string): Promise<FilePreviewData> {
     await delay()
-    const artifact = this.data.get(id)
-    return artifact && artifact.projectId === projectId ? artifact : null
+    const file = this.files.find(f => f.path === filePath)
+    if (!file) throw new Error('File not found')
+    const ext = filePath.split('.').pop()?.toLowerCase() ?? ''
+    const category = getFileCategory(filePath)
+    return {
+      path: filePath,
+      category,
+      size: file.size,
+      modifiedAt: file.modifiedAt,
+      content: category === 'code' || category === 'text' ? file.content : null,
+      mimeType: getMimeType(filePath),
+      extension: ext,
+    }
   }
 
-  async delete(projectId: ProjectId, id: ArtifactId): Promise<void> {
+  async deleteFile(_projectId: ProjectId, filePath: string): Promise<void> {
     await delay()
-    const artifact = this.data.get(id)
-    if (artifact && artifact.projectId === projectId) this.data.delete(id)
+    this.files = this.files.filter(f => f.path !== filePath)
+  }
+
+  getFileUrl(_projectId: ProjectId, filePath: string): string {
+    return `/mock/workspace/${encodeURIComponent(filePath)}`
   }
 }
 

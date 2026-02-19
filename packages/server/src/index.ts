@@ -8,7 +8,6 @@ import { FileProjectStorage } from './storage/projects'
 import { FileAgentStorage } from './storage/agents'
 import { SqliteConversationStorage } from './storage/conversations'
 import { SqliteConversationTaskStorage } from './storage/tasks'
-import { FileArtifactStorage } from './storage/artifacts'
 import { FileMemoryStorage } from './storage/memories'
 import { FileSkillStorage } from './storage/skills'
 import { FileCronJobStorage } from './storage/cronjobs'
@@ -43,7 +42,6 @@ async function main() {
     agentStorage,
     conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb),
     taskStorage: new SqliteConversationTaskStorage(dbManager.getProjectDb),
-    artifactStorage: new FileArtifactStorage(),
     memoryStorage: new FileMemoryStorage(),
     skillStorage: new FileSkillStorage(agentStorage),
     cronJobStorage: new FileCronJobStorage(),

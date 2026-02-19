@@ -1,8 +1,8 @@
 import type {
-  Project, Agent, Conversation, Message, ConversationTask, Artifact, MemoryEntry, GlobalSettings,
+  Project, Agent, Conversation, Message, ConversationTask, MemoryEntry, GlobalSettings,
   CronJob, Skill, MCPServerConfig, PermissionsConfigFile,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
-  ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, ToolId,
+  ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, ToolId,
   CronJobId, PermissionsConfigId,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT, DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
@@ -207,58 +207,6 @@ export const SEED_CONVERSATION_TASKS: ConversationTask[] = [
     blockedBy: ['task-1' as TaskId],
     createdAt: now,
     updatedAt: now,
-  },
-]
-
-// --- Artifacts ---
-export const SEED_ARTIFACTS: Artifact[] = [
-  {
-    id: 'artifact-1' as ArtifactId,
-    projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-2' as AgentId,
-    title: 'Competitor Analysis Report',
-    type: 'text',
-    content: '# Competitor Analysis\n\n## Key Findings\n\n- Competitor A focuses on short-form content\n- Competitor B has strong SEO presence\n- Gap opportunity in long-form technical guides',
-    size: 2048,
-    createdAt: dayAgo,
-    updatedAt: dayAgo,
-  },
-  {
-    id: 'artifact-2' as ArtifactId,
-    projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-1' as AgentId,
-    title: 'blog_draft.py',
-    type: 'code',
-    content: 'import openai\n\ndef generate_blog_post(topic: str) -> str:\n    """Generate a blog post using AI."""\n    client = openai.Client()\n    response = client.chat.completions.create(\n        model="gpt-4o",\n        messages=[{"role": "user", "content": f"Write about {topic}"}]\n    )\n    return response.choices[0].message.content',
-    mimeType: 'text/x-python',
-    size: 512,
-    createdAt: hourAgo,
-    updatedAt: hourAgo,
-  },
-  {
-    id: 'artifact-3' as ArtifactId,
-    projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-1' as AgentId,
-    title: 'hero-banner.png',
-    type: 'image',
-    content: '',
-    mimeType: 'image/png',
-    size: 245760,
-    createdAt: hourAgo,
-    updatedAt: hourAgo,
-  },
-  {
-    id: 'artifact-4' as ArtifactId,
-    projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-2' as AgentId,
-    title: 'keywords.csv',
-    type: 'data',
-    content: 'keyword,volume,difficulty\nAI trends,12000,high\nmachine learning,8500,medium',
-    mimeType: 'text/csv',
-    filePath: '/output/keywords.csv',
-    size: 4096,
-    createdAt: dayAgo,
-    updatedAt: dayAgo,
   },
 ]
 

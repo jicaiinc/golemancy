@@ -71,11 +71,6 @@ function createMockDeps() {
       ]),
       getById: vi.fn().mockResolvedValue(null),
     },
-    artifactStorage: {
-      list: vi.fn().mockResolvedValue([]),
-      getById: vi.fn().mockResolvedValue(null),
-      delete: vi.fn().mockResolvedValue(undefined),
-    },
     memoryStorage: {
       list: vi.fn().mockResolvedValue([
         { id: 'mem-1', content: 'Remember this' },
@@ -373,32 +368,6 @@ describe('HTTP API routes', () => {
       const res = await app.request('/api/projects/proj-1/tasks/task-1')
       expect(res.status).toBe(200)
       expect(deps.taskStorage.getById).toHaveBeenCalledWith('proj-1', 'task-1')
-    })
-  })
-
-  // ---- Artifacts ----
-
-  describe('artifacts routes', () => {
-    it('GET list returns artifacts', async () => {
-      const res = await app.request('/api/projects/proj-1/artifacts')
-      expect(res.status).toBe(200)
-      expect(deps.artifactStorage.list).toHaveBeenCalledWith('proj-1', undefined)
-    })
-
-    it('GET list passes agentId filter', async () => {
-      await app.request('/api/projects/proj-1/artifacts?agentId=agent-1')
-      expect(deps.artifactStorage.list).toHaveBeenCalledWith('proj-1', 'agent-1')
-    })
-
-    it('GET /:id returns 404 when not found', async () => {
-      const res = await app.request('/api/projects/proj-1/artifacts/art-missing')
-      expect(res.status).toBe(404)
-    })
-
-    it('DELETE /:id deletes artifact', async () => {
-      const res = await app.request('/api/projects/proj-1/artifacts/art-1', { method: 'DELETE' })
-      expect(res.status).toBe(200)
-      expect(deps.artifactStorage.delete).toHaveBeenCalledWith('proj-1', 'art-1')
     })
   })
 

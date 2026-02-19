@@ -5,12 +5,12 @@ import {
   MockAgentService,
   MockConversationService,
   MockTaskService,
-  MockArtifactService,
+  MockWorkspaceService,
   MockMemoryService,
   MockSettingsService,
   MockDashboardService,
 } from './services'
-import { SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATION_TASKS, SEED_DASHBOARD_SUMMARY, SEED_DASHBOARD_AGENT_STATS, SEED_DASHBOARD_RECENT_CHATS, SEED_DASHBOARD_TOKEN_TREND } from './data'
+import { SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATION_TASKS } from './data'
 
 describe('MockProjectService', () => {
   let service: MockProjectService
@@ -208,28 +208,34 @@ describe('MockTaskService', () => {
   })
 })
 
-describe('MockArtifactService', () => {
-  let service: MockArtifactService
+describe('MockWorkspaceService', () => {
+  let service: MockWorkspaceService
 
   beforeEach(() => {
-    service = new MockArtifactService()
+    service = new MockWorkspaceService()
   })
 
-  it('list() filters by projectId', async () => {
-    const artifacts = await service.list('proj-1' as ProjectId)
-    artifacts.forEach(a => expect(a.projectId).toBe('proj-1'))
+  it('listDir() returns workspace entries', async () => {
+    const entries = await service.listDir('proj-1' as ProjectId, '')
+    expect(entries.length).toBeGreaterThan(0)
   })
 
-  it('getById() returns artifact', async () => {
-    const artifact = await service.getById('proj-1' as ProjectId, 'artifact-1' as any)
-    expect(artifact).not.toBeNull()
-    expect(artifact!.title).toBe('Competitor Analysis Report')
+  it('readFile() returns file preview data', async () => {
+    const preview = await service.readFile('proj-1' as ProjectId, 'report.md')
+    expect(preview).not.toBeNull()
+    expect(preview.category).toBe('text')
   })
 
-  it('delete() removes artifact', async () => {
-    await service.delete('proj-1' as ProjectId, 'artifact-1' as any)
-    const artifact = await service.getById('proj-1' as ProjectId, 'artifact-1' as any)
-    expect(artifact).toBeNull()
+  it('deleteFile() removes file', async () => {
+    await service.deleteFile('proj-1' as ProjectId, 'report.md')
+    const entries = await service.listDir('proj-1' as ProjectId, '/')
+    const found = entries.find(e => e.name === 'report.md')
+    expect(found).toBeUndefined()
+  })
+
+  it('getFileUrl() returns URL string', () => {
+    const url = service.getFileUrl('proj-1' as ProjectId, 'report.md')
+    expect(url).toContain('report.md')
   })
 })
 

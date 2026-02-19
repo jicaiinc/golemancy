@@ -1,11 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
-  ThemeMode,
-  ProjectId, AgentId, ConversationId, ArtifactId, MemoryId, SkillId, CronJobId,
+  ThemeMode, WorkspaceEntry, FilePreviewData,
+  ProjectId, AgentId, ConversationId, MemoryId, SkillId, CronJobId,
   SkillCreateData, SkillUpdateData,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
@@ -47,9 +47,15 @@ interface TaskSlice {
   tasksLoading: boolean
 }
 
-interface ArtifactSlice {
-  artifacts: Artifact[]
-  artifactsLoading: boolean
+interface WorkspaceSlice {
+  /** Current directory listing (flat — one level at a time) */
+  workspaceEntries: WorkspaceEntry[]
+  /** Current directory path (relative to workspace root) */
+  workspaceCurrentPath: string
+  /** Currently previewed file data */
+  workspacePreview: FilePreviewData | null
+  workspaceLoading: boolean
+  workspacePreviewLoading: boolean
 }
 
 interface MemorySlice {
@@ -127,9 +133,17 @@ interface TaskActions {
   refreshConversationTasks(): Promise<void>
 }
 
-interface ArtifactActions {
-  loadArtifacts(projectId: ProjectId): Promise<void>
-  deleteArtifact(id: ArtifactId): Promise<void>
+interface WorkspaceActions {
+  /** Load entries for a directory path */
+  loadWorkspaceDir(projectId: ProjectId, dirPath?: string): Promise<void>
+  /** Navigate into a directory (updates currentPath and loads) */
+  navigateWorkspace(dirPath: string): Promise<void>
+  /** Load file preview */
+  loadWorkspaceFile(filePath: string): Promise<void>
+  /** Delete a file, then refresh the current directory */
+  deleteWorkspaceFile(filePath: string): Promise<void>
+  /** Clear workspace state (on project switch) */
+  clearWorkspace(): void
 }
 
 interface MemoryActions {
@@ -186,8 +200,8 @@ interface TopologyActions {
 
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & ArtifactSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & ArtifactActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions
 
 // AbortController for project switching
 let projectAbort: AbortController | null = null
@@ -223,7 +237,7 @@ export const useAppStore = create<AppState>()(
           agents: [],
           conversations: [],
           conversationTasks: [],
-          artifacts: [],
+          workspaceEntries: [],
           memories: [],
           skills: [],
           mcpServers: [],
@@ -234,7 +248,7 @@ export const useAppStore = create<AppState>()(
           agentsLoading: true,
           conversationsLoading: true,
           tasksLoading: true,
-          artifactsLoading: true,
+          workspaceLoading: false,
           memoriesLoading: true,
           skillsLoading: true,
           mcpServersLoading: true,
@@ -243,13 +257,13 @@ export const useAppStore = create<AppState>()(
         })
 
         // Load project data in parallel (individual failures resolve to empty arrays)
+        // Workspace is lazy-loaded on page visit, not on project select
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
-        const [agents, conversations, conversationTasks, artifacts, memories, skills, mcpServers, cronJobs] = await Promise.all([
+        const [agents, conversations, conversationTasks, memories, skills, mcpServers, cronJobs] = await Promise.all([
           safe(svc.agents.list(id)),
           safe(svc.conversations.list(id)),
           safe(svc.tasks.list(id)),
-          safe(svc.artifacts.list(id)),
           safe(svc.memory.list(id)),
           safe(svc.skills.list(id)),
           safe(svc.mcp.list(id)),
@@ -263,7 +277,6 @@ export const useAppStore = create<AppState>()(
           agents,
           conversations,
           conversationTasks,
-          artifacts,
           memories,
           skills,
           mcpServers,
@@ -271,7 +284,6 @@ export const useAppStore = create<AppState>()(
           agentsLoading: false,
           conversationsLoading: false,
           tasksLoading: false,
-          artifactsLoading: false,
           memoriesLoading: false,
           skillsLoading: false,
           mcpServersLoading: false,
@@ -287,7 +299,11 @@ export const useAppStore = create<AppState>()(
           agents: [],
           conversations: [],
           conversationTasks: [],
-          artifacts: [],
+          workspaceEntries: [],
+          workspaceCurrentPath: '',
+          workspacePreview: null,
+          workspaceLoading: false,
+          workspacePreviewLoading: false,
           memories: [],
           skills: [],
           mcpServers: [],
@@ -330,7 +346,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], artifacts: [], memories: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], memories: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [] } : {}),
         }))
       },
 
@@ -457,21 +473,54 @@ export const useAppStore = create<AppState>()(
         set({ conversationTasks: tasks })
       },
 
-      // --- Artifact state ---
-      artifacts: [],
-      artifactsLoading: false,
+      // --- Workspace state ---
+      workspaceEntries: [],
+      workspaceCurrentPath: '',
+      workspacePreview: null,
+      workspaceLoading: false,
+      workspacePreviewLoading: false,
 
-      async loadArtifacts(projectId: ProjectId) {
-        set({ artifactsLoading: true })
-        const artifacts = await getServices().artifacts.list(projectId)
-        set({ artifacts, artifactsLoading: false })
+      async loadWorkspaceDir(projectId: ProjectId, dirPath = '') {
+        set({ workspaceLoading: true, workspaceCurrentPath: dirPath })
+        const entries = await getServices().workspace.listDir(projectId, dirPath)
+        set({ workspaceEntries: entries, workspaceLoading: false })
       },
 
-      async deleteArtifact(id: ArtifactId) {
+      async navigateWorkspace(dirPath: string) {
+        const projectId = get().currentProjectId
+        if (!projectId) return
+        set({ workspacePreview: null })
+        await get().loadWorkspaceDir(projectId, dirPath)
+      },
+
+      async loadWorkspaceFile(filePath: string) {
+        const projectId = get().currentProjectId
+        if (!projectId) return
+        set({ workspacePreviewLoading: true })
+        const preview = await getServices().workspace.readFile(projectId, filePath)
+        set({ workspacePreview: preview, workspacePreviewLoading: false })
+      },
+
+      async deleteWorkspaceFile(filePath: string) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
-        await getServices().artifacts.delete(projectId, id)
-        set(s => ({ artifacts: s.artifacts.filter(a => a.id !== id) }))
+        await getServices().workspace.deleteFile(projectId, filePath)
+        // Refresh current directory
+        await get().loadWorkspaceDir(projectId, get().workspaceCurrentPath)
+        // Clear preview if deleted file was being previewed
+        if (get().workspacePreview?.path === filePath) {
+          set({ workspacePreview: null })
+        }
+      },
+
+      clearWorkspace() {
+        set({
+          workspaceEntries: [],
+          workspaceCurrentPath: '',
+          workspacePreview: null,
+          workspaceLoading: false,
+          workspacePreviewLoading: false,
+        })
       },
 
       // --- Memory state ---
