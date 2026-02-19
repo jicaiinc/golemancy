@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import type { Agent, AgentId, AgentStatus, SkillId } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { usePermissionConfig } from '../../hooks'
 import {
   PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelTabs,
-  PixelInput, PixelTextArea,
+  PixelInput, PixelTextArea, CompactThresholdControl,
 } from '../../components'
 
 // --- Status helpers ---
@@ -123,6 +124,9 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   const [systemPrompt, setSystemPrompt] = useState(agent.systemPrompt)
   const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)
   const [model, setModel] = useState(agent.modelConfig.model)
+  const [compactThreshold, setCompactThreshold] = useState(
+    agent.compactThreshold ?? settings?.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD,
+  )
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -137,6 +141,7 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
     setSystemPrompt(agent.systemPrompt)
     setProviderSlug(agent.modelConfig.provider)
     setModel(agent.modelConfig.model)
+    setCompactThreshold(agent.compactThreshold ?? settings?.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD)
   }, [agent.id])
 
   // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available
@@ -164,6 +169,7 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
       description: description.trim(),
       systemPrompt: systemPrompt.trim(),
       modelConfig: { provider: providerSlug, model },
+      compactThreshold,
     })
     setSaving(false)
     setSaved(true)
@@ -214,6 +220,12 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
             </select>
           </div>
         </div>
+      </PixelCard>
+
+      {/* Compact Threshold */}
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">COMPACT THRESHOLD</div>
+        <CompactThresholdControl value={compactThreshold} onChange={setCompactThreshold} />
       </PixelCard>
 
       <div className="flex items-center gap-3">

@@ -271,3 +271,56 @@ img[data-pixel],
     100% 0;
   background-repeat: no-repeat;
 }
+
+/* === Pixel-art range slider === */
+
+input[type="range"].pixel-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(
+    to right,
+    var(--color-accent-green) var(--fill-percent, 0%),
+    var(--color-deep) var(--fill-percent, 0%)
+  );
+  border: 2px solid var(--color-border-dim);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"].pixel-slider:focus {
+  border-color: var(--color-accent-blue);
+}
+
+input[type="range"].pixel-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--color-accent-green);
+  border: 2px solid var(--color-border-bright);
+  cursor: pointer;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.2),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"].pixel-slider::-moz-range-track {
+  height: 6px;
+  background: var(--color-deep);
+  border: 2px solid var(--color-border-dim);
+}
+
+input[type="range"].pixel-slider::-moz-range-progress {
+  background: var(--color-accent-green);
+  height: 6px;
+}
+
+input[type="range"].pixel-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--color-accent-green);
+  border: 2px solid var(--color-border-bright);
+  cursor: pointer;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.2),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.2);
+}

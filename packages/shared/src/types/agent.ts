@@ -65,4 +65,5 @@ export interface Agent extends Timestamped {
   subAgents: SubAgentRef[]
   mcpServers: string[]
   builtinTools: BuiltinToolConfig
+  compactThreshold?: number
 }

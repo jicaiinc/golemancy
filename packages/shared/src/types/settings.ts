@@ -28,6 +28,7 @@ export type ThemeMode = 'light' | 'dark' | 'system'
 export interface GlobalSettings {
   providers: Record<string, ProviderEntry>
   defaultModel?: AgentModelConfig
+  compactThreshold?: number
   theme: ThemeMode
 }
 
