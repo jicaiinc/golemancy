@@ -92,7 +92,11 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     agentStorage: deps.agentStorage,
     projectStorage: deps.projectStorage,
   }))
-  app.route('/api/projects/:projectId/conversations', createConversationRoutes(deps.conversationStorage))
+  app.route('/api/projects/:projectId/conversations', createConversationRoutes({
+    conversationStorage: deps.conversationStorage,
+    tokenRecordStorage: deps.tokenRecordStorage,
+    agentStorage: deps.agentStorage,
+  }))
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
   app.route('/api/projects/:projectId/workspace', createWorkspaceRoutes())
   app.route('/api/projects/:projectId/memories', createMemoryRoutes(deps.memoryStorage))

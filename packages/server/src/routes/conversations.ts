@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, ConversationId, MessageId, IConversationService } from '@golemancy/shared'
+import type { ProjectId, AgentId, ConversationId, MessageId, IConversationService, IAgentService } from '@golemancy/shared'
+import type { TokenRecordStorage } from '../storage/token-records'
 import { resolveUploadsForClient, extractUploads } from '../utils/message-parts'
 import { logger } from '../logger'
 
@@ -11,7 +12,14 @@ function getBaseUrl(c: { req: { url: string } }): string {
   return `${url.protocol}//${url.host}`
 }
 
-export function createConversationRoutes(storage: IConversationService) {
+export interface ConversationRouteDeps {
+  conversationStorage: IConversationService
+  tokenRecordStorage: TokenRecordStorage
+  agentStorage: IAgentService
+}
+
+export function createConversationRoutes(deps: ConversationRouteDeps) {
+  const { conversationStorage: storage, tokenRecordStorage, agentStorage } = deps
   const app = new Hono()
 
   app.get('/', async (c) => {
@@ -122,6 +130,28 @@ export function createConversationRoutes(storage: IConversationService) {
         ...m,
         parts: resolveUploadsForClient(projectId, baseUrl, m.parts),
       })),
+    })
+  })
+
+  // Token usage breakdown for a conversation
+  app.get('/:conversationId/token-usage', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const conversationId = c.req.param('conversationId') as ConversationId
+    log.debug({ projectId, conversationId }, 'getting conversation token usage')
+
+    const usage = tokenRecordStorage.getConversationUsage(projectId, conversationId)
+
+    // Resolve agent names
+    const agents = await agentStorage.list(projectId)
+    const agentMap = new Map(agents.map(a => [a.id, a.name]))
+
+    return c.json({
+      total: usage.total,
+      byAgent: usage.byAgent.map(a => ({
+        ...a,
+        name: agentMap.get(a.agentId as AgentId) ?? 'Unknown',
+      })),
+      byModel: usage.byModel,
     })
   })
 

@@ -49,6 +49,7 @@ export function createSubAgentTool(
   conversationId?: string,
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
+  onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
 ) {
   return tool({
     description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}`,
@@ -69,6 +70,7 @@ export function createSubAgentTool(
         conversationId,
         taskStorage,
         tokenRecordStorage,
+        onTokenUsage,
       })
 
       try {
@@ -154,6 +156,11 @@ export function createSubAgentTool(
           totalTokens: childUsage.totalTokens ?? 0,
         }
 
+        // Propagate sub-agent token usage to SSE stream
+        if (onTokenUsage) {
+          onTokenUsage({ inputTokens: childInputTokens, outputTokens: childOutputTokens })
+        }
+
         // Persist token_record for the sub-agent API call
         if (tokenRecordStorage) {
           try {
@@ -199,6 +206,7 @@ export function createSubAgentToolSet(
   conversationId?: string,
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
+  onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
 
@@ -210,7 +218,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, onTokenUsage)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

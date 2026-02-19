@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import type { AgentId, ConversationId } from '@golemancy/shared'
+import type { AgentId, ConversationId, ConversationTokenUsageResult } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, usePermissionMode } from '../../hooks'
+import { getServices } from '../../services/container'
 import { PixelSpinner, StatusBar } from '../../components'
 import { ChatSidebar } from './ChatSidebar'
 import { ChatWindow } from './ChatWindow'
@@ -24,11 +25,31 @@ export function ChatPage() {
 
   // Token usage tracking for current conversation
   const [conversationUsage, setConversationUsage] = useState<{ inputTokens: number; outputTokens: number } | null>(null)
+  const [tokenBreakdown, setTokenBreakdown] = useState<ConversationTokenUsageResult | null>(null)
 
-  // Reset usage when conversation changes
+  // Load historical usage when conversation changes
   useEffect(() => {
-    setConversationUsage(null)
-  }, [currentConversationId])
+    if (!currentConversationId || !currentProject?.id) {
+      setConversationUsage(null)
+      setTokenBreakdown(null)
+      return
+    }
+    const svc = getServices()
+    if (svc.conversations.getConversationTokenUsage) {
+      svc.conversations.getConversationTokenUsage(currentProject.id, currentConversationId)
+        .then(result => {
+          setConversationUsage(result.total)
+          setTokenBreakdown(result)
+        })
+        .catch(() => {
+          setConversationUsage(null)
+          setTokenBreakdown(null)
+        })
+    } else {
+      setConversationUsage(null)
+      setTokenBreakdown(null)
+    }
+  }, [currentConversationId, currentProject?.id])
 
   const handleUsageUpdate = useCallback((usage: { inputTokens: number; outputTokens: number }) => {
     setConversationUsage(prev => prev
@@ -153,7 +174,7 @@ export function ChatPage() {
           />
         )}
         {/* TODO: Pass actualMode from WS mode_degraded events once WebSocket integration is wired up */}
-        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} taskSummary={taskSummary} taskList={currentConvTasks} />
+        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} tokenBreakdown={tokenBreakdown} taskSummary={taskSummary} taskList={currentConvTasks} />
       </div>
     </div>
   )

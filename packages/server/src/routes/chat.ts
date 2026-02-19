@@ -129,6 +129,10 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       ? await deps.agentStorage.list(projectId as ProjectId)
       : []
 
+    // Late-bound writer reference — assigned inside createUIMessageStream execute(),
+    // but sub-agent tools only invoke during streaming so writer is always available.
+    let streamWriter: Parameters<Parameters<typeof createUIMessageStream>[0]['execute']>[0]['writer'] | undefined
+
     const agentToolsResult = await loadAgentTools({
       agent, projectId, settings, allAgents,
       mcpStorage: deps.mcpStorage,
@@ -137,6 +141,12 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       conversationId,
       taskStorage: deps.taskStorage,
       tokenRecordStorage: deps.tokenRecordStorage,
+      onTokenUsage: (usage) => {
+        streamWriter?.write({
+          type: 'data-usage' as `data-${string}`,
+          data: usage,
+        })
+      },
     })
 
     const allTools = agentToolsResult.tools
@@ -201,6 +211,9 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const modeDegradation = agentToolsResult.degradation
     const stream = createUIMessageStream({
       execute: ({ writer }) => {
+        // Bind writer so sub-agent onTokenUsage callback can emit SSE events
+        streamWriter = writer
+
         // Send mode degradation event if permission mode was downgraded
         if (modeDegradation) {
           writer.write({

@@ -25,6 +25,7 @@ export interface LoadAgentToolsParams {
   conversationId?: string
   taskStorage?: SqliteConversationTaskStorage
   tokenRecordStorage?: TokenRecordStorage
+  onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void
 }
 
 export interface AgentToolsResult {
@@ -48,7 +49,7 @@ export interface AgentToolsResult {
  * recursive nesting controlled purely by agent configuration.
  */
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
-  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage } = params
+  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, onTokenUsage } = params
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
@@ -123,7 +124,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   if (agent.subAgents?.length > 0) {
     const subAgentResult = createSubAgentToolSet(
       agent, allAgents, settings, projectId, loadAgentTools, mcpStorage, permissionsConfigStorage,
-      conversationId, taskStorage, tokenRecordStorage,
+      conversationId, taskStorage, tokenRecordStorage, onTokenUsage,
     )
     Object.assign(tools, subAgentResult.tools)
   }

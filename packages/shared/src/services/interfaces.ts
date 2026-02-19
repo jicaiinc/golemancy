@@ -26,6 +26,12 @@ export interface IAgentService {
   delete(projectId: ProjectId, id: AgentId): Promise<void>
 }
 
+export interface ConversationTokenUsageResult {
+  total: { inputTokens: number; outputTokens: number }
+  byAgent: Array<{ agentId: string; name: string; inputTokens: number; outputTokens: number }>
+  byModel: Array<{ provider: string; model: string; inputTokens: number; outputTokens: number }>
+}
+
 export interface IConversationService {
   list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]>
   getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null>
@@ -36,6 +42,7 @@ export interface IConversationService {
   searchMessages(projectId: ProjectId, query: string, params: PaginationParams): Promise<PaginatedResult<Message>>
   update(projectId: ProjectId, id: ConversationId, data: { title?: string }): Promise<Conversation>
   delete(projectId: ProjectId, id: ConversationId): Promise<void>
+  getConversationTokenUsage?(projectId: ProjectId, conversationId: ConversationId): Promise<ConversationTokenUsageResult>
 }
 
 export interface ITaskService {

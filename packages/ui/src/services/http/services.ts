@@ -6,6 +6,7 @@ import type {
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   WorkspaceEntry, FilePreviewData,
+  ConversationTokenUsageResult,
   IProjectService, IAgentService, IConversationService,
   ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IPermissionsConfigService, IWorkspaceService,
@@ -101,6 +102,11 @@ export class HttpConversationService implements IConversationService {
   }
   async delete(projectId: ProjectId, id: ConversationId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`, { method: 'DELETE' })
+  }
+  getConversationTokenUsage(projectId: ProjectId, conversationId: ConversationId) {
+    return fetchJson<ConversationTokenUsageResult>(
+      `${this.baseUrl}/api/projects/${projectId}/conversations/${conversationId}/token-usage`,
+    )
   }
 }
 

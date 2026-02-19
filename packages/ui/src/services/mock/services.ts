@@ -13,6 +13,7 @@ import type {
   ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IPermissionsConfigService, IWorkspaceService,
 } from '../interfaces'
+import type { ConversationTokenUsageResult } from '@golemancy/shared'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
   SEED_CONVERSATION_TASKS, SEED_MEMORIES, SEED_SETTINGS,
@@ -254,6 +255,11 @@ export class MockConversationService implements IConversationService {
     await delay()
     const conv = this.data.get(id)
     if (conv && conv.projectId === projectId) this.data.delete(id)
+  }
+
+  async getConversationTokenUsage(_projectId: ProjectId, _conversationId: ConversationId): Promise<ConversationTokenUsageResult> {
+    await delay()
+    return { total: { inputTokens: 0, outputTokens: 0 }, byAgent: [], byModel: [] }
   }
 }
 
