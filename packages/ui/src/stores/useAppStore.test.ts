@@ -482,9 +482,9 @@ describe('useAppStore', () => {
       const result = await useAppStore.getState().createCronJob({
         agentId: 'agent-1' as AgentId,
         name: 'New Job',
-        description: 'Test',
         cronExpression: '0 * * * *',
         enabled: true,
+        scheduleType: 'cron',
       })
       expect(result).toEqual(newJob)
       expect(useAppStore.getState().cronJobs).toHaveLength(1)
@@ -497,9 +497,9 @@ describe('useAppStore', () => {
         useAppStore.getState().createCronJob({
           agentId: 'agent-1' as AgentId,
           name: 'Job',
-          description: '',
           cronExpression: '0 * * * *',
           enabled: true,
+          scheduleType: 'cron',
         }),
       ).rejects.toThrow('No project selected')
     })

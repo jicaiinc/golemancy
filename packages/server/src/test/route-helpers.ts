@@ -104,6 +104,12 @@ export function createMockStorage(): MockStorage {
       update: vi.fn(),
       delete: vi.fn().mockResolvedValue(undefined),
     },
+    cronJobRunStorage: {
+      create: vi.fn().mockResolvedValue({ id: 'cronrun-1', status: 'running' }),
+      updateStatus: vi.fn().mockResolvedValue(undefined),
+      listByJob: vi.fn().mockResolvedValue([]),
+      listByProject: vi.fn().mockResolvedValue([]),
+    } as any,
     mcpStorage: {
       list: vi.fn().mockResolvedValue([]),
       getByName: vi.fn().mockResolvedValue(null),

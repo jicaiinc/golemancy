@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   ThemeMode,
@@ -70,6 +70,8 @@ interface MCPSlice {
 interface CronJobSlice {
   cronJobs: CronJob[]
   cronJobsLoading: boolean
+  cronJobRuns: CronJobRun[]
+  cronJobRunsLoading: boolean
 }
 
 interface SettingsSlice {
@@ -155,9 +157,11 @@ interface MCPActions {
 
 interface CronJobActions {
   loadCronJobs(projectId: ProjectId): Promise<void>
-  createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>): Promise<CronJob>
-  updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>>): Promise<void>
+  createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
+  updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<void>
   deleteCronJob(id: CronJobId): Promise<void>
+  triggerCronJob(id: CronJobId): Promise<CronJobRun | null>
+  loadCronJobRuns(cronJobId: CronJobId): Promise<void>
 }
 
 interface SettingsActions {
@@ -224,6 +228,7 @@ export const useAppStore = create<AppState>()(
           skills: [],
           mcpServers: [],
           cronJobs: [],
+          cronJobRuns: [],
           topologyLayout: {},
           topologyLayoutLoading: false,
           agentsLoading: true,
@@ -234,6 +239,7 @@ export const useAppStore = create<AppState>()(
           skillsLoading: true,
           mcpServersLoading: true,
           cronJobsLoading: true,
+          cronJobRunsLoading: false,
         })
 
         // Load project data in parallel (individual failures resolve to empty arrays)
@@ -286,10 +292,12 @@ export const useAppStore = create<AppState>()(
           skills: [],
           mcpServers: [],
           cronJobs: [],
+          cronJobRuns: [],
           topologyLayout: {},
           skillsLoading: false,
           mcpServersLoading: false,
           cronJobsLoading: false,
+          cronJobRunsLoading: false,
           currentConversationId: null,
         })
       },
@@ -322,7 +330,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], artifacts: [], memories: [], skills: [], mcpServers: [], cronJobs: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], artifacts: [], memories: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [] } : {}),
         }))
       },
 
@@ -391,10 +399,15 @@ export const useAppStore = create<AppState>()(
         // since useChat only reads `messages` on initialization.
         const full = await getServices().conversations.getById(projectId, id)
         if (full) {
-          set(s => ({
-            conversations: s.conversations.map(c => c.id === id ? full : c),
-            currentConversationId: id,
-          }))
+          set(s => {
+            const exists = s.conversations.some(c => c.id === id)
+            return {
+              conversations: exists
+                ? s.conversations.map(c => c.id === id ? full : c)
+                : [...s.conversations, full],
+              currentConversationId: id,
+            }
+          })
           console.debug('[store] selectConversation loaded', id, 'messages:', full.messages.length)
         } else {
           set({ currentConversationId: id })
@@ -577,6 +590,8 @@ export const useAppStore = create<AppState>()(
       // --- CronJob state ---
       cronJobs: [],
       cronJobsLoading: false,
+      cronJobRuns: [],
+      cronJobRunsLoading: false,
 
       async loadCronJobs(projectId: ProjectId) {
         set({ cronJobsLoading: true })
@@ -604,6 +619,38 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().cronJobs.delete(projectId, id)
         set(s => ({ cronJobs: s.cronJobs.filter(c => c.id !== id) }))
+      },
+
+      async triggerCronJob(id) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const svc = getServices().cronJobs
+        if (!svc.trigger) return null
+        // Optimistically set status to 'running' immediately
+        set(s => ({
+          cronJobs: s.cronJobs.map(c => c.id === id ? { ...c, lastRunStatus: 'running' as const } : c),
+        }))
+        try {
+          const run = await svc.trigger(projectId, id)
+          // Silent reload — don't set cronJobsLoading to avoid page flash
+          const cronJobs = await getServices().cronJobs.list(projectId)
+          set({ cronJobs })
+          return run
+        } catch (err) {
+          // Silent reload on error too
+          const cronJobs = await getServices().cronJobs.list(projectId)
+          set({ cronJobs })
+          throw err
+        }
+      },
+
+      async loadCronJobRuns(cronJobId) {
+        const projectId = get().currentProjectId
+        if (!projectId) return
+        set({ cronJobRunsLoading: true })
+        const svc = getServices().cronJobs
+        const runs = svc.listRuns ? await svc.listRuns(projectId, cronJobId) : []
+        set({ cronJobRuns: runs, cronJobRunsLoading: false })
       },
 
       // --- Settings state ---

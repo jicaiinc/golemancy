@@ -136,6 +136,12 @@ function createMockDeps() {
       update: vi.fn(),
       delete: vi.fn(),
     },
+    cronJobRunStorage: {
+      create: vi.fn().mockResolvedValue({ id: 'cronrun-1', status: 'running' }),
+      updateStatus: vi.fn().mockResolvedValue(undefined),
+      listByJob: vi.fn().mockResolvedValue([]),
+      listByProject: vi.fn().mockResolvedValue([]),
+    },
     permissionsConfigStorage: {
       list: vi.fn().mockResolvedValue([]),
       getById: vi.fn().mockResolvedValue(null),

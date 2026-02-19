@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, CronJob, Skill,
+  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, CronJob, CronJobRun, Skill,
   GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, ArtifactId, MemoryId, SkillId, CronJobId,
   PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
@@ -84,9 +84,11 @@ export interface ISettingsService {
 export interface ICronJobService {
   list(projectId: ProjectId): Promise<CronJob[]>
   getById(projectId: ProjectId, id: CronJobId): Promise<CronJob | null>
-  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>): Promise<CronJob>
-  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>>): Promise<CronJob>
+  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
+  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<CronJob>
   delete(projectId: ProjectId, id: CronJobId): Promise<void>
+  trigger?(projectId: ProjectId, id: CronJobId): Promise<CronJobRun>
+  listRuns?(projectId: ProjectId, cronJobId?: CronJobId, limit?: number): Promise<CronJobRun[]>
 }
 
 export interface IDashboardService {

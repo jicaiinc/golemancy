@@ -98,6 +98,24 @@ export function migrateDatabase(db: AppDatabase) {
     db.run(sql`ALTER TABLE messages ADD COLUMN output_tokens INTEGER NOT NULL DEFAULT 0`)
   }
 
+  // --- Migration v4: cron_job_runs table ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS cron_job_runs (
+      id TEXT PRIMARY KEY,
+      cron_job_id TEXT NOT NULL,
+      project_id TEXT NOT NULL,
+      agent_id TEXT NOT NULL,
+      conversation_id TEXT,
+      status TEXT NOT NULL DEFAULT 'running',
+      duration_ms INTEGER,
+      error TEXT,
+      triggered_by TEXT NOT NULL DEFAULT 'schedule',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_cron_job_runs_job ON cron_job_runs(cron_job_id, created_at DESC)`)
+
   // Set up FTS5
   setupFTS(db)
   log.info('database migrations complete')

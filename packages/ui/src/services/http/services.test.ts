@@ -439,7 +439,7 @@ describe('HttpCronJobService', () => {
   const CRON = 'cron-1' as CronJobId
 
   it('create() → POST with cron data', async () => {
-    const data = { agentId: AGENT, name: 'Daily task', description: '', cronExpression: '0 9 * * *', enabled: true }
+    const data = { agentId: AGENT, name: 'Daily task', cronExpression: '0 9 * * *', enabled: true, scheduleType: 'cron' as const }
     mockFetch.mockResolvedValue(jsonResponse({ id: CRON, ...data }))
     await svc.create(PROJ, data)
     expect(mockFetch).toHaveBeenCalledWith(

@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
@@ -231,18 +231,30 @@ export class HttpCronJobService implements ICronJobService {
   getById(projectId: ProjectId, id: CronJobId) {
     return fetchJson<CronJob | null>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`)
   }
-  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>) {
+  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>) {
     return fetchJson<CronJob>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs`, {
       method: 'POST', body: JSON.stringify(data),
     })
   }
-  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>>) {
+  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>) {
     return fetchJson<CronJob>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`, {
       method: 'PATCH', body: JSON.stringify(data),
     })
   }
   async delete(projectId: ProjectId, id: CronJobId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`, { method: 'DELETE' })
+  }
+  trigger(projectId: ProjectId, id: CronJobId) {
+    return fetchJson<CronJobRun>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}/trigger`, {
+      method: 'POST',
+    })
+  }
+  listRuns(projectId: ProjectId, cronJobId?: CronJobId, limit?: number) {
+    const params = new URLSearchParams()
+    if (limit) params.set('limit', String(limit))
+    const suffix = cronJobId ? `/${cronJobId}/runs` : '/runs'
+    const qs = params.toString() ? `?${params}` : ''
+    return fetchJson<CronJobRun[]>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs${suffix}${qs}`)
   }
 }
 

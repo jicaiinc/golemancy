@@ -16,6 +16,9 @@ import { FileMCPStorage } from './storage/mcp'
 import { FileSettingsStorage } from './storage/settings'
 import { FilePermissionsConfigStorage } from './storage/permissions-config'
 import { DashboardService } from './storage/dashboard'
+import { SqliteCronJobRunStorage } from './storage/cron-job-runs'
+import { cronScheduler } from './scheduler'
+import { CronJobExecutor } from './scheduler'
 import { sandboxPool } from './agent/sandbox-pool'
 import { mcpPool } from './agent/mcp-pool'
 import { logger } from './logger'
@@ -34,6 +37,7 @@ async function main() {
   // Construct dependencies
   const projectStorage = new FileProjectStorage()
   const agentStorage = new FileAgentStorage()
+  const cronJobRunStorage = new SqliteCronJobRunStorage(dbManager.getProjectDb)
   const deps: ServerDependencies = {
     projectStorage,
     agentStorage,
@@ -43,6 +47,7 @@ async function main() {
     memoryStorage: new FileMemoryStorage(),
     skillStorage: new FileSkillStorage(agentStorage),
     cronJobStorage: new FileCronJobStorage(),
+    cronJobRunStorage,
     settingsStorage: new FileSettingsStorage(),
     mcpStorage: new FileMCPStorage(),
     permissionsConfigStorage: new FilePermissionsConfigStorage(),
@@ -57,12 +62,13 @@ async function main() {
   const authToken = crypto.randomUUID()
   const app = createApp(deps, authToken)
 
-  // Graceful shutdown: clean up sandbox workers and MCP connections
+  // Graceful shutdown: clean up sandbox workers, MCP connections, and cron scheduler
   process.on('SIGTERM', async () => {
     logger.info('SIGTERM received, shutting down')
     await Promise.allSettled([
       sandboxPool.shutdown(),
       mcpPool.shutdown(),
+      cronScheduler.shutdown(),
     ])
   })
 
@@ -76,6 +82,23 @@ async function main() {
     if (process.send) {
       process.send({ type: 'ready', port: info.port, token: authToken })
     }
+
+    // Start cron scheduler after server is ready
+    const executor = new CronJobExecutor({
+      agentStorage,
+      conversationStorage: deps.conversationStorage as SqliteConversationStorage,
+      settingsStorage: deps.settingsStorage as FileSettingsStorage,
+      mcpStorage: deps.mcpStorage as FileMCPStorage,
+      permissionsConfigStorage: deps.permissionsConfigStorage as FilePermissionsConfigStorage,
+      cronJobRunStorage,
+      cronJobStorage: deps.cronJobStorage as FileCronJobStorage,
+      taskStorage: deps.taskStorage as SqliteConversationTaskStorage,
+      projectStorage,
+    })
+    cronScheduler.start({
+      cronJobStorage: deps.cronJobStorage as FileCronJobStorage,
+      executor,
+    })
   })
 }
 

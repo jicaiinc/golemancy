@@ -7,6 +7,7 @@ import type {
   IArtifactService, IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
   IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
+import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'
@@ -37,6 +38,7 @@ export interface ServerDependencies {
   settingsStorage: ISettingsService
   dashboardService: IDashboardService
   cronJobStorage: ICronJobService
+  cronJobRunStorage: SqliteCronJobRunStorage
   mcpStorage: IMCPService
   permissionsConfigStorage: IPermissionsConfigService
 }
@@ -113,7 +115,10 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     taskStorage: deps.taskStorage as import('./storage/tasks').SqliteConversationTaskStorage,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
-  app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes(deps.cronJobStorage))
+  app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes({
+    storage: deps.cronJobStorage,
+    runStorage: deps.cronJobRunStorage,
+  }))
   app.route('/api/projects/:projectId/dashboard', createDashboardRoutes(deps.dashboardService))
   app.route('/api/projects/:projectId/topology-layout', createTopologyRoutes())
   app.route('/api/projects/:projectId/permissions-config', createPermissionsConfigRoutes(deps.permissionsConfigStorage))

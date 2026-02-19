@@ -37,3 +37,17 @@ export const conversationTasks = sqliteTable('conversation_tasks', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 })
+
+export const cronJobRuns = sqliteTable('cron_job_runs', {
+  id: text('id').primaryKey(),
+  cronJobId: text('cron_job_id').notNull(),
+  projectId: text('project_id').notNull(),
+  agentId: text('agent_id').notNull(),
+  conversationId: text('conversation_id'),
+  status: text('status').notNull().default('running'),
+  durationMs: integer('duration_ms'),
+  error: text('error'),
+  triggeredBy: text('triggered_by').notNull().default('schedule'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})

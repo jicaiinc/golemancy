@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, Skill,
+  Project, Agent, Conversation, ConversationTask, Artifact, MemoryEntry, GlobalSettings, CronJob, CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, ArtifactId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
@@ -468,7 +468,7 @@ export class MockCronJobService implements ICronJobService {
     return job && job.projectId === projectId ? job : null
   }
 
-  async create(projectId: ProjectId, input: Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>): Promise<CronJob> {
+  async create(projectId: ProjectId, input: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob> {
     await delay()
     const now = new Date().toISOString()
     const job: CronJob = {
@@ -482,7 +482,7 @@ export class MockCronJobService implements ICronJobService {
     return job
   }
 
-  async update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'description' | 'cronExpression' | 'enabled'>>): Promise<CronJob> {
+  async update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<CronJob> {
     await delay()
     const existing = this.data.get(id)
     if (!existing || existing.projectId !== projectId) throw new Error(`CronJob ${id} not found`)
@@ -495,6 +495,27 @@ export class MockCronJobService implements ICronJobService {
     await delay()
     const job = this.data.get(id)
     if (job && job.projectId === projectId) this.data.delete(id)
+  }
+
+  async trigger(projectId: ProjectId, id: CronJobId): Promise<CronJobRun> {
+    await delay()
+    const now = new Date().toISOString()
+    return {
+      id: genId('cronrun'),
+      cronJobId: id,
+      projectId,
+      agentId: '' as AgentId,
+      status: 'success',
+      durationMs: 1234,
+      triggeredBy: 'manual',
+      createdAt: now,
+      updatedAt: now,
+    }
+  }
+
+  async listRuns(_projectId: ProjectId, _cronJobId?: CronJobId, _limit?: number): Promise<CronJobRun[]> {
+    await delay()
+    return []
   }
 }
 
