@@ -27,6 +27,30 @@ export async function resolveModel(
       const { createGoogleGenerativeAI } = await import('@ai-sdk/google')
       return createGoogleGenerativeAI({ apiKey: entry.apiKey, baseURL: entry.baseUrl })(model)
     }
+    case 'deepseek': {
+      const { createDeepSeek } = await import('@ai-sdk/deepseek')
+      return createDeepSeek({ apiKey: entry.apiKey, baseURL: entry.baseUrl })(model)
+    }
+    case 'xai': {
+      const { createXai } = await import('@ai-sdk/xai')
+      return createXai({ apiKey: entry.apiKey, baseURL: entry.baseUrl })(model)
+    }
+    case 'groq': {
+      const { createGroq } = await import('@ai-sdk/groq')
+      return createGroq({ apiKey: entry.apiKey, baseURL: entry.baseUrl })(model)
+    }
+    case 'mistral': {
+      const { createMistral } = await import('@ai-sdk/mistral')
+      return createMistral({ apiKey: entry.apiKey, baseURL: entry.baseUrl })(model)
+    }
+    case 'moonshot': {
+      const { createMoonshotAI } = await import('@ai-sdk/moonshotai')
+      return createMoonshotAI({ apiKey: entry.apiKey, baseURL: entry.baseUrl })(model)
+    }
+    case 'alibaba': {
+      const { createAlibaba } = await import('@ai-sdk/alibaba')
+      return createAlibaba({ apiKey: entry.apiKey, baseURL: entry.baseUrl })(model)
+    }
     case 'openai-compatible':
     default: {
       const { createOpenAI } = await import('@ai-sdk/openai')

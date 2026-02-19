@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
 import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -17,13 +18,24 @@ const PROVIDER_PRESETS: Record<string, { name: string; sdkType: ProviderSdkType;
   anthropic: { name: 'Anthropic', sdkType: 'anthropic', defaultModels: ['claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-6'] },
   openai: { name: 'OpenAI', sdkType: 'openai', defaultModels: ['gpt-4o', 'gpt-4o-mini', 'o3-mini'] },
   google: { name: 'Google', sdkType: 'google', defaultModels: ['gemini-2.5-flash', 'gemini-2.5-pro'] },
-  deepseek: { name: 'DeepSeek', sdkType: 'openai-compatible', defaultModels: ['deepseek-chat', 'deepseek-reasoner'], defaultBaseUrl: 'https://api.deepseek.com/v1' },
+  deepseek: { name: 'DeepSeek', sdkType: 'deepseek', defaultModels: ['deepseek-chat', 'deepseek-reasoner'] },
+  xai: { name: 'xAI (Grok)', sdkType: 'xai', defaultModels: ['grok-3', 'grok-3-mini'] },
+  groq: { name: 'Groq', sdkType: 'groq', defaultModels: ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768'] },
+  mistral: { name: 'Mistral', sdkType: 'mistral', defaultModels: ['mistral-large-latest', 'codestral-latest'] },
+  moonshot: { name: 'Moonshot (Kimi)', sdkType: 'moonshot', defaultModels: ['kimi-k2', 'moonshot-v1-128k'] },
+  alibaba: { name: 'Alibaba (通义)', sdkType: 'alibaba', defaultModels: ['qwen-max', 'qwen-plus', 'qwen-turbo'] },
 }
 
 const SDK_TYPE_OPTIONS: { value: ProviderSdkType; label: string }[] = [
   { value: 'anthropic', label: 'Anthropic' },
   { value: 'openai', label: 'OpenAI' },
   { value: 'google', label: 'Google' },
+  { value: 'deepseek', label: 'DeepSeek' },
+  { value: 'xai', label: 'xAI (Grok)' },
+  { value: 'groq', label: 'Groq' },
+  { value: 'mistral', label: 'Mistral' },
+  { value: 'moonshot', label: 'Moonshot (Kimi)' },
+  { value: 'alibaba', label: 'Alibaba (通义)' },
   { value: 'openai-compatible', label: 'OpenAI-Compatible' },
 ]
 
@@ -32,10 +44,14 @@ function isLocalUrl(url?: string): boolean {
   return url.includes('localhost') || url.includes('127.0.0.1')
 }
 
-function getProviderStatus(entry: ProviderEntry): 'ok' | 'no-key' {
-  if (entry.apiKey) return 'ok'
-  if (isLocalUrl(entry.baseUrl)) return 'ok'
-  return 'no-key'
+/** Whether the provider has credentials (API key or localhost) */
+function hasCredentials(entry: ProviderEntry): boolean {
+  return !!(entry.apiKey || isLocalUrl(entry.baseUrl))
+}
+
+/** Whether the provider is available for selection (test passed) */
+function isProviderAvailable(entry: ProviderEntry): boolean {
+  return entry.testStatus === 'ok'
 }
 
 function slugify(name: string): string {
@@ -45,13 +61,24 @@ function slugify(name: string): string {
 export function GlobalSettingsPage() {
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('providers')
 
   if (!settings) return null
 
   return (
-    <GlobalLayout title="Global Settings" showBack backLabel="All Projects">
+    <GlobalLayout
+      title="Golemancy"
+      actions={
+        <PixelButton variant="ghost" size="sm" onClick={() => navigate('/')}>
+          <span className="text-[18px]">{'\u2302'}</span>
+        </PixelButton>
+      }
+    >
       <div data-testid="settings-form" className="max-w-[1000px] mx-auto p-8">
+        {/* Page heading */}
+        <h2 className="font-pixel text-[12px] text-text-primary mb-6">Global Settings</h2>
+
         <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="mt-4">
@@ -88,9 +115,9 @@ function ProvidersTab({ settings, onUpdate }: {
   const providers = (settings.providers && !Array.isArray(settings.providers)) ? settings.providers : {}
   const providerKeys = Object.keys(providers)
 
-  // Available providers (have key or localhost)
+  // Available providers (test passed)
   const availableProviders = Object.entries(providers).filter(
-    ([, entry]) => entry.apiKey || isLocalUrl(entry.baseUrl),
+    ([, entry]) => isProviderAvailable(entry),
   )
 
   // Presets not yet added
@@ -344,22 +371,48 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
   const [showKey, setShowKey] = useState(false)
   const [modelsExpanded, setModelsExpanded] = useState(false)
   const [newModel, setNewModel] = useState('')
-  const [testState, setTestState] = useState<'idle' | 'testing' | 'ok' | 'error'>('idle')
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [testing, setTesting] = useState(false)
   const [testError, setTestError] = useState('')
   const [testLatency, setTestLatency] = useState(0)
 
   // Defensive: ensure models is always an array
   const safeEntry = { ...entry, models: entry.models ?? [] }
-  const status = getProviderStatus(safeEntry)
+  const testStatus = entry.testStatus ?? 'untested'
+
+  const runTest = useCallback(async (updatedEntry?: ProviderEntry) => {
+    setTesting(true)
+    setTestError('')
+    try {
+      const result = await services.settings.testProvider(providerKey)
+      if (result.ok) {
+        setTestLatency(result.latencyMs ?? 0)
+        await onUpdate({ ...(updatedEntry ?? entry), testStatus: 'ok' })
+      } else {
+        setTestError(result.error ?? 'Unknown error')
+        await onUpdate({ ...(updatedEntry ?? entry), testStatus: 'error' })
+      }
+    } catch (err) {
+      setTestError(err instanceof Error ? err.message : 'Test failed')
+      await onUpdate({ ...(updatedEntry ?? entry), testStatus: 'error' })
+    } finally {
+      setTesting(false)
+    }
+  }, [services, providerKey, entry, onUpdate])
 
   async function handleSave() {
-    await onUpdate({
+    const updated: ProviderEntry = {
       ...entry,
       name,
       apiKey: apiKey || undefined,
       baseUrl: baseUrl || undefined,
-    })
+    }
+    await onUpdate(updated)
     setEditing(false)
+    // Auto-test if credentials are present
+    if (updated.apiKey || isLocalUrl(updated.baseUrl)) {
+      await runTest(updated)
+    }
   }
 
   function handleCancelEdit() {
@@ -380,25 +433,6 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
     await onUpdate({ ...entry, models: safeEntry.models.filter(m => m !== model) })
   }
 
-  async function handleTest() {
-    setTestState('testing')
-    setTestError('')
-    try {
-      const result = await services.settings.testProvider(providerKey)
-      if (result.ok) {
-        setTestState('ok')
-        setTestLatency(result.latencyMs ?? 0)
-      } else {
-        setTestState('error')
-        setTestError(result.error ?? 'Unknown error')
-      }
-    } catch (err) {
-      setTestState('error')
-      setTestError(err instanceof Error ? err.message : 'Test failed')
-    }
-    setTimeout(() => setTestState('idle'), 5000)
-  }
-
   const maskedKey = entry.apiKey
     ? entry.apiKey.slice(0, 7) + '\u2022'.repeat(8)
     : ''
@@ -410,28 +444,28 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
         <span className="font-pixel text-[11px] text-text-primary">{entry.name}</span>
         <span className="text-[9px] text-text-dim font-mono">({providerKey})</span>
         {/* Status indicator */}
-        {status === 'ok' ? (
-          <span className="text-[10px] text-accent-green">{'\u{1F7E2}'}</span>
+        {testing ? (
+          <span className="text-[10px] text-accent-blue animate-pulse">Testing...</span>
+        ) : testStatus === 'ok' ? (
+          <span className="text-[10px] text-accent-green">{'\u2705'} OK{testLatency > 0 ? ` (${testLatency}ms)` : ''}</span>
+        ) : testStatus === 'error' ? (
+          <span className="text-[10px] text-accent-red">{'\u274C'} Failed</span>
+        ) : hasCredentials(safeEntry) ? (
+          <span className="text-[10px] text-accent-amber">Untested</span>
         ) : (
           <span className="text-[10px] text-text-dim">{'\u26AA'} No Key</span>
         )}
-        {/* Test button */}
-        {status === 'ok' && !editing && (
-          <PixelButton size="sm" variant="ghost" onClick={handleTest} disabled={testState === 'testing'}>
-            {testState === 'testing' ? 'Testing...' : 'Test'}
+        {/* Test button (only when has credentials and not editing) */}
+        {hasCredentials(safeEntry) && !editing && !testing && (
+          <PixelButton size="sm" variant="ghost" onClick={() => runTest()}>
+            {testStatus === 'ok' ? 'Re-test' : 'Test'}
           </PixelButton>
-        )}
-        {testState === 'ok' && (
-          <span className="text-[10px] text-accent-green">{'\u2705'} OK ({testLatency}ms)</span>
-        )}
-        {testState === 'error' && (
-          <span className="text-[10px] text-accent-red" title={testError}>{'\u274C'} Failed</span>
         )}
         <div className="ml-auto flex gap-1">
           {!editing ? (
             <>
               <PixelButton size="sm" variant="ghost" onClick={() => setEditing(true)}>Edit</PixelButton>
-              <PixelButton size="sm" variant="danger" onClick={onDelete}>Del</PixelButton>
+              <PixelButton size="sm" variant="danger" onClick={() => setConfirmDelete(true)}>Del</PixelButton>
             </>
           ) : (
             <>
@@ -442,8 +476,23 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
         </div>
       </div>
 
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <div className="mt-2 p-2 bg-accent-red/10 border-2 border-accent-red/30 flex items-center gap-3">
+          <span className="text-[11px] text-accent-red flex-1">
+            Delete <strong>{entry.name}</strong>? This cannot be undone.
+          </span>
+          <PixelButton size="sm" variant="danger" onClick={() => { setConfirmDelete(false); onDelete() }}>
+            Confirm
+          </PixelButton>
+          <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
+            Cancel
+          </PixelButton>
+        </div>
+      )}
+
       {/* Test error details */}
-      {testState === 'error' && testError && (
+      {!testing && testStatus === 'error' && testError && (
         <div className="mt-2 p-2 bg-accent-red/10 border-2 border-accent-red/30">
           <span className="text-[10px] text-accent-red font-mono break-all">{testError}</span>
         </div>

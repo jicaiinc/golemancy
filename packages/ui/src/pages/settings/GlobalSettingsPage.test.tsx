@@ -10,7 +10,7 @@ import type { GlobalSettings } from '@golemancy/shared'
 
 const mockSettings: GlobalSettings = {
   providers: {
-    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test-key', models: ['gpt-4o'] },
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test-key', models: ['gpt-4o'], testStatus: 'ok' },
   },
   theme: 'dark',
   userProfile: { name: 'Test User', email: 'test@example.com' },
@@ -117,9 +117,13 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getByText(/AI Agent Orchestrator for Solo Creators/)).toBeInTheDocument()
   })
 
-  it('renders back button with "All Projects" label', () => {
+  it('renders home icon button in header', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    const backBtn = screen.getByText(/All Projects/)
-    expect(backBtn).toBeInTheDocument()
+    expect(screen.getByText('\u2302')).toBeInTheDocument()
+  })
+
+  it('renders Golemancy branding in header', () => {
+    renderWithRouter(<GlobalSettingsPage />)
+    expect(screen.getByText('Golemancy')).toBeInTheDocument()
   })
 })

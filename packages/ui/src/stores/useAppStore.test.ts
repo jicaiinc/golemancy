@@ -74,7 +74,7 @@ function createTestServices(): ServiceContainer {
     settings: {
       get: vi.fn().mockResolvedValue({
         providers: {
-          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'test', models: ['gpt-4o'] },
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'test', models: ['gpt-4o'], testStatus: 'ok' },
         },
         theme: 'dark',
         userProfile: { name: 'Test', email: 'test@test.com' },

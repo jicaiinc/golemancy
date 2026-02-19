@@ -322,12 +322,12 @@ export const useAppStore = create<AppState>()(
         const svc = getServices()
         const project = await svc.projects.create(data)
 
-        // Resolve default model: settings.defaultModel → first available provider → empty
+        // Resolve default model: settings.defaultModel → first test-verified provider → empty
         const settings = get().settings
         let modelConfig = settings?.defaultModel
         if (!modelConfig) {
           const entry = Object.entries(settings?.providers ?? {}).find(
-            ([, e]) => e.apiKey || e.baseUrl?.includes('localhost'),
+            ([, e]) => e.testStatus === 'ok',
           )
           if (entry) {
             modelConfig = { provider: entry[0], model: entry[1].models[0] ?? '' }

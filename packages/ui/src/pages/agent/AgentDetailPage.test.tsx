@@ -23,7 +23,7 @@ const now = new Date().toISOString()
 
 const baseSettings: GlobalSettings = {
   providers: {
-    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'] },
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
   },
   theme: 'dark',
   userProfile: { name: 'Test', email: 'test@test.com' },

@@ -253,8 +253,8 @@ export const SEED_MEMORIES: MemoryEntry[] = [
 // --- Global Settings ---
 export const SEED_SETTINGS: GlobalSettings = {
   providers: {
-    anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant-mock-key', models: ['claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-6'] },
-    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-mock-key', models: ['gpt-4o', 'gpt-4o-mini'] },
+    anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant-mock-key', models: ['claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-6'], testStatus: 'ok' },
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-mock-key', models: ['gpt-4o', 'gpt-4o-mini'], testStatus: 'ok' },
   },
   defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
   theme: 'dark',

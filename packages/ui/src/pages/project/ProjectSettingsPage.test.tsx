@@ -33,8 +33,8 @@ const now = new Date().toISOString()
 
 const baseSettings: GlobalSettings = {
   providers: {
-    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'] },
-    anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant', models: ['claude-sonnet-4-5-20250929'] },
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
+    anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant', models: ['claude-sonnet-4-5-20250929'], testStatus: 'ok' },
   },
   theme: 'dark',
   userProfile: { name: 'Test', email: 'test@test.com' },

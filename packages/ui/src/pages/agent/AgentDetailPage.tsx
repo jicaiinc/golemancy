@@ -543,9 +543,9 @@ function ModelConfigTab({ agent, onUpdate }: {
 }) {
   const settings = useAppStore(s => s.settings)
 
-  // Filter to available providers: has apiKey or baseUrl contains localhost
+  // Filter to available providers: test must have passed
   const availableProviders = Object.entries(settings?.providers ?? {}).filter(
-    ([, entry]) => entry.apiKey || entry.baseUrl?.includes('localhost'),
+    ([, entry]) => entry.testStatus === 'ok',
   )
 
   const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)

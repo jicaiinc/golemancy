@@ -21,9 +21,9 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
   const [model, setModel] = useState('')
   const [saving, setSaving] = useState(false)
 
-  // Available providers: has apiKey or baseUrl contains localhost
+  // Available providers: test must have passed
   const availableProviders = Object.entries(settings?.providers ?? {}).filter(
-    ([, entry]) => entry.apiKey || entry.baseUrl?.includes('localhost'),
+    ([, entry]) => entry.testStatus === 'ok',
   )
 
   // Pre-select default model or first available provider when modal opens

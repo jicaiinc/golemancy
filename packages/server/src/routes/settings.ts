@@ -21,6 +21,30 @@ async function createTestModel(sdkType: ProviderSdkType, apiKey?: string, baseUr
       const { createGoogleGenerativeAI } = await import('@ai-sdk/google')
       return createGoogleGenerativeAI({ apiKey, baseURL: baseUrl })(model ?? 'gemini-2.0-flash')
     }
+    case 'deepseek': {
+      const { createDeepSeek } = await import('@ai-sdk/deepseek')
+      return createDeepSeek({ apiKey, baseURL: baseUrl })(model ?? 'deepseek-chat')
+    }
+    case 'xai': {
+      const { createXai } = await import('@ai-sdk/xai')
+      return createXai({ apiKey, baseURL: baseUrl })(model ?? 'grok-3-mini')
+    }
+    case 'groq': {
+      const { createGroq } = await import('@ai-sdk/groq')
+      return createGroq({ apiKey, baseURL: baseUrl })(model ?? 'llama-3.3-70b-versatile')
+    }
+    case 'mistral': {
+      const { createMistral } = await import('@ai-sdk/mistral')
+      return createMistral({ apiKey, baseURL: baseUrl })(model ?? 'mistral-large-latest')
+    }
+    case 'moonshot': {
+      const { createMoonshotAI } = await import('@ai-sdk/moonshotai')
+      return createMoonshotAI({ apiKey, baseURL: baseUrl })(model ?? 'moonshot-v1-8k')
+    }
+    case 'alibaba': {
+      const { createAlibaba } = await import('@ai-sdk/alibaba')
+      return createAlibaba({ apiKey, baseURL: baseUrl })(model ?? 'qwen-turbo')
+    }
     case 'openai-compatible':
     default: {
       const { createOpenAI } = await import('@ai-sdk/openai')

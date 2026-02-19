@@ -42,6 +42,7 @@ export default async function globalSetup() {
     apiKey?: string
     baseUrl?: string
     models: string[]
+    testStatus?: string
   }> = {
     // Always seed Anthropic and OpenAI with dummy keys for smoke tests
     anthropic: {
@@ -49,12 +50,14 @@ export default async function globalSetup() {
       sdkType: 'anthropic',
       apiKey: envVars.TEST_ANTHROPIC_API_KEY || 'sk-ant-test-dummy-key',
       models: ['claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-6'],
+      testStatus: 'ok',
     },
     openai: {
       name: 'OpenAI',
       sdkType: 'openai',
       apiKey: envVars.TEST_OPENAI_API_KEY || 'sk-test-dummy-key',
       models: ['gpt-4o', 'gpt-4o-mini'],
+      testStatus: 'ok',
     },
   }
 
@@ -65,6 +68,7 @@ export default async function globalSetup() {
       sdkType: 'google',
       apiKey: envVars.TEST_GOOGLE_API_KEY,
       models: ['gemini-2.5-flash', 'gemini-2.5-pro'],
+      testStatus: 'ok',
     }
   }
 
