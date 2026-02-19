@@ -13,11 +13,11 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '', icon: '[]', testId: 'dashboard' },
   { label: 'Chats', path: '/chat', icon: '>_', testId: 'chat' },
+  { label: 'Automations', path: '/cron', icon: '::', testId: 'cron' },
   { label: 'Agents', path: '/agents', icon: '{}', testId: 'agents' },
   { label: 'Skills', path: '/skills', icon: '<>', testId: 'skills' },
   { label: 'MCP Servers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
-  { label: 'Tasks', path: '/tasks', icon: '#', testId: 'tasks' },
-  { label: 'Automations', path: '/cron', icon: '::', testId: 'cron' },
+  { label: 'Agent Tasks', path: '/tasks', icon: '#', testId: 'tasks' },
   { label: 'Artifacts', path: '/artifacts', icon: '..', testId: 'artifacts' },
   { label: 'Memory', path: '/memory', icon: '()', testId: 'memory' },
 ]

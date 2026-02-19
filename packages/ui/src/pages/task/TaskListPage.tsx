@@ -1,11 +1,11 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useMemo, useEffect, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import type { ConversationTaskStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {
-  PixelCard, PixelBadge, PixelButton, PixelSpinner, PixelDropdown,
+  PixelCard, PixelBadge, PixelSpinner,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 
@@ -33,7 +33,6 @@ const statusBadgeVariant: Record<ConversationTaskStatus, 'idle' | 'running' | 's
   deleted: 'error',
 }
 
-const ALL_STATUSES: ConversationTaskStatus[] = ['pending', 'in_progress', 'completed', 'deleted']
 
 export function TaskListPage() {
   const project = useCurrentProject()
@@ -52,9 +51,6 @@ export function TaskListPage() {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   // Expanded individual task detail
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null)
-  const [filterStatus, setFilterStatus] = useState<string>('all')
-  const [filterConv, setFilterConv] = useState<string>('all')
-
   const toggleGroup = useCallback((convId: string) => {
     setExpandedGroups(prev => {
       const next = new Set(prev)
@@ -67,67 +63,28 @@ export function TaskListPage() {
     })
   }, [])
 
-  const filteredTasks = useMemo(() => {
-    return tasks.filter(t => {
-      if (filterStatus !== 'all' && t.status !== filterStatus) return false
-      if (filterConv !== 'all' && t.conversationId !== filterConv) return false
-      return true
-    })
-  }, [tasks, filterStatus, filterConv])
-
   // Group by conversation
   const grouped = useMemo(() => {
-    const map = new Map<string, typeof filteredTasks>()
-    for (const t of filteredTasks) {
+    const map = new Map<string, typeof tasks>()
+    for (const t of tasks) {
       const group = map.get(t.conversationId) ?? []
       group.push(t)
       map.set(t.conversationId, group)
     }
     return map
-  }, [filteredTasks])
+  }, [tasks])
 
   if (!project) return null
-
-  const statusItems = [
-    { label: 'All Status', value: 'all', selected: filterStatus === 'all' },
-    ...ALL_STATUSES.map(s => ({ label: s.replace('_', ' '), value: s, selected: filterStatus === s })),
-  ]
-
-  const convItems = [
-    { label: 'All Conversations', value: 'all', selected: filterConv === 'all' },
-    ...conversations.map(c => ({ label: c.title, value: c.id, selected: filterConv === c.id })),
-  ]
 
   return (
     <motion.div className="p-6" data-testid="task-list-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-pixel text-[14px] text-text-primary" data-testid="task-list-header">Tasks</h1>
+          <h1 className="font-pixel text-[14px] text-text-primary" data-testid="task-list-header">Agent Tasks</h1>
           <p className="text-[12px] text-text-secondary mt-1">
             {tasks.length} task{tasks.length !== 1 ? 's' : ''} total
           </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <PixelDropdown
-            trigger={
-              <PixelButton size="sm" variant="ghost">
-                {filterConv === 'all' ? 'All Conversations' : conversations.find(c => c.id === filterConv)?.title ?? 'Conversation'}
-              </PixelButton>
-            }
-            items={convItems}
-            onSelect={setFilterConv}
-          />
-          <PixelDropdown
-            trigger={
-              <PixelButton size="sm" variant="ghost">
-                {filterStatus === 'all' ? 'All Status' : filterStatus.replace('_', ' ')}
-              </PixelButton>
-            }
-            items={statusItems}
-            onSelect={setFilterStatus}
-          />
         </div>
       </div>
 
@@ -136,7 +93,7 @@ export function TaskListPage() {
         <div className="flex justify-center py-12">
           <PixelSpinner label="Loading tasks..." />
         </div>
-      ) : filteredTasks.length === 0 ? (
+      ) : tasks.length === 0 ? (
         <motion.div {...staggerItem}>
           <PixelCard variant="outlined">
             <div className="text-center py-8" data-testid="task-empty-state">
