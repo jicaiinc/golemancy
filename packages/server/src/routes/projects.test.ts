@@ -11,7 +11,6 @@ function makeProject(overrides: Partial<Project> = {}): Project {
     name: 'Test Project',
     description: 'A test project',
     icon: 'sword',
-    workingDirectory: '/tmp/test',
     config: { maxConcurrentAgents: 3 },
     agentCount: 0,
     activeAgentCount: 0,
@@ -75,7 +74,6 @@ describe('Projects routes', () => {
         name: 'New',
         description: 'desc',
         icon: 'sword',
-        workingDirectory: '/tmp',
       })
       expect(res.status).toBe(201)
       const body = await res.json()

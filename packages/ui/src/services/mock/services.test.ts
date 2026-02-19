@@ -40,7 +40,6 @@ describe('MockProjectService', () => {
       name: 'New Project',
       description: 'A new project',
       icon: 'hammer',
-      workingDirectory: '~/projects/new-project',
     })
     expect(created.id).toBeTruthy()
     expect(created.name).toBe('New Project')

@@ -25,18 +25,10 @@ export interface ProviderEntry {
 
 export type ThemeMode = 'light' | 'dark' | 'system'
 
-export interface UserProfile {
-  name: string
-  email: string
-  avatarUrl?: string
-}
-
 export interface GlobalSettings {
   providers: Record<string, ProviderEntry>
   defaultModel?: AgentModelConfig
   theme: ThemeMode
-  userProfile: UserProfile
-  defaultWorkingDirectoryBase: string
 }
 
 export interface ProjectConfig {

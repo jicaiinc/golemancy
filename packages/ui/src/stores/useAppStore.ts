@@ -108,7 +108,7 @@ interface ProjectActions {
   loadProjects(): Promise<void>
   selectProject(id: ProjectId): Promise<void>
   clearProject(): void
-  createProject(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project>
+  createProject(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
   updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>): Promise<void>
   deleteProject(id: ProjectId): Promise<void>
 }

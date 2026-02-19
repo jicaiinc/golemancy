@@ -30,7 +30,7 @@ describe('FileSettingsStorage', () => {
       const settings = await storage.get()
       expect(settings.theme).toBe('dark')
       expect(settings.providers).toEqual({})
-      expect(settings.userProfile.name).toBe('')
+      expect(settings.providers).toEqual({})
     })
 
     it('returns saved settings after update', async () => {
@@ -59,15 +59,6 @@ describe('FileSettingsStorage', () => {
       const settings = await storage.get()
       expect(Object.keys(settings.providers)).toContain('google')
       expect(settings.theme).toBe('light')
-    })
-
-    it('updates nested fields', async () => {
-      const updated = await storage.update({
-        userProfile: { name: 'Test User', email: 'test@example.com' },
-      })
-
-      expect(updated.userProfile.name).toBe('Test User')
-      expect(updated.userProfile.email).toBe('test@example.com')
     })
 
     it('updates providers record', async () => {

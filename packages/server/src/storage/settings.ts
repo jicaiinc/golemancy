@@ -9,11 +9,6 @@ const log = logger.child({ component: 'storage:settings' })
 const DEFAULT_SETTINGS: GlobalSettings = {
   providers: {},
   theme: 'dark',
-  userProfile: {
-    name: '',
-    email: '',
-  },
-  defaultWorkingDirectoryBase: '',
 }
 
 export class FileSettingsStorage implements ISettingsService {

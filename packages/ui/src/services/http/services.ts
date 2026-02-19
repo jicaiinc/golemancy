@@ -21,12 +21,12 @@ export class HttpProjectService implements IProjectService {
   getById(id: ProjectId) {
     return fetchJson<Project | null>(`${this.baseUrl}/api/projects/${id}`)
   }
-  create(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>) {
+  create(data: Pick<Project, 'name' | 'description' | 'icon'>) {
     return fetchJson<Project>(`${this.baseUrl}/api/projects`, {
       method: 'POST', body: JSON.stringify(data),
     })
   }
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config' | 'mainAgentId'>>) {
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>) {
     return fetchJson<Project>(`${this.baseUrl}/api/projects/${id}`, {
       method: 'PATCH', body: JSON.stringify(data),
     })

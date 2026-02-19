@@ -146,7 +146,7 @@ describe('HttpProjectService', () => {
   })
 
   it('create() → POST with JSON body', async () => {
-    const data = { name: 'New', description: 'desc', icon: 'pickaxe', workingDirectory: '/tmp' }
+    const data = { name: 'New', description: 'desc', icon: 'pickaxe' }
     mockFetch.mockResolvedValue(jsonResponse({ id: PROJ, ...data }))
     await svc.create(data)
     expect(mockFetch).toHaveBeenCalledWith(

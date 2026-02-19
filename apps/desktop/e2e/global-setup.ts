@@ -76,11 +76,6 @@ export default async function globalSetup() {
     providers,
     defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
     theme: 'dark' as const,
-    userProfile: {
-      name: 'E2E Test User',
-      email: 'e2e@test.local',
-    },
-    defaultWorkingDirectoryBase: '',
   }
 
   fs.writeFileSync(

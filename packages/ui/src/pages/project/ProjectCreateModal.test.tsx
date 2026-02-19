@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { ProjectCreateModal } from './ProjectCreateModal'
@@ -23,8 +23,6 @@ const mockSettings: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
   },
   theme: 'dark',
-  userProfile: { name: 'Test', email: 'test@test.com' },
-  defaultWorkingDirectoryBase: '~/projects',
 }
 
 function createTestServices(): ServiceContainer {
@@ -100,37 +98,9 @@ describe('ProjectCreateModal', () => {
     expect(screen.getByText('DESCRIPTION')).toBeInTheDocument()
   })
 
-  it('renders working directory field', () => {
-    renderWithRouter(<ProjectCreateModal open={true} onClose={() => {}} />)
-    expect(screen.getByText('WORKING DIRECTORY')).toBeInTheDocument()
-  })
-
   it('renders icon picker', () => {
     renderWithRouter(<ProjectCreateModal open={true} onClose={() => {}} />)
     expect(screen.getByText('ICON')).toBeInTheDocument()
-  })
-
-  it('auto-generates working directory from project name', async () => {
-    renderWithRouter(<ProjectCreateModal open={true} onClose={() => {}} />)
-
-    const nameInput = screen.getByPlaceholderText('My Awesome Project')
-    fireEvent.change(nameInput, { target: { value: 'My Test Project' } })
-
-    await waitFor(() => {
-      const workDirInput = screen.getByPlaceholderText('~/projects/my-project')
-      expect((workDirInput as HTMLInputElement).value).toBe('~/projects/my-test-project')
-    })
-  })
-
-  it('shows auto-generated hint when name is set', async () => {
-    renderWithRouter(<ProjectCreateModal open={true} onClose={() => {}} />)
-
-    const nameInput = screen.getByPlaceholderText('My Awesome Project')
-    fireEvent.change(nameInput, { target: { value: 'Test' } })
-
-    await waitFor(() => {
-      expect(screen.getByText('Auto-generated from project name')).toBeInTheDocument()
-    })
   })
 
   it('Create Project button is disabled when name is empty', () => {

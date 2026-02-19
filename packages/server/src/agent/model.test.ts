@@ -35,8 +35,6 @@ function makeSettings(overrides: Partial<GlobalSettings> = {}): GlobalSettings {
       anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'anthropic-key', models: ['claude-haiku-4-5'] },
     },
     theme: 'dark',
-    userProfile: { name: '', email: '' },
-    defaultWorkingDirectoryBase: '',
     ...overrides,
   }
 }

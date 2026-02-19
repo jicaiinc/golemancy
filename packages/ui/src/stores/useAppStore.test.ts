@@ -77,8 +77,6 @@ function createTestServices(): ServiceContainer {
           openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'test', models: ['gpt-4o'], testStatus: 'ok' },
         },
         theme: 'dark',
-        userProfile: { name: 'Test', email: 'test@test.com' },
-        defaultWorkingDirectoryBase: '~/projects',
       }),
       update: vi.fn().mockImplementation((data) =>
         Promise.resolve({ ...data }),
@@ -332,7 +330,7 @@ describe('useAppStore', () => {
 
   describe('createProject', () => {
     it('creates a project and adds it to the list', async () => {
-      const data = { name: 'New', description: 'Desc', icon: 'star', workingDirectory: '~/projects/new' }
+      const data = { name: 'New', description: 'Desc', icon: 'star' }
       const result = await useAppStore.getState().createProject(data)
       expect(result.id).toBe('proj-new')
       expect(useAppStore.getState().projects).toHaveLength(1)
@@ -429,19 +427,6 @@ describe('useAppStore', () => {
       expect(useAppStore.getState().dashboardLoading).toBe(true)
       await promise
       expect(useAppStore.getState().dashboardLoading).toBe(false)
-    })
-  })
-
-  describe('createProject with workingDirectory', () => {
-    it('passes workingDirectory through to the service', async () => {
-      const data = {
-        name: 'Test Project',
-        description: 'Testing workDir',
-        icon: 'star',
-        workingDirectory: '~/custom/path',
-      }
-      await useAppStore.getState().createProject(data)
-      expect(mockServices.projects.create).toHaveBeenCalledWith(data)
     })
   })
 

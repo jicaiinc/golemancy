@@ -8,8 +8,6 @@ const defaultSettings: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai' as const, apiKey: 'sk-test', models: ['gpt-4o'] },
   },
   theme: 'dark',
-  userProfile: { name: 'Test', email: 'test@test.com' },
-  defaultWorkingDirectoryBase: '/tmp',
 }
 
 describe('Settings routes', () => {

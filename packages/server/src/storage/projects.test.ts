@@ -39,8 +39,8 @@ describe('FileProjectStorage', () => {
     })
 
     it('returns created projects', async () => {
-      await storage.create({ name: 'P1', description: 'd1', icon: 'star', workingDirectory: '~/p1' })
-      await storage.create({ name: 'P2', description: 'd2', icon: 'gear', workingDirectory: '~/p2' })
+      await storage.create({ name: 'P1', description: 'd1', icon: 'star' })
+      await storage.create({ name: 'P2', description: 'd2', icon: 'gear' })
 
       const projects = await storage.list()
       expect(projects).toHaveLength(2)
@@ -53,7 +53,6 @@ describe('FileProjectStorage', () => {
         name: 'Test',
         description: 'A test project',
         icon: 'hammer',
-        workingDirectory: '~/test',
       })
 
       expect(project.id).toMatch(/^proj-/)
@@ -67,7 +66,7 @@ describe('FileProjectStorage', () => {
 
     it('creates subdirectories', async () => {
       const project = await storage.create({
-        name: 'Test', description: '', icon: 's', workingDirectory: '~/',
+        name: 'Test', description: '', icon: 's',
       })
 
       const projectDir = `${state.tmpDir}/projects/${project.id}`
@@ -81,7 +80,7 @@ describe('FileProjectStorage', () => {
   describe('getById', () => {
     it('returns existing project', async () => {
       const created = await storage.create({
-        name: 'Proj', description: 'd', icon: 's', workingDirectory: '~/',
+        name: 'Proj', description: 'd', icon: 's',
       })
       const found = await storage.getById(created.id)
       expect(found).not.toBeNull()
@@ -97,7 +96,7 @@ describe('FileProjectStorage', () => {
   describe('update', () => {
     it('merges updated fields', async () => {
       const created = await storage.create({
-        name: 'Old', description: 'desc', icon: 's', workingDirectory: '~/',
+        name: 'Old', description: 'desc', icon: 's',
       })
       const updated = await storage.update(created.id, { name: 'New' })
 
@@ -115,7 +114,7 @@ describe('FileProjectStorage', () => {
 
     it('persists changes to disk', async () => {
       const created = await storage.create({
-        name: 'Before', description: '', icon: 's', workingDirectory: '~/',
+        name: 'Before', description: '', icon: 's',
       })
       await storage.update(created.id, { name: 'After' })
 
@@ -127,7 +126,7 @@ describe('FileProjectStorage', () => {
   describe('delete', () => {
     it('removes project directory', async () => {
       const created = await storage.create({
-        name: 'Del', description: '', icon: 's', workingDirectory: '~/',
+        name: 'Del', description: '', icon: 's',
       })
       await storage.delete(created.id)
 

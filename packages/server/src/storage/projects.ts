@@ -36,7 +36,7 @@ export class FileProjectStorage implements IProjectService {
     return readJson<Project>(this.projectJsonPath(id))
   }
 
-  async create(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project> {
+  async create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project> {
     const id = generateId('proj')
     log.debug({ projectId: id }, 'creating project')
     const now = new Date().toISOString()
@@ -67,7 +67,7 @@ export class FileProjectStorage implements IProjectService {
 
   async update(
     id: ProjectId,
-    data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config' | 'mainAgentId'>>,
+    data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>,
   ): Promise<Project> {
     const existing = await this.getById(id)
     if (!existing) throw new Error(`Project ${id} not found`)

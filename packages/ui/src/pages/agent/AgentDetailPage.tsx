@@ -21,12 +21,11 @@ const statusAnimation: Record<AgentStatus, string> = {
 
 // --- Tab definitions ---
 const TABS = [
-  { id: 'info', label: 'Info' },
+  { id: 'general', label: 'General' },
   { id: 'skills', label: 'Skills' },
   { id: 'tools', label: 'Tools' },
   { id: 'mcp', label: 'MCP' },
   { id: 'sub-agents', label: 'Sub-Agents' },
-  { id: 'model', label: 'Model Config' },
 ]
 
 export function AgentDetailPage() {
@@ -41,7 +40,7 @@ export function AgentDetailPage() {
   const fromView = (location.state as { fromView?: 'grid' | 'topology' })?.fromView
 
   const agent = agents.find(a => a.id === agentId)
-  const [activeTab, setActiveTab] = useState('info')
+  const [activeTab, setActiveTab] = useState('general')
 
   if (!agent) {
     return (
@@ -102,38 +101,70 @@ export function AgentDetailPage() {
       <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="mt-4">
-        {activeTab === 'info' && <InfoTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined) }} />}
+        {activeTab === 'general' && <GeneralAgentTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined) }} />}
         {activeTab === 'skills' && <SkillsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'tools' && <ToolsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'mcp' && <MCPTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'sub-agents' && <SubAgentsTab agent={agent} onUpdate={updateAgent} />}
-        {activeTab === 'model' && <ModelConfigTab agent={agent} onUpdate={updateAgent} />}
       </div>
     </div>
   )
 }
 
-// ========== Info Tab ==========
-function InfoTab({ agent, onUpdate, onDelete }: {
+// ========== General Tab (Info + Model Config) ==========
+function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
   onDelete: () => Promise<void>
 }) {
+  const settings = useAppStore(s => s.settings)
   const [name, setName] = useState(agent.name)
   const [description, setDescription] = useState(agent.description)
   const [systemPrompt, setSystemPrompt] = useState(agent.systemPrompt)
+  const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)
+  const [model, setModel] = useState(agent.modelConfig.model)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  // Filter to available providers: test must have passed
+  const availableProviders = Object.entries(settings?.providers ?? {}).filter(
+    ([, entry]) => entry.testStatus === 'ok',
+  )
 
   useEffect(() => {
     setName(agent.name)
     setDescription(agent.description)
     setSystemPrompt(agent.systemPrompt)
+    setProviderSlug(agent.modelConfig.provider)
+    setModel(agent.modelConfig.model)
   }, [agent.id])
+
+  // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available
+  useEffect(() => {
+    if (availableProviders.length > 0 && !settings?.providers[providerSlug]) {
+      const [slug, entry] = availableProviders[0]
+      setProviderSlug(slug)
+      setModel(entry.models[0] ?? '')
+    }
+  }, [availableProviders.length, providerSlug, settings?.providers])
+
+  const selectedProvider = settings?.providers[providerSlug]
+  const models = selectedProvider?.models ?? []
+
+  function handleProviderChange(slug: string) {
+    setProviderSlug(slug)
+    const entry = settings?.providers[slug]
+    setModel(entry?.models[0] ?? '')
+  }
 
   async function handleSave() {
     setSaving(true)
-    await onUpdate(agent.id, { name: name.trim(), description: description.trim(), systemPrompt: systemPrompt.trim() })
+    await onUpdate(agent.id, {
+      name: name.trim(),
+      description: description.trim(),
+      systemPrompt: systemPrompt.trim(),
+      modelConfig: { provider: providerSlug, model },
+    })
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
@@ -141,9 +172,50 @@ function InfoTab({ agent, onUpdate, onDelete }: {
 
   return (
     <div className="max-w-[640px] flex flex-col gap-4">
-      <PixelInput label="NAME" value={name} onChange={e => setName(e.target.value)} />
-      <PixelInput label="DESCRIPTION" value={description} onChange={e => setDescription(e.target.value)} />
-      <PixelTextArea label="SYSTEM PROMPT" value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} rows={8} />
+      {/* Info section */}
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">INFO</div>
+        <div className="flex flex-col gap-4">
+          <PixelInput label="NAME" value={name} onChange={e => setName(e.target.value)} />
+          <PixelInput label="DESCRIPTION" value={description} onChange={e => setDescription(e.target.value)} />
+          <PixelTextArea label="SYSTEM PROMPT" value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} rows={8} />
+        </div>
+      </PixelCard>
+
+      {/* Model Config section */}
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">MODEL CONFIG</div>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
+            <select
+              value={providerSlug}
+              onChange={e => handleProviderChange(e.target.value)}
+              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+            >
+              {availableProviders.length === 0 && <option value="">No providers configured</option>}
+              {availableProviders.map(([slug, entry]) => (
+                <option key={slug} value={slug}>{entry.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+            <select
+              value={model}
+              onChange={e => setModel(e.target.value)}
+              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+            >
+              {models.length === 0 && <option value="">No models available</option>}
+              {models.map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </PixelCard>
+
       <div className="flex items-center gap-3">
         <PixelButton variant="primary" onClick={handleSave} disabled={saving || !name.trim()}>
           {saving ? 'Saving...' : 'Save'}
@@ -536,94 +608,3 @@ function SubAgentsTab({ agent, onUpdate }: {
   )
 }
 
-// ========== Model Config Tab ==========
-function ModelConfigTab({ agent, onUpdate }: {
-  agent: Agent
-  onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
-}) {
-  const settings = useAppStore(s => s.settings)
-
-  // Filter to available providers: test must have passed
-  const availableProviders = Object.entries(settings?.providers ?? {}).filter(
-    ([, entry]) => entry.testStatus === 'ok',
-  )
-
-  const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)
-  const [model, setModel] = useState(agent.modelConfig.model)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-
-  useEffect(() => {
-    setProviderSlug(agent.modelConfig.provider)
-    setModel(agent.modelConfig.model)
-  }, [agent.id])
-
-  // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available
-  useEffect(() => {
-    if (availableProviders.length > 0 && !settings?.providers[providerSlug]) {
-      const [slug, entry] = availableProviders[0]
-      setProviderSlug(slug)
-      setModel(entry.models[0] ?? '')
-    }
-  }, [availableProviders.length, providerSlug, settings?.providers])
-
-  // Models for the selected provider
-  const selectedProvider = settings?.providers[providerSlug]
-  const models = selectedProvider?.models ?? []
-
-  function handleProviderChange(slug: string) {
-    setProviderSlug(slug)
-    // Auto-select first model of new provider
-    const entry = settings?.providers[slug]
-    setModel(entry?.models[0] ?? '')
-  }
-
-  async function handleSave() {
-    setSaving(true)
-    await onUpdate(agent.id, {
-      modelConfig: { provider: providerSlug, model },
-    })
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  return (
-    <div className="max-w-[640px] flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
-        <select
-          value={providerSlug}
-          onChange={e => handleProviderChange(e.target.value)}
-          className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-        >
-          {availableProviders.length === 0 && <option value="">No providers configured</option>}
-          {availableProviders.map(([slug, entry]) => (
-            <option key={slug} value={slug}>{entry.name}</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
-        <select
-          value={model}
-          onChange={e => setModel(e.target.value)}
-          className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-        >
-          {models.length === 0 && <option value="">No models available</option>}
-          {models.map(m => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <PixelButton variant="primary" onClick={handleSave} disabled={saving || !providerSlug || !model}>
-          {saving ? 'Saving...' : 'Save Model Config'}
-        </PixelButton>
-        {saved && <span className="text-[12px] text-accent-green">Saved!</span>}
-      </div>
-    </div>
-  )
-}

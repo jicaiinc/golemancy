@@ -13,8 +13,8 @@ import type {
 export interface IProjectService {
   list(): Promise<Project[]>
   getById(id: ProjectId): Promise<Project | null>
-  create(data: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project>
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config' | 'mainAgentId'>>): Promise<Project>
+  create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
 }
 

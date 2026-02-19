@@ -8,10 +8,8 @@ import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 
 const SETTINGS_TABS = [
+  { id: 'general', label: 'General' },
   { id: 'providers', label: 'Providers' },
-  { id: 'appearance', label: 'Appearance' },
-  { id: 'profile', label: 'Profile' },
-  { id: 'paths', label: 'Paths' },
 ]
 
 const PROVIDER_PRESETS: Record<string, { name: string; sdkType: ProviderSdkType; defaultModels: string[]; defaultBaseUrl?: string }> = {
@@ -23,7 +21,7 @@ const PROVIDER_PRESETS: Record<string, { name: string; sdkType: ProviderSdkType;
   groq: { name: 'Groq', sdkType: 'groq', defaultModels: ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768'] },
   mistral: { name: 'Mistral', sdkType: 'mistral', defaultModels: ['mistral-large-latest', 'codestral-latest'] },
   moonshot: { name: 'Moonshot (Kimi)', sdkType: 'moonshot', defaultModels: ['kimi-k2', 'moonshot-v1-128k'] },
-  alibaba: { name: 'Alibaba (通义)', sdkType: 'alibaba', defaultModels: ['qwen-max', 'qwen-plus', 'qwen-turbo'] },
+  alibaba: { name: 'Alibaba (Qwen)', sdkType: 'alibaba', defaultModels: ['qwen-max', 'qwen-plus', 'qwen-turbo'] },
 }
 
 const SDK_TYPE_OPTIONS: { value: ProviderSdkType; label: string }[] = [
@@ -35,7 +33,7 @@ const SDK_TYPE_OPTIONS: { value: ProviderSdkType; label: string }[] = [
   { value: 'groq', label: 'Groq' },
   { value: 'mistral', label: 'Mistral' },
   { value: 'moonshot', label: 'Moonshot (Kimi)' },
-  { value: 'alibaba', label: 'Alibaba (通义)' },
+  { value: 'alibaba', label: 'Alibaba (Qwen)' },
   { value: 'openai-compatible', label: 'OpenAI-Compatible' },
 ]
 
@@ -62,7 +60,7 @@ export function GlobalSettingsPage() {
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('providers')
+  const [activeTab, setActiveTab] = useState('general')
 
   if (!settings) return null
 
@@ -82,12 +80,10 @@ export function GlobalSettingsPage() {
         <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
         <div className="mt-4">
+          {activeTab === 'general' && <GeneralTab />}
           {activeTab === 'providers' && (
             <ProvidersTab settings={settings} onUpdate={updateSettings} />
           )}
-          {activeTab === 'appearance' && <AppearanceTab />}
-          {activeTab === 'profile' && <ProfileTab />}
-          {activeTab === 'paths' && <PathsTab />}
         </div>
 
         {/* About footer */}
@@ -600,8 +596,8 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
   )
 }
 
-// ========== Appearance Tab (ThemeSwitcher) ==========
-function AppearanceTab() {
+// ========== General Tab ==========
+function GeneralTab() {
   const themeMode = useAppStore(s => s.themeMode)
   const setTheme = useAppStore(s => s.setTheme)
   const updateSettings = useAppStore(s => s.updateSettings)
@@ -620,7 +616,7 @@ function AppearanceTab() {
   return (
     <div className="flex flex-col gap-4">
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-4">THEME</div>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">APPEARANCE</div>
         <div className="grid grid-cols-3 gap-3">
           {themes.map(t => {
             const isActive = themeMode === t.mode
@@ -647,103 +643,6 @@ function AppearanceTab() {
             )
           })}
         </div>
-      </PixelCard>
-    </div>
-  )
-}
-
-// ========== Profile Tab ==========
-function ProfileTab() {
-  const settings = useAppStore(s => s.settings)
-  const updateSettings = useAppStore(s => s.updateSettings)
-  const [name, setName] = useState(settings?.userProfile.name ?? '')
-  const [email, setEmail] = useState(settings?.userProfile.email ?? '')
-  const [avatarUrl, setAvatarUrl] = useState(settings?.userProfile.avatarUrl ?? '')
-  const [saved, setSaved] = useState(false)
-
-  async function handleSave() {
-    await updateSettings({
-      userProfile: {
-        name: name.trim(),
-        email: email.trim(),
-        avatarUrl: avatarUrl.trim() || undefined,
-      },
-    })
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">USER PROFILE</div>
-        <div className="flex flex-col gap-3">
-          <PixelInput
-            label="NAME"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Your name"
-          />
-          <PixelInput
-            label="EMAIL"
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="you@example.com"
-          />
-          <PixelInput
-            label="AVATAR URL (optional)"
-            value={avatarUrl}
-            onChange={e => setAvatarUrl(e.target.value)}
-            placeholder="https://..."
-          />
-          <div className="flex items-center gap-2">
-            <PixelButton variant="primary" size="sm" onClick={handleSave}>
-              Save Profile
-            </PixelButton>
-            {saved && <span className="text-[11px] text-accent-green">Saved!</span>}
-          </div>
-        </div>
-      </PixelCard>
-    </div>
-  )
-}
-
-// ========== Paths Tab ==========
-function PathsTab() {
-  const settings = useAppStore(s => s.settings)
-  const updateSettings = useAppStore(s => s.updateSettings)
-  const [workDir, setWorkDir] = useState(settings?.defaultWorkingDirectoryBase ?? '~/projects')
-  const [saved, setSaved] = useState(false)
-
-  async function handleSave() {
-    await updateSettings({ defaultWorkingDirectoryBase: workDir.trim() })
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">DEFAULT WORKING DIRECTORY</div>
-        <p className="text-[11px] text-text-dim mb-3">
-          Base directory for new project working directories. Each project will get a subdirectory under this path.
-        </p>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 flex-1 h-9 bg-deep px-3 border-2 border-border-dim shadow-pixel-sunken">
-            <span className="text-[11px] text-text-dim shrink-0">{'\u{1F4C1}'}</span>
-            <input
-              type="text"
-              value={workDir}
-              onChange={e => setWorkDir(e.target.value)}
-              className="flex-1 bg-transparent text-[13px] text-text-primary font-mono outline-none"
-            />
-          </div>
-          <PixelButton variant="primary" size="sm" onClick={handleSave}>
-            Save
-          </PixelButton>
-        </div>
-        {saved && <span className="text-[11px] text-accent-green mt-2 block">Saved!</span>}
       </PixelCard>
     </div>
   )

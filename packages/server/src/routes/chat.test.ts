@@ -85,7 +85,6 @@ function makeProject(overrides: Partial<Project> = {}): Project {
     name: 'Test Project',
     description: '',
     icon: 'sword',
-    workingDirectory: '/tmp/test',
     config: { maxConcurrentAgents: 3 },
     agentCount: 1,
     activeAgentCount: 0,
@@ -101,8 +100,6 @@ const defaultSettings: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai' as const, apiKey: 'sk-test', models: ['gpt-4o'] },
   },
   theme: 'dark',
-  userProfile: { name: 'Test', email: 'test@test.com' },
-  defaultWorkingDirectoryBase: '/tmp',
 }
 
 function createMocks(): ChatRouteDeps {

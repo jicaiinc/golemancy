@@ -37,8 +37,6 @@ const baseSettings: GlobalSettings = {
     anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant', models: ['claude-sonnet-4-5-20250929'], testStatus: 'ok' },
   },
   theme: 'dark',
-  userProfile: { name: 'Test', email: 'test@test.com' },
-  defaultWorkingDirectoryBase: '~/projects',
 }
 
 const testProject: Project = {
@@ -46,7 +44,6 @@ const testProject: Project = {
   name: 'My Project',
   description: 'A test project for settings',
   icon: 'sword',
-  workingDirectory: '/home/user/projects/my-project',
   config: { maxConcurrentAgents: 5 },
   agentCount: 2,
   activeAgentCount: 0,
@@ -141,10 +138,35 @@ describe('ProjectSettingsPage', () => {
     expect(screen.getByText('Permissions')).toBeInTheDocument()
   })
 
-  // ── Agent Tab (default) ──
+  // ── General Tab (default) ──
+
+  it('shows project name and description inputs in General tab', () => {
+    renderAtRoute()
+    expect(screen.getByDisplayValue('My Project')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('A test project for settings')).toBeInTheDocument()
+  })
+
+  it('Save Changes calls updateProject in General tab', async () => {
+    const mockUpdate = vi.fn().mockResolvedValue(undefined)
+    useAppStore.setState({ updateProject: mockUpdate })
+
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Save Changes'))
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, expect.objectContaining({
+        name: 'My Project',
+        description: 'A test project for settings',
+        icon: 'sword',
+      }))
+    })
+  })
+
+  // ── Agent Tab ──
 
   it('shows Main Agent section with agent selector', () => {
     renderAtRoute()
+    fireEvent.click(screen.getByText('Agent'))
     expect(screen.getByText('MAIN AGENT')).toBeInTheDocument()
     expect(screen.getByText('Main Agent')).toBeInTheDocument()
   })
@@ -152,6 +174,7 @@ describe('ProjectSettingsPage', () => {
   it('shows "No agents" when agents list is empty', () => {
     useAppStore.setState({ agents: [] })
     renderAtRoute()
+    fireEvent.click(screen.getByText('Agent'))
     expect(screen.getByText(/No agents in this project/)).toBeInTheDocument()
   })
 
@@ -163,54 +186,13 @@ describe('ProjectSettingsPage', () => {
     useAppStore.setState({ updateProject: mockUpdate })
 
     renderAtRoute()
+    fireEvent.click(screen.getByText('Agent'))
     // The select should have the agent selected
     const select = screen.getAllByRole('combobox')[0]
     fireEvent.change(select, { target: { value: '' } })
 
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, { mainAgentId: undefined })
-    })
-  })
-
-  // ── General Tab ──
-
-  it('shows project name and description inputs in General tab', async () => {
-    renderAtRoute()
-    fireEvent.click(screen.getByText('General'))
-
-    await waitFor(() => {
-      expect(screen.getByDisplayValue('My Project')).toBeInTheDocument()
-      expect(screen.getByDisplayValue('A test project for settings')).toBeInTheDocument()
-    })
-  })
-
-  it('shows working directory path', async () => {
-    renderAtRoute()
-    fireEvent.click(screen.getByText('General'))
-
-    await waitFor(() => {
-      expect(screen.getByText('/home/user/projects/my-project')).toBeInTheDocument()
-    })
-  })
-
-  it('Save Changes calls updateProject in General tab', async () => {
-    const mockUpdate = vi.fn().mockResolvedValue(undefined)
-    useAppStore.setState({ updateProject: mockUpdate })
-
-    renderAtRoute()
-    fireEvent.click(screen.getByText('General'))
-
-    await waitFor(() => {
-      expect(screen.getByText('Save Changes')).toBeInTheDocument()
-    })
-    fireEvent.click(screen.getByText('Save Changes'))
-
-    await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, expect.objectContaining({
-        name: 'My Project',
-        description: 'A test project for settings',
-        icon: 'sword',
-      }))
     })
   })
 

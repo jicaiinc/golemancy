@@ -18,7 +18,6 @@ export const SEED_PROJECTS: Project[] = [
     name: 'Content Biz',
     description: 'Content creation and distribution pipeline',
     icon: 'pickaxe',
-    workingDirectory: '~/projects/content-biz',
     config: { maxConcurrentAgents: 3 },
     mainAgentId: 'agent-1' as AgentId,
     agentCount: 3,
@@ -32,7 +31,6 @@ export const SEED_PROJECTS: Project[] = [
     name: 'E-Commerce Ops',
     description: 'Cross-border e-commerce automation',
     icon: 'sword',
-    workingDirectory: '~/projects/ecommerce-ops',
     config: { maxConcurrentAgents: 5 },
     agentCount: 5,
     activeAgentCount: 0,
@@ -258,11 +256,6 @@ export const SEED_SETTINGS: GlobalSettings = {
   },
   defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
   theme: 'dark',
-  userProfile: {
-    name: 'Solo Crafter',
-    email: 'crafter@golemancy.dev',
-  },
-  defaultWorkingDirectoryBase: '~/projects',
 }
 
 // --- Dashboard Seed Data ---

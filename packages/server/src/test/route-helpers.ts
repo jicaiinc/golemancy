@@ -79,8 +79,6 @@ export function createMockStorage(): MockStorage {
       get: vi.fn().mockResolvedValue({
         providers: {},
         theme: 'dark',
-        userProfile: { name: 'Test', email: 'test@test.com' },
-        defaultWorkingDirectoryBase: '/tmp',
       }),
       update: vi.fn(),
       testProvider: vi.fn(),

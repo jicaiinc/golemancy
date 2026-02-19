@@ -26,8 +26,6 @@ const baseSettings: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
   },
   theme: 'dark',
-  userProfile: { name: 'Test', email: 'test@test.com' },
-  defaultWorkingDirectoryBase: '~/projects',
 }
 
 const testProject: Project = {
@@ -35,7 +33,6 @@ const testProject: Project = {
   name: 'Test Project',
   description: 'A test project',
   icon: 'sword',
-  workingDirectory: '/tmp/test',
   config: { maxConcurrentAgents: 5 },
   agentCount: 1,
   activeAgentCount: 0,
@@ -131,14 +128,13 @@ describe('AgentDetailPage', () => {
     expect(screen.getByText('idle')).toBeInTheDocument()
   })
 
-  it('renders all 6 tab labels', () => {
+  it('renders all 5 tab labels', () => {
     renderAtRoute()
-    expect(screen.getByText('Info')).toBeInTheDocument()
+    expect(screen.getByText('General')).toBeInTheDocument()
     expect(screen.getByText('Skills')).toBeInTheDocument()
     expect(screen.getByText('Tools')).toBeInTheDocument()
     expect(screen.getByText('MCP')).toBeInTheDocument()
     expect(screen.getByText('Sub-Agents')).toBeInTheDocument()
-    expect(screen.getByText('Model Config')).toBeInTheDocument()
   })
 
   it('shows stats (skills, tools, MCP servers, sub-agents counts)', () => {
@@ -157,12 +153,15 @@ describe('AgentDetailPage', () => {
     expect(screen.getByText('1 sub-agents')).toBeInTheDocument()
   })
 
-  it('renders Info tab with name, description, system prompt inputs', () => {
+  it('renders General tab with Info and Model Config sections', () => {
     renderAtRoute()
-    // Info tab is default
+    // General tab is default — shows Info section
+    expect(screen.getByText('INFO')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Test Agent')).toBeInTheDocument()
     expect(screen.getByDisplayValue('A test agent for unit tests')).toBeInTheDocument()
     expect(screen.getByDisplayValue('You are a helpful assistant.')).toBeInTheDocument()
+    // Shows Model Config section
+    expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
   })
 
   it('Save button calls updateAgent', async () => {
@@ -174,11 +173,11 @@ describe('AgentDetailPage', () => {
     fireEvent.click(saveButton)
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith(AGENT_ID, {
+      expect(mockUpdate).toHaveBeenCalledWith(AGENT_ID, expect.objectContaining({
         name: 'Test Agent',
         description: 'A test agent for unit tests',
         systemPrompt: 'You are a helpful assistant.',
-      })
+      }))
     })
   })
 

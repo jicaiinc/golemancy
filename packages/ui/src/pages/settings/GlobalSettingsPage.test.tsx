@@ -13,8 +13,6 @@ const mockSettings: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test-key', models: ['gpt-4o'], testStatus: 'ok' },
   },
   theme: 'dark',
-  userProfile: { name: 'Test User', email: 'test@example.com' },
-  defaultWorkingDirectoryBase: '~/projects',
 }
 
 function createTestServices(): ServiceContainer {
@@ -75,40 +73,25 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getByText('Global Settings')).toBeInTheDocument()
   })
 
-  it('renders all 4 tabs', () => {
+  it('renders all tabs', () => {
     renderWithRouter(<GlobalSettingsPage />)
+    expect(screen.getByText('General')).toBeInTheDocument()
     expect(screen.getByText('Providers')).toBeInTheDocument()
-    expect(screen.getByText('Appearance')).toBeInTheDocument()
-    expect(screen.getByText('Profile')).toBeInTheDocument()
-    expect(screen.getByText('Paths')).toBeInTheDocument()
   })
 
-  it('shows Providers tab by default', () => {
+  it('shows General tab by default with Appearance section', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText('PROVIDERS')).toBeInTheDocument()
-    // OpenAI appears in the configured provider card
-    expect(screen.getAllByText('OpenAI').length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('switches to Appearance tab and shows theme options', () => {
-    renderWithRouter(<GlobalSettingsPage />)
-    fireEvent.click(screen.getByText('Appearance'))
-    expect(screen.getByText('THEME')).toBeInTheDocument()
+    expect(screen.getByText('APPEARANCE')).toBeInTheDocument()
     expect(screen.getByText('Light')).toBeInTheDocument()
     expect(screen.getByText('Dark')).toBeInTheDocument()
     expect(screen.getByText('System')).toBeInTheDocument()
   })
 
-  it('switches to Profile tab and shows form fields', () => {
+  it('switches to Providers tab and shows provider list', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    fireEvent.click(screen.getByText('Profile'))
-    expect(screen.getByText('USER PROFILE')).toBeInTheDocument()
-  })
-
-  it('switches to Paths tab and shows working directory', () => {
-    renderWithRouter(<GlobalSettingsPage />)
-    fireEvent.click(screen.getByText('Paths'))
-    expect(screen.getByText('DEFAULT WORKING DIRECTORY')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Providers'))
+    expect(screen.getByText('PROVIDERS')).toBeInTheDocument()
+    expect(screen.getAllByText('OpenAI').length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders about footer with version', () => {

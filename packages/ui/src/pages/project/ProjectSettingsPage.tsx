@@ -17,8 +17,8 @@ const ICONS = [
 ]
 
 const SETTINGS_TABS = [
-  { id: 'agent', label: 'Agent' },
   { id: 'general', label: 'General' },
+  { id: 'agent', label: 'Agent' },
   { id: 'permissions', label: 'Permissions' },
 ]
 
@@ -29,7 +29,7 @@ export function ProjectSettingsPage() {
   const agents = useAppStore(s => s.agents)
   const navigate = useNavigate()
 
-  const [activeTab, setActiveTab] = useState('agent')
+  const [activeTab, setActiveTab] = useState('general')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('pickaxe')
@@ -244,16 +244,6 @@ function GeneralTab({
           </div>
         </div>
       </PixelCard>
-
-      {project.workingDirectory && (
-        <PixelCard>
-          <div className="font-pixel text-[10px] text-text-secondary mb-2">WORKING DIRECTORY</div>
-          <div className="flex items-center gap-2 bg-deep font-mono text-[12px] text-text-primary px-3 py-2 border-2 border-border-dim">
-            <span className="text-[11px] text-text-dim shrink-0">{'\u{1F4C1}'}</span>
-            <span className="truncate">{project.workingDirectory}</span>
-          </div>
-        </PixelCard>
-      )}
 
       <div className="flex items-center gap-3">
         <PixelButton variant="primary" onClick={onSave} disabled={saving || !name.trim()}>

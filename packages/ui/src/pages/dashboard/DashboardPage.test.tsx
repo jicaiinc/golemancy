@@ -25,7 +25,6 @@ const mockProject: Project = {
   name: 'Content Biz',
   description: 'A content business project',
   icon: '📄',
-  workingDirectory: '/tmp/content',
   config: { maxConcurrentAgents: 3 },
   agentCount: 5,
   activeAgentCount: 1,

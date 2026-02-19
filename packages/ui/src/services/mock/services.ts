@@ -43,7 +43,7 @@ export class MockProjectService implements IProjectService {
     return this.data.get(id) ?? null
   }
 
-  async create(input: Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory'>): Promise<Project> {
+  async create(input: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project> {
     await delay()
     const now = new Date().toISOString()
     const project: Project = {
@@ -60,7 +60,7 @@ export class MockProjectService implements IProjectService {
     return project
   }
 
-  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'workingDirectory' | 'config' | 'mainAgentId'>>): Promise<Project> {
+  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>): Promise<Project> {
     await delay()
     const existing = this.data.get(id)
     if (!existing) throw new Error(`Project ${id} not found`)

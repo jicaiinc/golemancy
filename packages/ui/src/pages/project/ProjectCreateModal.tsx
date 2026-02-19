@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../components'
@@ -14,10 +14,6 @@ const ICONS = [
   { id: 'bolt', label: '\u26A1' },
 ]
 
-function slugify(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-}
-
 interface Props {
   open: boolean
   onClose: () => void
@@ -25,44 +21,26 @@ interface Props {
 
 export function ProjectCreateModal({ open, onClose }: Props) {
   const createProject = useAppStore(s => s.createProject)
-  const settings = useAppStore(s => s.settings)
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('pickaxe')
-  const [workDir, setWorkDir] = useState('')
-  const [workDirEdited, setWorkDirEdited] = useState(false)
   const [saving, setSaving] = useState(false)
-
-  const basePath = settings?.defaultWorkingDirectoryBase ?? '~/projects'
-
-  // Auto-generate working directory from project name (unless manually edited)
-  useEffect(() => {
-    if (!workDirEdited && name.trim()) {
-      setWorkDir(`${basePath}/${slugify(name)}`)
-    } else if (!workDirEdited && !name.trim()) {
-      setWorkDir('')
-    }
-  }, [name, basePath, workDirEdited])
 
   function reset() {
     setName('')
     setDescription('')
     setIcon('pickaxe')
-    setWorkDir('')
-    setWorkDirEdited(false)
   }
 
   async function handleSubmit() {
     if (!name.trim()) return
     setSaving(true)
     try {
-      const finalWorkDir = workDir.trim() || `${basePath}/${slugify(name)}`
       const project = await createProject({
         name: name.trim(),
         description: description.trim(),
         icon,
-        workingDirectory: finalWorkDir,
       })
       reset()
       onClose()
@@ -105,26 +83,6 @@ export function ProjectCreateModal({ open, onClose }: Props) {
           onChange={e => setDescription(e.target.value)}
           rows={3}
         />
-
-        {/* Working directory */}
-        <div className="flex flex-col gap-1">
-          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">
-            WORKING DIRECTORY
-          </label>
-          <div className="flex items-center gap-2 h-9 bg-deep px-3 border-2 border-border-dim shadow-pixel-sunken">
-            <span className="text-[11px] text-text-dim shrink-0">{'\u{1F4C1}'}</span>
-            <input
-              type="text"
-              value={workDir}
-              onChange={e => { setWorkDir(e.target.value); setWorkDirEdited(true) }}
-              placeholder={`${basePath}/my-project`}
-              className="flex-1 bg-transparent text-[12px] text-text-primary font-mono outline-none placeholder:text-text-dim"
-            />
-          </div>
-          {!workDirEdited && name.trim() && (
-            <span className="text-[9px] text-text-dim">Auto-generated from project name</span>
-          )}
-        </div>
 
         {/* Icon picker */}
         <div className="flex flex-col gap-1">

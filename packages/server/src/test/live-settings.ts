@@ -65,8 +65,6 @@ export function loadLiveSettings(): GlobalSettings | null {
   return {
     providers,
     theme: 'dark',
-    userProfile: { name: 'Test User', email: 'test@golemancy.dev' },
-    defaultWorkingDirectoryBase: '/tmp/golemancy-test',
   }
 }
 

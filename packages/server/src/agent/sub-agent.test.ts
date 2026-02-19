@@ -29,8 +29,6 @@ const defaultSettings: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai' as const, apiKey: 'test-key', models: ['gpt-4o'] },
   },
   theme: 'dark',
-  userProfile: { name: '', email: '' },
-  defaultWorkingDirectoryBase: '',
 }
 
 const mockMcpStorage: IMCPService = {

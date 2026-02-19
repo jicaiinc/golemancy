@@ -86,10 +86,9 @@ function createMockDeps() {
     settingsStorage: {
       get: vi.fn().mockResolvedValue({
         theme: 'dark', providers: {},
-        userProfile: { name: '', email: '' }, defaultWorkingDirectoryBase: '',
       }),
       update: vi.fn().mockImplementation((data: any) =>
-        Promise.resolve({ theme: 'dark', providers: {}, userProfile: { name: '', email: '' }, defaultWorkingDirectoryBase: '', ...data }),
+        Promise.resolve({ theme: 'dark', providers: {}, ...data }),
       ),
     },
     dashboardService: {
@@ -207,7 +206,7 @@ describe('HTTP API routes', () => {
     it('POST /api/projects creates project with 201', async () => {
       const res = await app.request(jsonRequest('/api/projects', {
         method: 'POST',
-        body: JSON.stringify({ name: 'New', description: 'desc', icon: 'star', workingDirectory: '~/' }),
+        body: JSON.stringify({ name: 'New', description: 'desc', icon: 'star' }),
       }))
       expect(res.status).toBe(201)
       const body = await res.json()
