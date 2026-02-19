@@ -125,7 +125,7 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)
   const [model, setModel] = useState(agent.modelConfig.model)
   const [compactThreshold, setCompactThreshold] = useState(
-    agent.compactThreshold ?? settings?.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD,
+    agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD,
   )
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -141,7 +141,7 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
     setSystemPrompt(agent.systemPrompt)
     setProviderSlug(agent.modelConfig.provider)
     setModel(agent.modelConfig.model)
-    setCompactThreshold(agent.compactThreshold ?? settings?.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD)
+    setCompactThreshold(agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD)
   }, [agent.id])
 
   // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available

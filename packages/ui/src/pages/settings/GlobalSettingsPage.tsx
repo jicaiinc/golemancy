@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
-import { APP_VERSION, DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
+import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
-import { PixelCard, PixelButton, PixelInput, PixelTabs, CompactThresholdControl } from '../../components'
+import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 
 const SETTINGS_TABS = [
@@ -167,10 +167,6 @@ function ProvidersTab({ settings, onUpdate }: {
     await onUpdate({ defaultModel: model })
   }
 
-  async function handleCompactThresholdChange(value: number) {
-    await onUpdate({ compactThreshold: value })
-  }
-
   return (
     <div className="flex flex-col gap-4">
       {/* Default Model Selector */}
@@ -179,12 +175,6 @@ function ProvidersTab({ settings, onUpdate }: {
         availableProviders={availableProviders}
         defaultModel={settings.defaultModel}
         onChange={handleDefaultModelChange}
-      />
-
-      {/* Compact Threshold */}
-      <CompactThresholdSection
-        value={settings.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD}
-        onChange={handleCompactThresholdChange}
       />
 
       {/* Header */}
@@ -349,37 +339,6 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
           {saved && <span className="text-[11px] text-accent-green">Saved!</span>}
         </div>
       </div>
-    </PixelCard>
-  )
-}
-
-// ========== Compact Threshold Section ==========
-function CompactThresholdSection({ value, onChange }: {
-  value: number
-  onChange: (value: number) => Promise<void>
-}) {
-  const [localValue, setLocalValue] = useState(value)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-
-  async function handleSave() {
-    setSaving(true)
-    await onChange(localValue)
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  return (
-    <PixelCard>
-      <div className="font-pixel text-[10px] text-text-secondary mb-2">COMPACT THRESHOLD</div>
-      <p className="text-[11px] text-text-dim mb-3">Auto-compact conversations when context reaches this token limit.</p>
-      <CompactThresholdControl value={localValue} onChange={setLocalValue}>
-        <PixelButton size="sm" variant="primary" onClick={handleSave} disabled={saving}>
-          {saving ? '...' : 'Save'}
-        </PixelButton>
-        {saved && <span className="text-[11px] text-accent-green">Saved!</span>}
-      </CompactThresholdControl>
     </PixelCard>
   )
 }
