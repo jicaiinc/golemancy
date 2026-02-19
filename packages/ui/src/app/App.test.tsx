@@ -5,6 +5,6 @@ import { App } from './App'
 describe('App', () => {
   it('renders the project list page at root', async () => {
     render(<App />)
-    expect(await screen.findByText('Your Projects')).toBeInTheDocument()
+    expect(await screen.findByText('All Projects')).toBeInTheDocument()
   })
 })
