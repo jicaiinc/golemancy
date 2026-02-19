@@ -229,6 +229,7 @@ function SubAgentDisplay({ state, chatStatus, task }: SubAgentDisplayProps) {
 const TASK_TOOL_NAMES = new Set(['TaskCreate', 'TaskGet', 'TaskList', 'TaskUpdate'])
 
 function TaskToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProps) {
+  const [expanded, setExpanded] = useState(false)
   const chatDone = isChatDone(chatStatus)
   const rawIsRunning = toolInvocation.state === 'input-streaming' || toolInvocation.state === 'input-available'
   const isRunning = rawIsRunning && !chatDone
@@ -250,7 +251,14 @@ function TaskToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProp
 
   return (
     <div className="my-2 border-2 border-border-dim bg-deep">
-      <div className="flex items-center gap-2 px-3 py-2">
+      {/* Header — always visible */}
+      <button
+        className="w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer hover:bg-elevated/50 transition-colors"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <span className="text-[10px] text-text-dim font-mono select-none">
+          {expanded ? '[-]' : '[+]'}
+        </span>
         <span className="font-mono text-[12px] text-accent-cyan">
           {toolLabel[toolInvocation.toolName] ?? toolInvocation.toolName}
         </span>
@@ -260,52 +268,67 @@ function TaskToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProp
         <span className={`ml-auto text-[11px] font-mono ${status.color}`}>
           {status.text}
         </span>
-      </div>
+      </button>
 
-      {/* Task card output */}
-      {taskData && 'subject' in taskData && (
-        <div className="px-3 pb-2 border-t-2 border-border-dim">
-          <div className="flex items-center gap-2 mt-2">
-            <span className="text-[13px] font-mono text-text-primary">{String(taskData.subject)}</span>
-            {typeof taskData.status === 'string' && (
-              <span className={`text-[10px] font-pixel px-1.5 py-0.5 border border-border-dim ${
-                taskData.status === 'completed' ? 'text-accent-green' :
-                taskData.status === 'in_progress' ? 'text-accent-amber' :
-                'text-text-dim'
-              }`}>
-                {taskData.status.replace('_', ' ')}
-              </span>
-            )}
-          </div>
-          {typeof taskData.description === 'string' && (
-            <p className="text-[11px] text-text-dim font-mono mt-1">{taskData.description}</p>
-          )}
-        </div>
-      )}
+      {/* Expandable detail */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-hidden"
+          >
+            <div className="border-t-2 border-border-dim">
+              {/* Task card output */}
+              {taskData && 'subject' in taskData && (
+                <div className="px-3 pb-2">
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[13px] font-mono text-text-primary">{String(taskData.subject)}</span>
+                    {typeof taskData.status === 'string' && (
+                      <span className={`text-[10px] font-pixel px-1.5 py-0.5 border border-border-dim ${
+                        taskData.status === 'completed' ? 'text-accent-green' :
+                        taskData.status === 'in_progress' ? 'text-accent-amber' :
+                        'text-text-dim'
+                      }`}>
+                        {taskData.status.replace('_', ' ')}
+                      </span>
+                    )}
+                  </div>
+                  {typeof taskData.description === 'string' && (
+                    <p className="text-[11px] text-text-dim font-mono mt-1">{taskData.description}</p>
+                  )}
+                </div>
+              )}
 
-      {/* Task list output */}
-      {taskList && (
-        <div className="px-3 pb-2 border-t-2 border-border-dim">
-          <div className="mt-2 space-y-1">
-            {taskList.map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-[11px] font-mono">
-                <span>
-                  {item.status === 'completed' ? '\u2611' : item.status === 'in_progress' ? '\u25B6' : '\u2610'}
-                </span>
-                <span className="text-text-primary flex-1 truncate">{String(item.subject ?? item.id)}</span>
-                <span className="text-text-dim">{String(item.status ?? '')}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              {/* Task list output */}
+              {taskList && (
+                <div className="px-3 pb-2">
+                  <div className="mt-2 space-y-1">
+                    {taskList.map((item, i) => (
+                      <div key={i} className="flex items-center gap-2 text-[11px] font-mono">
+                        <span>
+                          {item.status === 'completed' ? '\u2611' : item.status === 'in_progress' ? '\u25B6' : '\u2610'}
+                        </span>
+                        <span className="text-text-primary flex-1 truncate">{String(item.subject ?? item.id)}</span>
+                        <span className="text-text-dim">{String(item.status ?? '')}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-      {/* Error output */}
-      {taskData && 'error' in taskData && (
-        <div className="px-3 pb-2 border-t-2 border-border-dim">
-          <p className="text-[11px] text-accent-red font-mono mt-2">{String(taskData.error)}</p>
-        </div>
-      )}
+              {/* Error output */}
+              {taskData && 'error' in taskData && (
+                <div className="px-3 pb-2">
+                  <p className="text-[11px] text-accent-red font-mono mt-2">{String(taskData.error)}</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -4,10 +4,11 @@ import { configureServices } from '../services/container'
 import type { ServiceContainer } from '../services/container'
 import type { ProjectId, AgentId, ConversationId, CronJobId } from '@golemancy/shared'
 
-// Mock chat-instances to verify store calls destroyChat/destroyAllChats
+// Mock chat-instances to verify store calls destroyChat/destroyAllChats/releaseIdleChats
 vi.mock('../lib/chat-instances', () => ({
   destroyChat: vi.fn(),
   destroyAllChats: vi.fn(),
+  releaseIdleChats: vi.fn(),
 }))
 
 // Create mock services
@@ -315,10 +316,10 @@ describe('useAppStore', () => {
   })
 
   describe('chat cleanup on project switch', () => {
-    it('selectProject calls destroyAllChats', async () => {
-      const { destroyAllChats } = await import('../lib/chat-instances')
+    it('selectProject calls releaseIdleChats (keeps streaming chats alive)', async () => {
+      const { releaseIdleChats } = await import('../lib/chat-instances')
       await useAppStore.getState().selectProject('proj-1' as ProjectId)
-      expect(destroyAllChats).toHaveBeenCalled()
+      expect(releaseIdleChats).toHaveBeenCalled()
     })
 
     it('clearProject calls destroyAllChats', async () => {

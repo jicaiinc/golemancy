@@ -74,6 +74,20 @@ export function destroyAllChats(): void {
   }
 }
 
+/**
+ * Release idle chats from cache while keeping active (streaming/submitted)
+ * ones alive. Used on project switch so in-flight agent executions continue
+ * running and their results are saved to DB via server-side onFinish.
+ */
+export function releaseIdleChats(): void {
+  for (const [id, chat] of chatInstances) {
+    if (chat.status === 'streaming' || chat.status === 'submitted') {
+      continue // keep active chats alive
+    }
+    chatInstances.delete(id)
+  }
+}
+
 export function hasChat(conversationId: ConversationId): boolean {
   return chatInstances.has(conversationId)
 }

@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react'
-import { useNavigate } from 'react-router'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
 import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -59,20 +58,12 @@ function slugify(name: string): string {
 export function GlobalSettingsPage() {
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
-  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('general')
 
   if (!settings) return null
 
   return (
-    <GlobalLayout
-      title="Golemancy"
-      actions={
-        <PixelButton variant="ghost" size="sm" onClick={() => navigate('/')}>
-          <span className="text-[18px]">{'\u2302'}</span>
-        </PixelButton>
-      }
-    >
+    <GlobalLayout>
       <div data-testid="settings-form" className="max-w-[1000px] mx-auto p-8">
         {/* Page heading */}
         <h2 className="font-pixel text-[12px] text-text-primary mb-6">Global Settings</h2>

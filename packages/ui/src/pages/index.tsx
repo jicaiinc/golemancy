@@ -26,7 +26,7 @@ export { WorkspacePage } from './workspace'
 export { MemoryPage } from './memory'
 
 // Dashboard
-export { DashboardPage } from './dashboard'
+export { DashboardPage, GlobalDashboardPage } from './dashboard'
 
 // Settings
 export { GlobalSettingsPage } from './settings'

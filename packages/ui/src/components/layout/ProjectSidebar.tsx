@@ -1,6 +1,5 @@
 import { useNavigate, useLocation, useParams } from 'react-router'
 import { useAppStore } from '../../stores'
-import { PixelDropdown } from '../base'
 
 interface NavItem {
   label: string
@@ -17,7 +16,7 @@ const navItems: NavItem[] = [
   { label: 'Agents', path: '/agents', icon: '{}', testId: 'agents' },
   { label: 'Skills', path: '/skills', icon: '<>', testId: 'skills' },
   { label: 'MCP Servers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
-  { label: 'Agent Tasks', path: '/tasks', icon: '#', testId: 'tasks' },
+  { label: 'Conversation Tasks', path: '/tasks', icon: '#', testId: 'tasks' },
   { label: 'Artifacts', path: '/artifacts', icon: '..', testId: 'artifacts' },
   { label: 'Memory', path: '/memory', icon: '()', testId: 'memory' },
 ]
@@ -32,8 +31,6 @@ export function ProjectSidebar() {
   const { projectId } = useParams()
   const sidebarCollapsed = useAppStore(s => s.sidebarCollapsed)
   const toggleSidebar = useAppStore(s => s.toggleSidebar)
-  const projects = useAppStore(s => s.projects)
-  const currentProject = useAppStore(s => s.projects.find(p => p.id === s.currentProjectId))
 
   const basePath = `/projects/${projectId}`
 
@@ -44,43 +41,9 @@ export function ProjectSidebar() {
       : location.pathname.startsWith(full)
   }
 
-  // Project switcher items: Home + Settings at the top, then projects
-  const switcherItems = [
-    { label: '\u2302 Home', value: '__lobby__' },
-    { label: '\u2699 Settings', value: '__settings__' },
-    ...projects.map(p => ({
-      label: p.name,
-      value: p.id,
-      selected: p.id === projectId,
-    })),
-  ]
-
-  function handleProjectSwitch(value: string) {
-    if (value === '__lobby__') {
-      navigate('/')
-    } else if (value === '__settings__') {
-      navigate('/settings')
-    } else {
-      navigate(`/projects/${value}`)
-    }
-  }
-
   if (sidebarCollapsed) {
     return (
       <aside data-testid="sidebar" className="w-14 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
-        <div className="p-2 border-b-2 border-border-dim">
-          <PixelDropdown
-            maxHeight="480px"
-            trigger={
-              <button className="w-10 h-10 flex items-center justify-center font-pixel text-[10px] text-accent-green hover:bg-elevated cursor-pointer">
-                SC
-              </button>
-            }
-            items={switcherItems}
-            onSelect={handleProjectSwitch}
-            dividerAfter={[1]}
-          />
-        </div>
         <nav className="flex-1 py-2">
           {navItems.map(item => (
             <button
@@ -110,25 +73,6 @@ export function ProjectSidebar() {
 
   return (
     <aside data-testid="sidebar" className="w-60 shrink-0 bg-deep border-r-2 border-border-dim flex flex-col">
-      {/* Project header with switcher */}
-      <div className="pl-2 pr-1 py-1.5 border-b-2 border-border-dim">
-        <PixelDropdown
-          className="w-full"
-          maxHeight="480px"
-          trigger={
-            <button className="w-full text-left flex items-center gap-1.5 hover:bg-elevated/50 pl-1.5 pr-1 py-1 cursor-pointer transition-colors min-w-0">
-              <span className="font-pixel text-[10px] text-accent-green truncate flex-1 min-w-0">
-                {currentProject?.name ?? 'Golemancy'}
-              </span>
-              <span className="text-text-dim text-[10px] shrink-0">▼</span>
-            </button>
-          }
-          items={switcherItems}
-          onSelect={handleProjectSwitch}
-          dividerAfter={[1]}
-        />
-      </div>
-
       {/* Navigation */}
       <nav className="flex-1 py-2">
         <div className="px-3 py-1">

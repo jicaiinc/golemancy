@@ -100,11 +100,6 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getByText(/AI Agent Orchestrator for Super Individuals/)).toBeInTheDocument()
   })
 
-  it('renders home icon button in header', () => {
-    renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText('\u2302')).toBeInTheDocument()
-  })
-
   it('renders Golemancy branding in header', () => {
     renderWithRouter(<GlobalSettingsPage />)
     expect(screen.getByText('Golemancy')).toBeInTheDocument()

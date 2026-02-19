@@ -3,6 +3,7 @@ import { ProjectLayout } from './layouts/ProjectLayout'
 import {
   ProjectListPage,
   DashboardPage,
+  GlobalDashboardPage,
   AgentListPage,
   AgentDetailPage,
   SkillsPage,
@@ -30,6 +31,7 @@ export function AppRoutes() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<RootRedirect />} />
+        <Route path="/dashboard" element={<GlobalDashboardPage />} />
         <Route path="/settings" element={<GlobalSettingsPage />} />
         <Route path="/projects/:projectId" element={<ProjectLayout />}>
           <Route index element={<DashboardPage />} />

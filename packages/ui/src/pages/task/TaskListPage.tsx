@@ -81,7 +81,7 @@ export function TaskListPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-pixel text-[14px] text-text-primary" data-testid="task-list-header">Agent Tasks</h1>
+          <h1 className="font-pixel text-[14px] text-text-primary" data-testid="task-list-header">Conversation Tasks</h1>
           <p className="text-[12px] text-text-secondary mt-1">
             {tasks.length} task{tasks.length !== 1 ? 's' : ''} total
           </p>

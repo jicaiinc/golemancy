@@ -43,19 +43,12 @@ export function ProjectListPage() {
   }
 
   return (
-    <GlobalLayout
-      title="Golemancy"
-      actions={
-        <PixelButton variant="ghost" size="sm" onClick={() => navigate('/settings')}>
-          <span className="text-[18px]">⚙</span>
-        </PixelButton>
-      }
-    >
+    <GlobalLayout>
       <div className="max-w-[1200px] mx-auto p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="font-pixel text-[12px] text-text-primary">Your Projects</h2>
+            <h2 className="font-pixel text-[12px] text-text-primary">All Projects</h2>
             <p className="mt-2 text-text-secondary text-[13px]">
               {projects.length} project{projects.length !== 1 ? 's' : ''} in your workspace
             </p>
