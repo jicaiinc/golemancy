@@ -127,6 +127,18 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length, status])
 
+  // Refresh conversation tasks after streaming completes.
+  // Agent may have created/updated tasks via built-in TaskCreate/TaskUpdate tools.
+  const refreshConversationTasks = useAppStore(s => s.refreshConversationTasks)
+  const prevStatusRef = useRef(status)
+  useEffect(() => {
+    const prev = prevStatusRef.current
+    prevStatusRef.current = status
+    if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
+      refreshConversationTasks()
+    }
+  }, [status, refreshConversationTasks])
+
   // --- Send handler ---
   const handleSend = useCallback(async (content: string, files?: FileUIPart[]) => {
     if (!currentProjectId || !chat) return

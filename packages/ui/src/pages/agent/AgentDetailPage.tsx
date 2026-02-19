@@ -248,13 +248,15 @@ function ToolsTab({ agent, onUpdate }: {
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
   const builtinToolDefs = [
-    { id: 'bash', name: 'Bash', description: 'Execute bash commands, read and write files', available: true },
-    { id: 'browser', name: 'Browser', description: 'Control web browser for automation', available: true },
-    { id: 'os_control', name: 'OS Control', description: 'Desktop automation and system control', available: false },
+    { id: 'bash', name: 'Bash', description: 'Execute bash commands, read and write files', defaultEnabled: true, available: true },
+    { id: 'browser', name: 'Browser', description: 'Control web browser for automation', defaultEnabled: false, available: true },
+    { id: 'os_control', name: 'OS Control', description: 'Desktop automation and system control', defaultEnabled: false, available: false },
+    { id: 'task', name: 'Task', description: 'Create and manage tasks within the conversation', defaultEnabled: true, available: true },
   ]
 
   async function toggleBuiltinTool(toolId: string) {
-    const current = agent.builtinTools[toolId] ?? (toolId === 'bash')
+    const def = builtinToolDefs.find(d => d.id === toolId)
+    const current = agent.builtinTools[toolId] ?? (def?.defaultEnabled ?? false)
     await onUpdate(agent.id, {
       builtinTools: { ...agent.builtinTools, [toolId]: !current },
     })
@@ -267,7 +269,7 @@ function ToolsTab({ agent, onUpdate }: {
         <div className="font-pixel text-[8px] text-text-dim mb-2">BUILT-IN TOOLS</div>
         <div className="flex flex-col gap-2">
           {builtinToolDefs.map(tool => {
-            const enabled = agent.builtinTools[tool.id] ?? (tool.id === 'bash')
+            const enabled = agent.builtinTools[tool.id] ?? (tool.defaultEnabled ?? false)
             return (
               <PixelCard key={tool.id} className={`flex items-center gap-3 ${!tool.available ? 'opacity-50' : ''}`}>
                 <div className="flex-1 min-w-0">

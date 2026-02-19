@@ -19,13 +19,6 @@ export function createDashboardRoutes(service: IDashboardService) {
     return c.json(agents)
   })
 
-  app.get('/recent-tasks', async (c) => {
-    const limit = parseInt(c.req.query('limit') ?? '10', 10)
-    log.debug({ limit }, 'getting recent tasks')
-    const tasks = await service.getRecentTasks(limit)
-    return c.json(tasks)
-  })
-
   app.get('/activity', async (c) => {
     const limit = parseInt(c.req.query('limit') ?? '20', 10)
     log.debug({ limit }, 'getting activity feed')

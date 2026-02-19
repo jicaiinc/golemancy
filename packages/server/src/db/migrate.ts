@@ -31,14 +31,23 @@ export function migrateDatabase(db: AppDatabase) {
     )
   `)
 
+  // Migration: drop legacy task_logs table
+  db.run(sql`DROP TABLE IF EXISTS task_logs`)
+
   db.run(sql`
-    CREATE TABLE IF NOT EXISTS task_logs (
-      id        INTEGER PRIMARY KEY AUTOINCREMENT,
-      task_id   TEXT NOT NULL,
-      type      TEXT NOT NULL,
-      content   TEXT NOT NULL,
-      metadata  TEXT,
-      timestamp TEXT NOT NULL
+    CREATE TABLE IF NOT EXISTS conversation_tasks (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      subject TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'pending',
+      active_form TEXT,
+      owner TEXT,
+      metadata TEXT,
+      blocks TEXT NOT NULL DEFAULT '[]',
+      blocked_by TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
     )
   `)
 
@@ -46,7 +55,7 @@ export function migrateDatabase(db: AppDatabase) {
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_project ON conversations(project_id)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(project_id, agent_id)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at DESC)`)
-  db.run(sql`CREATE INDEX IF NOT EXISTS idx_task_logs_task ON task_logs(task_id, timestamp)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversation_tasks_conv ON conversation_tasks(conversation_id)`)
 
   // --- Migration v2: message parts ---
   const columns = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)

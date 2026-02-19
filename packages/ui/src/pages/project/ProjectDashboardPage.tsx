@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router'
 import { motion } from 'motion/react'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
-import { PixelCard, PixelBadge, PixelButton, PixelSpinner, PixelAvatar, PixelProgress } from '../../components'
+import type { ConversationTaskStatus } from '@golemancy/shared'
+import { PixelCard, PixelBadge, PixelButton, PixelSpinner, PixelAvatar } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 
 function relativeTime(iso: string): string {
@@ -26,14 +27,14 @@ export function ProjectDashboardPage() {
   const project = useCurrentProject()
   const agents = useAppStore(s => s.agents)
   const agentsLoading = useAppStore(s => s.agentsLoading)
-  const tasks = useAppStore(s => s.tasks)
+  const tasks = useAppStore(s => s.conversationTasks)
   const conversations = useAppStore(s => s.conversations)
   const navigate = useNavigate()
 
   if (!project) return null
 
   const runningAgents = agents.filter(a => a.status === 'running')
-  const runningTasks = tasks.filter(t => t.status === 'running')
+  const runningTasks = tasks.filter(t => t.status === 'in_progress')
   const recentConversations = [...conversations]
     .sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime())
     .slice(0, 5)
@@ -59,7 +60,7 @@ export function ProjectDashboardPage() {
           <div className="font-pixel text-[8px] text-text-dim mb-2">TASKS</div>
           <div className="text-[24px] font-mono text-text-primary">{tasks.length}</div>
           {runningTasks.length > 0 && (
-            <PixelBadge variant="running" className="mt-2">{runningTasks.length} running</PixelBadge>
+            <PixelBadge variant="running" className="mt-2">{runningTasks.length} in progress</PixelBadge>
           )}
         </PixelCard>
         <PixelCard>
@@ -129,16 +130,11 @@ export function ProjectDashboardPage() {
                 {tasks.slice(0, 4).map(task => (
                   <div key={task.id} className="flex items-center gap-3 p-2">
                     <div className="min-w-0 flex-1">
-                      <div className="text-[12px] text-text-primary truncate">{task.title}</div>
-                      <div className="text-[11px] text-text-dim">{task.status}</div>
+                      <div className="text-[12px] text-text-primary truncate">{task.subject}</div>
+                      <div className="text-[11px] text-text-dim">{task.status.replace('_', ' ')}</div>
                     </div>
-                    {task.status === 'running' && task.progress != null && (
-                      <div className="w-20">
-                        <PixelProgress value={task.progress} />
-                      </div>
-                    )}
-                    <PixelBadge variant={task.status === 'running' ? 'running' : task.status === 'completed' ? 'success' : 'idle'}>
-                      {task.progress != null ? `${task.progress}%` : task.status}
+                    <PixelBadge variant={task.status === 'in_progress' ? 'running' : task.status === 'completed' ? 'success' : 'idle'}>
+                      {task.status.replace('_', ' ')}
                     </PixelBadge>
                   </div>
                 ))}

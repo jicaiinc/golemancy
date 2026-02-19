@@ -1,9 +1,11 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, SupportedPlatform, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
+import type { Agent, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
+import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools, type ModeDegradation } from './builtin-tools'
 import { createSubAgentToolSet } from './sub-agent'
+import { createTaskTools } from './task-tools'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
@@ -19,6 +21,8 @@ export interface LoadAgentToolsParams {
   mcpStorage: IMCPService
   permissionsConfigId?: PermissionsConfigId
   permissionsConfigStorage: IPermissionsConfigService
+  conversationId?: string
+  taskStorage?: SqliteConversationTaskStorage
 }
 
 export interface AgentToolsResult {
@@ -42,7 +46,7 @@ export interface AgentToolsResult {
  * recursive nesting controlled purely by agent configuration.
  */
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
-  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage } = params
+  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId, taskStorage } = params
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
@@ -117,8 +121,20 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   if (agent.subAgents?.length > 0) {
     const subAgentResult = createSubAgentToolSet(
       agent, allAgents, settings, projectId, loadAgentTools, mcpStorage, permissionsConfigStorage,
+      conversationId, taskStorage,
     )
     Object.assign(tools, subAgentResult.tools)
+  }
+
+  // 5. Task tools — conversation-scoped task management
+  if (agent.builtinTools?.task !== false && conversationId && taskStorage) {
+    const taskTools = createTaskTools({
+      projectId: projectId as ProjectId,
+      conversationId: conversationId as ConversationId,
+      taskStorage,
+    })
+    Object.assign(tools, taskTools)
+    log.debug('loaded task built-in tools')
   }
 
   log.debug(

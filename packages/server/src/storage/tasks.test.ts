@@ -1,218 +1,232 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import fs from 'node:fs/promises'
-import { sql } from 'drizzle-orm'
-import { createTestDb, createTmpDir } from '../test/helpers'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { createTestDb } from '../test/helpers'
 import type { AppDatabase } from '../db/client'
-import type { ProjectId, AgentId, TaskId, Task } from '@golemancy/shared'
+import type { ProjectId, ConversationId, TaskId } from '@golemancy/shared'
+import * as schema from '../db/schema'
+import { SqliteConversationTaskStorage } from './tasks'
 
-const state = vi.hoisted(() => ({ tmpDir: '' }))
-
-vi.mock('../utils/paths', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../utils/paths')>()
-  return {
-    ...actual,
-    getDataDir: () => state.tmpDir,
-    getProjectPath: (pid: string) => `${state.tmpDir}/projects/${pid}`,
-  }
-})
-
-import { FileTaskStorage } from './tasks'
-
-describe('FileTaskStorage', () => {
+describe('SqliteConversationTaskStorage', () => {
   let db: AppDatabase
   let closeDb: () => void
-  let storage: FileTaskStorage
-  let cleanup: () => Promise<void>
+  let storage: SqliteConversationTaskStorage
 
   const projId = 'proj-1' as ProjectId
-  const agentId1 = 'agent-1' as AgentId
-  const agentId2 = 'agent-2' as AgentId
+  const convId1 = 'conv-1' as ConversationId
+  const convId2 = 'conv-2' as ConversationId
 
-  // Helper to create a task JSON file on disk
-  async function seedTask(task: Task) {
-    const dir = `${state.tmpDir}/projects/${task.projectId}/tasks`
-    await fs.mkdir(dir, { recursive: true })
-    await fs.writeFile(
-      `${dir}/${task.id}.json`,
-      JSON.stringify(task, null, 2),
-    )
-  }
-
-  function makeTask(overrides: Partial<Task> = {}): Task {
-    return {
-      id: 'task-1' as TaskId,
-      projectId: projId,
-      agentId: agentId1,
-      title: 'Test Task',
-      description: 'A test task',
-      status: 'running',
-      progress: 50,
-      tokenUsage: 1000,
-      log: [],
-      startedAt: '2024-01-01T00:00:00Z',
-      completedAt: undefined,
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-      ...overrides,
-    } as Task
-  }
-
-  beforeEach(async () => {
-    const tmp = await createTmpDir()
-    state.tmpDir = tmp.dir
-    cleanup = tmp.cleanup
-
+  beforeEach(() => {
     const testDb = createTestDb()
     db = testDb.db
     closeDb = testDb.close
 
-    // All projects share the same in-memory DB for test simplicity
-    storage = new FileTaskStorage(() => db)
+    storage = new SqliteConversationTaskStorage(() => db)
 
-    await fs.mkdir(`${state.tmpDir}/projects/${projId}/tasks`, { recursive: true })
+    // Seed conversations (FK target for conversation_tasks)
+    const now = new Date().toISOString()
+    db.insert(schema.conversations).values([
+      { id: convId1, projectId: projId, agentId: 'agent-1', title: 'Chat 1', createdAt: now, updatedAt: now },
+      { id: convId2, projectId: projId, agentId: 'agent-2', title: 'Chat 2', createdAt: now, updatedAt: now },
+    ]).run()
   })
 
-  afterEach(async () => {
+  afterEach(() => {
     closeDb()
-    await cleanup()
+  })
+
+  describe('create', () => {
+    it('creates a task with correct fields', async () => {
+      const task = await storage.create(projId, convId1, {
+        subject: 'Draft blog post',
+        description: 'Write a 500-word blog post',
+        activeForm: 'Drafting blog post',
+      })
+
+      expect(task.id).toBeTruthy()
+      expect(task.conversationId).toBe(convId1)
+      expect(task.subject).toBe('Draft blog post')
+      expect(task.description).toBe('Write a 500-word blog post')
+      expect(task.status).toBe('pending')
+      expect(task.activeForm).toBe('Drafting blog post')
+      expect(task.blocks).toEqual([])
+      expect(task.blockedBy).toEqual([])
+      expect(task.createdAt).toBeTruthy()
+      expect(task.updatedAt).toBeTruthy()
+    })
+
+    it('defaults description to empty string', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Quick task' })
+      expect(task.description).toBe('')
+    })
+
+    it('generates unique IDs', async () => {
+      const t1 = await storage.create(projId, convId1, { subject: 'Task 1' })
+      const t2 = await storage.create(projId, convId1, { subject: 'Task 2' })
+      expect(t1.id).not.toBe(t2.id)
+    })
+  })
+
+  describe('getById', () => {
+    it('returns task by ID', async () => {
+      const created = await storage.create(projId, convId1, { subject: 'Find me' })
+      const found = await storage.getById(projId, created.id)
+      expect(found).not.toBeNull()
+      expect(found!.subject).toBe('Find me')
+      expect(found!.id).toBe(created.id)
+    })
+
+    it('returns null for non-existent ID', async () => {
+      const found = await storage.getById(projId, 'task-missing' as TaskId)
+      expect(found).toBeNull()
+    })
   })
 
   describe('list', () => {
-    it('returns tasks for project', async () => {
-      await seedTask(makeTask({ id: 'task-1' as TaskId }))
-      await seedTask(makeTask({ id: 'task-2' as TaskId, title: 'Second' }))
+    it('returns all tasks for project', async () => {
+      await storage.create(projId, convId1, { subject: 'Task A' })
+      await storage.create(projId, convId2, { subject: 'Task B' })
 
       const tasks = await storage.list(projId)
       expect(tasks).toHaveLength(2)
     })
 
-    it('filters by agentId when provided', async () => {
-      await seedTask(makeTask({ id: 'task-1' as TaskId, agentId: agentId1 }))
-      await seedTask(makeTask({ id: 'task-2' as TaskId, agentId: agentId2 }))
+    it('filters by conversationId', async () => {
+      await storage.create(projId, convId1, { subject: 'Conv1 Task' })
+      await storage.create(projId, convId2, { subject: 'Conv2 Task' })
 
-      const tasks = await storage.list(projId, agentId1)
-      expect(tasks).toHaveLength(1)
-      expect(tasks[0].agentId).toBe(agentId1)
+      const conv1Tasks = await storage.list(projId, convId1)
+      expect(conv1Tasks).toHaveLength(1)
+      expect(conv1Tasks[0].subject).toBe('Conv1 Task')
+      expect(conv1Tasks[0].conversationId).toBe(convId1)
     })
 
-    it('returns empty for project with no tasks', async () => {
-      const tasks = await storage.list(projId)
+    it('returns empty for conversation with no tasks', async () => {
+      const tasks = await storage.list(projId, 'conv-999' as ConversationId)
       expect(tasks).toEqual([])
     })
 
-    it('returns empty for non-existent project', async () => {
-      const tasks = await storage.list('proj-missing' as ProjectId)
-      expect(tasks).toEqual([])
-    })
+    it('returns tasks ordered by createdAt descending', async () => {
+      // Insert directly with controlled timestamps to avoid same-millisecond issue
+      const now = new Date().toISOString()
+      const later = new Date(Date.now() + 1000).toISOString()
 
-    it('attaches logs from SQLite', async () => {
-      await seedTask(makeTask({ id: 'task-1' as TaskId }))
+      db.insert(schema.conversationTasks).values([
+        { id: 'task-first', conversationId: convId1, subject: 'First', description: '', status: 'pending', blocks: [], blockedBy: [], createdAt: now, updatedAt: now },
+        { id: 'task-second', conversationId: convId1, subject: 'Second', description: '', status: 'pending', blocks: [], blockedBy: [], createdAt: later, updatedAt: later },
+      ]).run()
 
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-        VALUES ('task-1', 'start', 'Started task', '2024-01-01T00:00:00Z')`)
-
-      const tasks = await storage.list(projId)
-      expect(tasks[0].log).toHaveLength(1)
-      expect(tasks[0].log[0].type).toBe('start')
-    })
-  })
-
-  describe('getById', () => {
-    it('returns task with logs attached', async () => {
-      await seedTask(makeTask())
-
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-        VALUES ('task-1', 'start', 'Starting', '2024-01-01T00:00:00Z')`)
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-        VALUES ('task-1', 'generation', 'Working', '2024-01-01T00:00:01Z')`)
-
-      const task = await storage.getById(projId, 'task-1' as TaskId)
-      expect(task).not.toBeNull()
-      expect(task!.title).toBe('Test Task')
-      expect(task!.log).toHaveLength(2)
-    })
-
-    it('returns null for non-existent task', async () => {
-      const task = await storage.getById(projId, 'task-missing' as TaskId)
-      expect(task).toBeNull()
+      const tasks = await storage.list(projId, convId1)
+      // Most recent first
+      expect(tasks[0].subject).toBe('Second')
+      expect(tasks[1].subject).toBe('First')
     })
   })
 
-  describe('cancel', () => {
-    it('sets status to cancelled', async () => {
-      await seedTask(makeTask({ status: 'running' }))
+  describe('update', () => {
+    it('updates status', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Do it' })
+      const updated = await storage.update(projId, task.id, { status: 'in_progress' })
+      expect(updated.status).toBe('in_progress')
+    })
 
-      await storage.cancel(projId, 'task-1' as TaskId)
+    it('updates subject and description', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Old', description: 'Old desc' })
+      const updated = await storage.update(projId, task.id, {
+        subject: 'New',
+        description: 'New desc',
+      })
+      expect(updated.subject).toBe('New')
+      expect(updated.description).toBe('New desc')
+    })
 
-      const task = await storage.getById(projId, 'task-1' as TaskId)
-      expect(task!.status).toBe('cancelled')
-      expect(task!.completedAt).toBeTruthy()
+    it('updates owner and activeForm', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Task' })
+      const updated = await storage.update(projId, task.id, {
+        owner: 'agent-writer',
+        activeForm: 'Writing article',
+      })
+      expect(updated.owner).toBe('agent-writer')
+      expect(updated.activeForm).toBe('Writing article')
+    })
+
+    it('merges metadata', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Task' })
+
+      const u1 = await storage.update(projId, task.id, {
+        metadata: { foo: 'bar', count: 1 },
+      })
+      expect(u1.metadata).toEqual({ foo: 'bar', count: 1 })
+
+      // Second update merges
+      const u2 = await storage.update(projId, task.id, {
+        metadata: { count: 2, extra: true },
+      })
+      expect(u2.metadata).toEqual({ foo: 'bar', count: 2, extra: true })
+    })
+
+    it('removes metadata keys set to null', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Task' })
+      await storage.update(projId, task.id, { metadata: { a: 1, b: 2 } })
+      const updated = await storage.update(projId, task.id, { metadata: { b: null } })
+      expect(updated.metadata).toEqual({ a: 1 })
+    })
+
+    it('appends blocks (deduplicates)', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Blocker' })
+      const t2 = await storage.create(projId, convId1, { subject: 'Blocked 1' })
+      const t3 = await storage.create(projId, convId1, { subject: 'Blocked 2' })
+
+      const u1 = await storage.update(projId, task.id, { addBlocks: [t2.id] })
+      expect(u1.blocks).toEqual([t2.id])
+
+      // Append with duplicate
+      const u2 = await storage.update(projId, task.id, { addBlocks: [t2.id, t3.id] })
+      expect(u2.blocks).toEqual([t2.id, t3.id])
+    })
+
+    it('appends blockedBy (deduplicates)', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Blocked task' })
+      const dep1 = await storage.create(projId, convId1, { subject: 'Dep 1' })
+      const dep2 = await storage.create(projId, convId1, { subject: 'Dep 2' })
+
+      const u1 = await storage.update(projId, task.id, { addBlockedBy: [dep1.id] })
+      expect(u1.blockedBy).toEqual([dep1.id])
+
+      const u2 = await storage.update(projId, task.id, { addBlockedBy: [dep1.id, dep2.id] })
+      expect(u2.blockedBy).toEqual([dep1.id, dep2.id])
+    })
+
+    it('updates updatedAt timestamp', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Task' })
+      const originalUpdatedAt = task.updatedAt
+
+      // Small delay to ensure timestamp differs
+      await new Promise(r => setTimeout(r, 10))
+
+      const updated = await storage.update(projId, task.id, { status: 'completed' })
+      expect(updated.updatedAt).not.toBe(originalUpdatedAt)
     })
 
     it('throws for non-existent task', async () => {
       await expect(
-        storage.cancel(projId, 'task-missing' as TaskId),
+        storage.update(projId, 'task-missing' as TaskId, { status: 'completed' }),
       ).rejects.toThrow('not found')
     })
   })
 
-  describe('getLogs', () => {
-    it('returns logs for a task', async () => {
-      // Warm the cache via getById
-      await seedTask(makeTask({ id: 'task-1' as TaskId }))
-      await storage.getById(projId, 'task-1' as TaskId)
+  describe('delete', () => {
+    it('soft-deletes by setting status to deleted', async () => {
+      const task = await storage.create(projId, convId1, { subject: 'Delete me' })
+      await storage.delete(projId, task.id)
 
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-        VALUES ('task-1', 'start', 'Started', '2024-01-01T00:00:00Z')`)
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-        VALUES ('task-1', 'tool_call', 'Called tool X', '2024-01-01T00:00:01Z')`)
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-        VALUES ('task-1', 'completed', 'Done', '2024-01-01T00:00:02Z')`)
-
-      const logs = await storage.getLogs('task-1' as TaskId)
-      expect(logs).toHaveLength(3)
-      expect(logs[0].type).toBe('start')
-      expect(logs[2].type).toBe('completed')
+      const found = await storage.getById(projId, task.id)
+      expect(found).not.toBeNull()
+      expect(found!.status).toBe('deleted')
     })
 
-    it('supports cursor-based pagination', async () => {
-      // Warm the cache via getById
-      await seedTask(makeTask({ id: 'task-1' as TaskId }))
-      await storage.getById(projId, 'task-1' as TaskId)
-
-      for (let i = 0; i < 5; i++) {
-        db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-          VALUES ('task-1', 'generation', ${`Step ${i}`}, ${`2024-01-01T00:00:0${i}Z`})`)
-      }
-
-      const first = await storage.getLogs('task-1' as TaskId, undefined, 2)
-      expect(first).toHaveLength(2)
-
-      // Get cursor from last entry — need the id from DB
-      const allRows = db.all<any>(sql`SELECT id FROM task_logs ORDER BY id LIMIT 2`)
-      const cursor = allRows[1].id
-
-      const next = await storage.getLogs('task-1' as TaskId, cursor, 2)
-      expect(next).toHaveLength(2)
-      expect(next[0].content).not.toBe(first[0].content)
-    })
-
-    it('returns logs with metadata', async () => {
-      // Warm the cache via getById
-      await seedTask(makeTask({ id: 'task-1' as TaskId }))
-      await storage.getById(projId, 'task-1' as TaskId)
-
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, metadata, timestamp)
-        VALUES ('task-1', 'completed', 'Done', '{"tokenUsage":2500}', '2024-01-01T00:00:00Z')`)
-
-      const logs = await storage.getLogs('task-1' as TaskId)
-      expect(logs[0].metadata).toEqual({ tokenUsage: 2500 })
-    })
-
-    it('throws for task with no cache entry', async () => {
+    it('throws for non-existent task', async () => {
       await expect(
-        storage.getLogs('task-missing' as TaskId),
-      ).rejects.toThrow('Unknown project for task')
+        storage.delete(projId, 'task-missing' as TaskId),
+      ).rejects.toThrow('not found')
     })
   })
 })

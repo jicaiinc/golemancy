@@ -224,6 +224,92 @@ function SubAgentDisplay({ state, chatStatus, task }: SubAgentDisplayProps) {
   )
 }
 
+// --- Task Tool Display ---
+
+const TASK_TOOL_NAMES = new Set(['TaskCreate', 'TaskGet', 'TaskList', 'TaskUpdate'])
+
+function TaskToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProps) {
+  const chatDone = isChatDone(chatStatus)
+  const rawIsRunning = toolInvocation.state === 'input-streaming' || toolInvocation.state === 'input-available'
+  const isRunning = rawIsRunning && !chatDone
+  const effectiveState = rawIsRunning && chatDone ? 'output-available' : toolInvocation.state
+  const status = getStatusLabel(effectiveState)
+  const hasOutput = toolInvocation.state === 'output-available' || (rawIsRunning && chatDone)
+  const output = hasOutput ? toolInvocation.output : null
+
+  const toolLabel: Record<string, string> = {
+    TaskCreate: 'Create Task',
+    TaskGet: 'Get Task',
+    TaskList: 'List Tasks',
+    TaskUpdate: 'Update Task',
+  }
+
+  // Parse output for display
+  const taskData = output && typeof output === 'object' && !Array.isArray(output) ? output as Record<string, unknown> : null
+  const taskList = output && Array.isArray(output) ? output as Array<Record<string, unknown>> : null
+
+  return (
+    <div className="my-2 border-2 border-border-dim bg-deep">
+      <div className="flex items-center gap-2 px-3 py-2">
+        <span className="font-mono text-[12px] text-accent-cyan">
+          {toolLabel[toolInvocation.toolName] ?? toolInvocation.toolName}
+        </span>
+        {isRunning && (
+          <span className="inline-block w-[6px] h-[6px] bg-accent-cyan animate-[pixel-blink_1s_steps(2)_infinite]" />
+        )}
+        <span className={`ml-auto text-[11px] font-mono ${status.color}`}>
+          {status.text}
+        </span>
+      </div>
+
+      {/* Task card output */}
+      {taskData && 'subject' in taskData && (
+        <div className="px-3 pb-2 border-t-2 border-border-dim">
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-[13px] font-mono text-text-primary">{String(taskData.subject)}</span>
+            {typeof taskData.status === 'string' && (
+              <span className={`text-[10px] font-pixel px-1.5 py-0.5 border border-border-dim ${
+                taskData.status === 'completed' ? 'text-accent-green' :
+                taskData.status === 'in_progress' ? 'text-accent-amber' :
+                'text-text-dim'
+              }`}>
+                {taskData.status.replace('_', ' ')}
+              </span>
+            )}
+          </div>
+          {typeof taskData.description === 'string' && (
+            <p className="text-[11px] text-text-dim font-mono mt-1">{taskData.description}</p>
+          )}
+        </div>
+      )}
+
+      {/* Task list output */}
+      {taskList && (
+        <div className="px-3 pb-2 border-t-2 border-border-dim">
+          <div className="mt-2 space-y-1">
+            {taskList.map((item, i) => (
+              <div key={i} className="flex items-center gap-2 text-[11px] font-mono">
+                <span>
+                  {item.status === 'completed' ? '\u2611' : item.status === 'in_progress' ? '\u25B6' : '\u2610'}
+                </span>
+                <span className="text-text-primary flex-1 truncate">{String(item.subject ?? item.id)}</span>
+                <span className="text-text-dim">{String(item.status ?? '')}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Error output */}
+      {taskData && 'error' in taskData && (
+        <div className="px-3 pb-2 border-t-2 border-border-dim">
+          <p className="text-[11px] text-accent-red font-mono mt-2">{String(taskData.error)}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // --- Main ToolCallDisplay ---
 
 export function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProps) {
@@ -237,6 +323,11 @@ export function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayP
   const status = getStatusLabel(effectiveState)
   const hasOutput = toolInvocation.state === 'output-available' || (rawIsRunning && chatDone)
   const hasError = toolInvocation.state === 'output-error'
+
+  // Task tools — render specialized display
+  if (TASK_TOOL_NAMES.has(toolInvocation.toolName)) {
+    return <TaskToolCallDisplay toolInvocation={toolInvocation} chatStatus={chatStatus} />
+  }
 
   // Check if this is a sub-agent with structured streaming output
   const isSubAgent = toolInvocation.toolName.startsWith(DELEGATE_PREFIX)

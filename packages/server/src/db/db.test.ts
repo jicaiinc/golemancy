@@ -28,8 +28,8 @@ describe('database migration', () => {
       expect(rows).toHaveLength(1)
     })
 
-    it('creates task_logs table', () => {
-      const rows = db.all<any>(sql`SELECT name FROM sqlite_master WHERE type='table' AND name='task_logs'`)
+    it('creates conversation_tasks table', () => {
+      const rows = db.all<any>(sql`SELECT name FROM sqlite_master WHERE type='table' AND name='conversation_tasks'`)
       expect(rows).toHaveLength(1)
     })
 
@@ -55,8 +55,8 @@ describe('database migration', () => {
       expect(rows).toHaveLength(1)
     })
 
-    it('creates task_logs task index', () => {
-      const rows = db.all<any>(sql`SELECT name FROM sqlite_master WHERE type='index' AND name='idx_task_logs_task'`)
+    it('creates conversation_tasks conversation index', () => {
+      const rows = db.all<any>(sql`SELECT name FROM sqlite_master WHERE type='index' AND name='idx_conversation_tasks_conv'`)
       expect(rows).toHaveLength(1)
     })
   })
@@ -133,24 +133,38 @@ describe('database migration', () => {
     })
   })
 
-  describe('task_logs', () => {
-    it('auto-increments id', () => {
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-        VALUES ('task-1', 'start', 'Started', '2024-01-01T00:00:00Z')`)
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, timestamp)
-        VALUES ('task-1', 'generation', 'Working', '2024-01-01T00:00:01Z')`)
+  describe('conversation_tasks', () => {
+    it('stores and retrieves tasks', () => {
+      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversation_tasks (id, conversation_id, subject, description, status, blocks, blocked_by, created_at, updated_at)
+        VALUES ('task-1', 'conv-1', 'Test Task', 'desc', 'pending', '[]', '[]', '2024-01-01', '2024-01-01')`)
 
-      const rows = db.all<any>(sql`SELECT id FROM task_logs ORDER BY id`)
-      expect(rows).toHaveLength(2)
-      expect(rows[1].id).toBeGreaterThan(rows[0].id)
+      const rows = db.all<any>(sql`SELECT * FROM conversation_tasks WHERE id = 'task-1'`)
+      expect(rows).toHaveLength(1)
+      expect(rows[0].subject).toBe('Test Task')
     })
 
     it('stores JSON metadata', () => {
-      db.run(sql`INSERT INTO task_logs (task_id, type, content, metadata, timestamp)
-        VALUES ('task-1', 'completed', 'Done', '{"tokenUsage":1500}', '2024-01-01T00:00:00Z')`)
+      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversation_tasks (id, conversation_id, subject, status, metadata, blocks, blocked_by, created_at, updated_at)
+        VALUES ('task-1', 'conv-1', 'Task', 'pending', '{"key":"value"}', '[]', '[]', '2024-01-01', '2024-01-01')`)
 
-      const rows = db.all<any>(sql`SELECT metadata FROM task_logs WHERE task_id = 'task-1'`)
-      expect(JSON.parse(rows[0].metadata)).toEqual({ tokenUsage: 1500 })
+      const rows = db.all<any>(sql`SELECT metadata FROM conversation_tasks WHERE id = 'task-1'`)
+      expect(JSON.parse(rows[0].metadata)).toEqual({ key: 'value' })
+    })
+
+    it('cascade deletes when conversation is deleted', () => {
+      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversation_tasks (id, conversation_id, subject, status, blocks, blocked_by, created_at, updated_at)
+        VALUES ('task-1', 'conv-1', 'Task', 'pending', '[]', '[]', '2024-01-01', '2024-01-01')`)
+
+      db.run(sql`DELETE FROM conversations WHERE id = 'conv-1'`)
+
+      const rows = db.all<any>(sql`SELECT * FROM conversation_tasks WHERE conversation_id = 'conv-1'`)
+      expect(rows).toHaveLength(0)
     })
   })
 })

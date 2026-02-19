@@ -37,7 +37,9 @@ test.describe('Navigation', () => {
 
     // Navigate to tasks page
     await helper.clickNav('tasks')
-    await expect(window.locator('#root > *')).toBeAttached()
+    await expect(window.locator(SELECTORS.TASK_LIST_PAGE)).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
 
     // Navigate back to project dashboard
     await helper.clickNav('dashboard')

@@ -55,11 +55,9 @@ function createTestServices(): ServiceContainer {
     },
     tasks: {
       list: vi.fn().mockResolvedValue([
-        { id: 'task-1', title: 'Task 1' },
+        { id: 'task-1', subject: 'Task 1', conversationId: 'conv-1', status: 'pending', blocks: [], blockedBy: [] },
       ]),
       getById: vi.fn(),
-      cancel: vi.fn(),
-      getLogs: vi.fn(),
     },
     artifacts: {
       list: vi.fn().mockResolvedValue([]),
@@ -109,11 +107,9 @@ function createTestServices(): ServiceContainer {
     },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({
-        totalProjects: 0, totalAgents: 0, activeAgents: 0,
-        runningTasks: 0, completedTasksToday: 0, totalTokenUsageToday: 0,
+        totalProjects: 0, totalAgents: 0, activeAgents: 0, totalTokenUsageToday: 0,
       }),
       getActiveAgents: vi.fn().mockResolvedValue([]),
-      getRecentTasks: vi.fn().mockResolvedValue([]),
       getActivityFeed: vi.fn().mockResolvedValue([]),
     },
     permissionsConfig: {
@@ -143,14 +139,13 @@ describe('useAppStore', () => {
       conversations: [],
       currentConversationId: null,
       conversationsLoading: false,
-      tasks: [],
+      conversationTasks: [],
       tasksLoading: false,
       settings: null,
       sidebarCollapsed: false,
       themeMode: 'dark',
       dashboardSummary: null,
       dashboardActiveAgents: [],
-      dashboardRecentTasks: [],
       dashboardActivityFeed: [],
       dashboardLoading: false,
     })
@@ -200,7 +195,7 @@ describe('useAppStore', () => {
       expect(state.currentProjectId).toBe('proj-1')
       expect(state.agents).toHaveLength(1)
       expect(state.conversations).toHaveLength(1)
-      expect(state.tasks).toHaveLength(1)
+      expect(state.conversationTasks).toHaveLength(1)
       expect(mockServices.agents.list).toHaveBeenCalledWith('proj-1')
       expect(mockServices.conversations.list).toHaveBeenCalledWith('proj-1')
       expect(mockServices.tasks.list).toHaveBeenCalledWith('proj-1')
@@ -270,7 +265,7 @@ describe('useAppStore', () => {
       expect(state.currentProjectId).toBeNull()
       expect(state.agents).toEqual([])
       expect(state.conversations).toEqual([])
-      expect(state.tasks).toEqual([])
+      expect(state.conversationTasks).toEqual([])
       expect(state.currentConversationId).toBeNull()
     })
   })
@@ -408,7 +403,6 @@ describe('useAppStore', () => {
       const state = useAppStore.getState()
       expect(state.dashboardSummary).toBeNull()
       expect(state.dashboardActiveAgents).toEqual([])
-      expect(state.dashboardRecentTasks).toEqual([])
       expect(state.dashboardActivityFeed).toEqual([])
       expect(state.dashboardLoading).toBe(false)
     })
@@ -420,7 +414,6 @@ describe('useAppStore', () => {
       expect(state.dashboardLoading).toBe(false)
       expect(mockServices.dashboard.getSummary).toHaveBeenCalledOnce()
       expect(mockServices.dashboard.getActiveAgents).toHaveBeenCalledOnce()
-      expect(mockServices.dashboard.getRecentTasks).toHaveBeenCalledOnce()
       expect(mockServices.dashboard.getActivityFeed).toHaveBeenCalledOnce()
     })
 
@@ -437,15 +430,6 @@ describe('useAppStore', () => {
       ])
       await useAppStore.getState().loadDashboardActiveAgents()
       expect(useAppStore.getState().dashboardActiveAgents).toHaveLength(1)
-    })
-
-    it('loadDashboardRecentTasks updates only recent tasks', async () => {
-      ;(mockServices.dashboard.getRecentTasks as any).mockResolvedValue([
-        { taskId: 't1', title: 'Task' },
-      ])
-      await useAppStore.getState().loadDashboardRecentTasks(5)
-      expect(useAppStore.getState().dashboardRecentTasks).toHaveLength(1)
-      expect(mockServices.dashboard.getRecentTasks).toHaveBeenCalledWith(5)
     })
 
     it('loadDashboardActivityFeed updates only activity feed', async () => {

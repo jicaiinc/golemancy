@@ -42,6 +42,13 @@ export const SELECTORS = {
   CHAT_MESSAGE: '[data-testid="chat-message"]',
   CHAT_WINDOW: '[data-testid="chat-window"]',
 
+  // Tasks
+  TASK_LIST_PAGE: '[data-testid="task-list-page"]',
+  TASK_LIST_HEADER: '[data-testid="task-list-header"]',
+  TASK_EMPTY_STATE: '[data-testid="task-empty-state"]',
+  TASK_SUMMARY_BTN: '[data-testid="task-summary-btn"]',
+  TASK_POPOVER: '[data-testid="task-popover"]',
+
   // Navigation
   NAV_LINK: (name: string) => `[data-testid="nav-${name}"]`,
 } as const

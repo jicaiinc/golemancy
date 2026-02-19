@@ -285,39 +285,31 @@ describe('HttpConversationService', () => {
 describe('HttpTaskService', () => {
   const svc = new HttpTaskService(BASE)
   const TASK = 'task-1' as TaskId
+  const CONV = 'conv-1' as ConversationId
 
-  it('list() with agentId filter', async () => {
+  it('list() without filter', async () => {
     mockFetch.mockResolvedValue(jsonResponse([]))
-    await svc.list(PROJ, AGENT)
+    await svc.list(PROJ)
     expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/tasks?agentId=${AGENT}`,
+      `${BASE}/api/projects/${PROJ}/tasks`,
       expect.any(Object),
     )
   })
 
-  it('cancel() → POST /tasks/:id/cancel', async () => {
+  it('list() with conversationId filter', async () => {
+    mockFetch.mockResolvedValue(jsonResponse([]))
+    await svc.list(PROJ, CONV)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/tasks?conversationId=${CONV}`,
+      expect.any(Object),
+    )
+  })
+
+  it('getById() → GET /tasks/:id', async () => {
     mockFetch.mockResolvedValue(jsonResponse(null))
-    await svc.cancel(PROJ, TASK)
+    await svc.getById(PROJ, TASK)
     expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/tasks/${TASK}/cancel`,
-      expect.objectContaining({ method: 'POST' }),
-    )
-  })
-
-  it('getLogs() constructs query string correctly', async () => {
-    mockFetch.mockResolvedValue(jsonResponse([]))
-    await svc.getLogs(TASK, 10, 50)
-    expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/tasks/${TASK}/logs?cursor=10&limit=50`,
-      expect.any(Object),
-    )
-  })
-
-  it('getLogs() omits empty query params', async () => {
-    mockFetch.mockResolvedValue(jsonResponse([]))
-    await svc.getLogs(TASK)
-    expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/tasks/${TASK}/logs`,
+      `${BASE}/api/projects/${PROJ}/tasks/${TASK}`,
       expect.any(Object),
     )
   })
@@ -497,12 +489,6 @@ describe('HttpDashboardService', () => {
     mockFetch.mockResolvedValue(jsonResponse({}))
     await svc.getSummary()
     expect(mockFetch).toHaveBeenCalledWith(`${BASE}/api/dashboard/summary`, expect.any(Object))
-  })
-
-  it('getRecentTasks() includes limit param', async () => {
-    mockFetch.mockResolvedValue(jsonResponse([]))
-    await svc.getRecentTasks(5)
-    expect(mockFetch).toHaveBeenCalledWith(`${BASE}/api/dashboard/recent-tasks?limit=5`, expect.any(Object))
   })
 
   it('getActivityFeed() uses default limit of 20', async () => {

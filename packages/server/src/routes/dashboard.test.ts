@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { DashboardSummary, DashboardAgentSummary, DashboardTaskSummary, ActivityEntry, AgentId, ProjectId, TaskId } from '@golemancy/shared'
+import type { DashboardSummary, DashboardAgentSummary, ActivityEntry, AgentId, ProjectId } from '@golemancy/shared'
 import { createTestApp, makeRequest, type MockStorage } from '../test/route-helpers'
 import type { Hono } from 'hono'
 
@@ -7,8 +7,6 @@ const summary: DashboardSummary = {
   totalProjects: 5,
   totalAgents: 12,
   activeAgents: 3,
-  runningTasks: 2,
-  completedTasksToday: 8,
   totalTokenUsageToday: 15000,
 }
 
@@ -18,29 +16,16 @@ const activeAgent: DashboardAgentSummary = {
   projectName: 'Project A',
   agentName: 'Agent One',
   status: 'running',
-  currentTaskTitle: 'Generating report',
-}
-
-const recentTask: DashboardTaskSummary = {
-  taskId: 'task-1' as TaskId,
-  projectId: 'proj-1' as ProjectId,
-  projectName: 'Project A',
-  agentId: 'agent-1' as AgentId,
-  agentName: 'Agent One',
-  title: 'Generate daily report',
-  status: 'completed',
-  progress: 100,
-  updatedAt: '2026-01-01T12:00:00Z',
 }
 
 const activity: ActivityEntry = {
   id: 'act-1',
-  type: 'task_completed',
+  type: 'agent_started',
   projectId: 'proj-1' as ProjectId,
   projectName: 'Project A',
   agentId: 'agent-1' as AgentId,
   agentName: 'Agent One',
-  description: 'Completed task: Generate daily report',
+  description: 'Agent One started working',
   timestamp: '2026-01-01T12:00:00Z',
 }
 
@@ -73,24 +58,6 @@ describe('Dashboard routes', () => {
       const body = await res.json()
       expect(body).toHaveLength(1)
       expect(body[0].agentName).toBe('Agent One')
-    })
-  })
-
-  describe('GET /api/dashboard/recent-tasks', () => {
-    it('returns recent tasks with default limit', async () => {
-      vi.mocked(mocks.dashboardService.getRecentTasks).mockResolvedValue([recentTask])
-
-      const res = await makeRequest(app, 'GET', '/api/dashboard/recent-tasks')
-      expect(res.status).toBe(200)
-      expect(await res.json()).toHaveLength(1)
-      expect(mocks.dashboardService.getRecentTasks).toHaveBeenCalledWith(10)
-    })
-
-    it('respects limit query param', async () => {
-      vi.mocked(mocks.dashboardService.getRecentTasks).mockResolvedValue([])
-
-      await makeRequest(app, 'GET', '/api/dashboard/recent-tasks?limit=5')
-      expect(mocks.dashboardService.getRecentTasks).toHaveBeenCalledWith(5)
     })
   })
 

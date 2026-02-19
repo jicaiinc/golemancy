@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { motion } from 'motion/react'
-import type { AgentStatus, TaskStatus } from '@golemancy/shared'
+import type { AgentStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import {
   PixelCard, PixelBadge, PixelSpinner, PixelTabs,
-  PixelProgress, PixelAvatar, PixelButton, PixelDropdown,
+  PixelAvatar, PixelButton, PixelDropdown,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 
@@ -26,20 +26,9 @@ const agentStatusBadge: Record<AgentStatus, 'running' | 'idle' | 'paused' | 'err
   error: 'error',
 }
 
-const taskStatusBadge: Record<TaskStatus, 'running' | 'idle' | 'success' | 'error' | 'paused'> = {
-  pending: 'idle',
-  running: 'running',
-  completed: 'success',
-  failed: 'error',
-  cancelled: 'paused',
-}
-
 const activityIcons: Record<string, string> = {
   agent_started: '\u25B6',
   agent_stopped: '\u25A0',
-  task_created: '+',
-  task_completed: '\u2714',
-  task_failed: '\u2718',
   message_sent: '\u2709',
   artifact_created: '\u2606',
 }
@@ -53,14 +42,12 @@ function QuickStats() {
     { label: 'Projects', value: summary.totalProjects, icon: '\u2302' },
     { label: 'Agents', value: summary.totalAgents, icon: '\u2699' },
     { label: 'Active', value: summary.activeAgents, icon: '\u25B6', highlight: true },
-    { label: 'Running Tasks', value: summary.runningTasks, icon: '#' },
-    { label: 'Done Today', value: summary.completedTasksToday, icon: '\u2714' },
     { label: 'Tokens Today', value: summary.totalTokenUsageToday.toLocaleString(), icon: '\u26A1' },
   ]
 
   return (
     <motion.div
-      className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3"
+      className="grid grid-cols-2 md:grid-cols-4 gap-3"
       {...staggerContainer}
       initial="initial"
       animate="animate"
@@ -126,57 +113,10 @@ function ActiveAgentsPanel() {
                 />
                 <div className="min-w-0 flex-1">
                   <div className="text-[12px] text-text-primary truncate">{agent.agentName}</div>
-                  {agent.currentTaskTitle && (
-                    <div className="text-[10px] text-text-dim truncate">{agent.currentTaskTitle}</div>
-                  )}
                 </div>
                 <PixelBadge variant={agentStatusBadge[agent.status]}>{agent.status}</PixelBadge>
               </div>
             ))}
-          </div>
-        </PixelCard>
-      ))}
-    </div>
-  )
-}
-
-// --- Running Tasks Panel ---
-function RunningTasksPanel() {
-  const recentTasks = useAppStore(s => s.dashboardRecentTasks)
-  const navigate = useNavigate()
-
-  if (recentTasks.length === 0) {
-    return (
-      <PixelCard variant="outlined" className="text-center py-8">
-        <div className="font-pixel text-[16px] text-text-dim mb-2">#</div>
-        <p className="font-pixel text-[9px] text-text-secondary">No recent tasks</p>
-      </PixelCard>
-    )
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      {recentTasks.map(task => (
-        <PixelCard
-          key={task.taskId}
-          variant="interactive"
-          onClick={() => navigate(`/projects/${task.projectId}/tasks`)}
-        >
-          <div className="flex items-center gap-3">
-            <PixelBadge variant={taskStatusBadge[task.status]}>{task.status}</PixelBadge>
-            <div className="min-w-0 flex-1">
-              <div className="text-[12px] text-text-primary truncate">{task.title}</div>
-              <div className="text-[10px] text-text-dim">
-                {task.projectName} / {task.agentName}
-              </div>
-            </div>
-            {task.status === 'running' && (
-              <div className="w-20 shrink-0">
-                <PixelProgress value={task.progress} />
-                <div className="text-[9px] text-text-dim text-center mt-0.5">{task.progress}%</div>
-              </div>
-            )}
-            <span className="text-[10px] text-text-dim shrink-0">{relativeTime(task.updatedAt)}</span>
           </div>
         </PixelCard>
       ))}
@@ -298,11 +238,6 @@ function AllAgentsTable() {
                   <div className="text-[10px] text-text-dim">{agent.projectName}</div>
                 </div>
                 <PixelBadge variant={agentStatusBadge[agent.status]}>{agent.status}</PixelBadge>
-                {agent.currentTaskTitle && (
-                  <span className="text-[10px] text-text-dim truncate max-w-[200px]">
-                    {agent.currentTaskTitle}
-                  </span>
-                )}
               </div>
             </PixelCard>
           ))}
@@ -366,17 +301,11 @@ export function DashboardPage() {
         {/* Tab content */}
         <div className="mt-6">
           {activeTab === 'overview' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left column: Active Agents */}
               <div>
                 <h2 className="font-pixel text-[10px] text-text-secondary mb-3">Active Agents</h2>
                 <ActiveAgentsPanel />
-              </div>
-
-              {/* Center column: Running Tasks */}
-              <div>
-                <h2 className="font-pixel text-[10px] text-text-secondary mb-3">Recent Tasks</h2>
-                <RunningTasksPanel />
               </div>
 
               {/* Right column: Activity Feed */}

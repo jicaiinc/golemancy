@@ -7,7 +7,7 @@ import { getDataDir } from './utils/paths'
 import { FileProjectStorage } from './storage/projects'
 import { FileAgentStorage } from './storage/agents'
 import { SqliteConversationStorage } from './storage/conversations'
-import { FileTaskStorage } from './storage/tasks'
+import { SqliteConversationTaskStorage } from './storage/tasks'
 import { FileArtifactStorage } from './storage/artifacts'
 import { FileMemoryStorage } from './storage/memories'
 import { FileSkillStorage } from './storage/skills'
@@ -36,7 +36,7 @@ async function main() {
     projectStorage: new FileProjectStorage(),
     agentStorage,
     conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb),
-    taskStorage: new FileTaskStorage(dbManager.getProjectDb),
+    taskStorage: new SqliteConversationTaskStorage(dbManager.getProjectDb),
     artifactStorage: new FileArtifactStorage(),
     memoryStorage: new FileMemoryStorage(),
     skillStorage: new FileSkillStorage(agentStorage),
@@ -45,9 +45,8 @@ async function main() {
     mcpStorage: new FileMCPStorage(),
     permissionsConfigStorage: new FilePermissionsConfigStorage(),
     dashboardService: {
-      getSummary: async () => ({ totalProjects: 0, totalAgents: 0, activeAgents: 0, runningTasks: 0, completedTasksToday: 0, totalTokenUsageToday: 0 }),
+      getSummary: async () => ({ totalProjects: 0, totalAgents: 0, activeAgents: 0, totalTokenUsageToday: 0 }),
       getActiveAgents: async () => [],
-      getRecentTasks: async () => [],
       getActivityFeed: async () => [],
     },
   }

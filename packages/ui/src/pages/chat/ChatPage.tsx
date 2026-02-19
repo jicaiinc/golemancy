@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 import type { AgentId, ConversationId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -16,6 +16,7 @@ export function ChatPage() {
   const selectConversation = useAppStore(s => s.selectConversation)
   const createConversation = useAppStore(s => s.createConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
+  const conversationTasks = useAppStore(s => s.conversationTasks)
   const chatHistoryExpanded = useAppStore(s => s.chatHistoryExpanded)
   const toggleChatHistory = useAppStore(s => s.toggleChatHistory)
   const currentProject = useCurrentProject()
@@ -74,6 +75,20 @@ export function ChatPage() {
 
   const isUnrestricted = permissionMode === 'unrestricted'
 
+  // Task summary for current conversation
+  const currentConvTasks = useMemo(
+    () => currentConversationId
+      ? conversationTasks.filter(t => t.conversationId === currentConversationId)
+      : [],
+    [conversationTasks, currentConversationId]
+  )
+  const taskSummary = currentConvTasks.length > 0
+    ? {
+        completed: currentConvTasks.filter(t => t.status === 'completed').length,
+        total: currentConvTasks.filter(t => t.status !== 'deleted').length,
+      }
+    : null
+
   if (conversationsLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -122,7 +137,7 @@ export function ChatPage() {
           />
         )}
         {/* TODO: Pass actualMode from WS mode_degraded events once WebSocket integration is wired up */}
-        <StatusBar permissionMode={permissionMode} />
+        <StatusBar permissionMode={permissionMode} taskSummary={taskSummary} taskList={currentConvTasks} />
       </div>
     </div>
   )

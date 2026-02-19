@@ -20,11 +20,18 @@ export const messages = sqliteTable('messages', {
   createdAt: text('created_at').notNull(),
 })
 
-export const taskLogs = sqliteTable('task_logs', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  taskId: text('task_id').notNull(),
-  type: text('type').notNull(), // 'start' | 'tool_call' | 'generation' | 'error' | 'completed'
-  content: text('content').notNull(),
+export const conversationTasks = sqliteTable('conversation_tasks', {
+  id: text('id').primaryKey(),
+  conversationId: text('conversation_id').notNull()
+    .references(() => conversations.id, { onDelete: 'cascade' }),
+  subject: text('subject').notNull(),
+  description: text('description').notNull().default(''),
+  status: text('status').notNull().default('pending'),
+  activeForm: text('active_form'),
+  owner: text('owner'),
   metadata: text('metadata', { mode: 'json' }),
-  timestamp: text('timestamp').notNull(),
+  blocks: text('blocks', { mode: 'json' }).notNull().default('[]'),
+  blockedBy: text('blocked_by', { mode: 'json' }).notNull().default('[]'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
 })

@@ -8,6 +8,7 @@ import type {
   AgentId, ProjectId, ConversationId, MessageId,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
+import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
@@ -29,6 +30,7 @@ export interface ChatRouteDeps {
   settingsStorage: ISettingsService
   mcpStorage: IMCPService
   permissionsConfigStorage: IPermissionsConfigService
+  taskStorage: SqliteConversationTaskStorage
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -126,6 +128,8 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       mcpStorage: deps.mcpStorage,
       permissionsConfigId: project?.config.permissionsConfigId,
       permissionsConfigStorage: deps.permissionsConfigStorage,
+      conversationId,
+      taskStorage: deps.taskStorage,
     })
 
     const allTools = agentToolsResult.tools

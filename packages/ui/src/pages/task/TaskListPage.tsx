@@ -1,14 +1,13 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
-import type { TaskStatus } from '@golemancy/shared'
+import type { ConversationTaskStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import {
-  PixelCard, PixelBadge, PixelButton, PixelSpinner,
-  PixelAvatar, PixelProgress, PixelDropdown,
+  PixelCard, PixelBadge, PixelButton, PixelSpinner, PixelDropdown,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
-import { TaskLogViewer } from './TaskLogViewer'
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
@@ -20,53 +19,91 @@ function relativeTime(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-const statusBadgeVariant: Record<TaskStatus, 'running' | 'idle' | 'success' | 'error' | 'paused'> = {
-  pending: 'idle',
-  running: 'running',
-  completed: 'success',
-  failed: 'error',
-  cancelled: 'paused',
+const statusIcon: Record<ConversationTaskStatus, string> = {
+  pending: '\u2610',
+  in_progress: '\u25B6',
+  completed: '\u2611',
+  deleted: '\u2612',
 }
 
-const ALL_STATUSES: TaskStatus[] = ['pending', 'running', 'completed', 'failed', 'cancelled']
+const statusBadgeVariant: Record<ConversationTaskStatus, 'idle' | 'running' | 'success' | 'error'> = {
+  pending: 'idle',
+  in_progress: 'running',
+  completed: 'success',
+  deleted: 'error',
+}
+
+const ALL_STATUSES: ConversationTaskStatus[] = ['pending', 'in_progress', 'completed', 'deleted']
 
 export function TaskListPage() {
   const project = useCurrentProject()
-  const tasks = useAppStore(s => s.tasks)
+  const tasks = useAppStore(s => s.conversationTasks)
   const tasksLoading = useAppStore(s => s.tasksLoading)
-  const agents = useAppStore(s => s.agents)
-  const cancelTask = useAppStore(s => s.cancelTask)
+  const conversations = useAppStore(s => s.conversations)
+  const refreshConversationTasks = useAppStore(s => s.refreshConversationTasks)
+  const navigate = useNavigate()
 
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [filterAgent, setFilterAgent] = useState<string>('all')
+  // Refresh tasks on mount to ensure we have the latest data
+  useEffect(() => {
+    refreshConversationTasks()
+  }, [refreshConversationTasks])
+
+  // Expanded conversation groups (collapsed by default)
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+  // Expanded individual task detail
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [filterConv, setFilterConv] = useState<string>('all')
+
+  const toggleGroup = useCallback((convId: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev)
+      if (next.has(convId)) {
+        next.delete(convId)
+      } else {
+        next.add(convId)
+      }
+      return next
+    })
+  }, [])
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(t => {
-      if (filterAgent !== 'all' && t.agentId !== filterAgent) return false
       if (filterStatus !== 'all' && t.status !== filterStatus) return false
+      if (filterConv !== 'all' && t.conversationId !== filterConv) return false
       return true
     })
-  }, [tasks, filterAgent, filterStatus])
+  }, [tasks, filterStatus, filterConv])
+
+  // Group by conversation
+  const grouped = useMemo(() => {
+    const map = new Map<string, typeof filteredTasks>()
+    for (const t of filteredTasks) {
+      const group = map.get(t.conversationId) ?? []
+      group.push(t)
+      map.set(t.conversationId, group)
+    }
+    return map
+  }, [filteredTasks])
 
   if (!project) return null
 
-  const agentItems = [
-    { label: 'All Agents', value: 'all', selected: filterAgent === 'all' },
-    ...agents.map(a => ({ label: a.name, value: a.id, selected: filterAgent === a.id })),
-  ]
-
   const statusItems = [
     { label: 'All Status', value: 'all', selected: filterStatus === 'all' },
-    ...ALL_STATUSES.map(s => ({ label: s, value: s, selected: filterStatus === s })),
+    ...ALL_STATUSES.map(s => ({ label: s.replace('_', ' '), value: s, selected: filterStatus === s })),
+  ]
+
+  const convItems = [
+    { label: 'All Conversations', value: 'all', selected: filterConv === 'all' },
+    ...conversations.map(c => ({ label: c.title, value: c.id, selected: filterConv === c.id })),
   ]
 
   return (
-    <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
+    <motion.div className="p-6" data-testid="task-list-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-pixel text-[14px] text-text-primary">Task Monitor</h1>
+          <h1 className="font-pixel text-[14px] text-text-primary" data-testid="task-list-header">Tasks</h1>
           <p className="text-[12px] text-text-secondary mt-1">
             {tasks.length} task{tasks.length !== 1 ? 's' : ''} total
           </p>
@@ -76,16 +113,16 @@ export function TaskListPage() {
           <PixelDropdown
             trigger={
               <PixelButton size="sm" variant="ghost">
-                {filterAgent === 'all' ? 'All Agents' : agents.find(a => a.id === filterAgent)?.name ?? 'Agent'}
+                {filterConv === 'all' ? 'All Conversations' : conversations.find(c => c.id === filterConv)?.title ?? 'Conversation'}
               </PixelButton>
             }
-            items={agentItems}
-            onSelect={setFilterAgent}
+            items={convItems}
+            onSelect={setFilterConv}
           />
           <PixelDropdown
             trigger={
               <PixelButton size="sm" variant="ghost">
-                {filterStatus === 'all' ? 'All Status' : filterStatus}
+                {filterStatus === 'all' ? 'All Status' : filterStatus.replace('_', ' ')}
               </PixelButton>
             }
             items={statusItems}
@@ -102,7 +139,7 @@ export function TaskListPage() {
       ) : filteredTasks.length === 0 ? (
         <motion.div {...staggerItem}>
           <PixelCard variant="outlined">
-            <div className="text-center py-8">
+            <div className="text-center py-8" data-testid="task-empty-state">
               <div className="font-pixel text-[20px] text-text-dim mb-4">#</div>
               <p className="font-pixel text-[10px] text-text-secondary">No tasks found</p>
             </div>
@@ -110,89 +147,124 @@ export function TaskListPage() {
         </motion.div>
       ) : (
         <div className="flex flex-col gap-3">
-          {filteredTasks.map(task => {
-            const agent = agents.find(a => a.id === task.agentId)
-            const isExpanded = expandedId === task.id
+          {[...grouped.entries()].map(([convId, convTasks]) => {
+            const conv = conversations.find(c => c.id === convId)
+            const isGroupExpanded = expandedGroups.has(convId)
+            const completedCount = convTasks.filter(t => t.status === 'completed').length
+            const totalCount = convTasks.filter(t => t.status !== 'deleted').length
 
             return (
-              <motion.div key={task.id} {...staggerItem}>
-                <PixelCard
-                  variant="interactive"
-                  onClick={() => setExpandedId(isExpanded ? null : task.id)}
-                >
-                  <div className="flex items-center gap-4">
-                    {/* Status badge */}
-                    <PixelBadge variant={statusBadgeVariant[task.status]}>
-                      {task.status}
-                    </PixelBadge>
-
-                    {/* Title + description */}
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[13px] text-text-primary font-mono">{task.title}</div>
-                      <div className="text-[11px] text-text-dim truncate">{task.description}</div>
-                    </div>
-
-                    {/* Agent */}
-                    {agent && (
-                      <div className="flex items-center gap-2 shrink-0">
-                        <PixelAvatar size="xs" initials={agent.name} status={agent.status === 'running' ? 'online' : 'offline'} />
-                        <span className="text-[11px] text-text-secondary">{agent.name}</span>
-                      </div>
-                    )}
-
-                    {/* Progress (running only) */}
-                    {task.status === 'running' && (
-                      <div className="w-24 shrink-0">
-                        <PixelProgress value={task.progress} />
-                        <div className="text-[10px] text-text-dim text-center mt-1">{task.progress}%</div>
-                      </div>
-                    )}
-
-                    {/* Token usage */}
-                    <div className="text-[11px] text-text-dim font-mono shrink-0">
-                      {task.tokenUsage.toLocaleString()} tok
-                    </div>
-
-                    {/* Timestamp */}
-                    <span className="text-[11px] text-text-dim shrink-0">
-                      {relativeTime(task.updatedAt)}
+              <motion.div key={convId} {...staggerItem}>
+                {/* Conversation group header — clickable to expand/collapse */}
+                <PixelCard variant="interactive" onClick={() => toggleGroup(convId)}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] text-text-dim font-mono">
+                      {isGroupExpanded ? '\u25BC' : '\u25B6'}
                     </span>
-
-                    {/* Expand indicator */}
-                    <span className="text-[10px] text-text-dim">{isExpanded ? '\u25BC' : '\u25B6'}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="font-pixel text-[10px] text-text-primary">
+                        {conv?.title ?? convId}
+                      </span>
+                    </div>
+                    <PixelBadge variant={completedCount === totalCount ? 'success' : 'idle'}>
+                      {completedCount}/{totalCount}
+                    </PixelBadge>
+                    {/* Link to conversation */}
+                    <button
+                      className="font-pixel text-[8px] text-accent-cyan hover:text-accent-blue transition-colors cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        navigate(`/projects/${project.id}/chat?conv=${convId}`)
+                      }}
+                    >
+                      OPEN CHAT &rarr;
+                    </button>
                   </div>
-
-                  {/* Expanded detail */}
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="mt-4 pt-4 border-t-2 border-border-dim">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="font-pixel text-[8px] text-text-dim">EXECUTION LOG</span>
-                            {(task.status === 'running' || task.status === 'pending') && (
-                              <PixelButton
-                                size="sm"
-                                variant="danger"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  cancelTask(task.id)
-                                }}
-                              >
-                                Cancel Task
-                              </PixelButton>
-                            )}
-                          </div>
-                          <TaskLogViewer log={task.log} />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </PixelCard>
+
+                {/* Tasks in this conversation — collapsed by default */}
+                <AnimatePresence>
+                  {isGroupExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex flex-col gap-2 mt-2 ml-4 border-l-2 border-border-dim pl-3">
+                        {convTasks.map(task => {
+                          const isTaskExpanded = expandedTaskId === task.id
+                          return (
+                            <PixelCard
+                              key={task.id}
+                              variant="interactive"
+                              data-testid={`task-card-${task.id}`}
+                              onClick={() => setExpandedTaskId(isTaskExpanded ? null : task.id)}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-[14px] font-mono">{statusIcon[task.status]}</span>
+                                <div className="min-w-0 flex-1">
+                                  <div className="text-[13px] text-text-primary font-mono">{task.subject}</div>
+                                  {task.activeForm && task.status === 'in_progress' && (
+                                    <div className="text-[11px] text-accent-amber">{task.activeForm}</div>
+                                  )}
+                                </div>
+                                <PixelBadge variant={statusBadgeVariant[task.status]}>
+                                  {task.status.replace('_', ' ')}
+                                </PixelBadge>
+                                {task.owner && (
+                                  <span className="text-[11px] text-text-dim font-mono">{task.owner}</span>
+                                )}
+                                <span className="text-[11px] text-text-dim shrink-0">
+                                  {relativeTime(task.updatedAt)}
+                                </span>
+                                <span className="text-[10px] text-text-dim">{isTaskExpanded ? '\u25BC' : '\u25B6'}</span>
+                              </div>
+
+                              <AnimatePresence>
+                                {isTaskExpanded && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="mt-3 pt-3 border-t-2 border-border-dim space-y-2">
+                                      {task.description && (
+                                        <div>
+                                          <span className="font-pixel text-[8px] text-text-dim">DESCRIPTION</span>
+                                          <p className="text-[12px] text-text-secondary font-mono mt-1">{task.description}</p>
+                                        </div>
+                                      )}
+                                      {task.blockedBy.length > 0 && (
+                                        <div>
+                                          <span className="font-pixel text-[8px] text-text-dim">BLOCKED BY</span>
+                                          <div className="flex gap-1 mt-1">
+                                            {task.blockedBy.map(bid => (
+                                              <PixelBadge key={bid} variant="error">{bid}</PixelBadge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                      {task.metadata && Object.keys(task.metadata).length > 0 && (
+                                        <div>
+                                          <span className="font-pixel text-[8px] text-text-dim">METADATA</span>
+                                          <pre className="text-[10px] font-mono text-text-dim bg-void p-2 mt-1 overflow-x-auto">
+                                            {JSON.stringify(task.metadata, null, 2)}
+                                          </pre>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </PixelCard>
+                          )
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )
           })}

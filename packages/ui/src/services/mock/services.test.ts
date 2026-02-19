@@ -10,7 +10,7 @@ import {
   MockSettingsService,
   MockDashboardService,
 } from './services'
-import { SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES } from './data'
+import { SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATION_TASKS, SEED_ACTIVITIES } from './data'
 
 describe('MockProjectService', () => {
   let service: MockProjectService
@@ -190,22 +190,21 @@ describe('MockTaskService', () => {
     service = new MockTaskService()
   })
 
-  it('list() filters by projectId', async () => {
+  it('list() returns all tasks', async () => {
     const tasks = await service.list('proj-1' as ProjectId)
     expect(tasks.length).toBeGreaterThan(0)
-    tasks.forEach(t => expect(t.projectId).toBe('proj-1'))
+  })
+
+  it('list() filters by conversationId', async () => {
+    const tasks = await service.list('proj-1' as ProjectId, 'conv-1' as ConversationId)
+    expect(tasks.length).toBeGreaterThan(0)
+    tasks.forEach(t => expect(t.conversationId).toBe('conv-1'))
   })
 
   it('getById() returns task', async () => {
     const task = await service.getById('proj-1' as ProjectId, 'task-1' as any)
     expect(task).not.toBeNull()
-    expect(task!.title).toBe('Draft blog post')
-  })
-
-  it('cancel() changes task status', async () => {
-    await service.cancel('proj-1' as ProjectId, 'task-1' as any)
-    const task = await service.getById('proj-1' as ProjectId, 'task-1' as any)
-    expect(task!.status).toBe('cancelled')
+    expect(task!.subject).toBe('Draft blog post')
   })
 })
 
@@ -307,7 +306,7 @@ describe('MockDashboardService', () => {
   let service: MockDashboardService
 
   beforeEach(() => {
-    service = new MockDashboardService(SEED_PROJECTS, SEED_AGENTS, SEED_TASKS, SEED_ACTIVITIES)
+    service = new MockDashboardService(SEED_PROJECTS, SEED_AGENTS, SEED_ACTIVITIES)
   })
 
   it('getSummary() returns dashboard summary with correct counts', async () => {
@@ -315,8 +314,6 @@ describe('MockDashboardService', () => {
     expect(summary.totalProjects).toBe(SEED_PROJECTS.length)
     expect(summary.totalAgents).toBe(SEED_AGENTS.length)
     expect(summary.activeAgents).toBeGreaterThanOrEqual(0)
-    expect(summary.runningTasks).toBeGreaterThanOrEqual(0)
-    expect(summary.completedTasksToday).toBeGreaterThanOrEqual(0)
     expect(summary.totalTokenUsageToday).toBeGreaterThanOrEqual(0)
   })
 
@@ -327,24 +324,6 @@ describe('MockDashboardService', () => {
       expect(a.agentId).toBeTruthy()
       expect(a.projectName).toBeTruthy()
       expect(a.agentName).toBeTruthy()
-    })
-  })
-
-  it('getRecentTasks() returns tasks sorted by updatedAt desc', async () => {
-    const tasks = await service.getRecentTasks(5)
-    expect(tasks.length).toBeLessThanOrEqual(5)
-    for (let i = 1; i < tasks.length; i++) {
-      expect(new Date(tasks[i - 1].updatedAt).getTime())
-        .toBeGreaterThanOrEqual(new Date(tasks[i].updatedAt).getTime())
-    }
-  })
-
-  it('getRecentTasks() includes project and agent names', async () => {
-    const tasks = await service.getRecentTasks()
-    tasks.forEach(t => {
-      expect(t.projectName).toBeTruthy()
-      expect(t.agentName).toBeTruthy()
-      expect(t.taskId).toBeTruthy()
     })
   })
 
