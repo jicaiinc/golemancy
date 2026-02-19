@@ -116,6 +116,39 @@ export function migrateDatabase(db: AppDatabase) {
   `)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_cron_job_runs_job ON cron_job_runs(cron_job_id, created_at DESC)`)
 
+  // --- Migration v5: token_records table ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS token_records (
+      id                TEXT PRIMARY KEY,
+      conversation_id   TEXT,
+      message_id        TEXT,
+      agent_id          TEXT NOT NULL,
+      provider          TEXT NOT NULL,
+      model             TEXT NOT NULL,
+      input_tokens      INTEGER NOT NULL,
+      output_tokens     INTEGER NOT NULL,
+      source            TEXT NOT NULL,
+      parent_record_id  TEXT,
+      aborted           INTEGER NOT NULL DEFAULT 0,
+      created_at        TEXT NOT NULL
+    )
+  `)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_created ON token_records(created_at)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_agent ON token_records(agent_id, created_at)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_message ON token_records(message_id)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_conversation ON token_records(conversation_id)`)
+
+  // --- Migration v5b: provider/model columns on messages (display only) ---
+  const colsV5 = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+  if (!colsV5.some(c => c.name === 'provider')) {
+    log.info('migrating messages table: adding provider column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN provider TEXT NOT NULL DEFAULT ''`)
+  }
+  if (!colsV5.some(c => c.name === 'model')) {
+    log.info('migrating messages table: adding model column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN model TEXT NOT NULL DEFAULT ''`)
+  }
+
   // Set up FTS5
   setupFTS(db)
   log.info('database migrations complete')

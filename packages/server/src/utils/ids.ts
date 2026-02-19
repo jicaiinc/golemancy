@@ -5,7 +5,7 @@ import type {
   PermissionsConfigId,
 } from '@golemancy/shared'
 
-type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'mem' | 'skill' | 'cron' | 'perm' | 'cronrun'
+type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'mem' | 'skill' | 'cron' | 'perm' | 'cronrun' | 'tkr'
 
 type IdMap = {
   proj: ProjectId
@@ -18,6 +18,7 @@ type IdMap = {
   cron: CronJobId
   perm: PermissionsConfigId
   cronrun: string
+  tkr: string
 }
 
 export function generateId<P extends IdPrefix>(prefix: P): IdMap[P] {

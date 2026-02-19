@@ -182,6 +182,8 @@ export class MockConversationService implements IConversationService {
       content,
       inputTokens: 0,
       outputTokens: 0,
+      provider: '',
+      model: '',
       createdAt: now,
       updatedAt: now,
     })
@@ -195,6 +197,8 @@ export class MockConversationService implements IConversationService {
       content: responseText,
       inputTokens: 0,
       outputTokens: 0,
+      provider: '',
+      model: '',
       createdAt: now,
       updatedAt: now,
     })
@@ -215,6 +219,8 @@ export class MockConversationService implements IConversationService {
       content: data.content,
       inputTokens: 0,
       outputTokens: 0,
+      provider: '',
+      model: '',
       createdAt: now,
       updatedAt: now,
     })

@@ -312,6 +312,41 @@ describe('SqliteConversationStorage', () => {
       expect(roles).toContain('user')
       expect(roles).toContain('assistant')
     })
+
+    it('saves provider and model fields', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-prov-1' as MessageId,
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'response' }],
+        content: 'response',
+        inputTokens: 500,
+        outputTokens: 200,
+        provider: 'anthropic',
+        model: 'claude-sonnet-4-20250514',
+      })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items).toHaveLength(1)
+      expect(msgs.items[0].provider).toBe('anthropic')
+      expect(msgs.items[0].model).toBe('claude-sonnet-4-20250514')
+      expect(msgs.items[0].inputTokens).toBe(500)
+      expect(msgs.items[0].outputTokens).toBe(200)
+    })
+
+    it('defaults provider and model to empty string', async () => {
+      const conv = await storage.create(projId, agentId1, 'Chat')
+      await storage.saveMessage(projId, conv.id, {
+        id: 'msg-no-prov' as MessageId,
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'response' }],
+        content: 'response',
+      })
+
+      const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
+      expect(msgs.items[0].provider).toBe('')
+      expect(msgs.items[0].model).toBe('')
+    })
   })
 
   describe('full persistence flow', () => {

@@ -8,6 +8,8 @@ export interface Message extends Timestamped {
   content: string  // plain text for display/search (derived from parts)
   inputTokens: number
   outputTokens: number
+  provider: string  // display only — e.g. 'anthropic'
+  model: string     // display only — e.g. 'claude-sonnet-4-20250514'
 }
 
 export interface Conversation extends Timestamped {

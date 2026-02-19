@@ -6,6 +6,7 @@ import type {
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteCronJobRunStorage } from '../storage/cron-job-runs'
 import type { FileCronJobStorage } from '../storage/cronjobs'
+import type { TokenRecordStorage } from '../storage/token-records'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
@@ -23,6 +24,7 @@ export interface ExecutorDeps {
   cronJobStorage: FileCronJobStorage
   taskStorage: SqliteConversationTaskStorage
   projectStorage: IProjectService
+  tokenRecordStorage: TokenRecordStorage
 }
 
 export class CronJobExecutor {
@@ -97,6 +99,7 @@ export class CronJobExecutor {
         permissionsConfigStorage: this.deps.permissionsConfigStorage,
         conversationId,
         taskStorage: this.deps.taskStorage,
+        tokenRecordStorage: this.deps.tokenRecordStorage,
       })
 
       const allTools = agentToolsResult.tools
@@ -143,14 +146,34 @@ export class CronJobExecutor {
       const capturedMsg = captured[0]
       const assistantMsgId = capturedMsg?.id ?? generateId('msg')
       const assistantParts = capturedMsg?.parts ?? [{ type: 'text', text: assistantContent }]
+      const inputTokens = usage.inputTokens ?? 0
+      const outputTokens = usage.outputTokens ?? 0
       await this.deps.conversationStorage.saveMessage(projectId, conversationId, {
         id: assistantMsgId as any,
         role: 'assistant',
         parts: assistantParts,
         content: assistantContent,
-        inputTokens: usage.inputTokens ?? 0,
-        outputTokens: usage.outputTokens ?? 0,
+        inputTokens,
+        outputTokens,
+        provider: agent.modelConfig.provider,
+        model: agent.modelConfig.model,
       })
+
+      // Write token_record for this cron API call
+      try {
+        this.deps.tokenRecordStorage.save(projectId, {
+          conversationId,
+          messageId: assistantMsgId,
+          agentId: cronJob.agentId,
+          provider: agent.modelConfig.provider,
+          model: agent.modelConfig.model,
+          inputTokens,
+          outputTokens,
+          source: 'cron',
+        })
+      } catch (err) {
+        log.error({ err, conversationId }, 'failed to save cron token record')
+      }
 
       // 11. Cleanup tools
       await agentToolsResult.cleanup()

@@ -8,6 +8,7 @@ import type {
   IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
+import type { TokenRecordStorage } from './storage/token-records'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'
@@ -40,6 +41,7 @@ export interface ServerDependencies {
   cronJobRunStorage: SqliteCronJobRunStorage
   mcpStorage: IMCPService
   permissionsConfigStorage: IPermissionsConfigService
+  tokenRecordStorage: TokenRecordStorage
 }
 
 export function createApp(deps: ServerDependencies, authToken?: string) {
@@ -112,6 +114,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     mcpStorage: deps.mcpStorage,
     permissionsConfigStorage: deps.permissionsConfigStorage,
     taskStorage: deps.taskStorage as import('./storage/tasks').SqliteConversationTaskStorage,
+    tokenRecordStorage: deps.tokenRecordStorage,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes({

@@ -1,7 +1,8 @@
 import { tool, streamText, stepCountIs, type ToolSet } from 'ai'
 import { z } from 'zod'
-import type { Agent, GlobalSettings, IMCPService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
+import type { Agent, GlobalSettings, ProjectId, IMCPService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
+import type { TokenRecordStorage } from '../storage/token-records'
 import { resolveModel } from './model'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { logger } from '../logger'
@@ -47,6 +48,7 @@ export function createSubAgentTool(
   permissionsConfigStorage: IPermissionsConfigService,
   conversationId?: string,
   taskStorage?: SqliteConversationTaskStorage,
+  tokenRecordStorage?: TokenRecordStorage,
 ) {
   return tool({
     description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}`,
@@ -66,6 +68,7 @@ export function createSubAgentTool(
         permissionsConfigStorage,
         conversationId,
         taskStorage,
+        tokenRecordStorage,
       })
 
       try {
@@ -143,10 +146,29 @@ export function createSubAgentTool(
 
         // Capture child agent token usage
         const childUsage = await result.totalUsage
+        const childInputTokens = childUsage.inputTokens ?? 0
+        const childOutputTokens = childUsage.outputTokens ?? 0
         state.usage = {
-          inputTokens: childUsage.inputTokens ?? 0,
-          outputTokens: childUsage.outputTokens ?? 0,
+          inputTokens: childInputTokens,
+          outputTokens: childOutputTokens,
           totalTokens: childUsage.totalTokens ?? 0,
+        }
+
+        // Persist token_record for the sub-agent API call
+        if (tokenRecordStorage) {
+          try {
+            tokenRecordStorage.save(projectId as ProjectId, {
+              conversationId,
+              agentId: childAgent.id,
+              provider: childAgent.modelConfig.provider,
+              model: childAgent.modelConfig.model,
+              inputTokens: childInputTokens,
+              outputTokens: childOutputTokens,
+              source: 'sub-agent',
+            })
+          } catch (err) {
+            log.error({ err, childAgentId: childAgent.id }, 'failed to save sub-agent token record')
+          }
         }
 
         // Final yield — becomes the persisted tool output
@@ -176,6 +198,7 @@ export function createSubAgentToolSet(
   permissionsConfigStorage: IPermissionsConfigService,
   conversationId?: string,
   taskStorage?: SqliteConversationTaskStorage,
+  tokenRecordStorage?: TokenRecordStorage,
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
 
@@ -187,7 +210,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

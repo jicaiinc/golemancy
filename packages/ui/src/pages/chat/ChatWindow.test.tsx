@@ -185,7 +185,7 @@ describe('ChatWindow', () => {
 
   it('sends message via service in mock mode (no electronAPI)', async () => {
     const conv = makeConversation()
-    const updatedConv = { ...conv, messages: [{ id: 'msg-1' as MessageId, conversationId: conv.id, role: 'assistant' as const, parts: [{ type: 'text', text: 'response' }], content: 'response', createdAt: now, updatedAt: now }] }
+    const updatedConv = { ...conv, messages: [{ id: 'msg-1' as MessageId, conversationId: conv.id, role: 'assistant' as const, parts: [{ type: 'text', text: 'response' }], content: 'response', inputTokens: 0, outputTokens: 0, provider: '', model: '', createdAt: now, updatedAt: now }] }
     ;(services.conversations.sendMessage as any).mockResolvedValue(undefined)
     ;(services.conversations.getById as any).mockResolvedValue(updatedConv)
 

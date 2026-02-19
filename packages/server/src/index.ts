@@ -15,6 +15,7 @@ import { FileMCPStorage } from './storage/mcp'
 import { FileSettingsStorage } from './storage/settings'
 import { FilePermissionsConfigStorage } from './storage/permissions-config'
 import { DashboardService } from './storage/dashboard'
+import { TokenRecordStorage } from './storage/token-records'
 import { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import { cronScheduler } from './scheduler'
 import { CronJobExecutor } from './scheduler'
@@ -37,6 +38,7 @@ async function main() {
   const projectStorage = new FileProjectStorage()
   const agentStorage = new FileAgentStorage()
   const cronJobRunStorage = new SqliteCronJobRunStorage(dbManager.getProjectDb)
+  const tokenRecordStorage = new TokenRecordStorage(dbManager.getProjectDb)
   const deps: ServerDependencies = {
     projectStorage,
     agentStorage,
@@ -54,6 +56,7 @@ async function main() {
       agentStorage,
       getProjectDb: dbManager.getProjectDb,
     }),
+    tokenRecordStorage,
   }
 
   // SEC-07: Generate auth token for IPC-based authentication
@@ -92,6 +95,7 @@ async function main() {
       cronJobStorage: deps.cronJobStorage as FileCronJobStorage,
       taskStorage: deps.taskStorage as SqliteConversationTaskStorage,
       projectStorage,
+      tokenRecordStorage,
     })
     cronScheduler.start({
       cronJobStorage: deps.cronJobStorage as FileCronJobStorage,

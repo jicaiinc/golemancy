@@ -9,6 +9,7 @@ import type {
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
+import type { TokenRecordStorage } from '../storage/token-records'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
@@ -32,6 +33,7 @@ export interface ChatRouteDeps {
   mcpStorage: IMCPService
   permissionsConfigStorage: IPermissionsConfigService
   taskStorage: SqliteConversationTaskStorage
+  tokenRecordStorage: TokenRecordStorage
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -134,6 +136,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       permissionsConfigStorage: deps.permissionsConfigStorage,
       conversationId,
       taskStorage: deps.taskStorage,
+      tokenRecordStorage: deps.tokenRecordStorage,
     })
 
     const allTools = agentToolsResult.tools
@@ -167,7 +170,30 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       stopWhen: hasTools ? stepCountIs(10) : undefined,
       abortSignal: c.req.raw.signal,
       onFinish: ensureCleanup,
-      onAbort: ensureCleanup,
+      onAbort: async ({ steps }) => {
+        // Sum usage from completed steps (empty for single-step abort)
+        let inputTokens = 0, outputTokens = 0
+        for (const step of steps) {
+          inputTokens += step.usage?.inputTokens ?? 0
+          outputTokens += step.usage?.outputTokens ?? 0
+        }
+        try {
+          deps.tokenRecordStorage.save(projectId as ProjectId, {
+            conversationId,
+            agentId: agentId as string,
+            provider: agent.modelConfig.provider,
+            model: agent.modelConfig.model,
+            inputTokens,
+            outputTokens,
+            source: 'chat',
+            aborted: true,
+          })
+          log.debug({ conversationId, inputTokens, outputTokens, completedSteps: steps.length }, 'saved abort token record')
+        } catch (err) {
+          log.error({ err, conversationId }, 'failed to save abort token record')
+        }
+        await ensureCleanup()
+      },
     })
 
     // Wrap in createUIMessageStream to inject transient warnings before LLM output
@@ -222,10 +248,24 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                     content: extractTextContent(responseMessage.parts),
                     inputTokens,
                     outputTokens,
+                    provider: agent.modelConfig.provider,
+                    model: agent.modelConfig.model,
                   },
                 )
                 log.debug({ conversationId, role: 'assistant', inputTokens, outputTokens }, 'saved assistant message in onFinish')
               }
+
+              // Write token_record for this API call
+              deps.tokenRecordStorage.save(projectId as ProjectId, {
+                conversationId,
+                messageId: responseMessage.id,
+                agentId: agentId as string,
+                provider: agent.modelConfig.provider,
+                model: agent.modelConfig.model,
+                inputTokens,
+                outputTokens,
+                source: 'chat',
+              })
 
               // Send token usage data to client
               writer.write({

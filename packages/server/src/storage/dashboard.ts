@@ -49,10 +49,15 @@ export class DashboardService implements IDashboardService {
       )
       activeChats = activeCount[0]?.cnt ?? 0
 
-      // Sum today's tokens
+      // Sum today's tokens (from token_records + legacy messages fallback)
       const tokenSum = db.all<{ inp: number; out: number }>(
-        sql`SELECT COALESCE(SUM(input_tokens), 0) as inp, COALESCE(SUM(output_tokens), 0) as out
-            FROM messages WHERE created_at >= ${today}`,
+        sql`SELECT COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out FROM (
+              SELECT input_tokens as inp, output_tokens as out FROM token_records WHERE created_at >= ${today}
+              UNION ALL
+              SELECT m.input_tokens as inp, m.output_tokens as out FROM messages m
+              WHERE m.created_at >= ${today} AND m.input_tokens > 0
+                AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
+            )`,
       )
       todayInput = tokenSum[0]?.inp ?? 0
       todayOutput = tokenSum[0]?.out ?? 0
@@ -112,12 +117,16 @@ export class DashboardService implements IDashboardService {
       )
       const conversationCount = convRows[0]?.cnt ?? 0
 
-      // Sum tokens for this agent's conversations
+      // Sum tokens for this agent (from token_records + legacy messages fallback)
       const tokenRows = db.all<{ total: number }>(
-        sql`SELECT COALESCE(SUM(m.input_tokens + m.output_tokens), 0) as total
-            FROM messages m
-            JOIN conversations c ON c.id = m.conversation_id
-            WHERE c.project_id = ${projectId} AND c.agent_id = ${agent.id}`,
+        sql`SELECT COALESCE(SUM(total), 0) as total FROM (
+              SELECT (input_tokens + output_tokens) as total FROM token_records WHERE agent_id = ${agent.id}
+              UNION ALL
+              SELECT (m.input_tokens + m.output_tokens) as total FROM messages m
+              JOIN conversations c ON c.id = m.conversation_id
+              WHERE c.project_id = ${projectId} AND c.agent_id = ${agent.id} AND m.input_tokens > 0
+                AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
+            )`,
       )
       const totalTokens = tokenRows[0]?.total ?? 0
 
@@ -186,7 +195,15 @@ export class DashboardService implements IDashboardService {
       }>(
         sql`SELECT c.id, c.agent_id, c.title, c.last_message_at,
                    count(m.id) as msg_count,
-                   COALESCE(SUM(m.input_tokens + m.output_tokens), 0) as total_tokens
+                   COALESCE((
+                     SELECT SUM(total) FROM (
+                       SELECT (input_tokens + output_tokens) as total FROM token_records WHERE conversation_id = c.id
+                       UNION ALL
+                       SELECT (m2.input_tokens + m2.output_tokens) as total FROM messages m2
+                       WHERE m2.conversation_id = c.id AND m2.input_tokens > 0
+                         AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m2.id)
+                     )
+                   ), 0) as total_tokens
             FROM conversations c
             LEFT JOIN messages m ON m.conversation_id = c.id
             WHERE c.project_id = ${projectId}
@@ -231,12 +248,15 @@ export class DashboardService implements IDashboardService {
     try {
       const db = this.deps.getProjectDb(projectId)
       const rows = db.all<{ day: string; inp: number; out: number }>(
-        sql`SELECT substr(created_at, 1, 10) as day,
-                   COALESCE(SUM(input_tokens), 0) as inp,
-                   COALESCE(SUM(output_tokens), 0) as out
-            FROM messages
-            WHERE created_at >= ${startDate}
-            GROUP BY day`,
+        sql`SELECT day, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out FROM (
+              SELECT substr(created_at, 1, 10) as day, input_tokens as inp, output_tokens as out
+              FROM token_records WHERE created_at >= ${startDate}
+              UNION ALL
+              SELECT substr(m.created_at, 1, 10) as day, m.input_tokens as inp, m.output_tokens as out
+              FROM messages m
+              WHERE m.created_at >= ${startDate} AND m.input_tokens > 0
+                AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
+            ) GROUP BY day`,
       )
 
       for (const row of rows) {
