@@ -397,8 +397,14 @@ export class DashboardService implements IDashboardService {
       const db = this.deps.getProjectDb(projectId)
       const dateCondition = startDate ? sql` AND created_at >= ${startDate}` : sql``
       const rows = db.all<{ provider: string; model: string; inp: number; out: number; cnt: number }>(
-        sql`SELECT provider, model, COALESCE(SUM(input_tokens), 0) as inp, COALESCE(SUM(output_tokens), 0) as out, count(*) as cnt
-                 FROM token_records WHERE 1=1${dateCondition} GROUP BY provider, model ORDER BY (inp + out) DESC`,
+        sql`SELECT provider, model, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out, count(*) as cnt FROM (
+              SELECT provider, model, input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
+              UNION ALL
+              SELECT COALESCE(NULLIF(m.provider, ''), 'unknown'), COALESCE(NULLIF(m.model, ''), 'unknown'), m.input_tokens as inp, m.output_tokens as out
+              FROM messages m
+              WHERE m.input_tokens > 0${dateCondition}
+                AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
+            ) GROUP BY provider, model ORDER BY (inp + out) DESC`,
       )
       return rows.map(r => ({
         provider: r.provider,
@@ -419,8 +425,15 @@ export class DashboardService implements IDashboardService {
       const db = this.deps.getProjectDb(projectId)
       const dateCondition = startDate ? sql` AND created_at >= ${startDate}` : sql``
       const rows = db.all<{ agent_id: string; inp: number; out: number; cnt: number }>(
-        sql`SELECT agent_id, COALESCE(SUM(input_tokens), 0) as inp, COALESCE(SUM(output_tokens), 0) as out, count(*) as cnt
-                 FROM token_records WHERE 1=1${dateCondition} GROUP BY agent_id ORDER BY (inp + out) DESC`,
+        sql`SELECT agent_id, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out, count(*) as cnt FROM (
+              SELECT agent_id, input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
+              UNION ALL
+              SELECT c.agent_id, m.input_tokens as inp, m.output_tokens as out
+              FROM messages m
+              JOIN conversations c ON c.id = m.conversation_id
+              WHERE m.input_tokens > 0${dateCondition}
+                AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
+            ) GROUP BY agent_id ORDER BY (inp + out) DESC`,
       )
 
       // Resolve agent names
