@@ -11,6 +11,7 @@ import {
   HttpSettingsService,
   HttpCronJobService,
   HttpDashboardService,
+  HttpGlobalDashboardService,
   HttpPermissionsConfigService,
 } from './services'
 
@@ -27,9 +28,10 @@ export function createHttpServices(baseUrl: string): ServiceContainer {
     settings: new HttpSettingsService(baseUrl),
     cronJobs: new HttpCronJobService(baseUrl),
     dashboard: new HttpDashboardService(baseUrl),
+    globalDashboard: new HttpGlobalDashboardService(baseUrl),
     permissionsConfig: new HttpPermissionsConfigService(baseUrl),
   }
 }
 
-export { HttpProjectService, HttpAgentService, HttpConversationService, HttpTaskService, HttpWorkspaceService, HttpMemoryService, HttpSkillService, HttpMCPService, HttpSettingsService, HttpCronJobService, HttpDashboardService, HttpPermissionsConfigService } from './services'
+export { HttpProjectService, HttpAgentService, HttpConversationService, HttpTaskService, HttpWorkspaceService, HttpMemoryService, HttpSkillService, HttpMCPService, HttpSettingsService, HttpCronJobService, HttpDashboardService, HttpGlobalDashboardService, HttpPermissionsConfigService } from './services'
 export { setAuthToken, getAuthToken, setBaseUrl, getBaseUrl } from './base'

@@ -93,7 +93,7 @@ function createMockDeps() {
     },
     dashboardService: {
       getSummary: vi.fn().mockResolvedValue({
-        todayTokens: { total: 5000, input: 3000, output: 2000 },
+        todayTokens: { total: 5000, input: 3000, output: 2000, callCount: 10 },
         totalAgents: 5, activeChats: 1, totalChats: 8,
       }),
       getAgentStats: vi.fn().mockResolvedValue([
@@ -455,7 +455,7 @@ describe('HTTP API routes', () => {
 
     it('GET /api/projects/:projectId/dashboard/token-trend passes days', async () => {
       await app.request('/api/projects/proj-1/dashboard/token-trend?days=30')
-      expect(deps.dashboardService.getTokenTrend).toHaveBeenCalledWith('proj-1', 30)
+      expect(deps.dashboardService.getTokenTrend).toHaveBeenCalledWith('proj-1', 30, undefined)
     })
   })
 

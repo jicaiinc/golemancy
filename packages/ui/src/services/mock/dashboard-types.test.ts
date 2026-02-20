@@ -9,7 +9,7 @@ import type {
 describe('Dashboard types (compilation check)', () => {
   it('DashboardSummary has expected shape', () => {
     const summary: DashboardSummary = {
-      todayTokens: { total: 48_520, input: 32_180, output: 16_340 },
+      todayTokens: { total: 48_520, input: 32_180, output: 16_340, callCount: 42 },
       totalAgents: 5,
       activeChats: 2,
       totalChats: 8,

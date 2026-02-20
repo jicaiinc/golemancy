@@ -5,7 +5,12 @@ import { DashboardPage } from './DashboardPage'
 import { useAppStore } from '../../stores'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
-import type { ProjectId, AgentId, ConversationId, DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend, Project } from '@golemancy/shared'
+import type {
+  ProjectId, AgentId, ConversationId,
+  DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
+  DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus,
+  Project,
+} from '@golemancy/shared'
 
 // Mock motion/react to avoid animation issues in tests
 vi.mock('motion/react', () => ({
@@ -16,6 +21,16 @@ vi.mock('motion/react', () => ({
     },
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
+}))
+
+// Mock WebSocketProvider
+vi.mock('../../providers/WebSocketProvider', () => ({
+  useWs: () => ({
+    status: 'disconnected',
+    subscribe: vi.fn(),
+    unsubscribe: vi.fn(),
+    addListener: vi.fn(() => vi.fn()),
+  }),
 }))
 
 const PID = 'proj-1' as ProjectId
@@ -34,7 +49,7 @@ const mockProject: Project = {
 }
 
 const mockSummary: DashboardSummary = {
-  todayTokens: { total: 48_520, input: 32_180, output: 16_340 },
+  todayTokens: { total: 48_520, input: 32_180, output: 16_340, callCount: 42 },
   totalAgents: 5,
   activeChats: 2,
   totalChats: 8,
@@ -76,6 +91,21 @@ const mockTokenTrend: DashboardTokenTrend[] = [
   { date: '2026-02-19', inputTokens: 17_000, outputTokens: 9_000 },
 ]
 
+const mockTokenByModel: DashboardTokenByModel[] = [
+  { provider: 'openai', model: 'gpt-4o', inputTokens: 85_200, outputTokens: 42_600, callCount: 28 },
+]
+
+const mockTokenByAgent: DashboardTokenByAgent[] = [
+  { agentId: 'agent-1' as AgentId, agentName: 'Writer', inputTokens: 62_300, outputTokens: 31_150, callCount: 18 },
+]
+
+const mockRuntimeStatus: RuntimeStatus = {
+  runningChats: [],
+  runningCrons: [],
+  upcoming: [],
+  recentCompleted: [],
+}
+
 function createTestServices(): ServiceContainer {
   return {
     projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
@@ -93,6 +123,17 @@ function createTestServices(): ServiceContainer {
       getAgentStats: vi.fn().mockResolvedValue(mockAgentStats),
       getRecentChats: vi.fn().mockResolvedValue(mockRecentChats),
       getTokenTrend: vi.fn().mockResolvedValue(mockTokenTrend),
+      getTokenByModel: vi.fn().mockResolvedValue(mockTokenByModel),
+      getTokenByAgent: vi.fn().mockResolvedValue(mockTokenByAgent),
+      getRuntimeStatus: vi.fn().mockResolvedValue(mockRuntimeStatus),
+    },
+    globalDashboard: {
+      getSummary: vi.fn().mockResolvedValue(mockSummary),
+      getTokenByModel: vi.fn().mockResolvedValue([]),
+      getTokenByAgent: vi.fn().mockResolvedValue([]),
+      getTokenByProject: vi.fn().mockResolvedValue([]),
+      getTokenTrend: vi.fn().mockResolvedValue([]),
+      getRuntimeStatus: vi.fn().mockResolvedValue(mockRuntimeStatus),
     },
     permissionsConfig: {
       list: vi.fn().mockResolvedValue([]),
@@ -125,6 +166,11 @@ describe('DashboardPage', () => {
       dashboardAgentStats: [],
       dashboardRecentChats: [],
       dashboardTokenTrend: [],
+      dashboardTokenByModel: [],
+      dashboardTokenByAgent: [],
+      dashboardRuntimeStatus: null,
+      dashboardTimeRange: 'today',
+      dashboardStale: false,
       dashboardLoading: false,
       projects: [mockProject],
       currentProjectId: PID,
@@ -140,9 +186,6 @@ describe('DashboardPage', () => {
   it('renders project name as header', async () => {
     useAppStore.setState({
       dashboardSummary: mockSummary,
-      dashboardAgentStats: mockAgentStats,
-      dashboardRecentChats: mockRecentChats,
-      dashboardTokenTrend: mockTokenTrend,
       dashboardLoading: false,
     })
     renderDashboard()
@@ -151,58 +194,51 @@ describe('DashboardPage', () => {
     })
   })
 
-  it('renders summary cards when summary is available', async () => {
+  it('renders summary cards with 4 token cards', async () => {
     useAppStore.setState({
       dashboardSummary: mockSummary,
-      dashboardAgentStats: mockAgentStats,
-      dashboardRecentChats: mockRecentChats,
-      dashboardTokenTrend: mockTokenTrend,
       dashboardLoading: false,
     })
     renderDashboard()
     await waitFor(() => {
-      expect(screen.getByText('Today Tokens')).toBeInTheDocument()
-      expect(screen.getByText('Agents')).toBeInTheDocument()
-      expect(screen.getByText('Active Chats')).toBeInTheDocument()
-      expect(screen.getByText('Total Chats')).toBeInTheDocument()
+      expect(screen.getByText('Total Tokens')).toBeInTheDocument()
+      expect(screen.getByText('Input Tokens')).toBeInTheDocument()
+      expect(screen.getByText('Output Tokens')).toBeInTheDocument()
+      expect(screen.getByText('API Calls')).toBeInTheDocument()
     })
   })
 
-  it('renders agent ranking with agent data', async () => {
+  it('renders time range selector with Today active by default', async () => {
     useAppStore.setState({
       dashboardSummary: mockSummary,
-      dashboardAgentStats: mockAgentStats,
-      dashboardRecentChats: mockRecentChats,
-      dashboardTokenTrend: mockTokenTrend,
       dashboardLoading: false,
     })
     renderDashboard()
     await waitFor(() => {
-      expect(screen.getByText('AGENT RANKING')).toBeInTheDocument()
-      expect(screen.getByText('Writer')).toBeInTheDocument()
+      expect(screen.getByText('Today')).toBeInTheDocument()
+      expect(screen.getByText('7 Days')).toBeInTheDocument()
+      expect(screen.getByText('30 Days')).toBeInTheDocument()
+      expect(screen.getByText('All Time')).toBeInTheDocument()
     })
   })
 
-  it('renders recent chats', async () => {
+  it('renders breakdown tabs (By Agent / By Model)', async () => {
     useAppStore.setState({
       dashboardSummary: mockSummary,
-      dashboardAgentStats: mockAgentStats,
-      dashboardRecentChats: mockRecentChats,
-      dashboardTokenTrend: mockTokenTrend,
+      dashboardTokenByAgent: mockTokenByAgent,
+      dashboardTokenByModel: mockTokenByModel,
       dashboardLoading: false,
     })
     renderDashboard()
     await waitFor(() => {
-      expect(screen.getByText('RECENT CHATS')).toBeInTheDocument()
-      expect(screen.getByText('Blog Draft: AI Trends')).toBeInTheDocument()
+      expect(screen.getByText('By Agent')).toBeInTheDocument()
+      expect(screen.getByText('By Model')).toBeInTheDocument()
     })
   })
 
   it('renders token trend chart', async () => {
     useAppStore.setState({
       dashboardSummary: mockSummary,
-      dashboardAgentStats: mockAgentStats,
-      dashboardRecentChats: mockRecentChats,
       dashboardTokenTrend: mockTokenTrend,
       dashboardLoading: false,
     })
@@ -212,17 +248,55 @@ describe('DashboardPage', () => {
     })
   })
 
-  it('shows empty state messages when no data', async () => {
-    // Override services to return empty data so loadDashboard populates empty state
-    const emptyServices = createTestServices()
-    ;(emptyServices.dashboard.getAgentStats as any).mockResolvedValue([])
-    ;(emptyServices.dashboard.getRecentChats as any).mockResolvedValue([])
-    ;(emptyServices.dashboard.getTokenTrend as any).mockResolvedValue([])
-    configureServices(emptyServices)
-
+  it('renders runtime status panel', async () => {
+    useAppStore.setState({
+      dashboardSummary: mockSummary,
+      dashboardRuntimeStatus: mockRuntimeStatus,
+      dashboardLoading: false,
+    })
     renderDashboard()
     await waitFor(() => {
-      expect(screen.getByText('No agent data')).toBeInTheDocument()
+      expect(screen.getByText('RUNTIME STATUS')).toBeInTheDocument()
+      expect(screen.getByText('Running (0)')).toBeInTheDocument()
+    })
+  })
+
+  it('renders overview panel with agents and recent chats sections', async () => {
+    useAppStore.setState({
+      dashboardSummary: mockSummary,
+      dashboardAgentStats: mockAgentStats,
+      dashboardRecentChats: mockRecentChats,
+      dashboardLoading: false,
+    })
+    renderDashboard()
+    await waitFor(() => {
+      expect(screen.getByText('AGENTS')).toBeInTheDocument()
+      expect(screen.getByText('RECENT CHATS')).toBeInTheDocument()
+      // "Writer" may appear in both overview and breakdown table
+      expect(screen.getAllByText('Writer').length).toBeGreaterThanOrEqual(1)
+      expect(screen.getByText('Blog Draft: AI Trends')).toBeInTheDocument()
+    })
+  })
+
+  it('shows empty state messages when no data', async () => {
+    // Override services to return empty data so loadDashboard doesn't populate
+    const services = createTestServices()
+    services.dashboard.getAgentStats = vi.fn().mockResolvedValue([])
+    services.dashboard.getRecentChats = vi.fn().mockResolvedValue([])
+    services.dashboard.getTokenTrend = vi.fn().mockResolvedValue([])
+    configureServices(services)
+
+    useAppStore.setState({
+      dashboardSummary: mockSummary,
+      dashboardAgentStats: [],
+      dashboardRecentChats: [],
+      dashboardTokenTrend: [],
+      dashboardRuntimeStatus: mockRuntimeStatus,
+      dashboardLoading: false,
+    })
+    renderDashboard()
+    await waitFor(() => {
+      expect(screen.getByText('No agents')).toBeInTheDocument()
       expect(screen.getByText('No recent chats')).toBeInTheDocument()
     })
   })
@@ -237,10 +311,13 @@ describe('DashboardPage', () => {
       renderDashboard()
 
       await waitFor(() => {
-        expect(services.dashboard.getSummary).toHaveBeenCalledWith(PID)
-        expect(services.dashboard.getAgentStats).toHaveBeenCalledWith(PID)
+        expect(services.dashboard.getSummary).toHaveBeenCalledWith(PID, 'today')
+        expect(services.dashboard.getAgentStats).toHaveBeenCalledWith(PID, 'today')
         expect(services.dashboard.getRecentChats).toHaveBeenCalledWith(PID)
-        expect(services.dashboard.getTokenTrend).toHaveBeenCalledWith(PID)
+        expect(services.dashboard.getTokenTrend).toHaveBeenCalledWith(PID, undefined, 'today')
+        expect(services.dashboard.getTokenByModel).toHaveBeenCalledWith(PID, 'today')
+        expect(services.dashboard.getTokenByAgent).toHaveBeenCalledWith(PID, 'today')
+        expect(services.dashboard.getRuntimeStatus).toHaveBeenCalledWith(PID)
       })
     })
 
@@ -256,7 +333,7 @@ describe('DashboardPage', () => {
       })
     })
 
-    it('agent ranking uses relative navigation (no absolute /projects/ prefix)', async () => {
+    it('agent in overview uses relative navigation', async () => {
       useAppStore.setState({
         dashboardSummary: mockSummary,
         dashboardAgentStats: mockAgentStats,
@@ -264,13 +341,16 @@ describe('DashboardPage', () => {
       })
       renderDashboard()
       await waitFor(() => {
-        // The agent row should be rendered as a clickable element
-        const agentRow = screen.getByText('Writer').closest('[class*="cursor-pointer"]')
+        // "Writer" may appear in both overview and breakdown; find the one in overview panel
+        const writerElements = screen.getAllByText('Writer')
+        const agentRow = writerElements
+          .map(el => el.closest('[class*="cursor-pointer"]'))
+          .find(Boolean)
         expect(agentRow).toBeTruthy()
       })
     })
 
-    it('recent chats uses relative navigation (no absolute /projects/ prefix)', async () => {
+    it('recent chats in overview uses relative navigation', async () => {
       useAppStore.setState({
         dashboardSummary: mockSummary,
         dashboardRecentChats: mockRecentChats,
@@ -283,7 +363,7 @@ describe('DashboardPage', () => {
       })
     })
 
-    it('does not render cross-project elements (no "← Projects" button, no "Settings" button)', async () => {
+    it('does not render cross-project elements', async () => {
       useAppStore.setState({
         dashboardSummary: mockSummary,
         dashboardLoading: false,

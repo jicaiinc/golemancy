@@ -14,6 +14,7 @@ vi.mock('./mock', () => ({
     memory: { __type: 'mock' },
     settings: { __type: 'mock' },
     dashboard: { __type: 'mock' },
+    globalDashboard: { __type: 'mock' },
   })),
 }))
 
@@ -27,6 +28,7 @@ vi.mock('./http', () => ({
     memory: { __type: 'http', baseUrl },
     settings: { __type: 'http', baseUrl },
     dashboard: { __type: 'http', baseUrl },
+    globalDashboard: { __type: 'http', baseUrl },
   })),
 }))
 

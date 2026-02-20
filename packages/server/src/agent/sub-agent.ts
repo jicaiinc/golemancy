@@ -97,6 +97,34 @@ export function createSubAgentTool(
           stopWhen: hasTools ? stepCountIs(10) : undefined,
           prompt: context ? `${task}\n\nContext: ${context}` : task,
           abortSignal,
+          onAbort: async ({ steps }) => {
+            // Sum usage from completed steps (matches chat.ts pattern)
+            let inputTokens = 0, outputTokens = 0
+            for (const step of steps) {
+              inputTokens += step.usage?.inputTokens ?? 0
+              outputTokens += step.usage?.outputTokens ?? 0
+            }
+            try {
+              if (tokenRecordStorage) {
+                tokenRecordStorage.save(projectId as ProjectId, {
+                  conversationId,
+                  agentId: childAgent.id,
+                  provider: childAgent.modelConfig.provider,
+                  model: childAgent.modelConfig.model,
+                  inputTokens,
+                  outputTokens,
+                  source: 'sub-agent',
+                  aborted: true,
+                })
+              }
+              if (onTokenUsage) {
+                onTokenUsage({ inputTokens, outputTokens })
+              }
+              log.debug({ childAgentId: childAgent.id, inputTokens, outputTokens, completedSteps: steps.length }, 'saved sub-agent abort token record')
+            } catch (err) {
+              log.error({ err, childAgentId: childAgent.id }, 'failed to save sub-agent abort token record')
+            }
+          },
         })
 
         let lastTextYield = 0

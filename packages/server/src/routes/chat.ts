@@ -10,6 +10,8 @@ import type {
 } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
+import type { ActiveChatRegistry } from '../agent/active-chat-registry'
+import type { WebSocketManager } from '../ws/handler'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
@@ -34,6 +36,8 @@ export interface ChatRouteDeps {
   permissionsConfigStorage: IPermissionsConfigService
   taskStorage: SqliteConversationTaskStorage
   tokenRecordStorage: TokenRecordStorage
+  activeChatRegistry?: ActiveChatRegistry
+  wsManager?: WebSocketManager
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -99,6 +103,46 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const model = await resolveModel(settings, agent.modelConfig)
 
     log.debug({ projectId, agentId, conversationId, messageCount: messages.length }, 'starting chat stream')
+
+    // --- Agent status lifecycle: mark running ---
+    const chatConvId = conversationId ?? 'ephemeral'
+    try {
+      if (deps.activeChatRegistry) {
+        deps.activeChatRegistry.register(chatConvId, { agentId, projectId })
+      }
+      await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'running' })
+      if (deps.wsManager) {
+        deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'running' })
+        deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:chat_started', projectId, agentId: agentId as AgentId, conversationId: conversationId as ConversationId | undefined })
+      }
+    } catch (err) {
+      log.warn({ err, agentId }, 'failed to set agent running status')
+    }
+
+    const markChatEnded = async () => {
+      try {
+        if (deps.activeChatRegistry) {
+          deps.activeChatRegistry.unregister(chatConvId)
+          const remaining = deps.activeChatRegistry.countByAgent(agentId!)
+          if (remaining === 0) {
+            await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'idle' })
+            if (deps.wsManager) {
+              deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'idle' })
+            }
+          }
+        } else {
+          await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'idle' })
+          if (deps.wsManager) {
+            deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'idle' })
+          }
+        }
+        if (deps.wsManager) {
+          deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:chat_ended', projectId, agentId: agentId as AgentId, conversationId: conversationId as ConversationId | undefined })
+        }
+      } catch (err) {
+        log.warn({ err, agentId }, 'failed to set agent idle status')
+      }
+    }
 
     // Save user's latest message before streaming (extract base64 uploads to disk)
     if (conversationId) {
@@ -170,6 +214,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       if (cleaned) return
       cleaned = true
       await agentToolsResult.cleanup()
+      await markChatEnded()
     }
 
     const result = streamText({
@@ -198,6 +243,9 @@ export function createChatRoutes(deps: ChatRouteDeps) {
             source: 'chat',
             aborted: true,
           })
+          if (deps.wsManager) {
+            deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId as AgentId, model: agent.modelConfig.model, inputTokens, outputTokens })
+          }
           log.debug({ conversationId, inputTokens, outputTokens, completedSteps: steps.length }, 'saved abort token record')
         } catch (err) {
           log.error({ err, conversationId }, 'failed to save abort token record')
@@ -279,6 +327,11 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                 outputTokens,
                 source: 'chat',
               })
+
+              // Emit token:recorded WS event
+              if (deps.wsManager) {
+                deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId as AgentId, model: agent.modelConfig.model, inputTokens, outputTokens })
+              }
 
               // Send token usage data to client
               writer.write({

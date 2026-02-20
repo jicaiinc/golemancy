@@ -79,6 +79,17 @@ function createTestServices(): ServiceContainer {
       getAgentStats: vi.fn().mockResolvedValue([]),
       getRecentChats: vi.fn().mockResolvedValue([]),
       getTokenTrend: vi.fn().mockResolvedValue([]),
+      getTokenByModel: vi.fn().mockResolvedValue([]),
+      getTokenByAgent: vi.fn().mockResolvedValue([]),
+      getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
+    },
+    globalDashboard: {
+      getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),
+      getTokenByModel: vi.fn().mockResolvedValue([]),
+      getTokenByAgent: vi.fn().mockResolvedValue([]),
+      getTokenByProject: vi.fn().mockResolvedValue([]),
+      getTokenTrend: vi.fn().mockResolvedValue([]),
+      getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
     },
     permissionsConfig: {
       list: vi.fn().mockResolvedValue([]),

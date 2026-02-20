@@ -84,10 +84,13 @@ export function createMockStorage(): MockStorage {
       testProvider: vi.fn(),
     },
     dashboardService: {
-      getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),
+      getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),
       getAgentStats: vi.fn().mockResolvedValue([]),
       getRecentChats: vi.fn().mockResolvedValue([]),
       getTokenTrend: vi.fn().mockResolvedValue([]),
+      getTokenByModel: vi.fn().mockResolvedValue([]),
+      getTokenByAgent: vi.fn().mockResolvedValue([]),
+      getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
     },
     cronJobStorage: {
       list: vi.fn().mockResolvedValue([]),

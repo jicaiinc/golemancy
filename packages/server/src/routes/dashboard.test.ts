@@ -6,7 +6,7 @@ import type { Hono } from 'hono'
 const PID = 'proj-1' as ProjectId
 
 const summary: DashboardSummary = {
-  todayTokens: { total: 48_520, input: 32_180, output: 16_340 },
+  todayTokens: { total: 48_520, input: 32_180, output: 16_340, callCount: 42 },
   totalAgents: 5,
   activeChats: 2,
   totalChats: 8,
@@ -110,14 +110,21 @@ describe('Dashboard routes', () => {
       const body = await res.json()
       expect(body).toHaveLength(2)
       expect(body[0].inputTokens).toBe(15_000)
-      expect(mocks.dashboardService.getTokenTrend).toHaveBeenCalledWith(PID, 14)
+      expect(mocks.dashboardService.getTokenTrend).toHaveBeenCalledWith(PID, 14, undefined)
     })
 
     it('respects days query param', async () => {
       vi.mocked(mocks.dashboardService.getTokenTrend).mockResolvedValue([])
 
       await makeRequest(app, 'GET', `/api/projects/${PID}/dashboard/token-trend?days=30`)
-      expect(mocks.dashboardService.getTokenTrend).toHaveBeenCalledWith(PID, 30)
+      expect(mocks.dashboardService.getTokenTrend).toHaveBeenCalledWith(PID, 30, undefined)
+    })
+
+    it('passes timeRange query param', async () => {
+      vi.mocked(mocks.dashboardService.getTokenTrend).mockResolvedValue([])
+
+      await makeRequest(app, 'GET', `/api/projects/${PID}/dashboard/token-trend?timeRange=today`)
+      expect(mocks.dashboardService.getTokenTrend).toHaveBeenCalledWith(PID, 14, 'today')
     })
   })
 })

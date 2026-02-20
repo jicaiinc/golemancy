@@ -1,4 +1,4 @@
-import type { ConversationId, MessageId, AgentId } from '@golemancy/shared'
+import type { ConversationId, MessageId, AgentId, CronJobId } from '@golemancy/shared'
 
 export interface WsMessageEvent {
   event: 'message:start' | 'message:delta' | 'message:tool_call' | 'message:end'
@@ -15,6 +15,23 @@ export interface WsAgentEvent {
   status: string
 }
 
+export interface WsRuntimeEvent {
+  event: 'runtime:chat_started' | 'runtime:chat_ended' | 'runtime:cron_started' | 'runtime:cron_ended'
+  projectId: string
+  agentId: AgentId
+  conversationId?: ConversationId
+  cronJobId?: CronJobId
+}
+
+export interface WsTokenEvent {
+  event: 'token:recorded'
+  projectId: string
+  agentId: AgentId
+  model: string
+  inputTokens: number
+  outputTokens: number
+}
+
 export interface WsModeDegradedEvent {
   event: 'mode_degraded'
   requestedMode: string
@@ -27,7 +44,7 @@ export interface WsSystemEvent {
   message?: string
 }
 
-export type WsServerEvent = WsMessageEvent | WsAgentEvent | WsModeDegradedEvent | WsSystemEvent
+export type WsServerEvent = WsMessageEvent | WsAgentEvent | WsRuntimeEvent | WsTokenEvent | WsModeDegradedEvent | WsSystemEvent
 
 export interface WsClientMessage {
   type: 'subscribe' | 'unsubscribe' | 'ping'
