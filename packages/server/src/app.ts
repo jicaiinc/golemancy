@@ -4,11 +4,13 @@ import { bodyLimit } from 'hono/body-limit'
 import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
-  IMemoryService, ISkillService, ISettingsService, IDashboardService, ICronJobService,
+  IMemoryService, ISkillService, ISettingsService, IDashboardService, IGlobalDashboardService, ICronJobService,
   IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import type { TokenRecordStorage } from './storage/token-records'
+import type { WebSocketManager } from './ws/handler'
+import type { ActiveChatRegistry } from './agent/active-chat-registry'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'
@@ -18,6 +20,7 @@ import { createWorkspaceRoutes } from './routes/workspace'
 import { createMemoryRoutes } from './routes/memories'
 import { createSettingsRoutes } from './routes/settings'
 import { createDashboardRoutes } from './routes/dashboard'
+import { createGlobalDashboardRoutes } from './routes/global-dashboard'
 import { createSkillRoutes } from './routes/skills'
 import { createCronJobRoutes } from './routes/cronjobs'
 import { createMCPRoutes } from './routes/mcp'
@@ -37,11 +40,14 @@ export interface ServerDependencies {
   skillStorage: ISkillService
   settingsStorage: ISettingsService
   dashboardService: IDashboardService
+  globalDashboardService?: IGlobalDashboardService
   cronJobStorage: ICronJobService
   cronJobRunStorage: SqliteCronJobRunStorage
   mcpStorage: IMCPService
   permissionsConfigStorage: IPermissionsConfigService
   tokenRecordStorage: TokenRecordStorage
+  wsManager?: WebSocketManager
+  activeChatRegistry?: ActiveChatRegistry
 }
 
 export function createApp(deps: ServerDependencies, authToken?: string) {
@@ -119,6 +125,8 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     permissionsConfigStorage: deps.permissionsConfigStorage,
     taskStorage: deps.taskStorage as import('./storage/tasks').SqliteConversationTaskStorage,
     tokenRecordStorage: deps.tokenRecordStorage,
+    activeChatRegistry: deps.activeChatRegistry,
+    wsManager: deps.wsManager,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes({
@@ -126,6 +134,9 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     runStorage: deps.cronJobRunStorage,
   }))
   app.route('/api/projects/:projectId/dashboard', createDashboardRoutes(deps.dashboardService))
+  if (deps.globalDashboardService) {
+    app.route('/api/dashboard', createGlobalDashboardRoutes(deps.globalDashboardService))
+  }
   app.route('/api/projects/:projectId/topology-layout', createTopologyRoutes())
   app.route('/api/projects/:projectId/permissions-config', createPermissionsConfigRoutes(deps.permissionsConfigStorage))
   app.route('/api/projects/:projectId/runtime', createRuntimeRoutes())

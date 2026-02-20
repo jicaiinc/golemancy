@@ -10,6 +10,7 @@ import type {
   ISettingsService,
   ICronJobService,
   IDashboardService,
+  IGlobalDashboardService,
   IPermissionsConfigService,
 } from './interfaces'
 
@@ -25,6 +26,7 @@ export interface ServiceContainer {
   settings: ISettingsService
   cronJobs: ICronJobService
   dashboard: IDashboardService
+  globalDashboard: IGlobalDashboardService
   permissionsConfig: IPermissionsConfigService
 }
 

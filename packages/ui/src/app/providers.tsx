@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react'
 import { ServiceProvider } from '../services'
+import { WebSocketProvider } from '../providers/WebSocketProvider'
 import { useAppStore } from '../stores'
 
 function DataLoader({ children }: { children: ReactNode }) {
@@ -17,9 +18,11 @@ function DataLoader({ children }: { children: ReactNode }) {
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <ServiceProvider>
-      <DataLoader>
-        {children}
-      </DataLoader>
+      <WebSocketProvider>
+        <DataLoader>
+          {children}
+        </DataLoader>
+      </WebSocketProvider>
     </ServiceProvider>
   )
 }

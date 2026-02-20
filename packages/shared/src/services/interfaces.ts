@@ -3,6 +3,7 @@ import type {
   GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, CronJobId,
   PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
+  DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
@@ -109,10 +110,22 @@ export interface ICronJobService {
 }
 
 export interface IDashboardService {
-  getSummary(projectId: ProjectId): Promise<DashboardSummary>
-  getAgentStats(projectId: ProjectId): Promise<DashboardAgentStats[]>
+  getSummary(projectId: ProjectId, timeRange?: TimeRange): Promise<DashboardSummary>
+  getAgentStats(projectId: ProjectId, timeRange?: TimeRange): Promise<DashboardAgentStats[]>
   getRecentChats(projectId: ProjectId, limit?: number): Promise<DashboardRecentChat[]>
-  getTokenTrend(projectId: ProjectId, days?: number): Promise<DashboardTokenTrend[]>
+  getTokenTrend(projectId: ProjectId, days?: number, timeRange?: TimeRange): Promise<DashboardTokenTrend[]>
+  getTokenByModel(projectId: ProjectId, timeRange?: TimeRange): Promise<DashboardTokenByModel[]>
+  getTokenByAgent(projectId: ProjectId, timeRange?: TimeRange): Promise<DashboardTokenByAgent[]>
+  getRuntimeStatus(projectId: ProjectId): Promise<RuntimeStatus>
+}
+
+export interface IGlobalDashboardService {
+  getSummary(timeRange?: TimeRange): Promise<DashboardSummary>
+  getTokenByModel(timeRange?: TimeRange): Promise<DashboardTokenByModel[]>
+  getTokenByAgent(timeRange?: TimeRange): Promise<(DashboardTokenByAgent & { projectId: ProjectId; projectName: string })[]>
+  getTokenByProject(timeRange?: TimeRange): Promise<{ projectId: ProjectId; projectName: string; inputTokens: number; outputTokens: number; callCount: number }[]>
+  getTokenTrend(days?: number, timeRange?: TimeRange): Promise<DashboardTokenTrend[]>
+  getRuntimeStatus(): Promise<RuntimeStatus>
 }
 
 export interface IPermissionsConfigService {

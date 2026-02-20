@@ -3,13 +3,14 @@ import type {
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
+  DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   WorkspaceEntry, FilePreviewData,
   ConversationTokenUsageResult,
   IProjectService, IAgentService, IConversationService,
   ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-  IPermissionsConfigService, IWorkspaceService,
+  IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService,
 } from '@golemancy/shared'
 import { fetchJson } from './base'
 
@@ -300,17 +301,61 @@ export class HttpSettingsService implements ISettingsService {
 export class HttpDashboardService implements IDashboardService {
   constructor(private baseUrl: string) {}
 
-  getSummary(projectId: ProjectId) {
-    return fetchJson<DashboardSummary>(`${this.baseUrl}/api/projects/${projectId}/dashboard/summary`)
+  private dashUrl(projectId: ProjectId, path: string, params?: Record<string, string | number | undefined>): string {
+    const url = `${this.baseUrl}/api/projects/${projectId}/dashboard/${path}`
+    const qs = Object.entries(params ?? {}).filter(([, v]) => v !== undefined).map(([k, v]) => `${k}=${v}`).join('&')
+    return qs ? `${url}?${qs}` : url
   }
-  getAgentStats(projectId: ProjectId) {
-    return fetchJson<DashboardAgentStats[]>(`${this.baseUrl}/api/projects/${projectId}/dashboard/agent-stats`)
+
+  getSummary(projectId: ProjectId, timeRange?: TimeRange) {
+    return fetchJson<DashboardSummary>(this.dashUrl(projectId, 'summary', { timeRange }))
+  }
+  getAgentStats(projectId: ProjectId, timeRange?: TimeRange) {
+    return fetchJson<DashboardAgentStats[]>(this.dashUrl(projectId, 'agent-stats', { timeRange }))
   }
   getRecentChats(projectId: ProjectId, limit = 20) {
-    return fetchJson<DashboardRecentChat[]>(`${this.baseUrl}/api/projects/${projectId}/dashboard/recent-chats?limit=${limit}`)
+    return fetchJson<DashboardRecentChat[]>(this.dashUrl(projectId, 'recent-chats', { limit }))
   }
-  getTokenTrend(projectId: ProjectId, days = 14) {
-    return fetchJson<DashboardTokenTrend[]>(`${this.baseUrl}/api/projects/${projectId}/dashboard/token-trend?days=${days}`)
+  getTokenTrend(projectId: ProjectId, days = 14, timeRange?: TimeRange) {
+    return fetchJson<DashboardTokenTrend[]>(this.dashUrl(projectId, 'token-trend', { days, timeRange }))
+  }
+  getTokenByModel(projectId: ProjectId, timeRange?: TimeRange) {
+    return fetchJson<DashboardTokenByModel[]>(this.dashUrl(projectId, 'token-by-model', { timeRange }))
+  }
+  getTokenByAgent(projectId: ProjectId, timeRange?: TimeRange) {
+    return fetchJson<DashboardTokenByAgent[]>(this.dashUrl(projectId, 'token-by-agent', { timeRange }))
+  }
+  getRuntimeStatus(projectId: ProjectId) {
+    return fetchJson<RuntimeStatus>(this.dashUrl(projectId, 'runtime-status'))
+  }
+}
+
+export class HttpGlobalDashboardService implements IGlobalDashboardService {
+  constructor(private baseUrl: string) {}
+
+  private url(path: string, params?: Record<string, string | number | undefined>): string {
+    const base = `${this.baseUrl}/api/dashboard/${path}`
+    const qs = Object.entries(params ?? {}).filter(([, v]) => v !== undefined).map(([k, v]) => `${k}=${v}`).join('&')
+    return qs ? `${base}?${qs}` : base
+  }
+
+  getSummary(timeRange?: TimeRange) {
+    return fetchJson<DashboardSummary>(this.url('summary', { timeRange }))
+  }
+  getTokenByModel(timeRange?: TimeRange) {
+    return fetchJson<DashboardTokenByModel[]>(this.url('token-by-model', { timeRange }))
+  }
+  getTokenByAgent(timeRange?: TimeRange) {
+    return fetchJson<(DashboardTokenByAgent & { projectId: ProjectId; projectName: string })[]>(this.url('token-by-agent', { timeRange }))
+  }
+  getTokenByProject(timeRange?: TimeRange) {
+    return fetchJson<{ projectId: ProjectId; projectName: string; inputTokens: number; outputTokens: number; callCount: number }[]>(this.url('token-by-project', { timeRange }))
+  }
+  getTokenTrend(days = 14, timeRange?: TimeRange) {
+    return fetchJson<DashboardTokenTrend[]>(this.url('token-trend', { days, timeRange }))
+  }
+  getRuntimeStatus() {
+    return fetchJson<RuntimeStatus>(this.url('runtime-status'))
   }
 }
 

@@ -3,6 +3,7 @@ import type {
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
+  DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   WorkspaceEntry, FilePreviewData,
@@ -11,7 +12,7 @@ import { DEFAULT_PERMISSIONS_CONFIG, getFileCategory, getMimeType } from '@golem
 import type {
   IProjectService, IAgentService, IConversationService,
   ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-  IPermissionsConfigService, IWorkspaceService,
+  IGlobalDashboardService, IPermissionsConfigService, IWorkspaceService,
 } from '../interfaces'
 import type { ConversationTokenUsageResult } from '@golemancy/shared'
 import {
@@ -20,6 +21,7 @@ import {
   SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
   SEED_PERMISSIONS_CONFIGS,
   SEED_DASHBOARD_SUMMARY, SEED_DASHBOARD_AGENT_STATS, SEED_DASHBOARD_RECENT_CHATS, SEED_DASHBOARD_TOKEN_TREND,
+  SEED_DASHBOARD_TOKEN_BY_MODEL, SEED_DASHBOARD_TOKEN_BY_AGENT, SEED_DASHBOARD_RUNTIME_STATUS,
 } from './data'
 
 // Small delay to simulate async I/O
@@ -679,12 +681,12 @@ export class MockPermissionsConfigService implements IPermissionsConfigService {
 
 // --- DashboardService ---
 export class MockDashboardService implements IDashboardService {
-  async getSummary(_projectId: ProjectId): Promise<DashboardSummary> {
+  async getSummary(_projectId: ProjectId, _timeRange?: TimeRange): Promise<DashboardSummary> {
     await delay()
     return { ...SEED_DASHBOARD_SUMMARY }
   }
 
-  async getAgentStats(_projectId: ProjectId): Promise<DashboardAgentStats[]> {
+  async getAgentStats(_projectId: ProjectId, _timeRange?: TimeRange): Promise<DashboardAgentStats[]> {
     await delay()
     return [...SEED_DASHBOARD_AGENT_STATS]
   }
@@ -694,8 +696,63 @@ export class MockDashboardService implements IDashboardService {
     return SEED_DASHBOARD_RECENT_CHATS.slice(0, limit)
   }
 
-  async getTokenTrend(_projectId: ProjectId, days = 14): Promise<DashboardTokenTrend[]> {
+  async getTokenTrend(_projectId: ProjectId, days = 14, _timeRange?: TimeRange): Promise<DashboardTokenTrend[]> {
     await delay()
     return SEED_DASHBOARD_TOKEN_TREND.slice(-days)
+  }
+
+  async getTokenByModel(_projectId: ProjectId, _timeRange?: TimeRange): Promise<DashboardTokenByModel[]> {
+    await delay()
+    return [...SEED_DASHBOARD_TOKEN_BY_MODEL]
+  }
+
+  async getTokenByAgent(_projectId: ProjectId, _timeRange?: TimeRange): Promise<DashboardTokenByAgent[]> {
+    await delay()
+    return [...SEED_DASHBOARD_TOKEN_BY_AGENT]
+  }
+
+  async getRuntimeStatus(_projectId: ProjectId): Promise<RuntimeStatus> {
+    await delay()
+    return { ...SEED_DASHBOARD_RUNTIME_STATUS }
+  }
+}
+
+// --- GlobalDashboardService ---
+export class MockGlobalDashboardService implements IGlobalDashboardService {
+  async getSummary(_timeRange?: TimeRange): Promise<DashboardSummary> {
+    await delay()
+    return { ...SEED_DASHBOARD_SUMMARY }
+  }
+
+  async getTokenByModel(_timeRange?: TimeRange) {
+    await delay()
+    return [...SEED_DASHBOARD_TOKEN_BY_MODEL]
+  }
+
+  async getTokenByAgent(_timeRange?: TimeRange) {
+    await delay()
+    return SEED_DASHBOARD_TOKEN_BY_AGENT.map(a => ({
+      ...a,
+      projectId: 'proj-1' as ProjectId,
+      projectName: 'Content Biz',
+    }))
+  }
+
+  async getTokenByProject(_timeRange?: TimeRange) {
+    await delay()
+    return [
+      { projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', inputTokens: 137_600, outputTokens: 68_700, callCount: 42 },
+      { projectId: 'proj-2' as ProjectId, projectName: 'E-Commerce Ops', inputTokens: 50_850, outputTokens: 25_400, callCount: 15 },
+    ]
+  }
+
+  async getTokenTrend(_days?: number, _timeRange?: TimeRange): Promise<DashboardTokenTrend[]> {
+    await delay()
+    return [...SEED_DASHBOARD_TOKEN_TREND].slice(-(_days ?? 14))
+  }
+
+  async getRuntimeStatus(): Promise<RuntimeStatus> {
+    await delay()
+    return { ...SEED_DASHBOARD_RUNTIME_STATUS }
   }
 }

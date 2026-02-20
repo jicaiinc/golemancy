@@ -7,6 +7,8 @@ import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteCronJobRunStorage } from '../storage/cron-job-runs'
 import type { FileCronJobStorage } from '../storage/cronjobs'
 import type { TokenRecordStorage } from '../storage/token-records'
+import type { WebSocketManager } from '../ws/handler'
+import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
@@ -25,6 +27,8 @@ export interface ExecutorDeps {
   taskStorage: SqliteConversationTaskStorage
   projectStorage: IProjectService
   tokenRecordStorage: TokenRecordStorage
+  wsManager?: WebSocketManager
+  activeChatRegistry?: ActiveChatRegistry
 }
 
 export class CronJobExecutor {
@@ -49,6 +53,17 @@ export class CronJobExecutor {
       lastRunStatus: 'running',
       lastRunId: run.id,
     })
+
+    // --- Agent status lifecycle: mark running ---
+    try {
+      await this.deps.agentStorage.update(projectId, cronJob.agentId, { status: 'running' })
+      if (this.deps.wsManager) {
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: cronJob.agentId, status: 'running' })
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:cron_started', projectId, agentId: cronJob.agentId, cronJobId: cronJob.id })
+      }
+    } catch (err) {
+      log.warn({ err, agentId: cronJob.agentId }, 'failed to set agent running status for cron')
+    }
 
     try {
       // 2. Load agent config
@@ -171,6 +186,9 @@ export class CronJobExecutor {
           outputTokens,
           source: 'cron',
         })
+        if (this.deps.wsManager) {
+          this.deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: cronJob.agentId, model: agent.modelConfig.model, inputTokens, outputTokens })
+        }
       } catch (err) {
         log.error({ err, conversationId }, 'failed to save cron token record')
       }
@@ -190,6 +208,9 @@ export class CronJobExecutor {
         lastRunId: run.id,
         nextRunAt: nextRun?.toISOString(),
       })
+
+      // --- Agent status lifecycle: mark idle ---
+      await this.markAgentIdle(projectId, cronJob)
 
       log.info({ cronJobId: cronJob.id, durationMs, conversationId }, 'cron job executed successfully')
       return { ...run, status: 'success', durationMs, conversationId }
@@ -211,8 +232,28 @@ export class CronJobExecutor {
         nextRunAt: nextRun?.toISOString(),
       })
 
+      // --- Agent status lifecycle: mark idle on error ---
+      await this.markAgentIdle(projectId, cronJob)
+
       log.error({ cronJobId: cronJob.id, err, durationMs }, 'cron job execution failed')
       return { ...run, status: 'error', durationMs, error: errorMessage }
+    }
+  }
+
+  private async markAgentIdle(projectId: ProjectId, cronJob: CronJob) {
+    try {
+      // Reference counting: only set idle when no active chats remain for this agent
+      const stillActive = this.deps.activeChatRegistry?.countByAgent(cronJob.agentId as string) ?? 0
+      const newStatus = stillActive > 0 ? 'running' : 'idle'
+      if (stillActive === 0) {
+        await this.deps.agentStorage.update(projectId, cronJob.agentId, { status: 'idle' })
+      }
+      if (this.deps.wsManager) {
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: cronJob.agentId, status: newStatus })
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:cron_ended', projectId, agentId: cronJob.agentId, cronJobId: cronJob.id })
+      }
+    } catch (err) {
+      log.warn({ err, agentId: cronJob.agentId }, 'failed to set agent idle status after cron')
     }
   }
 

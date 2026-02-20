@@ -11,6 +11,7 @@ import {
   MockSettingsService,
   MockCronJobService,
   MockDashboardService,
+  MockGlobalDashboardService,
   MockPermissionsConfigService,
 } from './services'
 export function createMockServices(): ServiceContainer {
@@ -27,6 +28,7 @@ export function createMockServices(): ServiceContainer {
     settings: new MockSettingsService(),
     cronJobs: new MockCronJobService(),
     dashboard: new MockDashboardService(),
+    globalDashboard: new MockGlobalDashboardService(),
     permissionsConfig: new MockPermissionsConfigService(),
   }
 }

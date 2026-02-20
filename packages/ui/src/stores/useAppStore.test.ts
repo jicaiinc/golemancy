@@ -109,11 +109,22 @@ function createTestServices(): ServiceContainer {
     },
     dashboard: {
       getSummary: vi.fn().mockResolvedValue({
-        todayTokens: { total: 0, input: 0, output: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0,
+        todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0,
       }),
       getAgentStats: vi.fn().mockResolvedValue([]),
       getRecentChats: vi.fn().mockResolvedValue([]),
       getTokenTrend: vi.fn().mockResolvedValue([]),
+      getTokenByModel: vi.fn().mockResolvedValue([]),
+      getTokenByAgent: vi.fn().mockResolvedValue([]),
+      getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
+    },
+    globalDashboard: {
+      getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),
+      getTokenByModel: vi.fn().mockResolvedValue([]),
+      getTokenByAgent: vi.fn().mockResolvedValue([]),
+      getTokenByProject: vi.fn().mockResolvedValue([]),
+      getTokenTrend: vi.fn().mockResolvedValue([]),
+      getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
     },
     permissionsConfig: {
       list: vi.fn().mockResolvedValue([]),
@@ -413,6 +424,7 @@ describe('useAppStore', () => {
     })
 
     it('loadDashboard populates all dashboard state', async () => {
+      useAppStore.setState({ currentProjectId: 'proj-1' as ProjectId })
       await useAppStore.getState().loadDashboard('proj-1' as ProjectId)
       const state = useAppStore.getState()
       expect(state.dashboardSummary).not.toBeNull()
@@ -421,9 +433,13 @@ describe('useAppStore', () => {
       expect(mockServices.dashboard.getAgentStats).toHaveBeenCalledOnce()
       expect(mockServices.dashboard.getRecentChats).toHaveBeenCalledOnce()
       expect(mockServices.dashboard.getTokenTrend).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getTokenByModel).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getTokenByAgent).toHaveBeenCalledOnce()
+      expect(mockServices.dashboard.getRuntimeStatus).toHaveBeenCalledOnce()
     })
 
     it('loadDashboard sets loading true then false', async () => {
+      useAppStore.setState({ currentProjectId: 'proj-1' as ProjectId })
       const promise = useAppStore.getState().loadDashboard('proj-1' as ProjectId)
       expect(useAppStore.getState().dashboardLoading).toBe(true)
       await promise

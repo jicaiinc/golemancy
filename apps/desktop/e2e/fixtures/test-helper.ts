@@ -9,11 +9,40 @@ import { ConsoleLogger } from './console-logger'
 export class TestHelper {
   readonly store: StoreBridge
   readonly console: ConsoleLogger
+  private serverInfoCache: { baseUrl: string; token: string } | null = null
 
   constructor(private page: Page, logger: ConsoleLogger) {
     this.store = new StoreBridge(page)
     this.console = logger
     this.console.clear()
+  }
+
+  // ===== Server API =====
+
+  /** Get server base URL and auth token from the Electron preload bridge */
+  async getServerInfo(): Promise<{ baseUrl: string; token: string }> {
+    if (this.serverInfoCache) return this.serverInfoCache
+
+    const info = await this.page.evaluate(() => {
+      const api = (window as any).electronAPI
+      if (!api) throw new Error('electronAPI not available — not running in Electron?')
+      const baseUrl = api.getServerBaseUrl()
+      const token = api.getServerToken()
+      if (!baseUrl || !token) throw new Error('Server not ready: missing baseUrl or token')
+      return { baseUrl: baseUrl as string, token: token as string }
+    })
+
+    this.serverInfoCache = info
+    return info
+  }
+
+  /** Send an authenticated GET request to the server API and return parsed JSON */
+  async apiGet(path: string): Promise<any> {
+    const { baseUrl, token } = await this.getServerInfo()
+    const response = await this.page.request.get(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.json()
   }
 
   // ===== Navigation =====

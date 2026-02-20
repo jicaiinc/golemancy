@@ -4,9 +4,11 @@ import type {
   Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
+  DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   ThemeMode, WorkspaceEntry, FilePreviewData,
   ProjectId, AgentId, ConversationId, MemoryId, SkillId, CronJobId,
   SkillCreateData, SkillUpdateData,
+  AgentStatus,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import { getServices } from '../services'
@@ -95,6 +97,11 @@ interface DashboardSlice {
   dashboardAgentStats: DashboardAgentStats[]
   dashboardRecentChats: DashboardRecentChat[]
   dashboardTokenTrend: DashboardTokenTrend[]
+  dashboardTokenByModel: DashboardTokenByModel[]
+  dashboardTokenByAgent: DashboardTokenByAgent[]
+  dashboardRuntimeStatus: RuntimeStatus | null
+  dashboardTimeRange: TimeRange
+  dashboardStale: boolean
   dashboardLoading: boolean
 }
 
@@ -118,6 +125,8 @@ interface AgentActions {
   createAgent(data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>): Promise<Agent>
   updateAgent(id: AgentId, data: Partial<Agent>): Promise<void>
   deleteAgent(id: AgentId): Promise<void>
+  /** Update agent status from WebSocket event (no server call) */
+  updateAgentStatus(agentId: AgentId, status: AgentStatus): void
 }
 
 interface ConversationActions {
@@ -190,7 +199,10 @@ interface UIActions {
 }
 
 interface DashboardActions {
-  loadDashboard(projectId: ProjectId): Promise<void>
+  loadDashboard(projectId: ProjectId, timeRange?: TimeRange): Promise<void>
+  setDashboardTimeRange(range: TimeRange): void
+  loadRuntimeStatus(projectId: ProjectId): Promise<void>
+  markDashboardStale(): void
 }
 
 interface TopologyActions {
@@ -398,6 +410,14 @@ export const useAppStore = create<AppState>()(
         if (project?.mainAgentId === id) {
           await get().updateProject(projectId, { mainAgentId: undefined })
         }
+      },
+
+      updateAgentStatus(agentId: AgentId, status: AgentStatus) {
+        set(s => ({
+          agents: s.agents.map(a =>
+            a.id === agentId ? { ...a, status } : a,
+          ),
+        }))
       },
 
       // --- Conversation state ---
@@ -757,24 +777,60 @@ export const useAppStore = create<AppState>()(
       dashboardAgentStats: [],
       dashboardRecentChats: [],
       dashboardTokenTrend: [],
+      dashboardTokenByModel: [],
+      dashboardTokenByAgent: [],
+      dashboardRuntimeStatus: null,
+      dashboardTimeRange: 'today' as TimeRange,
+      dashboardStale: false,
       dashboardLoading: false,
 
-      async loadDashboard(projectId: ProjectId) {
-        set({ dashboardLoading: true })
+      async loadDashboard(projectId: ProjectId, timeRange?: TimeRange) {
+        set({ dashboardLoading: true, dashboardStale: false })
+        const range = timeRange ?? get().dashboardTimeRange
         const svc = getServices().dashboard
-        const [summary, agentStats, recentChats, tokenTrend] = await Promise.all([
-          svc.getSummary(projectId),
-          svc.getAgentStats(projectId),
-          svc.getRecentChats(projectId),
-          svc.getTokenTrend(projectId),
-        ])
-        set({
-          dashboardSummary: summary,
-          dashboardAgentStats: agentStats,
-          dashboardRecentChats: recentChats,
-          dashboardTokenTrend: tokenTrend,
-          dashboardLoading: false,
-        })
+        try {
+          const [summary, agentStats, recentChats, tokenTrend, tokenByModel, tokenByAgent, runtimeStatus] = await Promise.all([
+            svc.getSummary(projectId, range),
+            svc.getAgentStats(projectId, range),
+            svc.getRecentChats(projectId),
+            svc.getTokenTrend(projectId, undefined, range),
+            svc.getTokenByModel(projectId, range),
+            svc.getTokenByAgent(projectId, range),
+            svc.getRuntimeStatus(projectId),
+          ])
+          if (get().currentProjectId !== projectId) return
+          set({
+            dashboardSummary: summary,
+            dashboardAgentStats: agentStats,
+            dashboardRecentChats: recentChats,
+            dashboardTokenTrend: tokenTrend,
+            dashboardTokenByModel: tokenByModel,
+            dashboardTokenByAgent: tokenByAgent,
+            dashboardRuntimeStatus: runtimeStatus,
+          })
+        } catch (err) {
+          console.error('Failed to load dashboard:', err)
+        } finally {
+          set({ dashboardLoading: false })
+        }
+      },
+
+      setDashboardTimeRange(range: TimeRange) {
+        set({ dashboardTimeRange: range })
+        const projectId = get().currentProjectId
+        if (projectId) {
+          get().loadDashboard(projectId, range)
+        }
+      },
+
+      async loadRuntimeStatus(projectId: ProjectId) {
+        const runtimeStatus = await getServices().dashboard.getRuntimeStatus(projectId)
+        if (get().currentProjectId !== projectId) return
+        set({ dashboardRuntimeStatus: runtimeStatus })
+      },
+
+      markDashboardStale() {
+        set({ dashboardStale: true })
       },
 
       // --- Topology state ---

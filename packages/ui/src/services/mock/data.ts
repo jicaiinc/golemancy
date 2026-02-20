@@ -2,6 +2,7 @@ import type {
   Project, Agent, Conversation, Message, ConversationTask, MemoryEntry, GlobalSettings,
   CronJob, Skill, MCPServerConfig, PermissionsConfigFile,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
+  DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, ToolId,
   CronJobId, PermissionsConfigId,
 } from '@golemancy/shared'
@@ -264,7 +265,7 @@ export const SEED_SETTINGS: GlobalSettings = {
 
 // --- Dashboard Seed Data ---
 export const SEED_DASHBOARD_SUMMARY: DashboardSummary = {
-  todayTokens: { total: 48_520, input: 32_180, output: 16_340 },
+  todayTokens: { total: 48_520, input: 32_180, output: 16_340, callCount: 42 },
   totalAgents: 5,
   activeChats: 2,
   totalChats: 8,
@@ -399,6 +400,35 @@ function generateTokenTrend(days: number): DashboardTokenTrend[] {
 }
 
 export const SEED_DASHBOARD_TOKEN_TREND: DashboardTokenTrend[] = generateTokenTrend(30)
+
+// --- Dashboard: Token By Model ---
+export const SEED_DASHBOARD_TOKEN_BY_MODEL: DashboardTokenByModel[] = [
+  { provider: 'openai', model: 'gpt-4o', inputTokens: 85_200, outputTokens: 42_600, callCount: 28 },
+  { provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', inputTokens: 52_400, outputTokens: 26_100, callCount: 14 },
+]
+
+// --- Dashboard: Token By Agent ---
+export const SEED_DASHBOARD_TOKEN_BY_AGENT: DashboardTokenByAgent[] = [
+  { agentId: 'agent-1' as AgentId, agentName: 'Writer', inputTokens: 62_300, outputTokens: 31_150, callCount: 18 },
+  { agentId: 'agent-2' as AgentId, agentName: 'Researcher', inputTokens: 45_100, outputTokens: 22_550, callCount: 12 },
+  { agentId: 'agent-3' as AgentId, agentName: 'Team Lead', inputTokens: 30_200, outputTokens: 15_000, callCount: 12 },
+]
+
+// --- Dashboard: Runtime Status ---
+export const SEED_DASHBOARD_RUNTIME_STATUS: RuntimeStatus = {
+  runningChats: [
+    { conversationId: 'conv-1' as ConversationId, projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', agentId: 'agent-1' as AgentId, agentName: 'Writer', title: 'Blog Draft: AI Trends', startedAt: new Date(Date.now() - 120_000).toISOString() },
+  ],
+  runningCrons: [],
+  upcoming: [
+    { cronJobId: 'cron-1' as CronJobId, projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', cronJobName: 'Daily Summary', agentId: 'agent-1' as AgentId, agentName: 'Writer', nextRunAt: new Date(Date.now() + 3600_000).toISOString() },
+    { cronJobId: 'cron-2' as CronJobId, projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', cronJobName: 'Weekly Competitor Scan', agentId: 'agent-2' as AgentId, agentName: 'Researcher', nextRunAt: new Date(Date.now() + 86400_000).toISOString() },
+  ],
+  recentCompleted: [
+    { type: 'chat', id: 'conv-2', projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', agentName: 'Researcher', title: 'Market Analysis', completedAt: new Date(Date.now() - 7200_000).toISOString(), status: 'success', durationMs: 45_000, totalTokens: 18_200 },
+    { type: 'cron', id: 'cronrun-1', projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', agentName: 'Writer', title: 'Daily Summary', completedAt: new Date(Date.now() - 14400_000).toISOString(), status: 'success', durationMs: 12_000, totalTokens: 8_500, cronJobId: 'cron-1' as CronJobId },
+  ],
+}
 
 // --- Cron Jobs ---
 export const SEED_CRON_JOBS: CronJob[] = [
