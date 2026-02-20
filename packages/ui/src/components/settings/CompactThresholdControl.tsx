@@ -1,8 +1,8 @@
 import { useState, useEffect, type ReactNode } from 'react'
 import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 
-const SLIDER_MAX = 200_000
-const SLIDER_STEP = 1_000
+const SLIDER_MAX = 2_000_000
+const SLIDER_STEP = 10_000
 
 /** Parse human-friendly token input: "95000", "95K", "5M", "1,500,000" */
 function parseTokenInput(input: string): number | null {
@@ -73,9 +73,9 @@ export function CompactThresholdControl({ value, onChange, children }: CompactTh
             className="absolute text-[8px] font-pixel text-accent-green -translate-x-1/2"
             style={{ left: `${defaultPercent}%` }}
           >
-            95K
+            800K
           </span>
-          <span className="absolute right-0 text-[8px] font-pixel text-text-dim">200K</span>
+          <span className="absolute right-0 text-[8px] font-pixel text-text-dim">2M</span>
         </div>
       </div>
       {/* Editable value + unit + extra actions */}

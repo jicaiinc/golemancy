@@ -53,6 +53,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   const [toolWarnings, setToolWarnings] = useState<string[]>([])
   const [compactRecords, setCompactRecords] = useState<CompactRecord[]>(conversation.compactRecords ?? [])
   const [compacting, setCompacting] = useState(false)
+  const [confirmCompact, setConfirmCompact] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
 
   const handleTitleClick = useCallback(() => {
@@ -123,16 +124,8 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
           outputTokens: (part.data.outputTokens as number) ?? 0,
         })
       }
-      if (part.type === 'data-compact' && part.data?.status === 'triggered') {
-        // Auto-compact was triggered — reload compact records after a delay
-        // to allow the server to finish the async compact operation
-        setTimeout(async () => {
-          if (!currentProjectId) return
-          const updated = await getServices().conversations.getById(currentProjectId, conversation.id)
-          if (updated?.compactRecords) {
-            setCompactRecords(updated.compactRecords)
-          }
-        }, 5000)
+      if (part.type === 'data-compact' && part.data?.status === 'completed' && part.data?.record) {
+        setCompactRecords(prev => [...prev, part.data!.record as CompactRecord])
       }
     }
     return () => { (chat as any).onData = undefined }
@@ -215,6 +208,11 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
 
   const handleCompact = useCallback(async () => {
     if (!currentProjectId || compacting) return
+    if (!confirmCompact) {
+      setConfirmCompact(true)
+      return
+    }
+    setConfirmCompact(false)
     setCompacting(true)
     try {
       const svc = getServices()
@@ -232,7 +230,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     } finally {
       setCompacting(false)
     }
-  }, [currentProjectId, conversation.id, compacting])
+  }, [currentProjectId, conversation.id, compacting, confirmCompact])
 
   // --- Derived display state ---
   const isBusy = status === 'submitted' || status === 'streaming'
@@ -303,9 +301,20 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
         {/* Right: actions */}
         <div className="shrink-0 flex items-center gap-1">
           {messages.length > 0 && !isBusy && (
-            <PixelButton size="sm" variant="ghost" onClick={handleCompact} disabled={compacting}>
-              {compacting ? 'Compacting...' : 'Compact'}
-            </PixelButton>
+            confirmCompact ? (
+              <div className="flex items-center gap-1">
+                <PixelButton size="sm" variant="danger" onClick={handleCompact} disabled={compacting}>
+                  {compacting ? 'Compacting...' : 'Confirm'}
+                </PixelButton>
+                <PixelButton size="sm" variant="ghost" onClick={() => setConfirmCompact(false)}>
+                  Cancel
+                </PixelButton>
+              </div>
+            ) : (
+              <PixelButton size="sm" variant="ghost" onClick={handleCompact} disabled={compacting}>
+                {compacting ? 'Compacting...' : 'Compact'}
+              </PixelButton>
+            )
           )}
           {confirmDelete ? (
             <div className="flex items-center gap-1">

@@ -71,10 +71,10 @@ export async function compactConversation(opts: {
   })
 
   const parsed = parseSummary(result.text)
-  const summary = parsed ?? result.text
+  const summary = parsed || result.text || '[Compact failed: no summary generated]'
 
   if (!parsed) {
-    log.warn('failed to parse <summary> tags from compact response, using raw text')
+    log.warn({ textLength: result.text.length }, 'failed to parse <summary> tags from compact response, using raw text')
   }
 
   const inputTokens = result.usage.inputTokens ?? 0
