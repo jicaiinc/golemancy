@@ -125,10 +125,11 @@ export class GlobalDashboardService implements IGlobalDashboardService {
     }
   }
 
-  async getTokenByModel(timeRange?: TimeRange): Promise<(DashboardTokenByModel & { projectId: ProjectId; projectName: string })[]> {
+  async getTokenByModel(timeRange?: TimeRange): Promise<DashboardTokenByModel[]> {
     const startDate = timeRangeToDate(timeRange)
     const projects = await this.deps.projectStorage.list()
-    const results: (DashboardTokenByModel & { projectId: ProjectId; projectName: string })[] = []
+    // Aggregate across all projects by (provider, model)
+    const agg = new Map<string, { provider: string; model: string; inputTokens: number; outputTokens: number; callCount: number }>()
 
     for (const project of projects) {
       try {
@@ -136,24 +137,26 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         const dateCondition = startDate ? sql` AND created_at >= ${startDate}` : sql``
         const rows = db.all<{ provider: string; model: string; inp: number; out: number; cnt: number }>(
           sql`SELECT provider, model, COALESCE(SUM(input_tokens), 0) as inp, COALESCE(SUM(output_tokens), 0) as out, count(*) as cnt
-                   FROM token_records WHERE 1=1${dateCondition} GROUP BY provider, model ORDER BY (inp + out) DESC`,
+                   FROM token_records WHERE 1=1${dateCondition} GROUP BY provider, model`,
         )
         for (const r of rows) {
-          results.push({
-            provider: r.provider,
-            model: r.model,
-            inputTokens: r.inp,
-            outputTokens: r.out,
-            callCount: r.cnt,
-            projectId: project.id,
-            projectName: project.name,
-          })
+          const key = `${r.provider}::${r.model}`
+          const existing = agg.get(key)
+          if (existing) {
+            existing.inputTokens += r.inp
+            existing.outputTokens += r.out
+            existing.callCount += r.cnt
+          } else {
+            agg.set(key, { provider: r.provider, model: r.model, inputTokens: r.inp, outputTokens: r.out, callCount: r.cnt })
+          }
         }
       } catch (err) {
         log.warn({ err, projectId: project.id }, 'failed to query token by model for global')
       }
     }
 
+    const results = Array.from(agg.values())
+    results.sort((a, b) => (b.inputTokens + b.outputTokens) - (a.inputTokens + a.outputTokens))
     return results
   }
 
@@ -189,6 +192,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
       }
     }
 
+    results.sort((a, b) => (b.inputTokens + b.outputTokens) - (a.inputTokens + a.outputTokens))
     return results
   }
 
@@ -329,9 +333,11 @@ export class GlobalDashboardService implements IGlobalDashboardService {
     const allEntries = this.deps.activeChatRegistry?.getAll() ?? []
     const runningChats: RuntimeStatus['runningChats'] = []
 
-    // Build a global agent name map
+    // Build global lookup maps
     const globalAgentMap = new Map<string, string>()
+    const projectNameMap = new Map<string, string>()
     for (const project of projects) {
+      projectNameMap.set(project.id as string, project.name)
       const agents = await this.deps.agentStorage.list(project.id)
       for (const a of agents) {
         globalAgentMap.set(a.id as string, a.name)
@@ -356,6 +362,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
       runningChats.push({
         conversationId: entry.conversationId as any,
         projectId: entry.projectId as ProjectId,
+        projectName: projectNameMap.get(entry.projectId) ?? '',
         agentId: entry.agentId as AgentId,
         agentName: globalAgentMap.get(entry.agentId) ?? 'Unknown',
         title,
@@ -384,6 +391,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
           runningCrons.push({
             cronJobId: row.cron_job_id as any,
             projectId: project.id,
+            projectName: project.name,
             cronJobName: cronMap.get(row.cron_job_id) ?? 'Unknown',
             agentId: row.agent_id as AgentId,
             agentName: globalAgentMap.get(row.agent_id) ?? 'Unknown',
@@ -407,6 +415,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
               upcoming.push({
                 cronJobId: job.id,
                 projectId: project.id,
+                projectName: project.name,
                 cronJobName: job.name,
                 agentId: job.agentId,
                 agentName: globalAgentMap.get(job.agentId as string) ?? 'Unknown',
@@ -446,6 +455,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
             type: 'cron',
             id: row.id,
             projectId: project.id,
+            projectName: project.name,
             agentName: globalAgentMap.get(row.agent_id) ?? 'Unknown',
             title: recentCronMap.get(row.cron_job_id) ?? 'Unknown',
             completedAt: row.updated_at,
@@ -468,6 +478,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
             type: 'chat',
             id: row.id,
             projectId: project.id,
+            projectName: project.name,
             agentName: globalAgentMap.get(row.agent_id) ?? 'Unknown',
             title: row.title || '',
             completedAt: row.last_message_at!,

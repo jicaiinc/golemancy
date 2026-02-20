@@ -5,11 +5,12 @@ import { relativeTime, formatDuration, formatTokens } from '../utils'
 
 interface RuntimeStatusPanelProps {
   status: RuntimeStatus | null
+  showProject?: boolean
   onOpenChat?: (conversationId: ConversationId, projectId: ProjectId) => void
   onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
 }
 
-export function RuntimeStatusPanel({ status, onOpenChat, onOpenCron }: RuntimeStatusPanelProps) {
+export function RuntimeStatusPanel({ status, showProject, onOpenChat, onOpenCron }: RuntimeStatusPanelProps) {
   const [tab, setTab] = useState('active')
 
   if (!status) return null
@@ -27,13 +28,13 @@ export function RuntimeStatusPanel({ status, onOpenChat, onOpenCron }: RuntimeSt
 
       <div className="mt-3 min-h-[80px]">
         {tab === 'active' && (
-          <ActiveTab chats={status.runningChats} crons={status.runningCrons} onOpenChat={onOpenChat} onOpenCron={onOpenCron} />
+          <ActiveTab chats={status.runningChats} crons={status.runningCrons} showProject={showProject} onOpenChat={onOpenChat} onOpenCron={onOpenCron} />
         )}
         {tab === 'scheduled' && (
-          <ScheduledTab items={status.upcoming} onOpenCron={onOpenCron} />
+          <ScheduledTab items={status.upcoming} showProject={showProject} onOpenCron={onOpenCron} />
         )}
         {tab === 'recent' && (
-          <RecentTab items={status.recentCompleted} onOpenChat={onOpenChat} onOpenCron={onOpenCron} />
+          <RecentTab items={status.recentCompleted} showProject={showProject} onOpenChat={onOpenChat} onOpenCron={onOpenCron} />
         )}
       </div>
     </PixelCard>
@@ -42,17 +43,6 @@ export function RuntimeStatusPanel({ status, onOpenChat, onOpenCron }: RuntimeSt
 
 /** Consistent badge width so titles align across rows */
 const badgeClass = 'min-w-[4.5rem] text-center'
-
-function OpenChatLink({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
-  return (
-    <button
-      className="font-pixel text-[8px] text-accent-cyan hover:text-accent-blue transition-colors cursor-pointer shrink-0"
-      onClick={onClick}
-    >
-      OPEN CHAT &rarr;
-    </button>
-  )
-}
 
 function OpenLink({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
   return (
@@ -66,10 +56,11 @@ function OpenLink({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
 }
 
 function ActiveTab({
-  chats, crons, onOpenChat, onOpenCron,
+  chats, crons, showProject, onOpenChat, onOpenCron,
 }: {
   chats: RuntimeStatus['runningChats']
   crons: RuntimeStatus['runningCrons']
+  showProject?: boolean
   onOpenChat?: (conversationId: ConversationId, projectId: ProjectId) => void
   onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
 }) {
@@ -83,20 +74,24 @@ function ActiveTab({
           <div className={badgeClass}><PixelBadge variant="running">Chat</PixelBadge></div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] text-text-primary truncate block">{c.title || c.conversationId}</span>
-            <span className="text-[9px] text-text-dim">@{c.agentName}</span>
+            <span className="text-[9px] text-text-dim">
+              {showProject && c.projectName ? `${c.projectName} · ` : ''}@{c.agentName}
+            </span>
           </div>
           <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(c.startedAt)}</span>
           {onOpenChat && (
-            <OpenChatLink onClick={(e) => { e.stopPropagation(); onOpenChat(c.conversationId, c.projectId) }} />
+            <OpenLink onClick={(e) => { e.stopPropagation(); onOpenChat(c.conversationId, c.projectId) }} />
           )}
         </div>
       ))}
       {crons.map(c => (
         <div key={c.runId} className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors">
-          <div className={badgeClass}><PixelBadge variant="running">Cron</PixelBadge></div>
+          <div className={badgeClass}><PixelBadge variant="info">Cron</PixelBadge></div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] text-text-primary truncate block">{c.cronJobName}</span>
-            <span className="text-[9px] text-text-dim">@{c.agentName}</span>
+            <span className="text-[9px] text-text-dim">
+              {showProject && c.projectName ? `${c.projectName} · ` : ''}@{c.agentName}
+            </span>
           </div>
           <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(c.startedAt)}</span>
           {onOpenCron && (
@@ -109,9 +104,10 @@ function ActiveTab({
 }
 
 function ScheduledTab({
-  items, onOpenCron,
+  items, showProject, onOpenCron,
 }: {
   items: RuntimeStatus['upcoming']
+  showProject?: boolean
   onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
 }) {
   if (items.length === 0) {
@@ -124,7 +120,9 @@ function ScheduledTab({
           <div className={badgeClass}><PixelBadge variant="info">Cron</PixelBadge></div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] text-text-primary truncate block">{item.cronJobName}</span>
-            <span className="text-[9px] text-text-dim">@{item.agentName}</span>
+            <span className="text-[9px] text-text-dim">
+              {showProject && item.projectName ? `${item.projectName} · ` : ''}@{item.agentName}
+            </span>
           </div>
           <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(item.nextRunAt)}</span>
           {onOpenCron && (
@@ -137,9 +135,10 @@ function ScheduledTab({
 }
 
 function RecentTab({
-  items, onOpenChat, onOpenCron,
+  items, showProject, onOpenChat, onOpenCron,
 }: {
   items: RuntimeStatus['recentCompleted']
+  showProject?: boolean
   onOpenChat?: (conversationId: ConversationId, projectId: ProjectId) => void
   onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
 }) {
@@ -156,14 +155,16 @@ function RecentTab({
             className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors"
           >
             <div className={badgeClass}>
-              <PixelBadge variant={item.status === 'success' ? 'success' : 'error'}>
+              <PixelBadge variant={item.status === 'error' ? 'error' : isChat ? 'success' : 'info'}>
                 {isChat ? 'Chat' : 'Cron'}
               </PixelBadge>
             </div>
             <div className="min-w-0 flex-1">
               <span className="text-[11px] text-text-primary truncate block">{item.title || item.id}</span>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] text-text-dim">@{item.agentName}</span>
+                <span className="text-[9px] text-text-dim">
+                  {showProject && item.projectName ? `${item.projectName} · ` : ''}@{item.agentName}
+                </span>
                 {item.durationMs != null && (
                   <span className="text-[9px] text-text-dim">{formatDuration(item.durationMs)}</span>
                 )}
@@ -174,7 +175,7 @@ function RecentTab({
             </div>
             <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(item.completedAt)}</span>
             {isChat && onOpenChat && (
-              <OpenChatLink onClick={(e) => { e.stopPropagation(); onOpenChat(item.id as ConversationId, item.projectId) }} />
+              <OpenLink onClick={(e) => { e.stopPropagation(); onOpenChat(item.id as ConversationId, item.projectId) }} />
             )}
             {!isChat && onOpenCron && item.cronJobId && (
               <OpenLink onClick={(e) => { e.stopPropagation(); onOpenCron(item.cronJobId!, item.projectId) }} />

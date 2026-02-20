@@ -117,7 +117,7 @@ export function GlobalDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [timeRange, setTimeRange] = useState<TimeRange>('today')
   const [summary, setSummary] = useState<DashboardSummary | null>(null)
-  const [tokenByModel, setTokenByModel] = useState<(DashboardTokenByModel & { projectId: ProjectId; projectName: string })[]>([])
+  const [tokenByModel, setTokenByModel] = useState<DashboardTokenByModel[]>([])
   const [tokenByAgent, setTokenByAgent] = useState<(DashboardTokenByAgent & { projectId: ProjectId; projectName: string })[]>([])
   const [tokenByProject, setTokenByProject] = useState<TokenByProject[]>([])
   const [tokenTrend, setTokenTrend] = useState<DashboardTokenTrend[]>([])
@@ -129,8 +129,8 @@ export function GlobalDashboardPage() {
     navigate(`/projects/${projectId}/chat?conv=${convId}`)
   }, [navigate])
 
-  const handleOpenAutomation = useCallback((cronJobId: CronJobId, projectId: ProjectId) => {
-    navigate(`/projects/${projectId}/automations/${cronJobId}`)
+  const handleOpenAutomation = useCallback((_cronJobId: CronJobId, projectId: ProjectId) => {
+    navigate(`/projects/${projectId}/cron`)
   }, [navigate])
 
   const loadData = useCallback(async (range: TimeRange) => {
@@ -205,7 +205,7 @@ export function GlobalDashboardPage() {
   const breakdownByModel = useMemo(() =>
     tokenByModel.map(m => ({
       label: m.model,
-      sublabel: `${m.provider} · ${m.projectName}`,
+      sublabel: m.provider,
       inputTokens: m.inputTokens,
       outputTokens: m.outputTokens,
       callCount: m.callCount,
@@ -272,7 +272,7 @@ export function GlobalDashboardPage() {
 
             {/* Section 3: Runtime Status */}
             <div className="mb-6">
-              <RuntimeStatusPanel status={runtimeStatus} onOpenChat={handleOpenChat} onOpenAutomation={handleOpenAutomation} />
+              <RuntimeStatusPanel status={runtimeStatus} showProject onOpenChat={handleOpenChat} onOpenCron={handleOpenAutomation} />
             </div>
 
             {/* Section 4: Overview - Top Projects */}

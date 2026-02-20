@@ -121,7 +121,7 @@ export interface IDashboardService {
 
 export interface IGlobalDashboardService {
   getSummary(timeRange?: TimeRange): Promise<DashboardSummary>
-  getTokenByModel(timeRange?: TimeRange): Promise<(DashboardTokenByModel & { projectId: ProjectId; projectName: string })[]>
+  getTokenByModel(timeRange?: TimeRange): Promise<DashboardTokenByModel[]>
   getTokenByAgent(timeRange?: TimeRange): Promise<(DashboardTokenByAgent & { projectId: ProjectId; projectName: string })[]>
   getTokenByProject(timeRange?: TimeRange): Promise<{ projectId: ProjectId; projectName: string; inputTokens: number; outputTokens: number; callCount: number }[]>
   getTokenTrend(days?: number, timeRange?: TimeRange): Promise<DashboardTokenTrend[]>

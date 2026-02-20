@@ -62,6 +62,7 @@ export interface DashboardTokenByAgent {
 export interface RuntimeChatSession {
   conversationId: ConversationId
   projectId: ProjectId
+  projectName?: string
   agentId: AgentId
   agentName: string
   title: string
@@ -71,6 +72,7 @@ export interface RuntimeChatSession {
 export interface RuntimeCronRun {
   cronJobId: CronJobId
   projectId: ProjectId
+  projectName?: string
   cronJobName: string
   agentId: AgentId
   agentName: string
@@ -81,6 +83,7 @@ export interface RuntimeCronRun {
 export interface RuntimeUpcoming {
   cronJobId: CronJobId
   projectId: ProjectId
+  projectName?: string
   cronJobName: string
   agentId: AgentId
   agentName: string
@@ -91,6 +94,7 @@ export interface RuntimeRecentItem {
   type: 'chat' | 'cron'
   id: string
   projectId: ProjectId
+  projectName?: string
   agentName: string
   title: string
   completedAt: string

@@ -417,16 +417,16 @@ export const SEED_DASHBOARD_TOKEN_BY_AGENT: DashboardTokenByAgent[] = [
 // --- Dashboard: Runtime Status ---
 export const SEED_DASHBOARD_RUNTIME_STATUS: RuntimeStatus = {
   runningChats: [
-    { conversationId: 'conv-1' as ConversationId, projectId: 'proj-1' as ProjectId, agentId: 'agent-1' as AgentId, agentName: 'Writer', title: 'Blog Draft: AI Trends', startedAt: new Date(Date.now() - 120_000).toISOString() },
+    { conversationId: 'conv-1' as ConversationId, projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', agentId: 'agent-1' as AgentId, agentName: 'Writer', title: 'Blog Draft: AI Trends', startedAt: new Date(Date.now() - 120_000).toISOString() },
   ],
   runningCrons: [],
   upcoming: [
-    { cronJobId: 'cron-1' as CronJobId, projectId: 'proj-1' as ProjectId, cronJobName: 'Daily Summary', agentId: 'agent-1' as AgentId, agentName: 'Writer', nextRunAt: new Date(Date.now() + 3600_000).toISOString() },
-    { cronJobId: 'cron-2' as CronJobId, projectId: 'proj-1' as ProjectId, cronJobName: 'Weekly Competitor Scan', agentId: 'agent-2' as AgentId, agentName: 'Researcher', nextRunAt: new Date(Date.now() + 86400_000).toISOString() },
+    { cronJobId: 'cron-1' as CronJobId, projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', cronJobName: 'Daily Summary', agentId: 'agent-1' as AgentId, agentName: 'Writer', nextRunAt: new Date(Date.now() + 3600_000).toISOString() },
+    { cronJobId: 'cron-2' as CronJobId, projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', cronJobName: 'Weekly Competitor Scan', agentId: 'agent-2' as AgentId, agentName: 'Researcher', nextRunAt: new Date(Date.now() + 86400_000).toISOString() },
   ],
   recentCompleted: [
-    { type: 'chat', id: 'conv-2', projectId: 'proj-1' as ProjectId, agentName: 'Researcher', title: 'Market Analysis', completedAt: new Date(Date.now() - 7200_000).toISOString(), status: 'success', durationMs: 45_000, totalTokens: 18_200 },
-    { type: 'cron', id: 'cronrun-1', projectId: 'proj-1' as ProjectId, agentName: 'Writer', title: 'Daily Summary', completedAt: new Date(Date.now() - 14400_000).toISOString(), status: 'success', durationMs: 12_000, totalTokens: 8_500, cronJobId: 'cron-1' as CronJobId },
+    { type: 'chat', id: 'conv-2', projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', agentName: 'Researcher', title: 'Market Analysis', completedAt: new Date(Date.now() - 7200_000).toISOString(), status: 'success', durationMs: 45_000, totalTokens: 18_200 },
+    { type: 'cron', id: 'cronrun-1', projectId: 'proj-1' as ProjectId, projectName: 'Content Biz', agentName: 'Writer', title: 'Daily Summary', completedAt: new Date(Date.now() - 14400_000).toISOString(), status: 'success', durationMs: 12_000, totalTokens: 8_500, cronJobId: 'cron-1' as CronJobId },
   ],
 }
 

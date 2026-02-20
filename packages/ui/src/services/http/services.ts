@@ -343,7 +343,7 @@ export class HttpGlobalDashboardService implements IGlobalDashboardService {
     return fetchJson<DashboardSummary>(this.url('summary', { timeRange }))
   }
   getTokenByModel(timeRange?: TimeRange) {
-    return fetchJson<(DashboardTokenByModel & { projectId: ProjectId; projectName: string })[]>(this.url('token-by-model', { timeRange }))
+    return fetchJson<DashboardTokenByModel[]>(this.url('token-by-model', { timeRange }))
   }
   getTokenByAgent(timeRange?: TimeRange) {
     return fetchJson<(DashboardTokenByAgent & { projectId: ProjectId; projectName: string })[]>(this.url('token-by-agent', { timeRange }))

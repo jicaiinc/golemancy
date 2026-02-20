@@ -132,8 +132,8 @@ export function DashboardPage() {
     navigate(`chat?conv=${convId}`)
   }, [navigate])
 
-  const handleOpenAutomation = useCallback((cronJobId: CronJobId) => {
-    navigate(`automations/${cronJobId}`)
+  const handleOpenAutomation = useCallback((_cronJobId: CronJobId) => {
+    navigate('cron')
   }, [navigate])
 
   // Load on mount
@@ -239,7 +239,7 @@ export function DashboardPage() {
 
         {/* Section 3: Runtime Status */}
         <div className="mb-6">
-          <RuntimeStatusPanel status={runtimeStatus} onOpenChat={handleOpenChat} onOpenAutomation={handleOpenAutomation} />
+          <RuntimeStatusPanel status={runtimeStatus} onOpenChat={handleOpenChat} onOpenCron={handleOpenAutomation} />
         </div>
 
         {/* Section 4: Overview */}

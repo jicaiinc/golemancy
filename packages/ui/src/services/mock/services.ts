@@ -726,11 +726,7 @@ export class MockGlobalDashboardService implements IGlobalDashboardService {
 
   async getTokenByModel(_timeRange?: TimeRange) {
     await delay()
-    return SEED_DASHBOARD_TOKEN_BY_MODEL.map(m => ({
-      ...m,
-      projectId: 'proj-1' as ProjectId,
-      projectName: 'Content Biz',
-    }))
+    return [...SEED_DASHBOARD_TOKEN_BY_MODEL]
   }
 
   async getTokenByAgent(_timeRange?: TimeRange) {
