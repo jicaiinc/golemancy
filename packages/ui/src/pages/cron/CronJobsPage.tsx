@@ -102,14 +102,14 @@ export function CronJobsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6" data-testid="cron-page">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="font-pixel text-[14px] text-text-primary">Automations</h1>
           <PixelBadge variant="info">{cronJobs.length}</PixelBadge>
         </div>
-        <PixelButton variant="primary" onClick={() => setShowForm(true)}>
+        <PixelButton variant="primary" data-testid="cron-new-btn" onClick={() => setShowForm(true)}>
           + New
         </PixelButton>
       </div>
@@ -134,11 +134,12 @@ export function CronJobsPage() {
             const agent = agents.find(a => a.id === job.agentId)
             return (
               <motion.div key={job.id} {...staggerItem}>
-                <PixelCard variant="interactive">
+                <PixelCard variant="interactive" data-testid="cron-card">
                   <div className="flex items-center gap-4">
                     {/* Toggle */}
                     <div onClick={e => e.stopPropagation()}>
                       <PixelToggle
+                        data-testid="cron-toggle"
                         checked={job.enabled}
                         onChange={() => handleToggle(job.id, job.enabled)}
                       />
@@ -187,10 +188,10 @@ export function CronJobsPage() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-1 shrink-0">
-                      <PixelButton size="sm" variant="ghost" onClick={() => triggerCronJob(job.id)}>
+                      <PixelButton size="sm" variant="ghost" data-testid="cron-trigger-btn" onClick={() => triggerCronJob(job.id)}>
                         Run
                       </PixelButton>
-                      <PixelButton size="sm" variant="ghost" onClick={() => setHistoryJobId(job.id)}>
+                      <PixelButton size="sm" variant="ghost" data-testid="cron-history-btn" onClick={() => setHistoryJobId(job.id)}>
                         History
                       </PixelButton>
                       <PixelButton size="sm" variant="ghost" onClick={() => handleEdit(job.id)}>

@@ -45,6 +45,90 @@ export class TestHelper {
     return response.json()
   }
 
+  /** Send an authenticated POST request */
+  async apiPost(path: string, body: Record<string, unknown>): Promise<any> {
+    const { baseUrl, token } = await this.getServerInfo()
+    const response = await this.page.request.post(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      data: body,
+    })
+    return response.json()
+  }
+
+  /** Send an authenticated PATCH request */
+  async apiPatch(path: string, body: Record<string, unknown>): Promise<any> {
+    const { baseUrl, token } = await this.getServerInfo()
+    const response = await this.page.request.patch(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      data: body,
+    })
+    return response.json()
+  }
+
+  /** Send an authenticated DELETE request */
+  async apiDelete(path: string): Promise<any> {
+    const { baseUrl, token } = await this.getServerInfo()
+    const response = await this.page.request.delete(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.json()
+  }
+
+  /** Send an authenticated PUT request */
+  async apiPut(path: string, body: Record<string, unknown>): Promise<any> {
+    const { baseUrl, token } = await this.getServerInfo()
+    const response = await this.page.request.put(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      data: body,
+    })
+    return response.json()
+  }
+
+  // ===== Raw response methods =====
+
+  /** Send an authenticated GET and return raw response (for status code checks) */
+  async apiGetRaw(path: string) {
+    const { baseUrl, token } = await this.getServerInfo()
+    return this.page.request.get(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  }
+
+  /** Send an authenticated POST and return raw response */
+  async apiPostRaw(path: string, body: Record<string, unknown>) {
+    const { baseUrl, token } = await this.getServerInfo()
+    return this.page.request.post(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      data: body,
+    })
+  }
+
+  /** Send an authenticated PATCH and return raw response */
+  async apiPatchRaw(path: string, body: Record<string, unknown>) {
+    const { baseUrl, token } = await this.getServerInfo()
+    return this.page.request.patch(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      data: body,
+    })
+  }
+
+  /** Send an authenticated DELETE and return raw response */
+  async apiDeleteRaw(path: string) {
+    const { baseUrl, token } = await this.getServerInfo()
+    return this.page.request.delete(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  }
+
+  /** Send an authenticated PUT and return raw response */
+  async apiPutRaw(path: string, body: Record<string, unknown>) {
+    const { baseUrl, token } = await this.getServerInfo()
+    return this.page.request.put(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      data: body,
+    })
+  }
+
   // ===== Navigation =====
 
   /** Navigate to a hash route */
@@ -164,6 +248,131 @@ export class TestHelper {
       state: 'visible',
       timeout: TIMEOUTS.PAGE_LOAD,
     })
+  }
+
+  // ===== API-level setup (bypass UI for speed) =====
+
+  /** Create a project via the API (faster than UI) */
+  async createProjectViaApi(name: string, description = ''): Promise<{ id: string; [key: string]: any }> {
+    const project = await this.apiPost('/api/projects', { name, description })
+    return project
+  }
+
+  /** Create an agent via the API */
+  async createAgentViaApi(
+    projectId: string,
+    name: string,
+    opts: { systemPrompt?: string; model?: { provider: string; model: string }; tools?: Record<string, unknown> } = {},
+  ): Promise<{ id: string; [key: string]: any }> {
+    const agent = await this.apiPost(`/api/projects/${projectId}/agents`, { name, ...opts })
+    return agent
+  }
+
+  /** Create a conversation via the API */
+  async createConversationViaApi(
+    projectId: string,
+    agentId: string,
+    title = 'Test Conversation',
+  ): Promise<{ id: string; [key: string]: any }> {
+    return this.apiPost(`/api/projects/${projectId}/conversations`, { agentId, title })
+  }
+
+  /** Save a message to a conversation via the API */
+  async saveMessageViaApi(
+    projectId: string,
+    conversationId: string,
+    message: {
+      id?: string
+      role: 'user' | 'assistant'
+      content: string
+      parts?: unknown[]
+      inputTokens?: number
+      outputTokens?: number
+    },
+  ): Promise<void> {
+    const id = message.id || `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    await this.apiPost(`/api/projects/${projectId}/conversations/${conversationId}/messages`, {
+      id,
+      role: message.role,
+      content: message.content,
+      parts: message.parts || [{ type: 'text', text: message.content }],
+      ...(message.inputTokens !== undefined && { inputTokens: message.inputTokens }),
+      ...(message.outputTokens !== undefined && { outputTokens: message.outputTokens }),
+    })
+  }
+
+  /** Send a chat message via the SSE streaming API and return complete response */
+  async sendChatViaApi(
+    projectId: string,
+    agentId: string,
+    conversationId: string,
+    message: string,
+    timeout = TIMEOUTS.AI_RESPONSE,
+  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number } }> {
+    const { baseUrl, token } = await this.getServerInfo()
+
+    const result = await this.page.evaluate(
+      async ({ baseUrl, token, projectId, agentId, conversationId, message, timeout }) => {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+        try {
+          const res = await fetch(`${baseUrl}/api/projects/${projectId}/chat`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ agentId, conversationId, message }),
+            signal: controller.signal,
+          })
+
+          if (!res.ok) throw new Error(`Chat API returned ${res.status}`)
+          if (!res.body) throw new Error('No response body')
+
+          const reader = res.body.getReader()
+          const decoder = new TextDecoder()
+          let fullText = ''
+          let usage = { inputTokens: 0, outputTokens: 0 }
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            const chunk = decoder.decode(value, { stream: true })
+            const lines = chunk.split('\n')
+
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue
+              const data = line.slice(6).trim()
+              if (data === '[DONE]') continue
+
+              try {
+                const parsed = JSON.parse(data)
+                if (parsed.type === 'text-delta' && parsed.textDelta) {
+                  fullText += parsed.textDelta
+                }
+                if (parsed.type === 'usage' || parsed.type === 'finish') {
+                  if (parsed.usage) {
+                    usage.inputTokens = parsed.usage.promptTokens || parsed.usage.inputTokens || 0
+                    usage.outputTokens = parsed.usage.completionTokens || parsed.usage.outputTokens || 0
+                  }
+                }
+              } catch {
+                // skip unparseable lines
+              }
+            }
+          }
+
+          return { response: fullText, usage }
+        } finally {
+          clearTimeout(timeoutId)
+        }
+      },
+      { baseUrl, token, projectId, agentId, conversationId, message, timeout },
+    )
+
+    return result
   }
 
   // ===== Assertions =====

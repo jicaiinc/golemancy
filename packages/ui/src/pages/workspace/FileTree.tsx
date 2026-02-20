@@ -32,7 +32,7 @@ export function FileTree({ entries, currentPath, loading, selectedFile, onNaviga
   const pathSegments = currentPath ? currentPath.split('/') : []
 
   return (
-    <div className="w-[280px] min-w-[280px] border-r-2 border-border-dim flex flex-col overflow-hidden">
+    <div className="w-[280px] min-w-[280px] border-r-2 border-border-dim flex flex-col overflow-hidden" data-testid="workspace-file-tree">
       {/* Breadcrumb */}
       <div className="px-3 py-2 border-b-2 border-border-dim flex items-center gap-1 flex-wrap min-h-[36px]">
         <button

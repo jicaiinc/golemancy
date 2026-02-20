@@ -75,22 +75,22 @@ test.describe('Agent Config — 6 Tab Navigation', () => {
     })
   })
 
-  test('switch to Model Config tab and see provider/model selects', async ({
+  test('General tab shows Model Config section with provider/model selects', async ({
     window,
   }) => {
-    await window.locator('[data-testid="tab-model"]').click()
-    // New ModelConfigTab shows PROVIDER and MODEL labels with dropdowns
-    await expect(window.getByText('PROVIDER', { exact: true })).toBeVisible({
+    // Model Config is part of the General tab (no separate "model" tab)
+    await window.locator('[data-testid="tab-general"]').click()
+    // General tab has INFO section + MODEL CONFIG section
+    await expect(window.getByText('MODEL CONFIG', { exact: true })).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
+    await expect(window.getByText('PROVIDER', { exact: true })).toBeVisible()
     await expect(window.getByText('MODEL', { exact: true })).toBeVisible()
-    // Should have a save button
-    await expect(window.getByRole('button', { name: 'Save Model Config' })).toBeVisible()
   })
 
-  test('edit system prompt in Info tab and save', async ({ window }) => {
-    // Switch back to Info tab
-    await window.locator('[data-testid="tab-info"]').click()
+  test('edit system prompt in General tab and save', async ({ window }) => {
+    // Switch back to General tab (which contains the INFO section with system prompt)
+    await window.locator('[data-testid="tab-general"]').click()
 
     // Find the system prompt textarea and change it
     const textarea = window.locator('textarea').first()

@@ -56,7 +56,7 @@ export function MemoryPage() {
   if (!project) return null
 
   return (
-    <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
+    <motion.div className="p-6" data-testid="memory-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -65,12 +65,13 @@ export function MemoryPage() {
             {memories.length} memor{memories.length !== 1 ? 'ies' : 'y'}
           </p>
         </div>
-        <PixelButton variant="primary" onClick={() => setShowAdd(true)}>+ Add Entry</PixelButton>
+        <PixelButton variant="primary" data-testid="memory-add-btn" onClick={() => setShowAdd(true)}>+ Add Entry</PixelButton>
       </div>
 
       {/* Search */}
       <motion.div {...staggerItem} className="mb-4">
         <PixelInput
+          data-testid="memory-search"
           placeholder="Search memories by content, source, or tag..."
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -125,7 +126,7 @@ export function MemoryPage() {
         <div className="flex flex-col gap-2">
           {filtered.map(entry => (
             <motion.div key={entry.id} {...staggerItem}>
-              <PixelCard>
+              <PixelCard data-testid="memory-card">
                 <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] text-text-primary whitespace-pre-wrap">{entry.content}</p>

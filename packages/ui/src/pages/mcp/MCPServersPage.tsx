@@ -136,7 +136,7 @@ export function MCPServersPage() {
   }, [createMCPServer])
 
   return (
-    <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
+    <motion.div className="p-6" data-testid="mcp-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -145,7 +145,7 @@ export function MCPServersPage() {
             {mcpServers.length} server{mcpServers.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Server</PixelButton>
+        <PixelButton variant="primary" data-testid="mcp-new-btn" onClick={() => setShowCreate(true)}>+ New Server</PixelButton>
       </div>
 
       {/* MCP security warning */}
@@ -234,7 +234,7 @@ export function MCPServersPage() {
                   const testResult = testResults[server.name]
                   return (
                     <motion.div key={server.name} {...staggerItem}>
-                      <PixelCard className={!server.enabled ? 'opacity-60' : ''}>
+                      <PixelCard data-testid="mcp-card" className={!server.enabled ? 'opacity-60' : ''}>
                         <div className="flex items-start gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">

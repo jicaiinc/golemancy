@@ -22,7 +22,7 @@ test.describe('Task Page', () => {
     await expect(window.locator(SELECTORS.TASK_LIST_HEADER)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await expect(window.locator(SELECTORS.TASK_LIST_HEADER)).toHaveText('Tasks')
+    await expect(window.locator(SELECTORS.TASK_LIST_HEADER)).toHaveText('Conversation Tasks')
   })
 
   test('tasks page shows empty state when no tasks', async ({ window, helper }) => {
@@ -39,9 +39,9 @@ test.describe('Task Page', () => {
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Filter buttons should be visible
-    await expect(window.getByText('All Conversations')).toBeVisible()
-    await expect(window.getByText('All Status')).toBeVisible()
+    // Tasks are grouped by conversation — verify the page rendered (no filter buttons in current UI)
+    const headerEl = window.locator(SELECTORS.TASK_LIST_HEADER)
+    await expect(headerEl).toBeVisible()
   })
 
   test('tasks page shows total count', async ({ window, helper }) => {

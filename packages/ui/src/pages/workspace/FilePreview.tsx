@@ -66,7 +66,7 @@ export function FilePreview({ preview, loading, onDelete }: FilePreviewProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex-1 flex flex-col overflow-hidden" data-testid="workspace-preview">
       {/* Action bar */}
       <div className="px-4 py-2 border-b-2 border-border-dim flex items-center gap-2">
         <span className="text-[12px] text-text-primary truncate flex-1 font-mono">{preview.path}</span>
