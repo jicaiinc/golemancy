@@ -103,18 +103,19 @@ test.describe('Conversation API', () => {
     )
     expect(result.items).toBeDefined()
     expect(Array.isArray(result.items)).toBe(true)
-    expect(typeof result.hasMore).toBe('boolean')
+    // Server returns { items, total, page, pageSize }
+    expect(typeof result.total).toBe('number')
     expect(result.items.length).toBeGreaterThanOrEqual(2)
   })
 
-  test('GET messages returns oldest first', async ({ helper }) => {
+  test('GET messages returns newest first', async ({ helper }) => {
     const result = await helper.apiGet(
       `/api/projects/${projectId}/conversations/${conversationId}/messages`,
     )
     const items = result.items as Array<{ role: string }>
-    // First message should be user, second assistant (by insert order)
-    expect(items[0].role).toBe('user')
-    expect(items[1].role).toBe('assistant')
+    // Storage returns DESC order (newest first): assistant first, then user
+    expect(items[0].role).toBe('assistant')
+    expect(items[1].role).toBe('user')
   })
 
   test('GET /messages/search finds saved message via FTS5', async ({ helper }) => {

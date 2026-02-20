@@ -71,10 +71,12 @@ test.describe('Skill API', () => {
   })
 
   test('DELETE /skills/:id returns 409 when skill is referenced by agent', async ({ helper }) => {
-    // Create an agent that references the skill
-    await helper.createAgentViaApi(projectId, 'Skill Ref Agent', {
+    // Create an agent then PATCH to add skill reference
+    // (POST /agents always initializes skillIds to [], so we must PATCH after creation)
+    const agent = await helper.createAgentViaApi(projectId, 'Skill Ref Agent')
+    await helper.apiPatch(`/api/projects/${projectId}/agents/${agent.id}`, {
       skillIds: [skillId],
-    } as any)
+    })
 
     const response = await helper.apiDeleteRaw(`/api/projects/${projectId}/skills/${skillId}`)
     expect(response.status()).toBe(409)

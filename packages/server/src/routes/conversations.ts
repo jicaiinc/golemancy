@@ -79,7 +79,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
   app.post('/:convId/messages', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('convId') as ConversationId
-    const { id, role, parts, content } = await c.req.json<{ id: string; role: string; parts: unknown[]; content: string }>()
+    const { id, role, parts, content, inputTokens, outputTokens, provider, model } = await c.req.json<{ id: string; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; provider?: string; model?: string }>()
 
     if (!id || !role || !Array.isArray(parts)) {
       return c.json({ error: 'id, role, and parts are required' }, 400)
@@ -92,7 +92,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
 
     log.debug({ projectId, conversationId: convId, messageId: id, role }, 'saving message')
     const extractedParts = await extractUploads(projectId, parts)
-    await storage.saveMessage(projectId, convId, { id: id as MessageId, role, parts: extractedParts, content: content ?? '' })
+    await storage.saveMessage(projectId, convId, { id: id as MessageId, role, parts: extractedParts, content: content ?? '', inputTokens, outputTokens, provider, model })
     return c.json({ ok: true }, 201)
   })
 

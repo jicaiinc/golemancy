@@ -86,4 +86,17 @@ export class FileProjectStorage implements IProjectService {
     log.debug({ projectId: id }, 'deleting project')
     await deleteDir(path.join(this.projectsDir, id))
   }
+
+  async getTopologyLayout(projectId: ProjectId): Promise<Record<string, { x: number; y: number }>> {
+    validateId(projectId)
+    const layoutPath = path.join(this.projectsDir, projectId, 'topology-layout.json')
+    const layout = await readJson<Record<string, { x: number; y: number }>>(layoutPath)
+    return layout ?? {}
+  }
+
+  async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void> {
+    validateId(projectId)
+    const layoutPath = path.join(this.projectsDir, projectId, 'topology-layout.json')
+    await writeJson(layoutPath, layout)
+  }
 }
