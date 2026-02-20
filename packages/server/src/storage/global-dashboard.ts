@@ -51,7 +51,8 @@ export class GlobalDashboardService implements IGlobalDashboardService {
   }
 
   async getSummary(timeRange?: TimeRange): Promise<DashboardSummary> {
-    const startDate = timeRangeToDate(timeRange) ?? new Date().toISOString().slice(0, 10)
+    const startDate = timeRangeToDate(timeRange)
+    const dateCondition = startDate ? sql` AND created_at >= ${startDate}` : sql``
     const projects = await this.deps.projectStorage.list()
 
     let totalAgents = 0
@@ -73,19 +74,25 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         )
         totalChats += convCount[0]?.cnt ?? 0
 
-        const activeCount = db.all<{ cnt: number }>(
-          sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
-              JOIN messages m ON m.conversation_id = c.id
-              WHERE c.project_id = ${project.id} AND m.created_at >= ${startDate}`,
-        )
+        const activeCount = startDate
+          ? db.all<{ cnt: number }>(
+              sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
+                  JOIN messages m ON m.conversation_id = c.id
+                  WHERE c.project_id = ${project.id} AND m.created_at >= ${startDate}`,
+            )
+          : db.all<{ cnt: number }>(
+              sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
+                  JOIN messages m ON m.conversation_id = c.id
+                  WHERE c.project_id = ${project.id}`,
+            )
         activeChats += activeCount[0]?.cnt ?? 0
 
         const tokenSum = db.all<{ inp: number; out: number }>(
           sql`SELECT COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out FROM (
-                SELECT input_tokens as inp, output_tokens as out FROM token_records WHERE created_at >= ${startDate}
+                SELECT input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
                 UNION ALL
                 SELECT m.input_tokens as inp, m.output_tokens as out FROM messages m
-                WHERE m.created_at >= ${startDate} AND m.input_tokens > 0
+                WHERE m.input_tokens > 0${dateCondition}
                   AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
               )`,
         )
@@ -93,7 +100,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         tokenOutput += tokenSum[0]?.out ?? 0
 
         const callCountResult = db.all<{ cnt: number }>(
-          sql`SELECT count(*) as cnt FROM token_records WHERE created_at >= ${startDate}`,
+          sql`SELECT count(*) as cnt FROM token_records WHERE 1=1${dateCondition}`,
         )
         callCount += callCountResult[0]?.cnt ?? 0
       } catch (err) {

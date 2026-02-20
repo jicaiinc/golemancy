@@ -196,22 +196,24 @@ export function DashboardPage() {
     <div className="h-full overflow-auto">
       <div className="max-w-[1400px] mx-auto p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="font-pixel text-[14px] text-text-primary">{project?.name ?? 'Dashboard'}</h1>
-            <p className="mt-1 text-text-secondary text-[13px]">{project?.description ?? 'Project overview'}</p>
-          </div>
-          <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+        <div className="mb-6">
+          <h1 className="font-pixel text-[14px] text-text-primary">{project?.name ?? 'Dashboard'}</h1>
+          <p className="mt-1 text-text-secondary text-[13px]">{project?.description ?? 'Project overview'}</p>
         </div>
 
-        {/* Section 1: Token Usage */}
+        {/* Section 1: Token Usage — TimeRange + Summary + Breakdown + Trend */}
         <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN USAGE</h2>
+            <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
+          </div>
           <TokenSummaryCards summary={summary} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Token Breakdown with tabs */}
-          <div>
+        {/* Token Breakdown (full width) */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN BREAKDOWN</h2>
             <PixelTabs
               tabs={[
                 { id: 'by-agent', label: 'By Agent' },
@@ -220,16 +222,16 @@ export function DashboardPage() {
               activeTab={breakdownTab}
               onTabChange={setBreakdownTab}
             />
-            <div className="mt-3">
-              {breakdownTab === 'by-agent' ? (
-                <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} />
-              ) : (
-                <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} />
-              )}
-            </div>
           </div>
+          {breakdownTab === 'by-agent' ? (
+            <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} />
+          ) : (
+            <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} />
+          )}
+        </div>
 
-          {/* Token Trend Chart */}
+        {/* Token Trend Chart (full width) */}
+        <div className="mb-6">
           <TokenTrendChart />
         </div>
 

@@ -52,7 +52,8 @@ export class DashboardService implements IDashboardService {
   }
 
   async getSummary(projectId: ProjectId, timeRange?: TimeRange): Promise<DashboardSummary> {
-    const startDate = timeRangeToDate(timeRange) ?? new Date().toISOString().slice(0, 10)
+    const startDate = timeRangeToDate(timeRange)
+    const dateCondition = startDate ? sql` AND created_at >= ${startDate}` : sql``
 
     const agents = await this.deps.agentStorage.list(projectId)
     const totalAgents = agents.length
@@ -73,20 +74,26 @@ export class DashboardService implements IDashboardService {
       totalChats = convCount[0]?.cnt ?? 0
 
       // Count active chats (conversations with messages in range)
-      const activeCount = db.all<{ cnt: number }>(
-        sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
-            JOIN messages m ON m.conversation_id = c.id
-            WHERE c.project_id = ${projectId} AND m.created_at >= ${startDate}`,
-      )
+      const activeCount = startDate
+        ? db.all<{ cnt: number }>(
+            sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
+                JOIN messages m ON m.conversation_id = c.id
+                WHERE c.project_id = ${projectId} AND m.created_at >= ${startDate}`,
+          )
+        : db.all<{ cnt: number }>(
+            sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
+                JOIN messages m ON m.conversation_id = c.id
+                WHERE c.project_id = ${projectId}`,
+          )
       activeChats = activeCount[0]?.cnt ?? 0
 
       // Sum tokens in range (from token_records + legacy messages fallback)
       const tokenSum = db.all<{ inp: number; out: number }>(
         sql`SELECT COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out FROM (
-              SELECT input_tokens as inp, output_tokens as out FROM token_records WHERE created_at >= ${startDate}
+              SELECT input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
               UNION ALL
               SELECT m.input_tokens as inp, m.output_tokens as out FROM messages m
-              WHERE m.created_at >= ${startDate} AND m.input_tokens > 0
+              WHERE m.input_tokens > 0${dateCondition}
                 AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
             )`,
       )
@@ -95,7 +102,7 @@ export class DashboardService implements IDashboardService {
 
       // Count API calls in range
       const callCountResult = db.all<{ cnt: number }>(
-        sql`SELECT count(*) as cnt FROM token_records WHERE created_at >= ${startDate}`,
+        sql`SELECT count(*) as cnt FROM token_records WHERE 1=1${dateCondition}`,
       )
       callCount = callCountResult[0]?.cnt ?? 0
     } catch (err) {

@@ -220,12 +220,9 @@ export function GlobalDashboardPage() {
     <GlobalLayout>
       <div className="max-w-[1400px] mx-auto p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="font-pixel text-[14px] text-text-primary">Global Dashboard</h1>
-            <p className="mt-1 text-text-secondary text-[13px]">Cross-project overview</p>
-          </div>
-          <TimeRangeSelector value={timeRange} onChange={handleTimeRangeChange} />
+        <div className="mb-6">
+          <h1 className="font-pixel text-[14px] text-text-primary">Global Dashboard</h1>
+          <p className="mt-1 text-text-secondary text-[13px]">Cross-project overview</p>
         </div>
 
         {loading ? (
@@ -234,14 +231,19 @@ export function GlobalDashboardPage() {
           </div>
         ) : (
           <>
-            {/* Section 1: Token Usage */}
+            {/* Section 1: Token Usage — TimeRange + Summary */}
             <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN USAGE</h2>
+                <TimeRangeSelector value={timeRange} onChange={handleTimeRangeChange} />
+              </div>
               <TokenSummaryCards summary={summary} />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* Token Breakdown with 3 tabs */}
-              <div>
+            {/* Token Breakdown (full width) */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN BREAKDOWN</h2>
                 <PixelTabs
                   tabs={[
                     { id: 'by-project', label: 'By Project' },
@@ -251,20 +253,20 @@ export function GlobalDashboardPage() {
                   activeTab={breakdownTab}
                   onTabChange={setBreakdownTab}
                 />
-                <div className="mt-3">
-                  {breakdownTab === 'by-project' && (
-                    <TokenBreakdownTable title="TOKEN BY PROJECT" data={breakdownByProject} />
-                  )}
-                  {breakdownTab === 'by-model' && (
-                    <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} />
-                  )}
-                  {breakdownTab === 'by-agent' && (
-                    <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} />
-                  )}
-                </div>
               </div>
+              {breakdownTab === 'by-project' && (
+                <TokenBreakdownTable title="TOKEN BY PROJECT" data={breakdownByProject} />
+              )}
+              {breakdownTab === 'by-model' && (
+                <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} />
+              )}
+              {breakdownTab === 'by-agent' && (
+                <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} />
+              )}
+            </div>
 
-              {/* Token Trend Chart */}
+            {/* Token Trend Chart (full width) */}
+            <div className="mb-6">
               <GlobalTokenTrendChart data={tokenTrend} timeRange={timeRange} />
             </div>
 
