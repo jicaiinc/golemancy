@@ -10,9 +10,10 @@ interface PixelTabsProps {
   tabs: Tab[]
   activeTab: string
   onTabChange: (tabId: string) => void
+  testIdPrefix?: string
 }
 
-export function PixelTabs({ tabs, activeTab, onTabChange }: PixelTabsProps) {
+export function PixelTabs({ tabs, activeTab, onTabChange, testIdPrefix }: PixelTabsProps) {
   return (
     <div className="flex border-b-2 border-border-dim">
       {tabs.map(tab => {
@@ -20,7 +21,7 @@ export function PixelTabs({ tabs, activeTab, onTabChange }: PixelTabsProps) {
         return (
           <button
             key={tab.id}
-            data-testid={`tab-${tab.id}`}
+            data-testid={testIdPrefix ? `${testIdPrefix}-tab-${tab.id}` : `tab-${tab.id}`}
             onClick={() => onTabChange(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 font-mono text-[12px] cursor-pointer transition-colors border-b-2 -mb-[2px] ${
               isActive

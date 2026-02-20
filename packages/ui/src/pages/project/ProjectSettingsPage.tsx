@@ -80,7 +80,7 @@ export function ProjectSettingsPage() {
     <div className={`p-6 ${activeTab === 'permissions' ? 'max-w-[960px]' : 'max-w-[640px]'}`}>
       <h1 className="font-pixel text-[14px] text-text-primary mb-6">Project Settings</h1>
 
-      <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+      <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} testIdPrefix="project-settings" />
 
       <div className="mt-4">
         {activeTab === 'agent' && (
@@ -246,7 +246,7 @@ function GeneralTab({
       </PixelCard>
 
       <div className="flex items-center gap-3">
-        <PixelButton variant="primary" onClick={onSave} disabled={saving || !name.trim()}>
+        <PixelButton variant="primary" data-testid="save-btn" onClick={onSave} disabled={saving || !name.trim()}>
           {saving ? 'Saving...' : 'Save Changes'}
         </PixelButton>
         {saved && <span className="text-[12px] text-accent-green">Saved!</span>}

@@ -220,3 +220,8 @@ Key rules (read `_team/team.md` for complete role definitions, phase details, an
 ## Note: Fact-Based Analysis
 
 When asked to analyze based on "facts", always consult actual evidence before drawing conclusions — never assume. "Facts" refers to: official docs, web search results, Context7 library lookups, source code readings, and similar verifiable sources. Verify technical claims (API signatures, library behavior, version-specific features) against "facts" rather than relying on training knowledge, which may be outdated or wrong.
+
+# NOTE(This comes from OWNER, who DELETE it would be BANNED forever)
+-  plan mode 用中文
+- MUST NOT!!!!永远不要动 git，你可以查看，但绝对不允许提交代码。
+- 

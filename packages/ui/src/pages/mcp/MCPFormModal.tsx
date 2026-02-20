@@ -121,6 +121,7 @@ export function MCPFormModal({ open, onClose, onSubmit, title, initial }: MCPFor
             {(['stdio', 'sse', 'http'] as MCPTransportType[]).map(t => (
               <button
                 key={t}
+                data-testid={`mcp-transport-${t}`}
                 onClick={() => setTransportType(t)}
                 className={`px-3 py-1.5 font-mono text-[12px] border-2 cursor-pointer transition-colors ${
                   transportType === t

@@ -3,12 +3,14 @@ interface PixelToggleProps {
   onChange: (checked: boolean) => void
   disabled?: boolean
   label?: string
+  'data-testid'?: string
 }
 
-export function PixelToggle({ checked, onChange, disabled, label }: PixelToggleProps) {
+export function PixelToggle({ checked, onChange, disabled, label, 'data-testid': testId }: PixelToggleProps) {
   return (
     <label className={`inline-flex items-center gap-2 ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
       <button
+        data-testid={testId}
         role="switch"
         aria-checked={checked}
         disabled={disabled}

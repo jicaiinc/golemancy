@@ -91,7 +91,7 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
   }, [setSelectedAgentId, closeContextMenu])
 
   return (
-    <div className="flex-1 relative w-full h-full">
+    <div className="flex-1 relative w-full h-full" data-testid="topology-canvas">
       <ReactFlow
         nodes={nodes}
         edges={edges}

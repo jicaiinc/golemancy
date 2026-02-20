@@ -88,7 +88,7 @@ export function SkillsPage() {
   }, [createSkill])
 
   return (
-    <motion.div className="p-6" {...staggerContainer} initial="initial" animate="animate">
+    <motion.div className="p-6" data-testid="skills-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -97,7 +97,7 @@ export function SkillsPage() {
             {skills.length} skill{skills.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <PixelButton variant="primary" onClick={() => setShowCreate(true)}>+ New Skill</PixelButton>
+        <PixelButton variant="primary" data-testid="skill-new-btn" onClick={() => setShowCreate(true)}>+ New Skill</PixelButton>
       </div>
 
       {/* Drop zone for skill import */}
@@ -118,7 +118,7 @@ export function SkillsPage() {
       )}
 
       {/* Tabs */}
-      <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+      <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} testIdPrefix="skill" />
 
       <div className="mt-4">
         {activeTab === 'installed' && (
@@ -153,7 +153,7 @@ export function SkillsPage() {
               <div className="flex flex-col gap-2">
                 {skills.map(skill => (
                   <motion.div key={skill.id} {...staggerItem}>
-                    <PixelCard>
+                    <PixelCard data-testid="skill-card">
                       <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-pixel text-[10px] text-accent-cyan">{skill.name}</h3>

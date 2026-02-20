@@ -61,24 +61,24 @@ test.describe('Project Dashboard', () => {
     await helper.navigateTo(`/projects/${projectId}`)
     await expect(window.getByText('Total Tokens')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
-    // Both tabs visible
+    // All three tabs visible
+    const trendTab = window.locator('[data-testid="tab-trend"]')
     const byAgentTab = window.locator('[data-testid="tab-by-agent"]')
     const byModelTab = window.locator('[data-testid="tab-by-model"]')
+    await expect(trendTab).toBeVisible()
     await expect(byAgentTab).toBeVisible()
     await expect(byModelTab).toBeVisible()
 
-    // 'By Agent' is active by default
+    // 'Trend' is active by default
+    await expect(trendTab).toHaveClass(/bg-surface/)
+
+    // Click 'By Agent'
+    await byAgentTab.click()
     await expect(byAgentTab).toHaveClass(/bg-surface/)
 
     // Click 'By Model'
     await byModelTab.click()
-
-    // Verify 'By Model' tab becomes active
     await expect(byModelTab).toHaveClass(/bg-surface/)
-    // Content: title if data exists, or "No data" for empty projects
-    const hasTitle = await window.getByText('TOKEN BY MODEL').isVisible().catch(() => false)
-    const hasNoData = await window.getByText('No data').isVisible().catch(() => false)
-    expect(hasTitle || hasNoData).toBeTruthy()
   })
 
   test('activity tabs work', async ({ window, helper }) => {

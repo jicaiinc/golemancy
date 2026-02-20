@@ -44,11 +44,11 @@ export function WorkspacePage() {
   if (!project) return null
 
   return (
-    <motion.div className="h-full flex flex-col" {...staggerContainer} initial="initial" animate="animate">
+    <motion.div className="h-full flex flex-col" data-testid="workspace-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <motion.div {...staggerItem} className="px-6 py-4 border-b-2 border-border-dim flex items-center gap-3">
         <h1 className="font-pixel text-[14px] text-text-primary">Artifacts</h1>
-        <PixelButton variant="ghost" size="sm" onClick={handleRefresh}>
+        <PixelButton variant="ghost" size="sm" data-testid="workspace-refresh-btn" onClick={handleRefresh}>
           Refresh
         </PixelButton>
       </motion.div>

@@ -48,6 +48,7 @@ function mapStatus(status: AgentStatus): 'online' | 'error' | 'paused' | 'offlin
 export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => {
   return (
     <div
+      data-testid="topology-node"
       className={`
         w-[240px] bg-surface border-2 relative overflow-hidden cursor-pointer transition-all
         ${selected
