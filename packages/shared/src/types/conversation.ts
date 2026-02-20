@@ -12,6 +12,17 @@ export interface Message extends Timestamped {
   model: string     // display only — e.g. 'claude-sonnet-4-20250514'
 }
 
+export interface CompactRecord {
+  id: string
+  conversationId: ConversationId
+  summary: string
+  boundaryMessageId: MessageId
+  inputTokens: number
+  outputTokens: number
+  trigger: 'auto' | 'manual'
+  createdAt: string
+}
+
 export interface Conversation extends Timestamped {
   id: ConversationId
   projectId: ProjectId
@@ -19,4 +30,5 @@ export interface Conversation extends Timestamped {
   title: string
   messages: Message[]
   lastMessageAt: string
+  compactRecords?: CompactRecord[]
 }

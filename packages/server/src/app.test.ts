@@ -144,6 +144,15 @@ function createMockDeps() {
       delete: vi.fn(),
       duplicate: vi.fn(),
     },
+    tokenRecordStorage: {
+      save: vi.fn().mockReturnValue('tkr-1'),
+      getConversationUsage: vi.fn().mockReturnValue({ total: { inputTokens: 0, outputTokens: 0 }, byAgent: [], byModel: [] }),
+    },
+    compactRecordStorage: {
+      getLatest: vi.fn().mockResolvedValue(null),
+      list: vi.fn().mockResolvedValue([]),
+      save: vi.fn().mockResolvedValue({ id: 'compact-1' }),
+    },
   } as unknown as ServerDependencies
 }
 

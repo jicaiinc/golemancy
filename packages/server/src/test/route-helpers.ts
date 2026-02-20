@@ -124,6 +124,11 @@ export function createMockStorage(): MockStorage {
     tokenRecordStorage: {
       save: vi.fn().mockReturnValue('tkr-mock'),
     } as any,
+    compactRecordStorage: {
+      getLatest: vi.fn().mockResolvedValue(null),
+      list: vi.fn().mockResolvedValue([]),
+      save: vi.fn(),
+    } as any,
   }
 }
 

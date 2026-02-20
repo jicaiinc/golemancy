@@ -149,6 +149,21 @@ export function migrateDatabase(db: AppDatabase) {
     db.run(sql`ALTER TABLE messages ADD COLUMN model TEXT NOT NULL DEFAULT ''`)
   }
 
+  // --- Migration v6: compact_records table ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS compact_records (
+      id                  TEXT PRIMARY KEY,
+      conversation_id     TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      summary             TEXT NOT NULL,
+      boundary_message_id TEXT NOT NULL,
+      input_tokens        INTEGER NOT NULL DEFAULT 0,
+      output_tokens       INTEGER NOT NULL DEFAULT 0,
+      trigger             TEXT NOT NULL,
+      created_at          TEXT NOT NULL
+    )
+  `)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_compact_records_conv ON compact_records(conversation_id, created_at DESC)`)
+
   // Set up FTS5
   setupFTS(db)
   log.info('database migrations complete')

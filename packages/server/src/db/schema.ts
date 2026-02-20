@@ -55,6 +55,18 @@ export const tokenRecords = sqliteTable('token_records', {
   createdAt: text('created_at').notNull(),
 })
 
+export const compactRecords = sqliteTable('compact_records', {
+  id: text('id').primaryKey(),
+  conversationId: text('conversation_id').notNull()
+    .references(() => conversations.id, { onDelete: 'cascade' }),
+  summary: text('summary').notNull(),
+  boundaryMessageId: text('boundary_message_id').notNull(),
+  inputTokens: integer('input_tokens').notNull().default(0),
+  outputTokens: integer('output_tokens').notNull().default(0),
+  trigger: text('trigger').notNull(),
+  createdAt: text('created_at').notNull(),
+})
+
 export const cronJobRuns = sqliteTable('cron_job_runs', {
   id: text('id').primaryKey(),
   cronJobId: text('cron_job_id').notNull(),

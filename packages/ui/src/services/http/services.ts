@@ -7,7 +7,7 @@ import type {
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   WorkspaceEntry, FilePreviewData,
-  ConversationTokenUsageResult,
+  ConversationTokenUsageResult, CompactRecord,
   IProjectService, IAgentService, IConversationService,
   ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService,
@@ -119,6 +119,12 @@ export class HttpConversationService implements IConversationService {
   getConversationTokenUsage(projectId: ProjectId, conversationId: ConversationId) {
     return fetchJson<ConversationTokenUsageResult>(
       `${this.baseUrl}/api/projects/${projectId}/conversations/${conversationId}/token-usage`,
+    )
+  }
+  compact(projectId: ProjectId, conversationId: ConversationId) {
+    return fetchJson<CompactRecord>(
+      `${this.baseUrl}/api/projects/${projectId}/conversations/${conversationId}/compact`,
+      { method: 'POST' },
     )
   }
 }

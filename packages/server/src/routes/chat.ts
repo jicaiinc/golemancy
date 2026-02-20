@@ -8,12 +8,15 @@ import type {
   AgentId, ProjectId, ConversationId, MessageId,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
+import type { CompactRecordStorage } from '../storage/compact-records'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import type { WebSocketManager } from '../ws/handler'
 import { resolveModel } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
+import { buildMessagesForModel, compactConversation } from '../agent/compact'
 import { generateId } from '../utils/ids'
 import { extractUploads, rehydrateUploadsForAI } from '../utils/message-parts'
 import { logger } from '../logger'
@@ -36,6 +39,7 @@ export interface ChatRouteDeps {
   permissionsConfigStorage: IPermissionsConfigService
   taskStorage: SqliteConversationTaskStorage
   tokenRecordStorage: TokenRecordStorage
+  compactRecordStorage: CompactRecordStorage
   activeChatRegistry?: ActiveChatRegistry
   wsManager?: WebSocketManager
 }
@@ -206,7 +210,13 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       })),
     )
 
-    const modelMessages = await convertToModelMessages(rehydratedMessages)
+    // --- Compact: filter messages for model ---
+    const latestCompact = conversationId
+      ? await deps.compactRecordStorage.getLatest(projectId as ProjectId, conversationId as ConversationId)
+      : null
+    const messagesForModel = buildMessagesForModel(rehydratedMessages, latestCompact)
+
+    const modelMessages = await convertToModelMessages(messagesForModel)
     const hasTools = Object.keys(allTools).length > 0
 
     let cleaned = false
@@ -338,6 +348,64 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                 type: 'data-usage' as `data-${string}`,
                 data: { inputTokens, outputTokens, totalTokens },
               })
+
+              // Auto-compact check
+              const threshold = agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD
+              if (threshold > 0 && inputTokens >= threshold && conversationId) {
+                log.info({ conversationId, inputTokens, threshold }, 'triggering auto-compact')
+
+                writer.write({
+                  type: 'data-compact' as `data-${string}`,
+                  data: { status: 'triggered', inputTokens, threshold },
+                })
+
+                setImmediate(async () => {
+                  try {
+                    const conv = await deps.conversationStorage.getById(
+                      projectId as ProjectId,
+                      conversationId as ConversationId,
+                    )
+                    if (!conv) return
+
+                    const allUiMsgs: UIMessage[] = conv.messages.map(m => ({
+                      id: m.id,
+                      role: m.role,
+                      parts: m.parts as UIMessage['parts'],
+                    }))
+                    const allModelMsgs = await convertToModelMessages(allUiMsgs)
+
+                    const compactResult = await compactConversation({
+                      messages: allModelMsgs,
+                      model,
+                      systemPrompt,
+                    })
+
+                    await deps.compactRecordStorage.save(projectId as ProjectId, {
+                      conversationId: conversationId as ConversationId,
+                      summary: compactResult.summary,
+                      boundaryMessageId: responseMessage.id as MessageId,
+                      inputTokens: compactResult.inputTokens,
+                      outputTokens: compactResult.outputTokens,
+                      trigger: 'auto',
+                    })
+
+                    // Record compact token usage
+                    deps.tokenRecordStorage.save(projectId as ProjectId, {
+                      conversationId,
+                      agentId: agentId as string,
+                      provider: agent.modelConfig.provider,
+                      model: agent.modelConfig.model,
+                      inputTokens: compactResult.inputTokens,
+                      outputTokens: compactResult.outputTokens,
+                      source: 'chat',
+                    })
+
+                    log.info({ conversationId, compactInputTokens: compactResult.inputTokens, compactOutputTokens: compactResult.outputTokens }, 'auto-compact completed')
+                  } catch (err) {
+                    log.error({ err, conversationId }, 'auto-compact failed')
+                  }
+                })
+              }
             } catch (err) {
               log.error({ err, conversationId }, 'failed to save assistant message')
             }

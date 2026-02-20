@@ -9,6 +9,7 @@ import type {
 } from '@golemancy/shared'
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import type { TokenRecordStorage } from './storage/token-records'
+import type { CompactRecordStorage } from './storage/compact-records'
 import type { WebSocketManager } from './ws/handler'
 import type { ActiveChatRegistry } from './agent/active-chat-registry'
 import { createProjectRoutes } from './routes/projects'
@@ -46,6 +47,7 @@ export interface ServerDependencies {
   mcpStorage: IMCPService
   permissionsConfigStorage: IPermissionsConfigService
   tokenRecordStorage: TokenRecordStorage
+  compactRecordStorage: CompactRecordStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
 }
@@ -100,7 +102,9 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects/:projectId/conversations', createConversationRoutes({
     conversationStorage: deps.conversationStorage,
     tokenRecordStorage: deps.tokenRecordStorage,
+    compactRecordStorage: deps.compactRecordStorage,
     agentStorage: deps.agentStorage,
+    settingsStorage: deps.settingsStorage,
   }))
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
   app.route('/api/projects/:projectId/workspace', createWorkspaceRoutes())
@@ -124,6 +128,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     permissionsConfigStorage: deps.permissionsConfigStorage,
     taskStorage: deps.taskStorage as import('./storage/tasks').SqliteConversationTaskStorage,
     tokenRecordStorage: deps.tokenRecordStorage,
+    compactRecordStorage: deps.compactRecordStorage,
     activeChatRegistry: deps.activeChatRegistry,
     wsManager: deps.wsManager,
   }))

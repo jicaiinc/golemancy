@@ -18,6 +18,7 @@ import { FilePermissionsConfigStorage } from './storage/permissions-config'
 import { DashboardService } from './storage/dashboard'
 import { GlobalDashboardService } from './storage/global-dashboard'
 import { TokenRecordStorage } from './storage/token-records'
+import { CompactRecordStorage } from './storage/compact-records'
 import { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import { WebSocketManager } from './ws/handler'
 import { ActiveChatRegistry } from './agent/active-chat-registry'
@@ -43,6 +44,7 @@ async function main() {
   const agentStorage = new FileAgentStorage()
   const cronJobRunStorage = new SqliteCronJobRunStorage(dbManager.getProjectDb)
   const tokenRecordStorage = new TokenRecordStorage(dbManager.getProjectDb)
+  const compactRecordStorage = new CompactRecordStorage(dbManager.getProjectDb)
   const wsManager = new WebSocketManager()
   const activeChatRegistry = new ActiveChatRegistry()
   const cronJobStorage = new FileCronJobStorage()
@@ -69,6 +71,7 @@ async function main() {
     dashboardService: new DashboardService(dashboardDeps),
     globalDashboardService: new GlobalDashboardService(dashboardDeps),
     tokenRecordStorage,
+    compactRecordStorage,
     wsManager,
     activeChatRegistry,
   }

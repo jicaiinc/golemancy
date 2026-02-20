@@ -2,13 +2,14 @@ import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import type { UIMessage, FileUIPart } from 'ai'
 import { motion } from 'motion/react'
-import type { Agent, AgentId, Conversation } from '@golemancy/shared'
+import type { Agent, AgentId, CompactRecord, Conversation } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
 import { PixelButton, PixelSpinner, SidebarToggleIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { getOrCreateChat } from '../../lib/chat-instances'
 import { MessageBubble } from './MessageBubble'
+import { CompactBoundary } from './CompactBoundary'
 import { ChatInput } from './ChatInput'
 
 /** Truncate text to maxLen at word boundary for auto-title */
@@ -50,6 +51,8 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   const [titleValue, setTitleValue] = useState('')
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
   const [toolWarnings, setToolWarnings] = useState<string[]>([])
+  const [compactRecords, setCompactRecords] = useState<CompactRecord[]>(conversation.compactRecords ?? [])
+  const [compacting, setCompacting] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
 
   const handleTitleClick = useCallback(() => {
@@ -110,19 +113,30 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   useEffect(() => {
     if (!chat) return
     setToolWarnings([]);
-    (chat as any).onData = (part: { type: string; data?: { message?: string; inputTokens?: number; outputTokens?: number }; transient?: boolean }) => {
+    (chat as any).onData = (part: { type: string; data?: Record<string, unknown>; transient?: boolean }) => {
       if (part.type === 'data-warning' && part.transient && part.data?.message) {
-        setToolWarnings(prev => [...prev, part.data!.message!])
+        setToolWarnings(prev => [...prev, String(part.data!.message)])
       }
       if (part.type === 'data-usage' && part.data && onUsageUpdate) {
         onUsageUpdate({
-          inputTokens: part.data.inputTokens ?? 0,
-          outputTokens: part.data.outputTokens ?? 0,
+          inputTokens: (part.data.inputTokens as number) ?? 0,
+          outputTokens: (part.data.outputTokens as number) ?? 0,
         })
+      }
+      if (part.type === 'data-compact' && part.data?.status === 'triggered') {
+        // Auto-compact was triggered — reload compact records after a delay
+        // to allow the server to finish the async compact operation
+        setTimeout(async () => {
+          if (!currentProjectId) return
+          const updated = await getServices().conversations.getById(currentProjectId, conversation.id)
+          if (updated?.compactRecords) {
+            setCompactRecords(updated.compactRecords)
+          }
+        }, 5000)
       }
     }
     return () => { (chat as any).onData = undefined }
-  }, [chat, onUsageUpdate])
+  }, [chat, onUsageUpdate, currentProjectId, conversation.id])
 
   // Track whether this component mounted with pre-existing messages (loaded from cache).
   // If so, skip the stagger entrance animation to avoid a multi-second delay.
@@ -199,6 +213,27 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     selectConversation(null)
   }, [confirmDelete, deleteConversation, selectConversation, conversation.id])
 
+  const handleCompact = useCallback(async () => {
+    if (!currentProjectId || compacting) return
+    setCompacting(true)
+    try {
+      const svc = getServices()
+      await svc.conversations.compact?.(currentProjectId, conversation.id)
+      // Reload conversation to get updated compactRecords
+      const updated = await svc.conversations.getById(currentProjectId, conversation.id)
+      if (updated) {
+        useAppStore.setState(s => ({
+          conversations: s.conversations.map(c => c.id === conversation.id ? updated : c),
+        }))
+        setCompactRecords(updated.compactRecords ?? [])
+      }
+    } catch (err) {
+      console.error('Manual compact failed:', err)
+    } finally {
+      setCompacting(false)
+    }
+  }, [currentProjectId, conversation.id, compacting])
+
   // --- Derived display state ---
   const isBusy = status === 'submitted' || status === 'streaming'
   const lastMsg = messages[messages.length - 1]
@@ -266,7 +301,12 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
         </div>
 
         {/* Right: actions */}
-        <div className="shrink-0">
+        <div className="shrink-0 flex items-center gap-1">
+          {messages.length > 0 && !isBusy && (
+            <PixelButton size="sm" variant="ghost" onClick={handleCompact} disabled={compacting}>
+              {compacting ? 'Compacting...' : 'Compact'}
+            </PixelButton>
+          )}
           {confirmDelete ? (
             <div className="flex items-center gap-1">
               <PixelButton size="sm" variant="danger" onClick={handleDelete}>
@@ -314,11 +354,15 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
           </div>
         ) : (
           <motion.div {...staggerContainer} initial={shouldAnimateStagger ? 'initial' : false} animate="animate">
-            {messages.map((msg: UIMessage) => (
-              <motion.div key={msg.id} {...staggerItem}>
-                <MessageBubble message={msg} chatStatus={status} />
-              </motion.div>
-            ))}
+            {messages.map((msg: UIMessage) => {
+              const compactAfter = compactRecords.find(cr => cr.boundaryMessageId === msg.id)
+              return (
+                <motion.div key={msg.id} {...staggerItem}>
+                  <MessageBubble message={msg} chatStatus={status} />
+                  {compactAfter && <CompactBoundary compact={compactAfter} />}
+                </motion.div>
+              )
+            })}
 
             {/* Thinking indicator */}
             {showThinking && (

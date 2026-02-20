@@ -1,6 +1,13 @@
 import { Hono } from 'hono'
-import type { ProjectId, AgentId, ConversationId, MessageId, IConversationService, IAgentService } from '@golemancy/shared'
+import { convertToModelMessages, type UIMessage } from 'ai'
+import type {
+  ProjectId, AgentId, ConversationId, MessageId,
+  IConversationService, IAgentService, ISettingsService,
+} from '@golemancy/shared'
 import type { TokenRecordStorage } from '../storage/token-records'
+import type { CompactRecordStorage } from '../storage/compact-records'
+import { resolveModel } from '../agent/model'
+import { compactConversation } from '../agent/compact'
 import { resolveUploadsForClient, extractUploads } from '../utils/message-parts'
 import { logger } from '../logger'
 
@@ -15,7 +22,9 @@ function getBaseUrl(c: { req: { url: string } }): string {
 export interface ConversationRouteDeps {
   conversationStorage: IConversationService
   tokenRecordStorage: TokenRecordStorage
+  compactRecordStorage: CompactRecordStorage
   agentStorage: IAgentService
+  settingsStorage: ISettingsService
 }
 
 export function createConversationRoutes(deps: ConversationRouteDeps) {
@@ -39,8 +48,10 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     if (!conv) return c.json({ error: 'Not found' }, 404)
     // Resolve golemancy-upload: references to HTTP URLs for client rendering
     const baseUrl = getBaseUrl(c)
+    const compactRecords = await deps.compactRecordStorage.list(projectId, convId)
     const resolved = {
       ...conv,
+      compactRecords,
       messages: conv.messages.map(m => ({
         ...m,
         parts: resolveUploadsForClient(projectId, baseUrl, m.parts),
@@ -131,6 +142,60 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
         parts: resolveUploadsForClient(projectId, baseUrl, m.parts),
       })),
     })
+  })
+
+  // Manual compact
+  app.post('/:convId/compact', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const convId = c.req.param('convId') as ConversationId
+    log.info({ projectId, conversationId: convId }, 'manual compact requested')
+
+    const conv = await storage.getById(projectId, convId)
+    if (!conv) return c.json({ error: 'Not found' }, 404)
+    if (conv.messages.length === 0) return c.json({ error: 'No messages to compact' }, 400)
+
+    const agent = await agentStorage.getById(projectId, conv.agentId)
+    if (!agent) return c.json({ error: 'Agent not found' }, 404)
+
+    const settings = await deps.settingsStorage.get()
+    const model = await resolveModel(settings, agent.modelConfig)
+
+    const uiMessages: UIMessage[] = conv.messages.map(m => ({
+      id: m.id,
+      role: m.role,
+      parts: m.parts as UIMessage['parts'],
+    }))
+    const modelMessages = await convertToModelMessages(uiMessages)
+
+    const result = await compactConversation({
+      messages: modelMessages,
+      model,
+      systemPrompt: agent.systemPrompt,
+    })
+
+    const lastMsg = conv.messages.at(-1)!
+    const record = await deps.compactRecordStorage.save(projectId, {
+      conversationId: convId,
+      summary: result.summary,
+      boundaryMessageId: lastMsg.id,
+      inputTokens: result.inputTokens,
+      outputTokens: result.outputTokens,
+      trigger: 'manual',
+    })
+
+    // Record compact token usage
+    deps.tokenRecordStorage.save(projectId, {
+      conversationId: convId,
+      agentId: agent.id,
+      provider: agent.modelConfig.provider,
+      model: agent.modelConfig.model,
+      inputTokens: result.inputTokens,
+      outputTokens: result.outputTokens,
+      source: 'chat',
+    })
+
+    log.info({ conversationId: convId, compactId: record.id }, 'manual compact completed')
+    return c.json(record, 201)
   })
 
   // Token usage breakdown for a conversation

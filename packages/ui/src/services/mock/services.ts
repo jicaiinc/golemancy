@@ -7,6 +7,7 @@ import type {
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
   WorkspaceEntry, FilePreviewData,
+  CompactRecord,
 } from '@golemancy/shared'
 import { DEFAULT_PERMISSIONS_CONFIG, getFileCategory, getMimeType } from '@golemancy/shared'
 import type {
@@ -274,6 +275,20 @@ export class MockConversationService implements IConversationService {
   async getConversationTokenUsage(_projectId: ProjectId, _conversationId: ConversationId): Promise<ConversationTokenUsageResult> {
     await delay()
     return { total: { inputTokens: 0, outputTokens: 0 }, byAgent: [], byModel: [] }
+  }
+
+  async compact(_projectId: ProjectId, _conversationId: ConversationId): Promise<CompactRecord> {
+    await delay()
+    return {
+      id: genId('compact'),
+      conversationId: _conversationId,
+      summary: 'Mock compact summary',
+      boundaryMessageId: '' as MessageId,
+      inputTokens: 0,
+      outputTokens: 0,
+      trigger: 'manual',
+      createdAt: new Date().toISOString(),
+    }
   }
 }
 

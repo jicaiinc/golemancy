@@ -9,6 +9,7 @@ import type {
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   PermissionsConfigFile,
   WorkspaceEntry, FilePreviewData,
+  CompactRecord,
 } from '../types'
 
 export interface IProjectService {
@@ -46,6 +47,7 @@ export interface IConversationService {
   update(projectId: ProjectId, id: ConversationId, data: { title?: string }): Promise<Conversation>
   delete(projectId: ProjectId, id: ConversationId): Promise<void>
   getConversationTokenUsage?(projectId: ProjectId, conversationId: ConversationId): Promise<ConversationTokenUsageResult>
+  compact?(projectId: ProjectId, conversationId: ConversationId): Promise<CompactRecord>
 }
 
 export interface ITaskService {
