@@ -222,7 +222,7 @@ describe('DashboardPage', () => {
     })
   })
 
-  it('renders breakdown tabs (By Agent / By Model)', async () => {
+  it('renders token detail tabs (Trend / By Agent / By Model)', async () => {
     useAppStore.setState({
       dashboardSummary: mockSummary,
       dashboardTokenByAgent: mockTokenByAgent,
@@ -231,12 +231,13 @@ describe('DashboardPage', () => {
     })
     renderDashboard()
     await waitFor(() => {
+      expect(screen.getByText('Trend')).toBeInTheDocument()
       expect(screen.getByText('By Agent')).toBeInTheDocument()
       expect(screen.getByText('By Model')).toBeInTheDocument()
     })
   })
 
-  it('renders token trend chart', async () => {
+  it('renders token trend chart in Trend tab by default', async () => {
     useAppStore.setState({
       dashboardSummary: mockSummary,
       dashboardTokenTrend: mockTokenTrend,
@@ -244,7 +245,11 @@ describe('DashboardPage', () => {
     })
     renderDashboard()
     await waitFor(() => {
-      expect(screen.getByText('TOKEN USAGE TREND')).toBeInTheDocument()
+      // Trend tab should be present and active by default
+      expect(screen.getByText('Trend')).toBeInTheDocument()
+      // Chart legend should be visible (trend is default tab)
+      expect(screen.getByText('Input')).toBeInTheDocument()
+      expect(screen.getByText('Output')).toBeInTheDocument()
     })
   })
 

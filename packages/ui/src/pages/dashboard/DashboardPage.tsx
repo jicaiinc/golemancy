@@ -28,16 +28,14 @@ function TokenTrendChart() {
 
   if (data.length === 0) {
     return (
-      <PixelCard variant="default" className="py-8 text-center">
+      <div className="py-8 text-center">
         <p className="font-pixel text-[9px] text-text-dim">No token data available</p>
-      </PixelCard>
+      </div>
     )
   }
 
   return (
-    <PixelCard variant="default">
-      <h3 className="font-pixel text-[10px] text-text-secondary mb-4">TOKEN USAGE TREND</h3>
-
+    <div>
       <div className="relative">
         {/* Y-axis labels */}
         <div className="absolute left-0 top-0 bottom-6 w-12 flex flex-col justify-between text-[9px] text-text-dim font-mono">
@@ -106,7 +104,7 @@ function TokenTrendChart() {
           <span className="text-[9px] text-text-dim font-mono">Output</span>
         </div>
       </div>
-    </PixelCard>
+    </div>
   )
 }
 
@@ -127,7 +125,7 @@ export function DashboardPage() {
   const timeRange = useAppStore(s => s.dashboardTimeRange)
   const { addListener } = useWs()
 
-  const [breakdownTab, setBreakdownTab] = useState('by-agent')
+  const [tokenTab, setTokenTab] = useState('trend')
 
   // Load on mount
   useEffect(() => {
@@ -201,7 +199,7 @@ export function DashboardPage() {
           <p className="mt-1 text-text-secondary text-[13px]">{project?.description ?? 'Project overview'}</p>
         </div>
 
-        {/* Section 1: Token Usage — TimeRange + Summary + Breakdown + Trend */}
+        {/* Section 1: Token Usage — TimeRange + Summary */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN USAGE</h2>
@@ -210,37 +208,32 @@ export function DashboardPage() {
           <TokenSummaryCards summary={summary} />
         </div>
 
-        {/* Token Breakdown (full width) */}
+        {/* Section 2: Unified Token Details — Trend / By Agent / By Model */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN BREAKDOWN</h2>
-            <PixelTabs
-              tabs={[
-                { id: 'by-agent', label: 'By Agent' },
-                { id: 'by-model', label: 'By Model' },
-              ]}
-              activeTab={breakdownTab}
-              onTabChange={setBreakdownTab}
-            />
-          </div>
-          {breakdownTab === 'by-agent' ? (
-            <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} />
-          ) : (
-            <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} />
-          )}
+          <PixelCard variant="default">
+            <div className="mb-4">
+              <PixelTabs
+                tabs={[
+                  { id: 'trend', label: 'Trend' },
+                  { id: 'by-agent', label: 'By Agent' },
+                  { id: 'by-model', label: 'By Model' },
+                ]}
+                activeTab={tokenTab}
+                onTabChange={setTokenTab}
+              />
+            </div>
+            {tokenTab === 'trend' && <TokenTrendChart />}
+            {tokenTab === 'by-agent' && <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} inline />}
+            {tokenTab === 'by-model' && <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} inline />}
+          </PixelCard>
         </div>
 
-        {/* Token Trend Chart (full width) */}
-        <div className="mb-6">
-          <TokenTrendChart />
-        </div>
-
-        {/* Section 2: Runtime Status */}
+        {/* Section 3: Runtime Status */}
         <div className="mb-6">
           <RuntimeStatusPanel status={runtimeStatus} />
         </div>
 
-        {/* Section 3: Overview */}
+        {/* Section 4: Overview */}
         <OverviewPanel agentStats={agentStats} recentChats={recentChats} />
       </div>
     </div>

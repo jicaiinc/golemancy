@@ -13,22 +13,25 @@ interface TokenBreakdownTableProps {
   title: string
   data: BreakdownRow[]
   onRowClick?: (index: number) => void
+  /** When true, renders without PixelCard wrapper (for embedding in a parent card). */
+  inline?: boolean
 }
 
-export function TokenBreakdownTable({ title, data, onRowClick }: TokenBreakdownTableProps) {
+export function TokenBreakdownTable({ title, data, onRowClick, inline }: TokenBreakdownTableProps) {
   if (data.length === 0) {
-    return (
-      <PixelCard variant="default" className="py-6 text-center">
+    const empty = (
+      <div className="py-6 text-center">
         <p className="font-pixel text-[9px] text-text-dim">No data</p>
-      </PixelCard>
+      </div>
     )
+    return inline ? empty : <PixelCard variant="default">{empty}</PixelCard>
   }
 
   const maxTotal = Math.max(...data.map(d => d.inputTokens + d.outputTokens), 1)
 
-  return (
-    <PixelCard variant="default">
-      <h3 className="font-pixel text-[10px] text-text-secondary mb-3">{title}</h3>
+  const content = (
+    <>
+      {!inline && <h3 className="font-pixel text-[10px] text-text-secondary mb-3">{title}</h3>}
       {/* Header */}
       <div className="grid grid-cols-[1fr_5rem_5rem_4rem_8rem] gap-2 px-2 py-1 border-b-2 border-border-dim">
         <span className="text-[9px] text-text-dim font-mono">Name</span>
@@ -69,6 +72,8 @@ export function TokenBreakdownTable({ title, data, onRowClick }: TokenBreakdownT
           )
         })}
       </div>
-    </PixelCard>
+    </>
   )
+
+  return inline ? <div>{content}</div> : <PixelCard variant="default">{content}</PixelCard>
 }

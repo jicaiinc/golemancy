@@ -157,19 +157,22 @@ describe('GlobalDashboardPage', () => {
     })
   })
 
-  it('renders 3 breakdown tabs (By Project / By Model / By Agent)', async () => {
+  it('renders 4 token detail tabs (Trend / By Project / By Model / By Agent)', async () => {
     renderGlobalDashboard()
     await waitFor(() => {
+      expect(screen.getByText('Trend')).toBeInTheDocument()
       expect(screen.getByText('By Project')).toBeInTheDocument()
       expect(screen.getByText('By Model')).toBeInTheDocument()
       expect(screen.getByText('By Agent')).toBeInTheDocument()
     })
   })
 
-  it('renders token trend chart', async () => {
+  it('renders token trend chart in Trend tab by default', async () => {
     renderGlobalDashboard()
     await waitFor(() => {
-      expect(screen.getByText('TOKEN USAGE TREND')).toBeInTheDocument()
+      // Chart legend should be visible (trend is default tab)
+      expect(screen.getByText('Input')).toBeInTheDocument()
+      expect(screen.getByText('Output')).toBeInTheDocument()
     })
   })
 

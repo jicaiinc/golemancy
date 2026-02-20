@@ -36,15 +36,14 @@ function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[
 
   if (slicedData.length === 0) {
     return (
-      <PixelCard variant="default" className="py-8 text-center">
+      <div className="py-8 text-center">
         <p className="font-pixel text-[9px] text-text-dim">No token data available</p>
-      </PixelCard>
+      </div>
     )
   }
 
   return (
-    <PixelCard variant="default">
-      <h3 className="font-pixel text-[10px] text-text-secondary mb-4">TOKEN USAGE TREND</h3>
+    <div>
       <div className="relative">
         <div className="absolute left-0 top-0 bottom-6 w-12 flex flex-col justify-between text-[9px] text-text-dim font-mono">
           <span>{formatTokens(maxTotal)}</span>
@@ -105,7 +104,7 @@ function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[
           <span className="text-[9px] text-text-dim font-mono">Output</span>
         </div>
       </div>
-    </PixelCard>
+    </div>
   )
 }
 
@@ -122,7 +121,7 @@ export function GlobalDashboardPage() {
   const [tokenTrend, setTokenTrend] = useState<DashboardTokenTrend[]>([])
   const [runtimeStatus, setRuntimeStatus] = useState<RuntimeStatus | null>(null)
 
-  const [breakdownTab, setBreakdownTab] = useState('by-project')
+  const [tokenTab, setTokenTab] = useState('trend')
 
   const loadData = useCallback(async (range: TimeRange) => {
     const svc = getServices().globalDashboard
@@ -240,42 +239,34 @@ export function GlobalDashboardPage() {
               <TokenSummaryCards summary={summary} />
             </div>
 
-            {/* Token Breakdown (full width) */}
+            {/* Section 2: Unified Token Details — Trend / By Project / By Model / By Agent */}
             <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN BREAKDOWN</h2>
-                <PixelTabs
-                  tabs={[
-                    { id: 'by-project', label: 'By Project' },
-                    { id: 'by-model', label: 'By Model' },
-                    { id: 'by-agent', label: 'By Agent' },
-                  ]}
-                  activeTab={breakdownTab}
-                  onTabChange={setBreakdownTab}
-                />
-              </div>
-              {breakdownTab === 'by-project' && (
-                <TokenBreakdownTable title="TOKEN BY PROJECT" data={breakdownByProject} />
-              )}
-              {breakdownTab === 'by-model' && (
-                <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} />
-              )}
-              {breakdownTab === 'by-agent' && (
-                <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} />
-              )}
+              <PixelCard variant="default">
+                <div className="mb-4">
+                  <PixelTabs
+                    tabs={[
+                      { id: 'trend', label: 'Trend' },
+                      { id: 'by-project', label: 'By Project' },
+                      { id: 'by-model', label: 'By Model' },
+                      { id: 'by-agent', label: 'By Agent' },
+                    ]}
+                    activeTab={tokenTab}
+                    onTabChange={setTokenTab}
+                  />
+                </div>
+                {tokenTab === 'trend' && <GlobalTokenTrendChart data={tokenTrend} timeRange={timeRange} />}
+                {tokenTab === 'by-project' && <TokenBreakdownTable title="TOKEN BY PROJECT" data={breakdownByProject} inline />}
+                {tokenTab === 'by-model' && <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} inline />}
+                {tokenTab === 'by-agent' && <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} inline />}
+              </PixelCard>
             </div>
 
-            {/* Token Trend Chart (full width) */}
-            <div className="mb-6">
-              <GlobalTokenTrendChart data={tokenTrend} timeRange={timeRange} />
-            </div>
-
-            {/* Section 2: Runtime Status */}
+            {/* Section 3: Runtime Status */}
             <div className="mb-6">
               <RuntimeStatusPanel status={runtimeStatus} />
             </div>
 
-            {/* Section 3: Overview - Top Projects */}
+            {/* Section 4: Overview - Top Projects */}
             <PixelCard variant="default">
               <h3 className="font-pixel text-[10px] text-text-secondary mb-3">TOP PROJECTS</h3>
               {tokenByProject.length === 0 ? (
