@@ -179,7 +179,6 @@ export function GlobalDashboardPage() {
 
   const handleTimeRangeChange = (range: TimeRange) => {
     setTimeRange(range)
-    setLoading(true)
   }
 
   // Breakdown data mapped for TokenBreakdownTable
@@ -224,7 +223,7 @@ export function GlobalDashboardPage() {
           <p className="mt-1 text-text-secondary text-[13px]">Cross-project overview</p>
         </div>
 
-        {loading ? (
+        {loading && !summary ? (
           <div className="flex items-center justify-center h-64">
             <PixelSpinner label="Loading dashboard..." />
           </div>

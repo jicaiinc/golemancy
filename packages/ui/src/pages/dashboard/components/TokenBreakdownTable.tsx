@@ -49,7 +49,7 @@ export function TokenBreakdownTable({ title, data, onRowClick, inline }: TokenBr
           return (
             <div
               key={row.label + idx}
-              className={`grid grid-cols-[1fr_5rem_5rem_4rem_8rem] gap-2 px-2 py-1.5 hover:bg-elevated/50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
+              className={`grid grid-cols-[1fr_5rem_5rem_4rem_8rem] items-center gap-2 px-2 py-1.5 hover:bg-elevated/50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
               onClick={() => onRowClick?.(idx)}
             >
               <div className="min-w-0">

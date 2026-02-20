@@ -21,8 +21,19 @@ export interface DashboardServiceDeps {
   cronJobStorage?: ICronJobService
 }
 
+/** Local date string (YYYY-MM-DD) using system timezone. */
+function toLocalDate(d: Date = new Date()): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** Local midnight expressed as UTC ISO string, for comparing against UTC-stored timestamps. */
+function localMidnightIso(d: Date = new Date()): string {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString()
+}
+
 /**
- * Convert a TimeRange enum to an ISO date string (start of range).
+ * Convert a TimeRange enum to a UTC ISO boundary for filtering.
+ * Uses local midnight so "today" means "since midnight local time".
  * Returns undefined for 'all' (no filtering).
  */
 function timeRangeToDate(range?: TimeRange): string | undefined {
@@ -30,16 +41,14 @@ function timeRangeToDate(range?: TimeRange): string | undefined {
   const now = new Date()
   switch (range) {
     case 'today':
-      return now.toISOString().slice(0, 10) // YYYY-MM-DD
+      return localMidnightIso(now)
     case '7d': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 7)
-      return d.toISOString().slice(0, 10)
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7)
+      return d.toISOString()
     }
     case '30d': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 30)
-      return d.toISOString().slice(0, 10)
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30)
+      return d.toISOString()
     }
   }
 }
@@ -287,7 +296,7 @@ export class DashboardService implements IDashboardService {
   }
 
   async getTokenTrend(projectId: ProjectId, days = 14, timeRange?: TimeRange): Promise<DashboardTokenTrend[]> {
-    // Today: hourly (0-23) distribution
+    // Today: hourly (0-23) distribution in local time
     if (timeRange === 'today') {
       return this.getHourlyTrend(projectId)
     }
@@ -296,28 +305,29 @@ export class DashboardService implements IDashboardService {
     if (timeRange === '7d') days = 7
     else if (timeRange === '30d') days = 30
 
-    // Build date range
-    const today = new Date()
+    // Build date range using local dates
+    const now = new Date()
     const dateMap = new Map<string, { inputTokens: number; outputTokens: number }>()
     for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(today)
-      d.setDate(d.getDate() - i)
-      const key = d.toISOString().slice(0, 10)
-      dateMap.set(key, { inputTokens: 0, outputTokens: 0 })
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)
+      dateMap.set(toLocalDate(d), { inputTokens: 0, outputTokens: 0 })
     }
 
-    const startDate = Array.from(dateMap.keys())[0]
+    // Use local midnight of the earliest day as the UTC boundary
+    const startDays = days - 1
+    const startBoundary = new Date(now.getFullYear(), now.getMonth(), now.getDate() - startDays).toISOString()
 
     try {
       const db = this.deps.getProjectDb(projectId)
+      // Use 'localtime' modifier to bucket by local date
       const rows = db.all<{ day: string; inp: number; out: number }>(
         sql`SELECT day, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out FROM (
-              SELECT substr(created_at, 1, 10) as day, input_tokens as inp, output_tokens as out
-              FROM token_records WHERE created_at >= ${startDate}
+              SELECT substr(datetime(created_at, 'localtime'), 1, 10) as day, input_tokens as inp, output_tokens as out
+              FROM token_records WHERE created_at >= ${startBoundary}
               UNION ALL
-              SELECT substr(m.created_at, 1, 10) as day, m.input_tokens as inp, m.output_tokens as out
+              SELECT substr(datetime(m.created_at, 'localtime'), 1, 10) as day, m.input_tokens as inp, m.output_tokens as out
               FROM messages m
-              WHERE m.created_at >= ${startDate} AND m.input_tokens > 0
+              WHERE m.created_at >= ${startBoundary} AND m.input_tokens > 0
                 AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
             ) GROUP BY day`,
       )
@@ -341,7 +351,8 @@ export class DashboardService implements IDashboardService {
   }
 
   private async getHourlyTrend(projectId: ProjectId): Promise<DashboardTokenTrend[]> {
-    const today = new Date().toISOString().slice(0, 10)
+    // Use local midnight as the UTC boundary for "today"
+    const todayBoundary = localMidnightIso()
     // Pre-fill 24 hours
     const hourMap = new Map<string, { inputTokens: number; outputTokens: number }>()
     for (let h = 0; h < 24; h++) {
@@ -350,14 +361,15 @@ export class DashboardService implements IDashboardService {
 
     try {
       const db = this.deps.getProjectDb(projectId)
+      // Use 'localtime' modifier to extract local hour
       const rows = db.all<{ hr: string; inp: number; out: number }>(
         sql`SELECT hr, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out FROM (
-              SELECT substr(created_at, 12, 2) as hr, input_tokens as inp, output_tokens as out
-              FROM token_records WHERE created_at >= ${today}
+              SELECT substr(datetime(created_at, 'localtime'), 12, 2) as hr, input_tokens as inp, output_tokens as out
+              FROM token_records WHERE created_at >= ${todayBoundary}
               UNION ALL
-              SELECT substr(m.created_at, 12, 2) as hr, m.input_tokens as inp, m.output_tokens as out
+              SELECT substr(datetime(m.created_at, 'localtime'), 12, 2) as hr, m.input_tokens as inp, m.output_tokens as out
               FROM messages m
-              WHERE m.created_at >= ${today} AND m.input_tokens > 0
+              WHERE m.created_at >= ${todayBoundary} AND m.input_tokens > 0
                 AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
             ) GROUP BY hr`,
       )

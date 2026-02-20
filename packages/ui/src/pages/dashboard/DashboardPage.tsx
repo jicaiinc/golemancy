@@ -182,7 +182,7 @@ export function DashboardPage() {
     [tokenByModel],
   )
 
-  if (dashboardLoading) {
+  if (dashboardLoading && !summary) {
     return (
       <div className="flex items-center justify-center h-full">
         <PixelSpinner label="Loading dashboard..." />
