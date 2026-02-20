@@ -1,5 +1,4 @@
 export * from './base'
 export * from './layout'
 export * from './settings'
-export * from './project'
 export { ErrorBoundary } from './ErrorBoundary'

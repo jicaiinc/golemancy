@@ -10,6 +10,7 @@ export function ProjectLayout() {
   const selectProject = useAppStore(s => s.selectProject)
   const currentProjectId = useAppStore(s => s.currentProjectId)
   const projects = useAppStore(s => s.projects)
+  const projectsLoading = useAppStore(s => s.projectsLoading)
   const navigate = useNavigate()
   const { subscribe, unsubscribe, addListener } = useWs()
 
@@ -35,15 +36,15 @@ export function ProjectLayout() {
     if (!projectId) return
 
     const exists = projects.find(p => p.id === projectId)
-    if (!exists) {
+    if (!projectsLoading && !exists) {
       navigate('/', { replace: true })
       return
     }
 
-    if (currentProjectId !== projectId) {
+    if (!projectsLoading && exists && currentProjectId !== projectId) {
       selectProject(projectId as ProjectId)
     }
-  }, [projectId, projects, currentProjectId, selectProject, navigate])
+  }, [projectId, projects, projectsLoading, currentProjectId, selectProject, navigate])
 
   return (
     <AppShell>

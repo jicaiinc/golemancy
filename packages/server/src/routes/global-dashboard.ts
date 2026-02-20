@@ -1,13 +1,9 @@
 import { Hono } from 'hono'
-import type { IGlobalDashboardService, TimeRange } from '@golemancy/shared'
+import type { IGlobalDashboardService } from '@golemancy/shared'
 import { logger } from '../logger'
+import { parseTimeRange } from '../utils/time-range'
 
 const log = logger.child({ component: 'routes:global-dashboard' })
-
-function parseTimeRange(raw?: string): TimeRange | undefined {
-  if (raw === 'today' || raw === '7d' || raw === '30d' || raw === 'all') return raw
-  return undefined
-}
 
 export function createGlobalDashboardRoutes(service: IGlobalDashboardService) {
   const app = new Hono()

@@ -36,6 +36,18 @@ export class HttpProjectService implements IProjectService {
   async delete(id: ProjectId) {
     await fetchJson(`${this.baseUrl}/api/projects/${id}`, { method: 'DELETE' })
   }
+  async getTopologyLayout(projectId: ProjectId) {
+    const layout = await fetchJson<Record<string, { x: number; y: number }>>(
+      `${this.baseUrl}/api/projects/${projectId}/topology-layout`
+    )
+    return layout ?? {}
+  }
+  async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/topology-layout`, {
+      method: 'PUT',
+      body: JSON.stringify(layout),
+    })
+  }
 }
 
 export class HttpAgentService implements IAgentService {
@@ -265,8 +277,8 @@ export class HttpCronJobService implements ICronJobService {
   async delete(projectId: ProjectId, id: CronJobId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`, { method: 'DELETE' })
   }
-  trigger(projectId: ProjectId, id: CronJobId) {
-    return fetchJson<CronJobRun>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}/trigger`, {
+  async trigger(projectId: ProjectId, id: CronJobId): Promise<void> {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}/trigger`, {
       method: 'POST',
     })
   }

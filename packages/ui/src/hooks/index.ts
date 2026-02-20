@@ -23,11 +23,6 @@ export function useCurrentProject() {
   )
 }
 
-/** Get agents for the current project */
-export function useProjectAgents() {
-  return useAppStore(s => s.agents)
-}
-
 /** Access the service container from React */
 export function useServices() {
   return useServiceContext()

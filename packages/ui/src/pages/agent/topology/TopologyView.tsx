@@ -59,7 +59,9 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
 
   // Detect new agent creation and highlight it
   useEffect(() => {
-    if (agents.length > prevAgentCountRef.current) {
+    const prevCount = prevAgentCountRef.current
+    prevAgentCountRef.current = agents.length
+    if (agents.length > prevCount) {
       // New agent was added - find and highlight it
       const newAgent = agents[agents.length - 1]
       setHighlightedNodeId(newAgent.id)
@@ -67,7 +69,6 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
       const timer = setTimeout(() => setHighlightedNodeId(null), 2000)
       return () => clearTimeout(timer)
     }
-    prevAgentCountRef.current = agents.length
   }, [agents])
 
   // Context menu state

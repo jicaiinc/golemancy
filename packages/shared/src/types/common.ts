@@ -12,11 +12,6 @@ export type ToolId = Brand<string, 'ToolId'>
 export type CronJobId = Brand<string, 'CronJobId'>
 export type PermissionsConfigId = Brand<string, 'PermissionsConfigId'>
 
-// Helper to create branded IDs
-export function createId<T extends string>(value: string): Brand<string, T> {
-  return value as Brand<string, T>
-}
-
 // Pagination
 export interface PaginationParams {
   page: number

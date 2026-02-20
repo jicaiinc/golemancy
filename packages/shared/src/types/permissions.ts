@@ -124,29 +124,6 @@ export function isSandboxRuntimeSupported(platform: SupportedPlatform): boolean 
   return platform === 'darwin' || platform === 'linux'
 }
 
-// ── Mandatory Deny Paths ───────────────────────────────────────
-
-/**
- * Paths that SandboxManager ALWAYS denies write access to.
- * These are enforced by the Sandbox Runtime itself and CANNOT be overridden
- * by any configuration.
- */
-export const SANDBOX_MANDATORY_DENY_WRITE: readonly string[] = [
-  '**/.bashrc',
-  '**/.bash_profile',
-  '**/.zshrc',
-  '**/.zprofile',
-  '**/.profile',
-  '**/.git/hooks/**',
-  '**/.git/config',
-  '**/.gitmodules',
-  '**/.ripgreprc',
-  '**/.mcp.json',
-  '**/.vscode/**',
-  '**/.idea/**',
-  '**/.claude/**',
-] as const
-
 // ── Default Configuration ──────────────────────────────────────
 
 /** Cross-platform sensitive paths to deny reading */

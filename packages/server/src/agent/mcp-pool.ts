@@ -6,14 +6,13 @@ import type {
   MCPServerConfig,
   MCPTransportType,
   PermissionMode,
-  PermissionsConfig,
   ProjectId,
-  SandboxConfig,
   SupportedPlatform,
 } from '@golemancy/shared'
 import { isSandboxRuntimeSupported } from '@golemancy/shared'
 import type { MCPLoadOptions } from './mcp'
 import { sandboxPool } from './sandbox-pool'
+import { permissionsToSandboxConfig } from './permissions-adapter'
 import { buildMCPRuntimeEnv } from '../runtime/env-builder'
 import { logger } from '../logger'
 
@@ -182,25 +181,6 @@ function buildShellCommand(command: string, args?: string[]): string {
 function shellEscape(s: string): string {
   if (/^[a-zA-Z0-9._\-/=:@]+$/.test(s)) return s
   return `'${s.replace(/'/g, "'\\''")}'`
-}
-
-/**
- * Bridge PermissionsConfig to SandboxConfig for sandboxPool.getHandle().
- */
-function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig {
-  return {
-    filesystem: {
-      allowWrite: pc.allowWrite,
-      denyRead: pc.denyRead,
-      denyWrite: pc.denyWrite,
-      allowGitConfig: false,
-    },
-    network: {
-      allowedDomains: pc.networkRestrictionsEnabled ? pc.allowedDomains : undefined,
-    },
-    enablePython: true,
-    deniedCommands: pc.deniedCommands,
-  }
 }
 
 // ── MCPPool ────────────────────────────────────────────────────

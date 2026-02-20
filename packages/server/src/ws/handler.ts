@@ -62,9 +62,13 @@ export class WebSocketManager {
   emit(channel: string, event: WsServerEvent) {
     log.debug({ channel, event: event.event }, 'emitting event')
     const data = JSON.stringify(event)
-    for (const client of this.clients.values()) {
+    for (const [clientId, client] of this.clients.entries()) {
       if (client.channels.has(channel)) {
-        client.ws.send(data)
+        try {
+          client.ws.send(data)
+        } catch (err) {
+          log.error({ clientId, err }, 'failed to send ws message, skipping client')
+        }
       }
     }
   }
@@ -72,8 +76,12 @@ export class WebSocketManager {
   broadcast(event: WsServerEvent) {
     log.debug({ event: event.event, clientCount: this.clients.size }, 'broadcasting event')
     const data = JSON.stringify(event)
-    for (const client of this.clients.values()) {
-      client.ws.send(data)
+    for (const [clientId, client] of this.clients.entries()) {
+      try {
+        client.ws.send(data)
+      } catch (err) {
+        log.error({ clientId, err }, 'failed to broadcast ws message, skipping client')
+      }
     }
   }
 

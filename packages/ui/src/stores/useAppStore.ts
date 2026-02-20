@@ -12,7 +12,6 @@ import type {
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import { getServices } from '../services'
-import { fetchJson, getBaseUrl } from '../services/http/base'
 import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
 
 // --- Theme helper ---
@@ -151,8 +150,6 @@ interface WorkspaceActions {
   loadWorkspaceFile(filePath: string): Promise<void>
   /** Delete a file, then refresh the current directory */
   deleteWorkspaceFile(filePath: string): Promise<void>
-  /** Clear workspace state (on project switch) */
-  clearWorkspace(): void
 }
 
 interface MemoryActions {
@@ -183,7 +180,7 @@ interface CronJobActions {
   createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
   updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<void>
   deleteCronJob(id: CronJobId): Promise<void>
-  triggerCronJob(id: CronJobId): Promise<CronJobRun | null>
+  triggerCronJob(id: CronJobId): Promise<void>
   loadCronJobRuns(cronJobId: CronJobId): Promise<void>
 }
 
@@ -202,7 +199,6 @@ interface DashboardActions {
   loadDashboard(projectId: ProjectId, timeRange?: TimeRange): Promise<void>
   setDashboardTimeRange(range: TimeRange): void
   loadRuntimeStatus(projectId: ProjectId): Promise<void>
-  markDashboardStale(): void
 }
 
 interface TopologyActions {
@@ -214,9 +210,6 @@ interface TopologyActions {
 export type AppState =
   & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice
   & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions
-
-// AbortController for project switching
-let projectAbort: AbortController | null = null
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -233,10 +226,6 @@ export const useAppStore = create<AppState>()(
       },
 
       async selectProject(id: ProjectId) {
-        // Cancel any in-flight requests for previous project
-        projectAbort?.abort()
-        projectAbort = new AbortController()
-
         const prevId = get().currentProjectId
         if (prevId === id) return
 
@@ -305,7 +294,6 @@ export const useAppStore = create<AppState>()(
       },
 
       clearProject() {
-        projectAbort?.abort()
         destroyAllChats()
         set({
           currentProjectId: null,
@@ -546,16 +534,6 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      clearWorkspace() {
-        set({
-          workspaceEntries: [],
-          workspaceCurrentPath: '',
-          workspacePreview: null,
-          workspaceLoading: false,
-          workspacePreviewLoading: false,
-        })
-      },
-
       // --- Memory state ---
       memories: [],
       memoriesLoading: false,
@@ -707,17 +685,16 @@ export const useAppStore = create<AppState>()(
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
         const svc = getServices().cronJobs
-        if (!svc.trigger) return null
+        if (!svc.trigger) return
         // Optimistically set status to 'running' immediately
         set(s => ({
           cronJobs: s.cronJobs.map(c => c.id === id ? { ...c, lastRunStatus: 'running' as const } : c),
         }))
         try {
-          const run = await svc.trigger(projectId, id)
+          await svc.trigger(projectId, id)
           // Silent reload — don't set cronJobsLoading to avoid page flash
           const cronJobs = await getServices().cronJobs.list(projectId)
           set({ cronJobs })
-          return run
         } catch (err) {
           // Silent reload on error too
           const cronJobs = await getServices().cronJobs.list(projectId)
@@ -829,10 +806,6 @@ export const useAppStore = create<AppState>()(
         set({ dashboardRuntimeStatus: runtimeStatus })
       },
 
-      markDashboardStale() {
-        set({ dashboardStale: true })
-      },
-
       // --- Topology state ---
       topologyLayout: {},
       topologyLayoutLoading: false,
@@ -840,10 +813,8 @@ export const useAppStore = create<AppState>()(
       async loadTopologyLayout(projectId: ProjectId) {
         set({ topologyLayoutLoading: true })
         try {
-          const layout = await fetchJson<Record<string, { x: number; y: number }>>(
-            `${getBaseUrl()}/api/projects/${projectId}/topology-layout`
-          )
-          set({ topologyLayout: layout ?? {}, topologyLayoutLoading: false })
+          const layout = await getServices().projects.getTopologyLayout(projectId)
+          set({ topologyLayout: layout, topologyLayoutLoading: false })
         } catch {
           set({ topologyLayout: {}, topologyLayoutLoading: false })
         }
@@ -851,10 +822,7 @@ export const useAppStore = create<AppState>()(
 
       async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>) {
         set({ topologyLayout: layout })
-        await fetchJson(`${getBaseUrl()}/api/projects/${projectId}/topology-layout`, {
-          method: 'PUT',
-          body: JSON.stringify(layout),
-        })
+        await getServices().projects.saveTopologyLayout(projectId, layout)
       },
     }),
     {
