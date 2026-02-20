@@ -338,12 +338,27 @@ export class GlobalDashboardService implements IGlobalDashboardService {
       }
     }
 
+    // Resolve running chat titles from each project DB
+    const projectDbMap = new Map<string, ReturnType<typeof this.deps.getProjectDb>>()
     for (const entry of allEntries) {
+      let title = ''
+      try {
+        let db = projectDbMap.get(entry.projectId)
+        if (!db) {
+          db = this.deps.getProjectDb(entry.projectId as ProjectId)
+          projectDbMap.set(entry.projectId, db)
+        }
+        const rows = db.all<{ title: string }>(
+          sql`SELECT title FROM conversations WHERE id = ${entry.conversationId}`,
+        )
+        title = rows[0]?.title ?? ''
+      } catch { /* ignore */ }
       runningChats.push({
         conversationId: entry.conversationId as any,
+        projectId: entry.projectId as ProjectId,
         agentId: entry.agentId as AgentId,
         agentName: globalAgentMap.get(entry.agentId) ?? 'Unknown',
-        title: '',
+        title,
         startedAt: entry.startedAt,
       })
     }
@@ -368,6 +383,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         for (const row of rows) {
           runningCrons.push({
             cronJobId: row.cron_job_id as any,
+            projectId: project.id,
             cronJobName: cronMap.get(row.cron_job_id) ?? 'Unknown',
             agentId: row.agent_id as AgentId,
             agentName: globalAgentMap.get(row.agent_id) ?? 'Unknown',
@@ -390,6 +406,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
             if (job.enabled && job.nextRunAt) {
               upcoming.push({
                 cronJobId: job.id,
+                projectId: project.id,
                 cronJobName: job.name,
                 agentId: job.agentId,
                 agentName: globalAgentMap.get(job.agentId as string) ?? 'Unknown',
@@ -411,24 +428,36 @@ export class GlobalDashboardService implements IGlobalDashboardService {
       try {
         const db = this.deps.getProjectDb(project.id)
 
-        const cronRows = db.all<{ id: string; agent_id: string; status: string; duration_ms: number | null; updated_at: string }>(
-          sql`SELECT id, agent_id, status, duration_ms, updated_at FROM cron_job_runs
+        // Recent cron runs — include cron_job_id for navigation
+        const cronRows = db.all<{ id: string; cron_job_id: string; agent_id: string; status: string; duration_ms: number | null; updated_at: string }>(
+          sql`SELECT id, cron_job_id, agent_id, status, duration_ms, updated_at FROM cron_job_runs
               WHERE project_id = ${project.id} AND status IN ('success', 'error')
               ORDER BY updated_at DESC LIMIT 5`,
         )
+
+        let recentCronMap = new Map<string, string>()
+        if (this.deps.cronJobStorage && cronRows.length > 0) {
+          const jobs = await this.deps.cronJobStorage.list(project.id)
+          recentCronMap = new Map(jobs.map(j => [j.id as string, j.name]))
+        }
+
         for (const row of cronRows) {
           recentCompleted.push({
             type: 'cron',
             id: row.id,
+            projectId: project.id,
             agentName: globalAgentMap.get(row.agent_id) ?? 'Unknown',
+            title: recentCronMap.get(row.cron_job_id) ?? 'Unknown',
             completedAt: row.updated_at,
             status: row.status as 'success' | 'error',
             durationMs: row.duration_ms ?? undefined,
+            cronJobId: row.cron_job_id as any,
           })
         }
 
-        const chatRows = db.all<{ id: string; agent_id: string; last_message_at: string | null; total_tokens: number }>(
-          sql`SELECT c.id, c.agent_id, c.last_message_at,
+        // Recent conversations — include title
+        const chatRows = db.all<{ id: string; agent_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
+          sql`SELECT c.id, c.agent_id, c.title, c.last_message_at,
                      COALESCE((SELECT SUM(input_tokens + output_tokens) FROM token_records WHERE conversation_id = c.id), 0) as total_tokens
               FROM conversations c
               WHERE c.project_id = ${project.id} AND c.last_message_at IS NOT NULL
@@ -438,7 +467,9 @@ export class GlobalDashboardService implements IGlobalDashboardService {
           recentCompleted.push({
             type: 'chat',
             id: row.id,
+            projectId: project.id,
             agentName: globalAgentMap.get(row.agent_id) ?? 'Unknown',
+            title: row.title || '',
             completedAt: row.last_message_at!,
             status: 'success',
             totalTokens: row.total_tokens,

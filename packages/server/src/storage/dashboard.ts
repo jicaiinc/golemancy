@@ -444,16 +444,31 @@ export class DashboardService implements IDashboardService {
     const agents = await this.deps.agentStorage.list(projectId)
     const agentMap = new Map(agents.map(a => [a.id as string, a.name]))
 
-    // Running chats from ActiveChatRegistry
-    const runningChats = (this.deps.activeChatRegistry?.getRunningForProject(projectId) ?? []).map(entry => {
-      return {
-        conversationId: entry.conversationId as any,
-        agentId: entry.agentId as AgentId,
-        agentName: agentMap.get(entry.agentId) ?? 'Unknown',
-        title: '', // Chat title not stored in registry
-        startedAt: entry.startedAt,
+    // Running chats from ActiveChatRegistry — resolve titles from DB
+    const entries = this.deps.activeChatRegistry?.getRunningForProject(projectId) ?? []
+    const runningChats: RuntimeStatus['runningChats'] = []
+    if (entries.length > 0) {
+      const titleMap = new Map<string, string>()
+      try {
+        const db = this.deps.getProjectDb(projectId)
+        for (const entry of entries) {
+          const rows = db.all<{ title: string }>(
+            sql`SELECT title FROM conversations WHERE id = ${entry.conversationId}`,
+          )
+          if (rows[0]) titleMap.set(entry.conversationId, rows[0].title)
+        }
+      } catch { /* ignore */ }
+      for (const entry of entries) {
+        runningChats.push({
+          conversationId: entry.conversationId as any,
+          projectId,
+          agentId: entry.agentId as AgentId,
+          agentName: agentMap.get(entry.agentId) ?? 'Unknown',
+          title: titleMap.get(entry.conversationId) ?? '',
+          startedAt: entry.startedAt,
+        })
       }
-    })
+    }
 
     // Running crons from cron_job_runs table
     const runningCrons: RuntimeStatus['runningCrons'] = []
@@ -477,6 +492,7 @@ export class DashboardService implements IDashboardService {
         for (const row of rows) {
           runningCrons.push({
             cronJobId: row.cron_job_id as any,
+            projectId,
             cronJobName: cronMap.get(row.cron_job_id) ?? 'Unknown',
             agentId: row.agent_id as AgentId,
             agentName: agentMap.get(row.agent_id) ?? 'Unknown',
@@ -502,6 +518,7 @@ export class DashboardService implements IDashboardService {
         for (const job of enabledWithNext) {
           upcoming.push({
             cronJobId: job.id,
+            projectId,
             cronJobName: job.name,
             agentId: job.agentId,
             agentName: agentMap.get(job.agentId as string) ?? 'Unknown',
@@ -518,26 +535,37 @@ export class DashboardService implements IDashboardService {
     try {
       const db = this.deps.getProjectDb(projectId)
 
-      // Recent cron runs (success/error)
-      const cronRows = db.all<{ id: string; agent_id: string; status: string; duration_ms: number | null; updated_at: string }>(
-        sql`SELECT id, agent_id, status, duration_ms, updated_at FROM cron_job_runs
+      // Recent cron runs (success/error) — include cron_job_id for navigation
+      const cronRows = db.all<{ id: string; cron_job_id: string; agent_id: string; status: string; duration_ms: number | null; updated_at: string }>(
+        sql`SELECT id, cron_job_id, agent_id, status, duration_ms, updated_at FROM cron_job_runs
             WHERE project_id = ${projectId} AND status IN ('success', 'error')
             ORDER BY updated_at DESC LIMIT 10`,
       )
+
+      // Resolve cron job names for titles
+      let recentCronMap = new Map<string, string>()
+      if (this.deps.cronJobStorage && cronRows.length > 0) {
+        const jobs = await this.deps.cronJobStorage.list(projectId)
+        recentCronMap = new Map(jobs.map(j => [j.id as string, j.name]))
+      }
+
       for (const row of cronRows) {
         recentCompleted.push({
           type: 'cron',
           id: row.id,
+          projectId,
           agentName: agentMap.get(row.agent_id) ?? 'Unknown',
+          title: recentCronMap.get(row.cron_job_id) ?? 'Unknown',
           completedAt: row.updated_at,
           status: row.status as 'success' | 'error',
           durationMs: row.duration_ms ?? undefined,
+          cronJobId: row.cron_job_id as any,
         })
       }
 
-      // Recent conversations (as "chat" completed items)
-      const chatRows = db.all<{ id: string; agent_id: string; last_message_at: string | null; total_tokens: number }>(
-        sql`SELECT c.id, c.agent_id, c.last_message_at,
+      // Recent conversations (as "chat" completed items) — include title
+      const chatRows = db.all<{ id: string; agent_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
+        sql`SELECT c.id, c.agent_id, c.title, c.last_message_at,
                    COALESCE((SELECT SUM(input_tokens + output_tokens) FROM token_records WHERE conversation_id = c.id), 0) as total_tokens
             FROM conversations c
             WHERE c.project_id = ${projectId} AND c.last_message_at IS NOT NULL
@@ -547,7 +575,9 @@ export class DashboardService implements IDashboardService {
         recentCompleted.push({
           type: 'chat',
           id: row.id,
+          projectId,
           agentName: agentMap.get(row.agent_id) ?? 'Unknown',
+          title: row.title || '',
           completedAt: row.last_message_at!,
           status: 'success',
           totalTokens: row.total_tokens,

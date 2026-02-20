@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useParams } from 'react-router'
-import type { ProjectId, TimeRange } from '@golemancy/shared'
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useParams, useNavigate } from 'react-router'
+import type { ProjectId, ConversationId, CronJobId, TimeRange } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { useWs } from '../../providers/WebSocketProvider'
@@ -111,6 +111,7 @@ function TokenTrendChart() {
 // --- Main Dashboard Page ---
 export function DashboardPage() {
   const { projectId } = useParams()
+  const navigate = useNavigate()
   const project = useCurrentProject()
   const loadDashboard = useAppStore(s => s.loadDashboard)
   const setTimeRange = useAppStore(s => s.setDashboardTimeRange)
@@ -126,6 +127,14 @@ export function DashboardPage() {
   const { addListener } = useWs()
 
   const [tokenTab, setTokenTab] = useState('trend')
+
+  const handleOpenChat = useCallback((convId: ConversationId) => {
+    navigate(`chat?conv=${convId}`)
+  }, [navigate])
+
+  const handleOpenAutomation = useCallback((cronJobId: CronJobId) => {
+    navigate(`automations/${cronJobId}`)
+  }, [navigate])
 
   // Load on mount
   useEffect(() => {
@@ -230,7 +239,7 @@ export function DashboardPage() {
 
         {/* Section 3: Runtime Status */}
         <div className="mb-6">
-          <RuntimeStatusPanel status={runtimeStatus} />
+          <RuntimeStatusPanel status={runtimeStatus} onOpenChat={handleOpenChat} onOpenAutomation={handleOpenAutomation} />
         </div>
 
         {/* Section 4: Overview */}

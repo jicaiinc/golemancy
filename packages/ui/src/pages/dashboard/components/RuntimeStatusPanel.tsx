@@ -1,113 +1,187 @@
 import { useState } from 'react'
-import type { RuntimeStatus } from '@golemancy/shared'
+import type { RuntimeStatus, ProjectId, ConversationId, CronJobId } from '@golemancy/shared'
 import { PixelCard, PixelTabs, PixelBadge } from '../../../components'
-import { relativeTime, formatDuration } from '../utils'
+import { relativeTime, formatDuration, formatTokens } from '../utils'
 
 interface RuntimeStatusPanelProps {
   status: RuntimeStatus | null
+  onOpenChat?: (conversationId: ConversationId, projectId: ProjectId) => void
+  onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
 }
 
-export function RuntimeStatusPanel({ status }: RuntimeStatusPanelProps) {
-  const [tab, setTab] = useState('running')
+export function RuntimeStatusPanel({ status, onOpenChat, onOpenCron }: RuntimeStatusPanelProps) {
+  const [tab, setTab] = useState('active')
 
   if (!status) return null
 
   const tabs = [
-    { id: 'running', label: `Running (${status.runningChats.length + status.runningCrons.length})` },
-    { id: 'upcoming', label: `Upcoming (${status.upcoming.length})` },
+    { id: 'active', label: `Active (${status.runningChats.length + status.runningCrons.length})` },
+    { id: 'scheduled', label: `Scheduled (${status.upcoming.length})` },
     { id: 'recent', label: 'Recent' },
   ]
 
   return (
     <PixelCard variant="default">
-      <h3 className="font-pixel text-[10px] text-text-secondary mb-3">RUNTIME STATUS</h3>
+      <h3 className="font-pixel text-[10px] text-text-secondary mb-3">ACTIVITY</h3>
       <PixelTabs tabs={tabs} activeTab={tab} onTabChange={setTab} />
 
       <div className="mt-3 min-h-[80px]">
-        {tab === 'running' && (
-          <RunningTab chats={status.runningChats} crons={status.runningCrons} />
+        {tab === 'active' && (
+          <ActiveTab chats={status.runningChats} crons={status.runningCrons} onOpenChat={onOpenChat} onOpenCron={onOpenCron} />
         )}
-        {tab === 'upcoming' && (
-          <UpcomingTab items={status.upcoming} />
+        {tab === 'scheduled' && (
+          <ScheduledTab items={status.upcoming} onOpenCron={onOpenCron} />
         )}
         {tab === 'recent' && (
-          <RecentTab items={status.recentCompleted} />
+          <RecentTab items={status.recentCompleted} onOpenChat={onOpenChat} onOpenCron={onOpenCron} />
         )}
       </div>
     </PixelCard>
   )
 }
 
-function RunningTab({ chats, crons }: { chats: RuntimeStatus['runningChats']; crons: RuntimeStatus['runningCrons'] }) {
+/** Consistent badge width so titles align across rows */
+const badgeClass = 'min-w-[4.5rem] text-center'
+
+function OpenChatLink({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
+  return (
+    <button
+      className="font-pixel text-[8px] text-accent-cyan hover:text-accent-blue transition-colors cursor-pointer shrink-0"
+      onClick={onClick}
+    >
+      OPEN CHAT &rarr;
+    </button>
+  )
+}
+
+function OpenLink({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
+  return (
+    <button
+      className="font-pixel text-[8px] text-accent-cyan hover:text-accent-blue transition-colors cursor-pointer shrink-0"
+      onClick={onClick}
+    >
+      OPEN &rarr;
+    </button>
+  )
+}
+
+function ActiveTab({
+  chats, crons, onOpenChat, onOpenCron,
+}: {
+  chats: RuntimeStatus['runningChats']
+  crons: RuntimeStatus['runningCrons']
+  onOpenChat?: (conversationId: ConversationId, projectId: ProjectId) => void
+  onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
+}) {
   if (chats.length === 0 && crons.length === 0) {
-    return <p className="text-[10px] text-text-dim text-center py-4">No running tasks</p>
+    return <p className="text-[10px] text-text-dim text-center py-4">No active runs</p>
   }
   return (
     <div className="flex flex-col gap-1">
       {chats.map(c => (
-        <div key={c.conversationId} className="flex items-center gap-3 px-2 py-1.5">
-          <PixelBadge variant="running">Chat</PixelBadge>
+        <div key={c.conversationId} className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors">
+          <div className={badgeClass}><PixelBadge variant="running">Chat</PixelBadge></div>
           <div className="min-w-0 flex-1">
-            <span className="text-[11px] text-text-primary truncate block">{c.title}</span>
+            <span className="text-[11px] text-text-primary truncate block">{c.title || c.conversationId}</span>
             <span className="text-[9px] text-text-dim">@{c.agentName}</span>
           </div>
           <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(c.startedAt)}</span>
+          {onOpenChat && (
+            <OpenChatLink onClick={(e) => { e.stopPropagation(); onOpenChat(c.conversationId, c.projectId) }} />
+          )}
         </div>
       ))}
       {crons.map(c => (
-        <div key={c.runId} className="flex items-center gap-3 px-2 py-1.5">
-          <PixelBadge variant="running">Cron</PixelBadge>
+        <div key={c.runId} className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors">
+          <div className={badgeClass}><PixelBadge variant="running">Cron</PixelBadge></div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] text-text-primary truncate block">{c.cronJobName}</span>
             <span className="text-[9px] text-text-dim">@{c.agentName}</span>
           </div>
           <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(c.startedAt)}</span>
+          {onOpenCron && (
+            <OpenLink onClick={(e) => { e.stopPropagation(); onOpenCron(c.cronJobId, c.projectId) }} />
+          )}
         </div>
       ))}
     </div>
   )
 }
 
-function UpcomingTab({ items }: { items: RuntimeStatus['upcoming'] }) {
+function ScheduledTab({
+  items, onOpenCron,
+}: {
+  items: RuntimeStatus['upcoming']
+  onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
+}) {
   if (items.length === 0) {
-    return <p className="text-[10px] text-text-dim text-center py-4">No upcoming tasks</p>
+    return <p className="text-[10px] text-text-dim text-center py-4">No scheduled runs</p>
   }
   return (
     <div className="flex flex-col gap-1">
       {items.map(item => (
-        <div key={item.cronJobId} className="flex items-center gap-3 px-2 py-1.5">
-          <PixelBadge variant="info">Cron</PixelBadge>
+        <div key={`${item.cronJobId}-${item.nextRunAt}`} className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors">
+          <div className={badgeClass}><PixelBadge variant="info">Cron</PixelBadge></div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] text-text-primary truncate block">{item.cronJobName}</span>
             <span className="text-[9px] text-text-dim">@{item.agentName}</span>
           </div>
           <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(item.nextRunAt)}</span>
+          {onOpenCron && (
+            <OpenLink onClick={(e) => { e.stopPropagation(); onOpenCron(item.cronJobId, item.projectId) }} />
+          )}
         </div>
       ))}
     </div>
   )
 }
 
-function RecentTab({ items }: { items: RuntimeStatus['recentCompleted'] }) {
+function RecentTab({
+  items, onOpenChat, onOpenCron,
+}: {
+  items: RuntimeStatus['recentCompleted']
+  onOpenChat?: (conversationId: ConversationId, projectId: ProjectId) => void
+  onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
+}) {
   if (items.length === 0) {
-    return <p className="text-[10px] text-text-dim text-center py-4">No recent items</p>
+    return <p className="text-[10px] text-text-dim text-center py-4">No recent activity</p>
   }
   return (
     <div className="flex flex-col gap-1">
-      {items.map(item => (
-        <div key={item.id} className="flex items-center gap-3 px-2 py-1.5">
-          <PixelBadge variant={item.status === 'success' ? 'success' : 'error'}>
-            {item.type === 'chat' ? 'Chat' : 'Cron'}
-          </PixelBadge>
-          <div className="min-w-0 flex-1">
-            <span className="text-[11px] text-text-primary truncate block">@{item.agentName}</span>
-            {item.durationMs != null && (
-              <span className="text-[9px] text-text-dim">{formatDuration(item.durationMs)}</span>
+      {items.map(item => {
+        const isChat = item.type === 'chat'
+        return (
+          <div
+            key={`${item.type}-${item.id}`}
+            className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors"
+          >
+            <div className={badgeClass}>
+              <PixelBadge variant={item.status === 'success' ? 'success' : 'error'}>
+                {isChat ? 'Chat' : 'Cron'}
+              </PixelBadge>
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[11px] text-text-primary truncate block">{item.title || item.id}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] text-text-dim">@{item.agentName}</span>
+                {item.durationMs != null && (
+                  <span className="text-[9px] text-text-dim">{formatDuration(item.durationMs)}</span>
+                )}
+                {item.totalTokens != null && item.totalTokens > 0 && (
+                  <span className="text-[9px] text-text-dim">{formatTokens(item.totalTokens)} tokens</span>
+                )}
+              </div>
+            </div>
+            <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(item.completedAt)}</span>
+            {isChat && onOpenChat && (
+              <OpenChatLink onClick={(e) => { e.stopPropagation(); onOpenChat(item.id as ConversationId, item.projectId) }} />
+            )}
+            {!isChat && onOpenCron && item.cronJobId && (
+              <OpenLink onClick={(e) => { e.stopPropagation(); onOpenCron(item.cronJobId!, item.projectId) }} />
             )}
           </div>
-          <span className="text-[9px] text-text-dim font-mono shrink-0">{relativeTime(item.completedAt)}</span>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

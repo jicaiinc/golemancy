@@ -176,11 +176,11 @@ describe('GlobalDashboardPage', () => {
     })
   })
 
-  it('renders runtime status panel', async () => {
+  it('renders activity panel', async () => {
     renderGlobalDashboard()
     await waitFor(() => {
-      expect(screen.getByText('RUNTIME STATUS')).toBeInTheDocument()
-      expect(screen.getByText('Running (0)')).toBeInTheDocument()
+      expect(screen.getByText('ACTIVITY')).toBeInTheDocument()
+      expect(screen.getByText('Active (0)')).toBeInTheDocument()
     })
   })
 

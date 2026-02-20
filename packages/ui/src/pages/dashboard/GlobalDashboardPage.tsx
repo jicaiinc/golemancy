@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useNavigate } from 'react-router'
 import type {
   DashboardSummary, DashboardTokenTrend, DashboardTokenByModel, DashboardTokenByAgent,
-  RuntimeStatus, TimeRange, ProjectId,
+  RuntimeStatus, TimeRange, ProjectId, ConversationId, CronJobId,
 } from '@golemancy/shared'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { getServices } from '../../services/container'
@@ -110,6 +111,7 @@ function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[
 
 // --- Main Global Dashboard Page ---
 export function GlobalDashboardPage() {
+  const navigate = useNavigate()
   const { addListener } = useWs()
 
   const [loading, setLoading] = useState(true)
@@ -122,6 +124,14 @@ export function GlobalDashboardPage() {
   const [runtimeStatus, setRuntimeStatus] = useState<RuntimeStatus | null>(null)
 
   const [tokenTab, setTokenTab] = useState('trend')
+
+  const handleOpenChat = useCallback((convId: ConversationId, projectId: ProjectId) => {
+    navigate(`/projects/${projectId}/chat?conv=${convId}`)
+  }, [navigate])
+
+  const handleOpenAutomation = useCallback((cronJobId: CronJobId, projectId: ProjectId) => {
+    navigate(`/projects/${projectId}/automations/${cronJobId}`)
+  }, [navigate])
 
   const loadData = useCallback(async (range: TimeRange) => {
     const svc = getServices().globalDashboard
@@ -262,7 +272,7 @@ export function GlobalDashboardPage() {
 
             {/* Section 3: Runtime Status */}
             <div className="mb-6">
-              <RuntimeStatusPanel status={runtimeStatus} />
+              <RuntimeStatusPanel status={runtimeStatus} onOpenChat={handleOpenChat} onOpenAutomation={handleOpenAutomation} />
             </div>
 
             {/* Section 4: Overview - Top Projects */}

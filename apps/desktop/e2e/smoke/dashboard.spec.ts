@@ -33,7 +33,7 @@ test.describe('Project Dashboard', () => {
     await expect(window.getByText('All Time')).toBeVisible()
 
     // Runtime Status section
-    await expect(window.getByText('RUNTIME STATUS')).toBeVisible()
+    await expect(window.getByText('ACTIVITY')).toBeVisible()
 
     // Overview section
     await expect(window.getByRole('heading', { name: 'AGENTS' })).toBeVisible()
@@ -81,25 +81,25 @@ test.describe('Project Dashboard', () => {
     expect(hasTitle || hasNoData).toBeTruthy()
   })
 
-  test('runtime status tabs work', async ({ window, helper }) => {
+  test('activity tabs work', async ({ window, helper }) => {
     await helper.navigateTo(`/projects/${projectId}`)
-    await expect(window.getByText('RUNTIME STATUS')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await expect(window.getByText('ACTIVITY')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
-    // Runtime tabs exist
-    const runningTab = window.locator('[data-testid="tab-running"]')
-    const upcomingTab = window.locator('[data-testid="tab-upcoming"]')
+    // Activity tabs exist
+    const activeTab = window.locator('[data-testid="tab-active"]')
+    const scheduledTab = window.locator('[data-testid="tab-scheduled"]')
     const recentTab = window.locator('[data-testid="tab-recent"]')
-    await expect(runningTab).toBeVisible()
-    await expect(upcomingTab).toBeVisible()
+    await expect(activeTab).toBeVisible()
+    await expect(scheduledTab).toBeVisible()
     await expect(recentTab).toBeVisible()
 
-    // Click Upcoming tab
-    await upcomingTab.click()
-    await expect(window.getByText('No upcoming tasks')).toBeVisible()
+    // Click Scheduled tab
+    await scheduledTab.click()
+    await expect(window.getByText('No scheduled runs')).toBeVisible()
 
     // Click Recent tab
     await recentTab.click()
-    await expect(window.getByText('No recent items')).toBeVisible()
+    await expect(window.getByText('No recent activity')).toBeVisible()
   })
 
   test('navigate to dashboard via sidebar', async ({ window, helper }) => {
@@ -114,7 +114,7 @@ test.describe('Project Dashboard', () => {
 
     // Verify dashboard content loaded
     await expect(window.getByText('Total Tokens')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
-    await expect(window.getByText('RUNTIME STATUS')).toBeVisible()
+    await expect(window.getByText('ACTIVITY')).toBeVisible()
   })
 
   test('overview agents section shows created agent', async ({ window, helper }) => {
@@ -141,7 +141,7 @@ test.describe('Global Dashboard', () => {
     await expect(window.getByText('7 Days')).toBeVisible()
 
     // Runtime status
-    await expect(window.getByText('RUNTIME STATUS')).toBeVisible()
+    await expect(window.getByText('ACTIVITY')).toBeVisible()
   })
 
   test('global dashboard shows breakdown tabs', async ({ window, helper }) => {
