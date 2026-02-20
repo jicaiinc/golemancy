@@ -38,8 +38,6 @@ export function createMockStorage(): MockStorage {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn().mockResolvedValue(undefined),
-      getTopologyLayout: vi.fn().mockResolvedValue({}),
-      saveTopologyLayout: vi.fn().mockResolvedValue(undefined),
     },
     agentStorage: {
       list: vi.fn().mockResolvedValue([]),

@@ -19,8 +19,8 @@ test.describe('Cron Job API', () => {
   let recurringId: string
   let oneTimeId: string
 
-  test('POST /cron-jobs creates a recurring cron job', async ({ helper }) => {
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/cron-jobs`, {
+  test('POST /cronjobs creates a recurring cron job', async ({ helper }) => {
+    const response = await helper.apiPostRaw(`/api/projects/${projectId}/cronjobs`, {
       name: 'Every 5 Minutes',
       agentId,
       scheduleType: 'cron',
@@ -37,9 +37,9 @@ test.describe('Cron Job API', () => {
     recurringId = data.id
   })
 
-  test('POST /cron-jobs creates a one-time cron job', async ({ helper }) => {
+  test('POST /cronjobs creates a one-time cron job', async ({ helper }) => {
     const futureDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/cron-jobs`, {
+    const response = await helper.apiPostRaw(`/api/projects/${projectId}/cronjobs`, {
       name: 'One-Time Task',
       agentId,
       scheduleType: 'once',
@@ -56,8 +56,8 @@ test.describe('Cron Job API', () => {
 
   // ===== Read =====
 
-  test('GET /cron-jobs lists both cron jobs', async ({ helper }) => {
-    const list = await helper.apiGet(`/api/projects/${projectId}/cron-jobs`)
+  test('GET /cronjobs lists both cron jobs', async ({ helper }) => {
+    const list = await helper.apiGet(`/api/projects/${projectId}/cronjobs`)
     expect(Array.isArray(list)).toBe(true)
     expect(list.length).toBeGreaterThanOrEqual(2)
     const ids = list.map((j: any) => j.id)
@@ -65,8 +65,8 @@ test.describe('Cron Job API', () => {
     expect(ids).toContain(oneTimeId)
   })
 
-  test('GET /cron-jobs/:id returns cron job with expected structure', async ({ helper }) => {
-    const job = await helper.apiGet(`/api/projects/${projectId}/cron-jobs/${recurringId}`)
+  test('GET /cronjobs/:id returns cron job with expected structure', async ({ helper }) => {
+    const job = await helper.apiGet(`/api/projects/${projectId}/cronjobs/${recurringId}`)
     expect(job.id).toBe(recurringId)
     expect(job.name).toBe('Every 5 Minutes')
     expect(job.enabled).toBe(true)
@@ -76,15 +76,15 @@ test.describe('Cron Job API', () => {
 
   // ===== Update =====
 
-  test('PATCH /cron-jobs/:id updates cron expression', async ({ helper }) => {
-    const updated = await helper.apiPatch(`/api/projects/${projectId}/cron-jobs/${recurringId}`, {
+  test('PATCH /cronjobs/:id updates cron expression', async ({ helper }) => {
+    const updated = await helper.apiPatch(`/api/projects/${projectId}/cronjobs/${recurringId}`, {
       cronExpression: '0 * * * *',
     })
     expect(updated.cronExpression).toBe('0 * * * *')
   })
 
-  test('PATCH /cron-jobs/:id toggles enabled to false', async ({ helper }) => {
-    const updated = await helper.apiPatch(`/api/projects/${projectId}/cron-jobs/${recurringId}`, {
+  test('PATCH /cronjobs/:id toggles enabled to false', async ({ helper }) => {
+    const updated = await helper.apiPatch(`/api/projects/${projectId}/cronjobs/${recurringId}`, {
       enabled: false,
     })
     expect(updated.enabled).toBe(false)
@@ -92,8 +92,8 @@ test.describe('Cron Job API', () => {
 
   // ===== Validation =====
 
-  test('POST /cron-jobs with invalid cron expression returns 400', async ({ helper }) => {
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/cron-jobs`, {
+  test('POST /cronjobs with invalid cron expression returns 400', async ({ helper }) => {
+    const response = await helper.apiPostRaw(`/api/projects/${projectId}/cronjobs`, {
       name: 'Bad Cron',
       agentId,
       scheduleType: 'cron',
@@ -102,8 +102,8 @@ test.describe('Cron Job API', () => {
     expect(response.status()).toBe(400)
   })
 
-  test('POST /cron-jobs one-time without valid scheduledAt returns 400', async ({ helper }) => {
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/cron-jobs`, {
+  test('POST /cronjobs one-time without valid scheduledAt returns 400', async ({ helper }) => {
+    const response = await helper.apiPostRaw(`/api/projects/${projectId}/cronjobs`, {
       name: 'Bad One-Time',
       agentId,
       scheduleType: 'once',
@@ -114,25 +114,25 @@ test.describe('Cron Job API', () => {
 
   // ===== Runs =====
 
-  test('GET /cron-jobs/runs returns empty array initially', async ({ helper }) => {
-    const runs = await helper.apiGet(`/api/projects/${projectId}/cron-jobs/runs`)
+  test('GET /cronjobs/runs returns empty array initially', async ({ helper }) => {
+    const runs = await helper.apiGet(`/api/projects/${projectId}/cronjobs/runs`)
     expect(Array.isArray(runs)).toBe(true)
     expect(runs.length).toBe(0)
   })
 
-  test('GET /cron-jobs/:id/runs returns empty array initially', async ({ helper }) => {
-    const runs = await helper.apiGet(`/api/projects/${projectId}/cron-jobs/${recurringId}/runs`)
+  test('GET /cronjobs/:id/runs returns empty array initially', async ({ helper }) => {
+    const runs = await helper.apiGet(`/api/projects/${projectId}/cronjobs/${recurringId}/runs`)
     expect(Array.isArray(runs)).toBe(true)
     expect(runs.length).toBe(0)
   })
 
   // ===== Delete =====
 
-  test('DELETE /cron-jobs/:id removes cron job and GET returns 404', async ({ helper }) => {
-    const delResult = await helper.apiDelete(`/api/projects/${projectId}/cron-jobs/${recurringId}`)
+  test('DELETE /cronjobs/:id removes cron job and GET returns 404', async ({ helper }) => {
+    const delResult = await helper.apiDelete(`/api/projects/${projectId}/cronjobs/${recurringId}`)
     expect(delResult.ok).toBe(true)
 
-    const response = await helper.apiGetRaw(`/api/projects/${projectId}/cron-jobs/${recurringId}`)
+    const response = await helper.apiGetRaw(`/api/projects/${projectId}/cronjobs/${recurringId}`)
     expect(response.status()).toBe(404)
   })
 })
