@@ -219,8 +219,13 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         const db = this.deps.getProjectDb(project.id)
         const dateCondition = startDate ? sql` AND created_at >= ${startDate}` : sql``
         const rows = db.all<{ inp: number; out: number; cnt: number }>(
-          sql`SELECT COALESCE(SUM(input_tokens), 0) as inp, COALESCE(SUM(output_tokens), 0) as out, count(*) as cnt
-                   FROM token_records WHERE 1=1${dateCondition}`,
+          sql`SELECT COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out, count(*) as cnt FROM (
+                SELECT input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
+                UNION ALL
+                SELECT m.input_tokens as inp, m.output_tokens as out FROM messages m
+                WHERE m.input_tokens > 0${dateCondition}
+                  AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
+              )`,
         )
         const r = rows[0]
         results.push({
