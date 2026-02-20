@@ -17,6 +17,8 @@ export interface IProjectService {
   create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
   update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
+  getTopologyLayout(projectId: ProjectId): Promise<Record<string, { x: number; y: number }>>
+  saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void>
 }
 
 export interface IAgentService {
@@ -105,7 +107,7 @@ export interface ICronJobService {
   create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
   update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<CronJob>
   delete(projectId: ProjectId, id: CronJobId): Promise<void>
-  trigger?(projectId: ProjectId, id: CronJobId): Promise<CronJobRun>
+  trigger?(projectId: ProjectId, id: CronJobId): Promise<void>
   listRuns?(projectId: ProjectId, cronJobId?: CronJobId, limit?: number): Promise<CronJobRun[]>
 }
 

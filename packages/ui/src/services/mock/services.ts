@@ -76,6 +76,18 @@ export class MockProjectService implements IProjectService {
     await delay()
     this.data.delete(id)
   }
+
+  private topologyLayouts = new Map<ProjectId, Record<string, { x: number; y: number }>>()
+
+  async getTopologyLayout(projectId: ProjectId): Promise<Record<string, { x: number; y: number }>> {
+    await delay()
+    return this.topologyLayouts.get(projectId) ?? {}
+  }
+
+  async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void> {
+    await delay()
+    this.topologyLayouts.set(projectId, layout)
+  }
 }
 
 // --- AgentService ---
@@ -566,20 +578,8 @@ export class MockCronJobService implements ICronJobService {
     if (job && job.projectId === projectId) this.data.delete(id)
   }
 
-  async trigger(projectId: ProjectId, id: CronJobId): Promise<CronJobRun> {
+  async trigger(_projectId: ProjectId, _id: CronJobId): Promise<void> {
     await delay()
-    const now = new Date().toISOString()
-    return {
-      id: genId('cronrun'),
-      cronJobId: id,
-      projectId,
-      agentId: '' as AgentId,
-      status: 'success',
-      durationMs: 1234,
-      triggeredBy: 'manual',
-      createdAt: now,
-      updatedAt: now,
-    }
   }
 
   async listRuns(_projectId: ProjectId, _cronJobId?: CronJobId, _limit?: number): Promise<CronJobRun[]> {

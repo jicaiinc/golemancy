@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm'
 import type {
   IDashboardService, IProjectService, IAgentService, ICronJobService,
-  ProjectId, AgentId,
+  ProjectId, AgentId, ConversationId, CronJobId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
 } from '@golemancy/shared'
@@ -9,6 +9,7 @@ import type { AppDatabase } from '../db/client'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import type { SqliteCronJobRunStorage } from './cron-job-runs'
 import { logger } from '../logger'
+import { toLocalDate, localMidnightIso, timeRangeToDate } from '../utils/time-range'
 
 const log = logger.child({ component: 'storage:dashboard' })
 
@@ -19,38 +20,6 @@ export interface DashboardServiceDeps {
   activeChatRegistry?: ActiveChatRegistry
   cronJobRunStorage?: SqliteCronJobRunStorage
   cronJobStorage?: ICronJobService
-}
-
-/** Local date string (YYYY-MM-DD) using system timezone. */
-function toLocalDate(d: Date = new Date()): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-/** Local midnight expressed as UTC ISO string, for comparing against UTC-stored timestamps. */
-function localMidnightIso(d: Date = new Date()): string {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString()
-}
-
-/**
- * Convert a TimeRange enum to a UTC ISO boundary for filtering.
- * Uses local midnight so "today" means "since midnight local time".
- * Returns undefined for 'all' (no filtering).
- */
-function timeRangeToDate(range?: TimeRange): string | undefined {
-  if (!range || range === 'all') return undefined
-  const now = new Date()
-  switch (range) {
-    case 'today':
-      return localMidnightIso(now)
-    case '7d': {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7)
-      return d.toISOString()
-    }
-    case '30d': {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30)
-      return d.toISOString()
-    }
-  }
 }
 
 export class DashboardService implements IDashboardService {
@@ -277,11 +246,11 @@ export class DashboardService implements IDashboardService {
 
       for (const row of rows) {
         chats.push({
-          conversationId: row.id as any,
+          conversationId: row.id as ConversationId,
           projectId,
           projectName: project.name,
-          agentId: row.agent_id as any,
-          agentName: agentMap.get(row.agent_id as any) ?? 'Unknown',
+          agentId: row.agent_id as AgentId,
+          agentName: agentMap.get(row.agent_id as AgentId) ?? 'Unknown',
           title: row.title,
           messageCount: row.msg_count,
           totalTokens: row.total_tokens,
@@ -397,8 +366,14 @@ export class DashboardService implements IDashboardService {
       const db = this.deps.getProjectDb(projectId)
       const dateCondition = startDate ? sql` AND created_at >= ${startDate}` : sql``
       const rows = db.all<{ provider: string; model: string; inp: number; out: number; cnt: number }>(
-        sql`SELECT provider, model, COALESCE(SUM(input_tokens), 0) as inp, COALESCE(SUM(output_tokens), 0) as out, count(*) as cnt
-                 FROM token_records WHERE 1=1${dateCondition} GROUP BY provider, model ORDER BY (inp + out) DESC`,
+        sql`SELECT provider, model, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out, count(*) as cnt FROM (
+              SELECT provider, model, input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
+              UNION ALL
+              SELECT COALESCE(NULLIF(m.provider, ''), 'unknown'), COALESCE(NULLIF(m.model, ''), 'unknown'), m.input_tokens as inp, m.output_tokens as out
+              FROM messages m
+              WHERE m.input_tokens > 0${dateCondition}
+                AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
+            ) GROUP BY provider, model ORDER BY (inp + out) DESC`,
       )
       return rows.map(r => ({
         provider: r.provider,
@@ -418,9 +393,17 @@ export class DashboardService implements IDashboardService {
     try {
       const db = this.deps.getProjectDb(projectId)
       const dateCondition = startDate ? sql` AND created_at >= ${startDate}` : sql``
+      const dateConditionMsg = startDate ? sql` AND m.created_at >= ${startDate}` : sql``
       const rows = db.all<{ agent_id: string; inp: number; out: number; cnt: number }>(
-        sql`SELECT agent_id, COALESCE(SUM(input_tokens), 0) as inp, COALESCE(SUM(output_tokens), 0) as out, count(*) as cnt
-                 FROM token_records WHERE 1=1${dateCondition} GROUP BY agent_id ORDER BY (inp + out) DESC`,
+        sql`SELECT agent_id, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out, count(*) as cnt FROM (
+              SELECT agent_id, input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
+              UNION ALL
+              SELECT c.agent_id, m.input_tokens as inp, m.output_tokens as out
+              FROM messages m
+              JOIN conversations c ON c.id = m.conversation_id
+              WHERE m.input_tokens > 0${dateConditionMsg}
+                AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
+            ) GROUP BY agent_id ORDER BY (inp + out) DESC`,
       )
 
       // Resolve agent names
@@ -460,7 +443,7 @@ export class DashboardService implements IDashboardService {
       } catch { /* ignore */ }
       for (const entry of entries) {
         runningChats.push({
-          conversationId: entry.conversationId as any,
+          conversationId: entry.conversationId as ConversationId,
           projectId,
           agentId: entry.agentId as AgentId,
           agentName: agentMap.get(entry.agentId) ?? 'Unknown',
@@ -491,7 +474,7 @@ export class DashboardService implements IDashboardService {
 
         for (const row of rows) {
           runningCrons.push({
-            cronJobId: row.cron_job_id as any,
+            cronJobId: row.cron_job_id as CronJobId,
             projectId,
             cronJobName: cronMap.get(row.cron_job_id) ?? 'Unknown',
             agentId: row.agent_id as AgentId,
@@ -559,14 +542,20 @@ export class DashboardService implements IDashboardService {
           completedAt: row.updated_at,
           status: row.status as 'success' | 'error',
           durationMs: row.duration_ms ?? undefined,
-          cronJobId: row.cron_job_id as any,
+          cronJobId: row.cron_job_id as CronJobId,
         })
       }
 
       // Recent conversations (as "chat" completed items) — include title
       const chatRows = db.all<{ id: string; agent_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
         sql`SELECT c.id, c.agent_id, c.title, c.last_message_at,
-                   COALESCE((SELECT SUM(input_tokens + output_tokens) FROM token_records WHERE conversation_id = c.id), 0) as total_tokens
+                   COALESCE((SELECT SUM(total) FROM (
+                     SELECT (input_tokens + output_tokens) as total FROM token_records WHERE conversation_id = c.id
+                     UNION ALL
+                     SELECT (m2.input_tokens + m2.output_tokens) as total FROM messages m2
+                     WHERE m2.conversation_id = c.id AND m2.input_tokens > 0
+                       AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m2.id)
+                   )), 0) as total_tokens
             FROM conversations c
             WHERE c.project_id = ${projectId} AND c.last_message_at IS NOT NULL
             ORDER BY c.last_message_at DESC LIMIT 10`,

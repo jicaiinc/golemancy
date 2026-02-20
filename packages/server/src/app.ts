@@ -53,9 +53,8 @@ export interface ServerDependencies {
 export function createApp(deps: ServerDependencies, authToken?: string) {
   const app = new Hono()
 
-  // Request body size limit: 50 MB for chat (images as base64), 2 MB for everything else
-  app.use('/api/chat', bodyLimit({ maxSize: 50 * 1024 * 1024 }))
-  app.use('/api/*', bodyLimit({ maxSize: 2 * 1024 * 1024 }))
+  // Request body size limit: 50 MB (chat may send images as base64; server is local-only with auth token)
+  app.use('/api/*', bodyLimit({ maxSize: 50 * 1024 * 1024 }))
 
   // SEC-03: Restrict CORS to localhost origins only
   app.use('/api/*', cors({

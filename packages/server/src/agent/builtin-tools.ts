@@ -5,11 +5,9 @@ import type { ToolSet } from 'ai'
 import type {
   BuiltinToolConfig,
   PermissionMode,
-  PermissionsConfig,
   PermissionsConfigId,
   ProjectId,
   ResolvedPermissionsConfig,
-  SandboxConfig,
   ResolvedBashToolConfig,
   SupportedPlatform,
   IPermissionsConfigService,
@@ -20,6 +18,7 @@ import { NativeSandbox } from './native-sandbox'
 import { SandboxUnavailableError } from './errors'
 import { sandboxPool } from './sandbox-pool'
 import { resolvePermissionsConfig } from './resolve-permissions'
+import { permissionsToSandboxConfig } from './permissions-adapter'
 import { buildRuntimeEnv } from '../runtime/env-builder'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
@@ -134,29 +133,6 @@ async function resolveEffectivePermissions(
     workspaceDir,
     platform,
   )
-}
-
-// ── Adapter: PermissionsConfig → SandboxConfig ─────────────
-
-/**
- * Bridge new flat PermissionsConfig to old nested SandboxConfig
- * used by AnthropicSandbox and SandboxPool.
- * This adapter will be removed when the runtime layer is migrated.
- */
-function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig {
-  return {
-    filesystem: {
-      allowWrite: pc.allowWrite,
-      denyRead: pc.denyRead,
-      denyWrite: pc.denyWrite,
-      allowGitConfig: false,
-    },
-    network: {
-      allowedDomains: pc.networkRestrictionsEnabled ? pc.allowedDomains : undefined,
-    },
-    enablePython: true,
-    deniedCommands: pc.deniedCommands,
-  }
 }
 
 // ── Restricted Mode (just-bash) ────────────────────────────

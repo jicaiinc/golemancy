@@ -1,6 +1,5 @@
 import type { AgentId, ProjectId, SkillId, ToolId, Timestamped } from './common'
 import type { AgentModelConfig } from './settings'
-import type { PermissionMode } from './permissions'
 
 // Re-export for backward compatibility
 export type { MCPTransportType, MCPServerConfig } from './mcp'
@@ -40,16 +39,6 @@ export interface SubAgentStreamState {
   toolCalls: SubAgentToolCallState[]
   status: 'running' | 'done'
   usage?: { inputTokens: number; outputTokens: number; totalTokens: number }
-}
-
-// ── Agent Events ───────────────────────────────────────────────
-
-/** Emitted when the effective permission mode degrades from requested to fallback */
-export interface ModeDegradedEvent {
-  type: 'mode_degraded'
-  requestedMode: PermissionMode
-  actualMode: PermissionMode
-  reason: string
 }
 
 export interface Agent extends Timestamped {
