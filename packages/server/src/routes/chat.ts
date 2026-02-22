@@ -311,6 +311,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
             log.info({ conversationId, compactId: compactPerformed.id }, 'auto-compact completed')
             writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'completed', record: compactPerformed } })
+            writer.write({ type: 'data-usage' as `data-${string}`, data: { inputTokens: compactResult.inputTokens, outputTokens: compactResult.outputTokens } })
           } catch (err) {
             log.error({ err, conversationId, totalTokens: compactInputs.totalTokens, threshold: compactInputs.threshold }, 'auto-compact failed, skipping — will use full message history')
             writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'failed' } })
@@ -326,6 +327,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
         const modelMessages = await convertToModelMessages(messagesForModel)
 
         // --- Chat stream ---
+        let stepIndex = 0
         const result = streamText({
           model,
           system: systemPrompt,
@@ -333,6 +335,17 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           tools: hasTools ? allTools : undefined,
           stopWhen: hasTools ? stepCountIs(10) : undefined,
           abortSignal: c.req.raw.signal,
+          onStepFinish: ({ usage, finishReason, toolCalls }) => {
+            stepIndex++
+            const toolNames = toolCalls?.map(tc => tc.toolName) ?? []
+            log.debug({
+              conversationId, step: stepIndex, finishReason,
+              inputTokens: usage.inputTokens ?? 0,
+              outputTokens: usage.outputTokens ?? 0,
+              totalTokens: usage.totalTokens ?? 0,
+              ...(toolNames.length > 0 ? { toolCalls: toolNames } : {}),
+            }, 'step finished')
+          },
           onFinish: ensureCleanup,
           onAbort: async ({ steps }) => {
             let inputTokens = 0, outputTokens = 0

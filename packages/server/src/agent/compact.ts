@@ -13,7 +13,7 @@ const COMPACT_PROMPT = `Summarize this conversation so a future assistant can co
 - Any pending or unfinished tasks
 - What was being worked on most recently
 
-Output only the summary text, no extra formatting.`
+Do not call any tools. Output only the summary text, no extra formatting.`
 
 export async function compactConversation(opts: {
   messages: ModelMessage[]
