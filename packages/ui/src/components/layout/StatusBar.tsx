@@ -19,7 +19,9 @@ interface StatusBarProps {
   compactThreshold?: number | null
   onCompactNow?: () => Promise<void>
   compacting?: boolean
+  compactSource?: 'auto' | 'manual' | null
   onCancelCompact?: () => void
+  chatBusy?: boolean
 }
 
 function formatTokenCount(n: number): string {
@@ -28,7 +30,7 @@ function formatTokenCount(n: number): string {
   return n.toLocaleString()
 }
 
-export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdown, taskSummary, taskList, contextTokens, compactThreshold, onCompactNow, compacting, onCancelCompact }: StatusBarProps) {
+export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdown, taskSummary, taskList, contextTokens, compactThreshold, onCompactNow, compacting, compactSource, onCancelCompact, chatBusy }: StatusBarProps) {
   const modeStyle = permissionMode ? MODE_STYLES[permissionMode] : null
   const [showTaskPopover, setShowTaskPopover] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -186,15 +188,30 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
                       )}
                     </div>
                     {compacting ? (
-                      <button
-                        className="w-full inline-flex items-center justify-center font-mono cursor-pointer transition-transform bg-elevated text-accent-amber border-2 border-border-dim shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)] hover:brightness-110 active:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] active:translate-y-[2px] h-7 px-3 text-[11px]"
-                        onClick={onCancelCompact}
-                      >
-                        Compacting... Cancel
-                      </button>
+                      <div className="space-y-2">
+                        <div className="w-full flex items-center justify-center gap-2 h-7 px-3 bg-accent-purple/10 border-2 border-accent-purple/40">
+                          <span className="inline-block w-2 h-2 bg-accent-purple animate-pulse" />
+                          <span className="font-mono text-[11px] text-accent-purple">
+                            Compacting{compactSource === 'auto' ? ' (auto)' : ''}
+                          </span>
+                        </div>
+                        {compactSource === 'manual' && (
+                          <button
+                            className="w-full inline-flex items-center justify-center font-mono cursor-pointer transition-transform bg-elevated text-text-secondary border-2 border-border-dim shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)] hover:brightness-110 hover:text-accent-red active:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] active:translate-y-[2px] h-7 px-3 text-[11px]"
+                            onClick={onCancelCompact}
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     ) : (
                       <button
-                        className="w-full inline-flex items-center justify-center font-mono cursor-pointer transition-transform bg-accent-green text-void border-2 border-accent-green shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.2),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)] hover:brightness-110 active:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.2),inset_2px_2px_0_0_rgba(0,0,0,0.3)] active:translate-y-[2px] h-7 px-3 text-[11px]"
+                        className={`w-full inline-flex items-center justify-center font-mono transition-transform border-2 h-7 px-3 text-[11px] ${
+                          chatBusy
+                            ? 'bg-elevated text-text-dim border-border-dim cursor-not-allowed opacity-50'
+                            : 'bg-accent-green text-void border-accent-green cursor-pointer shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.2),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)] hover:brightness-110 active:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.2),inset_2px_2px_0_0_rgba(0,0,0,0.3)] active:translate-y-[2px]'
+                        }`}
+                        disabled={chatBusy}
                         onClick={async () => {
                           if (onCompactNow) {
                             await onCompactNow()

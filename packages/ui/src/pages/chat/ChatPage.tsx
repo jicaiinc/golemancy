@@ -31,6 +31,8 @@ export function ChatPage() {
   // Context window tracking
   const [contextTokens, setContextTokens] = useState<number | null>(null)
   const [compacting, setCompacting] = useState(false)
+  const [compactSource, setCompactSource] = useState<'auto' | 'manual' | null>(null)
+  const [chatBusy, setChatBusy] = useState(false)
   const compactAbortRef = useRef<AbortController | null>(null)
 
   // Restore contextTokens from last assistant message when conversation changes
@@ -83,8 +85,13 @@ export function ChatPage() {
     setContextTokens(tokens)
   }, [])
 
+  const handleBusyChange = useCallback((busy: boolean) => {
+    setChatBusy(busy)
+  }, [])
+
   const handleCompactingChange = useCallback((isCompacting: boolean) => {
     setCompacting(isCompacting)
+    setCompactSource(isCompacting ? 'auto' : null)
   }, [])
 
   const handleCompactNow = useCallback(async () => {
@@ -92,6 +99,7 @@ export function ChatPage() {
     const abort = new AbortController()
     compactAbortRef.current = abort
     setCompacting(true)
+    setCompactSource('manual')
     try {
       const svc = getServices()
       await svc.conversations.compact?.(currentProject.id, currentConversationId, abort.signal)
@@ -112,6 +120,7 @@ export function ChatPage() {
     } finally {
       compactAbortRef.current = null
       setCompacting(false)
+      setCompactSource(null)
     }
   }, [currentConversationId, currentProject?.id, compacting])
 
@@ -228,6 +237,8 @@ export function ChatPage() {
             onUsageUpdate={handleUsageUpdate}
             onContextUpdate={handleContextUpdate}
             onCompactingChange={handleCompactingChange}
+            onBusyChange={handleBusyChange}
+            externalCompacting={compacting}
           />
         ) : (
           <ChatEmptyState
@@ -239,7 +250,7 @@ export function ChatPage() {
           />
         )}
         {/* TODO: Pass actualMode from WS mode_degraded events once WebSocket integration is wired up */}
-        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} tokenBreakdown={tokenBreakdown} taskSummary={taskSummary} taskList={currentConvTasks} contextTokens={contextTokens} compactThreshold={compactThreshold} onCompactNow={handleCompactNow} compacting={compacting} onCancelCompact={handleCancelCompact} />
+        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} tokenBreakdown={tokenBreakdown} taskSummary={taskSummary} taskList={currentConvTasks} contextTokens={contextTokens} compactThreshold={compactThreshold} onCompactNow={handleCompactNow} compacting={compacting} compactSource={compactSource} onCancelCompact={handleCancelCompact} chatBusy={chatBusy} />
       </div>
     </div>
   )

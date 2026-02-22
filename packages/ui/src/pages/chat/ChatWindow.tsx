@@ -40,9 +40,11 @@ interface ChatWindowProps {
   onUsageUpdate?: (usage: { inputTokens: number; outputTokens: number }) => void
   onContextUpdate?: (contextTokens: number) => void
   onCompactingChange?: (compacting: boolean) => void
+  onBusyChange?: (busy: boolean) => void
+  externalCompacting?: boolean
 }
 
-export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate, onContextUpdate, onCompactingChange }: ChatWindowProps) {
+export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate, onContextUpdate, onCompactingChange, onBusyChange, externalCompacting }: ChatWindowProps) {
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
@@ -55,7 +57,6 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   const [toolWarnings, setToolWarnings] = useState<string[]>([])
   const [compactRecords, setCompactRecords] = useState<CompactRecord[]>(conversation.compactRecords ?? [])
   const [compacting, setCompacting] = useState(false)
-  const [confirmCompact, setConfirmCompact] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
 
   // Sync compactRecords when conversation is reloaded externally (e.g. after StatusBar Compact Now)
@@ -140,13 +141,16 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
       }
       if (part.type === 'data-compact' && part.data) {
         if (part.data.status === 'started') {
+          setCompacting(true)
           onCompactingChange?.(true)
         } else if (part.data.status === 'completed') {
+          setCompacting(false)
           onCompactingChange?.(false)
           if (part.data.record) {
             setCompactRecords(prev => [...prev, part.data!.record as CompactRecord])
           }
         } else if (part.data.status === 'failed') {
+          setCompacting(false)
           onCompactingChange?.(false)
         }
       }
@@ -229,34 +233,16 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     selectConversation(null)
   }, [confirmDelete, deleteConversation, selectConversation, conversation.id])
 
-  const handleCompact = useCallback(async () => {
-    if (!currentProjectId || compacting) return
-    if (!confirmCompact) {
-      setConfirmCompact(true)
-      return
-    }
-    setConfirmCompact(false)
-    setCompacting(true)
-    try {
-      const svc = getServices()
-      await svc.conversations.compact?.(currentProjectId, conversation.id)
-      // Reload conversation to get updated compactRecords
-      const updated = await svc.conversations.getById(currentProjectId, conversation.id)
-      if (updated) {
-        useAppStore.setState(s => ({
-          conversations: s.conversations.map(c => c.id === conversation.id ? updated : c),
-        }))
-        setCompactRecords(updated.compactRecords ?? [])
-      }
-    } catch (err) {
-      console.error('Manual compact failed:', err)
-    } finally {
-      setCompacting(false)
-    }
-  }, [currentProjectId, conversation.id, compacting, confirmCompact])
 
   // --- Derived display state ---
   const isBusy = status === 'submitted' || status === 'streaming'
+  const prevBusyRef = useRef(isBusy)
+  useEffect(() => {
+    if (prevBusyRef.current !== isBusy) {
+      prevBusyRef.current = isBusy
+      onBusyChange?.(isBusy)
+    }
+  }, [isBusy, onBusyChange])
   const lastMsg = messages[messages.length - 1]
   const hasVisibleContent = lastMsg?.role === 'assistant' &&
     lastMsg.parts.some(p => p.type === 'text' && (p as { text: string }).text.length > 0)
@@ -323,22 +309,6 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
 
         {/* Right: actions */}
         <div className="shrink-0 flex items-center gap-1">
-          {messages.length > 0 && !isBusy && (
-            confirmCompact ? (
-              <div className="flex items-center gap-1">
-                <PixelButton size="sm" variant="danger" onClick={handleCompact} disabled={compacting}>
-                  {compacting ? 'Compacting...' : 'Confirm'}
-                </PixelButton>
-                <PixelButton size="sm" variant="ghost" onClick={() => setConfirmCompact(false)}>
-                  Cancel
-                </PixelButton>
-              </div>
-            ) : (
-              <PixelButton size="sm" variant="ghost" onClick={handleCompact} disabled={compacting}>
-                {compacting ? 'Compacting...' : 'Compact'}
-              </PixelButton>
-            )
-          )}
           {confirmDelete ? (
             <div className="flex items-center gap-1">
               <PixelButton size="sm" variant="danger" onClick={handleDelete}>
@@ -396,8 +366,15 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
               )
             })}
 
+            {/* Compacting indicator */}
+            {(compacting || externalCompacting) && (
+              <div className="my-3 border-2 border-accent-purple/50 bg-accent-purple/5 px-3 py-2">
+                <PixelSpinner size="sm" label="Compacting" />
+              </div>
+            )}
+
             {/* Thinking indicator */}
-            {showThinking && (
+            {showThinking && !compacting && !externalCompacting && (
               <div className="flex items-start my-2">
                 <div className="px-3 py-2 border-2 border-border-dim bg-surface">
                   <PixelSpinner size="sm" label="Thinking" />
