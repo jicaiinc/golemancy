@@ -198,6 +198,7 @@ export class MockConversationService implements IConversationService {
       content,
       inputTokens: 0,
       outputTokens: 0,
+      contextTokens: 0,
       provider: '',
       model: '',
       createdAt: now,
@@ -213,6 +214,7 @@ export class MockConversationService implements IConversationService {
       content: responseText,
       inputTokens: 0,
       outputTokens: 0,
+      contextTokens: 0,
       provider: '',
       model: '',
       createdAt: now,
@@ -235,6 +237,7 @@ export class MockConversationService implements IConversationService {
       content: data.content,
       inputTokens: 0,
       outputTokens: 0,
+      contextTokens: 0,
       provider: '',
       model: '',
       createdAt: now,
@@ -277,7 +280,7 @@ export class MockConversationService implements IConversationService {
     return { total: { inputTokens: 0, outputTokens: 0 }, byAgent: [], byModel: [] }
   }
 
-  async compact(_projectId: ProjectId, _conversationId: ConversationId): Promise<CompactRecord> {
+  async compact(_projectId: ProjectId, _conversationId: ConversationId, _signal?: AbortSignal): Promise<CompactRecord> {
     await delay()
     return {
       id: genId('compact'),

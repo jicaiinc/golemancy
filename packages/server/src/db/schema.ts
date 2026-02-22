@@ -19,6 +19,7 @@ export const messages = sqliteTable('messages', {
   content: text('content').notNull().default(''), // plain text for FTS
   inputTokens: integer('input_tokens').notNull().default(0),
   outputTokens: integer('output_tokens').notNull().default(0),
+  contextTokens: integer('context_tokens').notNull().default(0),
   provider: text('provider').notNull().default(''), // display only
   model: text('model').notNull().default(''), // display only
   createdAt: text('created_at').notNull(),
@@ -49,7 +50,7 @@ export const tokenRecords = sqliteTable('token_records', {
   model: text('model').notNull(),
   inputTokens: integer('input_tokens').notNull(),
   outputTokens: integer('output_tokens').notNull(),
-  source: text('source').notNull(), // 'chat' | 'cron' | 'sub-agent'
+  source: text('source').notNull(), // 'chat' | 'cron' | 'sub-agent' | 'compact'
   parentRecordId: text('parent_record_id'),
   aborted: integer('aborted').notNull().default(0),
   createdAt: text('created_at').notNull(),

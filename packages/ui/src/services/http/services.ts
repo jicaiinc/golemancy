@@ -121,10 +121,10 @@ export class HttpConversationService implements IConversationService {
       `${this.baseUrl}/api/projects/${projectId}/conversations/${conversationId}/token-usage`,
     )
   }
-  compact(projectId: ProjectId, conversationId: ConversationId) {
+  compact(projectId: ProjectId, conversationId: ConversationId, signal?: AbortSignal) {
     return fetchJson<CompactRecord>(
       `${this.baseUrl}/api/projects/${projectId}/conversations/${conversationId}/compact`,
-      { method: 'POST' },
+      { method: 'POST', signal },
     )
   }
 }

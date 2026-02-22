@@ -27,6 +27,8 @@ function createTestServices(): ServiceContainer {
         Promise.resolve({ id, ...data }),
       ),
       delete: vi.fn().mockResolvedValue(undefined),
+      getTopologyLayout: vi.fn().mockResolvedValue({}),
+      saveTopologyLayout: vi.fn(),
     },
     agents: {
       list: vi.fn().mockResolvedValue([

@@ -139,6 +139,32 @@ export class CronJobExecutor {
         messages: modelMessages,
         tools: hasTools ? allTools : undefined,
         stopWhen: hasTools ? stepCountIs(10) : undefined,
+        onAbort: async ({ steps }) => {
+          // Sum usage from completed steps (matches chat.ts pattern)
+          let abortInput = 0, abortOutput = 0
+          for (const step of steps) {
+            abortInput += step.usage?.inputTokens ?? 0
+            abortOutput += step.usage?.outputTokens ?? 0
+          }
+          try {
+            this.deps.tokenRecordStorage.save(projectId, {
+              conversationId,
+              agentId: cronJob.agentId,
+              provider: agent.modelConfig.provider,
+              model: agent.modelConfig.model,
+              inputTokens: abortInput,
+              outputTokens: abortOutput,
+              source: 'cron',
+              aborted: true,
+            })
+            if (this.deps.wsManager) {
+              this.deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: cronJob.agentId, model: agent.modelConfig.model, inputTokens: abortInput, outputTokens: abortOutput })
+            }
+            log.debug({ cronJobId: cronJob.id, inputTokens: abortInput, outputTokens: abortOutput, completedSteps: steps.length }, 'saved cron abort token record')
+          } catch (err) {
+            log.error({ err, cronJobId: cronJob.id }, 'failed to save cron abort token record')
+          }
+        },
       })
 
       // Consume the stream fully, capturing the response message with all parts (including tool calls)
@@ -156,20 +182,21 @@ export class CronJobExecutor {
       }
 
       // 10. Save assistant response with full parts (tool calls, tool results, text)
-      const usage = await result.totalUsage
+      const billingUsage = await result.totalUsage
+      const lastStepUsage = await result.usage
       const assistantContent = await result.text
       const capturedMsg = captured[0]
       const assistantMsgId = capturedMsg?.id ?? generateId('msg')
       const assistantParts = capturedMsg?.parts ?? [{ type: 'text', text: assistantContent }]
-      const inputTokens = usage.inputTokens ?? 0
-      const outputTokens = usage.outputTokens ?? 0
+      const inputTokens = billingUsage.inputTokens ?? 0
+      const outputTokens = billingUsage.outputTokens ?? 0
+      const contextTokens = lastStepUsage.totalTokens ?? 0
       await this.deps.conversationStorage.saveMessage(projectId, conversationId, {
         id: assistantMsgId as any,
         role: 'assistant',
         parts: assistantParts,
         content: assistantContent,
-        inputTokens,
-        outputTokens,
+        contextTokens,
         provider: agent.modelConfig.provider,
         model: agent.modelConfig.model,
       })

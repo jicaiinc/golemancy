@@ -15,6 +15,11 @@ interface StatusBarProps {
   tokenBreakdown?: ConversationTokenUsageResult | null
   taskSummary?: { completed: number; total: number } | null
   taskList?: ConversationTask[]
+  contextTokens?: number | null
+  compactThreshold?: number | null
+  onCompactNow?: () => Promise<void>
+  compacting?: boolean
+  onCancelCompact?: () => void
 }
 
 function formatTokenCount(n: number): string {
@@ -23,12 +28,14 @@ function formatTokenCount(n: number): string {
   return n.toLocaleString()
 }
 
-export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdown, taskSummary, taskList }: StatusBarProps) {
+export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdown, taskSummary, taskList, contextTokens, compactThreshold, onCompactNow, compacting, onCancelCompact }: StatusBarProps) {
   const modeStyle = permissionMode ? MODE_STYLES[permissionMode] : null
   const [showTaskPopover, setShowTaskPopover] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
   const [showTokenPopover, setShowTokenPopover] = useState(false)
   const tokenPopoverRef = useRef<HTMLDivElement>(null)
+  const [showContextPopover, setShowContextPopover] = useState(false)
+  const contextPopoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!showTaskPopover) return
@@ -51,6 +58,23 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [showTokenPopover])
+
+  useEffect(() => {
+    if (!showContextPopover) return
+    function handleClick(e: MouseEvent) {
+      if (contextPopoverRef.current && !contextPopoverRef.current.contains(e.target as Node)) {
+        setShowContextPopover(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showContextPopover])
+
+  const contextPercent = contextTokens != null && compactThreshold ? Math.round((contextTokens / compactThreshold) * 100) : null
+  const contextColorClass = contextPercent == null ? 'text-text-dim'
+    : contextPercent > 100 ? 'text-accent-red'
+    : contextPercent >= 80 ? 'text-accent-amber'
+    : 'text-text-dim'
 
   return (
     <footer className="h-6 shrink-0 flex items-center justify-between px-4 bg-deep border-t-2 border-border-dim relative">
@@ -107,6 +131,80 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
                         </span>
                       </div>
                     ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+        {compactThreshold != null && (
+          <div className="relative" ref={contextPopoverRef}>
+            <button
+              className={`font-mono text-[11px] cursor-pointer hover:text-accent-blue transition-colors ${contextColorClass}`}
+              data-testid="context-window-btn"
+              onClick={() => setShowContextPopover(v => !v)}
+            >
+              {contextTokens != null
+                ? `Context: ${formatTokenCount(contextTokens)} / ${formatTokenCount(compactThreshold)} (${contextPercent}%)`
+                : `Context: -- / ${formatTokenCount(compactThreshold)}`}
+            </button>
+            <AnimatePresence>
+              {showContextPopover && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.12 }}
+                  className="absolute bottom-7 right-0 w-72 bg-elevated border-2 border-border-dim shadow-pixel-drop z-50"
+                  data-testid="context-popover"
+                >
+                  <div className="px-3 py-2 border-b-2 border-border-dim">
+                    <span className="font-pixel text-[9px] text-text-dim">CONTEXT WINDOW</span>
+                  </div>
+                  <div className="px-3 py-3 space-y-3">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-mono">
+                        <span className="text-text-dim">Usage</span>
+                        <span className={contextColorClass}>
+                          {contextTokens != null ? `${formatTokenCount(contextTokens)} / ${formatTokenCount(compactThreshold)}` : '--'}
+                        </span>
+                      </div>
+                      <div className="h-3 bg-deep border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)]">
+                        <div
+                          className={`h-full transition-[width] duration-300 ${
+                            contextPercent != null && contextPercent > 100 ? 'bg-accent-red'
+                            : contextPercent != null && contextPercent >= 80 ? 'bg-accent-amber'
+                            : 'bg-accent-green'
+                          }`}
+                          style={{ width: `${Math.min(contextPercent ?? 0, 100)}%` }}
+                        />
+                      </div>
+                      {contextPercent != null && (
+                        <div className={`text-right text-[10px] font-mono ${contextColorClass}`}>
+                          {contextPercent}%
+                        </div>
+                      )}
+                    </div>
+                    {compacting ? (
+                      <button
+                        className="w-full inline-flex items-center justify-center font-mono cursor-pointer transition-transform bg-elevated text-accent-amber border-2 border-border-dim shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)] hover:brightness-110 active:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] active:translate-y-[2px] h-7 px-3 text-[11px]"
+                        onClick={onCancelCompact}
+                      >
+                        Compacting... Cancel
+                      </button>
+                    ) : (
+                      <button
+                        className="w-full inline-flex items-center justify-center font-mono cursor-pointer transition-transform bg-accent-green text-void border-2 border-accent-green shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.2),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)] hover:brightness-110 active:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.2),inset_2px_2px_0_0_rgba(0,0,0,0.3)] active:translate-y-[2px] h-7 px-3 text-[11px]"
+                        onClick={async () => {
+                          if (onCompactNow) {
+                            await onCompactNow()
+                            setShowContextPopover(false)
+                          }
+                        }}
+                      >
+                        Compact Now
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               )}

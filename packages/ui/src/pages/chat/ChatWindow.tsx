@@ -38,9 +38,11 @@ interface ChatWindowProps {
   canNewChat: boolean
   onSwitchAgent: (agentId: AgentId) => void
   onUsageUpdate?: (usage: { inputTokens: number; outputTokens: number }) => void
+  onContextUpdate?: (contextTokens: number) => void
+  onCompactingChange?: (compacting: boolean) => void
 }
 
-export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate }: ChatWindowProps) {
+export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate, onContextUpdate, onCompactingChange }: ChatWindowProps) {
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
@@ -55,6 +57,13 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   const [compacting, setCompacting] = useState(false)
   const [confirmCompact, setConfirmCompact] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
+
+  // Sync compactRecords when conversation is reloaded externally (e.g. after StatusBar Compact Now)
+  useEffect(() => {
+    if (conversation.compactRecords) {
+      setCompactRecords(conversation.compactRecords)
+    }
+  }, [conversation.compactRecords])
 
   const handleTitleClick = useCallback(() => {
     setTitleValue(conversation.title)
@@ -118,18 +127,32 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
       if (part.type === 'data-warning' && part.transient && part.data?.message) {
         setToolWarnings(prev => [...prev, String(part.data!.message)])
       }
-      if (part.type === 'data-usage' && part.data && onUsageUpdate) {
-        onUsageUpdate({
-          inputTokens: (part.data.inputTokens as number) ?? 0,
-          outputTokens: (part.data.outputTokens as number) ?? 0,
-        })
+      if (part.type === 'data-usage' && part.data) {
+        if (onUsageUpdate) {
+          onUsageUpdate({
+            inputTokens: (part.data.inputTokens as number) ?? 0,
+            outputTokens: (part.data.outputTokens as number) ?? 0,
+          })
+        }
+        if (onContextUpdate && part.data.contextTokens != null) {
+          onContextUpdate(part.data.contextTokens as number)
+        }
       }
-      if (part.type === 'data-compact' && part.data?.status === 'completed' && part.data?.record) {
-        setCompactRecords(prev => [...prev, part.data!.record as CompactRecord])
+      if (part.type === 'data-compact' && part.data) {
+        if (part.data.status === 'started') {
+          onCompactingChange?.(true)
+        } else if (part.data.status === 'completed') {
+          onCompactingChange?.(false)
+          if (part.data.record) {
+            setCompactRecords(prev => [...prev, part.data!.record as CompactRecord])
+          }
+        } else if (part.data.status === 'failed') {
+          onCompactingChange?.(false)
+        }
       }
     }
     return () => { (chat as any).onData = undefined }
-  }, [chat, onUsageUpdate, currentProjectId, conversation.id])
+  }, [chat, onUsageUpdate, onContextUpdate, onCompactingChange, currentProjectId, conversation.id])
 
   // Track whether this component mounted with pre-existing messages (loaded from cache).
   // If so, skip the stagger entrance animation to avoid a multi-second delay.

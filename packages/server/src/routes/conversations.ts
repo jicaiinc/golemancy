@@ -167,11 +167,19 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     }))
     const modelMessages = await convertToModelMessages(uiMessages)
 
-    const result = await compactConversation({
-      messages: modelMessages,
-      model,
-      systemPrompt: agent.systemPrompt,
-    })
+    let result
+    try {
+      result = await compactConversation({
+        messages: modelMessages,
+        model,
+        systemPrompt: agent.systemPrompt,
+        signal: c.req.raw.signal,
+      })
+    } catch (err) {
+      log.error({ err, conversationId: convId }, 'manual compact failed')
+      const message = err instanceof Error ? err.message : 'Compact failed'
+      return c.json({ error: message }, 500)
+    }
 
     const lastMsg = conv.messages.at(-1)!
     const record = await deps.compactRecordStorage.save(projectId, {
@@ -191,7 +199,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
       model: agent.modelConfig.model,
       inputTokens: result.inputTokens,
       outputTokens: result.outputTokens,
-      source: 'chat',
+      source: 'compact',
     })
 
     log.info({ conversationId: convId, compactId: record.id }, 'manual compact completed')

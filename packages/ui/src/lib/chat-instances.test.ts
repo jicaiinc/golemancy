@@ -56,6 +56,7 @@ function makeMessage(overrides?: Partial<Message>): Message {
     content: 'Hello',
     inputTokens: 0,
     outputTokens: 0,
+    contextTokens: 0,
     provider: '',
     model: '',
     createdAt: now,

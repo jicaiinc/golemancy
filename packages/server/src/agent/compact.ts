@@ -1,4 +1,4 @@
-import { generateText, type LanguageModel, type ModelMessage, type UIMessage } from 'ai'
+import { streamText, type LanguageModel, type ModelMessage, type UIMessage } from 'ai'
 import type { CompactRecord } from '@golemancy/shared'
 import { logger } from '../logger'
 
@@ -53,34 +53,100 @@ export function parseSummary(response: string): string | null {
   return content.trim() || null
 }
 
+export class CompactFailedError extends Error {
+  constructor(
+    message: string,
+    public readonly diagnostics: {
+      finishReason: string
+      inputTokens: number
+      outputTokens: number
+      textLength: number
+      textPreview: string
+      messageCount: number
+      messageRoles: string[]
+    },
+  ) {
+    super(message)
+    this.name = 'CompactFailedError'
+  }
+}
+
 export async function compactConversation(opts: {
   messages: ModelMessage[]
   model: LanguageModel
   systemPrompt: string
   signal?: AbortSignal
+  onProgress?: (info: { generatedChars: number }) => void
 }): Promise<{ summary: string; inputTokens: number; outputTokens: number }> {
   const compactPromptText = buildCompactPrompt(opts.systemPrompt)
 
-  log.info({ messageCount: opts.messages.length }, 'starting conversation compaction')
+  const messageRoles = opts.messages.map(m => m.role)
+  log.info({
+    messageCount: opts.messages.length,
+    messageRoles,
+    systemPromptLength: opts.systemPrompt.length,
+    compactPromptLength: compactPromptText.length,
+  }, 'starting conversation compaction')
 
-  const result = await generateText({
+  // Use streamText (streamGenerateContent endpoint) instead of generateText (generateContent)
+  // — Gemini 2.5 Flash has a known bug returning empty responses on the non-streaming endpoint
+  const result = streamText({
     model: opts.model,
     system: 'You are a helpful AI assistant tasked with summarizing conversations.',
     messages: [...opts.messages, { role: 'user', content: compactPromptText }],
     abortSignal: opts.signal,
   })
 
-  const parsed = parseSummary(result.text)
-  const summary = parsed || result.text || '[Compact failed: no summary generated]'
-
-  if (!parsed) {
-    log.warn({ textLength: result.text.length }, 'failed to parse <summary> tags from compact response, using raw text')
+  // Consume the stream to build the full text and report progress
+  let text = ''
+  for await (const chunk of result.textStream) {
+    text += chunk
+    opts.onProgress?.({ generatedChars: text.length })
   }
 
-  const inputTokens = result.usage.inputTokens ?? 0
-  const outputTokens = result.usage.outputTokens ?? 0
+  const usage = await result.totalUsage
+  const inputTokens = usage.inputTokens ?? 0
+  const outputTokens = usage.outputTokens ?? 0
+  const finishReason = await result.finishReason
 
-  log.info({ inputTokens, outputTokens }, 'compaction complete')
+  log.info({
+    finishReason,
+    inputTokens,
+    outputTokens,
+    textLength: text.length,
+    textPreview: text.slice(0, 200),
+  }, 'streamText completed for compact')
+
+  if (outputTokens === 0 || !text.trim()) {
+    const diagnostics = {
+      finishReason,
+      inputTokens,
+      outputTokens,
+      textLength: text.length,
+      textPreview: text.slice(0, 500),
+      messageCount: opts.messages.length,
+      messageRoles,
+    }
+    log.error(diagnostics, 'compact failed: model returned empty response')
+    throw new CompactFailedError(
+      `Compact failed: model returned empty response (finishReason=${finishReason}, outputTokens=${outputTokens})`,
+      diagnostics,
+    )
+  }
+
+  const parsed = parseSummary(text)
+
+  if (!parsed) {
+    log.warn({
+      textLength: text.length,
+      textPreview: text.slice(0, 500),
+      finishReason,
+    }, 'failed to parse <summary> tags from compact response, using raw text as fallback')
+  }
+
+  const summary = parsed || text
+
+  log.info({ inputTokens, outputTokens, summaryLength: summary.length }, 'compaction complete')
 
   return { summary, inputTokens, outputTokens }
 }

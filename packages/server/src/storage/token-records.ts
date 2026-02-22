@@ -11,7 +11,7 @@ export interface TokenRecordData {
   model: string
   inputTokens: number
   outputTokens: number
-  source: 'chat' | 'cron' | 'sub-agent'
+  source: 'chat' | 'cron' | 'sub-agent' | 'compact'
   parentRecordId?: string
   aborted?: boolean
 }

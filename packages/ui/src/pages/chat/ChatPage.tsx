@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import type { AgentId, ConversationId, ConversationTokenUsageResult } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, usePermissionMode } from '../../hooks'
 import { getServices } from '../../services/container'
@@ -26,6 +27,26 @@ export function ChatPage() {
   // Token usage tracking for current conversation
   const [conversationUsage, setConversationUsage] = useState<{ inputTokens: number; outputTokens: number } | null>(null)
   const [tokenBreakdown, setTokenBreakdown] = useState<ConversationTokenUsageResult | null>(null)
+
+  // Context window tracking
+  const [contextTokens, setContextTokens] = useState<number | null>(null)
+  const [compacting, setCompacting] = useState(false)
+  const compactAbortRef = useRef<AbortController | null>(null)
+
+  // Restore contextTokens from last assistant message when conversation changes
+  useEffect(() => {
+    if (!currentConversationId) {
+      setContextTokens(null)
+      return
+    }
+    const conv = conversations.find(c => c.id === currentConversationId)
+    if (conv?.messages) {
+      const lastAssistant = [...conv.messages].reverse().find(m => m.role === 'assistant')
+      setContextTokens(lastAssistant?.contextTokens ?? null)
+    } else {
+      setContextTokens(null)
+    }
+  }, [currentConversationId, conversations])
 
   // Load historical usage when conversation changes
   useEffect(() => {
@@ -56,6 +77,46 @@ export function ChatPage() {
       ? { inputTokens: prev.inputTokens + usage.inputTokens, outputTokens: prev.outputTokens + usage.outputTokens }
       : usage
     )
+  }, [])
+
+  const handleContextUpdate = useCallback((tokens: number) => {
+    setContextTokens(tokens)
+  }, [])
+
+  const handleCompactingChange = useCallback((isCompacting: boolean) => {
+    setCompacting(isCompacting)
+  }, [])
+
+  const handleCompactNow = useCallback(async () => {
+    if (!currentConversationId || !currentProject?.id || compacting) return
+    const abort = new AbortController()
+    compactAbortRef.current = abort
+    setCompacting(true)
+    try {
+      const svc = getServices()
+      await svc.conversations.compact?.(currentProject.id, currentConversationId, abort.signal)
+      // Reload conversation to get updated compactRecords and messages
+      const updated = await svc.conversations.getById(currentProject.id, currentConversationId)
+      if (updated) {
+        useAppStore.setState(s => ({
+          conversations: s.conversations.map(c => c.id === currentConversationId ? updated : c),
+        }))
+        // Update contextTokens from refreshed messages
+        const lastAssistant = [...updated.messages].reverse().find(m => m.role === 'assistant')
+        setContextTokens(lastAssistant?.contextTokens ?? null)
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error('Manual compact failed:', err)
+      }
+    } finally {
+      compactAbortRef.current = null
+      setCompacting(false)
+    }
+  }, [currentConversationId, currentProject?.id, compacting])
+
+  const handleCancelCompact = useCallback(() => {
+    compactAbortRef.current?.abort()
   }, [])
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -108,6 +169,8 @@ export function ChatPage() {
   const currentAgent = currentConversation
     ? agents.find(a => a.id === currentConversation.agentId)
     : undefined
+
+  const compactThreshold = currentAgent?.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD
 
   const isUnrestricted = permissionMode === 'unrestricted'
 
@@ -163,6 +226,8 @@ export function ChatPage() {
             canNewChat={canNewChat}
             onSwitchAgent={handleSwitchAgent}
             onUsageUpdate={handleUsageUpdate}
+            onContextUpdate={handleContextUpdate}
+            onCompactingChange={handleCompactingChange}
           />
         ) : (
           <ChatEmptyState
@@ -174,7 +239,7 @@ export function ChatPage() {
           />
         )}
         {/* TODO: Pass actualMode from WS mode_degraded events once WebSocket integration is wired up */}
-        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} tokenBreakdown={tokenBreakdown} taskSummary={taskSummary} taskList={currentConvTasks} />
+        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} tokenBreakdown={tokenBreakdown} taskSummary={taskSummary} taskList={currentConvTasks} contextTokens={contextTokens} compactThreshold={compactThreshold} onCompactNow={handleCompactNow} compacting={compacting} onCancelCompact={handleCancelCompact} />
       </div>
     </div>
   )

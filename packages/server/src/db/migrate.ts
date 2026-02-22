@@ -138,6 +138,13 @@ export function migrateDatabase(db: AppDatabase) {
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_message ON token_records(message_id)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_conversation ON token_records(conversation_id)`)
 
+  // --- Migration v3b: context_tokens column on messages ---
+  const colsV3b = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+  if (!colsV3b.some(c => c.name === 'context_tokens')) {
+    log.info('migrating messages table: adding context_tokens column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN context_tokens INTEGER NOT NULL DEFAULT 0`)
+  }
+
   // --- Migration v5b: provider/model columns on messages (display only) ---
   const colsV5 = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
   if (!colsV5.some(c => c.name === 'provider')) {

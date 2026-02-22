@@ -101,7 +101,7 @@ export class SqliteConversationStorage implements IConversationService {
   async saveMessage(
     projectId: ProjectId,
     conversationId: ConversationId,
-    data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; provider?: string; model?: string },
+    data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; contextTokens?: number; provider?: string; model?: string },
   ): Promise<void> {
     const db = this.getProjectDb(projectId)
     await this.verifyOwnership(db, projectId, conversationId)
@@ -127,6 +127,7 @@ export class SqliteConversationStorage implements IConversationService {
       content: data.content,
       inputTokens: data.inputTokens ?? 0,
       outputTokens: data.outputTokens ?? 0,
+      contextTokens: data.contextTokens ?? 0,
       provider: data.provider ?? '',
       model: data.model ?? '',
       createdAt: now,
@@ -215,6 +216,7 @@ export class SqliteConversationStorage implements IConversationService {
       content: string
       input_tokens: number
       output_tokens: number
+      context_tokens: number
       provider: string
       model: string
       created_at: string
@@ -250,6 +252,7 @@ export class SqliteConversationStorage implements IConversationService {
         content: r.content,
         inputTokens: r.input_tokens ?? 0,
         outputTokens: r.output_tokens ?? 0,
+        contextTokens: r.context_tokens ?? 0,
         provider: r.provider ?? '',
         model: r.model ?? '',
         createdAt: r.created_at,
@@ -308,6 +311,7 @@ export class SqliteConversationStorage implements IConversationService {
       content: row.content,
       inputTokens: row.inputTokens,
       outputTokens: row.outputTokens,
+      contextTokens: row.contextTokens,
       provider: row.provider,
       model: row.model,
       createdAt: row.createdAt,

@@ -2,10 +2,10 @@ import { Hono } from 'hono'
 import {
   streamText, stepCountIs, convertToModelMessages,
   createUIMessageStream, createUIMessageStreamResponse,
-  type UIMessage,
+  type UIMessage, type ModelMessage,
 } from 'ai'
 import type {
-  AgentId, ProjectId, ConversationId, MessageId, CompactRecord,
+  AgentId, ProjectId, ConversationId, MessageId, CompactRecord, Message,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
@@ -210,8 +210,8 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       })),
     )
 
-    // --- Auto-compact: pre-processing (runs before streaming) ---
-    let compactPerformed: CompactRecord | null = null
+    // --- Auto-compact: prepare inputs (actual execution happens inside SSE stream) ---
+    let compactInputs: { allModelMsgs: ModelMessage[]; lastAssistant: Message; totalTokens: number; threshold: number } | null = null
     if (conversationId) {
       const threshold = agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD
       if (threshold > 0) {
@@ -220,58 +220,23 @@ export function createChatRoutes(deps: ChatRouteDeps) {
         )
         if (conv) {
           const lastAssistant = conv.messages.filter(m => m.role === 'assistant').at(-1)
-          const totalTokens = (lastAssistant?.inputTokens ?? 0) + (lastAssistant?.outputTokens ?? 0)
+          const totalTokens = lastAssistant?.contextTokens ?? 0
 
           log.debug({ conversationId, totalTokens, threshold, hasLastAssistant: !!lastAssistant }, 'auto-compact check')
 
-          if (totalTokens >= threshold) {
-            log.info({ conversationId, totalTokens, threshold }, 'auto-compact triggered (pre-processing)')
-
-            // Only compact messages up to the boundary (last assistant message).
-            // The DB may already contain the current user message (saved above),
-            // which must NOT be included in the summary — it will be kept verbatim as a "recent" message.
-            const boundaryIdx = conv.messages.indexOf(lastAssistant!)
+          if (totalTokens >= threshold && lastAssistant) {
+            const boundaryIdx = conv.messages.indexOf(lastAssistant)
             const messagesToCompact = conv.messages.slice(0, boundaryIdx + 1)
-
             const allUiMsgs: UIMessage[] = messagesToCompact.map(m => ({
               id: m.id, role: m.role, parts: m.parts as UIMessage['parts'],
             }))
             const allModelMsgs = await convertToModelMessages(allUiMsgs)
-
-            const compactResult = await compactConversation({
-              messages: allModelMsgs, model, systemPrompt: agent.systemPrompt,
-            })
-
-            compactPerformed = await deps.compactRecordStorage.save(projectId as ProjectId, {
-              conversationId: conversationId as ConversationId,
-              summary: compactResult.summary,
-              boundaryMessageId: lastAssistant!.id as MessageId,
-              inputTokens: compactResult.inputTokens,
-              outputTokens: compactResult.outputTokens,
-              trigger: 'auto',
-            })
-
-            deps.tokenRecordStorage.save(projectId as ProjectId, {
-              conversationId, agentId: agentId as string,
-              provider: agent.modelConfig.provider, model: agent.modelConfig.model,
-              inputTokens: compactResult.inputTokens, outputTokens: compactResult.outputTokens,
-              source: 'chat',
-            })
-
-            log.info({ conversationId, compactId: compactPerformed.id }, 'auto-compact completed')
+            compactInputs = { allModelMsgs, lastAssistant, totalTokens, threshold }
           }
         }
       }
     }
 
-    // --- Compact: filter messages for model ---
-    const latestCompact = compactPerformed
-      ?? (conversationId
-        ? await deps.compactRecordStorage.getLatest(projectId as ProjectId, conversationId as ConversationId)
-        : null)
-    const messagesForModel = buildMessagesForModel(rehydratedMessages, latestCompact)
-
-    const modelMessages = await convertToModelMessages(messagesForModel)
     const hasTools = Object.keys(allTools).length > 0
 
     let cleaned = false
@@ -282,48 +247,10 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       await markChatEnded()
     }
 
-    const result = streamText({
-      model,
-      system: systemPrompt,
-      messages: modelMessages,
-      tools: hasTools ? allTools : undefined,
-      stopWhen: hasTools ? stepCountIs(10) : undefined,
-      abortSignal: c.req.raw.signal,
-      onFinish: ensureCleanup,
-      onAbort: async ({ steps }) => {
-        // Sum usage from completed steps (empty for single-step abort)
-        let inputTokens = 0, outputTokens = 0
-        for (const step of steps) {
-          inputTokens += step.usage?.inputTokens ?? 0
-          outputTokens += step.usage?.outputTokens ?? 0
-        }
-        try {
-          deps.tokenRecordStorage.save(projectId as ProjectId, {
-            conversationId,
-            agentId: agentId as string,
-            provider: agent.modelConfig.provider,
-            model: agent.modelConfig.model,
-            inputTokens,
-            outputTokens,
-            source: 'chat',
-            aborted: true,
-          })
-          if (deps.wsManager) {
-            deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId as AgentId, model: agent.modelConfig.model, inputTokens, outputTokens })
-          }
-          log.debug({ conversationId, inputTokens, outputTokens, completedSteps: steps.length }, 'saved abort token record')
-        } catch (err) {
-          log.error({ err, conversationId }, 'failed to save abort token record')
-        }
-        await ensureCleanup()
-      },
-    })
-
-    // Wrap in createUIMessageStream to inject transient warnings before LLM output
     const toolWarnings = agentToolsResult.warnings
     const modeDegradation = agentToolsResult.degradation
     const stream = createUIMessageStream({
-      execute: ({ writer }) => {
+      execute: async ({ writer }) => {
         // Bind writer so sub-agent onTokenUsage callback can emit SSE events
         streamWriter = writer
 
@@ -349,34 +276,105 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           })
         }
 
-        // Notify frontend if auto-compact was performed during pre-processing
-        if (compactPerformed) {
-          writer.write({
-            type: 'data-compact' as `data-${string}`,
-            data: { status: 'completed', record: compactPerformed },
-          })
+        // --- Auto-compact: run inside SSE stream so we can send progress events ---
+        let compactPerformed: CompactRecord | null = null
+        if (compactInputs) {
+          log.info({ conversationId, totalTokens: compactInputs.totalTokens, threshold: compactInputs.threshold }, 'auto-compact triggered (pre-processing)')
+          writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'started' } })
+
+          try {
+            const compactResult = await compactConversation({
+              messages: compactInputs.allModelMsgs,
+              model,
+              systemPrompt: agent.systemPrompt,
+              signal: c.req.raw.signal,
+              onProgress: (info) => {
+                writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'progress', generatedChars: info.generatedChars } })
+              },
+            })
+
+            compactPerformed = await deps.compactRecordStorage.save(projectId as ProjectId, {
+              conversationId: conversationId as ConversationId,
+              summary: compactResult.summary,
+              boundaryMessageId: compactInputs.lastAssistant.id as MessageId,
+              inputTokens: compactResult.inputTokens,
+              outputTokens: compactResult.outputTokens,
+              trigger: 'auto',
+            })
+
+            deps.tokenRecordStorage.save(projectId as ProjectId, {
+              conversationId, agentId: agentId as string,
+              provider: agent.modelConfig.provider, model: agent.modelConfig.model,
+              inputTokens: compactResult.inputTokens, outputTokens: compactResult.outputTokens,
+              source: 'compact',
+            })
+
+            log.info({ conversationId, compactId: compactPerformed.id }, 'auto-compact completed')
+            writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'completed', record: compactPerformed } })
+          } catch (err) {
+            log.error({ err, conversationId, totalTokens: compactInputs.totalTokens, threshold: compactInputs.threshold }, 'auto-compact failed, skipping — will use full message history')
+            writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'failed' } })
+          }
         }
 
-        // Merge the LLM stream
+        // --- Build messages for model (depends on compact result) ---
+        const latestCompact = compactPerformed
+          ?? (conversationId
+            ? await deps.compactRecordStorage.getLatest(projectId as ProjectId, conversationId as ConversationId)
+            : null)
+        const messagesForModel = buildMessagesForModel(rehydratedMessages, latestCompact)
+        const modelMessages = await convertToModelMessages(messagesForModel)
+
+        // --- Chat stream ---
+        const result = streamText({
+          model,
+          system: systemPrompt,
+          messages: modelMessages,
+          tools: hasTools ? allTools : undefined,
+          stopWhen: hasTools ? stepCountIs(10) : undefined,
+          abortSignal: c.req.raw.signal,
+          onFinish: ensureCleanup,
+          onAbort: async ({ steps }) => {
+            let inputTokens = 0, outputTokens = 0
+            for (const step of steps) {
+              inputTokens += step.usage?.inputTokens ?? 0
+              outputTokens += step.usage?.outputTokens ?? 0
+            }
+            try {
+              deps.tokenRecordStorage.save(projectId as ProjectId, {
+                conversationId,
+                agentId: agentId as string,
+                provider: agent.modelConfig.provider,
+                model: agent.modelConfig.model,
+                inputTokens,
+                outputTokens,
+                source: 'chat',
+                aborted: true,
+              })
+              if (deps.wsManager) {
+                deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId as AgentId, model: agent.modelConfig.model, inputTokens, outputTokens })
+              }
+              log.debug({ conversationId, inputTokens, outputTokens, completedSteps: steps.length }, 'saved abort token record')
+            } catch (err) {
+              log.error({ err, conversationId }, 'failed to save abort token record')
+            }
+            await ensureCleanup()
+          },
+        })
+
         writer.merge(result.toUIMessageStream({
           originalMessages: rehydratedMessages,
           generateMessageId: () => generateId('msg'),
           onFinish: async ({ responseMessage }) => {
             try {
-              // result.usage = last step only (= actual context window size)
-              // result.totalUsage = accumulated across all steps (= billing total)
               const lastStepUsage = await result.usage
-              const accumulated = await result.totalUsage
-              const contextInputTokens = lastStepUsage.inputTokens ?? 0
-              const contextOutputTokens = lastStepUsage.outputTokens ?? 0
-              const totalInputTokens = accumulated.inputTokens ?? 0
-              const totalOutputTokens = accumulated.outputTokens ?? 0
-              const totalTokens = accumulated.totalTokens ?? 0
+              const billingUsage = await result.totalUsage
+              const contextTokens = lastStepUsage.totalTokens ?? 0
+              const billingInput = billingUsage.inputTokens ?? 0
+              const billingOutput = billingUsage.outputTokens ?? 0
 
               if (conversationId) {
-                // Extract any base64 images from assistant response before saving
                 const extractedParts = await extractUploads(projectId, responseMessage.parts)
-                // Save last-step usage to message — auto-compact uses these to gauge context fullness
                 await deps.conversationStorage.saveMessage(
                   projectId as ProjectId,
                   conversationId as ConversationId,
@@ -385,36 +383,32 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                     role: 'assistant',
                     parts: extractedParts,
                     content: extractTextContent(responseMessage.parts),
-                    inputTokens: contextInputTokens,
-                    outputTokens: contextOutputTokens,
+                    contextTokens,
                     provider: agent.modelConfig.provider,
                     model: agent.modelConfig.model,
                   },
                 )
-                log.debug({ conversationId, role: 'assistant', contextInputTokens, contextOutputTokens, totalInputTokens, totalOutputTokens }, 'saved assistant message in onFinish')
+                log.debug({ conversationId, role: 'assistant', contextTokens, billingInput, billingOutput }, 'saved assistant message in onFinish')
               }
 
-              // Write token_record — use accumulated total for billing/dashboard
               deps.tokenRecordStorage.save(projectId as ProjectId, {
                 conversationId,
                 messageId: responseMessage.id,
                 agentId: agentId as string,
                 provider: agent.modelConfig.provider,
                 model: agent.modelConfig.model,
-                inputTokens: totalInputTokens,
-                outputTokens: totalOutputTokens,
+                inputTokens: billingInput,
+                outputTokens: billingOutput,
                 source: 'chat',
               })
 
-              // Emit token:recorded WS event — accumulated for billing
               if (deps.wsManager) {
-                deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId as AgentId, model: agent.modelConfig.model, inputTokens: totalInputTokens, outputTokens: totalOutputTokens })
+                deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId as AgentId, model: agent.modelConfig.model, inputTokens: billingInput, outputTokens: billingOutput })
               }
 
-              // Send both values to client — context for status display, total for billing
               writer.write({
                 type: 'data-usage' as `data-${string}`,
-                data: { inputTokens: contextInputTokens, outputTokens: contextOutputTokens, totalTokens },
+                data: { contextTokens, inputTokens: billingInput, outputTokens: billingOutput },
               })
 
             } catch (err) {
