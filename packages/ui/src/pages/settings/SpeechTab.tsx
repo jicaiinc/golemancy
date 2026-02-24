@@ -5,7 +5,7 @@ import type { SpeechToTextSettings, TranscriptionRecord, TranscriptionId, Projec
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
 import { PixelCard, PixelButton, PixelInput, PixelToggle, PixelSpinner, CopyIcon, CheckIcon } from '../../components'
-// stagger presets removed — history loads all at once
+import { staggerContainer, staggerItem } from '../../lib/motion'
 
 const OPENAI_STT_MODELS = ['gpt-4o-mini-transcribe', 'gpt-4o-transcribe', 'whisper-1']
 
@@ -178,7 +178,7 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
   }
 
   return (
-    <div>
+    <motion.div variants={staggerItem}>
       <div className="py-1.5 px-2 border border-border-dim bg-surface hover:bg-deep/50 transition-colors cursor-pointer" onClick={() => setExpanded(v => !v)}>
         {/* Main row */}
         <div className="flex items-center gap-2 min-w-0">
@@ -281,7 +281,7 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -601,7 +601,7 @@ export function SpeechTab() {
               <p className="font-mono text-[11px] text-text-dim">No transcriptions yet</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
+            <motion.div variants={staggerContainer} initial="initial" animate="animate" className="flex flex-col gap-3">
               {grouped.map(([group, records]) => (
                 <div key={group}>
                   <div className="flex items-center gap-2 mb-1">
@@ -615,7 +615,7 @@ export function SpeechTab() {
                   </div>
                 </div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       )}
