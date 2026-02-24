@@ -375,9 +375,30 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           },
         })
 
+        // --- Per-step token usage tracking via messageMetadata ---
+        let currentStepToolCallIds: string[] = []
+        let allToolUsages: Record<string, { inputTokens: number; outputTokens: number }> = {}
+
         writer.merge(result.toUIMessageStream({
           originalMessages: rehydratedMessages,
           generateMessageId: () => generateId('msg'),
+          messageMetadata: ({ part }) => {
+            if (part.type === 'tool-call') {
+              currentStepToolCallIds.push(part.toolCallId)
+            }
+            if (part.type === 'finish-step') {
+              const ids = [...currentStepToolCallIds]
+              currentStepToolCallIds = []
+              if (ids.length === 0) return undefined
+              const stepUsage = {
+                inputTokens: part.usage.inputTokens ?? 0,
+                outputTokens: part.usage.outputTokens ?? 0,
+              }
+              const entries = Object.fromEntries(ids.map(id => [id, stepUsage]))
+              Object.assign(allToolUsages, entries)
+              return { toolUsages: entries }
+            }
+          },
           onFinish: async ({ responseMessage }) => {
             try {
               const lastStepUsage = await result.usage
@@ -399,6 +420,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                     contextTokens,
                     provider: agent.modelConfig.provider,
                     model: agent.modelConfig.model,
+                    ...(Object.keys(allToolUsages).length > 0 ? { metadata: { toolUsages: allToolUsages } } : {}),
                   },
                 )
                 log.debug({ conversationId, role: 'assistant', contextTokens, billingInput, billingOutput }, 'saved assistant message in onFinish')

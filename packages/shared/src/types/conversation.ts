@@ -11,6 +11,7 @@ export interface Message extends Timestamped {
   contextTokens: number // last-step totalTokens — actual context window size (includes reasoning etc)
   provider: string  // display only — e.g. 'anthropic'
   model: string     // display only — e.g. 'claude-sonnet-4-20250514'
+  metadata?: Record<string, unknown> // e.g. { toolUsages: { [toolCallId]: { inputTokens, outputTokens } } }
 }
 
 export interface CompactRecord {

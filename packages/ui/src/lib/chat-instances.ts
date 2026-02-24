@@ -16,6 +16,7 @@ function messagesToUIMessages(messages: Message[]): UIMessage[] {
     id: m.id,
     role: m.role,
     parts: m.parts as UIMessage['parts'],
+    ...(m.metadata != null ? { metadata: m.metadata } : {}),
   }))
 }
 
