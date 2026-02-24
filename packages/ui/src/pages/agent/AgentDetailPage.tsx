@@ -23,6 +23,7 @@ const statusAnimation: Record<AgentStatus, string> = {
 // --- Tab definitions ---
 const TABS = [
   { id: 'general', label: 'General' },
+  { id: 'model-config', label: 'Model Config' },
   { id: 'skills', label: 'Skills' },
   { id: 'tools', label: 'Tools' },
   { id: 'mcp', label: 'MCP' },
@@ -103,6 +104,7 @@ export function AgentDetailPage() {
 
       <div className="mt-4">
         {activeTab === 'general' && <GeneralAgentTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined) }} />}
+        {activeTab === 'model-config' && <ModelConfigTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'skills' && <SkillsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'tools' && <ToolsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'mcp' && <MCPTab agent={agent} onUpdate={updateAgent} />}
@@ -112,16 +114,66 @@ export function AgentDetailPage() {
   )
 }
 
-// ========== General Tab (Info + Model Config) ==========
+// ========== General Tab (Info only) ==========
 function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
   onDelete: () => Promise<void>
 }) {
-  const settings = useAppStore(s => s.settings)
   const [name, setName] = useState(agent.name)
   const [description, setDescription] = useState(agent.description)
   const [systemPrompt, setSystemPrompt] = useState(agent.systemPrompt)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    setName(agent.name)
+    setDescription(agent.description)
+    setSystemPrompt(agent.systemPrompt)
+  }, [agent.id])
+
+  async function handleSave() {
+    setSaving(true)
+    await onUpdate(agent.id, {
+      name: name.trim(),
+      description: description.trim(),
+      systemPrompt: systemPrompt.trim(),
+    })
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  return (
+    <div className="max-w-[640px] flex flex-col gap-4">
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">INFO</div>
+        <div className="flex flex-col gap-4">
+          <PixelInput label="NAME" value={name} onChange={e => setName(e.target.value)} />
+          <PixelInput label="DESCRIPTION" value={description} onChange={e => setDescription(e.target.value)} />
+          <PixelTextArea label="SYSTEM PROMPT" value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} rows={8} />
+        </div>
+      </PixelCard>
+
+      <div className="flex items-center gap-3">
+        <PixelButton variant="primary" onClick={handleSave} disabled={saving || !name.trim()}>
+          {saving ? 'Saving...' : 'Save'}
+        </PixelButton>
+        {saved && <span className="text-[12px] text-accent-green">Saved!</span>}
+        <div className="ml-auto">
+          <PixelButton variant="danger" onClick={onDelete}>Delete Agent</PixelButton>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ========== Model Config Tab ==========
+function ModelConfigTab({ agent, onUpdate }: {
+  agent: Agent
+  onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
+}) {
+  const settings = useAppStore(s => s.settings)
   const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)
   const [model, setModel] = useState(agent.modelConfig.model)
   const [compactThreshold, setCompactThreshold] = useState(
@@ -136,9 +188,6 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   )
 
   useEffect(() => {
-    setName(agent.name)
-    setDescription(agent.description)
-    setSystemPrompt(agent.systemPrompt)
     setProviderSlug(agent.modelConfig.provider)
     setModel(agent.modelConfig.model)
     setCompactThreshold(agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD)
@@ -165,9 +214,6 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   async function handleSave() {
     setSaving(true)
     await onUpdate(agent.id, {
-      name: name.trim(),
-      description: description.trim(),
-      systemPrompt: systemPrompt.trim(),
       modelConfig: { provider: providerSlug, model },
       compactThreshold,
     })
@@ -178,16 +224,6 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
 
   return (
     <div className="max-w-[640px] flex flex-col gap-4">
-      {/* Info section */}
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-4">INFO</div>
-        <div className="flex flex-col gap-4">
-          <PixelInput label="NAME" value={name} onChange={e => setName(e.target.value)} />
-          <PixelInput label="DESCRIPTION" value={description} onChange={e => setDescription(e.target.value)} />
-          <PixelTextArea label="SYSTEM PROMPT" value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} rows={8} />
-        </div>
-      </PixelCard>
-
       {/* Model Config section */}
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-4">MODEL CONFIG</div>
@@ -229,13 +265,10 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
       </PixelCard>
 
       <div className="flex items-center gap-3">
-        <PixelButton variant="primary" onClick={handleSave} disabled={saving || !name.trim()}>
+        <PixelButton variant="primary" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save'}
         </PixelButton>
         {saved && <span className="text-[12px] text-accent-green">Saved!</span>}
-        <div className="ml-auto">
-          <PixelButton variant="danger" onClick={onDelete}>Delete Agent</PixelButton>
-        </div>
       </div>
     </div>
   )
