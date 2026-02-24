@@ -3,8 +3,9 @@ import type {
   CronJob, Skill, MCPServerConfig, PermissionsConfigFile,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus,
+  TranscriptionRecord,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, ToolId,
-  CronJobId, PermissionsConfigId,
+  CronJobId, PermissionsConfigId, TranscriptionId,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT, DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
 
@@ -574,5 +575,48 @@ export const SEED_MCP_SERVERS: MCPServerConfig[] = [
     description: 'Web search via SSE endpoint',
     url: 'http://localhost:3100/sse',
     enabled: false,
+  },
+]
+
+// --- Transcription Records ---
+export const SEED_TRANSCRIPTION_RECORDS: TranscriptionRecord[] = [
+  {
+    id: 'trans-1' as TranscriptionId,
+    status: 'success',
+    audioFileId: 'audio-1',
+    audioDurationMs: 3200,
+    audioSizeBytes: 48000,
+    text: 'Write a blog post about AI trends in 2026.',
+    provider: 'openai',
+    model: 'whisper-1',
+    projectId: 'proj-1' as ProjectId,
+    conversationId: 'conv-1' as ConversationId,
+    usedInMessage: true,
+    createdAt: hourAgo,
+  },
+  {
+    id: 'trans-2' as TranscriptionId,
+    status: 'failed',
+    audioFileId: 'audio-2',
+    audioDurationMs: 5100,
+    audioSizeBytes: 76000,
+    error: 'API timeout after 30s',
+    provider: 'openai',
+    model: 'gpt-4o-transcribe',
+    usedInMessage: false,
+    createdAt: dayAgo,
+  },
+  {
+    id: 'trans-3' as TranscriptionId,
+    status: 'success',
+    audioFileId: 'audio-3',
+    audioDurationMs: 8400,
+    audioSizeBytes: 126000,
+    text: 'Research the latest Tailwind CSS v4 features and create a summary document.',
+    provider: 'openai',
+    model: 'gpt-4o-mini-transcribe',
+    projectId: 'proj-1' as ProjectId,
+    usedInMessage: true,
+    createdAt: dayAgo,
   },
 ]

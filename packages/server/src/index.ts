@@ -3,8 +3,11 @@ import fs from 'node:fs/promises'
 import { serve } from '@hono/node-server'
 import { createNodeWebSocket } from '@hono/node-ws'
 import { createApp, type ServerDependencies } from './app'
+import path from 'node:path'
 import { ProjectDbManager } from './db/project-db'
-import { getDataDir } from './utils/paths'
+import { createSpeechDatabase } from './db/speech-db'
+import { migrateSpeechDatabase } from './db/speech-migrate'
+import { getDataDir, getSpeechDbPath } from './utils/paths'
 import { FileProjectStorage } from './storage/projects'
 import { FileAgentStorage } from './storage/agents'
 import { SqliteConversationStorage } from './storage/conversations'
@@ -20,6 +23,7 @@ import { GlobalDashboardService } from './storage/global-dashboard'
 import { TokenRecordStorage } from './storage/token-records'
 import { CompactRecordStorage } from './storage/compact-records'
 import { SqliteCronJobRunStorage } from './storage/cron-job-runs'
+import { SpeechStorage } from './storage/speech'
 import { WebSocketManager } from './ws/handler'
 import { ActiveChatRegistry } from './agent/active-chat-registry'
 import { cronScheduler } from './scheduler'
@@ -38,6 +42,13 @@ async function main() {
 
   // Per-project database manager (lazy-loads DBs on first access)
   const dbManager = new ProjectDbManager()
+
+  // Global speech database (transcription records)
+  const speechDb = createSpeechDatabase(getSpeechDbPath())
+  migrateSpeechDatabase(speechDb)
+  const audioDir = path.join(dataDir, 'speech', 'audio')
+  await fs.mkdir(audioDir, { recursive: true })
+  const speechStorage = new SpeechStorage(speechDb, audioDir)
 
   // Construct dependencies
   const projectStorage = new FileProjectStorage()
@@ -72,6 +83,7 @@ async function main() {
     globalDashboardService: new GlobalDashboardService(dashboardDeps),
     tokenRecordStorage,
     compactRecordStorage,
+    speechStorage,
     wsManager,
     activeChatRegistry,
   }

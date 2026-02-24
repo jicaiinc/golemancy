@@ -99,6 +99,7 @@ function createTestServices(): ServiceContainer {
       delete: vi.fn(),
       duplicate: vi.fn(),
     },
+    speech: {} as any,
   }
 }
 

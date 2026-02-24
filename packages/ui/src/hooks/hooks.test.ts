@@ -91,6 +91,7 @@ describe('usePermissionMode', () => {
         getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
       },
       permissionsConfig: { getById: mockGetById } as any,
+      speech: {} as any,
     })
   })
 
@@ -201,6 +202,7 @@ describe('usePermissionConfig', () => {
         getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
       },
       permissionsConfig: { getById: mockGetById } as any,
+      speech: {} as any,
     })
   })
 

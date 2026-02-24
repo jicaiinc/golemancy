@@ -1,7 +1,7 @@
 import type {
   Project, Agent, Conversation, ConversationTask, MemoryEntry, CronJob, CronJobRun, Skill,
   GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, CronJobId,
-  PermissionsConfigId,
+  PermissionsConfigId, TranscriptionId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -10,6 +10,7 @@ import type {
   PermissionsConfigFile,
   WorkspaceEntry, FilePreviewData,
   CompactRecord,
+  TranscriptionRecord, SpeechToTextSettings, SpeechStorageUsage,
 } from '../types'
 
 export interface IProjectService {
@@ -161,4 +162,37 @@ export interface IPermissionsConfigService {
     sourceId: PermissionsConfigId,
     newTitle: string
   ): Promise<PermissionsConfigFile>
+}
+
+export interface ISpeechService {
+  /** Upload audio + transcribe. Returns the created record. */
+  transcribe(
+    audio: File | Blob,
+    metadata: {
+      audioDurationMs: number
+      projectId?: ProjectId
+      conversationId?: ConversationId
+    },
+  ): Promise<TranscriptionRecord>
+
+  /** List all transcription records, newest first. */
+  listHistory(params?: { limit?: number; offset?: number }): Promise<TranscriptionRecord[]>
+
+  /** Get the URL to stream/download an audio file. */
+  getAudioUrl(audioFileId: string): string
+
+  /** Delete a single transcription record + its audio file. */
+  deleteRecord(id: TranscriptionId): Promise<void>
+
+  /** Clear all history records + audio files. Returns stats. */
+  clearHistory(): Promise<{ deletedCount: number; freedBytes: number }>
+
+  /** Retry transcription for a failed record. */
+  retry(id: TranscriptionId): Promise<TranscriptionRecord>
+
+  /** Test the STT provider connection with a tiny audio snippet. */
+  testProvider(config: SpeechToTextSettings): Promise<{ ok: boolean; error?: string; latencyMs?: number }>
+
+  /** Get total storage used by audio files. */
+  getStorageUsage(): Promise<SpeechStorageUsage>
 }

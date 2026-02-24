@@ -14,6 +14,8 @@ import {
   MockGlobalDashboardService,
   MockPermissionsConfigService,
 } from './services'
+import { MockSpeechService } from './speech'
+
 export function createMockServices(): ServiceContainer {
   const agents = new MockAgentService()
   return {
@@ -30,5 +32,6 @@ export function createMockServices(): ServiceContainer {
     dashboard: new MockDashboardService(),
     globalDashboard: new MockGlobalDashboardService(),
     permissionsConfig: new MockPermissionsConfigService(),
+    speech: new MockSpeechService(),
   }
 }

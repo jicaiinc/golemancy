@@ -12,4 +12,5 @@ export type {
   IDashboardService,
   IGlobalDashboardService,
   IPermissionsConfigService,
+  ISpeechService,
 } from '@golemancy/shared'

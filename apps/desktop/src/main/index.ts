@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, systemPreferences } from 'electron'
 import { join, resolve } from 'path'
 import { homedir } from 'os'
 import { fork, type ChildProcess } from 'child_process'
@@ -213,6 +213,8 @@ function createWindow(options?: { projectId?: string }): void {
       { urls: [
         `http://127.0.0.1:${serverPort}/api/projects/*/uploads/*`,
         `http://localhost:${serverPort}/api/projects/*/uploads/*`,
+        `http://127.0.0.1:${serverPort}/api/speech/audio/*`,
+        `http://localhost:${serverPort}/api/speech/audio/*`,
       ] },
       (details, callback) => {
         details.requestHeaders['Authorization'] = `Bearer ${serverToken}`
@@ -258,6 +260,17 @@ app.whenReady().then(async () => {
 
   ipcMain.handle('window:open', (_event, projectId?: string) => {
     createWindow(projectId ? { projectId } : undefined)
+  })
+
+  ipcMain.handle('media:requestMicrophoneAccess', async () => {
+    if (process.platform === 'darwin') {
+      const status = systemPreferences.getMediaAccessStatus('microphone')
+      if (status === 'granted') return 'granted'
+      if (status === 'denied') return 'denied'
+      const granted = await systemPreferences.askForMediaAccess('microphone')
+      return granted ? 'granted' : 'denied'
+    }
+    return 'granted'
   })
 
   ipcMain.handle('shell:openPath', async (_event, fullPath: string) => {

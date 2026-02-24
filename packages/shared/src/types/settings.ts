@@ -1,4 +1,5 @@
 import type { PermissionsConfigId } from './common'
+import type { SpeechToTextSettings } from './speech'
 
 export type ProviderSdkType =
   | 'anthropic'
@@ -29,6 +30,7 @@ export interface GlobalSettings {
   providers: Record<string, ProviderEntry>
   defaultModel?: AgentModelConfig
   theme: ThemeMode
+  speechToText?: SpeechToTextSettings
 }
 
 export interface ProjectConfig {

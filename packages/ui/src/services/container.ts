@@ -12,6 +12,7 @@ import type {
   IDashboardService,
   IGlobalDashboardService,
   IPermissionsConfigService,
+  ISpeechService,
 } from './interfaces'
 
 export interface ServiceContainer {
@@ -28,6 +29,7 @@ export interface ServiceContainer {
   dashboard: IDashboardService
   globalDashboard: IGlobalDashboardService
   permissionsConfig: IPermissionsConfigService
+  speech: ISpeechService
 }
 
 let services: ServiceContainer | null = null

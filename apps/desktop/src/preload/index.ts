@@ -18,4 +18,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getInitialProjectId: () => initialProjectId,
   openNewWindow: (projectId?: string) => ipcRenderer.invoke('window:open', projectId),
   openPath: (fullPath: string) => ipcRenderer.invoke('shell:openPath', fullPath),
+  requestMicrophoneAccess: () => ipcRenderer.invoke('media:requestMicrophoneAccess'),
 })

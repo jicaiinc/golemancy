@@ -10,6 +10,7 @@ import type {
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import type { TokenRecordStorage } from './storage/token-records'
 import type { CompactRecordStorage } from './storage/compact-records'
+import type { SpeechStorage } from './storage/speech'
 import type { WebSocketManager } from './ws/handler'
 import type { ActiveChatRegistry } from './agent/active-chat-registry'
 import { createProjectRoutes } from './routes/projects'
@@ -30,6 +31,7 @@ import { createPermissionsConfigRoutes } from './routes/permissions-config'
 import { createRuntimeRoutes } from './routes/runtime'
 import { createSandboxRoutes } from './routes/sandbox'
 import { createUploadRoutes } from './routes/uploads'
+import { createSpeechRoutes } from './routes/speech'
 import { logger } from './logger'
 
 export interface ServerDependencies {
@@ -48,6 +50,7 @@ export interface ServerDependencies {
   permissionsConfigStorage: IPermissionsConfigService
   tokenRecordStorage: TokenRecordStorage
   compactRecordStorage: CompactRecordStorage
+  speechStorage?: SpeechStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
 }
@@ -146,6 +149,13 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects/:projectId/runtime', createRuntimeRoutes())
   app.route('/api/sandbox', createSandboxRoutes())
   app.route('/api/projects/:projectId/uploads', createUploadRoutes())
+
+  if (deps.speechStorage) {
+    app.route('/api/speech', createSpeechRoutes({
+      storage: deps.speechStorage,
+      settingsStorage: deps.settingsStorage,
+    }))
+  }
 
   return app
 }

@@ -5,10 +5,12 @@ import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
+import { SpeechTab } from './SpeechTab'
 
 const SETTINGS_TABS = [
   { id: 'general', label: 'General' },
   { id: 'providers', label: 'Providers' },
+  { id: 'speech', label: 'Speech' },
 ]
 
 const PROVIDER_PRESETS: Record<string, { name: string; sdkType: ProviderSdkType; defaultModels: string[]; defaultBaseUrl?: string }> = {
@@ -75,6 +77,7 @@ export function GlobalSettingsPage() {
           {activeTab === 'providers' && (
             <ProvidersTab settings={settings} onUpdate={updateSettings} />
           )}
+          {activeTab === 'speech' && <SpeechTab />}
         </div>
 
         {/* About footer */}

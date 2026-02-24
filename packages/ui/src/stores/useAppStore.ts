@@ -6,7 +6,8 @@ import type {
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   ThemeMode, WorkspaceEntry, FilePreviewData,
-  ProjectId, AgentId, ConversationId, MemoryId, SkillId, CronJobId,
+  TranscriptionRecord, SpeechStorageUsage,
+  ProjectId, AgentId, ConversationId, MemoryId, SkillId, CronJobId, TranscriptionId,
   SkillCreateData, SkillUpdateData,
   AgentStatus,
 } from '@golemancy/shared'
@@ -109,6 +110,12 @@ interface TopologySlice {
   topologyLayoutLoading: boolean
 }
 
+interface SpeechSlice {
+  speechHistory: TranscriptionRecord[]
+  speechHistoryLoading: boolean
+  speechStorageUsage: SpeechStorageUsage | null
+}
+
 // --- Actions ---
 interface ProjectActions {
   loadProjects(): Promise<void>
@@ -206,10 +213,22 @@ interface TopologyActions {
   saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void>
 }
 
+interface SpeechActions {
+  transcribeAudio(
+    audio: Blob,
+    metadata: { audioDurationMs: number; projectId?: ProjectId; conversationId?: ConversationId },
+  ): Promise<TranscriptionRecord>
+  loadSpeechHistory(params?: { limit?: number; offset?: number }): Promise<void>
+  retrySpeechRecord(id: TranscriptionId): Promise<TranscriptionRecord>
+  deleteSpeechRecord(id: TranscriptionId): Promise<void>
+  clearSpeechHistory(): Promise<{ deletedCount: number; freedBytes: number }>
+  loadSpeechStorageUsage(): Promise<void>
+}
+
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -823,6 +842,51 @@ export const useAppStore = create<AppState>()(
       async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>) {
         set({ topologyLayout: layout })
         await getServices().projects.saveTopologyLayout(projectId, layout)
+      },
+
+      // --- Speech state ---
+      speechHistory: [],
+      speechHistoryLoading: false,
+      speechStorageUsage: null,
+
+      async transcribeAudio(audio, metadata) {
+        return getServices().speech.transcribe(audio, metadata)
+      },
+
+      async loadSpeechHistory(params) {
+        set({ speechHistoryLoading: true })
+        try {
+          const records = await getServices().speech.listHistory(params)
+          set({ speechHistory: records, speechHistoryLoading: false })
+        } catch {
+          set({ speechHistoryLoading: false })
+        }
+      },
+
+      async retrySpeechRecord(id) {
+        const updated = await getServices().speech.retry(id)
+        set(s => ({
+          speechHistory: s.speechHistory.map(r => r.id === id ? updated : r),
+        }))
+        return updated
+      },
+
+      async deleteSpeechRecord(id) {
+        await getServices().speech.deleteRecord(id)
+        set(s => ({
+          speechHistory: s.speechHistory.filter(r => r.id !== id),
+        }))
+      },
+
+      async clearSpeechHistory() {
+        const result = await getServices().speech.clearHistory()
+        set({ speechHistory: [], speechStorageUsage: { totalBytes: 0, recordCount: 0 } })
+        return result
+      },
+
+      async loadSpeechStorageUsage() {
+        const usage = await getServices().speech.getStorageUsage()
+        set({ speechStorageUsage: usage })
       },
     }),
     {

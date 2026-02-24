@@ -11,6 +11,7 @@ export type SkillId = Brand<string, 'SkillId'>
 export type ToolId = Brand<string, 'ToolId'>
 export type CronJobId = Brand<string, 'CronJobId'>
 export type PermissionsConfigId = Brand<string, 'PermissionsConfigId'>
+export type TranscriptionId = Brand<string, 'TranscriptionId'>
 
 // Pagination
 export interface PaginationParams {
