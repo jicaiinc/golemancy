@@ -5,7 +5,7 @@ import type { SpeechToTextSettings, TranscriptionRecord, TranscriptionId, Projec
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
 import { PixelCard, PixelButton, PixelInput, PixelToggle, PixelSpinner, CopyIcon, CheckIcon } from '../../components'
-import { staggerContainer, staggerItem } from '../../lib/motion'
+// stagger presets removed — history loads all at once
 
 const OPENAI_STT_MODELS = ['gpt-4o-mini-transcribe', 'gpt-4o-transcribe', 'whisper-1']
 
@@ -169,6 +169,7 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
   const canRetry = (record.status === 'success' || record.status === 'failed') && !retrying
   const hasConversationLink = record.projectId && record.conversationId
   const projectName = record.projectId ? projects.find(p => p.id === record.projectId)?.name : undefined
+  const convTitle = record.conversationId ? convTitleMap[record.conversationId] : undefined
 
   async function doRetry() {
     setRetrying(true)
@@ -177,7 +178,7 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
   }
 
   return (
-    <motion.div variants={staggerItem}>
+    <div>
       <div className="py-1.5 px-2 border border-border-dim bg-surface hover:bg-deep/50 transition-colors cursor-pointer" onClick={() => setExpanded(v => !v)}>
         {/* Main row */}
         <div className="flex items-center gap-2 min-w-0">
@@ -231,15 +232,17 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
                 ) : null}
               </div>
 
-              {/* Metadata row: [time / provider / model] ... [project / Open chat →] */}
-              <div className="mt-1 flex items-center gap-2">
-                <span className="font-mono text-[9px] text-text-dim">{formatTime(record.createdAt)} / {record.provider} / {record.model}</span>
+              {/* Metadata row: [time / provider / model] ... [project > conv title] [Open chat →] */}
+              <div className="mt-1 flex items-center gap-2 min-w-0">
+                <span className="font-mono text-[9px] text-text-dim shrink-0">{formatTime(record.createdAt)} / {record.provider} / {record.model}</span>
                 {hasConversationLink && (
-                  <div className="ml-auto flex items-center gap-1.5">
-                    {projectName && <span className="font-mono text-[9px] text-text-dim">{projectName}</span>}
+                  <div className="ml-auto flex items-center gap-1.5 min-w-0">
+                    <span className="font-mono text-[9px] text-text-dim truncate max-w-[200px]">
+                      {projectName ?? '...'}{convTitle ? ` / ${convTitle}` : ''}
+                    </span>
                     <button
                       onClick={() => navigate(`/projects/${record.projectId}/chat?conv=${record.conversationId}`)}
-                      className="font-mono text-[9px] text-accent-blue hover:text-accent-blue/70 transition-colors cursor-pointer whitespace-nowrap"
+                      className="font-mono text-[9px] text-accent-blue hover:text-accent-blue/70 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                     >
                       Open chat &rarr;
                     </button>
@@ -278,7 +281,7 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -320,6 +323,7 @@ export function SpeechTab() {
 
   const [confirmClearAll, setConfirmClearAll] = useState(false)
   const [clearingAll, setClearingAll] = useState(false)
+  const [convTitleMap, setConvTitleMap] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (stt.enabled) {
@@ -328,6 +332,30 @@ export function SpeechTab() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stt.enabled])
+
+  // Fetch conversation titles for records that have conversationId
+  useEffect(() => {
+    if (speechHistory.length === 0) return
+    // Collect unique projectIds that have conversation links
+    const projectIds = new Set<ProjectId>()
+    for (const r of speechHistory) {
+      if (r.projectId && r.conversationId) projectIds.add(r.projectId as ProjectId)
+    }
+    if (projectIds.size === 0) return
+
+    let cancelled = false
+    void (async () => {
+      const map: Record<string, string> = {}
+      for (const pid of projectIds) {
+        try {
+          const convs = await getServices().conversations.list(pid)
+          for (const c of convs) map[c.id] = c.title
+        } catch { /* project may have been deleted */ }
+      }
+      if (!cancelled) setConvTitleMap(map)
+    })()
+    return () => { cancelled = true }
+  }, [speechHistory])
 
   const save = useCallback(
     async (patch: Partial<SpeechToTextSettings>) => {
@@ -573,7 +601,7 @@ export function SpeechTab() {
               <p className="font-mono text-[11px] text-text-dim">No transcriptions yet</p>
             </div>
           ) : (
-            <motion.div variants={staggerContainer} initial="initial" animate="animate" className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               {grouped.map(([group, records]) => (
                 <div key={group}>
                   <div className="flex items-center gap-2 mb-1">
@@ -582,12 +610,12 @@ export function SpeechTab() {
                   </div>
                   <div className="flex flex-col gap-1">
                     {records.map(record => (
-                      <RecordRow key={record.id} record={record} onRetry={handleRetry} onDelete={handleDelete} />
+                      <RecordRow key={record.id} record={record} onRetry={handleRetry} onDelete={handleDelete} convTitleMap={convTitleMap} />
                     ))}
                   </div>
                 </div>
               ))}
-            </motion.div>
+            </div>
           )}
         </div>
       )}
