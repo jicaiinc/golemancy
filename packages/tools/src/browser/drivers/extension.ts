@@ -15,6 +15,9 @@
 import type {
   BrowserDriver,
   PageSnapshot,
+  SnapshotOptions,
+  SnapshotResult,
+  DiffResult,
   Screenshot,
   SnapshotElement,
   TabInfo,
@@ -159,8 +162,13 @@ export class ExtensionDriver implements BrowserDriver {
   // Page State
   // ---------------------------------------------------------------------------
 
-  async snapshot(): Promise<PageSnapshot> {
-    return this.callSnapshot('snapshot', {})
+  async snapshot(_options?: SnapshotOptions): Promise<PageSnapshot> {
+    return this.callSnapshot('snapshot', _options ?? {})
+  }
+
+  async diffSnapshot(_options?: SnapshotOptions): Promise<DiffResult> {
+    // ExtensionDriver does not support snapshot diffing
+    return { diff: '', changed: false, additions: 0, removals: 0 }
   }
 
   async screenshot(fullPage?: boolean): Promise<Screenshot> {
@@ -185,6 +193,14 @@ export class ExtensionDriver implements BrowserDriver {
 
   async type(ref: string, text: string, submit?: boolean): Promise<PageSnapshot> {
     return this.callSnapshot('type', { ref, text, submit })
+  }
+
+  async fill(ref: string, value: string): Promise<PageSnapshot> {
+    return this.callSnapshot('fill', { ref, value })
+  }
+
+  async check(ref: string, checked?: boolean): Promise<PageSnapshot> {
+    return this.callSnapshot('check', { ref, checked })
   }
 
   async selectOption(ref: string, values: string[]): Promise<PageSnapshot> {
@@ -258,6 +274,10 @@ export class ExtensionDriver implements BrowserDriver {
   // ---------------------------------------------------------------------------
   // Advanced
   // ---------------------------------------------------------------------------
+
+  async command(_name: string, _params?: Record<string, unknown>): Promise<unknown> {
+    throw new Error('ExtensionDriver does not support arbitrary commands. Use dedicated methods instead.')
+  }
 
   async evaluate(script: string): Promise<unknown> {
     return this.call('evaluate', { script })

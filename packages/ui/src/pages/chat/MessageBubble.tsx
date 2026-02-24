@@ -170,6 +170,9 @@ interface MessageBubbleProps {
 }
 
 export const MessageBubble = memo(function MessageBubble({ message, chatStatus }: MessageBubbleProps) {
+  const toolUsages = (message.metadata as Record<string, unknown> | undefined)?.toolUsages as
+    Record<string, { inputTokens: number; outputTokens: number }> | undefined
+
   // System message — centered
   if (message.role === 'system') {
     const text = message.parts
@@ -233,7 +236,7 @@ export const MessageBubble = memo(function MessageBubble({ message, chatStatus }
               // requiring a type assertion to access the field.
               const tool = extractToolInvocation(part as { type: string; [key: string]: unknown })
               if (tool) {
-                return <ToolCallDisplay key={i} toolInvocation={tool} chatStatus={chatStatus} />
+                return <ToolCallDisplay key={i} toolInvocation={tool} chatStatus={chatStatus} usage={toolUsages?.[tool.toolCallId]} />
               }
               // Unknown part type — gracefully ignore
               return null

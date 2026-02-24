@@ -115,6 +115,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     messages,
     status,
     error,
+    clearError,
     stop,
     sendMessage: chatSendMessage,
   } = useChat({ chat: chat! })
@@ -328,10 +329,17 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
 
       {/* Error banner */}
       {error && (
-        <div className="px-4 py-2 border-b-2 border-accent-red/40 bg-accent-red/10">
-          <p className="text-[12px] font-mono text-accent-red">
+        <div className="px-4 py-2 border-b-2 border-accent-red/40 bg-accent-red/10 flex items-center justify-between gap-2">
+          <p className="text-[12px] font-mono text-accent-red min-w-0 break-words">
             Error: {error.message}
           </p>
+          <button
+            onClick={clearError}
+            className="shrink-0 px-1 py-0.5 text-[12px] font-mono text-accent-red hover:text-text-primary hover:bg-accent-red/20 transition-colors cursor-pointer"
+            title="Dismiss"
+          >
+            [x]
+          </button>
         </div>
       )}
 

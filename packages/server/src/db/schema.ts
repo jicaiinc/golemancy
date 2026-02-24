@@ -22,6 +22,7 @@ export const messages = sqliteTable('messages', {
   contextTokens: integer('context_tokens').notNull().default(0),
   provider: text('provider').notNull().default(''), // display only
   model: text('model').notNull().default(''), // display only
+  metadata: text('metadata', { mode: 'json' }), // e.g. { toolUsages: { [toolCallId]: { inputTokens, outputTokens } } }
   createdAt: text('created_at').notNull(),
 })
 

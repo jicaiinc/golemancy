@@ -156,6 +156,13 @@ export function migrateDatabase(db: AppDatabase) {
     db.run(sql`ALTER TABLE messages ADD COLUMN model TEXT NOT NULL DEFAULT ''`)
   }
 
+  // --- Migration v5c: metadata column on messages ---
+  const colsV5c = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+  if (!colsV5c.some(c => c.name === 'metadata')) {
+    log.info('migrating messages table: adding metadata column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN metadata TEXT`)
+  }
+
   // --- Migration v6: compact_records table ---
   db.run(sql`
     CREATE TABLE IF NOT EXISTS compact_records (

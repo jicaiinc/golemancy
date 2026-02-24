@@ -224,7 +224,7 @@ export class MockConversationService implements IConversationService {
     conv.updatedAt = now
   }
 
-  async saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string }): Promise<void> {
+  async saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string; metadata?: Record<string, unknown> }): Promise<void> {
     await delay()
     const conv = this.data.get(conversationId)
     if (!conv || conv.projectId !== projectId) throw new Error('Conversation not found')

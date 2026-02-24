@@ -4,6 +4,14 @@
 //
 // Tool definitions (tools.ts) depend ONLY on this interface.
 // Each driver (drivers/*.ts) implements it.
+//
+// NOTE: After the agent-browser refactor, method signatures changed from
+// returning PageSnapshot to SnapshotResult. ExtensionDriver will need to be
+// updated to match — until then it will have compile errors.
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Legacy types — kept for ExtensionDriver compatibility
 // ---------------------------------------------------------------------------
 
 /** Single element captured in an accessibility snapshot */
@@ -28,7 +36,7 @@ export interface SnapshotElement {
   children?: SnapshotElement[]
 }
 
-/** Full page accessibility snapshot */
+/** Full page accessibility snapshot (legacy — used by ExtensionDriver) */
 export interface PageSnapshot {
   /** Current page URL */
   url: string
@@ -74,6 +82,44 @@ export interface NetworkRequest {
 }
 
 // ---------------------------------------------------------------------------
+// New types — used by the refactored PlaywrightDriver (agent-browser)
+// ---------------------------------------------------------------------------
+
+/** Options for snapshot capture */
+export interface SnapshotOptions {
+  /** Snapshot mode: 'full' (complete tree), 'interactive' (only interactive elements), 'compact' (remove empty containers) */
+  mode?: 'full' | 'interactive' | 'compact'
+  /** CSS selector to scope the snapshot to a specific area */
+  selector?: string
+  /** Maximum depth of the tree to capture */
+  maxDepth?: number
+  /** Include cursor-interactive elements (cursor:pointer, onclick) */
+  cursor?: boolean
+}
+
+/** Result from a snapshot capture */
+export interface SnapshotResult {
+  /** Formatted text representation of the accessibility tree */
+  text: string
+  /** Reference map: ref → { selector, role, name?, nth? } */
+  refs?: Record<string, { selector: string; role: string; name?: string; nth?: number }>
+  /** Snapshot statistics */
+  stats?: { lines: number; chars: number; tokens: number; refs: number; interactive: number }
+}
+
+/** Result from a diff snapshot */
+export interface DiffResult {
+  /** Unified diff text ("+ " added, "- " removed, "  " unchanged) */
+  diff: string
+  /** Whether anything changed */
+  changed: boolean
+  /** Number of added lines */
+  additions: number
+  /** Number of removed lines */
+  removals: number
+}
+
+// ---------------------------------------------------------------------------
 // Driver interface
 // ---------------------------------------------------------------------------
 
@@ -89,30 +135,36 @@ export interface BrowserDriver {
 
   // === Navigation ===
 
-  navigate(url: string): Promise<PageSnapshot>
-  goBack(): Promise<PageSnapshot>
-  goForward(): Promise<PageSnapshot>
+  navigate(url: string): Promise<SnapshotResult>
+  goBack(): Promise<SnapshotResult>
+  goForward(): Promise<SnapshotResult>
 
   // === Page State ===
 
-  snapshot(): Promise<PageSnapshot>
+  snapshot(options?: SnapshotOptions): Promise<SnapshotResult>
+  /** Compare current page state against the last snapshot */
+  diffSnapshot(options?: SnapshotOptions): Promise<DiffResult>
   screenshot(fullPage?: boolean): Promise<Screenshot>
   consoleMessages(): Promise<ConsoleMessage[]>
   networkRequests(): Promise<NetworkRequest[]>
 
   // === Element Interaction ===
 
-  click(ref: string): Promise<PageSnapshot>
-  type(ref: string, text: string, submit?: boolean): Promise<PageSnapshot>
-  selectOption(ref: string, values: string[]): Promise<PageSnapshot>
-  hover(ref: string): Promise<PageSnapshot>
-  drag(sourceRef: string, targetRef: string): Promise<PageSnapshot>
-  uploadFile(ref: string, filePaths: string[]): Promise<PageSnapshot>
+  click(ref: string): Promise<SnapshotResult>
+  type(ref: string, text: string, submit?: boolean): Promise<SnapshotResult>
+  /** Fill a field by ref (clears existing value, then types) */
+  fill(ref: string, value: string): Promise<SnapshotResult>
+  selectOption(ref: string, values: string[]): Promise<SnapshotResult>
+  /** Toggle a checkbox or radio button */
+  check(ref: string, checked?: boolean): Promise<SnapshotResult>
+  hover(ref: string): Promise<SnapshotResult>
+  drag(sourceRef: string, targetRef: string): Promise<SnapshotResult>
+  uploadFile(ref: string, filePaths: string[]): Promise<SnapshotResult>
 
   // === Input ===
 
   pressKey(key: string): Promise<void>
-  scroll(direction: 'up' | 'down', amount?: number): Promise<PageSnapshot>
+  scroll(direction: 'up' | 'down', amount?: number): Promise<SnapshotResult>
 
   // === Dialog ===
 
@@ -120,20 +172,22 @@ export interface BrowserDriver {
 
   // === Form ===
 
-  fillForm(fields: Array<{ ref: string; value: string }>): Promise<PageSnapshot>
+  fillForm(fields: Array<{ ref: string; value: string }>): Promise<SnapshotResult>
 
   // === Tabs ===
 
   getTabs(): Promise<TabInfo[]>
-  switchTab(tabId: string): Promise<PageSnapshot>
+  switchTab(tabId: string): Promise<SnapshotResult>
   closeTab(tabId?: string): Promise<void>
 
   // === Viewport ===
 
-  resize(width: number, height: number): Promise<PageSnapshot>
+  resize(width: number, height: number): Promise<SnapshotResult>
 
   // === Advanced ===
 
+  /** Execute an arbitrary agent-browser command by name */
+  command(name: string, params?: Record<string, unknown>): Promise<unknown>
   evaluate(script: string): Promise<unknown>
   wait(seconds?: number): Promise<void>
 }

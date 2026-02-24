@@ -27,6 +27,20 @@ export interface BrowserToolsConfig {
   cdpUrl?: string
   /** Viewport dimensions (default: 1280x720) */
   viewport?: { width: number; height: number }
+  /** Auto-discover and connect to a running Chrome instance via CDP */
+  autoConnect?: boolean
+  /** Chrome user data directory / profile name for persistent sessions */
+  profile?: string
+  /** Paths to Chrome extensions to load */
+  extensions?: string[]
+  /** Proxy configuration */
+  proxy?: { server: string; bypass?: string; username?: string; password?: string }
+  /** Additional Chrome launch arguments */
+  args?: string[]
+  /** Custom user agent string */
+  userAgent?: string
+  /** Path to saved storage state (cookies, localStorage) */
+  storageState?: string
 
   // --- Extension-specific ---
   /** WebSocket URL for extension connection */
@@ -65,6 +79,13 @@ function createDriver(config: BrowserToolsConfig): BrowserDriver {
         cdpUrl: config.cdpUrl,
         viewport: config.viewport,
         timeout: config.timeout,
+        autoConnect: config.autoConnect,
+        profile: config.profile,
+        extensions: config.extensions,
+        proxy: config.proxy,
+        args: config.args,
+        userAgent: config.userAgent,
+        storageState: config.storageState,
       }
       return new PlaywrightDriver(driverConfig)
     }
@@ -87,7 +108,18 @@ function createDriver(config: BrowserToolsConfig): BrowserDriver {
 }
 
 // Re-export types for consumers
-export type { BrowserDriver, PageSnapshot, Screenshot, TabInfo, SnapshotElement } from './driver'
+export type {
+  BrowserDriver,
+  PageSnapshot,
+  Screenshot,
+  TabInfo,
+  SnapshotElement,
+  SnapshotOptions,
+  SnapshotResult,
+  DiffResult,
+  ConsoleMessage,
+  NetworkRequest,
+} from './driver'
 export type { PlaywrightDriverConfig } from './drivers/playwright'
 export type { ExtensionDriverConfig } from './drivers/extension'
 export { PlaywrightDriver } from './drivers/playwright'

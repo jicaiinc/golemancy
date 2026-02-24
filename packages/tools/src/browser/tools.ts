@@ -1,12 +1,11 @@
 // ---------------------------------------------------------------------------
-// Browser tool definitions — all 22 tools across Core, Extension, and
-// Management layers. Each tool depends ONLY on the BrowserDriver interface.
+// Browser tool definitions — 16 tools organized in two tiers:
+//   Dedicated (15) — navigate, snapshot, diff_snapshot, screenshot, click,
+//                     type, fill, select, check, hover, press, scroll, wait,
+//                     tab_list, tab_switch
+//   Universal (1)  — command (80+ operations via name+params)
 //
-// Tools are organized in three tiers:
-//   Core (8)       — navigate, snapshot, screenshot, click, type, press_key, scroll, wait
-//   Extended (9)   — go_back, go_forward, select_option, hover, drag, fill_form,
-//                     evaluate, file_upload, handle_dialog
-//   Management (5) — tabs, switch_tab, close_tab, resize, console_messages, network_requests
+// Each tool depends ONLY on the BrowserDriver interface.
 // ---------------------------------------------------------------------------
 
 import { tool, type ToolSet } from 'ai'
@@ -15,8 +14,8 @@ import type { BrowserDriver } from './driver'
 
 /**
  * Define all browser tools against a BrowserDriver instance.
- * The driver handles lazy connection — tools call driver.ensureConnected()
- * pattern via the helper below.
+ * The driver handles lazy connection — tools call ensureConnected() before
+ * every operation.
  */
 export function defineBrowserTools(driver: BrowserDriver): ToolSet {
   /** Ensure the driver is connected before any operation */
@@ -26,7 +25,7 @@ export function defineBrowserTools(driver: BrowserDriver): ToolSet {
 
   return {
     // =====================================================================
-    // CORE LAYER
+    // DEDICATED TOOLS
     // =====================================================================
 
     browser_navigate: tool({
@@ -47,12 +46,49 @@ export function defineBrowserTools(driver: BrowserDriver): ToolSet {
         'Capture an accessibility snapshot of the current page. This is the PRIMARY way to ' +
         'understand page content. Returns a text tree where interactive elements have ref IDs ' +
         '(e.g. [ref=e3]) that you can use with browser_click, browser_type, etc. ' +
-        'Always call this first to understand the page before interacting.',
-      inputSchema: z.object({}),
-      execute: async () => {
+        'Always call this first to understand the page before interacting. ' +
+        'Use mode="interactive" to see only actionable elements, or mode="compact" to reduce noise.',
+      inputSchema: z.object({
+        mode: z.enum(['full', 'interactive', 'compact']).optional()
+          .describe('Snapshot mode: "full" (complete tree), "interactive" (only actionable elements), "compact" (remove empty containers). Default: "full"'),
+        selector: z.string().optional()
+          .describe('CSS selector to scope the snapshot to a specific area (e.g. "#main", ".sidebar")'),
+        maxDepth: z.number().optional()
+          .describe('Maximum depth of the tree to capture'),
+        cursor: z.boolean().optional()
+          .describe('Include cursor-interactive elements (cursor:pointer, onclick) as refs'),
+      }),
+      execute: async ({ mode, selector, maxDepth, cursor }) => {
         await ensureConnected()
-        const snap = await driver.snapshot()
-        return snap.text
+        const snap = await driver.snapshot({ mode, selector, maxDepth, cursor })
+        const stats = snap.stats
+        const statsLine = stats
+          ? `\n\nStats: ${stats.refs} refs, ${stats.chars} chars, ~${stats.tokens} tokens`
+          : ''
+        return snap.text + statsLine
+      },
+    }),
+
+    browser_diff_snapshot: tool({
+      description:
+        'Compare the current page state against the last captured snapshot and return the differences. ' +
+        'Useful after performing an action to see exactly what changed on the page without reading the ' +
+        'entire snapshot again. Returns a unified diff showing added (+) and removed (-) lines.',
+      inputSchema: z.object({
+        mode: z.enum(['full', 'interactive', 'compact']).optional()
+          .describe('Snapshot mode for comparison. Default: "full"'),
+        selector: z.string().optional()
+          .describe('CSS selector to scope the diff to a specific area'),
+        maxDepth: z.number().optional()
+          .describe('Maximum depth of the tree to capture'),
+        cursor: z.boolean().optional()
+          .describe('Include cursor-interactive elements as refs'),
+      }),
+      execute: async ({ mode, selector, maxDepth, cursor }) => {
+        await ensureConnected()
+        const result = await driver.diffSnapshot({ mode, selector, maxDepth, cursor })
+        if (!result.changed) return 'No changes detected.'
+        return result.diff
       },
     }),
 
@@ -84,7 +120,7 @@ export function defineBrowserTools(driver: BrowserDriver): ToolSet {
         'Returns an updated accessibility snapshot after clicking.',
       inputSchema: z.object({
         ref: z.string().describe('Element ref from snapshot (e.g. "e3")'),
-        description: z.string().describe('Brief description of what you are clicking and why'),
+        description: z.string().optional().describe('Brief description of what you are clicking and why (for reasoning trace)'),
       }),
       execute: async ({ ref }) => {
         await ensureConnected()
@@ -95,8 +131,9 @@ export function defineBrowserTools(driver: BrowserDriver): ToolSet {
 
     browser_type: tool({
       description:
-        'Type text into an input field identified by its ref. Clears existing content first. ' +
-        'Set submit=true to press Enter after typing (e.g. for search forms). ' +
+        'Type text into an input field identified by its ref, simulating real keystrokes. ' +
+        'Clears existing content first. Set submit=true to press Enter after typing (e.g. for search forms). ' +
+        'For filling fields without keystroke simulation, use browser_fill instead. ' +
         'Returns an updated accessibility snapshot.',
       inputSchema: z.object({
         ref: z.string().describe('Element ref of the input field (e.g. "e5")'),
@@ -110,7 +147,68 @@ export function defineBrowserTools(driver: BrowserDriver): ToolSet {
       },
     }),
 
-    browser_press_key: tool({
+    browser_fill: tool({
+      description:
+        'Set an input field value directly without keystroke simulation. Faster than browser_type ' +
+        'and avoids triggering per-key event handlers. Use for bulk data entry or when keystroke ' +
+        'simulation is not needed. Returns an updated accessibility snapshot.',
+      inputSchema: z.object({
+        ref: z.string().describe('Element ref of the input field'),
+        value: z.string().describe('Value to set on the field'),
+      }),
+      execute: async ({ ref, value }) => {
+        await ensureConnected()
+        const snap = await driver.fill(ref, value)
+        return snap.text
+      },
+    }),
+
+    browser_select: tool({
+      description:
+        'Select one or more options from a <select> dropdown identified by its ref. ' +
+        'Returns an updated accessibility snapshot.',
+      inputSchema: z.object({
+        ref: z.string().describe('Element ref of the select dropdown'),
+        values: z.array(z.string()).describe('Values to select (use the option value attribute)'),
+      }),
+      execute: async ({ ref, values }) => {
+        await ensureConnected()
+        const snap = await driver.selectOption(ref, values)
+        return snap.text
+      },
+    }),
+
+    browser_check: tool({
+      description:
+        'Toggle a checkbox or radio button identified by its ref. ' +
+        'If checked is not specified, it will check the element (set to true). ' +
+        'Returns an updated accessibility snapshot.',
+      inputSchema: z.object({
+        ref: z.string().describe('Element ref of the checkbox or radio button'),
+        checked: z.boolean().optional().describe('Desired state: true to check, false to uncheck (default: true)'),
+      }),
+      execute: async ({ ref, checked }) => {
+        await ensureConnected()
+        const snap = await driver.check(ref, checked)
+        return snap.text
+      },
+    }),
+
+    browser_hover: tool({
+      description:
+        'Hover over an element identified by its ref. Useful for triggering tooltips, ' +
+        'dropdown menus, or hover states. Returns an updated accessibility snapshot.',
+      inputSchema: z.object({
+        ref: z.string().describe('Element ref to hover over'),
+      }),
+      execute: async ({ ref }) => {
+        await ensureConnected()
+        const snap = await driver.hover(ref)
+        return snap.text
+      },
+    }),
+
+    browser_press: tool({
       description:
         'Press a keyboard key or key combination. Use standard key names: ' +
         'Enter, Tab, Escape, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Backspace, Delete, ' +
@@ -142,8 +240,9 @@ export function defineBrowserTools(driver: BrowserDriver): ToolSet {
 
     browser_wait: tool({
       description:
-        'Wait for a specified number of seconds. Useful when a page is loading or ' +
-        'performing an animation. Default wait time is 2 seconds.',
+        'Wait for a specified number of seconds. Useful when a page is loading, ' +
+        'performing an animation, or waiting for async content to appear. ' +
+        'Default wait time is 2 seconds.',
       inputSchema: z.object({
         seconds: z.number().optional().describe('Seconds to wait (default: 2, max: 30)'),
       }),
@@ -155,143 +254,10 @@ export function defineBrowserTools(driver: BrowserDriver): ToolSet {
       },
     }),
 
-    // =====================================================================
-    // EXTENDED LAYER
-    // =====================================================================
-
-    browser_go_back: tool({
-      description: 'Navigate back in browser history. Returns snapshot of the previous page.',
-      inputSchema: z.object({}),
-      execute: async () => {
-        await ensureConnected()
-        const snap = await driver.goBack()
-        return snap.text
-      },
-    }),
-
-    browser_go_forward: tool({
-      description: 'Navigate forward in browser history. Returns snapshot of the next page.',
-      inputSchema: z.object({}),
-      execute: async () => {
-        await ensureConnected()
-        const snap = await driver.goForward()
-        return snap.text
-      },
-    }),
-
-    browser_select_option: tool({
+    browser_tab_list: tool({
       description:
-        'Select one or more options from a <select> dropdown identified by its ref. ' +
-        'Returns an updated accessibility snapshot.',
-      inputSchema: z.object({
-        ref: z.string().describe('Element ref of the select dropdown'),
-        values: z.array(z.string()).describe('Values to select (use the option value attribute)'),
-      }),
-      execute: async ({ ref, values }) => {
-        await ensureConnected()
-        const snap = await driver.selectOption(ref, values)
-        return snap.text
-      },
-    }),
-
-    browser_hover: tool({
-      description:
-        'Hover over an element identified by its ref. Useful for triggering tooltips, ' +
-        'dropdown menus, or hover states. Returns an updated accessibility snapshot.',
-      inputSchema: z.object({
-        ref: z.string().describe('Element ref to hover over'),
-      }),
-      execute: async ({ ref }) => {
-        await ensureConnected()
-        const snap = await driver.hover(ref)
-        return snap.text
-      },
-    }),
-
-    browser_drag: tool({
-      description:
-        'Drag an element from source to target. Both identified by refs. ' +
-        'Returns an updated accessibility snapshot.',
-      inputSchema: z.object({
-        sourceRef: z.string().describe('Ref of the element to drag'),
-        targetRef: z.string().describe('Ref of the element to drop onto'),
-      }),
-      execute: async ({ sourceRef, targetRef }) => {
-        await ensureConnected()
-        const snap = await driver.drag(sourceRef, targetRef)
-        return snap.text
-      },
-    }),
-
-    browser_fill_form: tool({
-      description:
-        'Fill multiple form fields at once. Each field is identified by its ref and ' +
-        'the value to enter. More efficient than calling browser_type for each field. ' +
-        'Returns an updated accessibility snapshot.',
-      inputSchema: z.object({
-        fields: z.array(z.object({
-          ref: z.string().describe('Element ref of the form field'),
-          value: z.string().describe('Value to set'),
-        })).describe('Array of { ref, value } pairs'),
-      }),
-      execute: async ({ fields }) => {
-        await ensureConnected()
-        const snap = await driver.fillForm(fields)
-        return snap.text
-      },
-    }),
-
-    browser_evaluate: tool({
-      description:
-        'Execute JavaScript code in the browser page context. Returns the result as JSON. ' +
-        'Use for extracting data, checking state, or performing actions not available via ' +
-        'other tools. The script runs in the page context with access to document, window, etc.',
-      inputSchema: z.object({
-        script: z.string().describe('JavaScript code to execute in the page (expression or IIFE)'),
-      }),
-      execute: async ({ script }) => {
-        await ensureConnected()
-        const result = await driver.evaluate(script)
-        return JSON.stringify(result, null, 2)
-      },
-    }),
-
-    browser_file_upload: tool({
-      description:
-        'Upload files to a file input element identified by its ref. ' +
-        'Returns an updated accessibility snapshot.',
-      inputSchema: z.object({
-        ref: z.string().describe('Element ref of the file input'),
-        filePaths: z.array(z.string()).describe('Absolute paths to files to upload'),
-      }),
-      execute: async ({ ref, filePaths }) => {
-        await ensureConnected()
-        const snap = await driver.uploadFile(ref, filePaths)
-        return snap.text
-      },
-    }),
-
-    browser_handle_dialog: tool({
-      description:
-        'Handle a browser dialog (alert, confirm, prompt, beforeunload). ' +
-        'Accept or dismiss the dialog, optionally providing text for prompt dialogs.',
-      inputSchema: z.object({
-        action: z.enum(['accept', 'dismiss']).describe('Accept or dismiss the dialog'),
-        promptText: z.string().optional().describe('Text to enter in a prompt dialog'),
-      }),
-      execute: async ({ action, promptText }) => {
-        await ensureConnected()
-        await driver.handleDialog(action, promptText)
-        return 'Dialog ' + action + 'ed'
-      },
-    }),
-
-    // =====================================================================
-    // MANAGEMENT LAYER
-    // =====================================================================
-
-    browser_tabs: tool({
-      description: 'List all open browser tabs with their URLs and titles.',
+        'List all open browser tabs with their index, URL, and title. ' +
+        'The active tab is marked with an arrow (→). Use the index with browser_tab_switch.',
       inputSchema: z.object({}),
       execute: async () => {
         await ensureConnected()
@@ -302,74 +268,54 @@ export function defineBrowserTools(driver: BrowserDriver): ToolSet {
       },
     }),
 
-    browser_switch_tab: tool({
+    browser_tab_switch: tool({
       description:
-        'Switch to a different browser tab by its ID (from browser_tabs). ' +
+        'Switch to a different browser tab by its index (from browser_tab_list). ' +
         'Returns an accessibility snapshot of the tab.',
       inputSchema: z.object({
-        tabId: z.string().describe('Tab ID to switch to'),
+        index: z.string().describe('Tab index to switch to (e.g. "0", "1", "2")'),
       }),
-      execute: async ({ tabId }) => {
+      execute: async ({ index }) => {
         await ensureConnected()
-        const snap = await driver.switchTab(tabId)
+        const snap = await driver.switchTab(index)
         return snap.text
       },
     }),
 
-    browser_close_tab: tool({
-      description: 'Close a browser tab. If no tabId given, closes the current tab.',
+    // =====================================================================
+    // UNIVERSAL TOOL
+    // =====================================================================
+
+    browser_command: tool({
+      description:
+        'Execute any browser command not covered by dedicated tools. This is the universal ' +
+        'escape hatch that exposes the full browser automation API. Supports 80+ commands including:\n' +
+        '\n' +
+        '**Navigation**: back, forward, reload\n' +
+        '**Cookies**: cookies_get, cookies_set, cookies_clear, cookies_delete\n' +
+        '**Storage**: storage_get, storage_set, storage_clear (localStorage/sessionStorage)\n' +
+        '**Network**: route, unroute, requests, offline, request_continue, request_abort\n' +
+        '**Frames**: frame, mainframe, frames_list\n' +
+        '**Files**: upload, download, download_wait\n' +
+        '**Page modification**: evaluate, setcontent, addscript, addstyle, expose_function\n' +
+        '**Device emulation**: device, viewport, geolocation, permissions, emulatemedia, timezone, locale\n' +
+        '**State management**: state_save, state_load, state_clear\n' +
+        '**Recording**: recording_start, recording_stop\n' +
+        '**Dialogs**: dialog_accept, dialog_dismiss\n' +
+        '**Drag & drop**: drag\n' +
+        '**Tab management**: close_tab, new_tab\n' +
+        '**Console**: console_messages\n' +
+        '**Viewport**: resize\n' +
+        '\n' +
+        'Pass the command name and an optional params object with command-specific arguments.',
       inputSchema: z.object({
-        tabId: z.string().optional().describe('Tab ID to close (default: current tab)'),
+        command: z.string().describe('Command name (e.g. "back", "evaluate", "cookies_get")'),
+        params: z.record(z.unknown()).optional().describe('Command-specific parameters as key-value pairs'),
       }),
-      execute: async ({ tabId }) => {
+      execute: async ({ command, params }) => {
         await ensureConnected()
-        await driver.closeTab(tabId)
-        return 'Tab closed'
-      },
-    }),
-
-    browser_resize: tool({
-      description:
-        'Resize the browser viewport to the specified dimensions. ' +
-        'Returns an updated accessibility snapshot.',
-      inputSchema: z.object({
-        width: z.number().describe('Viewport width in pixels'),
-        height: z.number().describe('Viewport height in pixels'),
-      }),
-      execute: async ({ width, height }) => {
-        await ensureConnected()
-        const snap = await driver.resize(width, height)
-        return snap.text
-      },
-    }),
-
-    browser_console_messages: tool({
-      description:
-        'Get recent browser console messages (log, warn, error). ' +
-        'Useful for debugging JavaScript errors on the page.',
-      inputSchema: z.object({}),
-      execute: async () => {
-        await ensureConnected()
-        const messages = await driver.consoleMessages()
-        if (messages.length === 0) return 'No console messages.'
-        return messages.map(m =>
-          `[${m.type.toUpperCase()}] ${m.text}`,
-        ).join('\n')
-      },
-    }),
-
-    browser_network_requests: tool({
-      description:
-        'Get recent network requests made by the page. Shows URL, method, status. ' +
-        'Useful for debugging API calls or understanding page behavior.',
-      inputSchema: z.object({}),
-      execute: async () => {
-        await ensureConnected()
-        const requests = await driver.networkRequests()
-        if (requests.length === 0) return 'No network requests captured.'
-        return requests.map(r =>
-          `${r.method} ${r.status} ${r.url} [${r.resourceType}]`,
-        ).join('\n')
+        const result = await driver.command(command, params)
+        return typeof result === 'string' ? result : JSON.stringify(result, null, 2)
       },
     }),
   }

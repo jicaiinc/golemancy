@@ -101,7 +101,7 @@ export class SqliteConversationStorage implements IConversationService {
   async saveMessage(
     projectId: ProjectId,
     conversationId: ConversationId,
-    data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; contextTokens?: number; provider?: string; model?: string },
+    data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; contextTokens?: number; provider?: string; model?: string; metadata?: Record<string, unknown> },
   ): Promise<void> {
     const db = this.getProjectDb(projectId)
     await this.verifyOwnership(db, projectId, conversationId)
@@ -130,6 +130,7 @@ export class SqliteConversationStorage implements IConversationService {
       contextTokens: data.contextTokens ?? 0,
       provider: data.provider ?? '',
       model: data.model ?? '',
+      metadata: data.metadata ?? null,
       createdAt: now,
     })
 
@@ -219,6 +220,7 @@ export class SqliteConversationStorage implements IConversationService {
       context_tokens: number
       provider: string
       model: string
+      metadata: string | null
       created_at: string
     }
 
@@ -255,6 +257,7 @@ export class SqliteConversationStorage implements IConversationService {
         contextTokens: r.context_tokens ?? 0,
         provider: r.provider ?? '',
         model: r.model ?? '',
+        ...(r.metadata != null ? { metadata: typeof r.metadata === 'string' ? JSON.parse(r.metadata) : r.metadata } : {}),
         createdAt: r.created_at,
         updatedAt: r.created_at,
       })),
@@ -314,6 +317,7 @@ export class SqliteConversationStorage implements IConversationService {
       contextTokens: row.contextTokens,
       provider: row.provider,
       model: row.model,
+      ...(row.metadata != null ? { metadata: row.metadata as Record<string, unknown> } : {}),
       createdAt: row.createdAt,
       updatedAt: row.createdAt,
     }

@@ -12,12 +12,33 @@ interface ToolInvocationBase {
   errorText?: string
 }
 
+interface StepUsage {
+  inputTokens: number
+  outputTokens: number
+}
+
 interface ToolCallDisplayProps {
   toolInvocation: ToolInvocationBase
   chatStatus?: string
+  usage?: StepUsage
 }
 
 const DELEGATE_PREFIX = 'delegate_to_'
+
+function formatTokens(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`
+  return String(n)
+}
+
+function UsageBadge({ usage }: { usage: StepUsage }) {
+  if (usage.inputTokens === 0 && usage.outputTokens === 0) return null
+  return (
+    <span className="text-[10px] font-mono text-text-dim">
+      {formatTokens(usage.inputTokens)}↑ {formatTokens(usage.outputTokens)}↓
+    </span>
+  )
+}
 
 /**
  * Resolve a delegate_to_<agentId> tool name to a human-readable display name.
@@ -74,6 +95,7 @@ interface SubAgentDisplayProps {
   state: SubAgentStreamState
   chatStatus?: string
   task?: string
+  usage?: StepUsage
 }
 
 function SubAgentToolItem({ tc, chatStatus }: { tc: SubAgentToolCallState; chatStatus?: string }) {
@@ -138,7 +160,7 @@ function SubAgentToolItem({ tc, chatStatus }: { tc: SubAgentToolCallState; chatS
   )
 }
 
-function SubAgentDisplay({ state, chatStatus, task }: SubAgentDisplayProps) {
+function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProps) {
   const isRunning = state.status === 'running' && !isChatDone(chatStatus)
   const [expanded, setExpanded] = useState(isRunning)
 
@@ -171,6 +193,7 @@ function SubAgentDisplay({ state, chatStatus, task }: SubAgentDisplayProps) {
             [{runningTools > 0 ? `${runningTools}/${toolCount} tools` : `${toolCount} tools`}]
           </span>
         )}
+        {usage && <UsageBadge usage={usage} />}
         <span className={`ml-auto text-[11px] font-mono ${isRunning ? 'text-accent-cyan' : 'text-accent-green'}`}>
           {isRunning ? 'Running...' : 'Done'}
         </span>
@@ -228,7 +251,7 @@ function SubAgentDisplay({ state, chatStatus, task }: SubAgentDisplayProps) {
 
 const TASK_TOOL_NAMES = new Set(['TaskCreate', 'TaskGet', 'TaskList', 'TaskUpdate'])
 
-function TaskToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProps) {
+function TaskToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallDisplayProps) {
   const [expanded, setExpanded] = useState(false)
   const chatDone = isChatDone(chatStatus)
   const rawIsRunning = toolInvocation.state === 'input-streaming' || toolInvocation.state === 'input-available'
@@ -265,6 +288,7 @@ function TaskToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProp
         {isRunning && (
           <span className="inline-block w-[6px] h-[6px] bg-accent-cyan animate-[pixel-blink_1s_steps(2)_infinite]" />
         )}
+        {usage && <UsageBadge usage={usage} />}
         <span className={`ml-auto text-[11px] font-mono ${status.color}`}>
           {status.text}
         </span>
@@ -335,7 +359,7 @@ function TaskToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProp
 
 // --- Main ToolCallDisplay ---
 
-export function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayProps) {
+export function ToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallDisplayProps) {
   const [expanded, setExpanded] = useState(false)
   const displayName = useToolDisplayName(toolInvocation.toolName)
 
@@ -349,7 +373,7 @@ export function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayP
 
   // Task tools — render specialized display
   if (TASK_TOOL_NAMES.has(toolInvocation.toolName)) {
-    return <TaskToolCallDisplay toolInvocation={toolInvocation} chatStatus={chatStatus} />
+    return <TaskToolCallDisplay toolInvocation={toolInvocation} chatStatus={chatStatus} usage={usage} />
   }
 
   // Check if this is a sub-agent with structured streaming output
@@ -362,7 +386,7 @@ export function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayP
     const taskInput = typeof toolInvocation.input === 'object' && toolInvocation.input !== null && 'task' in toolInvocation.input
       ? String((toolInvocation.input as { task: string }).task)
       : undefined
-    return <SubAgentDisplay state={subAgentState} chatStatus={chatStatus} task={taskInput} />
+    return <SubAgentDisplay state={subAgentState} chatStatus={chatStatus} task={taskInput} usage={usage} />
   }
 
   return (
@@ -381,6 +405,7 @@ export function ToolCallDisplay({ toolInvocation, chatStatus }: ToolCallDisplayP
         {isRunning && (
           <span className="inline-block w-[6px] h-[6px] bg-accent-amber animate-[pixel-blink_1s_steps(2)_infinite]" />
         )}
+        {usage && <UsageBadge usage={usage} />}
         <span className={`ml-auto text-[11px] font-mono ${status.color}`}>
           {status.text}
         </span>
