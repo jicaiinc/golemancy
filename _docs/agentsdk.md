@@ -14,3 +14,5 @@ subagent: https://platform.claude.com/docs/en/agent-sdk/subagents
 agent skills: https://platform.claude.com/docs/en/agent-sdk/skills
 
 todo(task) list: https://platform.claude.com/docs/en/agent-sdk/todo-tracking
+
+hook: https://platform.claude.com/docs/en/agent-sdk/hooks
