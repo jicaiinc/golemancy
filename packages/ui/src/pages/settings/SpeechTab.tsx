@@ -9,6 +9,48 @@ import { PixelCard, PixelButton, PixelInput, PixelToggle, PixelSpinner, CopyIcon
 
 const OPENAI_STT_MODELS = ['gpt-4o-mini-transcribe', 'gpt-4o-transcribe', 'whisper-1']
 
+/** ISO 639-1 languages supported by OpenAI transcription models. */
+const STT_LANGUAGES: { code: string; label: string }[] = [
+  { code: '', label: 'Auto-detect' },
+  { code: 'en', label: 'English' },
+  { code: 'zh', label: '中文' },
+  { code: 'ja', label: '日本語' },
+  { code: 'ko', label: '한국어' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'pt', label: 'Português' },
+  { code: 'ru', label: 'Русский' },
+  { code: 'ar', label: 'العربية' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'nl', label: 'Nederlands' },
+  { code: 'pl', label: 'Polski' },
+  { code: 'tr', label: 'Türkçe' },
+  { code: 'vi', label: 'Tiếng Việt' },
+  { code: 'th', label: 'ไทย' },
+  { code: 'sv', label: 'Svenska' },
+  { code: 'da', label: 'Dansk' },
+  { code: 'fi', label: 'Suomi' },
+  { code: 'no', label: 'Norsk' },
+  { code: 'uk', label: 'Українська' },
+  { code: 'cs', label: 'Čeština' },
+  { code: 'el', label: 'Ελληνικά' },
+  { code: 'he', label: 'עברית' },
+  { code: 'id', label: 'Bahasa Indonesia' },
+  { code: 'ms', label: 'Bahasa Melayu' },
+  { code: 'ro', label: 'Română' },
+  { code: 'hu', label: 'Magyar' },
+  { code: 'bg', label: 'Български' },
+  { code: 'hr', label: 'Hrvatski' },
+  { code: 'sk', label: 'Slovenčina' },
+  { code: 'ca', label: 'Català' },
+  { code: 'ta', label: 'தமிழ்' },
+  { code: 'tl', label: 'Tagalog' },
+  { code: 'cy', label: 'Cymraeg' },
+  { code: 'sw', label: 'Kiswahili' },
+]
+
 const DEFAULT_SPEECH_SETTINGS: SpeechToTextSettings = {
   enabled: false,
   providerType: 'openai',
@@ -395,7 +437,6 @@ export function SpeechTab() {
 
   async function handleApiKeyBlur() { await save({ apiKey: apiKey || undefined, testStatus: 'untested' }) }
   async function handleBaseUrlBlur() { await save({ baseUrl: baseUrl || undefined, testStatus: 'untested' }) }
-  async function handleLanguageBlur() { await save({ language: language || undefined }) }
   async function handleCustomModelBlur() { if (model.trim()) await save({ model: model.trim(), testStatus: 'untested' }) }
 
   const runTest = useCallback(async () => {
@@ -532,8 +573,18 @@ export function SpeechTab() {
 
                   {/* Language */}
                   <div>
-                    <PixelInput label="LANGUAGE" value={language} onChange={e => setLanguage(e.target.value)} onBlur={handleLanguageBlur} placeholder="Auto-detect (leave empty)" />
-                    <p className="text-[10px] text-text-dim mt-0.5">ISO 639-1 (e.g. en, zh, ja)</p>
+                    <label className="font-pixel text-[8px] text-text-dim block mb-1">LANGUAGE</label>
+                    <select
+                      value={language}
+                      onChange={e => { setLanguage(e.target.value); void save({ language: e.target.value || undefined }) }}
+                      className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer"
+                    >
+                      {STT_LANGUAGES.map(l => (
+                        <option key={l.code} value={l.code}>
+                          {l.code ? `${l.label} (${l.code})` : l.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Test */}
