@@ -16,8 +16,9 @@
   },
   "dependencies": {
     "@golemancy/shared": "workspace:*",
+    "agent-browser": "0.14.0",
     "ai": "^6.0.82",
-    "playwright-core": "^1.52.0",
+    "playwright-core": "^1.57.0",
     "zod": "^3"
   },
   "devDependencies": {
