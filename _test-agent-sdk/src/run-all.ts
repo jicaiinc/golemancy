@@ -12,6 +12,8 @@ import { runTest4 } from './test-4-mcp-servers.js'
 import { runTest5 } from './test-5-tool-restrictions.js'
 import { runTest6 } from './test-6-nesting.js'
 import { runTest7 } from './test-7-combined.js'
+import { runTest8 } from './test-8-mcp-bridge-nesting.js'
+import { runTest9 } from './test-9-deep-nesting.js'
 
 interface TestCase {
   name: string
@@ -26,6 +28,8 @@ const tests: TestCase[] = [
   { name: 'Test 5: Tool Restrictions', run: runTest5 },
   { name: 'Test 6: Nesting (Expected Blocked)', run: runTest6 },
   { name: 'Test 7: Combined', run: runTest7 },
+  { name: 'Test 8: MCP Bridge Nesting', run: runTest8 },
+  { name: 'Test 9: 3-Level Deep Nesting', run: runTest9 },
 ]
 
 async function main() {

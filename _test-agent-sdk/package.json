@@ -10,7 +10,9 @@
     "test:4": "tsx src/test-4-mcp-servers.ts",
     "test:5": "tsx src/test-5-tool-restrictions.ts",
     "test:6": "tsx src/test-6-nesting.ts",
-    "test:7": "tsx src/test-7-combined.ts"
+    "test:7": "tsx src/test-7-combined.ts",
+    "test:8": "tsx src/test-8-mcp-bridge-nesting.ts",
+    "test:9": "tsx src/test-9-deep-nesting.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "latest",
