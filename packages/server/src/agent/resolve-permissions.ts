@@ -1,3 +1,4 @@
+import os from 'node:os'
 import path from 'node:path'
 import type {
   IPermissionsConfigService,
@@ -12,6 +13,13 @@ import { getProjectRuntimeDir, getGlobalRuntimeDir } from '../runtime/paths'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:resolve-permissions' })
+
+/** Expand shell tilde (`~`) to the user's home directory. */
+function expandTilde(p: string): string {
+  if (p === '~') return os.homedir()
+  if (p.startsWith('~/')) return path.join(os.homedir(), p.slice(2))
+  return p
+}
 
 /**
  * Resolve the effective permissions config for a project.
@@ -47,8 +55,8 @@ export async function resolvePermissionsConfig(
   const config: PermissionsConfig = {
     ...configFile.config,
     allowWrite: configFile.config.allowWrite.map(p => {
-      // Expand all template variables
-      let expanded = p
+      // Expand shell tilde before any other processing
+      let expanded = expandTilde(p)
       if (expanded.includes('{{workspaceDir}}')) {
         expanded = expanded.replace('{{workspaceDir}}', workspaceDir)
       }
@@ -72,7 +80,7 @@ export async function resolvePermissionsConfig(
         }
         return resolved
       }
-      return path.resolve(p)
+      return path.resolve(expanded)
     }),
   }
 
