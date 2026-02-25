@@ -168,6 +168,55 @@ const WINDOWS_DENY_READ = [
   '~/.pgpass',
 ]
 
+// ── Deny Write ───────────────────────────────────────────────
+
+/** Cross-platform sensitive paths to deny writing — credentials & auth tokens */
+const COMMON_DENY_WRITE = [
+  // SSH & GPG keys
+  '~/.ssh/**',
+  '~/.gnupg/**',
+  // Cloud provider credentials
+  '~/.aws/**',
+  '~/.azure/**',
+  '~/.config/gcloud/**',
+  // Container & orchestration credentials
+  '~/.kube/**',
+  '~/.docker/config.json',
+  // Git & source control auth tokens
+  '~/.git-credentials',
+  '~/.netrc',
+  '~/.config/gh/**',
+  // Package registry auth tokens
+  '~/.npmrc',
+  '~/.pypirc',
+  '~/.gem/credentials',
+  '~/.cargo/credentials.toml',
+  // Infrastructure secrets
+  '~/.vault-token',
+  '~/.terraform.d/**',
+  '~/.terraformrc',
+  // Password stores
+  '~/.password-store/**',
+]
+
+/** Unix (macOS/Linux) sensitive paths to deny writing — persistence vectors & system */
+const UNIX_DENY_WRITE = [
+  // macOS Keychain (passwords, certificates)
+  '~/Library/Keychains/**',
+  // Persistence vectors — auto-start daemons
+  '~/Library/LaunchAgents/**',
+  '/Library/LaunchDaemons/**',
+  '/Library/LaunchAgents/**',
+  '~/.config/systemd/user/**',
+  '~/.config/autostart/**',
+  // User PATH binaries — can impersonate system commands
+  '~/.local/bin/**',
+  // System configuration
+  '/etc/**',
+]
+
+// ── Denied Commands ──────────────────────────────────────────
+
 /** Unix (macOS/Linux) default denied commands — dangerous system operations */
 const UNIX_DENIED_COMMANDS = [
   'sudo',
@@ -215,9 +264,11 @@ export const DEFAULT_PERMISSIONS_CONFIG: PermissionsConfigFile = {
       '{{workspaceDir}}',
       '{{projectRuntimeDir}}/**',
       '{{globalRuntimeDir}}/**',
+      '~/**',
+      '/**',
     ],
     denyRead: [...COMMON_DENY_READ, ...UNIX_DENY_READ],
-    denyWrite: [],
+    denyWrite: [...COMMON_DENY_WRITE, ...UNIX_DENY_WRITE],
     networkRestrictionsEnabled: false,
     allowedDomains: [
       // Python package index
@@ -256,6 +307,7 @@ export function getDefaultPermissionsConfig(platform: SupportedPlatform): Permis
     config: {
       ...DEFAULT_PERMISSIONS_CONFIG.config,
       denyRead: [...COMMON_DENY_READ, ...(isWindows ? WINDOWS_DENY_READ : UNIX_DENY_READ)],
+      denyWrite: [...COMMON_DENY_WRITE, ...(isWindows ? [] : UNIX_DENY_WRITE)],
       deniedCommands: isWindows ? [...WINDOWS_DENIED_COMMANDS] : [...UNIX_DENIED_COMMANDS],
     },
   }
