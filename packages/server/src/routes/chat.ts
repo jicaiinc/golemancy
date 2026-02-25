@@ -15,10 +15,12 @@ import type { CompactRecordStorage } from '../storage/compact-records'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import type { WebSocketManager } from '../ws/handler'
 import { resolveModel } from '../agent/model'
+import { resolveAgentRuntime } from '../agent/resolve-runtime'
 import { loadAgentTools } from '../agent/tools'
 import { buildMessagesForModel, compactConversation } from '../agent/compact'
 import { generateId } from '../utils/ids'
 import { extractUploads, rehydrateUploadsForAI } from '../utils/message-parts'
+import { handleClaudeCodeChat } from './chat-claude-code'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:chat' })
@@ -76,13 +78,14 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     }
 
     // Resolve agentId — from body or from conversation lookup
-    if (!agentId && conversationId) {
-      const conv = await deps.conversationStorage.getById(
+    let existingConv: Awaited<ReturnType<typeof deps.conversationStorage.getById>> = null
+    if (conversationId) {
+      existingConv = await deps.conversationStorage.getById(
         projectId as ProjectId,
         conversationId as ConversationId,
       )
-      if (conv) {
-        agentId = conv.agentId
+      if (existingConv && !agentId) {
+        agentId = existingConv.agentId
       }
     }
 
@@ -104,6 +107,24 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     // Get global settings for model resolution
     const settings = await deps.settingsStorage.get()
+
+    // --- Runtime branching: claude-code SDK vs standard ---
+    const agentRuntime = resolveAgentRuntime(settings, project?.config)
+
+    // Runtime lock: if conversation exists, validate runtime consistency
+    if (existingConv && existingConv.runtime !== agentRuntime) {
+      return c.json({
+        error: 'Runtime configuration has changed since this conversation was created. Please create a new conversation.',
+      }, 409)
+    }
+
+    if (agentRuntime === 'claude-code') {
+      return handleClaudeCodeChat(c, {
+        messages, projectId, agentId, conversationId,
+        agent, project: project ?? null, settings,
+      }, deps)
+    }
+
     const model = await resolveModel(settings, agent.modelConfig)
 
     log.debug({ projectId, agentId, conversationId, messageCount: messages.length }, 'starting chat stream')
@@ -181,6 +202,11 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     // but sub-agent tools only invoke during streaming so writer is always available.
     let streamWriter: Parameters<Parameters<typeof createUIMessageStream>[0]['execute']>[0]['writer'] | undefined
 
+    // Resolve skill IDs: project-level first, fallback to agent-level (migration compat)
+    const skillIds = project?.config?.skillIds?.length
+      ? (project.config.skillIds as string[])
+      : undefined
+
     const agentToolsResult = await loadAgentTools({
       agent, projectId, settings, allAgents,
       mcpStorage: deps.mcpStorage,
@@ -189,6 +215,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       conversationId,
       taskStorage: deps.taskStorage,
       tokenRecordStorage: deps.tokenRecordStorage,
+      skillIds,
       onTokenUsage: (usage) => {
         streamWriter?.write({
           type: 'data-usage' as `data-${string}`,

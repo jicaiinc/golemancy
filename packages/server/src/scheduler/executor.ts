@@ -1,6 +1,7 @@
-import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
+import { streamText, stepCountIs, convertToModelMessages, type UIMessage, type UIMessageStreamWriter } from 'ai'
 import type {
-  CronJob, CronJobRun, ProjectId,
+  Agent, CronJob, CronJobRun, GlobalSettings, Project, ProjectId,
+  PermissionsConfigId, SupportedPlatform,
   IAgentService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, IProjectService,
 } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
@@ -10,7 +11,12 @@ import type { TokenRecordStorage } from '../storage/token-records'
 import type { WebSocketManager } from '../ws/handler'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import { resolveModel } from '../agent/model'
+import { resolveAgentRuntime } from '../agent/resolve-runtime'
 import { loadAgentTools } from '../agent/tools'
+import { handleClaudeCodeStream, type SDKContentBlock } from '../agent/claude-code/handler'
+import { syncSkillsToSdkDir } from '../agent/claude-code/skills-sync'
+import { resolvePermissionsConfig } from '../agent/resolve-permissions'
+import { getProjectPath } from '../utils/paths'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 
@@ -73,6 +79,14 @@ export class CronJobExecutor {
       // 3. Load global settings
       const settings = await this.deps.settingsStorage.get()
 
+      // 3b. Check runtime — branch to claude-code if needed
+      const project = await this.deps.projectStorage.getById(projectId)
+      const agentRuntime = resolveAgentRuntime(settings, project?.config)
+
+      if (agentRuntime === 'claude-code') {
+        return await this.executeClaudeCode(cronJob, agent, settings, run, startTime, project)
+      }
+
       // 4. Resolve model
       const model = await resolveModel(settings, agent.modelConfig)
 
@@ -82,6 +96,7 @@ export class CronJobExecutor {
         projectId,
         cronJob.agentId,
         `[Cron] ${cronJob.name} — ${timestamp}`,
+        'standard',
       )
       const conversationId = conv.id
 
@@ -99,10 +114,14 @@ export class CronJobExecutor {
       })
 
       // 7. Load tools
-      const project = await this.deps.projectStorage.getById(projectId)
       const allAgents = agent.subAgents?.length > 0
         ? await this.deps.agentStorage.list(projectId)
         : []
+
+      // Resolve skill IDs: project-level first, fallback to agent-level (migration compat)
+      const skillIds = project?.config?.skillIds?.length
+        ? (project.config.skillIds as string[])
+        : undefined
 
       const agentToolsResult = await loadAgentTools({
         agent,
@@ -115,6 +134,7 @@ export class CronJobExecutor {
         conversationId,
         taskStorage: this.deps.taskStorage,
         tokenRecordStorage: this.deps.tokenRecordStorage,
+        skillIds,
       })
 
       const allTools = agentToolsResult.tools
@@ -265,6 +285,172 @@ export class CronJobExecutor {
       log.error({ cronJobId: cronJob.id, err, durationMs }, 'cron job execution failed')
       return { ...run, status: 'error', durationMs, error: errorMessage }
     }
+  }
+
+  private async executeClaudeCode(
+    cronJob: CronJob,
+    agent: Agent,
+    settings: GlobalSettings,
+    run: CronJobRun,
+    startTime: number,
+    project: Project | null,
+  ): Promise<CronJobRun> {
+    const projectId = cronJob.projectId
+
+    // 1. Create conversation
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const conv = await this.deps.conversationStorage.create(
+      projectId,
+      cronJob.agentId,
+      `[Cron] ${cronJob.name} — ${timestamp}`,
+      'claude-code',
+    )
+    const conversationId = conv.id
+    await this.deps.cronJobRunStorage.updateStatus(projectId, run.id, 'running', { conversationId })
+
+    // 2. Build user message
+    const userContent = cronJob.instruction || `[Scheduled: ${cronJob.name}] Execute your task.`
+    const userMsgId = generateId('msg')
+    await this.deps.conversationStorage.saveMessage(projectId, conversationId, {
+      id: userMsgId,
+      role: 'user',
+      parts: [{ type: 'text', text: userContent }],
+      content: userContent,
+    })
+
+    // 3. Resolve MCP configs
+    const mcpConfigs = agent.mcpServers?.length > 0
+      ? await this.deps.mcpStorage.resolveNames(projectId, agent.mcpServers)
+      : []
+
+    const allAgents = agent.subAgents?.length > 0
+      ? await this.deps.agentStorage.list(projectId)
+      : []
+
+    // 4. Resolve skill IDs: project-level first, fallback to agent-level (migration compat)
+    const skillIds = project?.config?.skillIds?.length
+      ? project.config.skillIds
+      : (agent.skillIds ?? [])
+
+    // 5. Workspace directory — SDK CLI subprocess cwd
+    const workspaceDir = getProjectPath(projectId as string) + '/workspace'
+
+    // Sync skills to SDK filesystem for native discovery
+    let systemPrompt = agent.systemPrompt
+    let skillCleanup: (() => Promise<void>) | undefined
+    let hasSkills = false
+
+    if (skillIds.length > 0) {
+      try {
+        const { cleanup } = await syncSkillsToSdkDir(projectId as string, skillIds as string[], workspaceDir)
+        skillCleanup = cleanup
+        hasSkills = true
+      } catch (err) {
+        log.warn({ err, projectId }, 'failed to sync skills to SDK directory for cron')
+      }
+    }
+
+    // 6. Resolve permission mode from project config
+    let permissionMode: string | undefined
+    try {
+      const platform = process.platform as SupportedPlatform
+      const resolved = await resolvePermissionsConfig(
+        this.deps.permissionsConfigStorage,
+        projectId,
+        project?.config?.permissionsConfigId as PermissionsConfigId | undefined,
+        workspaceDir,
+        platform,
+      )
+      permissionMode = resolved.mode
+    } catch (err) {
+      log.warn({ err, projectId }, 'failed to resolve permissions for cron claude-code')
+    }
+
+    // 7. Create a no-op writer (cron doesn't stream to clients)
+    const noopWriter: UIMessageStreamWriter = {
+      write: () => {},
+      merge: () => {},
+    } as unknown as UIMessageStreamWriter
+
+    // 8. Call SDK handler
+    const contentBlocks: SDKContentBlock[] = [{ type: 'text', text: userContent }]
+
+    const sdkResult = await handleClaudeCodeStream(
+      {
+        agent,
+        contentBlocks,
+        systemPrompt,
+        cwd: workspaceDir,
+        permissionMode,
+        allAgents,
+        mcpConfigs,
+        hasSkills,
+      },
+      noopWriter,
+    )
+
+    // Cleanup skill temp directory
+    if (skillCleanup) {
+      await skillCleanup().catch(() => {})
+    }
+
+    // 8. Save assistant message
+    const assistantMsgId = generateId('msg')
+    const displayText = sdkResult.responseText || '[Claude Code SDK response]'
+    await this.deps.conversationStorage.saveMessage(projectId, conversationId, {
+      id: assistantMsgId as any,
+      role: 'assistant',
+      parts: [{ type: 'text', text: displayText }],
+      content: displayText,
+      inputTokens: sdkResult.inputTokens,
+      outputTokens: sdkResult.outputTokens,
+      provider: 'anthropic',
+      model: agent.modelConfig?.model ?? 'claude-code',
+    })
+
+    // 9. Save token record
+    try {
+      this.deps.tokenRecordStorage.save(projectId, {
+        conversationId,
+        messageId: assistantMsgId,
+        agentId: cronJob.agentId,
+        provider: 'anthropic',
+        model: agent.modelConfig?.model ?? 'claude-code',
+        inputTokens: sdkResult.inputTokens,
+        outputTokens: sdkResult.outputTokens,
+        source: 'cron',
+      })
+      if (this.deps.wsManager) {
+        this.deps.wsManager.emit(`project:${projectId}`, {
+          event: 'token:recorded', projectId,
+          agentId: cronJob.agentId,
+          model: agent.modelConfig?.model ?? 'claude-code',
+          inputTokens: sdkResult.inputTokens,
+          outputTokens: sdkResult.outputTokens,
+        })
+      }
+    } catch (err) {
+      log.error({ err, conversationId }, 'failed to save cron claude-code token record')
+    }
+
+    // 10. Update run to success
+    const durationMs = Date.now() - startTime
+    await this.deps.cronJobRunStorage.updateStatus(projectId, run.id, 'success', { durationMs })
+
+    // 11. Update cronJob metadata
+    const nextRun = this.getNextRun(cronJob)
+    await this.deps.cronJobStorage.updateRunMeta(projectId, cronJob.id, {
+      lastRunAt: new Date().toISOString(),
+      lastRunStatus: 'success',
+      lastRunId: run.id,
+      nextRunAt: nextRun?.toISOString(),
+    })
+
+    // 12. Mark agent idle
+    await this.markAgentIdle(projectId, cronJob)
+
+    log.info({ cronJobId: cronJob.id, durationMs, conversationId }, 'cron job (claude-code) executed successfully')
+    return { ...run, status: 'success', durationMs, conversationId }
   }
 
   private async markAgentIdle(projectId: ProjectId, cronJob: CronJob) {

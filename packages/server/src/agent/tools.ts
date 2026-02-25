@@ -26,6 +26,8 @@ export interface LoadAgentToolsParams {
   taskStorage?: SqliteConversationTaskStorage
   tokenRecordStorage?: TokenRecordStorage
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void
+  /** Override skill IDs (project-level). Falls back to agent.skillIds if not provided. */
+  skillIds?: string[]
 }
 
 export interface AgentToolsResult {
@@ -58,8 +60,10 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   let degradation: ModeDegradation | undefined
 
   // 1. Skills — returns only the `skill` selector tool
-  if (agent.skillIds?.length > 0) {
-    const skillResult = await loadAgentSkillTools(projectId, agent.skillIds)
+  //    Use provided skillIds (project-level) or fall back to agent.skillIds (migration compat)
+  const effectiveSkillIds = params.skillIds ?? (agent.skillIds?.length ? agent.skillIds : [])
+  if (effectiveSkillIds.length > 0) {
+    const skillResult = await loadAgentSkillTools(projectId, effectiveSkillIds)
     if (skillResult) {
       Object.assign(tools, skillResult.tools)  // only { skill }
       instructions = skillResult.instructions

@@ -69,7 +69,7 @@ function createTestServices(): ServiceContainer {
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn(), testClaudeCode: vi.fn() },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
     mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
@@ -162,14 +162,19 @@ describe('AgentDetailPage', () => {
     expect(screen.getByText('1 sub-agents')).toBeInTheDocument()
   })
 
-  it('renders General tab with Info and Model Config sections', () => {
+  it('renders General tab with Info section', () => {
     renderAtRoute()
     // General tab is default — shows Info section
     expect(screen.getByText('INFO')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Test Agent')).toBeInTheDocument()
     expect(screen.getByDisplayValue('A test agent for unit tests')).toBeInTheDocument()
     expect(screen.getByDisplayValue('You are a helpful assistant.')).toBeInTheDocument()
-    // Shows Model Config section
+  })
+
+  it('renders Model Config tab', () => {
+    renderAtRoute()
+    // Click the Model Config tab
+    fireEvent.click(screen.getByText('Model Config'))
     expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
   })
 
@@ -248,6 +253,67 @@ describe('AgentDetailPage', () => {
     fireEvent.click(screen.getByText('Skills'))
     await waitFor(() => {
       expect(screen.getByText('No skills assigned to this agent.')).toBeInTheDocument()
+    })
+  })
+
+  // ── Claude Code runtime info banners ──
+
+  describe('Claude Code runtime info banners', () => {
+    beforeEach(() => {
+      // Set runtime to claude-code via global settings
+      useAppStore.setState({
+        settings: { ...baseSettings, agentRuntime: 'claude-code' },
+        projects: [testProject],
+        currentProjectId: PROJECT_ID,
+        agents: [makeAgent()],
+        skills: [],
+        mcpServers: [],
+        updateAgent: vi.fn().mockResolvedValue(undefined),
+        deleteAgent: vi.fn().mockResolvedValue(undefined),
+      })
+    })
+
+    it('shows Claude Code info in Skills tab when claude-code runtime', async () => {
+      renderAtRoute()
+      fireEvent.click(screen.getByText('Skills'))
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Skills are managed at the Project level/),
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText(/synced to the SDK/),
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('shows Claude Code info in Tools tab when claude-code runtime', async () => {
+      renderAtRoute()
+      fireEvent.click(screen.getByText('Tools'))
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Claude Code runtime manages its own tools/),
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('shows Claude Code info in Sub-Agents tab when claude-code runtime', async () => {
+      renderAtRoute()
+      fireEvent.click(screen.getByText('Sub-Agents'))
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Claude Code runtime handles sub-agent orchestration/),
+        ).toBeInTheDocument()
+      })
+    })
+
+    it('shows Claude Code model selector in Model Config tab', async () => {
+      renderAtRoute()
+      fireEvent.click(screen.getByText('Model Config'))
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Claude Code runtime uses the Claude Agent SDK/),
+        ).toBeInTheDocument()
+      })
     })
   })
 })

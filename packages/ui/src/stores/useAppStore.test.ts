@@ -85,6 +85,7 @@ function createTestServices(): ServiceContainer {
         Promise.resolve({ ...data }),
       ),
       testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }),
+      testClaudeCode: vi.fn().mockResolvedValue({ ok: true, model: 'sonnet', latencyMs: 100 }),
     },
     cronJobs: {
       list: vi.fn().mockResolvedValue([]),

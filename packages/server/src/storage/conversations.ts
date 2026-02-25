@@ -2,6 +2,7 @@ import type {
   Conversation, ConversationId, ProjectId, AgentId, Message, MessageId,
   PaginationParams, PaginatedResult,
   IConversationService,
+  AgentRuntime,
 } from '@golemancy/shared'
 import { eq, and, desc, sql } from 'drizzle-orm'
 import type { AppDatabase } from '../db/client'
@@ -48,7 +49,7 @@ export class SqliteConversationStorage implements IConversationService {
     return this.rowToConversation(rows[0], messages)
   }
 
-  async create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation> {
+  async create(projectId: ProjectId, agentId: AgentId, title: string, runtime: AgentRuntime = 'standard', sdkSessionId?: string): Promise<Conversation> {
     const db = this.getProjectDb(projectId)
     const id = generateId('conv')
     log.debug({ projectId, agentId, conversationId: id }, 'creating conversation')
@@ -60,6 +61,8 @@ export class SqliteConversationStorage implements IConversationService {
       agentId,
       title,
       lastMessageAt: now,
+      runtime,
+      ...(sdkSessionId != null ? { sdkSessionId } : {}),
       createdAt: now,
       updatedAt: now,
     })
@@ -69,11 +72,23 @@ export class SqliteConversationStorage implements IConversationService {
       projectId,
       agentId,
       title,
+      runtime,
       messages: [],
       lastMessageAt: now,
+      ...(sdkSessionId != null ? { sdkSessionId } : {}),
       createdAt: now,
       updatedAt: now,
     }
+  }
+
+  async updateSdkSessionId(projectId: ProjectId, conversationId: ConversationId, sessionId: string): Promise<void> {
+    const db = this.getProjectDb(projectId)
+    await this.verifyOwnership(db, projectId, conversationId)
+    const now = new Date().toISOString()
+    await db
+      .update(schema.conversations)
+      .set({ sdkSessionId: sessionId, updatedAt: now })
+      .where(and(eq(schema.conversations.id, conversationId), eq(schema.conversations.projectId, projectId)))
   }
 
   async sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void> {
@@ -298,8 +313,10 @@ export class SqliteConversationStorage implements IConversationService {
       projectId: row.projectId as ProjectId,
       agentId: row.agentId as AgentId,
       title: row.title,
+      runtime: (row.runtime ?? 'standard') as AgentRuntime,
       messages,
       lastMessageAt: row.lastMessageAt ?? row.createdAt,
+      ...(row.sdkSessionId != null ? { sdkSessionId: row.sdkSessionId } : {}),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     }

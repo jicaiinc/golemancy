@@ -14,6 +14,7 @@ function makeConversation(overrides: Partial<Conversation> = {}): Conversation {
     projectId: projId,
     agentId,
     title: 'Test Conversation',
+    runtime: 'standard',
     messages: [],
     lastMessageAt: '2026-01-01T00:00:00Z',
     createdAt: '2026-01-01T00:00:00Z',

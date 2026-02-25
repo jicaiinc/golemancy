@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
+import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig, AgentRuntime } from '@golemancy/shared'
 import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
@@ -9,7 +9,7 @@ import { SpeechTab } from './SpeechTab'
 
 const SETTINGS_TABS = [
   { id: 'general', label: 'General' },
-  { id: 'providers', label: 'Providers' },
+  { id: 'runtime', label: 'Runtime' },
   { id: 'speech', label: 'Speech' },
 ]
 
@@ -74,9 +74,7 @@ export function GlobalSettingsPage() {
 
         <div className="mt-4">
           {activeTab === 'general' && <GeneralTab />}
-          {activeTab === 'providers' && (
-            <ProvidersTab settings={settings} onUpdate={updateSettings} />
-          )}
+          {activeTab === 'runtime' && <RuntimeTab settings={settings} onUpdate={updateSettings} />}
           {activeTab === 'speech' && <SpeechTab />}
         </div>
 
@@ -91,8 +89,103 @@ export function GlobalSettingsPage() {
   )
 }
 
-// ========== Providers Tab ==========
-function ProvidersTab({ settings, onUpdate }: {
+// ========== Runtime Tab ==========
+function RuntimeTab({ settings, onUpdate }: {
+  settings: GlobalSettings
+  onUpdate: (data: Partial<GlobalSettings>) => Promise<void>
+}) {
+  const services = useServices()
+  const current: AgentRuntime = settings.agentRuntime ?? 'standard'
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<{ ok: boolean; error?: string; model?: string; latencyMs?: number } | null>(null)
+
+  async function handleSelect(runtime: AgentRuntime) {
+    setTestResult(null)
+    await onUpdate({ agentRuntime: runtime })
+  }
+
+  async function handleTestClaudeCode() {
+    setTesting(true)
+    setTestResult(null)
+    try {
+      const result = await services.settings.testClaudeCode()
+      setTestResult(result)
+    } catch (err) {
+      setTestResult({ ok: false, error: err instanceof Error ? err.message : 'Test failed' })
+    } finally {
+      setTesting(false)
+    }
+  }
+
+  const runtimes: { id: AgentRuntime; name: string; description: string }[] = [
+    { id: 'standard', name: 'Standard', description: 'Use configured providers (Anthropic, OpenAI, etc.) via Vercel AI SDK' },
+    { id: 'claude-code', name: 'Claude Code', description: 'Use Claude Agent SDK with built-in tool execution' },
+  ]
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-2">AGENT RUNTIME</div>
+        <p className="text-[11px] text-text-dim mb-4">
+          Choose how agents execute. This applies globally unless overridden per project.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {runtimes.map(rt => {
+            const isActive = current === rt.id
+            return (
+              <button
+                key={rt.id}
+                onClick={() => handleSelect(rt.id)}
+                className={`p-4 border-2 cursor-pointer transition-colors text-left ${
+                  isActive
+                    ? 'bg-elevated border-accent-green'
+                    : 'bg-deep border-border-dim hover:border-border-bright'
+                }`}
+              >
+                <div className={`font-pixel text-[10px] ${isActive ? 'text-accent-green' : 'text-text-primary'}`}>
+                  {rt.name}
+                </div>
+                <div className="text-[11px] text-text-dim mt-2">{rt.description}</div>
+              </button>
+            )
+          })}
+        </div>
+      </PixelCard>
+
+      {current === 'standard' && (
+        <ProvidersSection settings={settings} onUpdate={onUpdate} />
+      )}
+
+      {current === 'claude-code' && (
+        <PixelCard>
+          <div className="font-pixel text-[10px] text-text-secondary mb-2">CONNECTION TEST</div>
+          <p className="text-[11px] text-text-dim mb-3">
+            Verify that the Claude Agent SDK is reachable.
+          </p>
+          <div className="flex items-center gap-3">
+            <PixelButton size="sm" variant="primary" onClick={handleTestClaudeCode} disabled={testing}>
+              {testing ? 'Testing...' : 'Test Connection'}
+            </PixelButton>
+            {testResult && (
+              testResult.ok ? (
+                <span className="text-[11px] text-accent-green">
+                  Connected {testResult.model ? `(${testResult.model})` : ''} {testResult.latencyMs ? `${testResult.latencyMs}ms` : ''}
+                </span>
+              ) : (
+                <span className="text-[11px] text-accent-red">
+                  {testResult.error ?? 'Connection failed'}
+                </span>
+              )
+            )}
+          </div>
+        </PixelCard>
+      )}
+    </div>
+  )
+}
+
+// ========== Providers Section (shown inline under Runtime tab when Standard is selected) ==========
+function ProvidersSection({ settings, onUpdate }: {
   settings: GlobalSettings
   onUpdate: (data: Partial<GlobalSettings>) => Promise<void>
 }) {

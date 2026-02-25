@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router'
 import type { AgentId, ConversationId, ConversationTokenUsageResult } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { useCurrentProject, usePermissionMode } from '../../hooks'
+import { useCurrentProject, usePermissionMode, useAgentRuntime } from '../../hooks'
 import { getServices } from '../../services/container'
 import { PixelSpinner, StatusBar } from '../../components'
 import { ChatSidebar } from './ChatSidebar'
@@ -156,10 +156,12 @@ export function ChatPage() {
     updateConversationTitle(id, title)
   }, [updateConversationTitle])
 
+  const agentRuntime = useAgentRuntime()
+
   const handleNewChat = useCallback(async () => {
     if (!mainAgentId) return
-    await createConversation(mainAgentId, 'New Chat')
-  }, [mainAgentId, createConversation])
+    await createConversation(mainAgentId, 'New Chat', agentRuntime)
+  }, [mainAgentId, createConversation, agentRuntime])
 
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const updateProject = useAppStore(s => s.updateProject)
@@ -168,18 +170,20 @@ export function ChatPage() {
     if (!currentConversationId || !currentProject) return
     const oldConvId = currentConversationId
     // Create new conversation first so UI doesn't flash empty
-    await createConversation(agentId, 'New Chat')
+    await createConversation(agentId, 'New Chat', agentRuntime)
     await updateProject(currentProject.id, { mainAgentId: agentId })
     await deleteConversation(oldConvId)
-  }, [currentConversationId, currentProject, createConversation, updateProject, deleteConversation])
+  }, [currentConversationId, currentProject, createConversation, updateProject, deleteConversation, agentRuntime])
 
   // Find current conversation and its agent
   const currentConversation = conversations.find(c => c.id === currentConversationId)
   const currentAgent = currentConversation
     ? agents.find(a => a.id === currentConversation.agentId)
     : undefined
+  const isClaudeCode = agentRuntime === 'claude-code'
 
-  const compactThreshold = currentAgent?.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD
+  // In claude-code mode, SDK manages its own compact — hide threshold & manual compact button
+  const compactThreshold = isClaudeCode ? null : (currentAgent?.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD)
 
   const isUnrestricted = permissionMode === 'unrestricted'
 
@@ -250,7 +254,7 @@ export function ChatPage() {
           />
         )}
         {/* TODO: Pass actualMode from WS mode_degraded events once WebSocket integration is wired up */}
-        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} tokenBreakdown={tokenBreakdown} taskSummary={taskSummary} taskList={currentConvTasks} contextTokens={contextTokens} compactThreshold={compactThreshold} onCompactNow={handleCompactNow} compacting={compacting} compactSource={compactSource} onCancelCompact={handleCancelCompact} chatBusy={chatBusy} />
+        <StatusBar permissionMode={permissionMode} tokenUsage={conversationUsage} tokenBreakdown={tokenBreakdown} taskSummary={taskSummary} taskList={currentConvTasks} contextTokens={contextTokens} compactThreshold={compactThreshold} onCompactNow={isClaudeCode ? undefined : handleCompactNow} compacting={compacting} compactSource={compactSource} onCancelCompact={handleCancelCompact} chatBusy={chatBusy} />
       </div>
     </div>
   )

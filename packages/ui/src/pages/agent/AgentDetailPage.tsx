@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import type { Agent, AgentId, AgentStatus, SkillId } from '@golemancy/shared'
-import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD, CLAUDE_CODE_MODELS } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { usePermissionConfig } from '../../hooks'
+import { usePermissionConfig, useAgentRuntime } from '../../hooks'
 import {
   PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelTabs,
   PixelInput, PixelTextArea, CompactThresholdControl,
@@ -174,8 +174,13 @@ function ModelConfigTab({ agent, onUpdate }: {
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
   const settings = useAppStore(s => s.settings)
+  const runtime = useAgentRuntime()
+  const isClaudeCode = runtime === 'claude-code'
   const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)
   const [model, setModel] = useState(agent.modelConfig.model)
+  const [ccModel, setCcModel] = useState(
+    agent.modelConfig.provider === 'claude-code' ? agent.modelConfig.model : 'sonnet',
+  )
   const [compactThreshold, setCompactThreshold] = useState(
     agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD,
   )
@@ -190,17 +195,20 @@ function ModelConfigTab({ agent, onUpdate }: {
   useEffect(() => {
     setProviderSlug(agent.modelConfig.provider)
     setModel(agent.modelConfig.model)
+    if (agent.modelConfig.provider === 'claude-code') {
+      setCcModel(agent.modelConfig.model)
+    }
     setCompactThreshold(agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD)
   }, [agent.id])
 
   // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available
   useEffect(() => {
-    if (availableProviders.length > 0 && !settings?.providers[providerSlug]) {
+    if (!isClaudeCode && availableProviders.length > 0 && !settings?.providers[providerSlug]) {
       const [slug, entry] = availableProviders[0]
       setProviderSlug(slug)
       setModel(entry.models[0] ?? '')
     }
-  }, [availableProviders.length, providerSlug, settings?.providers])
+  }, [isClaudeCode, availableProviders.length, providerSlug, settings?.providers])
 
   const selectedProvider = settings?.providers[providerSlug]
   const models = selectedProvider?.models ?? []
@@ -213,9 +221,12 @@ function ModelConfigTab({ agent, onUpdate }: {
 
   async function handleSave() {
     setSaving(true)
+    const modelConfig = isClaudeCode
+      ? { provider: 'claude-code', model: ccModel }
+      : { provider: providerSlug, model }
     await onUpdate(agent.id, {
-      modelConfig: { provider: providerSlug, model },
-      compactThreshold,
+      modelConfig,
+      ...(!isClaudeCode ? { compactThreshold } : {}),
     })
     setSaving(false)
     setSaved(true)
@@ -227,42 +238,64 @@ function ModelConfigTab({ agent, onUpdate }: {
       {/* Model Config section */}
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-4">MODEL CONFIG</div>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
-            <select
-              value={providerSlug}
-              onChange={e => handleProviderChange(e.target.value)}
-              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-            >
-              {availableProviders.length === 0 && <option value="">No providers configured</option>}
-              {availableProviders.map(([slug, entry]) => (
-                <option key={slug} value={slug}>{entry.name}</option>
-              ))}
-            </select>
+        {isClaudeCode ? (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+              <select
+                value={ccModel}
+                onChange={e => setCcModel(e.target.value)}
+                className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+              >
+                {CLAUDE_CODE_MODELS.map(m => (
+                  <option key={m.id} value={m.id}>{m.label}</option>
+                ))}
+              </select>
+            </div>
+            <p className="text-[11px] text-text-dim">
+              Claude Code runtime uses the Claude Agent SDK. Provider configuration is managed automatically.
+            </p>
           </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
+              <select
+                value={providerSlug}
+                onChange={e => handleProviderChange(e.target.value)}
+                className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+              >
+                {availableProviders.length === 0 && <option value="">No providers configured</option>}
+                {availableProviders.map(([slug, entry]) => (
+                  <option key={slug} value={slug}>{entry.name}</option>
+                ))}
+              </select>
+            </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
-            <select
-              value={model}
-              onChange={e => setModel(e.target.value)}
-              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-            >
-              {models.length === 0 && <option value="">No models available</option>}
-              {models.map(m => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
+            <div className="flex flex-col gap-1">
+              <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+              <select
+                value={model}
+                onChange={e => setModel(e.target.value)}
+                className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+              >
+                {models.length === 0 && <option value="">No models available</option>}
+                {models.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
+        )}
       </PixelCard>
 
-      {/* Compact Threshold */}
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">COMPACT THRESHOLD</div>
-        <CompactThresholdControl value={compactThreshold} onChange={setCompactThreshold} />
-      </PixelCard>
+      {/* Compact Threshold — only for standard runtime */}
+      {!isClaudeCode && (
+        <PixelCard>
+          <div className="font-pixel text-[10px] text-text-secondary mb-3">COMPACT THRESHOLD</div>
+          <CompactThresholdControl value={compactThreshold} onChange={setCompactThreshold} />
+        </PixelCard>
+      )}
 
       <div className="flex items-center gap-3">
         <PixelButton variant="primary" onClick={handleSave} disabled={saving}>
@@ -282,6 +315,8 @@ function SkillsTab({ agent, onUpdate }: {
   const skills = useAppStore(s => s.skills)
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
+  const runtime = useAgentRuntime()
+  const isClaudeCode = runtime === 'claude-code'
 
   const assigned = skills.filter(s => agent.skillIds.includes(s.id))
   const available = skills.filter(s => !agent.skillIds.includes(s.id))
@@ -296,6 +331,13 @@ function SkillsTab({ agent, onUpdate }: {
 
   return (
     <div className="max-w-[640px]">
+      {isClaudeCode && (
+        <PixelCard variant="outlined" className="mb-4 border-accent-blue bg-accent-blue/5">
+          <p className="text-[11px] text-text-secondary">
+            Skills are managed at the Project level. In Claude Code mode, skills are synced to the SDK&apos;s filesystem for native discovery.
+          </p>
+        </PixelCard>
+      )}
       {/* Assigned skills */}
       <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED SKILLS</div>
       {assigned.length > 0 ? (
@@ -364,6 +406,9 @@ function ToolsTab({ agent, onUpdate }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
+  const runtime = useAgentRuntime()
+  const isClaudeCode = runtime === 'claude-code'
+
   const builtinToolDefs = [
     { id: 'bash', name: 'Bash', description: 'Execute bash commands, read and write files', defaultEnabled: true, available: true },
     { id: 'browser', name: 'Browser', description: 'Control web browser for automation', defaultEnabled: false, available: true },
@@ -381,6 +426,13 @@ function ToolsTab({ agent, onUpdate }: {
 
   return (
     <div className="max-w-[640px]">
+      {isClaudeCode && (
+        <PixelCard variant="outlined" className="mb-4 border-accent-blue bg-accent-blue/5">
+          <p className="text-[11px] text-text-secondary">
+            Claude Code runtime manages its own tools (Bash, Read, Write, Grep, etc.). The settings below are for standard runtime only.
+          </p>
+        </PixelCard>
+      )}
       {/* Built-in Tools Section */}
       <div className="mb-6">
         <div className="font-pixel text-[8px] text-text-dim mb-2">BUILT-IN TOOLS</div>
@@ -574,6 +626,8 @@ function SubAgentsTab({ agent, onUpdate }: {
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
   const agents = useAppStore(s => s.agents)
+  const runtime = useAgentRuntime()
+  const isClaudeCode = runtime === 'claude-code'
   const available = agents.filter(a => a.id !== agent.id && !agent.subAgents.some(s => s.agentId === a.id))
 
   async function addSubAgent(targetId: AgentId) {
@@ -596,6 +650,13 @@ function SubAgentsTab({ agent, onUpdate }: {
 
   return (
     <div className="max-w-[640px]">
+      {isClaudeCode && (
+        <PixelCard variant="outlined" className="mb-4 border-accent-blue bg-accent-blue/5">
+          <p className="text-[11px] text-text-secondary">
+            Claude Code runtime handles sub-agent orchestration internally via the Agent SDK. The settings below are for standard runtime only.
+          </p>
+        </PixelCard>
+      )}
       {/* Assigned sub-agents */}
       <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED SUB-AGENTS</div>
       {agent.subAgents.length > 0 ? (

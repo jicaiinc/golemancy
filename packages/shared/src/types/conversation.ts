@@ -1,4 +1,5 @@
 import type { AgentId, ConversationId, MessageId, ProjectId, Timestamped } from './common'
+import type { AgentRuntime } from './settings'
 
 export interface Message extends Timestamped {
   id: MessageId
@@ -30,7 +31,9 @@ export interface Conversation extends Timestamped {
   projectId: ProjectId
   agentId: AgentId
   title: string
+  runtime: AgentRuntime  // 'standard' | 'claude-code'
   messages: Message[]
   lastMessageAt: string
   compactRecords?: CompactRecord[]
+  sdkSessionId?: string
 }

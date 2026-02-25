@@ -322,7 +322,7 @@ describe('HTTP API routes', () => {
         body: JSON.stringify({ agentId: 'agent-1', title: 'New Chat' }),
       }))
       expect(res.status).toBe(201)
-      expect(deps.conversationStorage.create).toHaveBeenCalledWith('proj-1', 'agent-1', 'New Chat')
+      expect(deps.conversationStorage.create).toHaveBeenCalledWith('proj-1', 'agent-1', 'New Chat', undefined)
     })
 
     it('DELETE deletes conversation', async () => {

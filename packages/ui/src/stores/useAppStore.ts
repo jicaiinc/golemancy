@@ -9,7 +9,7 @@ import type {
   TranscriptionRecord, SpeechStorageUsage,
   ProjectId, AgentId, ConversationId, MemoryId, SkillId, CronJobId, TranscriptionId,
   SkillCreateData, SkillUpdateData,
-  AgentStatus,
+  AgentStatus, AgentRuntime,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import { getServices } from '../services'
@@ -138,7 +138,7 @@ interface AgentActions {
 interface ConversationActions {
   loadConversations(projectId: ProjectId, agentId?: AgentId): Promise<void>
   selectConversation(id: ConversationId | null): Promise<void>
-  createConversation(agentId: AgentId, title: string): Promise<Conversation>
+  createConversation(agentId: AgentId, title: string, runtime?: AgentRuntime): Promise<Conversation>
   updateConversationTitle(id: ConversationId, title: string): Promise<void>
   deleteConversation(id: ConversationId): Promise<void>
 }
@@ -470,10 +470,10 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      async createConversation(agentId: AgentId, title: string) {
+      async createConversation(agentId: AgentId, title: string, runtime?: AgentRuntime) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
-        const conv = await getServices().conversations.create(projectId, agentId, title)
+        const conv = await getServices().conversations.create(projectId, agentId, title, runtime)
         set(s => ({ conversations: [...s.conversations, conv], currentConversationId: conv.id }))
         return conv
       },

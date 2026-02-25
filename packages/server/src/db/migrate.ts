@@ -178,6 +178,20 @@ export function migrateDatabase(db: AppDatabase) {
   `)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_compact_records_conv ON compact_records(conversation_id, created_at DESC)`)
 
+  // --- Migration v7: sdk_session_id column on conversations ---
+  const colsV7 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+  if (!colsV7.some(c => c.name === 'sdk_session_id')) {
+    log.info('migrating conversations table: adding sdk_session_id column')
+    db.run(sql`ALTER TABLE conversations ADD COLUMN sdk_session_id TEXT`)
+  }
+
+  // --- Migration v8: runtime column on conversations ---
+  const colsV8 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+  if (!colsV8.some(c => c.name === 'runtime')) {
+    log.info('migrating conversations table: adding runtime column')
+    db.run(sql`ALTER TABLE conversations ADD COLUMN runtime TEXT NOT NULL DEFAULT 'standard'`)
+  }
+
   // Set up FTS5
   setupFTS(db)
   log.info('database migrations complete')

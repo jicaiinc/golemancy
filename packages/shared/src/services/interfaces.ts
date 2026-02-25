@@ -11,6 +11,8 @@ import type {
   WorkspaceEntry, FilePreviewData,
   CompactRecord,
   TranscriptionRecord, SpeechToTextSettings, SpeechStorageUsage,
+  ClaudeCodeTestResult,
+  AgentRuntime,
 } from '../types'
 
 export interface IProjectService {
@@ -40,7 +42,7 @@ export interface ConversationTokenUsageResult {
 export interface IConversationService {
   list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]>
   getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null>
-  create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation>
+  create(projectId: ProjectId, agentId: AgentId, title: string, runtime?: AgentRuntime): Promise<Conversation>
   sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void>
   saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; contextTokens?: number; provider?: string; model?: string; metadata?: Record<string, unknown> }): Promise<void>
   getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>>
@@ -102,6 +104,7 @@ export interface ISettingsService {
   get(): Promise<GlobalSettings>
   update(data: Partial<GlobalSettings>): Promise<GlobalSettings>
   testProvider(slug: string): Promise<{ ok: boolean; error?: string; latencyMs?: number }>
+  testClaudeCode(): Promise<ClaudeCodeTestResult>
 }
 
 export interface ICronJobService {

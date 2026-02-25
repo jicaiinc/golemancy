@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { CLAUDE_CODE_MODELS, DEFAULT_CLAUDE_CODE_MODEL } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
+import { useAgentRuntime } from '../../hooks'
 import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../components'
 
 interface Props {
@@ -13,13 +15,17 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
   const { projectId } = useParams<{ projectId: string }>()
   const createAgent = useAppStore(s => s.createAgent)
   const settings = useAppStore(s => s.settings)
+  const runtime = useAgentRuntime()
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
   const [providerSlug, setProviderSlug] = useState('')
   const [model, setModel] = useState('')
+  const [ccModel, setCcModel] = useState(DEFAULT_CLAUDE_CODE_MODEL)
   const [saving, setSaving] = useState(false)
+
+  const isClaudeCode = runtime === 'claude-code'
 
   // Available providers: test must have passed
   const availableProviders = Object.entries(settings?.providers ?? {}).filter(
@@ -28,7 +34,7 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
 
   // Pre-select default model or first available provider when modal opens
   useEffect(() => {
-    if (open && availableProviders.length > 0 && !providerSlug) {
+    if (open && !isClaudeCode && availableProviders.length > 0 && !providerSlug) {
       const dm = settings?.defaultModel
       if (dm && settings?.providers[dm.provider]) {
         setProviderSlug(dm.provider)
@@ -39,7 +45,7 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
         setModel(entry.models[0] ?? '')
       }
     }
-  }, [open, availableProviders.length, settings?.defaultModel])
+  }, [open, isClaudeCode, availableProviders.length, settings?.defaultModel])
 
   function handleProviderChange(slug: string) {
     setProviderSlug(slug)
@@ -53,17 +59,22 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
     setSystemPrompt('')
     setProviderSlug('')
     setModel('')
+    setCcModel(DEFAULT_CLAUDE_CODE_MODEL)
   }
 
   async function handleSubmit() {
-    if (!name.trim() || !providerSlug || !model) return
+    if (!name.trim()) return
+    if (!isClaudeCode && (!providerSlug || !model)) return
     setSaving(true)
     try {
+      const modelConfig = isClaudeCode
+        ? { provider: 'claude-code', model: ccModel }
+        : { provider: providerSlug, model }
       const agent = await createAgent({
         name: name.trim(),
         description: description.trim(),
         systemPrompt: systemPrompt.trim(),
-        modelConfig: { provider: providerSlug, model },
+        modelConfig,
       })
       reset()
       onClose()
@@ -78,6 +89,10 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
   const selectedProvider = settings?.providers[providerSlug]
   const models = selectedProvider?.models ?? []
 
+  const canSubmit = isClaudeCode
+    ? !!name.trim()
+    : !!name.trim() && !!providerSlug && !!model
+
   return (
     <PixelModal
       open={open}
@@ -87,7 +102,7 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
       footer={
         <>
           <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>Cancel</PixelButton>
-          <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || !providerSlug || !model || saving} onClick={handleSubmit}>
+          <PixelButton data-testid="confirm-btn" variant="primary" disabled={!canSubmit || saving} onClick={handleSubmit}>
             {saving ? 'Creating...' : 'Create Agent'}
           </PixelButton>
         </>
@@ -119,34 +134,49 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
           rows={4}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
-            <select
-              value={providerSlug}
-              onChange={e => handleProviderChange(e.target.value)}
-              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-            >
-              {availableProviders.length === 0 && <option value="">No providers configured</option>}
-              {availableProviders.map(([slug, entry]) => (
-                <option key={slug} value={slug}>{entry.name}</option>
-              ))}
-            </select>
-          </div>
+        {isClaudeCode ? (
           <div className="flex flex-col gap-1">
             <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
             <select
-              value={model}
-              onChange={e => setModel(e.target.value)}
+              value={ccModel}
+              onChange={e => setCcModel(e.target.value)}
               className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
             >
-              {models.length === 0 && <option value="">No models available</option>}
-              {models.map(m => (
-                <option key={m} value={m}>{m}</option>
+              {CLAUDE_CODE_MODELS.map(m => (
+                <option key={m.id} value={m.id}>{m.label}</option>
               ))}
             </select>
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
+              <select
+                value={providerSlug}
+                onChange={e => handleProviderChange(e.target.value)}
+                className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+              >
+                {availableProviders.length === 0 && <option value="">No providers configured</option>}
+                {availableProviders.map(([slug, entry]) => (
+                  <option key={slug} value={slug}>{entry.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+              <select
+                value={model}
+                onChange={e => setModel(e.target.value)}
+                className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+              >
+                {models.length === 0 && <option value="">No models available</option>}
+                {models.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
       </div>
     </PixelModal>
   )

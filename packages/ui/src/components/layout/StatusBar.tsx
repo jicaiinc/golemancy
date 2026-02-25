@@ -139,6 +139,13 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
             </AnimatePresence>
           </div>
         )}
+        {/* Compact indicator when no threshold is shown (e.g. Claude Code mode where SDK manages compact) */}
+        {compactThreshold == null && compacting && (
+          <span className="font-mono text-[11px] text-accent-purple flex items-center gap-1.5" data-testid="compact-indicator">
+            <span className="inline-block w-1.5 h-1.5 bg-accent-purple animate-pulse" />
+            Compacting{compactSource === 'auto' ? ' (auto)' : ''}
+          </span>
+        )}
         {compactThreshold != null && (
           <div className="relative" ref={contextPopoverRef}>
             <button

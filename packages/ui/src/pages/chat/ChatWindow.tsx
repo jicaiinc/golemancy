@@ -148,7 +148,25 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
           setCompacting(false)
           onCompactingChange?.(false)
           if (part.data.record) {
+            // Standard runtime sends a full CompactRecord from the server
             setCompactRecords(prev => [...prev, part.data!.record as CompactRecord])
+          } else if (part.data.trigger) {
+            // Claude Code SDK sends only trigger + preTokens — synthesize a record for display.
+            // Use the last message ID as the boundary marker.
+            const lastMsgId = chat?.messages?.at(-1)?.id
+            if (lastMsgId) {
+              const synthesized: CompactRecord = {
+                id: `sdk-compact-${Date.now()}`,
+                conversationId: conversation.id,
+                summary: 'Context compacted by Claude Code SDK',
+                boundaryMessageId: lastMsgId as import('@golemancy/shared').MessageId,
+                inputTokens: (part.data.preTokens as number) ?? 0,
+                outputTokens: 0,
+                trigger: (part.data.trigger as 'auto' | 'manual') ?? 'auto',
+                createdAt: new Date().toISOString(),
+              }
+              setCompactRecords(prev => [...prev, synthesized])
+            }
           }
         } else if (part.data.status === 'failed') {
           setCompacting(false)

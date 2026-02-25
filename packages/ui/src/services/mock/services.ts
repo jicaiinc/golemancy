@@ -8,6 +8,8 @@ import type {
   SkillCreateData, SkillUpdateData,
   WorkspaceEntry, FilePreviewData,
   CompactRecord,
+  ClaudeCodeTestResult,
+  AgentRuntime,
 } from '@golemancy/shared'
 import { DEFAULT_PERMISSIONS_CONFIG, getFileCategory, getMimeType } from '@golemancy/shared'
 import type {
@@ -159,7 +161,7 @@ export class MockConversationService implements IConversationService {
     return conv && conv.projectId === projectId ? conv : null
   }
 
-  async create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation> {
+  async create(projectId: ProjectId, agentId: AgentId, title: string, runtime?: AgentRuntime): Promise<Conversation> {
     await delay()
     const now = new Date().toISOString()
     const conv: Conversation = {
@@ -167,6 +169,7 @@ export class MockConversationService implements IConversationService {
       projectId,
       agentId,
       title,
+      runtime: runtime ?? 'standard',
       messages: [],
       lastMessageAt: now,
       createdAt: now,
@@ -627,6 +630,11 @@ export class MockSettingsService implements ISettingsService {
     if (!entry) return { ok: false, error: `Provider "${slug}" not found` }
     if (!entry.apiKey && !entry.baseUrl?.includes('localhost')) return { ok: false, error: 'No API key configured' }
     return { ok: true, latencyMs: 120 + Math.floor(Math.random() * 200) }
+  }
+
+  async testClaudeCode(): Promise<ClaudeCodeTestResult> {
+    await delay(200)
+    return { ok: true, model: 'sonnet', latencyMs: 100 }
   }
 }
 

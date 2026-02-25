@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { AgentId, ConversationId, MessageId, ProjectId, Conversation, Agent } from '@golemancy/shared'
 import type { UIMessage } from 'ai'
@@ -51,6 +51,7 @@ function makeConversation(overrides?: Partial<Conversation>): Conversation {
     projectId: 'proj-1' as ProjectId,
     agentId: 'agent-1' as AgentId,
     title: 'Test Chat',
+    runtime: 'standard',
     messages: [],
     lastMessageAt: now,
     createdAt: now,
@@ -100,7 +101,7 @@ function createTestServices(): ServiceContainer {
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn(), testClaudeCode: vi.fn() },
     dashboard: { getSummary: vi.fn(), getAgentStats: vi.fn(), getRecentChats: vi.fn(), getTokenTrend: vi.fn(), getTokenByModel: vi.fn(), getTokenByAgent: vi.fn(), getRuntimeStatus: vi.fn() },
     globalDashboard: {
       getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),
@@ -244,6 +245,140 @@ describe('ChatWindow', () => {
       agentId: 'agent-1',
       initialMessages: [],
       serverConfig: null,
+    })
+  })
+
+  describe('compact event handling', () => {
+    it('shows compacting indicator when externalCompacting is true', () => {
+      useChatMessages = [
+        makeUIMessage({ id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello' }] }),
+      ]
+      const onCompactingChange = vi.fn()
+      render(
+        <ChatWindow
+          conversation={makeConversation()}
+          agent={makeAgent()}
+          {...defaultSidebarProps}
+          onCompactingChange={onCompactingChange}
+          externalCompacting={true}
+        />,
+      )
+
+      expect(screen.getByText('Compacting')).toBeInTheDocument()
+    })
+
+    it('processes data-compact started event via onData callback', () => {
+      const onCompactingChange = vi.fn()
+      render(
+        <ChatWindow
+          conversation={makeConversation()}
+          agent={makeAgent()}
+          {...defaultSidebarProps}
+          onCompactingChange={onCompactingChange}
+        />,
+      )
+
+      // Simulate the onData callback being fired (set by useEffect on the chat instance)
+      const onData = (mockChat as any).onData
+      expect(onData).toBeDefined()
+      act(() => { onData({ type: 'data-compact', data: { status: 'started' } }) })
+      expect(onCompactingChange).toHaveBeenCalledWith(true)
+    })
+
+    it('processes data-compact completed event with record (standard runtime)', () => {
+      const onCompactingChange = vi.fn()
+      render(
+        <ChatWindow
+          conversation={makeConversation()}
+          agent={makeAgent()}
+          {...defaultSidebarProps}
+          onCompactingChange={onCompactingChange}
+        />,
+      )
+
+      const onData = (mockChat as any).onData
+      expect(onData).toBeDefined()
+
+      // Fire started then completed with a server-side record
+      act(() => {
+        onData({ type: 'data-compact', data: { status: 'started' } })
+        onData({
+          type: 'data-compact',
+          data: {
+            status: 'completed',
+            record: {
+              id: 'cr-1',
+              conversationId: 'conv-1',
+              summary: 'Compacted summary',
+              boundaryMessageId: 'msg-2',
+              inputTokens: 5000,
+              outputTokens: 200,
+              trigger: 'auto',
+              createdAt: '2024-06-01T10:00:00.000Z',
+            },
+          },
+        })
+      })
+
+      expect(onCompactingChange).toHaveBeenLastCalledWith(false)
+    })
+
+    it('synthesizes CompactRecord from trigger data when no record field (Claude Code mode)', () => {
+      const onCompactingChange = vi.fn()
+      // Need messages for boundary ID
+      useChatMessages = [
+        makeUIMessage({ id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello' }] }),
+        makeUIMessage({ id: 'msg-2', role: 'assistant', parts: [{ type: 'text', text: 'Hi!' }] }),
+      ]
+      // Also set messages on the mock chat instance so chat.messages is available
+      mockChat.messages = useChatMessages as any
+
+      render(
+        <ChatWindow
+          conversation={makeConversation()}
+          agent={makeAgent()}
+          {...defaultSidebarProps}
+          onCompactingChange={onCompactingChange}
+        />,
+      )
+
+      const onData = (mockChat as any).onData
+      expect(onData).toBeDefined()
+
+      // SDK compact: no record field, only trigger + preTokens
+      act(() => {
+        onData({ type: 'data-compact', data: { status: 'started' } })
+        onData({
+          type: 'data-compact',
+          data: { status: 'completed', trigger: 'auto', preTokens: 80000 },
+        })
+      })
+
+      expect(onCompactingChange).toHaveBeenLastCalledWith(false)
+
+      // Clean up
+      mockChat.messages = []
+    })
+
+    it('processes data-compact failed event', () => {
+      const onCompactingChange = vi.fn()
+      render(
+        <ChatWindow
+          conversation={makeConversation()}
+          agent={makeAgent()}
+          {...defaultSidebarProps}
+          onCompactingChange={onCompactingChange}
+        />,
+      )
+
+      const onData = (mockChat as any).onData
+      expect(onData).toBeDefined()
+
+      act(() => { onData({ type: 'data-compact', data: { status: 'started' } }) })
+      expect(onCompactingChange).toHaveBeenCalledWith(true)
+
+      act(() => { onData({ type: 'data-compact', data: { status: 'failed' } }) })
+      expect(onCompactingChange).toHaveBeenLastCalledWith(false)
     })
   })
 

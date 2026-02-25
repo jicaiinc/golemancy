@@ -8,6 +8,7 @@ import type {
   SkillCreateData, SkillUpdateData,
   WorkspaceEntry, FilePreviewData,
   ConversationTokenUsageResult, CompactRecord,
+  ClaudeCodeTestResult, AgentRuntime,
   IProjectService, IAgentService, IConversationService,
   ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService,
@@ -84,9 +85,9 @@ export class HttpConversationService implements IConversationService {
   getById(projectId: ProjectId, id: ConversationId) {
     return fetchJson<Conversation | null>(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`)
   }
-  create(projectId: ProjectId, agentId: AgentId, title: string) {
+  create(projectId: ProjectId, agentId: AgentId, title: string, runtime?: AgentRuntime) {
     return fetchJson<Conversation>(`${this.baseUrl}/api/projects/${projectId}/conversations`, {
-      method: 'POST', body: JSON.stringify({ agentId, title }),
+      method: 'POST', body: JSON.stringify({ agentId, title, runtime }),
     })
   }
   update(projectId: ProjectId, id: ConversationId, data: { title?: string }) {
@@ -311,6 +312,12 @@ export class HttpSettingsService implements ISettingsService {
   testProvider(slug: string) {
     return fetchJson<{ ok: boolean; error?: string; latencyMs?: number }>(
       `${this.baseUrl}/api/settings/providers/${encodeURIComponent(slug)}/test`,
+      { method: 'POST' },
+    )
+  }
+  testClaudeCode() {
+    return fetchJson<ClaudeCodeTestResult>(
+      `${this.baseUrl}/api/settings/claude-code/test`,
       { method: 'POST' },
     )
   }

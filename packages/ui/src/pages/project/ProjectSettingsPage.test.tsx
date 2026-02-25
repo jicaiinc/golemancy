@@ -80,7 +80,7 @@ function createTestServices(): ServiceContainer {
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
     memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn(), testClaudeCode: vi.fn() },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
     mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
@@ -171,7 +171,50 @@ describe('ProjectSettingsPage', () => {
     })
   })
 
+  it('General tab does not show AGENT RUNTIME section', () => {
+    renderAtRoute()
+    // General tab is default, AGENT RUNTIME should not be there
+    expect(screen.queryByText('AGENT RUNTIME')).not.toBeInTheDocument()
+  })
+
   // ── Agent Tab ──
+
+  it('shows AGENT RUNTIME section with 2 options in Agent tab', () => {
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Agent'))
+    expect(screen.getByText('AGENT RUNTIME')).toBeInTheDocument()
+    expect(screen.getByText('Standard')).toBeInTheDocument()
+    expect(screen.getByText('Claude Code')).toBeInTheDocument()
+    // No Inherit option
+    expect(screen.queryByText(/Inherit/)).not.toBeInTheDocument()
+  })
+
+  it('defaults runtime selection from global settings when project has no agentRuntime', () => {
+    // Global settings has agentRuntime = 'claude-code'
+    useAppStore.setState({
+      settings: { ...baseSettings, agentRuntime: 'claude-code' },
+    })
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Agent'))
+    // Claude Code should be the active selection (reflected in styling)
+    const claudeCodeBtn = screen.getByText('Claude Code').closest('button')!
+    expect(claudeCodeBtn.className).toContain('border-accent-green')
+  })
+
+  it('calls updateProject with agentRuntime when runtime option is clicked', async () => {
+    const mockUpdate = vi.fn().mockResolvedValue(undefined)
+    useAppStore.setState({ updateProject: mockUpdate })
+
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Agent'))
+    fireEvent.click(screen.getByText('Claude Code'))
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, expect.objectContaining({
+        config: expect.objectContaining({ agentRuntime: 'claude-code' }),
+      }))
+    })
+  })
 
   it('shows Main Agent section with agent selector', () => {
     renderAtRoute()

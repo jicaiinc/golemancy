@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import type { AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
+import type { AgentId, AgentRuntime, ProjectConfig, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
+import { getServices } from '../../services/container'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
 
 const ICONS = [
@@ -85,7 +86,7 @@ export function ProjectSettingsPage() {
       <div className="mt-4">
         {activeTab === 'agent' && (
           <AgentTab
-            projectId={projectId!}
+            projectId={projectId! as ProjectId}
             project={project}
             agents={agents}
             mainAgent={mainAgent}
@@ -124,7 +125,7 @@ function AgentTab({
   onMainAgentChange,
   navigate,
 }: {
-  projectId: string
+  projectId: ProjectId
   project: NonNullable<ReturnType<typeof useCurrentProject>>
   agents: ReturnType<typeof useAppStore.getState>['agents']
   mainAgent: ReturnType<typeof useAppStore.getState>['agents'][number] | undefined
@@ -133,6 +134,8 @@ function AgentTab({
 }) {
   return (
     <div className="flex flex-col gap-4">
+      <ProjectRuntimeSection projectConfig={project.config} projectId={projectId} />
+
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-2">MAIN AGENT</div>
         <p className="text-[12px] text-text-dim mb-3">
@@ -255,4 +258,85 @@ function GeneralTab({
   )
 }
 
+// ========== Project Runtime Section ==========
+function ProjectRuntimeSection({ projectConfig, projectId }: {
+  projectConfig: ProjectConfig
+  projectId: ProjectId
+}) {
+  const settings = useAppStore(s => s.settings)
+  const updateProject = useAppStore(s => s.updateProject)
+  const globalRuntime: AgentRuntime = settings?.agentRuntime ?? 'standard'
+  const current: AgentRuntime = projectConfig.agentRuntime ?? globalRuntime
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<{ ok: boolean; error?: string; model?: string; latencyMs?: number } | null>(null)
+
+  async function handleSelect(value: AgentRuntime) {
+    setTestResult(null)
+    await updateProject(projectId, { config: { ...projectConfig, agentRuntime: value } })
+  }
+
+  async function handleTest() {
+    setTesting(true)
+    setTestResult(null)
+    try {
+      const result = await getServices().settings.testClaudeCode()
+      setTestResult(result)
+    } catch (err) {
+      setTestResult({ ok: false, error: err instanceof Error ? err.message : 'Test failed' })
+    } finally {
+      setTesting(false)
+    }
+  }
+
+  const runtimes: { id: AgentRuntime; name: string; description: string }[] = [
+    { id: 'standard', name: 'Standard', description: 'Use configured providers and models' },
+    { id: 'claude-code', name: 'Claude Code', description: 'Use Agent SDK with Claude Code CLI' },
+  ]
+
+  return (
+    <PixelCard>
+      <div className="font-pixel text-[10px] text-text-secondary mb-2">AGENT RUNTIME</div>
+      <p className="text-[11px] text-text-dim mb-4">
+        Choose how agents execute in this project.
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        {runtimes.map(rt => {
+          const isActive = current === rt.id
+          return (
+            <button
+              key={rt.id}
+              onClick={() => handleSelect(rt.id)}
+              className={`p-4 border-2 cursor-pointer transition-colors text-left ${
+                isActive
+                  ? 'bg-elevated border-accent-green'
+                  : 'bg-deep border-border-dim hover:border-border-bright'
+              }`}
+            >
+              <div className={`font-pixel text-[10px] ${isActive ? 'text-accent-green' : 'text-text-primary'}`}>
+                {rt.name}
+              </div>
+              <div className="text-[11px] text-text-dim mt-2">{rt.description}</div>
+            </button>
+          )
+        })}
+      </div>
+      {current === 'claude-code' && (
+        <div className="flex items-center gap-3 mt-3">
+          <PixelButton size="sm" variant="primary" onClick={handleTest} disabled={testing}>
+            {testing ? 'Testing...' : 'Test Connection'}
+          </PixelButton>
+          {testResult && (
+            testResult.ok ? (
+              <span className="text-[11px] text-accent-green">
+                Connected {testResult.model ? `(${testResult.model})` : ''} {testResult.latencyMs ? `${testResult.latencyMs}ms` : ''}
+              </span>
+            ) : (
+              <span className="text-[11px] text-accent-red">{testResult.error ?? 'Failed'}</span>
+            )
+          )}
+        </div>
+      )}
+    </PixelCard>
+  )
+}
 

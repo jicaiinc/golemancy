@@ -1,5 +1,5 @@
 import path from 'node:path'
-import type { GlobalSettings, ISettingsService } from '@golemancy/shared'
+import type { GlobalSettings, ISettingsService, ClaudeCodeTestResult } from '@golemancy/shared'
 import { readJson, writeJson } from './base'
 import { getDataDir } from '../utils/paths'
 import { logger } from '../logger'
@@ -55,5 +55,10 @@ export class FileSettingsStorage implements ISettingsService {
     // Actual testing is done in the route handler which has access to AI SDK.
     // This method exists to satisfy the interface; the route calls storage.get() directly.
     throw new Error('testProvider should be called via the HTTP route, not storage directly')
+  }
+
+  async testClaudeCode(): Promise<ClaudeCodeTestResult> {
+    // Actual testing is done in the route handler which has access to the SDK.
+    throw new Error('testClaudeCode should be called via the HTTP route, not storage directly')
   }
 }

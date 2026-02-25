@@ -115,5 +115,48 @@ export function createSettingsRoutes(storage: ISettingsService) {
     }
   })
 
+  app.post('/claude-code/test', async (c) => {
+    log.info('testing Claude Code SDK connection')
+
+    const CLAUDE_CODE_TEST_TIMEOUT_MS = 15_000
+
+    try {
+      const { query } = await import('@anthropic-ai/claude-agent-sdk')
+
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), CLAUDE_CODE_TEST_TIMEOUT_MS)
+      const start = Date.now()
+
+      let resultModel: string | undefined
+
+      try {
+        const sdkQuery = query({
+          prompt: 'Say "ok"',
+          options: {
+            maxTurns: 1,
+            abortController: controller,
+          } as Parameters<typeof query>[0]['options'],
+        })
+
+        for await (const msg of sdkQuery) {
+          const m = msg as Record<string, unknown>
+          if (m.type === 'system' && m.model) {
+            resultModel = m.model as string
+          }
+        }
+      } finally {
+        clearTimeout(timeout)
+      }
+
+      const latencyMs = Date.now() - start
+      log.info({ latencyMs, model: resultModel }, 'Claude Code SDK test succeeded')
+      return c.json({ ok: true, latencyMs, model: resultModel })
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      log.warn({ error: message }, 'Claude Code SDK test failed')
+      return c.json({ ok: false, error: message })
+    }
+  })
+
   return app
 }

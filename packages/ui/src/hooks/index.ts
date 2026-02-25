@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { PermissionMode, PermissionsConfigId } from '@golemancy/shared'
+import type { AgentRuntime, PermissionMode, PermissionsConfigId } from '@golemancy/shared'
 import { isSandboxRuntimeSupported, type SupportedPlatform } from '@golemancy/shared'
 import { useAppStore } from '../stores'
 import { useServiceContext } from '../services'
@@ -93,4 +93,16 @@ export function usePermissionConfig() {
   }, [projectId, configId])
 
   return { mode, applyToMCP, sandboxSupported }
+}
+
+/**
+ * Resolve the effective agent runtime for the current project.
+ * Project-level config overrides global. Falls back to 'standard'.
+ */
+export function useAgentRuntime(): AgentRuntime {
+  const settings = useAppStore(s => s.settings)
+  const project = useCurrentProject()
+  const projectRuntime = project?.config?.agentRuntime
+  if (projectRuntime) return projectRuntime
+  return settings?.agentRuntime ?? 'standard'
 }

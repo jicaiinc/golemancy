@@ -6,6 +6,8 @@ export const conversations = sqliteTable('conversations', {
   agentId: text('agent_id').notNull(),
   title: text('title').notNull(),
   lastMessageAt: text('last_message_at'),
+  runtime: text('runtime').notNull().default('standard'),
+  sdkSessionId: text('sdk_session_id'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 })

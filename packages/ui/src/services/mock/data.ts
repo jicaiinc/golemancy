@@ -142,6 +142,7 @@ export const SEED_CONVERSATIONS: Conversation[] = [
     projectId: 'proj-1' as ProjectId,
     agentId: 'agent-1' as AgentId,
     title: 'Blog Draft: AI Trends',
+    runtime: 'standard',
     messages: [
       {
         id: 'msg-1' as MessageId,
