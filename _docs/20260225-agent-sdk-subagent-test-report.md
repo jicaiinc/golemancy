@@ -1,7 +1,7 @@
 # Claude Agent SDK Sub-agent 能力运行时验证报告
 
-> 测试时间：2026-02-25
-> 状态：**全部通过 (7/7)**
+> 测试时间：2026-02-25（Test 1-7），2026-02-26（Test 8-9 MCP Bridge 嵌套突破）
+> 状态：**全部通过 (9/9)**
 > SDK 版本：`@anthropic-ai/claude-agent-sdk` v0.2.56
 > CLI 版本：`@anthropic-ai/claude-code` v2.1.56
 > 测试代码：`_test-agent-sdk/`
@@ -35,8 +35,10 @@
 | 3 | Sub-agent 能加载 per-agent Skills 吗？ | Test 3 |
 | 4 | Sub-agent 能使用内联 stdio MCP Server 吗？ | Test 4 |
 | 5 | Sub-agent 的 tools/disallowedTools 限制生效吗？ | Test 5 |
-| 6 | Sub-agent 嵌套真的被阻止吗？ | Test 6 |
+| 6 | Sub-agent 嵌套（Task 工具）真的被阻止吗？ | Test 6 |
 | 7 | 多个不同配置的 sub-agent 能同时独立工作吗？ | Test 7 |
+| 8 | MCP Bridge 能绕过 iP6 实现 2 层嵌套吗？ | Test 8 |
+| 9 | MCP Bridge 递归能实现 3 层嵌套（证明无限）吗？ | Test 9 |
 
 ---
 
@@ -94,10 +96,12 @@ pnpm tsx src/test-3-skills.ts        # 单个测试
   ✅ Test 3: Skills
   ✅ Test 4: Independent MCP Servers
   ✅ Test 5: Tool Restrictions
-  ✅ Test 6: Nesting (Expected Blocked)
+  ✅ Test 6: Nesting (Expected Blocked — Task tool)
   ✅ Test 7: Combined
+  ✅ Test 8: MCP Bridge Nesting (L0→L1→L2)
+  ✅ Test 9: 3-Level Deep Nesting (L0→L1→L2→L3)
 
-  Total: 7 passed, 0 failed out of 7
+  Total: 9 passed, 0 failed out of 9
 ████████████████████████████████████████████████████████████
 ```
 
@@ -353,6 +357,158 @@ agents: {
 
 ---
 
+### Test 8: MCP Bridge 嵌套突破（L0→L1→L2）
+
+> 测试时间：2026-02-26
+
+**验证目标**：通过 MCP Bridge 模式绕过 `iP6` Task 工具过滤，实现 2 层 sub-agent 嵌套（Task 原生只支持 1 层）。
+
+**核心原理**：
+
+```
+Level 0 (Main Agent)
+  │ Task tool (SDK 原生)
+  ▼
+Level 1 (Sub-agent via Task)
+  │ MCP tool "delegate_task" (不受 iP6 过滤)
+  │   → handler 内部调用 query() → 新 CLI 子进程
+  ▼
+Level 2 (独立 Agent via MCP Bridge)  ← iP6 原本阻止的层级！
+```
+
+**配置**：
+
+```typescript
+// 创建 MCP Bridge 工具
+const agentBridgeServer = createSdkMcpServer({
+  name: 'agent-bridge',
+  tools: [
+    tool('delegate_task', 'Delegate a task to a nested agent',
+      { task: z.string() },
+      async (args) => {
+        // 关键：在 MCP handler 内调用 query() 创建独立 CLI 会话
+        let result = ''
+        for await (const msg of query({
+          prompt: args.task,
+          options: { model: 'haiku', maxTurns: 5, ... },
+        })) {
+          if (msg.type === 'result' && msg.subtype === 'success') result = msg.result
+        }
+        return { content: [{ type: 'text', text: result }] }
+      }),
+  ],
+})
+
+// Sub-agent 通过 mcpServers 引用 bridge
+agents: {
+  'nesting-agent': {
+    mcpServers: ['agent-bridge'],
+    prompt: '...',
+  },
+}
+```
+
+**判定条件**：
+- Level 1 sub-agent 被 Task tool spawn ✅
+- MCP bridge tool handler 被调用（`bridgeToolCalled === true`）✅
+- Level 2 agent 在 bridge handler 内的 `query()` 中成功执行 ✅
+- 唯一 magic string `LEVEL2_MAGIC_STRING_7f3a9b` 从 Level 2 回传到 Level 0 ✅
+- `result.subtype === 'success'` ✅
+
+**运行日志**：
+
+```
+🔧 Tool call: Task(nesting-agent)                          ← L0→L1
+🔧 Tool call: mcp__agent-bridge__delegate_task(...)         ← L1→bridge
+🌉 Bridge tool called! Spawning Level 2 agent...            ← bridge handler 执行
+🌉 Level 2 agent completed! Result: LEVEL2_MAGIC_STRING_7f3a9b  ← L2 返回
+```
+
+**结论**：MCP Bridge 模式成功绕过 `iP6` Task 工具过滤。Level 2 agent 通过 MCP tool handler 内的 `query()` 独立运行，不受父级 `iP6` 约束。cost=$0.17。
+
+---
+
+### Test 9: 3 层深度嵌套（L0→L1→L2→L3，证明无限）
+
+> 测试时间：2026-02-26
+
+**验证目标**：通过递归 MCP Bridge Factory 实现 3 层嵌套，归纳证明无限层级可行性。
+
+**核心原理**：
+
+```
+Level 0 (Main Agent)
+  │ Task tool
+  ▼
+Level 1 (Sub-agent)
+  │ MCP bridge #1 → query()
+  ▼
+Level 2 (Intermediate Agent，自带 bridge)
+  │ MCP bridge #2 → query()
+  ▼
+Level 3 (Leaf Agent)
+  │ 返回 magic string
+```
+
+**配置**（递归 Bridge Factory）：
+
+```typescript
+function createBridgeServer(currentDepth: number, maxDepth: number) {
+  return createSdkMcpServer({
+    name: 'agent-bridge',
+    tools: [
+      tool('delegate_task', '...', { task: z.string() },
+        async (args) => {
+          const nextLevel = currentDepth + 1
+          const isLeaf = nextLevel >= maxDepth
+
+          if (isLeaf) {
+            // 叶子：无 bridge 的简单 agent
+            for await (const msg of query({ prompt: args.task, ... })) { ... }
+          } else {
+            // 中间层：agent 自带下一级 bridge（递归）
+            const nestedBridge = createBridgeServer(nextLevel, maxDepth)
+            for await (const msg of query({
+              prompt: genMsg(),
+              options: { mcpServers: { 'agent-bridge': nestedBridge }, ... },
+            })) { ... }
+          }
+        }),
+    ],
+  })
+}
+```
+
+**判定条件**：
+- Level 1 reached (Task) ✅
+- Level 2 reached (bridge #1) ✅
+- Level 3 reached (bridge #2) ✅
+- Bridge call count ≥ 2 ✅
+- Magic string `DEEP_LEVEL3_MAGIC_a1b2c3` 从 Level 3 回传到 Level 0 ✅
+- `result.subtype === 'success'` ✅
+
+**运行日志**：
+
+```
+🔧 Tool call: Task(deep-agent)                             ← L0→L1
+🔧 Tool call: mcp__agent-bridge__delegate_task(...)         ← L1→bridge
+🌉 [Depth 1→2] Bridge called (call #1)                     ← bridge #1
+🌉 [Depth 2] Spawning INTERMEDIATE agent with bridge       ← L2 自带 bridge
+🌉 [Depth 2→3] Bridge called (call #2)                     ← bridge #2
+🌉 [Depth 3] Spawning LEAF agent                           ← L3 叶子
+🌉 [Depth 3] Leaf result: DEEP_LEVEL3_MAGIC_a1b2c3         ← L3 返回
+🌉 [Depth 2] Intermediate result: ...DEEP_LEV...           ← L2 返回
+```
+
+**结论**：递归 MCP Bridge 成功实现 3 层嵌套。由归纳法可证：
+- **基础步骤**：Test 8 证明 MCP bridge 可创建 1 层额外嵌套（L1→L2）
+- **归纳步骤**：Test 9 证明 bridged agent 自身也可携带 bridge，创建下一层（L2→L3）
+- **归纳结论**：对任意 N，可构造 N 层嵌套。即 **无限层级可行**。
+
+cost=$0.17。每层额外开销约为 1 个 haiku query 的子进程。
+
+---
+
 ## 五、关键发现与踩坑记录
 
 ### 5.1 `CLAUDECODE` 环境变量导致嵌套检测
@@ -437,8 +593,10 @@ mcpServers: [{
 | Per-agent Skills | ✅ | ✅ Test 3 PASS | **确认** |
 | 内联 stdio MCP Server | ✅ | ✅ Test 4 PASS | **确认** |
 | 工具白名单 + 黑名单 | ✅ | ✅ Test 5 PASS | **确认** |
-| 嵌套阻止 (iP6 过滤) | ❌ | ❌ Test 6 PASS（预期行为）| **确认** |
+| Task 工具嵌套阻止 (iP6 过滤) | ❌ | ❌ Test 6 PASS（预期行为）| **确认** |
 | 多 Sub-agent 独立配置 | ✅ | ✅ Test 7 PASS | **确认** |
+| MCP Bridge 2 层嵌套 (L0→L1→L2) | — | ✅ Test 8 PASS | **突破** |
+| MCP Bridge 3 层嵌套 (L0→L1→L2→L3) | — | ✅ Test 9 PASS | **突破（证明无限）** |
 
 ### 6.2 对评估报告的影响
 
@@ -449,7 +607,10 @@ mcpServers: [{
    - 字符串引用（`mcpServers: ['name']`）→ 引用父级已注册的 MCP
    - 内联定义（`mcpServers: [{ name: { command, args, env } }]`）→ 启动独立 stdio 进程
 3. **Per-agent Tools** — 运行时确认可用。`tools` 白名单 + `disallowedTools` 黑名单双重过滤。
-4. **嵌套限制** — 运行时确认存在。CLI `iP6` 集合硬编码过滤 `Task` 工具，`tools` 白名单无法覆盖。
+4. ~~**嵌套限制** — 运行时确认存在~~ → **部分修正**：
+   - Task 工具确实被 `iP6` 过滤（Test 6 确认）
+   - 但 **MCP Bridge 模式突破了此限制**（Test 8+9 确认）：在 `createSdkMcpServer` tool handler 内调用 `query()` 创建独立 CLI 会话，不继承 `iP6` 过滤
+   - 归纳证明可实现**无限层级嵌套**
 
 ### 6.3 评估报告附录 D.9 建议 #4 完成
 
@@ -467,5 +628,5 @@ mcpServers: [{
 | Per-agent Skills | ✅ | ✅ (skills 字段) | 运行时确认 |
 | Per-agent MCP | ✅ | ✅ (mcpServers 字段，含内联定义) | 运行时确认 |
 | Per-agent Model | ✅ | ✅ (model 字段) | 运行时确认 |
-| Sub-agent 嵌套 | ✅ 无限 | ❌ 单层 (硬编码限制) | 运行时确认 |
+| Sub-agent 嵌套 | ✅ 无限 | ~~❌ 单层~~ → ✅ **无限**（MCP Bridge 模式） | Test 8+9 运行时确认 |
 | Per-agent Permissions | ✅ 三级 | ⚠️ 有限 | 未单独测试 |
