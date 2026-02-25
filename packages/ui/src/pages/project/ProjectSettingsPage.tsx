@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import type { AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -213,6 +213,7 @@ function GeneralTab({
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-4">BASIC INFO</div>
         <div className="flex flex-col gap-4">
+          <CopyableId label="PROJECT ID" value={project.id} />
           <PixelInput
             label="PROJECT NAME"
             value={name}
@@ -255,4 +256,37 @@ function GeneralTab({
   )
 }
 
+// ========== Copyable ID Display ==========
+function CopyableId({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  useEffect(() => () => { clearTimeout(timerRef.current) }, [])
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(value)
+    clearTimeout(timerRef.current)
+    setCopied(true)
+    timerRef.current = setTimeout(() => setCopied(false), 1500)
+  }, [value])
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{label}</label>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={handleCopy}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleCopy() }}
+        title="Click to copy"
+        className="group flex items-center gap-2 w-fit px-2 py-1 bg-deep border border-border-dim cursor-pointer select-all hover:border-border-bright transition-colors"
+      >
+        <span className="font-mono text-[11px] text-text-dim">{value}</span>
+        <span className="font-mono text-[10px] text-text-dim/50 group-hover:text-text-dim transition-colors">
+          {copied ? '✓' : '⎘'}
+        </span>
+      </div>
+    </div>
+  )
+}
 
