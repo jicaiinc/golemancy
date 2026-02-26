@@ -9,15 +9,17 @@
 #
 # Runner matrix:
 #   macOS ARM64  → macos-latest  (Apple Silicon)
-#   macOS x64    → macos-13      (Intel, last x64 macOS runner)
 #   Linux x64    → ubuntu-latest
 #   Windows x64  → windows-latest
 #
+# Note: macOS x64 (Intel) removed — GitHub retired macos-13 Intel runners.
+#   Can be re-added later via cross-compilation or Universal Binary.
+#
 # Cost estimate (private repo, per release):
-#   macOS:   ~10 min × 2 runners × 10x multiplier = ~200 minutes
+#   macOS:   ~10 min × 1 runner  × 10x multiplier = ~100 minutes
 #   Linux:   ~10 min × 1 runner  × 1x multiplier  = ~10 minutes
 #   Windows: ~10 min × 1 runner  × 2x multiplier   = ~20 minutes
-#   Total: ~230 minutes (free tier: 2000 min/month → ~8 releases/month)
+#   Total: ~130 minutes (free tier: 2000 min/month → ~15 releases/month)
 
 name: Release
 
@@ -46,10 +48,6 @@ jobs:
             platform: mac
             arch: arm64
             artifact: release-mac-arm64
-          - os: macos-13
-            platform: mac
-            arch: x64
-            artifact: release-mac-x64
           - os: ubuntu-latest
             platform: linux
             arch: x64
@@ -157,7 +155,6 @@ jobs:
             | Platform | Architecture | File |
             |----------|-------------|------|
             | macOS | Apple Silicon (M1/M2/M3/M4) | `.dmg` (arm64) |
-            | macOS | Intel | `.dmg` (x64) |
             | Windows | x64 | `.exe` (NSIS installer) |
             | Linux (Ubuntu/Debian) | x64 | `.deb` |
             | Linux (Fedora/RHEL) | x64 | `.rpm` |
