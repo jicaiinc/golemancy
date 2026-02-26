@@ -109,7 +109,7 @@ describe('GlobalSettingsPage', () => {
   it('renders about footer with version', () => {
     renderWithRouter(<GlobalSettingsPage />)
     expect(screen.getByText(/Golemancy v0\.1\.0/)).toBeInTheDocument()
-    expect(screen.getByText(/AI Agent Orchestrator for Super Individuals/)).toBeInTheDocument()
+    expect(screen.getByText(/Command Your AI Golems/)).toBeInTheDocument()
   })
 
   it('renders Golemancy branding in header', () => {

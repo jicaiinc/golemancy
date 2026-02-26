@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "productName": "Golemancy",
-  "description": "AI Agent Orchestrator for Super Individuals",
+  "description": "Command Your AI Golems",
   "author": "Jicai, Inc.",
   "type": "module",
   "main": "./out/main/index.js",
