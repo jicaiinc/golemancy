@@ -60,7 +60,8 @@ function startServer(): Promise<number> {
       // GOLEMANCY_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
       // (GUI apps on macOS don't inherit shell PATH, so bare 'node' may fail).
       execPath: app.isPackaged
-        ? join(process.resourcesPath, 'runtime', 'node', 'bin', 'node')
+        ? join(process.resourcesPath, 'runtime', 'node',
+            ...(process.platform === 'win32' ? ['node.exe'] : ['bin', 'node']))
         : (process.env.GOLEMANCY_FORK_EXEC_PATH || 'node'),
       execArgv: app.isPackaged ? [] : ['--import', 'tsx'],
       cwd: serverCwd,

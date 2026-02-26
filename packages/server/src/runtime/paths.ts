@@ -28,7 +28,8 @@ export function getBundledRuntimeDir(): string | null {
  *
  * Resolution order:
  * 1. GOLEMANCY_PYTHON_PATH env var (dev/test override, points to binary)
- * 2. {bundledRuntimeDir}/python/bin/python3.13
+ * 2. {bundledRuntimeDir}/python/python.exe          (Windows)
+ *    {bundledRuntimeDir}/python/bin/python3.13       (macOS/Linux)
  * 3. null (not available — caller falls back to system `python3`)
  */
 export function getBundledPythonPath(): string | null {
@@ -37,7 +38,9 @@ export function getBundledPythonPath(): string | null {
   }
   const runtimeDir = getBundledRuntimeDir()
   if (runtimeDir) {
-    return path.join(runtimeDir, 'python', 'bin', 'python3.13')
+    return process.platform === 'win32'
+      ? path.join(runtimeDir, 'python', 'python.exe')
+      : path.join(runtimeDir, 'python', 'bin', 'python3.13')
   }
   return null
 }
@@ -47,7 +50,8 @@ export function getBundledPythonPath(): string | null {
  *
  * Resolution order:
  * 1. GOLEMANCY_NODE_PATH env var → dirname (points to binary, we want dir)
- * 2. {bundledRuntimeDir}/node/bin/
+ * 2. {bundledRuntimeDir}/node/              (Windows — node.exe at root)
+ *    {bundledRuntimeDir}/node/bin/           (macOS/Linux)
  * 3. null (not available — caller falls back to system `node`)
  */
 export function getBundledNodeBinDir(): string | null {
@@ -56,7 +60,9 @@ export function getBundledNodeBinDir(): string | null {
   }
   const runtimeDir = getBundledRuntimeDir()
   if (runtimeDir) {
-    return path.join(runtimeDir, 'node', 'bin')
+    return process.platform === 'win32'
+      ? path.join(runtimeDir, 'node')
+      : path.join(runtimeDir, 'node', 'bin')
   }
   return null
 }
@@ -79,9 +85,11 @@ export function getProjectPythonEnvPath(projectId: string): string {
 
 /**
  * Per-project Python venv bin directory (contains python, pip, installed CLIs).
+ * Windows venvs use Scripts/ instead of bin/.
  */
 export function getProjectPythonEnvBinPath(projectId: string): string {
-  return path.join(getProjectPythonEnvPath(projectId), 'bin')
+  const dir = process.platform === 'win32' ? 'Scripts' : 'bin'
+  return path.join(getProjectPythonEnvPath(projectId), dir)
 }
 
 /**

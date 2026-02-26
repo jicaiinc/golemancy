@@ -32,6 +32,29 @@ detect_platform() {
   echo "${os}-${arch}"
 }
 
+# ── SHA256 verification helper ──
+
+verify_sha256() {
+  local file="$1"
+  local expected="$2"
+
+  local actual
+  if command -v sha256sum &>/dev/null; then
+    actual="$(sha256sum "$file" | awk '{print $1}')"
+  else
+    actual="$(shasum -a 256 "$file" | awk '{print $1}')"
+  fi
+
+  if [ "$actual" != "$expected" ]; then
+    echo "ERROR: SHA256 mismatch!"
+    echo "  Expected: ${expected}"
+    echo "  Actual:   ${actual}"
+    rm -f "$file"
+    exit 1
+  fi
+  echo "  SHA256 verified ✓"
+}
+
 # ── Python download ──
 
 download_python() {
@@ -39,7 +62,8 @@ download_python() {
   local python_dir="${RUNTIME_DIR}/python"
 
   # Idempotent: skip if already downloaded
-  if [ -x "${python_dir}/bin/python3.13" ]; then
+  # Windows: python.exe at root; Unix: bin/python3.13
+  if [ -f "${python_dir}/python.exe" ] || [ -x "${python_dir}/bin/python3.13" ]; then
     echo "Python ${PYTHON_VERSION} already present, skipping"
     return 0
   fi
@@ -50,6 +74,7 @@ download_python() {
     darwin-arm64) triple="aarch64-apple-darwin" ;;
     darwin-x64)   triple="x86_64-apple-darwin" ;;
     linux-x64)    triple="x86_64-unknown-linux-gnu" ;;
+    win32-x64)    triple="x86_64-pc-windows-msvc" ;;
     *) echo "ERROR: No Python binary for platform: $platform"; exit 1 ;;
   esac
 
@@ -62,6 +87,7 @@ download_python() {
     darwin-arm64) expected_sha256="146d011e9246790659d86c729a9bb37dc423545d0ed8e542ba1dfe93700aa0f2" ;;
     darwin-x64)   expected_sha256="5fb24d5a82f248e985bdc01f504f40d4150e321809b0bbeee7441cedd6dac227" ;;
     linux-x64)    expected_sha256="7f1340417839331260dd8ecc309a4f0d2acac1123f3fb7f76600cf52a53a4ef6" ;;
+    win32-x64)    expected_sha256="95065b15468cc977a9000256b99e7408a6a9cb35ad2711873ba7b621ee37df19" ;;
   esac
 
   echo "Downloading Python ${PYTHON_VERSION} for ${platform}..."
@@ -71,22 +97,7 @@ download_python() {
   tmpfile="$(mktemp)"
   curl -fSL --progress-bar -o "$tmpfile" "$url"
 
-  # Verify SHA256
-  local actual_sha256
-  if command -v sha256sum &>/dev/null; then
-    actual_sha256="$(sha256sum "$tmpfile" | awk '{print $1}')"
-  else
-    actual_sha256="$(shasum -a 256 "$tmpfile" | awk '{print $1}')"
-  fi
-
-  if [ "$actual_sha256" != "$expected_sha256" ]; then
-    echo "ERROR: Python SHA256 mismatch!"
-    echo "  Expected: ${expected_sha256}"
-    echo "  Actual:   ${actual_sha256}"
-    rm -f "$tmpfile"
-    exit 1
-  fi
-  echo "  SHA256 verified ✓"
+  verify_sha256 "$tmpfile" "$expected_sha256"
 
   # Extract: tarball contains python/ top-level directory
   # Extract directly to runtime dir → results in runtime/python/
@@ -96,7 +107,10 @@ download_python() {
   rm -f "$tmpfile"
 
   # Verify
-  if [ -x "${python_dir}/bin/python3.13" ]; then
+  if [ -f "${python_dir}/python.exe" ]; then
+    echo "Python ${PYTHON_VERSION} installed successfully (Windows)"
+    "${python_dir}/python.exe" --version
+  elif [ -x "${python_dir}/bin/python3.13" ]; then
     echo "Python ${PYTHON_VERSION} installed successfully"
     "${python_dir}/bin/python3.13" --version
   else
@@ -112,7 +126,8 @@ download_node() {
   local node_dir="${RUNTIME_DIR}/node"
 
   # Idempotent: skip if already downloaded
-  if [ -x "${node_dir}/bin/node" ]; then
+  # Windows: node.exe at root; Unix: bin/node
+  if [ -f "${node_dir}/node.exe" ] || [ -x "${node_dir}/bin/node" ]; then
     echo "Node.js ${NODE_VERSION} already present, skipping"
     return 0
   fi
@@ -123,11 +138,9 @@ download_node() {
     darwin-arm64) node_os="darwin"; node_arch="arm64" ;;
     darwin-x64)   node_os="darwin"; node_arch="x64" ;;
     linux-x64)    node_os="linux";  node_arch="x64" ;;
+    win32-x64)    node_os="win";    node_arch="x64" ;;
     *) echo "ERROR: No Node.js binary for platform: $platform"; exit 1 ;;
   esac
-
-  local filename="node-v${NODE_VERSION}-${node_os}-${node_arch}.tar.gz"
-  local url="https://nodejs.org/dist/v${NODE_VERSION}/${filename}"
 
   # SHA256 verification
   local expected_sha256
@@ -135,40 +148,55 @@ download_node() {
     darwin-arm64) expected_sha256="5ed4db0fcf1eaf84d91ad12462631d73bf4576c1377e192d222e48026a902640" ;;
     darwin-x64)   expected_sha256="5ea50c9d6dea3dfa3abb66b2656f7a4e1c8cef23432b558d45fb538c7b5dedce" ;;
     linux-x64)    expected_sha256="c33c39ed9c80deddde77c960d00119918b9e352426fd604ba41638d6526a4744" ;;
+    win32-x64)    expected_sha256="c97fa376d2becdc8863fcd3ca2dd9a83a9f3468ee7ccf7a6d076ec66a645c77a" ;;
   esac
 
   echo "Downloading Node.js ${NODE_VERSION} for ${platform}..."
-  echo "  URL: ${url}"
 
   local tmpfile
-  tmpfile="$(mktemp)"
-  curl -fSL --progress-bar -o "$tmpfile" "$url"
-
-  # Verify SHA256
-  local actual_sha256
-  if command -v sha256sum &>/dev/null; then
-    actual_sha256="$(sha256sum "$tmpfile" | awk '{print $1}')"
-  else
-    actual_sha256="$(shasum -a 256 "$tmpfile" | awk '{print $1}')"
-  fi
-
-  if [ "$actual_sha256" != "$expected_sha256" ]; then
-    echo "ERROR: SHA256 mismatch!"
-    echo "  Expected: ${expected_sha256}"
-    echo "  Actual:   ${actual_sha256}"
-    rm -f "$tmpfile"
-    exit 1
-  fi
-  echo "  SHA256 verified ✓"
-
-  # Extract with --strip-components=1 (removes node-v22.22.0-{os}-{arch}/ prefix)
-  echo "Extracting Node.js to ${node_dir}..."
   mkdir -p "${node_dir}"
-  tar xzf "$tmpfile" --strip-components=1 -C "${node_dir}"
-  rm -f "$tmpfile"
+
+  if [ "$node_os" = "win" ]; then
+    # Windows: .zip format
+    local filename="node-v${NODE_VERSION}-${node_os}-${node_arch}.zip"
+    local url="https://nodejs.org/dist/v${NODE_VERSION}/${filename}"
+    echo "  URL: ${url}"
+
+    tmpfile="$(mktemp)"
+    curl -fSL --progress-bar -o "$tmpfile" "$url"
+
+    verify_sha256 "$tmpfile" "$expected_sha256"
+
+    # Extract with flat structure (strip top-level directory)
+    echo "Extracting Node.js to ${node_dir}..."
+    local tmpextract
+    tmpextract="$(mktemp -d)"
+    unzip -q "$tmpfile" -d "$tmpextract"
+    # Move contents of node-v22.22.0-win-x64/ to node_dir
+    mv "$tmpextract"/node-v*/* "$node_dir"/
+    rm -rf "$tmpextract" "$tmpfile"
+  else
+    # Unix: .tar.gz format
+    local filename="node-v${NODE_VERSION}-${node_os}-${node_arch}.tar.gz"
+    local url="https://nodejs.org/dist/v${NODE_VERSION}/${filename}"
+    echo "  URL: ${url}"
+
+    tmpfile="$(mktemp)"
+    curl -fSL --progress-bar -o "$tmpfile" "$url"
+
+    verify_sha256 "$tmpfile" "$expected_sha256"
+
+    # Extract with --strip-components=1 (removes node-v22.22.0-{os}-{arch}/ prefix)
+    echo "Extracting Node.js to ${node_dir}..."
+    tar xzf "$tmpfile" --strip-components=1 -C "${node_dir}"
+    rm -f "$tmpfile"
+  fi
 
   # Verify
-  if [ -x "${node_dir}/bin/node" ]; then
+  if [ -f "${node_dir}/node.exe" ]; then
+    echo "Node.js ${NODE_VERSION} installed successfully (Windows)"
+    "${node_dir}/node.exe" --version
+  elif [ -x "${node_dir}/bin/node" ]; then
     echo "Node.js ${NODE_VERSION} installed successfully"
     "${node_dir}/bin/node" --version
   else

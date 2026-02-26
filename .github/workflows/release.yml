@@ -1,0 +1,183 @@
+# Build and release Golemancy for all supported platforms.
+#
+# Trigger: push a version tag (e.g., git tag v0.1.0 && git push --tags)
+#
+# Architecture constraint:
+#   Native modules (better-sqlite3) and bundled runtimes (Node.js, Python) are
+#   platform-specific. Each platform+arch combination MUST build on a matching runner.
+#   Cross-compilation is not supported.
+#
+# Runner matrix:
+#   macOS ARM64  → macos-latest  (Apple Silicon)
+#   macOS x64    → macos-13      (Intel, last x64 macOS runner)
+#   Linux x64    → ubuntu-latest
+#   Windows x64  → windows-latest
+#
+# Cost estimate (private repo, per release):
+#   macOS:   ~10 min × 2 runners × 10x multiplier = ~200 minutes
+#   Linux:   ~10 min × 1 runner  × 1x multiplier  = ~10 minutes
+#   Windows: ~10 min × 1 runner  × 2x multiplier   = ~20 minutes
+#   Total: ~230 minutes (free tier: 2000 min/month → ~8 releases/month)
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Prevent concurrent releases
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+# Minimum permissions — release job elevates as needed
+permissions:
+  contents: read
+
+jobs:
+  # ── Build Matrix ──────────────────────────────────────────────
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+            arch: arm64
+            artifact: release-mac-arm64
+          - os: macos-13
+            platform: mac
+            arch: x64
+            artifact: release-mac-x64
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            artifact: release-linux-x64
+          - os: windows-latest
+            platform: win
+            arch: x64
+            artifact: release-win-x64
+
+    runs-on: ${{ matrix.os }}
+    name: Build (${{ matrix.platform }}-${{ matrix.arch }})
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # Linux: rpmbuild is required by electron-builder for .rpm target
+      - name: Install rpmbuild (Linux)
+        if: matrix.platform == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Step 1: Download bundled runtimes (Node.js + Python) ──
+      - name: Download runtimes
+        run: bash scripts/download-runtime.sh
+        shell: bash
+
+      # ── Step 2: Build Electron app (main + preload + renderer) ──
+      - name: Build (electron-vite)
+        run: pnpm --filter @golemancy/desktop build
+
+      # ── Step 3: Bundle server code + production dependencies ──
+      - name: Bundle server
+        run: node scripts/bundle-server.mjs
+
+      # ── Step 4: Preflight check ──
+      - name: Preflight check
+        run: node scripts/preflight-check.mjs --target ${{ matrix.platform }}
+
+      # ── Step 5: Package with electron-builder ──
+      - name: Package (electron-builder)
+        run: |
+          cd apps/desktop
+          npx electron-builder --${{ matrix.platform }} --${{ matrix.arch }} --publish never
+        env:
+          # Disable code signing (no Apple Developer / Windows cert)
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      # ── Upload artifacts for release job ──
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.zip
+            apps/desktop/release/*.deb
+            apps/desktop/release/*.rpm
+            apps/desktop/release/*.exe
+          if-no-files-found: error
+          retention-days: 3
+
+  # ── Create GitHub Release ─────────────────────────────────────
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List release files
+        run: ls -lhR artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Golemancy ${{ github.ref_name }}
+          draft: true
+          generate_release_notes: true
+          files: artifacts/*
+          body: |
+            ## Golemancy ${{ github.ref_name }}
+
+            ### Downloads
+
+            | Platform | Architecture | File |
+            |----------|-------------|------|
+            | macOS | Apple Silicon (M1/M2/M3/M4) | `.dmg` (arm64) |
+            | macOS | Intel | `.dmg` (x64) |
+            | Windows | x64 | `.exe` (NSIS installer) |
+            | Linux (Ubuntu/Debian) | x64 | `.deb` |
+            | Linux (Fedora/RHEL) | x64 | `.rpm` |
+
+            ### Installation Notes
+
+            **macOS (unsigned):** Right-click the app → Open, or run:
+            ```bash
+            xattr -cr /Applications/Golemancy.app
+            ```
+
+            **Windows (unsigned):** Windows SmartScreen may warn — click "More info" → "Run anyway".
+
+            **Linux (.deb) — Ubuntu, Debian, Mint:**
+            ```bash
+            sudo dpkg -i golemancy_*.deb
+            ```
+
+            **Linux (.rpm) — Fedora, RHEL, CentOS:**
+            ```bash
+            sudo dnf install golemancy-*.rpm
+            ```
+
+            > **Note:** Sandbox mode is only available on macOS and Linux.
+            > Windows users should use Restricted or Unrestricted permission mode.

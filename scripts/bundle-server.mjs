@@ -18,7 +18,7 @@
  */
 
 import { execSync } from 'node:child_process'
-import { chmod, mkdir, readdir, readFile, rm, stat } from 'node:fs/promises'
+import { chmod, cp, mkdir, readdir, readFile, rm, stat } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
 
@@ -247,12 +247,13 @@ async function bundleServer() {
   await mkdir(OUT_NODE_MODULES, { recursive: true })
 
   // Step 1: Copy top-level packages (skip .pnpm/)
+  // Uses fs.cp with dereference:true to follow symlinks (equivalent to cp -rL).
   const topLevelEntries = await readdir(deployedNodeModules)
   for (const entry of topLevelEntries) {
     if (entry === '.pnpm' || entry === '.modules.yaml' || entry === '.package-lock.json') continue
     const src = join(deployedNodeModules, entry)
     const dest = join(OUT_NODE_MODULES, entry)
-    execSync(`cp -rL "${src}" "${dest}"`, { stdio: 'pipe' })
+    await cp(src, dest, { recursive: true, dereference: true })
   }
   console.log(`  Copied ${topLevelEntries.filter(e => e !== '.pnpm' && !e.startsWith('.')).length} top-level packages`)
 
@@ -300,7 +301,7 @@ async function bundleServer() {
       if (parts.length > 1) {
         await mkdir(join(OUT_NODE_MODULES, parts[0]), { recursive: true })
       }
-      execSync(`cp -rL "${src}" "${topLevelPath}"`, { stdio: 'pipe' })
+      await cp(src, topLevelPath, { recursive: true, dereference: true })
       hoistedCount++
     } catch {
       // Package structure doesn't match expectation, skip

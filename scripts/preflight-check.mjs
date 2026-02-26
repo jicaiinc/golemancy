@@ -96,18 +96,34 @@ async function main() {
   const outDir = join(DESKTOP, 'out')
 
   // ── 1. Bundled runtimes ─────────────────────────────────────
+  // Windows: executables at root (node.exe, python.exe); Unix: in bin/ subdirectory.
 
-  await checkExecutable(
-    join(runtimeDir, 'node/bin/node'),
-    'Bundled Node.js runtime',
-    "Run 'pnpm --filter @golemancy/desktop download-runtime' to download",
-  )
+  const isWin = process.platform === 'win32'
+  const runtimeFix = "Run 'pnpm --filter @golemancy/desktop download-runtime' to download"
 
-  await checkExecutable(
-    join(runtimeDir, 'python/bin/python3.13'),
-    'Bundled Python runtime',
-    "Run 'pnpm --filter @golemancy/desktop download-runtime' to download",
-  )
+  if (isWin) {
+    await checkFile(
+      join(runtimeDir, 'node/node.exe'),
+      'Bundled Node.js runtime',
+      runtimeFix,
+    )
+    await checkFile(
+      join(runtimeDir, 'python/python.exe'),
+      'Bundled Python runtime',
+      runtimeFix,
+    )
+  } else {
+    await checkExecutable(
+      join(runtimeDir, 'node/bin/node'),
+      'Bundled Node.js runtime',
+      runtimeFix,
+    )
+    await checkExecutable(
+      join(runtimeDir, 'python/bin/python3.13'),
+      'Bundled Python runtime',
+      runtimeFix,
+    )
+  }
 
   // ── 2. Server bundle ───────────────────────────────────────
 
