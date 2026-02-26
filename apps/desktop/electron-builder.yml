@@ -39,7 +39,9 @@ linux:
   target: [deb, rpm]
   category: Development
   icon: resources/build/icons/png
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
 
 win:
   target: [nsis]
   icon: resources/build/icons/win/icon.ico
+  artifactName: ${productName}-${version}-win-${arch}.${ext}

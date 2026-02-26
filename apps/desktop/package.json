@@ -1,6 +1,6 @@
 {
   "name": "@golemancy/desktop",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "productName": "Golemancy",
   "description": "Command Your AI Golems",
