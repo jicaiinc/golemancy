@@ -1,6 +1,6 @@
-appId: app.golemancy
+appId: ai.golemancy
 productName: Golemancy
-copyright: Copyright © 2026 Caiyongji
+copyright: Copyright © 2026 Jicai, Inc.
 
 directories:
   output: release
