@@ -25,14 +25,17 @@ mac:
   icon: resources/build/icons/mac/icon.icns
   target:
     - target: dmg
-      arch: [arm64, x64]
+      arch: [arm64]
     - target: zip
-      arch: [arm64, x64]
+      arch: [arm64]
   hardenedRuntime: true
   entitlements: resources/build/entitlements.mac.plist
   entitlementsInherit: resources/build/entitlements.mac.plist
 
 dmg:
+  artifactName: ${productName}-${version}-mac-${arch}.${ext}
+
+zip:
   artifactName: ${productName}-${version}-mac-${arch}.${ext}
 
 linux:
