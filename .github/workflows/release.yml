@@ -82,6 +82,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ── Step 1: Download bundled runtimes (Node.js + Python) ──
       - name: Download runtimes
