@@ -40,6 +40,7 @@ linux:
   category: Development
   icon: resources/build/icons/png
 
-win:
-  target: [nsis]
-  icon: resources/build/icons/win/icon.ico
+# Windows: disabled until runtime binaries (Node.js, Python) are added to download-runtime.sh
+# win:
+#   target: [nsis]
+#   icon: resources/build/icons/win/icon.ico
