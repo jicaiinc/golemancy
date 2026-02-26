@@ -35,9 +35,6 @@ mac:
 dmg:
   artifactName: ${productName}-${version}-mac-${arch}.${ext}
 
-zip:
-  artifactName: ${productName}-${version}-mac-${arch}.${ext}
-
 linux:
   target: [deb, rpm]
   category: Development
