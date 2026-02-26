@@ -1,10 +1,21 @@
 {
   "name": "@golemancy/desktop",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "productName": "Golemancy",
   "description": "Command Your AI Golems",
-  "author": "Jicai, Inc.",
+  "homepage": "https://golemancy.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jicaiinc/golemancy"
+  },
+  "bugs": {
+    "url": "https://github.com/jicaiinc/golemancy/issues"
+  },
+  "author": {
+    "name": "Jicai, Inc.",
+    "email": "hi@golemancy.ai"
+  },
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {

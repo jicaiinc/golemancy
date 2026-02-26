@@ -6,6 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Golemancy — AI Agent orchestration platform. Electron desktop app with pixel art (Minecraft) aesthetic, dark theme only. Language convention: Chinese for discussions/docs, English for code.
 
+### Contact & Links
+
+| Item | Value |
+|------|-------|
+| Domain | golemancy.ai (backup: golemancy.app, not in use) |
+| GitHub | https://github.com/jicaiinc/golemancy |
+| Discord | https://discord.gg/xksGkxd6SV |
+| X (Twitter) | @golemancyai |
+| Support Email | hi@golemancy.ai |
+| Copyright | Jicai, Inc. |
+
 ## Commands
 
 ```bash
