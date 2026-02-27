@@ -31,6 +31,8 @@ mac:
   hardenedRuntime: true
   entitlements: resources/build/entitlements.mac.plist
   entitlementsInherit: resources/build/entitlements.mac.plist
+  extendInfo:
+    NSMicrophoneUsageDescription: "Golemancy needs microphone access for speech-to-text input."
 
 dmg:
   artifactName: ${productName}-${version}-mac-${arch}.${ext}
