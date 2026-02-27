@@ -4,7 +4,7 @@
  * Strategy:
  *   1. Auto-detect native packages (binary addons, platform binaries)
  *   2. esbuild bundles source + all pure-JS deps (only native packages external)
- *   3. pnpm deploy + brute-force flatten (only native packages in node_modules)
+ *   3. pnpm deploy + hoisted re-install (only native packages in node_modules)
  *   4. Isolated subprocess verification (import() in /tmp/ with symlinked node_modules)
  *   5. Prune unnecessary files + fix binary permissions
  *
@@ -35,7 +35,7 @@ const SERVER_PKG = join(ROOT, 'packages/server')
 const OUT_DIR = join(ROOT, 'apps/desktop/resources/server')
 const DEPS_DIR = join(OUT_DIR, 'deps')
 const OUT_NODE_MODULES = join(DEPS_DIR, 'node_modules')
-const TEMP_DEPLOY_DIR = join(ROOT, '.tmp-pnpm-deploy')
+const TEMP_DEPLOY_DIR = join(tmpdir(), `golemancy-deploy-${process.pid}`)
 
 // Entry points — object format so esbuild outputs flat names (no subdirectories).
 // sandbox-pool.ts does: path.join(import.meta.dirname, 'sandbox-worker.js')
@@ -424,8 +424,8 @@ async function bundleServer() {
   // in the extraResources directory chain.
   await writeFile(join(DEPS_DIR, 'package.json'), JSON.stringify({ type: 'module' }) + '\n')
 
-  // ── [3/5] pnpm deploy: copy native packages + flatten ────
-  console.log('\n[3/5] pnpm deploy: copy native packages + flatten...')
+  // ── [3/5] pnpm deploy + hoisted re-install ─────────────────
+  console.log('\n[3/5] pnpm deploy + hoisted re-install...')
 
   if (externals.length === 0) {
     // No native packages — skip pnpm deploy entirely
@@ -434,6 +434,8 @@ async function bundleServer() {
   } else {
     await rm(TEMP_DEPLOY_DIR, { recursive: true, force: true })
 
+    // Step 1: pnpm deploy --legacy — produces package.json + node_modules
+    // with compiled native addons from the pnpm store.
     try {
       execSync(
         `pnpm deploy --prod --legacy --filter @golemancy/server "${TEMP_DEPLOY_DIR}"`,
@@ -447,112 +449,103 @@ async function bundleServer() {
       console.error('pnpm deploy failed:', err.stderr || err.message)
       process.exit(1)
     }
+    console.log('  pnpm deploy completed')
 
+    // Step 2: Save native package dirs from deploy (they have compiled .node files).
+    // pnpm hoisted re-install doesn't run lifecycle scripts, so native addons
+    // won't be compiled. We overlay these after the hoisted install.
     const deployedNodeModules = join(TEMP_DEPLOY_DIR, 'node_modules')
+    const savedNativeDir = join(TEMP_DEPLOY_DIR, '_saved_native')
+    await mkdir(savedNativeDir, { recursive: true })
+
+    for (const pkg of externals) {
+      // Resolve through .pnpm/ symlinks to get the real compiled package
+      const pkgSrc = join(deployedNodeModules, pkg)
+      try {
+        await stat(pkgSrc)
+        const pkgDest = join(savedNativeDir, pkg)
+        await mkdir(join(pkgDest, '..'), { recursive: true })
+        await cp(pkgSrc, pkgDest, { recursive: true, dereference: true })
+      } catch { /* not in deploy tree — skip */ }
+    }
+    console.log(`  Saved ${externals.length} native packages with compiled addons`)
+
+    // Step 3: Remove deploy node_modules, prepare for hoisted re-install
+    await rm(deployedNodeModules, { recursive: true, force: true })
+
+    // Strip workspace deps from package.json (already bundled by esbuild)
+    // and promote their native dependencies so they still get installed.
+    const deployedPkgJson = JSON.parse(await readFile(join(TEMP_DEPLOY_DIR, 'package.json'), 'utf-8'))
+    for (const [name, version] of Object.entries(deployedPkgJson.dependencies || {})) {
+      if (!String(version).startsWith('workspace:')) continue
+      delete deployedPkgJson.dependencies[name]
+
+      // Read the workspace package's deps and promote any native ones
+      const pkgDir = name.replace('@golemancy/', '')
+      try {
+        const wsPkgJson = JSON.parse(await readFile(join(ROOT, 'packages', pkgDir, 'package.json'), 'utf-8'))
+        for (const [depName, depVersion] of Object.entries(wsPkgJson.dependencies || {})) {
+          if (nativePackages.has(depName) && !deployedPkgJson.dependencies[depName]) {
+            deployedPkgJson.dependencies[depName] = depVersion
+            console.log(`  Promoted native dep: ${depName}@${depVersion} (from ${name})`)
+          }
+        }
+      } catch { /* workspace package not readable */ }
+    }
+    await writeFile(join(TEMP_DEPLOY_DIR, 'package.json'), JSON.stringify(deployedPkgJson, null, 2) + '\n')
+
+    // Write .npmrc: hoisted layout (npm-style flat node_modules), no symlinks
+    await writeFile(
+      join(TEMP_DEPLOY_DIR, '.npmrc'),
+      'node-linker=hoisted\nsymlink=false\n',
+    )
+
+    // Write empty pnpm-workspace.yaml so pnpm treats this as a standalone root
+    await writeFile(join(TEMP_DEPLOY_DIR, 'pnpm-workspace.yaml'), 'packages: []\n')
+
+    // Step 4: Re-install with hoisted layout — pnpm resolves version conflicts
+    // by nesting incompatible versions in per-package node_modules.
+    // Note: lifecycle scripts don't run in hoisted mode, which is fine — native
+    // packages are overlaid from the deploy in the next step.
+    try {
+      execSync('pnpm install --prod', {
+        cwd: TEMP_DEPLOY_DIR,
+        stdio: 'pipe',
+        encoding: 'utf-8',
+      })
+    } catch (err) {
+      console.error('pnpm install (hoisted) failed:', err.stderr || err.message)
+      process.exit(1)
+    }
+    console.log('  pnpm install (hoisted) completed')
+
+    // Step 5: Copy hoisted node_modules to output (skip .pnpm/ metadata)
+    const hoistedNodeModules = join(TEMP_DEPLOY_DIR, 'node_modules')
     await mkdir(OUT_NODE_MODULES, { recursive: true })
 
-    // Step 1: Copy top-level symlink entries (dereference, skip .pnpm/)
-    const topLevelEntries = await readdir(deployedNodeModules)
+    const topLevelEntries = await readdir(hoistedNodeModules)
+    let copiedCount = 0
     for (const entry of topLevelEntries) {
       if (entry === '.pnpm' || entry.startsWith('.')) continue
-      const src = join(deployedNodeModules, entry)
+      const src = join(hoistedNodeModules, entry)
       const dest = join(OUT_NODE_MODULES, entry)
-      await cp(src, dest, { recursive: true, dereference: true })
+      await cp(src, dest, { recursive: true })
+      copiedCount++
     }
-    const copiedTopLevel = topLevelEntries.filter(e => e !== '.pnpm' && !e.startsWith('.')).length
-    console.log(`  Copied ${copiedTopLevel} top-level packages`)
+    console.log(`  Copied ${copiedCount} packages (hoisted layout, version conflicts auto-nested)`)
 
-    // Step 2: Brute-force flatten — walk .pnpm/*/node_modules/* and copy missing packages.
-    // With only ~2 native externals, the deploy tree is small. Just copy everything
-    // from .pnpm that isn't already at top-level.
-    const pnpmDir = join(deployedNodeModules, '.pnpm')
-    let hoisted = 0
-    try {
-      const pnpmEntries = await readdir(pnpmDir)
-      for (const pnpmEntry of pnpmEntries) {
-        if (pnpmEntry.startsWith('.')) continue
-        const innerNm = join(pnpmDir, pnpmEntry, 'node_modules')
-        let innerEntries
-        try {
-          innerEntries = await readdir(innerNm)
-        } catch { continue }
-
-        for (const innerEntry of innerEntries) {
-          if (innerEntry.startsWith('.')) continue
-          const destPath = join(OUT_NODE_MODULES, innerEntry)
-
-          if (innerEntry.startsWith('@')) {
-            // Scoped package — merge scope directory
-            let scopeEntries
-            try {
-              scopeEntries = await readdir(join(innerNm, innerEntry))
-            } catch { continue }
-            for (const scopeEntry of scopeEntries) {
-              const scopedDest = join(destPath, scopeEntry)
-              try {
-                await stat(scopedDest)
-                continue // Already exists
-              } catch { /* needs copying */ }
-              try {
-                await mkdir(destPath, { recursive: true })
-                await cp(join(innerNm, innerEntry, scopeEntry), scopedDest, { recursive: true, dereference: true })
-                hoisted++
-              } catch { /* skip broken entries */ }
-            }
-          } else {
-            try {
-              await stat(destPath)
-              continue // Already exists
-            } catch { /* needs copying */ }
-            try {
-              await cp(join(innerNm, innerEntry), destPath, { recursive: true, dereference: true })
-              hoisted++
-            } catch { /* skip broken entries */ }
-          }
-        }
-      }
-    } catch { /* no .pnpm dir */ }
-
-    if (hoisted > 0) {
-      console.log(`  Hoisted ${hoisted} additional packages from .pnpm/`)
+    // Step 6: Overlay saved native packages (with compiled .node addons)
+    // on top of the hoisted output, replacing the uncompiled versions.
+    for (const pkg of externals) {
+      const savedPkg = join(savedNativeDir, pkg)
+      try {
+        await stat(savedPkg)
+        const destPkg = join(OUT_NODE_MODULES, pkg)
+        await rm(destPkg, { recursive: true, force: true })
+        await cp(savedPkg, destPkg, { recursive: true })
+      } catch { /* wasn't saved — skip */ }
     }
-
-    // Step 3: Remove non-native packages from node_modules.
-    // esbuild already bundled them — they don't need to be in node_modules.
-    // Keep only native packages and their transitive dependencies.
-    const nativeWithDeps = new Set()
-    await collectNativeDeps(externals, OUT_NODE_MODULES, nativeWithDeps)
-
-    const finalEntries = await readdir(OUT_NODE_MODULES)
-    let removedPkgs = 0
-    for (const entry of finalEntries) {
-      if (entry.startsWith('.')) continue
-      if (entry.startsWith('@')) {
-        // Scoped package — check individual sub-entries
-        const scopeDir = join(OUT_NODE_MODULES, entry)
-        const scopeEntries = await readdir(scopeDir)
-        for (const se of scopeEntries) {
-          const scopedName = `${entry}/${se}`
-          if (!nativeWithDeps.has(scopedName)) {
-            await rm(join(scopeDir, se), { recursive: true, force: true })
-            removedPkgs++
-          }
-        }
-        // Remove scope directory if empty
-        try {
-          const remaining = await readdir(scopeDir)
-          if (remaining.length === 0) {
-            await rm(scopeDir, { recursive: true, force: true })
-          }
-        } catch { /* ignore */ }
-      } else {
-        if (!nativeWithDeps.has(entry)) {
-          await rm(join(OUT_NODE_MODULES, entry), { recursive: true, force: true })
-          removedPkgs++
-        }
-      }
-    }
-    console.log(`  Removed ${removedPkgs} bundled packages from node_modules (keeping only native deps)`)
+    console.log('  Overlaid native packages with compiled addons')
 
     // Clean up temp directory
     await rm(TEMP_DEPLOY_DIR, { recursive: true, force: true })
@@ -672,32 +665,6 @@ process.exit(errors.length > 0 ? 1 : 0);
   await preserveBinaryPermissions(OUT_NODE_MODULES)
 
   console.log('\nServer bundle complete.')
-}
-
-/**
- * Recursively collect a set of packages needed by the given native externals.
- * Walks package.json dependencies to find all transitive deps.
- */
-async function collectNativeDeps(externals, nodeModulesDir, result) {
-  const queue = [...externals]
-  while (queue.length > 0) {
-    const pkg = queue.shift()
-    if (result.has(pkg)) continue
-    result.add(pkg)
-
-    const pkgParts = pkg.startsWith('@') ? pkg.split('/') : [pkg]
-    const pkgJsonPath = join(nodeModulesDir, ...pkgParts, 'package.json')
-    try {
-      const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8'))
-      for (const dep of Object.keys(pkgJson.dependencies || {})) {
-        if (!result.has(dep)) {
-          queue.push(dep)
-        }
-      }
-    } catch {
-      // Can't read package.json — package might not exist in node_modules
-    }
-  }
 }
 
 bundleServer().catch((err) => {
