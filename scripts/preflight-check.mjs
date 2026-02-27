@@ -139,10 +139,15 @@ async function main() {
     "Run 'pnpm --filter @golemancy/desktop bundle-server' to generate",
   )
 
-  await checkDirMinSize(
-    join(serverDeps, 'node_modules'),
-    'Server dependencies (node_modules)',
-    5,
+  await checkFile(
+    join(serverDeps, 'node_modules/better-sqlite3/package.json'),
+    'Native: better-sqlite3',
+    "Run 'pnpm --filter @golemancy/desktop bundle-server' to generate",
+  )
+
+  await checkFile(
+    join(serverDeps, 'node_modules/@vscode/ripgrep/package.json'),
+    'Native: @vscode/ripgrep',
     "Run 'pnpm --filter @golemancy/desktop bundle-server' to generate",
   )
 

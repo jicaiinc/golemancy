@@ -100,7 +100,63 @@ jobs:
       - name: Preflight check
         run: node scripts/preflight-check.mjs --target ${{ matrix.platform }}
 
-      # ── Step 5: Package with electron-builder ──
+      # ── Step 5: Smoke test — fork server with bundled Node.js ──
+      # Catches: missing packages, ABI mismatch, native load failures, entry corruption.
+      # Server's index.ts has `if (process.send)` guard — safe without IPC parent.
+      - name: Smoke test (bundled server)
+        shell: bash
+        run: |
+          if [[ "${{ matrix.platform }}" == "win" ]]; then
+            BUNDLED_NODE="apps/desktop/resources/runtime/node/node.exe"
+          else
+            BUNDLED_NODE="apps/desktop/resources/runtime/node/bin/node"
+          fi
+
+          if [[ ! -x "$BUNDLED_NODE" ]]; then
+            echo "ERROR: Bundled Node.js not found at $BUNDLED_NODE"
+            exit 1
+          fi
+
+          # Fork server entry, wait for IPC ready or 5s timeout
+          node -e "
+            const { fork } = require('child_process');
+            const child = fork('apps/desktop/resources/server/deps/index.js', [], {
+              execPath: '$BUNDLED_NODE',
+              env: { ...process.env, PORT: '0' },
+              stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+            });
+
+            const timeout = setTimeout(() => {
+              console.error('ERROR: Server did not send ready message within 5 seconds');
+              child.kill();
+              process.exit(1);
+            }, 5000);
+
+            child.on('message', (msg) => {
+              if (msg && msg.type === 'ready') {
+                console.log('Smoke test PASSED — server started on port ' + msg.port);
+                clearTimeout(timeout);
+                child.kill();
+                process.exit(0);
+              }
+            });
+
+            child.on('error', (err) => {
+              console.error('ERROR: Server fork failed:', err.message);
+              clearTimeout(timeout);
+              process.exit(1);
+            });
+
+            child.on('exit', (code) => {
+              if (code !== null && code !== 0) {
+                console.error('ERROR: Server exited with code ' + code);
+                clearTimeout(timeout);
+                process.exit(1);
+              }
+            });
+          "
+
+      # ── Step 6: Package with electron-builder ──
       - name: Package (electron-builder)
         run: |
           cd apps/desktop
