@@ -184,6 +184,7 @@ jobs:
             apps/desktop/release/*.deb
             apps/desktop/release/*.rpm
             apps/desktop/release/*.exe
+            apps/desktop/release/*.msi
           if-no-files-found: error
           retention-days: 3
 
@@ -216,13 +217,28 @@ jobs:
 
             ### Downloads
 
-            | Platform | Architecture | File |
-            |----------|-------------|------|
-            | macOS | Apple Silicon (M1/M2/M3/M4) | `.dmg` (arm64) |
-            | macOS | Intel | `.dmg` (x64) |
-            | Windows | x64 | `.exe` (NSIS installer) |
-            | Linux (Ubuntu/Debian) | x64 | `.deb` |
-            | Linux (Fedora/RHEL) | x64 | `.rpm` |
+            #### macOS
+
+            | File | Architecture | Note |
+            |------|-------------|------|
+            | `.dmg` (arm64) | Apple Silicon (M1/M2/M3/M4) | **Recommended** — ~80% of Mac users |
+            | `.dmg` (x64) | Intel | For pre-2021 Macs |
+
+            #### Windows
+
+            | File | Note |
+            |------|------|
+            | `.exe` (NSIS installer) | **Recommended** — for most users |
+            | `.msi` (Windows Installer) | For enterprise / IT deployment (Group Policy, SCCM) |
+
+            #### Linux
+
+            | File | Distros | Note |
+            |------|---------|------|
+            | `.deb` | Ubuntu, Debian, Mint | **Recommended** — ~80% of Linux desktop users |
+            | `.rpm` | Fedora, RHEL, CentOS, openSUSE | |
+
+            > **Not sure which to pick?** Choose the **Recommended** option — it covers the vast majority of users.
 
             ### Installation Notes
 

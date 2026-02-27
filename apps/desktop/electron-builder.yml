@@ -44,6 +44,6 @@ linux:
   artifactName: ${productName}-${version}-linux-${arch}.${ext}
 
 win:
-  target: [nsis]
+  target: [nsis, msi]
   icon: resources/build/icons/win/icon.ico
   artifactName: ${productName}-${version}-win-${arch}.${ext}
