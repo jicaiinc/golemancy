@@ -71,7 +71,14 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   }))
 
   // Structured HTTP request/response logging via hono-pino
-  app.use('/api/*', pinoLogger({ pino: logger }))
+  app.use('/api/*', pinoLogger({
+    pino: logger,
+    http: {
+      onReqBindings: (c) => ({
+        req: { url: c.req.path, method: c.req.method },
+      }),
+    },
+  }))
 
   // SEC-07: Validate Bearer token on all /api/* routes
   if (authToken) {

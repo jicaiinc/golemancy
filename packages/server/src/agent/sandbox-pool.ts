@@ -439,7 +439,7 @@ export class SandboxPool {
     // Crash recovery: detect unexpected worker exit
     child.on('exit', (code) => {
       if (this.projectWorkers.has(projectId)) {
-        log.warn(
+        log.error(
           { projectId, code },
           'Sandbox worker exited unexpectedly — will re-create on next use',
         )

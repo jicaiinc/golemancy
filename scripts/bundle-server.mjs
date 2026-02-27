@@ -55,6 +55,7 @@ const TEMP_DEPLOY_DIR = join(ROOT, '.tmp-pnpm-deploy')
 const ENTRY_POINTS = {
   index: join(SERVER_PKG, 'src/index.ts'),
   'sandbox-worker': join(SERVER_PKG, 'src/agent/sandbox-worker.ts'),
+  'log-transport': join(SERVER_PKG, 'src/log-transport.ts'),
 }
 
 // Manual override: force-external packages that auto-detection misses.

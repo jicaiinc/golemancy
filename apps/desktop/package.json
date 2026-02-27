@@ -38,7 +38,8 @@
   "dependencies": {
     "@golemancy/shared": "workspace:*",
     "@golemancy/ui": "workspace:*",
-    "pino": "^10.3.1"
+    "pino": "^10.3.1",
+    "pino-roll": "^4.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",

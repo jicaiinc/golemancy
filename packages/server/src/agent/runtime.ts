@@ -25,7 +25,7 @@ export interface RunAgentParams {
 export async function runAgent(params: RunAgentParams) {
   const { agent, settings, messages, tools, abortSignal, onEvent } = params
 
-  log.debug({ agentId: agent.id, conversationId: params.conversationId, messageCount: messages.length }, 'running agent')
+  log.info({ agentId: agent.id, conversationId: params.conversationId, messageCount: messages.length }, 'running agent')
 
   const model = await resolveModel(settings, agent.modelConfig)
 

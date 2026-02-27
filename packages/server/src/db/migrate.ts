@@ -62,7 +62,7 @@ export function migrateDatabase(db: AppDatabase) {
 
   const hasParts = columns.some(col => col.name === 'parts')
   if (!hasParts) {
-    log.info('migrating messages table: adding parts column')
+    log.debug('migrating messages table: adding parts column')
     db.run(sql`ALTER TABLE messages ADD COLUMN parts TEXT`)
     db.run(sql`
       UPDATE messages
@@ -73,13 +73,13 @@ export function migrateDatabase(db: AppDatabase) {
 
   const hasToolCalls = columns.some(col => col.name === 'tool_calls')
   if (hasToolCalls) {
-    log.info('migrating messages table: dropping tool_calls column')
+    log.debug('migrating messages table: dropping tool_calls column')
     db.run(sql`ALTER TABLE messages DROP COLUMN tool_calls`)
   }
 
   const hasTokenUsage = columns.some(col => col.name === 'token_usage')
   if (hasTokenUsage) {
-    log.info('migrating messages table: dropping token_usage column')
+    log.debug('migrating messages table: dropping token_usage column')
     db.run(sql`ALTER TABLE messages DROP COLUMN token_usage`)
   }
 
@@ -88,13 +88,13 @@ export function migrateDatabase(db: AppDatabase) {
 
   const hasInputTokens = columnsV3.some(col => col.name === 'input_tokens')
   if (!hasInputTokens) {
-    log.info('migrating messages table: adding input_tokens column')
+    log.debug('migrating messages table: adding input_tokens column')
     db.run(sql`ALTER TABLE messages ADD COLUMN input_tokens INTEGER NOT NULL DEFAULT 0`)
   }
 
   const hasOutputTokens = columnsV3.some(col => col.name === 'output_tokens')
   if (!hasOutputTokens) {
-    log.info('migrating messages table: adding output_tokens column')
+    log.debug('migrating messages table: adding output_tokens column')
     db.run(sql`ALTER TABLE messages ADD COLUMN output_tokens INTEGER NOT NULL DEFAULT 0`)
   }
 
@@ -141,25 +141,25 @@ export function migrateDatabase(db: AppDatabase) {
   // --- Migration v3b: context_tokens column on messages ---
   const colsV3b = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
   if (!colsV3b.some(c => c.name === 'context_tokens')) {
-    log.info('migrating messages table: adding context_tokens column')
+    log.debug('migrating messages table: adding context_tokens column')
     db.run(sql`ALTER TABLE messages ADD COLUMN context_tokens INTEGER NOT NULL DEFAULT 0`)
   }
 
   // --- Migration v5b: provider/model columns on messages (display only) ---
   const colsV5 = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
   if (!colsV5.some(c => c.name === 'provider')) {
-    log.info('migrating messages table: adding provider column')
+    log.debug('migrating messages table: adding provider column')
     db.run(sql`ALTER TABLE messages ADD COLUMN provider TEXT NOT NULL DEFAULT ''`)
   }
   if (!colsV5.some(c => c.name === 'model')) {
-    log.info('migrating messages table: adding model column')
+    log.debug('migrating messages table: adding model column')
     db.run(sql`ALTER TABLE messages ADD COLUMN model TEXT NOT NULL DEFAULT ''`)
   }
 
   // --- Migration v5c: metadata column on messages ---
   const colsV5c = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
   if (!colsV5c.some(c => c.name === 'metadata')) {
-    log.info('migrating messages table: adding metadata column')
+    log.debug('migrating messages table: adding metadata column')
     db.run(sql`ALTER TABLE messages ADD COLUMN metadata TEXT`)
   }
 

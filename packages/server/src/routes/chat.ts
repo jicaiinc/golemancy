@@ -423,6 +423,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                     ...(Object.keys(allToolUsages).length > 0 ? { metadata: { toolUsages: allToolUsages } } : {}),
                   },
                 )
+                log.info({ conversationId, agentId, inputTokens: billingInput, outputTokens: billingOutput }, 'agent response complete')
                 log.debug({ conversationId, role: 'assistant', contextTokens, billingInput, billingOutput }, 'saved assistant message in onFinish')
               }
 

@@ -234,6 +234,15 @@ function createWindow(options?: { projectId?: string }): void {
 app.name = 'Golemancy'
 
 app.whenReady().then(async () => {
+  logger.info({
+    version: APP_VERSION,
+    electron: process.versions.electron,
+    node: process.versions.node,
+    platform: process.platform,
+    arch: process.arch,
+    packaged: app.isPackaged,
+  }, 'Golemancy starting')
+
   // Build custom menu (replaces default Electron menu, shows "Golemancy" in menu bar)
   buildAppMenu()
 
@@ -294,7 +303,10 @@ app.on('before-quit', (e) => {
   if (isQuitting) return
   isQuitting = true
   e.preventDefault()
-  stopServer().then(() => app.quit())
+  stopServer().then(() => {
+    logger.flush()
+    app.quit()
+  })
 })
 
 app.on('window-all-closed', () => {

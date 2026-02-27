@@ -38,3 +38,7 @@ export function getProjectDbPath(projectId: string): string {
 export function getSpeechDbPath(): string {
   return path.join(getDataDir(), 'speech.db')
 }
+
+export function getLogsDir(): string {
+  return path.join(getDataDir(), 'logs')
+}

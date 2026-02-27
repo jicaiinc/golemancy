@@ -446,7 +446,7 @@ export class MCPPool {
       entry.lastUsedAt = Date.now()
       entry.connectPromise = null
 
-      log.debug(
+      log.info(
         { projectId, serverName: server.name, toolCount: Object.keys(rawTools).length },
         'MCP pool: connection established',
       )

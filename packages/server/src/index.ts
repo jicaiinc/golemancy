@@ -33,6 +33,9 @@ import { mcpPool } from './agent/mcp-pool'
 import { logger } from './logger'
 
 async function main() {
+  const startTime = Date.now()
+  logger.info({ node: process.version, platform: process.platform, arch: process.arch, pid: process.pid }, 'server starting')
+
   const port = parseInt(process.env.PORT ?? '3000', 10)
 
   // Ensure data directory exists
@@ -131,16 +134,19 @@ async function main() {
       mcpPool.shutdown(),
       cronScheduler.shutdown(),
     ])
+    logger.info('shutdown complete')
+    logger.flush()
   })
 
   // Start MCP pool idle connection scanner
   mcpPool.startIdleScanner()
+  logger.info('MCP idle connection scanner started')
 
   // SEC-09: Bind to loopback only
   const server = serve({ fetch: app.fetch, port, hostname: '127.0.0.1' }, async (info) => {
     // Inject WebSocket upgrade handler into the HTTP server
     injectWebSocket(server)
-    logger.info({ port: info.port, host: '127.0.0.1' }, 'server ready (ws enabled)')
+    logger.info({ port: info.port, host: '127.0.0.1', startupMs: Date.now() - startTime }, 'server ready (ws enabled)')
 
     if (process.send) {
       process.send({ type: 'ready', port: info.port, token: authToken })
@@ -186,5 +192,15 @@ async function main() {
 
 main().catch((err) => {
   logger.fatal({ err }, 'failed to start server')
-  process.exit(1)
+  logger.flush(() => process.exit(1))
+})
+
+process.on('uncaughtException', (err) => {
+  logger.fatal({ err }, 'uncaught exception')
+  logger.flush(() => process.exit(1))
+})
+
+process.on('unhandledRejection', (reason) => {
+  logger.fatal({ err: reason }, 'unhandled rejection')
+  logger.flush(() => process.exit(1))
 })
