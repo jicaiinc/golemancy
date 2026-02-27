@@ -419,6 +419,11 @@ async function bundleServer() {
 
   console.log(`  Bundled ${Object.keys(ENTRY_POINTS).length} entry points → ${DEPS_DIR}`)
 
+  // Write package.json so Node.js recognizes the ESM output.
+  // In the packaged Electron app, there's no parent package.json with "type": "module"
+  // in the extraResources directory chain.
+  await writeFile(join(DEPS_DIR, 'package.json'), JSON.stringify({ type: 'module' }) + '\n')
+
   // ── [3/5] pnpm deploy: copy native packages + flatten ────
   console.log('\n[3/5] pnpm deploy: copy native packages + flatten...')
 

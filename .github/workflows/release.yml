@@ -117,14 +117,18 @@ jobs:
             exit 1
           fi
 
-          # Fork server entry, wait for IPC ready or 5s timeout
+          # Fork server entry, wait for IPC ready or 5s timeout.
+          # NODE_ENV=production is required — pino-pretty transport (dev-only) is not bundled.
           node -e "
             const { fork } = require('child_process');
             const child = fork('apps/desktop/resources/server/deps/index.js', [], {
               execPath: '$BUNDLED_NODE',
-              env: { ...process.env, PORT: '0' },
+              env: { ...process.env, PORT: '0', NODE_ENV: 'production' },
               stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
             });
+
+            child.stdout.on('data', (d) => process.stdout.write(d));
+            child.stderr.on('data', (d) => process.stderr.write(d));
 
             const timeout = setTimeout(() => {
               console.error('ERROR: Server did not send ready message within 5 seconds');
