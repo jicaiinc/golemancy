@@ -3,8 +3,10 @@
  *
  * Strategy:
  *   1. esbuild bundles ONLY our code (all dependencies are external)
- *   2. pnpm deploy copies all production dependencies automatically
- *   3. Prune unnecessary files from node_modules to reduce size
+ *   2. pnpm deploy + copy top-level + targeted hoist (fills missing externals from .pnpm/)
+ *   3. Isolated subprocess verification (import() in /tmp/ with symlinked node_modules)
+ *   4. Prune unnecessary files from node_modules to reduce size
+ *   5. Fix binary permissions
  *
  * Output: apps/desktop/resources/server/deps/
  *   - index.js           (bundled server entry)
@@ -17,9 +19,10 @@
  *   under deps/, the relative path becomes `deps/node_modules` which is NOT filtered.
  */
 
-import { execSync } from 'node:child_process'
-import { chmod, cp, mkdir, readdir, readFile, rm, stat } from 'node:fs/promises'
+import { execSync, execFileSync } from 'node:child_process'
+import { chmod, cp, mkdir, readdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 const ROOT = resolve(import.meta.dirname, '..')
@@ -268,15 +271,67 @@ async function bundleServer() {
   }
   console.log(`  Copied ${topLevelEntries.filter(e => e !== '.pnpm' && !e.startsWith('.')).length} top-level packages`)
 
-  // Clean up temp directory
+  // Step 2: Targeted hoist — find externals missing from top-level and copy from .pnpm/
+  // Unlike brute-force hoisting (which copies everything from .pnpm/), this only fills gaps
+  // for packages we actually need. Deterministic and auditable.
+  const pnpmDir = join(deployedNodeModules, '.pnpm')
+  const hoisted = []
+  for (const pkg of EXTERNALS) {
+    const pkgParts = pkg.startsWith('@') ? pkg.split('/') : [pkg]
+    const destPath = join(OUT_NODE_MODULES, ...pkgParts)
+    try {
+      await stat(destPath)
+      continue // Already exists at top-level
+    } catch {
+      // Not at top-level — search in .pnpm/
+    }
+
+    // .pnpm/ uses a flat naming convention: <pkg-name>@<version>/node_modules/<pkg-name>
+    // For scoped packages: @scope+name@version/node_modules/@scope/name
+    let found = false
+    try {
+      const pnpmEntries = await readdir(pnpmDir)
+      // Build the prefix to match (e.g., "hono@" or "@anthropic-ai+sdk@")
+      const pnpmPrefix = pkg.replace(/\//g, '+') + '@'
+      for (const entry of pnpmEntries) {
+        if (entry.startsWith(pnpmPrefix)) {
+          const srcPath = join(pnpmDir, entry, 'node_modules', ...pkgParts)
+          try {
+            await stat(srcPath)
+            await cp(srcPath, destPath, { recursive: true, dereference: true })
+            hoisted.push(pkg)
+            found = true
+            break
+          } catch {
+            // This version dir doesn't have the expected structure, try next
+          }
+        }
+      }
+    } catch {
+      // .pnpm/ doesn't exist or can't be read
+    }
+
+    if (!found) {
+      console.warn(`  Warning: '${pkg}' not found in top-level or .pnpm/`)
+    }
+  }
+
+  if (hoisted.length > 0) {
+    console.log(`  Hoisted: ${hoisted.join(', ')}`)
+  }
+
+  // Clean up temp directory (after hoist, since hoist reads .pnpm/)
   await rm(TEMP_DEPLOY_DIR, { recursive: true, force: true })
   console.log('  Cleaned up temp deploy directory')
 
-  // 3. Verify all external imports can resolve from deps/node_modules
-  console.log('\n[3/5] Verifying external imports...')
-  const verifyErrors = []
-  const depsRequire = createRequire(join(DEPS_DIR, '_virtual.js'))
+  // 3. Verify all external imports via isolated subprocess
+  // Why subprocess: createRequire.resolve() walks up parent directories, finding
+  // monorepo root node_modules/ → false positives. By running in /tmp/ with a
+  // symlinked node_modules, Node.js resolution is fully isolated.
+  console.log('\n[3/5] Verifying external imports (isolated subprocess)...')
 
+  // First, extract all external imports from bundled output
+  const allImportedPkgs = new Set()
   for (const entryName of Object.keys(ENTRY_POINTS)) {
     const bundlePath = join(DEPS_DIR, `${entryName}.js`)
     const bundleContent = await readFile(bundlePath, 'utf-8')
@@ -285,49 +340,42 @@ async function bundleServer() {
     // esbuild ESM output uses: import ... from "pkg" and import "pkg"
     // Also handle re-exports: export ... from "pkg"
     const importRegex = /(?:import|export)\s.*?from\s*["']([^"'./][^"']*)["']|import\s*["']([^"'./][^"']*)["']/g
-    const importedPkgs = new Set()
     let match
     while ((match = importRegex.exec(bundleContent)) !== null) {
       const raw = match[1] || match[2]
       // Normalize to package name (e.g., "@scope/pkg/sub" → "@scope/pkg", "pkg/sub" → "pkg")
       const parts = raw.startsWith('@') ? raw.split('/').slice(0, 2) : raw.split('/').slice(0, 1)
-      importedPkgs.add(parts.join('/'))
+      allImportedPkgs.add(parts.join('/'))
     }
+  }
 
-    for (const pkg of importedPkgs) {
-      // Skip Node.js built-in modules
-      if (pkg.startsWith('node:') || ['fs', 'path', 'os', 'child_process', 'crypto', 'http', 'https', 'net', 'url', 'util', 'stream', 'events', 'buffer', 'module', 'worker_threads', 'tty', 'assert', 'zlib', 'dns', 'tls', 'async_hooks', 'perf_hooks', 'v8', 'vm', 'readline', 'string_decoder', 'querystring', 'diagnostics_channel', 'inspector'].includes(pkg)) {
-        continue
-      }
+  // Filter out Node.js built-in modules
+  const NODE_BUILTINS = new Set([
+    'fs', 'path', 'os', 'child_process', 'crypto', 'http', 'https', 'net',
+    'url', 'util', 'stream', 'events', 'buffer', 'module', 'worker_threads',
+    'tty', 'assert', 'zlib', 'dns', 'tls', 'async_hooks', 'perf_hooks',
+    'v8', 'vm', 'readline', 'string_decoder', 'querystring',
+    'diagnostics_channel', 'inspector',
+  ])
+  const pkgsToVerify = [...allImportedPkgs].filter(
+    pkg => !pkg.startsWith('node:') && !NODE_BUILTINS.has(pkg),
+  )
 
-      // Try to resolve the package from deps/node_modules
-      try {
-        depsRequire.resolve(pkg)
-      } catch {
-        verifyErrors.push({
-          entry: `${entryName}.js`,
-          pkg,
-          type: 'missing',
-        })
-        continue
-      }
-
-      // Check for CJS/ESM compatibility issues
+  // CJS/ESM compatibility check (static analysis — extra defense layer)
+  const cjsErrors = []
+  for (const entryName of Object.keys(ENTRY_POINTS)) {
+    const bundlePath = join(DEPS_DIR, `${entryName}.js`)
+    const bundleContent = await readFile(bundlePath, 'utf-8')
+    for (const pkg of pkgsToVerify) {
       try {
         const pkgParts = pkg.startsWith('@') ? pkg.split('/').slice(0, 2) : pkg.split('/').slice(0, 1)
         const pkgJsonPath = join(OUT_NODE_MODULES, ...pkgParts, 'package.json')
         const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8'))
         const isCjs = pkgJson.type !== 'module' && !pkgJson.exports
         if (isCjs) {
-          // Check if the bundle uses named imports from this CJS package
-          // Pattern: import { x } from "pkg" (not default/namespace import)
           const namedImportRegex = new RegExp(`import\\s*\\{[^}]+\\}\\s*from\\s*["']${pkg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:/[^"']*)?["']`)
           if (namedImportRegex.test(bundleContent)) {
-            verifyErrors.push({
-              entry: `${entryName}.js`,
-              pkg,
-              type: 'cjs-named-import',
-            })
+            cjsErrors.push({ entry: `${entryName}.js`, pkg })
           }
         }
       } catch {
@@ -336,20 +384,87 @@ async function bundleServer() {
     }
   }
 
-  if (verifyErrors.length > 0) {
-    console.error('\n  Verification FAILED:')
-    for (const err of verifyErrors) {
-      if (err.type === 'missing') {
-        console.error(`  ERROR [${err.entry}]: Cannot resolve '${err.pkg}' from deps/node_modules`)
-        console.error(`    → Fix: Add '${err.pkg}' to BUNDLE_INLINE in scripts/bundle-server.mjs`)
-      } else if (err.type === 'cjs-named-import') {
-        console.error(`  ERROR [${err.entry}]: '${err.pkg}' is CJS but used with named ESM imports`)
-        console.error(`    → Fix: Add '${err.pkg}' to BUNDLE_INLINE in scripts/bundle-server.mjs`)
+  // Create isolated verification environment in /tmp/
+  const verifyDir = join(tmpdir(), `golemancy-verify-${Date.now()}`)
+  await mkdir(verifyDir, { recursive: true })
+  try {
+    // Symlink node_modules so Node.js resolution only sees our bundled deps
+    await symlink(OUT_NODE_MODULES, join(verifyDir, 'node_modules'))
+
+    // Generate verification script
+    const verifyScript = `
+const pkgs = ${JSON.stringify(pkgsToVerify)};
+const errors = [];
+for (const pkg of pkgs) {
+  try {
+    await import(pkg);
+  } catch (e) {
+    if (e.code === 'ERR_MODULE_NOT_FOUND') {
+      errors.push(pkg);
+    }
+    // Other errors (e.g., missing native deps at init) mean the package WAS found
+    // but failed to initialize — that's a runtime issue, not a bundling issue.
+  }
+}
+process.stdout.write(JSON.stringify({ errors, total: pkgs.length }));
+process.exit(errors.length > 0 ? 1 : 0);
+`
+    const verifyScriptPath = join(verifyDir, '_verify.mjs')
+    await writeFile(verifyScriptPath, verifyScript)
+
+    // Run verification in subprocess
+    let verifyResult
+    try {
+      const stdout = execFileSync(process.execPath, [verifyScriptPath], {
+        cwd: verifyDir,
+        encoding: 'utf-8',
+        timeout: 30_000,
+        stdio: ['pipe', 'pipe', 'pipe'],
+      })
+      verifyResult = JSON.parse(stdout)
+    } catch (err) {
+      // Non-zero exit code — parse stdout for error details
+      if (err.stdout) {
+        try {
+          verifyResult = JSON.parse(err.stdout)
+        } catch {
+          console.error('  Verification subprocess failed:', err.stderr || err.message)
+          process.exit(1)
+        }
+      } else {
+        console.error('  Verification subprocess failed:', err.stderr || err.message)
+        process.exit(1)
       }
     }
-    process.exit(1)
+
+    // Combine subprocess errors with CJS errors
+    const allErrors = []
+    for (const pkg of verifyResult.errors) {
+      allErrors.push({ pkg, type: 'missing' })
+    }
+    for (const err of cjsErrors) {
+      allErrors.push({ pkg: err.pkg, type: 'cjs-named-import', entry: err.entry })
+    }
+
+    if (allErrors.length > 0) {
+      console.error('\n  Verification FAILED:')
+      for (const err of allErrors) {
+        if (err.type === 'missing') {
+          console.error(`  ERROR: Cannot resolve '${err.pkg}' from deps/node_modules`)
+          console.error(`    → Fix: Add '${err.pkg}' to BUNDLE_INLINE in scripts/bundle-server.mjs`)
+        } else if (err.type === 'cjs-named-import') {
+          console.error(`  ERROR [${err.entry}]: '${err.pkg}' is CJS but used with named ESM imports`)
+          console.error(`    → Fix: Add '${err.pkg}' to BUNDLE_INLINE in scripts/bundle-server.mjs`)
+        }
+      }
+      process.exit(1)
+    }
+
+    console.log(`  All ${verifyResult.total} external imports verified ✓`)
+  } finally {
+    // Clean up verification temp directory
+    await rm(verifyDir, { recursive: true, force: true })
   }
-  console.log('  All external imports verified ✓')
 
   // 4. Prune unnecessary files from node_modules
   console.log('\n[4/5] Pruning unnecessary files from node_modules...')
