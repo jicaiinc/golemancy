@@ -45,6 +45,17 @@ const ENTRY_POINTS = {
 // Build external list: all npm dependencies from server AND its workspace packages.
 // Workspace packages (workspace:*) export raw .ts — they are bundled, not externalized.
 // But their own npm dependencies must be externalized (e.g., @golemancy/tools → playwright-core).
+//
+// BUNDLE_INLINE: Pure-JS packages that should be bundled into the output rather than
+// kept external. This avoids ESM/CJS interop issues at runtime (e.g., brace-expansion
+// being CJS but imported via ESM named exports by minimatch on Windows).
+// If the build-time verification step fails for a package, add it here.
+const BUNDLE_INLINE = new Set([
+  'minimatch',
+  'brace-expansion',
+  'balanced-match',
+])
+
 const serverPkg = JSON.parse(
   await readFile(join(SERVER_PKG, 'package.json'), 'utf-8'),
 )
@@ -55,7 +66,7 @@ const workspacePkgs = []
 for (const [name, version] of Object.entries(deps)) {
   if (version.startsWith('workspace:')) {
     workspacePkgs.push(name)
-  } else {
+  } else if (!BUNDLE_INLINE.has(name)) {
     externalSet.add(name)
   }
 }
@@ -68,7 +79,7 @@ for (const wsPkg of workspacePkgs) {
   try {
     const wsPkgJson = JSON.parse(await readFile(wsPkgJsonPath, 'utf-8'))
     for (const [depName, depVersion] of Object.entries(wsPkgJson.dependencies || {})) {
-      if (!depVersion.startsWith('workspace:')) {
+      if (!depVersion.startsWith('workspace:') && !BUNDLE_INLINE.has(depName)) {
         externalSet.add(depName)
       }
     }
@@ -188,7 +199,7 @@ async function bundleServer() {
   await mkdir(DEPS_DIR, { recursive: true })
 
   // 2. esbuild: bundle our code with all dependencies external
-  console.log('\n[1/4] esbuild: bundling source code...')
+  console.log('\n[1/5] esbuild: bundling source code...')
   const result = await build({
     entryPoints: ENTRY_POINTS,
     outdir: DEPS_DIR,
@@ -215,7 +226,7 @@ async function bundleServer() {
   console.log(`  Bundled ${Object.keys(ENTRY_POINTS).length} entry points → ${DEPS_DIR}`)
 
   // 3. pnpm deploy: copy production dependencies
-  console.log('\n[2/4] pnpm deploy: copying production dependencies...')
+  console.log('\n[2/5] pnpm deploy: copying production dependencies...')
   await rm(TEMP_DEPLOY_DIR, { recursive: true, force: true })
 
   try {
@@ -236,13 +247,13 @@ async function bundleServer() {
   // pnpm deploy creates a symlink-based structure:
   //   node_modules/hono → .pnpm/hono@4.x/node_modules/hono (symlink)
   //   node_modules/.pnpm/...                               (real files)
-  // Some transitive deps (like playwright-core from @golemancy/tools) only
-  // exist in .pnpm/ without a top-level symlink.
   //
   // Strategy:
   //   1. cp -rL top-level entries (skip .pnpm/) → dereferences symlinks to real files
-  //   2. Hoist any EXTERNALS missing from top-level by finding them in .pnpm/
-  //   3. Don't copy .pnpm/ at all (avoids 400MB+ of duplicates)
+  //      pnpm deploy's top-level symlinks point to the correct versions,
+  //      so dereference gives us exactly the right version.
+  //   2. Don't copy .pnpm/ at all (avoids 400MB+ of duplicates)
+  //   3. Verify all external imports can resolve from the result
   const deployedNodeModules = join(TEMP_DEPLOY_DIR, 'node_modules')
   await mkdir(OUT_NODE_MODULES, { recursive: true })
 
@@ -257,69 +268,96 @@ async function bundleServer() {
   }
   console.log(`  Copied ${topLevelEntries.filter(e => e !== '.pnpm' && !e.startsWith('.')).length} top-level packages`)
 
-  // Step 2: Hoist ALL packages from .pnpm/ to create flat node_modules
-  //
-  // pnpm deploy creates a symlink-based structure where transitive deps
-  // (e.g., 'defu' needed by hono-pino) only exist inside .pnpm/ without
-  // top-level symlinks. We must hoist every package for flat resolution.
-  //
-  // .pnpm/ entry format: "pkg@version" or "@scope+name@version[_peers]"
-  // Real files live at: .pnpm/{entry}/node_modules/{pkgName}/
-  const pnpmDir = join(deployedNodeModules, '.pnpm')
-  let pnpmEntries = []
-  try { pnpmEntries = await readdir(pnpmDir) } catch { /* no .pnpm */ }
-
-  let hoistedCount = 0
-  for (const entry of pnpmEntries) {
-    if (entry.startsWith('.') || entry === 'lock.yaml') continue
-
-    // Parse package name from .pnpm entry name
-    let pkgName
-    if (entry.startsWith('@')) {
-      // Scoped: "@scope+name@version[_peers]" → "@scope/name"
-      const atIdx = entry.indexOf('@', 1)
-      if (atIdx === -1) continue
-      pkgName = entry.substring(0, atIdx).replace('+', '/')
-    } else {
-      // Non-scoped: "name@version[_peers]" → "name"
-      const atIdx = entry.indexOf('@')
-      if (atIdx === -1) continue
-      pkgName = entry.substring(0, atIdx)
-    }
-
-    if (!pkgName) continue
-
-    // Check if already exists at top level
-    const parts = pkgName.split('/')
-    const topLevelPath = join(OUT_NODE_MODULES, ...parts)
-    try { await stat(topLevelPath); continue } catch { /* missing, hoist it */ }
-
-    // Copy real files from .pnpm/{entry}/node_modules/{pkgName}/
-    const src = join(pnpmDir, entry, 'node_modules', ...parts)
-    try {
-      await stat(src)
-      if (parts.length > 1) {
-        await mkdir(join(OUT_NODE_MODULES, parts[0]), { recursive: true })
-      }
-      await cp(src, topLevelPath, { recursive: true, dereference: true })
-      hoistedCount++
-    } catch {
-      // Package structure doesn't match expectation, skip
-    }
-  }
-  console.log(`  Hoisted ${hoistedCount} transitive dependencies from .pnpm/`)
-
   // Clean up temp directory
   await rm(TEMP_DEPLOY_DIR, { recursive: true, force: true })
   console.log('  Cleaned up temp deploy directory')
 
+  // 3. Verify all external imports can resolve from deps/node_modules
+  console.log('\n[3/5] Verifying external imports...')
+  const verifyErrors = []
+  const depsRequire = createRequire(join(DEPS_DIR, '_virtual.js'))
+
+  for (const entryName of Object.keys(ENTRY_POINTS)) {
+    const bundlePath = join(DEPS_DIR, `${entryName}.js`)
+    const bundleContent = await readFile(bundlePath, 'utf-8')
+
+    // Extract external imports from the bundled output.
+    // esbuild ESM output uses: import ... from "pkg" and import "pkg"
+    // Also handle re-exports: export ... from "pkg"
+    const importRegex = /(?:import|export)\s.*?from\s*["']([^"'./][^"']*)["']|import\s*["']([^"'./][^"']*)["']/g
+    const importedPkgs = new Set()
+    let match
+    while ((match = importRegex.exec(bundleContent)) !== null) {
+      const raw = match[1] || match[2]
+      // Normalize to package name (e.g., "@scope/pkg/sub" → "@scope/pkg", "pkg/sub" → "pkg")
+      const parts = raw.startsWith('@') ? raw.split('/').slice(0, 2) : raw.split('/').slice(0, 1)
+      importedPkgs.add(parts.join('/'))
+    }
+
+    for (const pkg of importedPkgs) {
+      // Skip Node.js built-in modules
+      if (pkg.startsWith('node:') || ['fs', 'path', 'os', 'child_process', 'crypto', 'http', 'https', 'net', 'url', 'util', 'stream', 'events', 'buffer', 'module', 'worker_threads', 'tty', 'assert', 'zlib', 'dns', 'tls', 'async_hooks', 'perf_hooks', 'v8', 'vm', 'readline', 'string_decoder', 'querystring', 'diagnostics_channel', 'inspector'].includes(pkg)) {
+        continue
+      }
+
+      // Try to resolve the package from deps/node_modules
+      try {
+        depsRequire.resolve(pkg)
+      } catch {
+        verifyErrors.push({
+          entry: `${entryName}.js`,
+          pkg,
+          type: 'missing',
+        })
+        continue
+      }
+
+      // Check for CJS/ESM compatibility issues
+      try {
+        const pkgParts = pkg.startsWith('@') ? pkg.split('/').slice(0, 2) : pkg.split('/').slice(0, 1)
+        const pkgJsonPath = join(OUT_NODE_MODULES, ...pkgParts, 'package.json')
+        const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8'))
+        const isCjs = pkgJson.type !== 'module' && !pkgJson.exports
+        if (isCjs) {
+          // Check if the bundle uses named imports from this CJS package
+          // Pattern: import { x } from "pkg" (not default/namespace import)
+          const namedImportRegex = new RegExp(`import\\s*\\{[^}]+\\}\\s*from\\s*["']${pkg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:/[^"']*)?["']`)
+          if (namedImportRegex.test(bundleContent)) {
+            verifyErrors.push({
+              entry: `${entryName}.js`,
+              pkg,
+              type: 'cjs-named-import',
+            })
+          }
+        }
+      } catch {
+        // Can't read package.json — not necessarily an error
+      }
+    }
+  }
+
+  if (verifyErrors.length > 0) {
+    console.error('\n  Verification FAILED:')
+    for (const err of verifyErrors) {
+      if (err.type === 'missing') {
+        console.error(`  ERROR [${err.entry}]: Cannot resolve '${err.pkg}' from deps/node_modules`)
+        console.error(`    → Fix: Add '${err.pkg}' to BUNDLE_INLINE in scripts/bundle-server.mjs`)
+      } else if (err.type === 'cjs-named-import') {
+        console.error(`  ERROR [${err.entry}]: '${err.pkg}' is CJS but used with named ESM imports`)
+        console.error(`    → Fix: Add '${err.pkg}' to BUNDLE_INLINE in scripts/bundle-server.mjs`)
+      }
+    }
+    process.exit(1)
+  }
+  console.log('  All external imports verified ✓')
+
   // 4. Prune unnecessary files from node_modules
-  console.log('\n[3/4] Pruning unnecessary files from node_modules...')
+  console.log('\n[4/5] Pruning unnecessary files from node_modules...')
   const removedCount = await pruneDir(OUT_NODE_MODULES)
   console.log(`  Removed ${removedCount} unnecessary files/directories`)
 
   // 5. Fix binary permissions
-  console.log('\n[4/4] Fixing binary permissions...')
+  console.log('\n[5/5] Fixing binary permissions...')
   await preserveBinaryPermissions(OUT_NODE_MODULES)
 
   console.log('\nServer bundle complete.')
