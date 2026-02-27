@@ -35,7 +35,9 @@ const SERVER_PKG = join(ROOT, 'packages/server')
 const OUT_DIR = join(ROOT, 'apps/desktop/resources/server')
 const DEPS_DIR = join(OUT_DIR, 'deps')
 const OUT_NODE_MODULES = join(DEPS_DIR, 'node_modules')
-const TEMP_DEPLOY_DIR = join(tmpdir(), `golemancy-deploy-${process.pid}`)
+// Use project-relative temp dir — tmpdir() returns 8.3 short paths on Windows CI
+// (e.g., C:\Users\RUNNER~1\...) which breaks pnpm deploy.
+const TEMP_DEPLOY_DIR = join(ROOT, '.tmp-pnpm-deploy')
 
 // Entry points — object format so esbuild outputs flat names (no subdirectories).
 // sandbox-pool.ts does: path.join(import.meta.dirname, 'sandbox-worker.js')
@@ -251,6 +253,7 @@ const PRUNE_FILE_PATTERNS = [
 ]
 
 const PRUNE_DIR_NAMES = new Set([
+  '.bin',
   'test',
   'tests',
   '__tests__',
