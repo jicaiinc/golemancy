@@ -23,11 +23,16 @@ detect_platform() {
     *) echo "ERROR: Unsupported OS: $(uname -s)"; exit 1 ;;
   esac
 
-  case "$(uname -m)" in
-    arm64|aarch64) arch="arm64" ;;
-    x86_64|amd64)  arch="x64" ;;
-    *) echo "ERROR: Unsupported architecture: $(uname -m)"; exit 1 ;;
-  esac
+  # Allow --arch override for cross-compilation (e.g., building x64 on ARM runner)
+  if [ -n "${OVERRIDE_ARCH:-}" ]; then
+    arch="$OVERRIDE_ARCH"
+  else
+    case "$(uname -m)" in
+      arm64|aarch64) arch="arm64" ;;
+      x86_64|amd64)  arch="x64" ;;
+      *) echo "ERROR: Unsupported architecture: $(uname -m)"; exit 1 ;;
+    esac
+  fi
 
   echo "${os}-${arch}"
 }
@@ -205,12 +210,32 @@ download_node() {
   fi
 }
 
+# ── Argument parsing ──
+
+OVERRIDE_ARCH=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --arch)
+      OVERRIDE_ARCH="$2"
+      shift 2
+      ;;
+    *)
+      echo "Usage: $0 [--arch arm64|x64]"
+      exit 1
+      ;;
+  esac
+done
+
 # ── Main ──
 
 main() {
   local platform
   platform="$(detect_platform)"
   echo "Detected platform: ${platform}"
+  if [ -n "$OVERRIDE_ARCH" ]; then
+    echo "Architecture override: ${OVERRIDE_ARCH}"
+  fi
   echo "Runtime directory: ${RUNTIME_DIR}"
   echo ""
 
@@ -225,4 +250,4 @@ main() {
   echo "Total size: $(du -sh "${RUNTIME_DIR}" | awk '{print $1}')"
 }
 
-main "$@"
+main

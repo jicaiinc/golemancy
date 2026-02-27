@@ -2,24 +2,22 @@
 #
 # Trigger: push a version tag (e.g., git tag v0.1.0 && git push --tags)
 #
-# Architecture constraint:
+# Architecture:
 #   Native modules (better-sqlite3) and bundled runtimes (Node.js, Python) are
-#   platform-specific. Each platform+arch combination MUST build on a matching runner.
-#   Cross-compilation is not supported.
+#   platform-specific. Most platform+arch combos build on a matching runner.
+#   macOS x64 cross-compiles on ARM runner (prebuilt binaries, Rosetta 2 for smoke test).
 #
 # Runner matrix:
-#   macOS ARM64  → macos-latest  (Apple Silicon)
+#   macOS ARM64  → macos-latest  (Apple Silicon, native)
+#   macOS x64    → macos-latest  (Apple Silicon, cross-compiled via --arch x64)
 #   Linux x64    → ubuntu-latest
 #   Windows x64  → windows-latest
 #
-# Note: macOS x64 (Intel) removed — GitHub retired macos-13 Intel runners.
-#   Can be re-added later via cross-compilation or Universal Binary.
-#
 # Cost estimate (private repo, per release):
-#   macOS:   ~10 min × 1 runner  × 10x multiplier = ~100 minutes
+#   macOS:   ~10 min × 2 runners × 10x multiplier = ~200 minutes
 #   Linux:   ~10 min × 1 runner  × 1x multiplier  = ~10 minutes
-#   Windows: ~10 min × 1 runner  × 2x multiplier   = ~20 minutes
-#   Total: ~130 minutes (free tier: 2000 min/month → ~15 releases/month)
+#   Windows: ~10 min × 1 runner  × 2x multiplier  = ~20 minutes
+#   Total: ~230 minutes (free tier: 2000 min/month → ~8 releases/month)
 
 name: Release
 
@@ -48,6 +46,10 @@ jobs:
             platform: mac
             arch: arm64
             artifact: release-mac-arm64
+          - os: macos-latest
+            platform: mac
+            arch: x64
+            artifact: release-mac-x64
           - os: ubuntu-latest
             platform: linux
             arch: x64
@@ -85,7 +87,7 @@ jobs:
 
       # ── Step 1: Download bundled runtimes (Node.js + Python) ──
       - name: Download runtimes
-        run: bash scripts/download-runtime.sh
+        run: bash scripts/download-runtime.sh --arch ${{ matrix.arch }}
         shell: bash
 
       # ── Step 2: Build Electron app (main + preload + renderer) ──
@@ -94,7 +96,9 @@ jobs:
 
       # ── Step 3: Bundle server code + production dependencies ──
       - name: Bundle server
-        run: node scripts/bundle-server.mjs
+        run: node scripts/bundle-server.mjs --arch ${{ matrix.arch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ── Step 4: Preflight check ──
       - name: Preflight check
@@ -215,6 +219,7 @@ jobs:
             | Platform | Architecture | File |
             |----------|-------------|------|
             | macOS | Apple Silicon (M1/M2/M3/M4) | `.dmg` (arm64) |
+            | macOS | Intel | `.dmg` (x64) |
             | Windows | x64 | `.exe` (NSIS installer) |
             | Linux (Ubuntu/Debian) | x64 | `.deb` |
             | Linux (Fedora/RHEL) | x64 | `.rpm` |

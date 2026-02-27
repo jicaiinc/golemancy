@@ -22,10 +22,20 @@
 import { execSync, execFileSync } from 'node:child_process'
 import { chmod, cp, mkdir, readdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { tmpdir } from 'node:os'
+import { arch as osArch, tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 const ROOT = resolve(import.meta.dirname, '..')
+
+// ── CLI arguments ──
+// --arch <arm64|x64>  Override target architecture for cross-compilation.
+//   When specified and different from process.arch, native package binaries
+//   (better-sqlite3 .node, ripgrep rg) are re-downloaded for the target arch.
+const TARGET_ARCH = (() => {
+  const idx = process.argv.indexOf('--arch')
+  return (idx !== -1 && process.argv[idx + 1]) ? process.argv[idx + 1] : osArch()
+})()
+const IS_CROSS_ARCH = TARGET_ARCH !== osArch()
 
 // Resolve esbuild from the desktop package where it's installed as a devDependency.
 const desktopRequire = createRequire(join(ROOT, 'apps/desktop/package.json'))
@@ -235,6 +245,111 @@ async function searchForExtension(dir, ext, depth, maxDepth) {
   return false
 }
 
+// ── Cross-arch native binary helpers ─────────────────────────
+
+/**
+ * Re-download native binaries for the target architecture.
+ * Called only when --arch differs from the host (cross-compilation).
+ *
+ * Each native package has a different download mechanism:
+ *   - better-sqlite3: prebuild-install downloads prebuilt .node from GitHub Releases
+ *   - @vscode/ripgrep: postinstall downloads rg binary (supports npm_config_arch env)
+ *   - agent-browser: npm package ships all platform binaries — no action needed
+ */
+async function crossArchFixNativePackages(externals) {
+  for (const pkg of externals) {
+    const pkgDir = join(OUT_NODE_MODULES, pkg)
+    try {
+      await stat(pkgDir)
+    } catch {
+      continue // Not in output
+    }
+
+    if (pkg === 'better-sqlite3') {
+      await crossArchFixBetterSqlite3(pkgDir)
+    } else if (pkg === '@vscode/ripgrep') {
+      await crossArchFixRipgrep(pkgDir)
+    }
+    // agent-browser: ships all platform binaries, no fix needed
+  }
+}
+
+/**
+ * Download better-sqlite3 prebuilt .node for target architecture.
+ * URL pattern: https://github.com/JoshuaWise/better-sqlite3/releases/download/
+ *   v{version}/better-sqlite3-v{version}-node-v{abi}-{platform}-{arch}.tar.gz
+ * The tarball contains: build/Release/better_sqlite3.node
+ */
+async function crossArchFixBetterSqlite3(pkgDir) {
+  const pkgJson = JSON.parse(await readFile(join(pkgDir, 'package.json'), 'utf-8'))
+  const version = pkgJson.version
+  const abi = process.versions.modules // Node.js ABI version (e.g., "127" for Node 22)
+  const platform = process.platform
+
+  const filename = `better-sqlite3-v${version}-node-v${abi}-${platform}-${TARGET_ARCH}.tar.gz`
+  const url = `https://github.com/JoshuaWise/better-sqlite3/releases/download/v${version}/${filename}`
+
+  console.log(`    better-sqlite3: downloading ${TARGET_ARCH} prebuilt...`)
+
+  const tmpFile = join(TEMP_DEPLOY_DIR, '_better-sqlite3-prebuilt.tar.gz')
+  await mkdir(join(TEMP_DEPLOY_DIR), { recursive: true })
+
+  try {
+    execSync(`curl -fSL --retry 3 -o "${tmpFile}" "${url}"`, {
+      stdio: 'pipe',
+      encoding: 'utf-8',
+    })
+  } catch (err) {
+    console.error(`    FAILED to download better-sqlite3 prebuilt: ${err.message}`)
+    console.error(`    URL: ${url}`)
+    process.exit(1)
+  }
+
+  // Extract tarball — contains build/Release/better_sqlite3.node
+  const buildDir = join(pkgDir, 'build', 'Release')
+  await mkdir(buildDir, { recursive: true })
+  execSync(`tar xzf "${tmpFile}" -C "${pkgDir}"`, { stdio: 'pipe' })
+  await rm(tmpFile, { force: true })
+
+  // Verify the .node file exists
+  try {
+    await stat(join(buildDir, 'better_sqlite3.node'))
+    console.log(`    better-sqlite3: ${TARGET_ARCH} prebuilt installed ✓`)
+  } catch {
+    console.error('    FAILED: better_sqlite3.node not found after extraction')
+    process.exit(1)
+  }
+}
+
+/**
+ * Download @vscode/ripgrep rg binary for target architecture.
+ * Uses the package's own postinstall.js with npm_config_arch override.
+ */
+async function crossArchFixRipgrep(pkgDir) {
+  console.log(`    @vscode/ripgrep: downloading ${TARGET_ARCH} rg binary...`)
+
+  // Remove existing bin/ so postinstall re-downloads
+  await rm(join(pkgDir, 'bin'), { recursive: true, force: true })
+
+  // Run postinstall with architecture override.
+  // @vscode/ripgrep's postinstall reads npm_config_arch env var.
+  try {
+    execSync(`node "${join(pkgDir, 'lib', 'postinstall.js')}"`, {
+      cwd: pkgDir,
+      stdio: 'pipe',
+      encoding: 'utf-8',
+      env: {
+        ...process.env,
+        npm_config_arch: TARGET_ARCH,
+      },
+    })
+    console.log(`    @vscode/ripgrep: ${TARGET_ARCH} rg binary installed ✓`)
+  } catch (err) {
+    console.error(`    FAILED to download ripgrep: ${err.stderr || err.message}`)
+    process.exit(1)
+  }
+}
+
 // ── Prune / permissions helpers ──────────────────────────────
 
 // Patterns for files/dirs to prune from node_modules
@@ -338,7 +453,7 @@ async function preserveBinaryPermissions(dirPath) {
 // ── Main bundle function ──────────────────────────────────────
 
 async function bundleServer() {
-  console.log('Bundling server...')
+  console.log(`Bundling server...${IS_CROSS_ARCH ? ` (cross-arch: ${osArch()} → ${TARGET_ARCH})` : ''}`)
 
   // ── [1/5] Auto-detect native packages ─────────────────────
   console.log('\n[1/5] Auto-detect native packages...')
@@ -549,6 +664,14 @@ async function bundleServer() {
       } catch { /* wasn't saved — skip */ }
     }
     console.log('  Overlaid native packages with compiled addons')
+
+    // Step 7 (cross-arch only): Re-download native binaries for target architecture.
+    // The overlay in step 6 copied host-arch binaries (e.g., arm64 .node files).
+    // For cross-compilation, replace them with target-arch versions.
+    if (IS_CROSS_ARCH) {
+      console.log(`  Cross-arch: replacing native binaries (${osArch()} → ${TARGET_ARCH})...`)
+      await crossArchFixNativePackages(externals)
+    }
 
     // Clean up temp directory
     await rm(TEMP_DEPLOY_DIR, { recursive: true, force: true })
