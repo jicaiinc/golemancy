@@ -30,3 +30,6 @@ export { DashboardPage, GlobalDashboardPage } from './dashboard'
 
 // Settings
 export { GlobalSettingsPage } from './settings'
+
+// Onboarding
+export { OnboardingPage } from './onboarding'

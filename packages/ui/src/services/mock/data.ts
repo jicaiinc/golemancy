@@ -264,6 +264,7 @@ export const SEED_SETTINGS: GlobalSettings = {
   },
   defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
   theme: 'dark',
+  onboardingCompleted: true,
 }
 
 // --- Dashboard Seed Data ---

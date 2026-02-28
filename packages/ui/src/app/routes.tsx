@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router'
 import { ProjectLayout } from './layouts/ProjectLayout'
+import { useAppStore } from '../stores'
 import {
   ProjectListPage,
   DashboardPage,
@@ -15,6 +16,7 @@ import {
   MemoryPage,
   ProjectSettingsPage,
   GlobalSettingsPage,
+  OnboardingPage,
 } from '../pages'
 
 /** If window was opened with --project-id, redirect to that project */
@@ -23,6 +25,23 @@ function RootRedirect() {
   if (projectId) {
     return <Navigate to={`/projects/${projectId}`} replace />
   }
+
+  const settings = useAppStore(s => s.settings)
+  const projects = useAppStore(s => s.projects)
+  const projectsLoading = useAppStore(s => s.projectsLoading)
+
+  // Wait for settings and projects to load before deciding
+  if (!settings || projectsLoading) return null
+
+  // Three conditions must ALL be true to trigger onboarding
+  const needsOnboarding = !settings.onboardingCompleted
+    && Object.keys(settings.providers ?? {}).length === 0
+    && projects.length === 0
+
+  if (needsOnboarding) {
+    return <OnboardingPage />
+  }
+
   return <ProjectListPage />
 }
 

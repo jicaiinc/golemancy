@@ -31,6 +31,8 @@ export interface GlobalSettings {
   defaultModel?: AgentModelConfig
   theme: ThemeMode
   speechToText?: SpeechToTextSettings
+  onboardingCompleted?: boolean
+  onboardingStep?: number
 }
 
 export interface ProjectConfig {
