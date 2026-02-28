@@ -15,6 +15,13 @@ const severityClasses: Record<Severity, string> = {
   success: 'border-accent-green/40 bg-accent-green/10 text-accent-green',
 }
 
+const dismissClasses: Record<Severity, string> = {
+  error: 'hover:bg-accent-red/20',
+  warning: 'hover:bg-accent-amber/20',
+  info: 'hover:bg-accent-blue/20',
+  success: 'hover:bg-accent-green/20',
+}
+
 export function PixelNotificationBanner({ severity, onDismiss, children }: PixelNotificationBannerProps) {
   return (
     <div
@@ -25,7 +32,7 @@ export function PixelNotificationBanner({ severity, onDismiss, children }: Pixel
       {onDismiss && (
         <button
           onClick={onDismiss}
-          className="shrink-0 px-1 py-0.5 text-[12px] font-mono hover:text-text-primary hover:bg-current/20 transition-colors cursor-pointer"
+          className={`shrink-0 px-1 py-0.5 text-[12px] font-mono hover:text-text-primary ${dismissClasses[severity]} transition-colors cursor-pointer`}
           title="Dismiss"
         >
           [x]

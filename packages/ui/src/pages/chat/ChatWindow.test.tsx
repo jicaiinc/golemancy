@@ -278,14 +278,15 @@ describe('ChatWindow', () => {
 
   describe('error display', () => {
     it('shows parsed error message from server JSON response', () => {
-      useChatError = new Error('422: {"error":"API key for provider \\"openai\\" is not set.","code":"API_KEY_MISSING"}')
+      // AI SDK v6 throws raw response body as error.message
+      useChatError = new Error('{"error":"API key for provider \\"openai\\" is not set.","code":"API_KEY_MISSING"}')
       render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
       expect(screen.getByText('API key for provider "openai" is not set.')).toBeInTheDocument()
     })
 
     it('shows friendly message for Internal Server Error', () => {
-      useChatError = new Error('500: {"error":"Internal Server Error"}')
+      useChatError = new Error('{"error":"Internal Server Error"}')
       render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
       expect(screen.getByText('Something went wrong. Please try again later.')).toBeInTheDocument()

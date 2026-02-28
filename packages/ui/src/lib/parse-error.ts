@@ -1,6 +1,8 @@
 export function parseErrorMessage(error: Error): string {
   const msg = error.message
-  const jsonMatch = msg.match(/^\d+:\s*(\{.+\})$/)
+  // AI SDK v6 DefaultChatTransport throws raw response body as error.message.
+  // Match either raw JSON body or "STATUS: {json}" format.
+  const jsonMatch = msg.match(/^(?:\d+:\s*)?(\{.+\})$/)
   if (jsonMatch) {
     try {
       const body = JSON.parse(jsonMatch[1])
