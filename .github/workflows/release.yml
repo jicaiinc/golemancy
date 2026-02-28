@@ -261,3 +261,10 @@ jobs:
 
             > **Note:** Sandbox mode is only available on macOS and Linux.
             > Windows users should use Restricted or Unrestricted permission mode.
+
+      # Clean up temporary build artifacts to free storage quota.
+      # The files are already on the Release page — no longer needed in artifact storage.
+      - name: Delete temporary build artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: release-*
