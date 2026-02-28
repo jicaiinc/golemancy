@@ -5,7 +5,8 @@ import { motion } from 'motion/react'
 import type { Agent, AgentId, CompactRecord, Conversation } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
-import { PixelButton, PixelSpinner, SidebarToggleIcon } from '../../components'
+import { PixelButton, PixelSpinner, PixelNotificationBanner, SidebarToggleIcon } from '../../components'
+import { parseErrorMessage } from '../../lib/parse-error'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { getOrCreateChat } from '../../lib/chat-instances'
 import { MessageBubble } from './MessageBubble'
@@ -55,6 +56,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   const [titleValue, setTitleValue] = useState('')
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
   const [toolWarnings, setToolWarnings] = useState<string[]>([])
+  const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set())
   const [compactRecords, setCompactRecords] = useState<CompactRecord[]>(conversation.compactRecords ?? [])
   const [compacting, setCompacting] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
@@ -127,7 +129,8 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     setToolWarnings([]);
     (chat as any).onData = (part: { type: string; data?: Record<string, unknown>; transient?: boolean }) => {
       if (part.type === 'data-warning' && part.transient && part.data?.message) {
-        setToolWarnings(prev => [...prev, String(part.data!.message)])
+        const msg = String(part.data!.message)
+        setToolWarnings(prev => prev.includes(msg) ? prev : [...prev, msg])
       }
       if (part.type === 'data-usage' && part.data) {
         if (onUsageUpdate) {
@@ -329,30 +332,21 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
 
       {/* Error banner */}
       {error && (
-        <div className="px-4 py-2 border-b-2 border-accent-red/40 bg-accent-red/10 flex items-center justify-between gap-2">
-          <p className="text-[12px] font-mono text-accent-red min-w-0 break-words">
-            Error: {error.message}
-          </p>
-          <button
-            onClick={clearError}
-            className="shrink-0 px-1 py-0.5 text-[12px] font-mono text-accent-red hover:text-text-primary hover:bg-accent-red/20 transition-colors cursor-pointer"
-            title="Dismiss"
-          >
-            [x]
-          </button>
-        </div>
+        <PixelNotificationBanner severity="error" onDismiss={clearError}>
+          {parseErrorMessage(error)}
+        </PixelNotificationBanner>
       )}
 
       {/* MCP / tool loading warnings */}
-      {toolWarnings.length > 0 && (
-        <div className="px-4 py-2 border-b-2 border-accent-amber/40 bg-accent-amber/10">
-          {toolWarnings.map((warning, i) => (
-            <p key={i} className="text-[11px] font-mono text-accent-amber">
-              {warning}
-            </p>
-          ))}
-        </div>
-      )}
+      {toolWarnings.filter(w => !dismissedWarnings.has(w)).map((warning) => (
+        <PixelNotificationBanner
+          key={warning}
+          severity="warning"
+          onDismiss={() => setDismissedWarnings(prev => new Set(prev).add(warning))}
+        >
+          {warning}
+        </PixelNotificationBanner>
+      ))}
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-4 py-3">

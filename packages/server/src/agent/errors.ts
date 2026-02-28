@@ -1,5 +1,17 @@
 import type { PermissionMode } from '@golemancy/shared'
 
+export class ConfigurationError extends Error {
+  readonly name = 'ConfigurationError' as const
+  readonly statusCode: number
+  readonly code: string
+
+  constructor(message: string, code: string, statusCode = 422) {
+    super(message)
+    this.code = code
+    this.statusCode = statusCode
+  }
+}
+
 /**
  * Error thrown when sandbox mode is requested but unavailable.
  * Instead of silently falling back, this error is thrown so the caller

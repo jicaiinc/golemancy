@@ -26,12 +26,15 @@ vi.mock('../../lib/chat-instances', () => ({
 
 // Mock @ai-sdk/react — useChat returns what we configure per-test
 const mockChatSendMessage = vi.fn()
+const mockClearError = vi.fn()
 let useChatMessages: UIMessage[] = []
+let useChatError: Error | undefined = undefined
 vi.mock('@ai-sdk/react', () => ({
   useChat: vi.fn(() => ({
     messages: useChatMessages,
     status: 'ready',
-    error: undefined,
+    error: useChatError,
+    clearError: mockClearError,
     sendMessage: mockChatSendMessage,
   })),
 }))
@@ -129,6 +132,7 @@ describe('ChatWindow', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     useChatMessages = [] // reset to empty
+    useChatError = undefined
     Element.prototype.scrollIntoView = vi.fn()
     delete (window as any).electronAPI
     services = createTestServices()
@@ -269,6 +273,30 @@ describe('ChatWindow', () => {
     await waitFor(() => {
       expect(mockDelete).toHaveBeenCalledWith('conv-1')
       expect(mockSelect).toHaveBeenCalledWith(null)
+    })
+  })
+
+  describe('error display', () => {
+    it('shows parsed error message from server JSON response', () => {
+      useChatError = new Error('422: {"error":"API key for provider \\"openai\\" is not set.","code":"API_KEY_MISSING"}')
+      render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+
+      expect(screen.getByText('API key for provider "openai" is not set.')).toBeInTheDocument()
+    })
+
+    it('shows friendly message for Internal Server Error', () => {
+      useChatError = new Error('500: {"error":"Internal Server Error"}')
+      render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+
+      expect(screen.getByText('Something went wrong. Please try again later.')).toBeInTheDocument()
+    })
+
+    it('calls clearError when dismiss button is clicked on error banner', () => {
+      useChatError = new Error('Something went wrong')
+      render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+
+      fireEvent.click(screen.getByTitle('Dismiss'))
+      expect(mockClearError).toHaveBeenCalledOnce()
     })
   })
 })

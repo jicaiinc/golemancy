@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { GlobalSettings, AgentModelConfig } from '@golemancy/shared'
+import { ConfigurationError } from './errors'
 
 const mocks = vi.hoisted(() => {
   const anthropicModel = { id: 'anthropic-model' }
@@ -143,22 +144,79 @@ describe('resolveModel', () => {
   })
 
   describe('error handling', () => {
-    it('throws when provider is not configured', async () => {
+    it('throws ConfigurationError(PROVIDER_NOT_CONFIGURED) when provider not found', async () => {
       const settings = makeSettings({ providers: {} })
       const agentConfig: AgentModelConfig = { provider: 'google', model: 'gemini-2.5-flash' }
 
-      await expect(resolveModel(settings, agentConfig)).rejects.toThrow(
-        'Provider "google" not configured in settings',
-      )
+      await expect(resolveModel(settings, agentConfig)).rejects.toThrow(ConfigurationError)
+      try {
+        await resolveModel(settings, agentConfig)
+      } catch (err) {
+        expect((err as ConfigurationError).code).toBe('PROVIDER_NOT_CONFIGURED')
+        expect((err as ConfigurationError).message).toContain('google')
+      }
     })
 
-    it('throws when referencing a non-existent provider key', async () => {
+    it('throws ConfigurationError(PROVIDER_NOT_CONFIGURED) for non-existent provider key', async () => {
       const settings = makeSettings()
       const agentConfig: AgentModelConfig = { provider: 'nonexistent', model: 'some-model' }
 
-      await expect(resolveModel(settings, agentConfig)).rejects.toThrow(
-        'Provider "nonexistent" not configured in settings',
-      )
+      await expect(resolveModel(settings, agentConfig)).rejects.toThrow(ConfigurationError)
+      try {
+        await resolveModel(settings, agentConfig)
+      } catch (err) {
+        expect((err as ConfigurationError).code).toBe('PROVIDER_NOT_CONFIGURED')
+      }
+    })
+
+    it('throws ConfigurationError(API_KEY_MISSING) when apiKey is empty string', async () => {
+      const settings = makeSettings({
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: '', models: ['gpt-4o'] },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'openai', model: 'gpt-4o' }
+
+      await expect(resolveModel(settings, agentConfig)).rejects.toThrow(ConfigurationError)
+      try {
+        await resolveModel(settings, agentConfig)
+      } catch (err) {
+        expect((err as ConfigurationError).code).toBe('API_KEY_MISSING')
+      }
+    })
+
+    it('throws ConfigurationError(API_KEY_MISSING) when apiKey is undefined', async () => {
+      const settings = makeSettings({
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: undefined as any, models: ['gpt-4o'] },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'openai', model: 'gpt-4o' }
+
+      await expect(resolveModel(settings, agentConfig)).rejects.toThrow(ConfigurationError)
+      try {
+        await resolveModel(settings, agentConfig)
+      } catch (err) {
+        expect((err as ConfigurationError).code).toBe('API_KEY_MISSING')
+      }
+    })
+
+    it('does not throw when baseUrl contains localhost and apiKey is missing', async () => {
+      const settings = makeSettings({
+        providers: {
+          ollama: {
+            name: 'Ollama',
+            sdkType: 'openai-compatible',
+            apiKey: '',
+            baseUrl: 'http://localhost:11434/v1',
+            models: ['llama3'],
+          },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'ollama', model: 'llama3' }
+
+      const model = await resolveModel(settings, agentConfig)
+      expect(model).toBeDefined()
     })
   })
 })

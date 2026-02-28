@@ -33,6 +33,7 @@ import { createSandboxRoutes } from './routes/sandbox'
 import { createUploadRoutes } from './routes/uploads'
 import { createSpeechRoutes } from './routes/speech'
 import { logger } from './logger'
+import { ConfigurationError } from './agent/errors'
 
 export interface ServerDependencies {
   projectStorage: IProjectService
@@ -93,6 +94,10 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
 
   // W1: Global error handler — structured JSON, no stack leaks in production
   app.onError((err, c) => {
+    if (err instanceof ConfigurationError) {
+      logger.warn({ code: err.code, method: c.req.method, path: c.req.path }, err.message)
+      return c.json({ error: err.message, code: err.code }, err.statusCode as 422)
+    }
     logger.error({ err, method: c.req.method, path: c.req.path }, 'unhandled error')
     return c.json({
       error: 'Internal Server Error',

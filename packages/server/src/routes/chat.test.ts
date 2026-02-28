@@ -6,6 +6,7 @@ import type {
   IProjectService, IConversationService, ISettingsService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { createChatRoutes, type ChatRouteDeps } from './chat'
+import { ConfigurationError } from '../agent/errors'
 
 // Mock heavy dependencies — we don't want real AI calls
 vi.mock('../agent/model', () => ({
@@ -167,6 +168,13 @@ function createMocks(): ChatRouteDeps {
 
 function createChatApp(mocks: ChatRouteDeps) {
   const app = new Hono()
+  // Add global error handler matching app.ts behavior
+  app.onError((err, c) => {
+    if (err instanceof ConfigurationError) {
+      return c.json({ error: err.message, code: err.code }, err.statusCode as 422)
+    }
+    return c.json({ error: 'Internal Server Error' }, 500)
+  })
   app.route('/api/chat', createChatRoutes(mocks))
   return app
 }
@@ -341,6 +349,43 @@ describe('Chat routes', () => {
       })
 
       expect(mocks.conversationStorage.saveMessage).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('error classification', () => {
+    it('returns 422 with error details when resolveModel throws ConfigurationError', async () => {
+      vi.mocked(mocks.agentStorage.getById).mockResolvedValue(makeAgent())
+      const { resolveModel } = await import('../agent/model')
+      vi.mocked(resolveModel).mockRejectedValueOnce(
+        new ConfigurationError('API key for provider "openai" is not set.', 'API_KEY_MISSING'),
+      )
+
+      const res = await app.request('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validBody),
+      })
+
+      expect(res.status).toBe(422)
+      const body = await res.json()
+      expect(body.error).toContain('API key')
+      expect(body.code).toBe('API_KEY_MISSING')
+    })
+
+    it('returns 500 with generic error when resolveModel throws a plain Error', async () => {
+      vi.mocked(mocks.agentStorage.getById).mockResolvedValue(makeAgent())
+      const { resolveModel } = await import('../agent/model')
+      vi.mocked(resolveModel).mockRejectedValueOnce(new Error('Unexpected failure'))
+
+      const res = await app.request('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(validBody),
+      })
+
+      expect(res.status).toBe(500)
+      const body = await res.json()
+      expect(body.error).toBe('Internal Server Error')
     })
   })
 })

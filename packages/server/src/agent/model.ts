@@ -1,6 +1,7 @@
 import type { LanguageModel } from 'ai'
 import type { GlobalSettings, AgentModelConfig } from '@golemancy/shared'
 import { logger } from '../logger'
+import { ConfigurationError } from './errors'
 
 const log = logger.child({ component: 'agent:model' })
 
@@ -10,7 +11,18 @@ export async function resolveModel(
 ): Promise<LanguageModel> {
   const { provider, model } = agentConfig
   const entry = settings.providers[provider]
-  if (!entry) throw new Error(`Provider "${provider}" not configured in settings`)
+  if (!entry) {
+    throw new ConfigurationError(
+      `Provider "${provider}" is not configured. Go to Settings → Providers to add it.`,
+      'PROVIDER_NOT_CONFIGURED',
+    )
+  }
+  if (!entry.apiKey?.trim() && !entry.baseUrl?.includes('localhost')) {
+    throw new ConfigurationError(
+      `API key for provider "${provider}" is not set. Go to Settings → Providers to configure it.`,
+      'API_KEY_MISSING',
+    )
+  }
 
   log.debug({ provider, model, sdkType: entry.sdkType }, 'resolving model')
 
