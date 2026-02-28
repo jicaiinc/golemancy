@@ -21,14 +21,15 @@ import {
 
 /** If window was opened with --project-id, redirect to that project */
 function RootRedirect() {
+  // Hooks must be called unconditionally (React rules of hooks)
+  const settings = useAppStore(s => s.settings)
+  const projects = useAppStore(s => s.projects)
+  const projectsLoading = useAppStore(s => s.projectsLoading)
+
   const projectId = window.electronAPI?.getInitialProjectId()
   if (projectId) {
     return <Navigate to={`/projects/${projectId}`} replace />
   }
-
-  const settings = useAppStore(s => s.settings)
-  const projects = useAppStore(s => s.projects)
-  const projectsLoading = useAppStore(s => s.projectsLoading)
 
   // Wait for settings and projects to load before deciding
   if (!settings || projectsLoading) return null
