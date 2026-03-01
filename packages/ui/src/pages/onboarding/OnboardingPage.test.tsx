@@ -8,15 +8,20 @@ import type { ServiceContainer } from '../../services/container'
 import type { GlobalSettings, ProjectId, AgentId } from '@golemancy/shared'
 
 // Mock motion/react to avoid animation issues in tests
-vi.mock('motion/react', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => {
-      const { initial, animate, exit, transition, custom, ...rest } = props
-      return <div {...rest}>{children}</div>
-    },
-  },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
-}))
+vi.mock('motion/react', () => {
+  const el = (Tag: string) => {
+    const Comp = ({ children, ...props }: any) => {
+      const { initial, animate, exit, transition, custom, variants, style, ...rest } = props
+      return <Tag {...rest} style={style}>{children}</Tag>
+    }
+    Comp.displayName = `motion.${Tag}`
+    return Comp
+  }
+  return {
+    motion: { div: el('div'), h1: el('h1'), p: el('p'), span: el('span') },
+    AnimatePresence: ({ children }: any) => <>{children}</>,
+  }
+})
 
 const emptySettings: GlobalSettings = {
   providers: {},
@@ -150,20 +155,17 @@ describe('OnboardingPage', () => {
 
   it('shows welcome step initially', () => {
     renderOnboarding()
-    expect(screen.getByText('Welcome to Golemancy')).toBeInTheDocument()
     expect(screen.getByText('Command Your AI Golems')).toBeInTheDocument()
+    expect(screen.getByText('Orchestrate autonomous AI agents from your desktop.')).toBeInTheDocument()
   })
 
-  it('shows feature cards on welcome step', () => {
+  it('shows Get Started button on welcome step', () => {
     renderOnboarding()
-    expect(screen.getByText('Orchestrate Agents')).toBeInTheDocument()
-    expect(screen.getByText('Multi-Provider')).toBeInTheDocument()
-    expect(screen.getByText('Automate Workflows')).toBeInTheDocument()
+    expect(screen.getByText('Get Started')).toBeInTheDocument()
   })
 
   it('shows progress bar and step labels', () => {
     renderOnboarding()
-    expect(screen.getByText('Welcome')).toBeInTheDocument()
     expect(screen.getByText('Provider')).toBeInTheDocument()
     expect(screen.getByText('Speech')).toBeInTheDocument()
     expect(screen.getByText('Project')).toBeInTheDocument()
@@ -181,36 +183,35 @@ describe('OnboardingPage', () => {
     expect(screen.getByText('Setup')).toBeInTheDocument()
   })
 
-  it('navigates to provider step when Next is clicked', () => {
+  it('navigates to provider step when Get Started is clicked', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     expect(screen.getByText('Connect an AI Provider')).toBeInTheDocument()
   })
 
-  it('shows Back button disabled on first step', () => {
+  it('hides Back/Next footer on welcome step', () => {
     renderOnboarding()
-    const backBtn = screen.getByText('Back')
-    expect(backBtn).toBeDisabled()
+    expect(screen.queryByText('Back')).not.toBeInTheDocument()
+    expect(screen.queryByText('Next')).not.toBeInTheDocument()
   })
 
-  it('enables Back button on step 1+', () => {
+  it('shows Back button on step 1+', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
-    const backBtn = screen.getByText('Back')
-    expect(backBtn).not.toBeDisabled()
+    fireEvent.click(screen.getByText('Get Started'))
+    expect(screen.getByText('Back')).not.toBeDisabled()
   })
 
   it('navigates back from provider step to welcome', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     expect(screen.getByText('Connect an AI Provider')).toBeInTheDocument()
     fireEvent.click(screen.getByText('Back'))
-    expect(screen.getByText('Welcome to Golemancy')).toBeInTheDocument()
+    expect(screen.getByText('Command Your AI Golems')).toBeInTheDocument()
   })
 
   it('shows provider grid on provider step', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     expect(screen.getByText('Anthropic')).toBeInTheDocument()
     expect(screen.getByText('OpenAI')).toBeInTheDocument()
     expect(screen.getByText('Google')).toBeInTheDocument()
@@ -219,10 +220,9 @@ describe('OnboardingPage', () => {
 
   it('Next is disabled on provider step until test passes and model selected', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     // On provider step, Next should be disabled (no provider selected)
-    const nextBtns = screen.getAllByText('Next')
-    const nextBtn = nextBtns[nextBtns.length - 1]
+    const nextBtn = screen.getByText('Next')
     expect(nextBtn).toBeDisabled()
   })
 
@@ -255,35 +255,35 @@ describe('OnboardingPage — Provider Step', () => {
 
   it('shows API key input after selecting a provider', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     fireEvent.click(screen.getByText('Anthropic'))
     expect(screen.getByText('API KEY')).toBeInTheDocument()
   })
 
   it('shows Change button after selecting a provider', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     fireEvent.click(screen.getByText('Anthropic'))
     expect(screen.getByText('Change')).toBeInTheDocument()
   })
 
   it('shows Test Connection button', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     fireEvent.click(screen.getByText('Anthropic'))
     expect(screen.getByText('Test Connection')).toBeInTheDocument()
   })
 
   it('Test Connection button is disabled when no API key', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     fireEvent.click(screen.getByText('Anthropic'))
     expect(screen.getByText('Test Connection')).toBeDisabled()
   })
 
   it('clicking Change returns to provider grid', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     fireEvent.click(screen.getByText('Anthropic'))
     fireEvent.click(screen.getByText('Change'))
     // Should see the provider grid again
@@ -293,7 +293,7 @@ describe('OnboardingPage — Provider Step', () => {
 
   it('shows custom provider form when Custom is clicked', () => {
     renderOnboarding()
-    fireEvent.click(screen.getByText('Next'))
+    fireEvent.click(screen.getByText('Get Started'))
     fireEvent.click(screen.getByText('Custom'))
     expect(screen.getByText('CUSTOM PROVIDER')).toBeInTheDocument()
     expect(screen.getByText('NAME')).toBeInTheDocument()

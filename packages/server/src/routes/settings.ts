@@ -11,15 +11,15 @@ async function createTestModel(sdkType: ProviderSdkType, apiKey?: string, baseUr
   switch (sdkType) {
     case 'anthropic': {
       const { createAnthropic } = await import('@ai-sdk/anthropic')
-      return createAnthropic({ apiKey, baseURL: baseUrl })(model ?? 'claude-haiku-4-5')
+      return createAnthropic({ apiKey, baseURL: baseUrl })(model ?? 'claude-sonnet-4-5')
     }
     case 'openai': {
       const { createOpenAI } = await import('@ai-sdk/openai')
-      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-4o-mini')
+      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-4o')
     }
     case 'google': {
       const { createGoogleGenerativeAI } = await import('@ai-sdk/google')
-      return createGoogleGenerativeAI({ apiKey, baseURL: baseUrl })(model ?? 'gemini-2.0-flash')
+      return createGoogleGenerativeAI({ apiKey, baseURL: baseUrl })(model ?? 'gemini-2.5-flash')
     }
     case 'deepseek': {
       const { createDeepSeek } = await import('@ai-sdk/deepseek')
@@ -27,7 +27,7 @@ async function createTestModel(sdkType: ProviderSdkType, apiKey?: string, baseUr
     }
     case 'xai': {
       const { createXai } = await import('@ai-sdk/xai')
-      return createXai({ apiKey, baseURL: baseUrl })(model ?? 'grok-3-mini')
+      return createXai({ apiKey, baseURL: baseUrl })(model ?? 'grok-3')
     }
     case 'groq': {
       const { createGroq } = await import('@ai-sdk/groq')
@@ -39,16 +39,16 @@ async function createTestModel(sdkType: ProviderSdkType, apiKey?: string, baseUr
     }
     case 'moonshot': {
       const { createMoonshotAI } = await import('@ai-sdk/moonshotai')
-      return createMoonshotAI({ apiKey, baseURL: baseUrl })(model ?? 'moonshot-v1-8k')
+      return createMoonshotAI({ apiKey, baseURL: baseUrl })(model ?? 'kimi-k2')
     }
     case 'alibaba': {
       const { createAlibaba } = await import('@ai-sdk/alibaba')
-      return createAlibaba({ apiKey, baseURL: baseUrl })(model ?? 'qwen-turbo')
+      return createAlibaba({ apiKey, baseURL: baseUrl })(model ?? 'qwen-max')
     }
     case 'openai-compatible':
     default: {
       const { createOpenAI } = await import('@ai-sdk/openai')
-      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-4o-mini')
+      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-4o')
     }
   }
 }
@@ -98,7 +98,7 @@ export function createSettingsRoutes(storage: ISettingsService) {
         await generateText({
           model,
           prompt: 'Say "ok"',
-          maxOutputTokens: 5,
+          maxOutputTokens: 20,
           abortSignal: controller.signal,
         })
       } finally {

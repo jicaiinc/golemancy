@@ -7,15 +7,20 @@ import type { ServiceContainer } from '../services/container'
 import type { GlobalSettings, ProjectId } from '@golemancy/shared'
 
 // Mock motion/react to avoid animation issues in tests
-vi.mock('motion/react', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => {
-      const { initial, animate, exit, transition, custom, ...rest } = props
-      return <div {...rest}>{children}</div>
-    },
-  },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
-}))
+vi.mock('motion/react', () => {
+  const el = (Tag: string) => {
+    const Comp = ({ children, ...props }: any) => {
+      const { initial, animate, exit, transition, custom, variants, style, ...rest } = props
+      return <Tag {...rest} style={style}>{children}</Tag>
+    }
+    Comp.displayName = `motion.${Tag}`
+    return Comp
+  }
+  return {
+    motion: { div: el('div'), h1: el('h1'), p: el('p'), span: el('span') },
+    AnimatePresence: ({ children }: any) => <>{children}</>,
+  }
+})
 
 const emptySettings: GlobalSettings = {
   providers: {},

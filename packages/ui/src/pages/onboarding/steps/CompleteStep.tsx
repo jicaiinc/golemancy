@@ -7,6 +7,7 @@ interface CompleteStepProps {
   sttEnabled: boolean
   projectName: string
   projectIcon: string
+  createdProjectId: string | null
   onStartChatting: () => void
   onGoToDashboard: () => void
 }
@@ -28,6 +29,7 @@ export function CompleteStep({
   sttEnabled,
   projectName,
   projectIcon,
+  createdProjectId,
   onStartChatting,
   onGoToDashboard,
 }: CompleteStepProps) {
@@ -68,10 +70,10 @@ export function CompleteStep({
 
       {/* CTAs */}
       <div className="flex gap-3">
-        <PixelButton variant="primary" size="lg" onClick={onStartChatting}>
+        <PixelButton variant="primary" size="lg" onClick={onStartChatting} disabled={!createdProjectId}>
           Start Chatting
         </PixelButton>
-        <PixelButton variant="secondary" size="lg" onClick={onGoToDashboard}>
+        <PixelButton variant="secondary" size="lg" onClick={onGoToDashboard} disabled={!createdProjectId}>
           Go to Dashboard
         </PixelButton>
       </div>

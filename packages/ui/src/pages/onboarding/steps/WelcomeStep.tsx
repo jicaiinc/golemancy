@@ -1,27 +1,31 @@
-import { PixelCard } from '../../../components'
+import { PixelButton } from '../../../components'
+import logoSrc from '../../../assets/logo.png'
 
-const FEATURES = [
-  { icon: '\u2694', title: 'Orchestrate Agents', desc: 'Build teams of AI agents that work together on complex tasks.' },
-  { icon: '\u26A1', title: 'Multi-Provider', desc: 'Connect to Anthropic, OpenAI, Google, and more with a single config.' },
-  { icon: '\u2699', title: 'Automate Workflows', desc: 'Schedule cron jobs, chain skills, and let agents run autonomously.' },
-]
+// NOTE: Feature grid (8 cards with SVG icons matching golemancy.ai) is available
+// but hidden for a minimal welcome experience. Uncomment to restore.
+// See git history for the full FEATURES array with NetworkIcon, BotIcon, etc.
 
-export function WelcomeStep() {
+interface WelcomeStepProps {
+  onGetStarted: () => void
+}
+
+export function WelcomeStep({ onGetStarted }: WelcomeStepProps) {
   return (
-    <div className="flex flex-col items-center gap-8">
-      <div className="text-center">
-        <h1 className="font-pixel text-[20px] text-text-primary mb-3">Welcome to Golemancy</h1>
-        <p className="font-mono text-[14px] text-text-secondary">Command Your AI Golems</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-        {FEATURES.map(f => (
-          <PixelCard key={f.title} className="text-center !py-6">
-            <div className="text-[28px] mb-3">{f.icon}</div>
-            <div className="font-pixel text-[10px] text-text-primary mb-2">{f.title}</div>
-            <p className="font-mono text-[11px] text-text-dim leading-relaxed">{f.desc}</p>
-          </PixelCard>
-        ))}
+    <div className="flex flex-col items-center justify-center gap-5 text-center min-h-[50vh]">
+      <img src={logoSrc} alt="Golemancy" className="w-16 h-16" />
+      <span className="font-pixel text-[9px] text-text-dim tracking-widest">
+        Welcome
+      </span>
+      <h1 className="font-pixel text-[22px] text-accent-green leading-relaxed">
+        Command Your AI Golems
+      </h1>
+      <p className="font-mono text-[13px] text-text-secondary">
+        Orchestrate autonomous AI agents from your desktop.
+      </p>
+      <div className="mt-4">
+        <PixelButton variant="primary" size="lg" onClick={onGetStarted}>
+          Get Started
+        </PixelButton>
       </div>
     </div>
   )

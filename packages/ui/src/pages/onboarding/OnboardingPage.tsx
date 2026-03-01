@@ -15,6 +15,35 @@ import { CompleteStep } from './steps/CompleteStep'
 const STEPS = ['Welcome', 'Provider', 'Speech', 'Project', 'Complete']
 const TOTAL_STEPS = STEPS.length
 
+function buildProviderEntry(data: OnboardingData) {
+  let providerKey: string
+  let providerEntry: { name: string; sdkType: string; models: string[]; apiKey?: string; baseUrl?: string; testStatus?: 'ok' }
+
+  if (data.selectedProvider!.startsWith('custom:')) {
+    const parts = data.selectedProvider!.split(':')
+    providerKey = parts[1]
+    providerEntry = {
+      name: parts.slice(3).join(':'),
+      sdkType: parts[2],
+      models: data.defaultModel ? [data.defaultModel.model] : [],
+      apiKey: data.apiKey || undefined,
+      baseUrl: data.baseUrl || undefined,
+    }
+  } else {
+    providerKey = data.selectedProvider!
+    const preset = PROVIDER_PRESETS[providerKey]
+    providerEntry = {
+      name: preset.name,
+      sdkType: preset.sdkType,
+      models: [...preset.defaultModels],
+      apiKey: data.apiKey || undefined,
+      baseUrl: data.baseUrl || preset.defaultBaseUrl || undefined,
+    }
+  }
+
+  return { providerKey, providerEntry }
+}
+
 interface OnboardingData {
   selectedProvider: string | null
   apiKey: string
@@ -66,6 +95,7 @@ export function OnboardingPage() {
   const [direction, setDirection] = useState(1) // 1 = forward, -1 = backward
   const [data, setData] = useState<OnboardingData>(INITIAL_DATA)
   const [saving, setSaving] = useState(false)
+  const [stepError, setStepError] = useState('')
 
   const updateData = useCallback((patch: Partial<OnboardingData>) => {
     setData(d => ({ ...d, ...patch }))
@@ -76,7 +106,7 @@ export function OnboardingPage() {
     switch (step) {
       case 0: return true // Welcome — always OK
       case 1: return data.providerTestStatus === 'ok' && data.defaultModel != null
-      case 2: return true // Speech is optional
+      case 2: return !data.sttEnabled || data.sttApiKey.trim().length > 0
       case 3: return data.projectName.trim().length > 0
       default: return false
     }
@@ -86,18 +116,15 @@ export function OnboardingPage() {
   async function goNext() {
     if (!canProceed() || saving) return
     setSaving(true)
+    setStepError('')
     try {
-      // Persist step data
-      if (step === 1) {
-        await persistProviderStep()
-      } else if (step === 2) {
-        await persistSpeechStep()
-      } else if (step === 3) {
-        await persistProjectStep()
-      }
-
+      if (step === 1) await persistProviderStep()
+      else if (step === 2) await persistSpeechStep()
+      else if (step === 3) await persistProjectStep()
       setDirection(1)
       setStep(s => Math.min(s + 1, TOTAL_STEPS - 1))
+    } catch (err) {
+      setStepError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -116,35 +143,11 @@ export function OnboardingPage() {
   // --- Persist helpers ---
   async function persistProviderStep() {
     if (!data.selectedProvider || !data.defaultModel) return
-
-    // Resolve provider key and entry
-    let providerKey: string
-    let providerEntry: { name: string; sdkType: string; models: string[]; apiKey?: string; baseUrl?: string; testStatus: 'ok' }
-
-    if (data.selectedProvider.startsWith('custom:')) {
-      const parts = data.selectedProvider.split(':')
-      providerKey = parts[1]
-      providerEntry = {
-        name: parts[3],
-        sdkType: parts[2],
-        models: [data.defaultModel.model],
-        apiKey: data.apiKey || undefined,
-        baseUrl: data.baseUrl || undefined,
-        testStatus: 'ok',
-      }
-    } else {
-      providerKey = data.selectedProvider
-      const preset = PROVIDER_PRESETS[providerKey]
-      providerEntry = {
-        name: preset.name,
-        sdkType: preset.sdkType,
-        models: [...preset.defaultModels],
-        apiKey: data.apiKey || undefined,
-        baseUrl: data.baseUrl || PROVIDER_PRESETS[providerKey]?.defaultBaseUrl || undefined,
-        testStatus: 'ok',
-      }
+    const { providerKey, providerEntry } = buildProviderEntry(data)
+    providerEntry.testStatus = 'ok'
+    if (data.defaultModel && !providerEntry.models.includes(data.defaultModel.model)) {
+      providerEntry.models.push(data.defaultModel.model)
     }
-
     const providers = { ...settings?.providers, [providerKey]: providerEntry }
     await updateSettings({
       providers: providers as any,
@@ -183,41 +186,16 @@ export function OnboardingPage() {
     if (!data.selectedProvider || !data.apiKey) return
     updateData({ providerTestStatus: 'testing' })
 
-    // We need to temporarily save the provider to test it
-    let providerKey: string
-    let providerEntry: any
-
-    if (data.selectedProvider.startsWith('custom:')) {
-      const parts = data.selectedProvider.split(':')
-      providerKey = parts[1]
-      providerEntry = {
-        name: parts[3],
-        sdkType: parts[2],
-        models: [],
-        apiKey: data.apiKey || undefined,
-        baseUrl: data.baseUrl || undefined,
-      }
-    } else {
-      providerKey = data.selectedProvider
-      const preset = PROVIDER_PRESETS[providerKey]
-      providerEntry = {
-        name: preset.name,
-        sdkType: preset.sdkType,
-        models: [...preset.defaultModels],
-        apiKey: data.apiKey || undefined,
-        baseUrl: data.baseUrl || preset.defaultBaseUrl || undefined,
-      }
-    }
+    const { providerKey, providerEntry } = buildProviderEntry(data)
 
     // Save provider first so testProvider can find it
     const providers = { ...settings?.providers, [providerKey]: providerEntry }
-    await updateSettings({ providers: providers as any })
+    await updateSettings({ providers: providers as any, onboardingStep: 0 })
 
     try {
       const result = await getServices().settings.testProvider(providerKey)
       if (result.ok) {
         updateData({ providerTestStatus: 'ok' })
-        // Also update stored entry with testStatus
         providerEntry.testStatus = 'ok'
         await updateSettings({ providers: { ...providers, [providerKey]: providerEntry } as any })
       } else {
@@ -228,7 +206,7 @@ export function OnboardingPage() {
       updateData({ providerTestStatus: 'error' })
       throw err
     }
-  }, [data.selectedProvider, data.apiKey, data.baseUrl, settings?.providers, updateData, updateSettings])
+  }, [data.selectedProvider, data.apiKey, data.baseUrl, data.defaultModel, settings?.providers, updateData, updateSettings])
 
   // --- Speech test ---
   const handleTestSpeech = useCallback(async (config: SpeechToTextSettings) => {
@@ -238,7 +216,7 @@ export function OnboardingPage() {
   // --- Resolve display name ---
   function getProviderName(): string {
     if (!data.selectedProvider) return 'None'
-    if (data.selectedProvider.startsWith('custom:')) return data.selectedProvider.split(':')[3]
+    if (data.selectedProvider.startsWith('custom:')) return data.selectedProvider.split(':').slice(3).join(':')
     return PROVIDER_PRESETS[data.selectedProvider]?.name ?? data.selectedProvider
   }
 
@@ -250,7 +228,7 @@ export function OnboardingPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b-2 border-border-dim">
         <div className="flex items-center gap-3">
-          <span className="font-pixel text-[12px] text-text-primary">Golemancy</span>
+          <span className="font-pixel text-[12px] text-accent-green">Golemancy</span>
           <span className="font-pixel text-[9px] text-text-dim">Setup</span>
         </div>
         {step < TOTAL_STEPS - 1 && (
@@ -291,7 +269,7 @@ export function OnboardingPage() {
               exit={{ opacity: 0, x: direction * -40 }}
               transition={{ duration: 0.2 }}
             >
-              {step === 0 && <WelcomeStep />}
+              {step === 0 && <WelcomeStep onGetStarted={goNext} />}
               {step === 1 && (
                 <ProviderStep
                   selectedProvider={data.selectedProvider}
@@ -328,6 +306,7 @@ export function OnboardingPage() {
                   sttEnabled={data.sttEnabled}
                   projectName={data.projectName}
                   projectIcon={data.projectIcon}
+                  createdProjectId={data.createdProjectId}
                   onStartChatting={() => {
                     if (data.createdProjectId) {
                       navigate(`/projects/${data.createdProjectId}/chat`)
@@ -345,8 +324,17 @@ export function OnboardingPage() {
         </div>
       </div>
 
-      {/* Footer nav */}
-      {step < TOTAL_STEPS - 1 && (
+      {/* Step error */}
+      {stepError && (
+        <div className="px-6">
+          <div className="max-w-[720px] mx-auto p-2 bg-accent-red/10 border-2 border-accent-red/30">
+            <span className="text-[10px] text-accent-red font-mono break-all">{stepError}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Footer nav — hidden on Welcome step (has its own Get Started button) */}
+      {step > 0 && step < TOTAL_STEPS - 1 && (
         <div className="px-6 py-4 border-t-2 border-border-dim">
           <div className="max-w-[720px] mx-auto flex justify-between">
             <PixelButton

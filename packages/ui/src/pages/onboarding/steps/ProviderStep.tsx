@@ -101,7 +101,7 @@ export function ProviderStep({
 
   // Determine if we're editing a custom provider
   const isCustomProvider = selectedProvider?.startsWith('custom:')
-  const customProviderName = isCustomProvider ? selectedProvider!.split(':')[3] : null
+  const customProviderName = isCustomProvider ? selectedProvider!.split(':').slice(3).join(':') : null
 
   return (
     <div className="flex flex-col gap-6">
@@ -225,7 +225,7 @@ export function ProviderStep({
                 size="sm"
                 variant={providerTestStatus === 'ok' ? 'ghost' : 'secondary'}
                 onClick={handleTest}
-                disabled={providerTestStatus === 'testing' || !apiKey}
+                disabled={providerTestStatus === 'testing' || !apiKey || (isCustomProvider && models.length === 0 && !defaultModel?.model?.trim())}
               >
                 {providerTestStatus === 'testing' ? 'Testing...' : providerTestStatus === 'ok' ? 'Re-test' : 'Test Connection'}
               </PixelButton>
@@ -241,26 +241,39 @@ export function ProviderStep({
               </div>
             )}
 
-            {/* Default model selector (after test passes) */}
-            {providerTestStatus === 'ok' && (
+            {/* Default model selector (after test passes, or always for custom providers) */}
+            {(providerTestStatus === 'ok' || (isCustomProvider && models.length === 0)) && (
               <div className="mt-2 pt-3 border-t-2 border-border-dim">
                 <div className="font-pixel text-[10px] text-text-secondary mb-2">DEFAULT MODEL</div>
-                <p className="text-[11px] text-text-dim mb-3">Choose a model to use by default for new agents.</p>
-                <div className="flex flex-wrap gap-2">
-                  {models.map(m => (
-                    <button
-                      key={m}
-                      onClick={() => handleModelSelect(m)}
-                      className={`px-3 py-2 border-2 cursor-pointer transition-colors text-[11px] font-mono ${
-                        defaultModel?.model === m
-                          ? 'bg-accent-green/15 border-accent-green text-text-primary'
-                          : 'bg-deep border-border-dim hover:border-border-bright text-text-secondary'
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
+                <p className="text-[11px] text-text-dim mb-3">
+                  {models.length > 0
+                    ? 'Choose a model to use by default for new agents.'
+                    : 'Enter the model name to use by default.'}
+                </p>
+                {models.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {models.map(m => (
+                      <button
+                        key={m}
+                        onClick={() => handleModelSelect(m)}
+                        className={`px-3 py-2 border-2 cursor-pointer transition-colors text-[11px] font-mono ${
+                          defaultModel?.model === m
+                            ? 'bg-accent-green/15 border-accent-green text-text-primary'
+                            : 'bg-deep border-border-dim hover:border-border-bright text-text-secondary'
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <PixelInput
+                    label="MODEL NAME"
+                    value={defaultModel?.model ?? ''}
+                    onChange={e => handleModelSelect(e.target.value)}
+                    placeholder="e.g. gpt-4o, claude-sonnet-4-5"
+                  />
+                )}
               </div>
             )}
           </div>

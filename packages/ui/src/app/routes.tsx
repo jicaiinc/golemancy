@@ -34,10 +34,11 @@ function RootRedirect() {
   // Wait for settings and projects to load before deciding
   if (!settings || projectsLoading) return null
 
-  // Three conditions must ALL be true to trigger onboarding
+  // Show onboarding if not completed AND (in-progress OR fresh install)
   const needsOnboarding = !settings.onboardingCompleted
-    && Object.keys(settings.providers ?? {}).length === 0
-    && projects.length === 0
+    && (settings.onboardingStep != null
+      || (Object.keys(settings.providers ?? {}).length === 0
+        && projects.length === 0))
 
   if (needsOnboarding) {
     return <OnboardingPage />
