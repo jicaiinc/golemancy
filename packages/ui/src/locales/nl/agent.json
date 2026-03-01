@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "NAAM",
+    "agentName": "AGENTNAAM",
+    "description": "BESCHRIJVING",
+    "systemPrompt": "SYSTEEMPROMPT",
+    "provider": "PROVIDER",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "inactief",
+    "running": "actief",
+    "error": "fout",
+    "paused": "gepauzeerd"
+  },
+  "currentMain": "HUIDIGE HOOFDAGENT",
+  "currentMainTooltip": "Huidige geselecteerde hoofdagent voor dit project",
+  "noProviders": "Geen providers geconfigureerd",
+  "noModels": "Geen modellen beschikbaar",
+  "savedMsg": "Opgeslagen!",
+  "list": {
+    "title": "Agenten",
+    "subtitle_one": "{{count}} agent in dit project",
+    "subtitle_other": "{{count}} agenten in dit project",
+    "newBtn": "+ Nieuwe Agent",
+    "viewGrid": "Raster",
+    "viewTopology": "Topologie",
+    "empty": "Nog geen agenten",
+    "createFirst": "Maak Uw Eerste Agent"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skills",
+    "tools_one": "{{count}} tool",
+    "tools_other": "{{count}} tools",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_other": "{{count}} sub-agenten",
+    "mcpServers_one": "{{count}} MCP-server",
+    "mcpServers_other": "{{count}} MCP-servers"
+  },
+  "create": {
+    "modalTitle": "Nieuwe Agent Aanmaken",
+    "createBtn": "Agent Aanmaken",
+    "namePlaceholder": "bijv. Onderzoeksassistent",
+    "descPlaceholder": "Wat doet deze agent?",
+    "promptPlaceholder": "Je bent een behulpzame assistent die..."
+  },
+  "detail": {
+    "notFound": "Agent niet gevonden.",
+    "backToAgents": "< Terug naar Agenten",
+    "backBtn": "< Agenten",
+    "tabs": {
+      "general": "Algemeen",
+      "modelConfig": "Modelconfiguratie",
+      "skills": "Skills",
+      "tools": "Tools",
+      "subAgents": "Sub-Agenten"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Agent Verwijderen"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODELCONFIGURATIE",
+    "compactLabel": "COMPRIMERINGSDREMPEL"
+  },
+  "skills": {
+    "assigned": "TOEGEWEZEN SKILLS",
+    "noneAssigned": "Geen skills toegewezen aan deze agent.",
+    "addSection": "SKILL TOEVOEGEN",
+    "noneInProject": "Geen skills in dit project",
+    "goTo": "Ga naar Skills",
+    "manage": "Skills Beheren \u2192"
+  },
+  "tools": {
+    "builtinSection": "INGEBOUWDE TOOLS",
+    "comingSoon": "BINNENKORT",
+    "customSection": "AANGEPASTE TOOLS",
+    "bashDesc": "Bash-commando's uitvoeren, bestanden lezen en schrijven",
+    "browserDesc": "Webbrowser aansturen voor automatisering",
+    "osControlDesc": "Desktopautomatisering en systeembeheer",
+    "taskDesc": "Taken aanmaken en beheren binnen het gesprek"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 WAARSCHUWING",
+    "warningText": "MCP-servers van derden kunnen bestanden op uw computer openen of wijzigen.",
+    "enableSandboxHint": "Schakel \"Toepassen op MCP\" in bij Instellingen > Machtigingen om MCP-servers te sandboxen.",
+    "sandboxUnavailable": "Sandbox-runtime is niet beschikbaar op dit platform.",
+    "assigned": "TOEGEWEZEN MCP-SERVERS",
+    "noneAssigned": "Geen MCP-servers toegewezen aan deze agent.",
+    "addSection": "MCP-SERVER TOEVOEGEN",
+    "noneInProject": "Geen MCP-servers in dit project",
+    "goTo": "Ga naar MCP-Servers",
+    "manage": "MCP-Servers Beheren \u2192",
+    "restricted": "Beperkt"
+  },
+  "subAgents": {
+    "assigned": "TOEGEWEZEN SUB-AGENTEN",
+    "noneAssigned": "Geen sub-agenten toegewezen aan deze agent.",
+    "addSection": "SUB-AGENT TOEVOEGEN",
+    "noneAvailable": "Geen andere agenten beschikbaar in dit project.",
+    "unknown": "Onbekend",
+    "rolePlaceholder": "Rol..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Overgenomen",
+    "capabilities": "MOGELIJKHEDEN",
+    "subAgentsLabel": "SUB-AGENTEN",
+    "openDetail": "Detail Openen"
+  },
+  "topology": {
+    "resetLayout": "Layout Resetten",
+    "editAgent": "Agent Bewerken",
+    "setMainAgent": "Als Hoofdagent Instellen"
+  }
+}

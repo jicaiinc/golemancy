@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Kasaysayan ng Transcription"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} record",
+    "recordCount_other": "{{count}} record",
+    "used": "{{size}} ang ginagamit",
+    "loading": "Nilo-load ang storage info..."
+  },
+  "clearAll": {
+    "confirm_one": "I-delete lahat ng {{count}} record?",
+    "confirm_other": "I-delete lahat ng {{count}} record?",
+    "confirmWithFree_one": "I-delete lahat ng {{count}} record at palayain ang {{size}}?",
+    "confirmWithFree_other": "I-delete lahat ng {{count}} record at palayain ang {{size}}?"
+  },
+  "loading": "Nilo-load ang kasaysayan...",
+  "empty": {
+    "hint": "Gamitin ang microphone button sa chat\npara gumawa ng unang voice recording mo",
+    "settingsBtn": "Pumunta sa Settings"
+  },
+  "player": {
+    "play": "I-play",
+    "pause": "I-pause",
+    "close": "Isara ang player"
+  },
+  "actions": {
+    "copy": "Kopyahin ang na-transcribe na text",
+    "retry": "I-retry ang transcription",
+    "delete": "I-delete ang record"
+  },
+  "enable": {
+    "enabled": "Naka-enable",
+    "disabled": "Naka-disable",
+    "sectionTitle": "SPEECH-TO-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "URI",
+    "customType": "Custom (OpenAI-Compatible)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (KINAKAILANGAN)",
+    "baseUrlOptional": "BASE URL (OPSYONAL)",
+    "baseUrlPlaceholder": "Iwanan na blangko para sa default",
+    "modelLabel": "MODEL",
+    "modelOther": "Iba pa...",
+    "presets": "Mga Preset",
+    "languageLabel": "WIKA",
+    "hide": "Itago",
+    "show": "Ipakita"
+  },
+  "test": {
+    "testing": "Tine-test...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "I-test Muli",
+    "test": "I-test",
+    "failed": "Nabigo",
+    "untested": "Hindi pa na-test",
+    "unknownError": "Hindi kilalang error"
+  },
+  "history": {
+    "sectionTitle": "KASAYSAYAN",
+    "recordsInfo": "{{recordCount}} record / {{size}}",
+    "clearAll": "I-clear Lahat",
+    "confirmClear": "I-clear lahat?",
+    "empty": "Wala pang transcription",
+    "today": "Ngayon",
+    "yesterday": "Kahapon",
+    "transcribing": "Tina-transcribe...",
+    "openChat": "Buksan ang chat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "I-delete ang record na ito at ang audio file nito?",
+    "retryConfirm": "I-o-overwrite nito ang kasalukuyang transcription.",
+    "transcriptionFailed": "Nabigo ang transcription: {{error}}",
+    "retranscribe": "I-transcribe Muli"
+  }
+}

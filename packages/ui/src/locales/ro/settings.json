@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Setări globale"
+  },
+  "tabs": {
+    "general": "General",
+    "providers": "Furnizori",
+    "speech": "Vorbire"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Comandați-vă Golemii AI"
+  },
+  "general": {
+    "appearance": "ASPECT",
+    "light": "Luminos",
+    "dark": "Întunecat",
+    "system": "Sistem",
+    "language": "LIMBĂ"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODEL IMPLICIT",
+    "description": "Utilizat la crearea proiectelor și agenților noi.",
+    "providerLabel": "FURNIZOR",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Niciunul --",
+    "selectProviderFirst": "-- Selectați mai întâi furnizorul --",
+    "noModels": "Niciun model disponibil",
+    "saved": "Salvat!"
+  },
+  "providers": {
+    "sectionTitle": "FURNIZORI",
+    "addProvider": "+ Adăugare furnizor",
+    "selectProvider": "SELECTARE FURNIZOR",
+    "customProvider": "FURNIZOR PERSONALIZAT",
+    "custom": "Personalizat",
+    "anyEndpoint": "orice endpoint",
+    "nameLabel": "NUME",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TIP SDK",
+    "empty": "Niciun furnizor configurat. Faceți clic pe \"+ Adăugare furnizor\" pentru a începe."
+  },
+  "provider": {
+    "testing": "Se testează...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Eșuat",
+    "untested": "Netestat",
+    "noKey": "Fără cheie",
+    "retest": "Retestare",
+    "test": "Testare",
+    "del": "Șterge",
+    "deleteConfirm": "Ștergeți {{name}}? Această acțiune nu poate fi anulată.",
+    "apiKeyLabel": "Cheie API:",
+    "notSet": "nesetat",
+    "hide": "Ascundere",
+    "show": "Afișare",
+    "urlLabel": "URL:",
+    "modelsCount": "Modele ({{count}})",
+    "addModel": "+ Adăugare model",
+    "apiKeyInputLabel": "CHEIE API",
+    "baseUrlOptional": "BASE URL (opțional)",
+    "hideKey": "Ascundere cheie",
+    "showKey": "Afișare cheie"
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

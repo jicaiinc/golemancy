@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "프로젝트 이름",
+    "description": "설명",
+    "icon": "아이콘",
+    "projectId": "프로젝트 ID"
+  },
+  "list": {
+    "title": "모든 프로젝트",
+    "subtitle_one": "워크스페이스에 {{count}}개의 프로젝트",
+    "subtitle_other": "워크스페이스에 {{count}}개의 프로젝트",
+    "newBtn": "+ 새 프로젝트",
+    "empty": "프로젝트가 없습니다",
+    "createFirst": "첫 번째 프로젝트 생성",
+    "openInWindow": "새 창에서 열기",
+    "agents_one": "{{count}}개 Agent",
+    "agents_other": "{{count}}개 Agent",
+    "running_one": "{{count}}개 실행 중",
+    "running_other": "{{count}}개 실행 중"
+  },
+  "create": {
+    "modalTitle": "새 프로젝트 생성",
+    "createBtn": "프로젝트 생성",
+    "namePlaceholder": "나의 멋진 프로젝트",
+    "descPlaceholder": "이 프로젝트는 무엇에 관한 것인가요?"
+  },
+  "settings": {
+    "title": "프로젝트 설정",
+    "savedMsg": "저장되었습니다!",
+    "clickToCopy": "클릭하여 복사",
+    "tabs": {
+      "general": "기본 정보",
+      "agent": "Agent",
+      "permissions": "권한"
+    },
+    "agent": {
+      "mainLabel": "메인 AGENT",
+      "mainDesc": "이 프로젝트의 새 대화에서 사용할 기본 Agent.",
+      "noAgents": "프로젝트에 Agent가 없습니다. 먼저 Agent를 생성하세요.",
+      "goToAgents": "Agent 페이지로 이동",
+      "none": "없음",
+      "configure": "Agent 설정 \u2192"
+    },
+    "general": {
+      "sectionTitle": "기본 정보",
+      "saveBtn": "변경 사항 저장"
+    }
+  }
+}

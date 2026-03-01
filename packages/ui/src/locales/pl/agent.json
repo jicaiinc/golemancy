@@ -1,0 +1,128 @@
+{
+  "label": {
+    "name": "NAZWA",
+    "agentName": "NAZWA AGENTA",
+    "description": "OPIS",
+    "systemPrompt": "PROMPT SYSTEMOWY",
+    "provider": "DOSTAWCA",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "bezczynny",
+    "running": "działa",
+    "error": "błąd",
+    "paused": "wstrzymany"
+  },
+  "currentMain": "AKTUALNY GŁÓWNY",
+  "currentMainTooltip": "Aktualnie wybrany agent główny dla tego projektu",
+  "noProviders": "Brak skonfigurowanych dostawców",
+  "noModels": "Brak dostępnych modeli",
+  "savedMsg": "Zapisano!",
+  "list": {
+    "title": "Agenci",
+    "subtitle_one": "{{count}} agent w tym projekcie",
+    "subtitle_few": "{{count}} agentów w tym projekcie",
+    "subtitle_many": "{{count}} agentów w tym projekcie",
+    "subtitle_other": "{{count}} agentów w tym projekcie",
+    "newBtn": "+ Nowy agent",
+    "viewGrid": "Siatka",
+    "viewTopology": "Topologia",
+    "empty": "Brak agentów",
+    "createFirst": "Utwórz pierwszego agenta"
+  },
+  "count": {
+    "skills_one": "{{count}} umiejętność",
+    "skills_few": "{{count}} umiejętności",
+    "skills_many": "{{count}} umiejętności",
+    "skills_other": "{{count}} umiejętności",
+    "tools_one": "{{count}} narzędzie",
+    "tools_few": "{{count}} narzędzia",
+    "tools_many": "{{count}} narzędzi",
+    "tools_other": "{{count}} narzędzi",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_few": "{{count}} sub-agentów",
+    "subAgents_many": "{{count}} sub-agentów",
+    "subAgents_other": "{{count}} sub-agentów",
+    "mcpServers_one": "{{count}} serwer MCP",
+    "mcpServers_few": "{{count}} serwery MCP",
+    "mcpServers_many": "{{count}} serwerów MCP",
+    "mcpServers_other": "{{count}} serwerów MCP"
+  },
+  "create": {
+    "modalTitle": "Utwórz nowego agenta",
+    "createBtn": "Utwórz agenta",
+    "namePlaceholder": "np. Asystent badawczy",
+    "descPlaceholder": "Co robi ten agent?",
+    "promptPlaceholder": "Jesteś pomocnym asystentem, który..."
+  },
+  "detail": {
+    "notFound": "Nie znaleziono agenta.",
+    "backToAgents": "< Powrót do agentów",
+    "backBtn": "< Agenci",
+    "tabs": {
+      "general": "Ogólne",
+      "modelConfig": "Konfiguracja modelu",
+      "skills": "Umiejętności",
+      "tools": "Narzędzia",
+      "subAgents": "Sub-agenci"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFORMACJE",
+    "deleteBtn": "Usuń agenta"
+  },
+  "modelConfig": {
+    "sectionTitle": "KONFIGURACJA MODELU",
+    "compactLabel": "PRÓG KOMPRESJI"
+  },
+  "skills": {
+    "assigned": "PRZYPISANE UMIEJĘTNOŚCI",
+    "noneAssigned": "Ten agent nie ma przypisanych umiejętności.",
+    "addSection": "DODAJ UMIEJĘTNOŚĆ",
+    "noneInProject": "Brak umiejętności w projekcie",
+    "goTo": "Przejdź do umiejętności",
+    "manage": "Zarządzaj umiejętnościami \u2192"
+  },
+  "tools": {
+    "builtinSection": "WBUDOWANE NARZĘDZIA",
+    "comingSoon": "WKRÓTCE",
+    "customSection": "NIESTANDARDOWE NARZĘDZIA",
+    "bashDesc": "Wykonywanie poleceń Bash, odczyt i zapis plików",
+    "browserDesc": "Sterowanie przeglądarką w celu automatyzacji",
+    "osControlDesc": "Automatyzacja pulpitu i sterowanie systemem",
+    "taskDesc": "Tworzenie i zarządzanie zadaniami w rozmowie"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 OSTRZEŻENIE",
+    "warningText": "Zewnętrzne serwery MCP mogą uzyskać dostęp do plików na komputerze lub je modyfikować.",
+    "enableSandboxHint": "Włącz «Zastosuj do MCP» w Ustawienia > Uprawnienia, aby izolować serwery MCP.",
+    "sandboxUnavailable": "Środowisko Sandbox nie jest dostępne na tej platformie.",
+    "assigned": "PRZYPISANE SERWERY MCP",
+    "noneAssigned": "Ten agent nie ma przypisanych serwerów MCP.",
+    "addSection": "DODAJ SERWER MCP",
+    "noneInProject": "Brak serwerów MCP w projekcie",
+    "goTo": "Przejdź do serwerów MCP",
+    "manage": "Zarządzaj serwerami MCP \u2192",
+    "restricted": "Ograniczony"
+  },
+  "subAgents": {
+    "assigned": "PRZYPISANI SUB-AGENCI",
+    "noneAssigned": "Ten agent nie ma przypisanych sub-agentów.",
+    "addSection": "DODAJ SUB-AGENTA",
+    "noneAvailable": "Brak innych dostępnych agentów w tym projekcie.",
+    "unknown": "Nieznany",
+    "rolePlaceholder": "Rola..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Odziedziczony",
+    "capabilities": "MOŻLIWOŚCI",
+    "subAgentsLabel": "SUB-AGENCI",
+    "openDetail": "Otwórz szczegóły"
+  },
+  "topology": {
+    "resetLayout": "Resetuj układ",
+    "editAgent": "Edytuj agenta",
+    "setMainAgent": "Ustaw jako agenta głównego"
+  }
+}

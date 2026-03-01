@@ -1,0 +1,40 @@
+{
+  "page": {
+    "title": "Skills",
+    "skillCount_one": "{{count}} skill",
+    "skillCount_few": "{{count}} skills",
+    "skillCount_other": "{{count}} de skills",
+    "newSkillBtn": "+ Skill nou"
+  },
+  "tabs": {
+    "installed": "Instalate",
+    "marketplace": "Piață"
+  },
+  "import": {
+    "noValidFiles": "Niciun fișier .md sau .zip găsit. Trageți fișiere markdown sau zip pentru a importa skills.",
+    "importedCount_one": "{{count}} skill importat",
+    "importedCount_few": "{{count}} skills importate",
+    "importedCount_other": "{{count}} de skills importate",
+    "importError": "Importarea skills a eșuat"
+  },
+  "deleteError": {
+    "inUse_one": "Skill-ul \"{{name}}\" este atribuit la {{count}} agent. Eliminați atribuirea mai întâi.",
+    "inUse_few": "Skill-ul \"{{name}}\" este atribuit la {{count}} agenți. Eliminați atribuirea mai întâi.",
+    "inUse_other": "Skill-ul \"{{name}}\" este atribuit la {{count}} de agenți. Eliminați atribuirea mai întâi.",
+    "generic": "Ștergerea skill-ului a eșuat"
+  },
+  "loading": "Se încarcă skills...",
+  "empty": {
+    "title": "Niciun skill încă",
+    "createFirstBtn": "Creați primul skill"
+  },
+  "comingSoon": "În curând",
+  "form": {
+    "newTitle": "Skill nou",
+    "editTitle": "Editare skill",
+    "nameLabel": "NUME",
+    "descriptionLabel": "DESCRIERE",
+    "instructionsLabel": "INSTRUCȚIUNI",
+    "instructionsPlaceholder": "Scrieți instrucțiunile skill-ului în markdown..."
+  }
+}

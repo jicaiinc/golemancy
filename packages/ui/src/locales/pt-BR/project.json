@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "NOME DO PROJETO",
+    "description": "DESCRIÇÃO",
+    "icon": "ÍCONE",
+    "projectId": "ID DO PROJETO"
+  },
+  "list": {
+    "title": "Todos os Projetos",
+    "subtitle_one": "{{count}} projeto no seu espaço de trabalho",
+    "subtitle_other": "{{count}} projetos no seu espaço de trabalho",
+    "newBtn": "+ Novo Projeto",
+    "empty": "Nenhum projeto ainda",
+    "createFirst": "Crie Seu Primeiro Projeto",
+    "openInWindow": "Abrir em Nova Janela",
+    "agents_one": "{{count}} agente",
+    "agents_other": "{{count}} agentes",
+    "running_one": "{{count}} em execução",
+    "running_other": "{{count}} em execução"
+  },
+  "create": {
+    "modalTitle": "Criar Novo Projeto",
+    "createBtn": "Criar Projeto",
+    "namePlaceholder": "Meu Projeto Incrível",
+    "descPlaceholder": "Sobre o que é este projeto?"
+  },
+  "settings": {
+    "title": "Configurações do Projeto",
+    "savedMsg": "Salvo!",
+    "clickToCopy": "Clique para copiar",
+    "tabs": {
+      "general": "Geral",
+      "agent": "Agente",
+      "permissions": "Permissões"
+    },
+    "agent": {
+      "mainLabel": "AGENTE PRINCIPAL",
+      "mainDesc": "O agente padrão para novas conversas neste projeto.",
+      "noAgents": "Nenhum agente neste projeto. Crie um agente primeiro.",
+      "goToAgents": "Ir para Agentes",
+      "none": "Nenhum",
+      "configure": "Configurar Agente \u2192"
+    },
+    "general": {
+      "sectionTitle": "INFORMAÇÕES BÁSICAS",
+      "saveBtn": "Salvar Alterações"
+    }
+  }
+}

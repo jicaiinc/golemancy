@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Банк памяти",
+    "entryCount_one": "{{count}} запись",
+    "entryCount_few": "{{count}} записи",
+    "entryCount_many": "{{count}} записей",
+    "entryCount_other": "{{count}} записей",
+    "addEntryBtn": "+ Добавить запись"
+  },
+  "search": {
+    "placeholder": "Поиск по содержимому, источнику или тегу..."
+  },
+  "filter": {
+    "all": "все"
+  },
+  "loading": "Загрузка записей...",
+  "empty": {
+    "noMatch": "Совпадений не найдено",
+    "noEntries": "Записей пока нет",
+    "hint": "Записи памяти помогают агентам сохранять контекст между разговорами"
+  },
+  "form": {
+    "addTitle": "Добавить запись памяти",
+    "editTitle": "Редактирование записи памяти",
+    "contentLabel": "СОДЕРЖИМОЕ",
+    "sourceLabel": "ИСТОЧНИК",
+    "sourcePlaceholder": "напр. Исследователь",
+    "tagsLabel": "ТЕГИ (через запятую)",
+    "tagsPlaceholder": "напр. стратегия, аудитория"
+  }
+}

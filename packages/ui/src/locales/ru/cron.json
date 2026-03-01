@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Автоматизации",
+    "newBtn": "+ Новая"
+  },
+  "empty": {
+    "noJobs": "Автоматизаций пока нет",
+    "createFirstBtn": "Создать первую автоматизацию"
+  },
+  "job": {
+    "runBtn": "Запустить",
+    "historyBtn": "История",
+    "runningStatus": "Выполняется...",
+    "viewChat": "Открыть чат →",
+    "next": "Следующий: {{time}}",
+    "at": "В {{time}}",
+    "agentNotFound": "Агент не найден",
+    "overdue": "просрочено",
+    "once": "однократно"
+  },
+  "delete": {
+    "title": "Удалить автоматизацию",
+    "confirm": "Вы уверены, что хотите удалить «{{name}}»? Это действие нельзя отменить."
+  },
+  "runsModal": {
+    "titleWithName": "История запусков — {{name}}",
+    "title": "История запусков",
+    "noRuns": "Запусков пока нет",
+    "openChat": "ОТКРЫТЬ ЧАТ →"
+  },
+  "status": {
+    "success": "успешно",
+    "error": "ошибка",
+    "running": "выполняется"
+  },
+  "form": {
+    "newTitle": "Новая автоматизация",
+    "editTitle": "Редактирование автоматизации",
+    "nameLabel": "НАЗВАНИЕ",
+    "namePlaceholder": "Ежедневный код-ревью",
+    "typeLabel": "ТИП",
+    "recurring": "Повторяющаяся",
+    "oneTime": "Однократная",
+    "cronLabel": "CRON ВЫРАЖЕНИЕ",
+    "scheduledAtLabel": "ЗАПЛАНИРОВАНО НА (местное время)",
+    "agentLabel": "АГЕНТ",
+    "agentPlaceholder": "Выберите агента",
+    "instructionLabel": "ИНСТРУКЦИЯ (необязательно)",
+    "instructionPlaceholder": "Инструкции, отправляемые агенту при запуске",
+    "enabledLabel": "Включено",
+    "presets": {
+      "every5min": "Каждые 5 мин",
+      "everyHour": "Каждый час",
+      "every12h": "Каждые 12 ч",
+      "daily9am": "Ежедневно в 9:00",
+      "weeklyMon": "Еженедельно Пн"
+    },
+    "invalidExpression": "Недопустимое выражение"
+  }
+}

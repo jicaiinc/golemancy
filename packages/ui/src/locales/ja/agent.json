@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "名前",
+    "agentName": "AGENT 名",
+    "description": "説明",
+    "systemPrompt": "システムプロンプト",
+    "provider": "プロバイダー",
+    "model": "モデル"
+  },
+  "statusLabel": {
+    "idle": "待機中",
+    "running": "実行中",
+    "error": "エラー",
+    "paused": "一時停止"
+  },
+  "currentMain": "現在のメイン AGENT",
+  "currentMainTooltip": "このプロジェクトで現在選択されているメイン Agent",
+  "noProviders": "プロバイダーが設定されていません",
+  "noModels": "利用可能なモデルがありません",
+  "savedMsg": "保存しました！",
+  "list": {
+    "title": "Agent",
+    "subtitle_one": "このプロジェクトに {{count}} 個の Agent",
+    "subtitle_other": "このプロジェクトに {{count}} 個の Agent",
+    "newBtn": "+ 新規 Agent",
+    "viewGrid": "グリッド",
+    "viewTopology": "トポロジー",
+    "empty": "Agent がありません",
+    "createFirst": "最初の Agent を作成"
+  },
+  "count": {
+    "skills_one": "{{count}} スキル",
+    "skills_other": "{{count}} スキル",
+    "tools_one": "{{count}} ツール",
+    "tools_other": "{{count}} ツール",
+    "subAgents_one": "{{count}} サブ Agent",
+    "subAgents_other": "{{count}} サブ Agent",
+    "mcpServers_one": "{{count}} MCP サーバー",
+    "mcpServers_other": "{{count}} MCP サーバー"
+  },
+  "create": {
+    "modalTitle": "新規 Agent 作成",
+    "createBtn": "Agent を作成",
+    "namePlaceholder": "例：リサーチアシスタント",
+    "descPlaceholder": "この Agent は何をしますか？",
+    "promptPlaceholder": "あなたは役に立つアシスタントです..."
+  },
+  "detail": {
+    "notFound": "Agent が見つかりません。",
+    "backToAgents": "< Agent 一覧に戻る",
+    "backBtn": "< Agent",
+    "tabs": {
+      "general": "基本情報",
+      "modelConfig": "モデル設定",
+      "skills": "スキル",
+      "tools": "ツール",
+      "subAgents": "サブ Agent"
+    }
+  },
+  "general": {
+    "sectionTitle": "基本情報",
+    "deleteBtn": "Agent を削除"
+  },
+  "modelConfig": {
+    "sectionTitle": "モデル設定",
+    "compactLabel": "圧縮しきい値"
+  },
+  "skills": {
+    "assigned": "割り当て済みスキル",
+    "noneAssigned": "この Agent にスキルは割り当てられていません。",
+    "addSection": "スキルを追加",
+    "noneInProject": "プロジェクトにスキルがありません",
+    "goTo": "スキルページへ",
+    "manage": "スキルを管理 \u2192"
+  },
+  "tools": {
+    "builtinSection": "組み込みツール",
+    "comingSoon": "近日公開",
+    "customSection": "カスタムツール",
+    "bashDesc": "Bash コマンドの実行、ファイルの読み書き",
+    "browserDesc": "ブラウザを制御して自動操作",
+    "osControlDesc": "デスクトップ自動化とシステム制御",
+    "taskDesc": "会話中にタスクを作成・管理"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 警告",
+    "warningText": "サードパーティ MCP サーバーがコンピューター上のファイルにアクセスまたは変更する可能性があります。",
+    "enableSandboxHint": "設定 > 権限で「MCP に適用」を有効にして MCP サーバーをサンドボックス化してください。",
+    "sandboxUnavailable": "このプラットフォームではサンドボックスランタイムを利用できません。",
+    "assigned": "割り当て済み MCP サーバー",
+    "noneAssigned": "この Agent に MCP サーバーは割り当てられていません。",
+    "addSection": "MCP サーバーを追加",
+    "noneInProject": "プロジェクトに MCP サーバーがありません",
+    "goTo": "MCP サーバーページへ",
+    "manage": "MCP サーバーを管理 \u2192",
+    "restricted": "制限付き"
+  },
+  "subAgents": {
+    "assigned": "割り当て済みサブ AGENT",
+    "noneAssigned": "この Agent にサブ Agent は割り当てられていません。",
+    "addSection": "サブ AGENT を追加",
+    "noneAvailable": "プロジェクトに他の Agent がありません。",
+    "unknown": "不明",
+    "rolePlaceholder": "ロール..."
+  },
+  "panel": {
+    "modelLabel": "モデル",
+    "inherited": "継承",
+    "capabilities": "機能",
+    "subAgentsLabel": "サブ AGENT",
+    "openDetail": "詳細を表示"
+  },
+  "topology": {
+    "resetLayout": "レイアウトをリセット",
+    "editAgent": "Agent を編集",
+    "setMainAgent": "メイン Agent に設定"
+  }
+}

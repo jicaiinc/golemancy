@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP Sunucular\u0131",
+    "serverCount_one": "{{count}} sunucu",
+    "serverCount_other": "{{count}} sunucu",
+    "newServerBtn": "+ Yeni Sunucu"
+  },
+  "tabs": {
+    "installed": "Y\u00fckl\u00fc",
+    "marketplace": "Ma\u011faza"
+  },
+  "warning": {
+    "restrictedBadge": "KISITLI",
+    "restrictedMsg": "Restricted mod: stdio MCP sunucular\u0131 devre d\u0131\u015f\u0131 b\u0131rak\u0131ld\u0131 ve y\u00fcklenmeyecek",
+    "riskBadge": "UYARI",
+    "riskMsg": "\u00dc\u00e7\u00fcnc\u00fc taraf MCP sunucular\u0131 bilgisayar\u0131n\u0131zdaki dosyalara eri\u015febilir veya de\u011fi\u015ftirebilir.",
+    "applyToMcpHint": "MCP sunucular\u0131n\u0131 sandbox'a almak i\u00e7in Ayarlar > Permissions'ta \"Apply to MCP\"yi etkinle\u015ftirin.",
+    "sandboxUnavailable": "Sandbox runtime bu platformda kullan\u0131lam\u0131yor."
+  },
+  "import": {
+    "invalidFormat": "Ge\u00e7ersiz format: { mcpServers: { ... } } bekleniyor",
+    "noServers": "Yap\u0131land\u0131rma dosyas\u0131nda sunucu bulunamad\u0131",
+    "importedCount_one": "{{count}} MCP sunucusu i\u00e7e aktar\u0131ld\u0131",
+    "importedCount_other": "{{count}} MCP sunucusu i\u00e7e aktar\u0131ld\u0131",
+    "parseError": "Yap\u0131land\u0131rma dosyas\u0131 ayr\u0131\u015ft\u0131r\u0131lamad\u0131"
+  },
+  "server": {
+    "testing": "Test ediliyor...",
+    "testOk_one": "OK ({{count}} ara\u00e7)",
+    "testOk_other": "OK ({{count}} ara\u00e7)",
+    "connectionFailed": "Ba\u011flant\u0131 ba\u015far\u0131s\u0131z",
+    "testFailed": "Test ba\u015far\u0131s\u0131z",
+    "blockedRestricted": "Restricted mod taraf\u0131ndan engellendi — stdio sunucular\u0131 \u00e7al\u0131\u015fma zaman\u0131nda y\u00fcklenmiyor",
+    "usedByAgents_one": "{{count}} ajan taraf\u0131ndan kullan\u0131l\u0131yor",
+    "usedByAgents_other": "{{count}} ajan taraf\u0131ndan kullan\u0131l\u0131yor",
+    "deleteErrorInUse_one": "\"{{name}}\" MCP sunucusu {{count}} ajan taraf\u0131ndan kullan\u0131l\u0131yor. \u00d6nce referanslar\u0131 kald\u0131r\u0131n.",
+    "deleteErrorInUse_other": "\"{{name}}\" MCP sunucusu {{count}} ajan taraf\u0131ndan kullan\u0131l\u0131yor. \u00d6nce referanslar\u0131 kald\u0131r\u0131n.",
+    "deleteError": "MCP sunucusu silinemedi",
+    "testBtn": "Test"
+  },
+  "empty": {
+    "title": "Yap\u0131land\u0131r\u0131lm\u0131\u015f MCP sunucusu yok",
+    "addFirstBtn": "\u0130lk Sunucunuzu Ekleyin"
+  },
+  "loading": "MCP sunucular\u0131 y\u00fckleniyor...",
+  "comingSoon": "Yak\u0131nda",
+  "form": {
+    "newTitle": "Yeni MCP Sunucusu",
+    "editTitle": "MCP Sunucusunu D\u00fczenle",
+    "nameLabel": "AD",
+    "descriptionLabel": "A\u00c7IKLAMA",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "KOMUT",
+    "argsLabel": "ARGS (bo\u015flukla ayr\u0131lm\u0131\u015f)",
+    "envLabel": "ENV (sat\u0131r ba\u015f\u0131na KEY=VALUE)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (sat\u0131r ba\u015f\u0131na Key: Value)"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Pano",
+    "chats": "Sohbetler",
+    "automations": "Otomasyonlar",
+    "agents": "Ajanlar",
+    "skills": "Beceriler",
+    "mcpServers": "MCP Sunucular\u0131",
+    "tasks": "Konu\u015fma G\u00f6revleri",
+    "artifacts": "Eserler",
+    "memory": "Haf\u0131za",
+    "settings": "Ayarlar"
+  },
+  "sidebar": {
+    "navigation": "NAV\u0130GASYON",
+    "config": "YAPILANDIRMA",
+    "collapse": "<< Daralt"
+  },
+  "global": {
+    "allProjects": "T\u00fcm Projeler",
+    "dashboard": "Pano",
+    "settings": "Ayarlar"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Restricted",
+      "sandbox": "Sandbox",
+      "unrestricted": "Unrestricted"
+    },
+    "degraded": "(d\u00fc\u015f\u00fcr\u00fcld\u00fc \u2192 {{mode}})",
+    "tasks": "G\u00f6revler {{completed}}/{{total}}",
+    "conversationTasks": "KONU\u015eMA G\u00d6REVLER\u0130",
+    "contextUsage": "Ba\u011flam: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Ba\u011flam: -- / {{max}}",
+    "contextWindow": "BA\u011eLAM PENCERES\u0130",
+    "usage": "Kullan\u0131m",
+    "compacting": "S\u0131k\u0131\u015ft\u0131r\u0131l\u0131yor",
+    "compactingAuto": "S\u0131k\u0131\u015ft\u0131r\u0131l\u0131yor (otomatik)",
+    "compactNow": "\u015eimdi S\u0131k\u0131\u015ft\u0131r",
+    "byAgent": "AJANA G\u00d6RE",
+    "byModel": "MODELE G\u00d6RE",
+    "tokensInOut": "{{input}} giri\u015f / {{output}} \u00e7\u0131k\u0131\u015f",
+    "tokens": "Token: {{input}} giri\u015f / {{output}} \u00e7\u0131k\u0131\u015f",
+    "tokensEmpty": "Token: --"
+  }
+}

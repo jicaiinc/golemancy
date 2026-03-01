@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Skrýt historii chatu",
+    "showHistory": "Zobrazit historii chatu",
+    "new": "+ Nový",
+    "clickToRename": "Klikněte pro přejmenování"
+  },
+  "sidebar": {
+    "newChat": "+ Nový chat",
+    "noConversations": "Žádné konverzace"
+  },
+  "window": {
+    "startConversation": "Zahájit konverzaci...",
+    "compacting": "Komprimace",
+    "thinking": "Přemýšlení",
+    "imageMsgTitle": "Obrázek"
+  },
+  "empty": {
+    "readyToChat": "Připraveno k chatu",
+    "description": "Zahajte novou konverzaci nebo vyberte existující z postranního panelu.",
+    "startChatting": "Zahájit chat",
+    "noMainAgent": "Žádný hlavní agent",
+    "configureText": "Nakonfigurujte hlavního agenta v <a>Nastavení projektu</a> pro zahájení chatu."
+  },
+  "input": {
+    "placeholder": "Napište zprávu...",
+    "dropPlaceholder": "Přetáhněte obrázky sem...",
+    "attachImage": "Přiložit obrázek",
+    "recordAudio": "Nahrát zvuk",
+    "transcribing": "Transkripce...",
+    "transcriptionFailed": "Transkripce selhala",
+    "startRecordingFailed": "Nepodařilo se zahájit nahrávání",
+    "retryFailed": "Opakovaný pokus selhal"
+  },
+  "message": {
+    "reasoning": "Uvažování",
+    "untitledFile": "Bez názvu",
+    "copy": "Kopírovat"
+  },
+  "compact": {
+    "title": "KONVERZACE KOMPRIMOVÁNA",
+    "summary": "SHRNUTÍ",
+    "tokensSummary": "{{input}} vst / {{output}} výst"
+  },
+  "tool": {
+    "running": "Provádění...",
+    "awaitingApproval": "Čekání na schválení",
+    "approved": "Schváleno",
+    "done": "Hotovo",
+    "denied": "Zamítnuto",
+    "input": "VSTUP",
+    "output": "VÝSTUP",
+    "error": "CHYBA",
+    "task": "ÚKOL",
+    "tools": "NÁSTROJE",
+    "toolCountRunning": "[{{running}}/{{total}} nástrojů]",
+    "toolCountDone": "[{{total}} nástrojů]",
+    "taskCreate": "Vytvořit úkol",
+    "taskGet": "Získat úkol",
+    "taskList": "Seznam úkolů",
+    "taskUpdate": "Aktualizovat úkol"
+  }
+}

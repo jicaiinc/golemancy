@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Chatgeschiedenis verbergen",
+    "showHistory": "Chatgeschiedenis tonen",
+    "new": "+ Nieuw",
+    "clickToRename": "Klik om te hernoemen"
+  },
+  "sidebar": {
+    "newChat": "+ Nieuw Gesprek",
+    "noConversations": "Geen gesprekken"
+  },
+  "window": {
+    "startConversation": "Start het gesprek...",
+    "compacting": "Comprimeren",
+    "thinking": "Nadenken",
+    "imageMsgTitle": "Afbeeldingsbericht"
+  },
+  "empty": {
+    "readyToChat": "Klaar om te chatten",
+    "description": "Start een nieuw gesprek of selecteer er een uit de zijbalk.",
+    "startChatting": "Begin met Chatten",
+    "noMainAgent": "Geen Hoofdagent",
+    "configureText": "Configureer een Hoofdagent in <a>Projectinstellingen</a> om te beginnen met chatten."
+  },
+  "input": {
+    "placeholder": "Typ een bericht...",
+    "dropPlaceholder": "Sleep afbeeldingen hierheen...",
+    "attachImage": "Afbeelding bijvoegen",
+    "recordAudio": "Audio opnemen",
+    "transcribing": "Transcriberen...",
+    "transcriptionFailed": "Transcriptie mislukt",
+    "startRecordingFailed": "Opname starten mislukt",
+    "retryFailed": "Opnieuw proberen mislukt"
+  },
+  "message": {
+    "reasoning": "Redenering",
+    "untitledFile": "Naamloos bestand",
+    "copy": "Kopiëren"
+  },
+  "compact": {
+    "title": "GESPREK GECOMPRIMEERD",
+    "summary": "SAMENVATTING",
+    "tokensSummary": "{{input}} in / {{output}} out"
+  },
+  "tool": {
+    "running": "Wordt uitgevoerd...",
+    "awaitingApproval": "Wacht op goedkeuring",
+    "approved": "Goedgekeurd",
+    "done": "Gereed",
+    "denied": "Geweigerd",
+    "input": "INVOER",
+    "output": "UITVOER",
+    "error": "FOUT",
+    "task": "TAAK",
+    "tools": "TOOLS",
+    "toolCountRunning": "[{{running}}/{{total}} tools]",
+    "toolCountDone": "[{{total}} tools]",
+    "taskCreate": "Taak Aanmaken",
+    "taskGet": "Taak Ophalen",
+    "taskList": "Taken Weergeven",
+    "taskUpdate": "Taak Bijwerken"
+  }
+}

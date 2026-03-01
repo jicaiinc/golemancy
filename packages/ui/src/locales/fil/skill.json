@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Mga Skill",
+    "skillCount_one": "{{count}} skill",
+    "skillCount_other": "{{count}} skill",
+    "newSkillBtn": "+ Bagong Skill"
+  },
+  "tabs": {
+    "installed": "Naka-install",
+    "marketplace": "Marketplace"
+  },
+  "import": {
+    "noValidFiles": "Walang nahanap na .md o .zip file. Mag-drag ng markdown o zip files para mag-import ng mga skill.",
+    "importedCount_one": "Na-import ang {{count}} skill",
+    "importedCount_other": "Na-import ang {{count}} skill",
+    "importError": "Nabigo ang pag-import ng mga skill"
+  },
+  "deleteError": {
+    "inUse_one": "Ang Skill na \"{{name}}\" ay naka-assign sa {{count}} agent. I-unassign muna.",
+    "inUse_other": "Ang Skill na \"{{name}}\" ay naka-assign sa {{count}} agent. I-unassign muna.",
+    "generic": "Nabigo ang pag-delete ng skill"
+  },
+  "loading": "Nilo-load ang mga skill...",
+  "empty": {
+    "title": "Wala pang skill",
+    "createFirstBtn": "Gumawa ng Unang Skill"
+  },
+  "comingSoon": "Paparating Na",
+  "form": {
+    "newTitle": "Bagong Skill",
+    "editTitle": "I-edit ang Skill",
+    "nameLabel": "PANGALAN",
+    "descriptionLabel": "PAGLALARAWAN",
+    "instructionsLabel": "MGA INSTRUKSYON",
+    "instructionsPlaceholder": "Isulat ang mga instruksyon ng skill sa markdown..."
+  }
+}

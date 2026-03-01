@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "記憶庫",
+    "entryCount_one": "{{count}} 條記憶",
+    "entryCount_other": "{{count}} 條記憶",
+    "addEntryBtn": "+ 新增條目"
+  },
+  "search": {
+    "placeholder": "搜尋記憶內容、來源或標籤..."
+  },
+  "filter": {
+    "all": "全部"
+  },
+  "loading": "載入記憶...",
+  "empty": {
+    "noMatch": "無符合的記憶",
+    "noEntries": "尚無記憶",
+    "hint": "記憶幫助 Agent 在跨對話中保持上下文"
+  },
+  "form": {
+    "addTitle": "新增記憶條目",
+    "editTitle": "編輯記憶條目",
+    "contentLabel": "內容",
+    "sourceLabel": "來源",
+    "sourcePlaceholder": "例如：研究員",
+    "tagsLabel": "標籤（逗號分隔）",
+    "tagsPlaceholder": "例如：策略, 受眾"
+  }
+}

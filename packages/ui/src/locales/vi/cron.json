@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "T\u1ef1 \u0110\u1ed9ng H\u00f3a",
+    "newBtn": "+ M\u1edbi"
+  },
+  "empty": {
+    "noJobs": "Ch\u01b0a c\u00f3 t\u1ef1 \u0111\u1ed9ng h\u00f3a",
+    "createFirstBtn": "T\u1ea1o T\u1ef1 \u0110\u1ed9ng H\u00f3a \u0110\u1ea7u Ti\u00ean"
+  },
+  "job": {
+    "runBtn": "Ch\u1ea1y",
+    "historyBtn": "L\u1ecbch s\u1eed",
+    "runningStatus": "\u0110ang ch\u1ea1y...",
+    "viewChat": "Xem Chat \u2192",
+    "next": "Ti\u1ebfp theo: {{time}}",
+    "at": "V\u00e0o {{time}}",
+    "agentNotFound": "Kh\u00f4ng t\u00ecm th\u1ea5y Agent",
+    "overdue": "qu\u00e1 h\u1ea1n",
+    "once": "m\u1ed9t l\u1ea7n"
+  },
+  "delete": {
+    "title": "X\u00f3a T\u1ef1 \u0110\u1ed9ng H\u00f3a",
+    "confirm": "B\u1ea1n c\u00f3 ch\u1eafc mu\u1ed1n x\u00f3a \"{{name}}\"? Thao t\u00e1c n\u00e0y kh\u00f4ng th\u1ec3 ho\u00e0n t\u00e1c."
+  },
+  "runsModal": {
+    "titleWithName": "L\u1ecbch S\u1eed Ch\u1ea1y \u2014 {{name}}",
+    "title": "L\u1ecbch S\u1eed Ch\u1ea1y",
+    "noRuns": "Ch\u01b0a c\u00f3 l\u1ea7n ch\u1ea1y n\u00e0o",
+    "openChat": "M\u1ede CHAT \u2192"
+  },
+  "status": {
+    "success": "th\u00e0nh c\u00f4ng",
+    "error": "l\u1ed7i",
+    "running": "\u0111ang ch\u1ea1y"
+  },
+  "form": {
+    "newTitle": "T\u1ef1 \u0110\u1ed9ng H\u00f3a M\u1edbi",
+    "editTitle": "S\u1eeda T\u1ef1 \u0110\u1ed9ng H\u00f3a",
+    "nameLabel": "T\u00caN",
+    "namePlaceholder": "Review code h\u00e0ng ng\u00e0y",
+    "typeLabel": "LO\u1ea0I",
+    "recurring": "L\u1eb7p l\u1ea1i",
+    "oneTime": "M\u1ed9t l\u1ea7n",
+    "cronLabel": "BI\u1ec2U TH\u1ee8C CRON",
+    "scheduledAtLabel": "L\u00caN L\u1ecaCH V\u00c0O (gi\u1edd \u0111\u1ecba ph\u01b0\u01a1ng)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Ch\u1ecdn agent",
+    "instructionLabel": "H\u01af\u1edaNG D\u1eaaN (t\u00f9y ch\u1ecdn)",
+    "instructionPlaceholder": "H\u01b0\u1edbng d\u1eabn g\u1eedi cho agent khi \u0111\u01b0\u1ee3c k\u00edch ho\u1ea1t",
+    "enabledLabel": "B\u1eadt",
+    "presets": {
+      "every5min": "M\u1ed7i 5 ph\u00fat",
+      "everyHour": "M\u1ed7i gi\u1edd",
+      "every12h": "M\u1ed7i 12 gi\u1edd",
+      "daily9am": "H\u00e0ng ng\u00e0y 9h",
+      "weeklyMon": "H\u00e0ng tu\u1ea7n T2"
+    },
+    "invalidExpression": "Bi\u1ec3u th\u1ee9c kh\u00f4ng h\u1ee3p l\u1ec7"
+  }
+}

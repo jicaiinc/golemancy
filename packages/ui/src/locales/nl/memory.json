@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Geheugen",
+    "entryCount_one": "{{count}} herinnering",
+    "entryCount_other": "{{count}} herinneringen",
+    "addEntryBtn": "+ Invoer Toevoegen"
+  },
+  "search": {
+    "placeholder": "Zoek herinneringen op inhoud, bron of tag..."
+  },
+  "filter": {
+    "all": "alle"
+  },
+  "loading": "Geheugen laden...",
+  "empty": {
+    "noMatch": "Geen overeenkomende herinneringen",
+    "noEntries": "Nog geen herinneringen",
+    "hint": "Herinneringen helpen agenten om context te behouden over gesprekken heen"
+  },
+  "form": {
+    "addTitle": "Geheugeninvoer Toevoegen",
+    "editTitle": "Geheugeninvoer Bewerken",
+    "contentLabel": "INHOUD",
+    "sourceLabel": "BRON",
+    "sourcePlaceholder": "bijv. Onderzoeker",
+    "tagsLabel": "TAGS (kommagescheiden)",
+    "tagsPlaceholder": "bijv. strategie, doelgroep"
+  }
+}

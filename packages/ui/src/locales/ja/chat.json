@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "チャット履歴を非表示",
+    "showHistory": "チャット履歴を表示",
+    "new": "+ 新規",
+    "clickToRename": "クリックして名前を変更"
+  },
+  "sidebar": {
+    "newChat": "+ 新しいチャット",
+    "noConversations": "会話がありません"
+  },
+  "window": {
+    "startConversation": "会話を始めましょう...",
+    "compacting": "圧縮中",
+    "thinking": "思考中",
+    "imageMsgTitle": "画像メッセージ"
+  },
+  "empty": {
+    "readyToChat": "チャット準備完了",
+    "description": "新しい会話を始めるか、サイドバーから選択してください。",
+    "startChatting": "チャットを開始",
+    "noMainAgent": "メイン Agent 未設定",
+    "configureText": "<a>プロジェクト設定</a>でメイン Agent を設定してチャットを開始してください。"
+  },
+  "input": {
+    "placeholder": "メッセージを入力...",
+    "dropPlaceholder": "画像をここにドロップ...",
+    "attachImage": "画像を添付",
+    "recordAudio": "音声を録音",
+    "transcribing": "文字起こし中...",
+    "transcriptionFailed": "文字起こし失敗",
+    "startRecordingFailed": "録音の開始に失敗しました",
+    "retryFailed": "再試行に失敗しました"
+  },
+  "message": {
+    "reasoning": "推論",
+    "untitledFile": "無題のファイル",
+    "copy": "コピー"
+  },
+  "compact": {
+    "title": "会話を圧縮しました",
+    "summary": "要約",
+    "tokensSummary": "{{input}} 入力 / {{output}} 出力"
+  },
+  "tool": {
+    "running": "実行中...",
+    "awaitingApproval": "承認待ち",
+    "approved": "承認済み",
+    "done": "完了",
+    "denied": "拒否",
+    "input": "入力",
+    "output": "出力",
+    "error": "エラー",
+    "task": "タスク",
+    "tools": "ツール",
+    "toolCountRunning": "[{{running}}/{{total}} ツール]",
+    "toolCountDone": "[{{total}} ツール]",
+    "taskCreate": "タスク作成",
+    "taskGet": "タスク取得",
+    "taskList": "タスク一覧",
+    "taskUpdate": "タスク更新"
+  }
+}

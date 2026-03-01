@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Globální nastavení"
+  },
+  "tabs": {
+    "general": "Obecné",
+    "providers": "Poskytovatelé",
+    "speech": "Řeč"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Ovládejte své AI Golemy"
+  },
+  "general": {
+    "appearance": "VZHLED",
+    "light": "Světlý",
+    "dark": "Tmavý",
+    "system": "Systémový",
+    "language": "JAZYK"
+  },
+  "defaultModel": {
+    "sectionTitle": "VÝCHOZÍ MODEL",
+    "description": "Používá se při vytváření nových projektů a agentů.",
+    "providerLabel": "POSKYTOVATEL",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Žádný --",
+    "selectProviderFirst": "-- Nejprve vyberte poskytovatele --",
+    "noModels": "Žádné dostupné modely",
+    "saved": "Uloženo!"
+  },
+  "providers": {
+    "sectionTitle": "POSKYTOVATELÉ",
+    "addProvider": "+ Přidat poskytovatele",
+    "selectProvider": "VYBERTE POSKYTOVATELE",
+    "customProvider": "VLASTNÍ POSKYTOVATEL",
+    "custom": "Vlastní",
+    "anyEndpoint": "jakýkoliv endpoint",
+    "nameLabel": "NÁZEV",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TYP SDK",
+    "empty": "Žádní poskytovatelé nejsou nakonfigurováni. Klikněte na «+ Přidat poskytovatele» pro začátek."
+  },
+  "provider": {
+    "testing": "Testování...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Chyba",
+    "untested": "Netestováno",
+    "noKey": "Žádný klíč",
+    "retest": "Přetestovat",
+    "test": "Test",
+    "del": "Smaž",
+    "deleteConfirm": "Smazat {{name}}? Tuto akci nelze vrátit zpět.",
+    "apiKeyLabel": "API klíč:",
+    "notSet": "nenastaveno",
+    "hide": "Skrýt",
+    "show": "Zobrazit",
+    "urlLabel": "URL:",
+    "modelsCount": "Modely ({{count}})",
+    "addModel": "+ Přidat model",
+    "apiKeyInputLabel": "API KLÍČ",
+    "baseUrlOptional": "BASE URL (volitelné)",
+    "hideKey": "Skrýt klíč",
+    "showKey": "Zobrazit klíč"
+  },
+  "threshold": {
+    "tokens": "tokenů"
+  }
+}

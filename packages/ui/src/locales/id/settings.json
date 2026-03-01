@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Pengaturan Global"
+  },
+  "tabs": {
+    "general": "Umum",
+    "providers": "Provider",
+    "speech": "Ucapan"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Kendalikan AI Golem Anda"
+  },
+  "general": {
+    "appearance": "TAMPILAN",
+    "light": "Terang",
+    "dark": "Gelap",
+    "system": "Sistem",
+    "language": "BAHASA"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODEL DEFAULT",
+    "description": "Digunakan saat membuat proyek dan agent baru.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Tidak ada --",
+    "selectProviderFirst": "-- Pilih provider terlebih dahulu --",
+    "noModels": "Tidak ada model tersedia",
+    "saved": "Tersimpan!"
+  },
+  "providers": {
+    "sectionTitle": "PROVIDER",
+    "addProvider": "+ Tambah Provider",
+    "selectProvider": "PILIH PROVIDER",
+    "customProvider": "PROVIDER KUSTOM",
+    "custom": "Kustom",
+    "anyEndpoint": "endpoint apa saja",
+    "nameLabel": "NAMA",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TIPE SDK",
+    "empty": "Belum ada provider yang dikonfigurasi. Klik \"+ Tambah Provider\" untuk memulai."
+  },
+  "provider": {
+    "testing": "Menguji...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Gagal",
+    "untested": "Belum diuji",
+    "noKey": "Tidak Ada Key",
+    "retest": "Uji Ulang",
+    "test": "Uji",
+    "del": "Hapus",
+    "deleteConfirm": "Hapus {{name}}? Tindakan ini tidak dapat dibatalkan.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "belum diatur",
+    "hide": "Sembunyikan",
+    "show": "Tampilkan",
+    "urlLabel": "URL:",
+    "modelsCount": "Model ({{count}})",
+    "addModel": "+ Tambah Model",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opsional)",
+    "hideKey": "Sembunyikan Key",
+    "showKey": "Tampilkan Key"
+  },
+  "threshold": {
+    "tokens": "token"
+  }
+}

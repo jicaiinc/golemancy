@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Configuración Global"
+  },
+  "tabs": {
+    "general": "General",
+    "providers": "Proveedores",
+    "speech": "Voz"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Comande Sus AI Golems"
+  },
+  "general": {
+    "appearance": "APARIENCIA",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "language": "IDIOMA"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODELO PREDETERMINADO",
+    "description": "Se usa al crear nuevos proyectos y agentes.",
+    "providerLabel": "PROVEEDOR",
+    "modelLabel": "MODELO",
+    "noProvider": "-- Ninguno --",
+    "selectProviderFirst": "-- Seleccione proveedor primero --",
+    "noModels": "No hay modelos disponibles",
+    "saved": "¡Guardado!"
+  },
+  "providers": {
+    "sectionTitle": "PROVEEDORES",
+    "addProvider": "+ Agregar Proveedor",
+    "selectProvider": "SELECCIONAR PROVEEDOR",
+    "customProvider": "PROVEEDOR PERSONALIZADO",
+    "custom": "Personalizado",
+    "anyEndpoint": "cualquier endpoint",
+    "nameLabel": "NOMBRE",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TIPO DE SDK",
+    "empty": "No hay proveedores configurados. Haga clic en \"+ Agregar Proveedor\" para comenzar."
+  },
+  "provider": {
+    "testing": "Probando...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Falló",
+    "untested": "Sin probar",
+    "noKey": "Sin Key",
+    "retest": "Re-probar",
+    "test": "Probar",
+    "del": "Elim",
+    "deleteConfirm": "¿Eliminar {{name}}? Esta acción no se puede deshacer.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "no configurada",
+    "hide": "Ocultar",
+    "show": "Mostrar",
+    "urlLabel": "URL:",
+    "modelsCount": "Modelos ({{count}})",
+    "addModel": "+ Agregar Modelo",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opcional)",
+    "hideKey": "Ocultar Key",
+    "showKey": "Mostrar Key"
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

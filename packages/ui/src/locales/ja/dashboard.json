@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "ダッシュボード",
+    "descriptionFallback": "プロジェクト概要",
+    "loading": "ダッシュボードを読み込み中..."
+  },
+  "tokenUsage": {
+    "title": "TOKEN 使用量"
+  },
+  "chart": {
+    "noData": "Token データがありません",
+    "tooltipIn": "入力：{{tokens}}",
+    "tooltipOut": "出力：{{tokens}}",
+    "legendInput": "入力",
+    "legendOutput": "出力"
+  },
+  "tabs": {
+    "trend": "トレンド",
+    "byAgent": "Agent 別",
+    "byModel": "モデル別",
+    "byProject": "プロジェクト別"
+  },
+  "table": {
+    "colName": "名前",
+    "colTotal": "合計",
+    "colInput": "入力",
+    "colOutput": "出力",
+    "colCalls": "呼び出し",
+    "colRatio": "比率",
+    "titleByAgent": "TOKEN（AGENT 別）",
+    "titleByModel": "TOKEN（モデル別）",
+    "titleByProject": "TOKEN（プロジェクト別）"
+  },
+  "timeRange": {
+    "today": "今日",
+    "sevenDays": "7 日間",
+    "thirtyDays": "30 日間",
+    "allTime": "全期間"
+  },
+  "summary": {
+    "totalTokens": "合計 Token",
+    "inputTokens": "入力 Token",
+    "outputTokens": "出力 Token",
+    "apiCalls": "API 呼び出し"
+  },
+  "overview": {
+    "agents": "AGENT",
+    "recentChats": "最近のチャット",
+    "viewAll": "すべて表示 \u2192",
+    "noAgents": "Agent がありません",
+    "noRecentChats": "最近のチャットがありません",
+    "chatStats": "{{count}} メッセージ \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "アクティビティ",
+    "tabActive": "実行中 ({{count}})",
+    "tabScheduled": "スケジュール済み ({{count}})",
+    "tabRecent": "最近",
+    "badgeChat": "チャット",
+    "badgeCron": "定期",
+    "noActiveRuns": "実行中のタスクなし",
+    "noScheduledRuns": "スケジュール済みタスクなし",
+    "noRecentActivity": "最近のアクティビティなし",
+    "openLink": "開く \u2192",
+    "tokenCount": "{{tokens}} Token"
+  },
+  "global": {
+    "title": "グローバルダッシュボード",
+    "subtitle": "プロジェクト横断概要",
+    "topProjects": "トッププロジェクト",
+    "noProjectData": "プロジェクトデータなし",
+    "projectStats": "{{tokens}} Token \u00B7 {{calls}} 回呼び出し"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Configurazione",
+    "skipSetup": "Salta Configurazione"
+  },
+  "steps": {
+    "welcome": "Benvenuto",
+    "provider": "Provider",
+    "speech": "Voce",
+    "project": "Progetto",
+    "complete": "Completato"
+  },
+  "error": {
+    "somethingWentWrong": "Qualcosa è andato storto. Riprova.",
+    "failedToSkip": "Impossibile saltare la configurazione. Riprova.",
+    "connectionTestFailed": "Test di connessione fallito",
+    "testFailed": "Test fallito",
+    "unknownError": "Errore sconosciuto"
+  },
+  "button": {
+    "createProject": "Crea Progetto",
+    "getStarted": "Inizia",
+    "continue": "Continua",
+    "startChatting": "Inizia a Chattare",
+    "goToDashboard": "Vai alla Dashboard",
+    "change": "Modifica",
+    "testConnection": "Testa Connessione",
+    "testing": "Test in corso...",
+    "reTest": "Ri-testa",
+    "test": "Test",
+    "hide": "Nascondi",
+    "show": "Mostra"
+  },
+  "welcome": {
+    "tagline": "Benvenuto",
+    "heading": "Comanda i Tuoi AI Golem",
+    "description": "Orchestra agenti AI autonomi dal tuo desktop."
+  },
+  "provider": {
+    "heading": "Connetti un Provider AI",
+    "description": "Scegli un provider e inserisci la tua API key per iniziare.",
+    "customLabel": "Personalizzato",
+    "customSubtitle": "qualsiasi endpoint",
+    "customCardTitle": "PROVIDER PERSONALIZZATO",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NOME",
+    "labelSdkType": "TIPO SDK",
+    "statusConnected": "Connesso",
+    "statusFailed": "Fallito",
+    "statusConnecting": "Connessione...",
+    "none": "Nessuno",
+    "defaultModel": {
+      "title": "MODELLO PREDEFINITO",
+      "descriptionPreset": "Scegli un modello da usare come predefinito per i nuovi agenti.",
+      "descriptionCustom": "Inserisci il nome del modello da usare come predefinito.",
+      "labelModelName": "NOME MODELLO"
+    }
+  },
+  "speech": {
+    "heading": "Speech-to-Text",
+    "description": "Abilita l'input vocale per un'interazione più veloce. Puoi saltare e configurarlo in seguito.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODELLO",
+    "labelLanguage": "LINGUA",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Fallito"
+  },
+  "project": {
+    "heading": "Crea il Tuo Primo Progetto",
+    "description": "I progetti organizzano agenti, conversazioni e flussi di lavoro.",
+    "labelName": "NOME PROGETTO",
+    "placeholderName": "Il Mio Progetto Fantastico",
+    "labelDescription": "DESCRIZIONE",
+    "placeholderDescription": "Cosa farà questo progetto?",
+    "labelIcon": "ICONA",
+    "fromTemplate": "DA MODELLO",
+    "comingSoon": "Prossimamente"
+  },
+  "complete": {
+    "heading": "Tutto Pronto!",
+    "description": "Ecco un riepilogo della configurazione.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "MODELLO PREDEFINITO",
+    "labelSpeechToText": "SPEECH-TO-TEXT",
+    "labelProject": "PROGETTO",
+    "sttEnabled": "Abilitato",
+    "sttSkipped": "Saltato",
+    "links": {
+      "settings": "Impostazioni",
+      "website": "Sito Web"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefacte",
+    "refreshBtn": "Reîmprospătare"
+  },
+  "deleteModal": {
+    "title": "Ștergere fișier",
+    "confirmPrefix": "Sunteți sigur că doriți să ștergeți",
+    "warning": "Această acțiune nu poate fi anulată."
+  },
+  "preview": {
+    "selectFile": "Selectați un fișier pentru previzualizare",
+    "loading": "Se încarcă fișierul...",
+    "loadingImage": "Se încarcă imaginea...",
+    "imageError": "Încărcarea imaginii a eșuat: {{error}}",
+    "emptyCsv": "CSV gol",
+    "noPreview": "Previzualizare indisponibilă pentru acest tip de fișier",
+    "download": "DL",
+    "open": "Deschidere",
+    "meta": {
+      "type": "TIP",
+      "mime": "MIME",
+      "size": "DIMENSIUNE",
+      "modified": "MODIFICAT"
+    }
+  },
+  "tree": {
+    "root": "artefacte",
+    "emptyDir": "Director gol"
+  }
+}

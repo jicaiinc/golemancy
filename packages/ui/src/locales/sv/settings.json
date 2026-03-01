@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Globala inställningar"
+  },
+  "tabs": {
+    "general": "Allmänt",
+    "providers": "Providers",
+    "speech": "Tal"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Styr dina AI Golems"
+  },
+  "general": {
+    "appearance": "UTSEENDE",
+    "light": "Ljust",
+    "dark": "Mörkt",
+    "system": "System",
+    "language": "SPRÅK"
+  },
+  "defaultModel": {
+    "sectionTitle": "STANDARDMODELL",
+    "description": "Används vid skapande av nya projekt och agenter.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODELL",
+    "noProvider": "-- Ingen --",
+    "selectProviderFirst": "-- Välj provider först --",
+    "noModels": "Inga modeller tillgängliga",
+    "saved": "Sparat!"
+  },
+  "providers": {
+    "sectionTitle": "PROVIDERS",
+    "addProvider": "+ Lägg till provider",
+    "selectProvider": "VÄLJ PROVIDER",
+    "customProvider": "ANPASSAD PROVIDER",
+    "custom": "Anpassad",
+    "anyEndpoint": "valfri endpoint",
+    "nameLabel": "NAMN",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "SDK-TYP",
+    "empty": "Inga providers konfigurerade. Klicka \"+ Lägg till provider\" för att komma igång."
+  },
+  "provider": {
+    "testing": "Testar...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Misslyckades",
+    "untested": "Otestad",
+    "noKey": "Ingen nyckel",
+    "retest": "Testa igen",
+    "test": "Testa",
+    "del": "Ta bort",
+    "deleteConfirm": "Radera {{name}}? Detta kan inte ångras.",
+    "apiKeyLabel": "API-nyckel:",
+    "notSet": "inte angiven",
+    "hide": "Dölj",
+    "show": "Visa",
+    "urlLabel": "URL:",
+    "modelsCount": "Modeller ({{count}})",
+    "addModel": "+ Lägg till modell",
+    "apiKeyInputLabel": "API-NYCKEL",
+    "baseUrlOptional": "BASE URL (valfritt)",
+    "hideKey": "Dölj nyckel",
+    "showKey": "Visa nyckel"
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

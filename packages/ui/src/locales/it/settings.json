@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Impostazioni Globali"
+  },
+  "tabs": {
+    "general": "Generale",
+    "providers": "Provider",
+    "speech": "Voce"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Comanda i Tuoi AI Golem"
+  },
+  "general": {
+    "appearance": "ASPETTO",
+    "light": "Chiaro",
+    "dark": "Scuro",
+    "system": "Sistema",
+    "language": "LINGUA"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODELLO PREDEFINITO",
+    "description": "Utilizzato nella creazione di nuovi progetti e agenti.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODELLO",
+    "noProvider": "-- Nessuno --",
+    "selectProviderFirst": "-- Seleziona prima un provider --",
+    "noModels": "Nessun modello disponibile",
+    "saved": "Salvato!"
+  },
+  "providers": {
+    "sectionTitle": "PROVIDER",
+    "addProvider": "+ Aggiungi Provider",
+    "selectProvider": "SELEZIONA PROVIDER",
+    "customProvider": "PROVIDER PERSONALIZZATO",
+    "custom": "Personalizzato",
+    "anyEndpoint": "qualsiasi endpoint",
+    "nameLabel": "NOME",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TIPO SDK",
+    "empty": "Nessun provider configurato. Clicca \"+ Aggiungi Provider\" per iniziare."
+  },
+  "provider": {
+    "testing": "Test in corso...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Fallito",
+    "untested": "Non testato",
+    "noKey": "Nessuna Key",
+    "retest": "Ri-testa",
+    "test": "Test",
+    "del": "Elim.",
+    "deleteConfirm": "Eliminare {{name}}? Non è possibile annullare.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "non impostata",
+    "hide": "Nascondi",
+    "show": "Mostra",
+    "urlLabel": "URL:",
+    "modelsCount": "Modelli ({{count}})",
+    "addModel": "+ Aggiungi Modello",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opzionale)",
+    "hideKey": "Nascondi Key",
+    "showKey": "Mostra Key"
+  },
+  "threshold": {
+    "tokens": "token"
+  }
+}

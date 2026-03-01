@@ -1,0 +1,104 @@
+{
+  "loading": "Caricamento permessi...",
+  "section": {
+    "permissionMode": "MODALITÀ PERMESSI",
+    "configuration": "CONFIGURAZIONE"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Limitato",
+      "subtitle": "Solo Bash, niente sandbox",
+      "description": "Ambiente di esecuzione minimo. Nessun runtime sandbox, nessun supporto MCP.",
+      "badge": "Limitato"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Isolamento configurabile",
+      "description": "Runtime sandbox con restrizioni configurabili su filesystem, rete e comandi.",
+      "badge": "Consigliato"
+    },
+    "unrestricted": {
+      "name": "Senza limiti",
+      "subtitle": "Accesso completo al sistema",
+      "description": "Nessuna restrizione sandbox. Tutti i comandi vengono eseguiti con permessi di sistema completi.",
+      "badge": "Rischioso"
+    }
+  },
+  "config": {
+    "default": "Predefinito",
+    "selectConfig": "Seleziona configurazione...",
+    "saveAs": "Salva come...",
+    "rename": "Rinomina",
+    "resetToDefault": "Ripristina predefiniti",
+    "saved": "Salvato!",
+    "editingDefault": "Modifica dei valori predefiniti. Clicca Salva per creare una nuova configurazione."
+  },
+  "modal": {
+    "unrestrictedTitle": "Abilitare la Modalità Senza Limiti?",
+    "unrestrictedBody": "Questo rimuove tutta la protezione sandbox. Gli agenti AI avranno accesso completo al sistema, incluso:",
+    "unrestrictedReadWrite": "Leggere/scrivere qualsiasi file sul computer",
+    "unrestrictedExecute": "Eseguire qualsiasi comando di sistema",
+    "unrestrictedNetwork": "Accedere alla rete senza restrizioni",
+    "unrestrictedSysconfig": "Modificare la configurazione di sistema",
+    "unrestrictedFooter": "Utilizzare solo per sviluppo locale in ambienti affidabili.",
+    "enableUnrestricted": "Ho capito, Abilita",
+    "sandboxUnavailableTitle": "Modalità Sandbox Non Disponibile",
+    "sandboxUnavailableBody": "I prerequisiti del runtime sandbox non sono soddisfatti. Sono stati trovati i seguenti problemi:",
+    "sandboxUnavailableFooter": "Abilitare comunque la modalità sandbox causerà il degrado al runtime limitato.",
+    "enableAnyway": "Abilita Comunque",
+    "saveAsTitle": "Salva come Nuova Configurazione",
+    "configNameLabel": "NOME CONFIGURAZIONE",
+    "configNamePlaceholder": "es., Sviluppo Rigoroso, Python Disabilitato",
+    "renameTitle": "Rinomina Configurazione",
+    "newNameLabel": "NUOVO NOME",
+    "newNamePlaceholder": "es., La Mia Configurazione",
+    "renaming": "Rinomina...",
+    "deleteTitle": "Eliminare \"{{title}}\"?",
+    "deleteBody": "Questa configurazione verrà eliminata definitivamente. Il progetto tornerà ai valori predefiniti."
+  },
+  "filesystem": {
+    "sectionTitle": "PERMESSI FILESYSTEM",
+    "allowWrite": "CONSENTI SCRITTURA",
+    "allowWriteHelper": "Percorsi dove gli agenti possono scrivere file. Predefinito: directory workspace del progetto.",
+    "allowWritePlaceholder": "es., /Users/nome/workspace",
+    "denyRead": "BLOCCA LETTURA",
+    "denyReadHelper": "File/cartelle sensibili da bloccare in lettura.",
+    "denyReadPlaceholder": "es., ~/.ssh, .env",
+    "denyWrite": "BLOCCA SCRITTURA",
+    "denyWriteHelper": "Percorsi dove la scrittura è bloccata. Ha priorità su consenti scrittura.",
+    "denyWritePlaceholder": "es., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "RESTRIZIONI DI RETE",
+    "enableLabel": "Abilita",
+    "statusEnabled": "Solo i domini configurati sono accessibili",
+    "statusDisabled": "Tutto il traffico di rete è consentito",
+    "allowedDomains": "DOMINI CONSENTITI",
+    "allowedDomainsHelper": "Domini a cui gli agenti possono accedere. Esatto: example.com — Wildcard: *.example.com (2+ parti dopo *.)",
+    "allowedDomainsPlaceholder": "es., api.github.com",
+    "deniedDomains": "DOMINI BLOCCATI",
+    "deniedDomainsHelper": "Domini da bloccare. Stesso formato dei domini consentiti.",
+    "deniedDomainsPlaceholder": "es., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "RESTRIZIONI COMANDI",
+    "deniedCommands": "COMANDI BLOCCATI",
+    "deniedCommandsHelper": "Comandi da bloccare dall'esecuzione.",
+    "deniedCommandsPlaceholder": "es., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Applica a MCP",
+    "warning": "(\u26A0 Disabilitare potrebbe consentire a server MCP di terze parti di accedere o modificare file sul computer)",
+    "description": "Quando abilitato, i comandi del server MCP verranno eseguiti nel runtime sandbox (srt). Questo applica le stesse restrizioni di filesystem, rete e comandi ai server MCP."
+  },
+  "windows": {
+    "notice": "\u26A0 AVVISO WINDOWS",
+    "message": "Il runtime sandbox non è disponibile su Windows. È supportato solo il blocco dei comandi."
+  },
+  "validation": {
+    "removeProtocol": "Rimuovi protocollo, percorso o porta — solo il dominio",
+    "wildcardParts": "Il wildcard necessita di 2+ parti dopo *. (es., *.example.com)",
+    "onlyWildcard": "È supportato solo il formato wildcard *.dominio.com",
+    "validDomain": "Deve essere un dominio valido con almeno un punto (es., example.com)"
+  }
+}

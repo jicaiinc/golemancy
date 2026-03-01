@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP 伺服器",
+    "serverCount_one": "{{count}} 個伺服器",
+    "serverCount_other": "{{count}} 個伺服器",
+    "newServerBtn": "+ 新建伺服器"
+  },
+  "tabs": {
+    "installed": "已安裝",
+    "marketplace": "市集"
+  },
+  "warning": {
+    "restrictedBadge": "受限",
+    "restrictedMsg": "受限模式：stdio MCP 伺服器已停用，不會載入",
+    "riskBadge": "警告",
+    "riskMsg": "第三方 MCP 伺服器可能會存取或修改你電腦上的檔案。",
+    "applyToMcpHint": "在設定 > 權限中啟用「套用到 MCP」以對 MCP 伺服器進行沙盒隔離。",
+    "sandboxUnavailable": "沙盒執行環境在此平台不可用。"
+  },
+  "import": {
+    "invalidFormat": "格式無效：期望 { mcpServers: { ... } }",
+    "noServers": "設定檔案中未找到伺服器",
+    "importedCount_one": "已匯入 {{count}} 個 MCP 伺服器",
+    "importedCount_other": "已匯入 {{count}} 個 MCP 伺服器",
+    "parseError": "解析設定檔案失敗"
+  },
+  "server": {
+    "testing": "測試中...",
+    "testOk_one": "正常 ({{count}} 個工具)",
+    "testOk_other": "正常 ({{count}} 個工具)",
+    "connectionFailed": "連線失敗",
+    "testFailed": "測試失敗",
+    "blockedRestricted": "被受限模式阻擋 — stdio 伺服器在執行時不會載入",
+    "usedByAgents_one": "被 {{count}} 個 Agent 使用",
+    "usedByAgents_other": "被 {{count}} 個 Agent 使用",
+    "deleteErrorInUse_one": "MCP 伺服器「{{name}}」正被 {{count}} 個 Agent 使用。請先移除引用。",
+    "deleteErrorInUse_other": "MCP 伺服器「{{name}}」正被 {{count}} 個 Agent 使用。請先移除引用。",
+    "deleteError": "刪除 MCP 伺服器失敗",
+    "testBtn": "測試"
+  },
+  "empty": {
+    "title": "尚無 MCP 伺服器",
+    "addFirstBtn": "新增第一個伺服器"
+  },
+  "loading": "載入 MCP 伺服器...",
+  "comingSoon": "即將推出",
+  "form": {
+    "newTitle": "新建 MCP 伺服器",
+    "editTitle": "編輯 MCP 伺服器",
+    "nameLabel": "名稱",
+    "descriptionLabel": "說明",
+    "transportLabel": "傳輸協定",
+    "commandLabel": "指令",
+    "argsLabel": "參數（空格分隔）",
+    "envLabel": "環境變數（每行 KEY=VALUE）",
+    "cwdLabel": "工作目錄",
+    "urlLabel": "URL",
+    "headersLabel": "標頭（每行 Key: Value）"
+  }
+}

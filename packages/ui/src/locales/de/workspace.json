@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefakte",
+    "refreshBtn": "Aktualisieren"
+  },
+  "deleteModal": {
+    "title": "Datei löschen",
+    "confirmPrefix": "Möchten Sie wirklich löschen",
+    "warning": "Diese Aktion kann nicht rückgängig gemacht werden."
+  },
+  "preview": {
+    "selectFile": "Datei zur Vorschau auswählen",
+    "loading": "Datei laden...",
+    "loadingImage": "Bild laden...",
+    "imageError": "Bild konnte nicht geladen werden: {{error}}",
+    "emptyCsv": "Leere CSV",
+    "noPreview": "Keine Vorschau für diesen Dateityp verfügbar",
+    "download": "DL",
+    "open": "Öffnen",
+    "meta": {
+      "type": "TYP",
+      "mime": "MIME",
+      "size": "GRÖSSE",
+      "modified": "GEÄNDERT"
+    }
+  },
+  "tree": {
+    "root": "Artefakte",
+    "emptyDir": "Leeres Verzeichnis"
+  }
+}

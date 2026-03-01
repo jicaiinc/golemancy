@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automatisations",
+    "newBtn": "+ Nouvelle"
+  },
+  "empty": {
+    "noJobs": "Aucune automatisation pour le moment",
+    "createFirstBtn": "Créer la Première Automatisation"
+  },
+  "job": {
+    "runBtn": "Exécuter",
+    "historyBtn": "Historique",
+    "runningStatus": "Exécution...",
+    "viewChat": "Voir le Chat →",
+    "next": "Suivante : {{time}}",
+    "at": "À {{time}}",
+    "agentNotFound": "Agent introuvable",
+    "overdue": "en retard",
+    "once": "une fois"
+  },
+  "delete": {
+    "title": "Supprimer l'Automatisation",
+    "confirm": "Êtes-vous sûr de vouloir supprimer « {{name}} » ? Cette action est irréversible."
+  },
+  "runsModal": {
+    "titleWithName": "Historique des Exécutions — {{name}}",
+    "title": "Historique des Exécutions",
+    "noRuns": "Aucune exécution pour le moment",
+    "openChat": "OUVRIR LE CHAT →"
+  },
+  "status": {
+    "success": "succès",
+    "error": "erreur",
+    "running": "en cours"
+  },
+  "form": {
+    "newTitle": "Nouvelle Automatisation",
+    "editTitle": "Modifier l'Automatisation",
+    "nameLabel": "NOM",
+    "namePlaceholder": "Revue de code quotidienne",
+    "typeLabel": "TYPE",
+    "recurring": "Récurrente",
+    "oneTime": "Unique",
+    "cronLabel": "EXPRESSION CRON",
+    "scheduledAtLabel": "PLANIFIÉ POUR (heure locale)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Sélectionner un agent",
+    "instructionLabel": "INSTRUCTION (optionnelle)",
+    "instructionPlaceholder": "Instructions à envoyer à l'agent lors du déclenchement",
+    "enabledLabel": "Activé",
+    "presets": {
+      "every5min": "Toutes les 5 min",
+      "everyHour": "Toutes les heures",
+      "every12h": "Toutes les 12h",
+      "daily9am": "Quotidien 9h",
+      "weeklyMon": "Hebdo Lun"
+    },
+    "invalidExpression": "Expression invalide"
+  }
+}

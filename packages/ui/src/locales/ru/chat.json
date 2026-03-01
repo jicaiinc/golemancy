@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Скрыть историю чата",
+    "showHistory": "Показать историю чата",
+    "new": "+ Новый",
+    "clickToRename": "Нажмите для переименования"
+  },
+  "sidebar": {
+    "newChat": "+ Новый чат",
+    "noConversations": "Нет разговоров"
+  },
+  "window": {
+    "startConversation": "Начните разговор...",
+    "compacting": "Сжатие",
+    "thinking": "Размышление",
+    "imageMsgTitle": "Изображение"
+  },
+  "empty": {
+    "readyToChat": "Готов к общению",
+    "description": "Начните новый разговор или выберите существующий в боковой панели.",
+    "startChatting": "Начать чат",
+    "noMainAgent": "Основной агент не выбран",
+    "configureText": "Настройте основного агента в <a>Настройках проекта</a>, чтобы начать общение."
+  },
+  "input": {
+    "placeholder": "Введите сообщение...",
+    "dropPlaceholder": "Перетащите изображения сюда...",
+    "attachImage": "Прикрепить изображение",
+    "recordAudio": "Записать аудио",
+    "transcribing": "Транскрибирование...",
+    "transcriptionFailed": "Ошибка транскрибирования",
+    "startRecordingFailed": "Не удалось начать запись",
+    "retryFailed": "Повторная попытка не удалась"
+  },
+  "message": {
+    "reasoning": "Рассуждение",
+    "untitledFile": "Без названия",
+    "copy": "Копировать"
+  },
+  "compact": {
+    "title": "РАЗГОВОР СЖАТ",
+    "summary": "СВОДКА",
+    "tokensSummary": "{{input}} вх / {{output}} вых"
+  },
+  "tool": {
+    "running": "Выполнение...",
+    "awaitingApproval": "Ожидание одобрения",
+    "approved": "Одобрено",
+    "done": "Готово",
+    "denied": "Отклонено",
+    "input": "ВХОД",
+    "output": "ВЫХОД",
+    "error": "ОШИБКА",
+    "task": "ЗАДАЧА",
+    "tools": "ИНСТРУМЕНТЫ",
+    "toolCountRunning": "[{{running}}/{{total}} инструментов]",
+    "toolCountDone": "[{{total}} инструментов]",
+    "taskCreate": "Создать задачу",
+    "taskGet": "Получить задачу",
+    "taskList": "Список задач",
+    "taskUpdate": "Обновить задачу"
+  }
+}

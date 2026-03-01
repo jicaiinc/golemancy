@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Dashboard",
+    "descriptionFallback": "Pangkalahatang-tanaw ng project",
+    "loading": "Nilo-load ang dashboard..."
+  },
+  "tokenUsage": {
+    "title": "PAGGAMIT NG TOKEN"
+  },
+  "chart": {
+    "noData": "Walang available na token data",
+    "tooltipIn": "In: {{tokens}}",
+    "tooltipOut": "Out: {{tokens}}",
+    "legendInput": "Input",
+    "legendOutput": "Output"
+  },
+  "tabs": {
+    "trend": "Trend",
+    "byAgent": "Ayon sa Agent",
+    "byModel": "Ayon sa Model",
+    "byProject": "Ayon sa Project"
+  },
+  "table": {
+    "colName": "Pangalan",
+    "colTotal": "Kabuuan",
+    "colInput": "Input",
+    "colOutput": "Output",
+    "colCalls": "Mga Tawag",
+    "colRatio": "Ratio",
+    "titleByAgent": "TOKEN AYON SA AGENT",
+    "titleByModel": "TOKEN AYON SA MODEL",
+    "titleByProject": "TOKEN AYON SA PROJECT"
+  },
+  "timeRange": {
+    "today": "Ngayon",
+    "sevenDays": "7 Araw",
+    "thirtyDays": "30 Araw",
+    "allTime": "Lahat ng Panahon"
+  },
+  "summary": {
+    "totalTokens": "Kabuuang Token",
+    "inputTokens": "Input Token",
+    "outputTokens": "Output Token",
+    "apiCalls": "Mga API Call"
+  },
+  "overview": {
+    "agents": "MGA AGENT",
+    "recentChats": "MGA KAMAKAILANG CHAT",
+    "viewAll": "Tingnan Lahat \u2192",
+    "noAgents": "Walang agent",
+    "noRecentChats": "Walang kamakailang chat",
+    "chatStats": "{{count}} mensahe \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "AKTIBIDAD",
+    "tabActive": "Aktibo ({{count}})",
+    "tabScheduled": "Naka-schedule ({{count}})",
+    "tabRecent": "Kamakailan",
+    "badgeChat": "Chat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Walang aktibong tumatakbo",
+    "noScheduledRuns": "Walang naka-schedule na takbo",
+    "noRecentActivity": "Walang kamakailang aktibidad",
+    "openLink": "BUKSAN \u2192",
+    "tokenCount": "{{tokens}} token"
+  },
+  "global": {
+    "title": "Global Dashboard",
+    "subtitle": "Pangkalahatang-tanaw sa lahat ng project",
+    "topProjects": "MGA NANGUNGUNANG PROJECT",
+    "noProjectData": "Walang project data",
+    "projectStats": "{{tokens}} token \u00B7 {{calls}} tawag"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "loading": "권한 설정 로딩 중...",
+  "section": {
+    "permissionMode": "권한 모드",
+    "configuration": "설정"
+  },
+  "modes": {
+    "restricted": {
+      "name": "제한",
+      "subtitle": "Bash만, 샌드박스 없음",
+      "description": "최소 실행 환경. 샌드박스 런타임 없음, MCP 미지원.",
+      "badge": "제한적"
+    },
+    "sandbox": {
+      "name": "샌드박스",
+      "subtitle": "설정 가능한 격리",
+      "description": "파일 시스템, 네트워크, 명령 제한을 설정할 수 있는 샌드박스 런타임.",
+      "badge": "권장"
+    },
+    "unrestricted": {
+      "name": "무제한",
+      "subtitle": "전체 시스템 접근",
+      "description": "샌드박스 제한 없음. 모든 명령이 전체 시스템 권한으로 실행됩니다.",
+      "badge": "위험"
+    }
+  },
+  "config": {
+    "default": "기본값",
+    "selectConfig": "설정 선택...",
+    "saveAs": "다른 이름으로 저장...",
+    "rename": "이름 변경",
+    "resetToDefault": "기본값으로 초기화",
+    "saved": "저장되었습니다!",
+    "editingDefault": "기본값을 편집 중입니다. 저장을 클릭하면 새로운 이름이 지정된 설정이 생성됩니다."
+  },
+  "modal": {
+    "unrestrictedTitle": "무제한 모드를 활성화하시겠습니까?",
+    "unrestrictedBody": "모든 샌드박스 보호가 해제됩니다. AI Agent가 시스템에 대한 전체 접근 권한을 갖게 됩니다:",
+    "unrestrictedReadWrite": "컴퓨터의 모든 파일 읽기/쓰기",
+    "unrestrictedExecute": "모든 시스템 명령 실행",
+    "unrestrictedNetwork": "제한 없는 네트워크 접근",
+    "unrestrictedSysconfig": "시스템 설정 수정",
+    "unrestrictedFooter": "신뢰할 수 있는 로컬 개발 환경에서만 사용하세요.",
+    "enableUnrestricted": "이해했습니다, 활성화",
+    "sandboxUnavailableTitle": "샌드박스 모드 사용 불가",
+    "sandboxUnavailableBody": "샌드박스 런타임 사전 요구 사항이 충족되지 않았습니다. 다음 문제가 발견되었습니다:",
+    "sandboxUnavailableFooter": "샌드박스 모드를 강제로 활성화하면 런타임이 제한 모드로 저하됩니다.",
+    "enableAnyway": "그래도 활성화",
+    "saveAsTitle": "새 설정으로 저장",
+    "configNameLabel": "설정 이름",
+    "configNamePlaceholder": "예: 엄격 개발, Python 비활성화",
+    "renameTitle": "설정 이름 변경",
+    "newNameLabel": "새 이름",
+    "newNamePlaceholder": "예: 내 커스텀 설정",
+    "renaming": "이름 변경 중...",
+    "deleteTitle": "\"{{title}}\"을(를) 삭제하시겠습니까?",
+    "deleteBody": "이 설정은 영구적으로 삭제됩니다. 프로젝트는 시스템 기본값으로 복원됩니다."
+  },
+  "filesystem": {
+    "sectionTitle": "파일 시스템 권한",
+    "allowWrite": "쓰기 허용",
+    "allowWriteHelper": "Agent가 파일을 쓸 수 있는 경로. 기본값: 프로젝트 워크스페이스 디렉토리.",
+    "allowWritePlaceholder": "예: /Users/name/workspace",
+    "denyRead": "읽기 거부",
+    "denyReadHelper": "읽기를 차단할 민감한 파일/폴더.",
+    "denyReadPlaceholder": "예: ~/.ssh, .env",
+    "denyWrite": "쓰기 거부",
+    "denyWriteHelper": "쓰기가 차단되는 경로. 쓰기 허용보다 우선합니다.",
+    "denyWritePlaceholder": "예: /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "네트워크 제한",
+    "enableLabel": "활성화",
+    "statusEnabled": "설정된 도메인만 접근 가능",
+    "statusDisabled": "모든 네트워크 트래픽 허용",
+    "allowedDomains": "허용 도메인",
+    "allowedDomainsHelper": "Agent가 접근할 수 있는 도메인. 정확히: example.com — 와일드카드: *.example.com (*. 뒤에 2+ 부분 필요).",
+    "allowedDomainsPlaceholder": "예: api.github.com",
+    "deniedDomains": "거부 도메인",
+    "deniedDomainsHelper": "차단할 도메인. 허용 도메인과 동일한 형식.",
+    "deniedDomainsPlaceholder": "예: malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "명령 제한",
+    "deniedCommands": "거부 명령",
+    "deniedCommandsHelper": "실행을 차단할 명령.",
+    "deniedCommandsPlaceholder": "예: python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "MCP에 적용",
+    "warning": "(\u26A0 비활성화하면 타사 MCP 서버가 컴퓨터의 파일에 접근하거나 수정할 수 있습니다)",
+    "description": "활성화하면 MCP 서버 명령이 샌드박스 런타임 (srt)으로 래핑됩니다. 동일한 파일 시스템, 네트워크, 명령 제한이 MCP 서버에 적용됩니다."
+  },
+  "windows": {
+    "notice": "\u26A0 WINDOWS 알림",
+    "message": "샌드박스 런타임은 Windows에서 사용할 수 없습니다. 명령 차단만 지원됩니다."
+  },
+  "validation": {
+    "removeProtocol": "프로토콜, 경로, 포트를 제거하세요 — 도메인만 입력",
+    "wildcardParts": "와일드카드는 *. 뒤에 2+ 부분이 필요합니다 (예: *.example.com)",
+    "onlyWildcard": "*.domain.com 와일드카드 형식만 지원됩니다",
+    "validDomain": "최소 하나의 점을 포함하는 유효한 도메인이어야 합니다 (예: example.com)"
+  }
+}

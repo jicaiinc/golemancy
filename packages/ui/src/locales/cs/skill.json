@@ -1,0 +1,43 @@
+{
+  "page": {
+    "title": "Dovednosti",
+    "skillCount_one": "{{count}} dovednost",
+    "skillCount_few": "{{count}} dovednosti",
+    "skillCount_many": "{{count}} dovedností",
+    "skillCount_other": "{{count}} dovedností",
+    "newSkillBtn": "+ Nová dovednost"
+  },
+  "tabs": {
+    "installed": "Nainstalované",
+    "marketplace": "Marketplace"
+  },
+  "import": {
+    "noValidFiles": "Nebyly nalezeny soubory .md ani .zip. Přetáhněte soubory markdown nebo zip pro import dovedností.",
+    "importedCount_one": "Importována {{count}} dovednost",
+    "importedCount_few": "Importovány {{count}} dovednosti",
+    "importedCount_many": "Importováno {{count}} dovedností",
+    "importedCount_other": "Importováno {{count}} dovedností",
+    "importError": "Nepodařilo se importovat dovednosti"
+  },
+  "deleteError": {
+    "inUse_one": "Dovednost «{{name}}» je přiřazena {{count}} agentovi. Nejprve zrušte přiřazení.",
+    "inUse_few": "Dovednost «{{name}}» je přiřazena {{count}} agentům. Nejprve zrušte přiřazení.",
+    "inUse_many": "Dovednost «{{name}}» je přiřazena {{count}} agentům. Nejprve zrušte přiřazení.",
+    "inUse_other": "Dovednost «{{name}}» je přiřazena {{count}} agentům. Nejprve zrušte přiřazení.",
+    "generic": "Nepodařilo se smazat dovednost"
+  },
+  "loading": "Načítání dovedností...",
+  "empty": {
+    "title": "Zatím žádné dovednosti",
+    "createFirstBtn": "Vytvořte první dovednost"
+  },
+  "comingSoon": "Brzy",
+  "form": {
+    "newTitle": "Nová dovednost",
+    "editTitle": "Úprava dovednosti",
+    "nameLabel": "NÁZEV",
+    "descriptionLabel": "POPIS",
+    "instructionsLabel": "INSTRUKCE",
+    "instructionsPlaceholder": "Napište instrukce dovednosti ve formátu markdown..."
+  }
+}

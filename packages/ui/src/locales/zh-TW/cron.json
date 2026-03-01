@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "自動化",
+    "newBtn": "+ 新建"
+  },
+  "empty": {
+    "noJobs": "尚無自動化任務",
+    "createFirstBtn": "建立第一個自動化"
+  },
+  "job": {
+    "runBtn": "執行",
+    "historyBtn": "歷史",
+    "runningStatus": "執行中...",
+    "viewChat": "檢視對話 →",
+    "next": "下次：{{time}}",
+    "at": "時間：{{time}}",
+    "agentNotFound": "Agent 未找到",
+    "overdue": "已逾期",
+    "once": "一次性"
+  },
+  "delete": {
+    "title": "刪除自動化",
+    "confirm": "確定要刪除「{{name}}」嗎？此操作無法復原。"
+  },
+  "runsModal": {
+    "titleWithName": "執行歷史 — {{name}}",
+    "title": "執行歷史",
+    "noRuns": "尚無執行記錄",
+    "openChat": "開啟對話 →"
+  },
+  "status": {
+    "success": "成功",
+    "error": "錯誤",
+    "running": "執行中"
+  },
+  "form": {
+    "newTitle": "新建自動化",
+    "editTitle": "編輯自動化",
+    "nameLabel": "名稱",
+    "namePlaceholder": "每日程式碼審查",
+    "typeLabel": "類型",
+    "recurring": "週期性",
+    "oneTime": "一次性",
+    "cronLabel": "CRON 表達式",
+    "scheduledAtLabel": "執行時間（本地時間）",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "選擇一個 Agent",
+    "instructionLabel": "指令（選填）",
+    "instructionPlaceholder": "觸發時傳送給 Agent 的指令",
+    "enabledLabel": "啟用",
+    "presets": {
+      "every5min": "每 5 分鐘",
+      "everyHour": "每小時",
+      "every12h": "每 12 小時",
+      "daily9am": "每天 9 點",
+      "weeklyMon": "每週一"
+    },
+    "invalidExpression": "無效的表達式"
+  }
+}

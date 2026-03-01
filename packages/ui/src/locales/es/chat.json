@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Ocultar historial de chat",
+    "showHistory": "Mostrar historial de chat",
+    "new": "+ Nuevo",
+    "clickToRename": "Clic para renombrar"
+  },
+  "sidebar": {
+    "newChat": "+ Nuevo Chat",
+    "noConversations": "Sin conversaciones"
+  },
+  "window": {
+    "startConversation": "Iniciar la conversación...",
+    "compacting": "Compactando",
+    "thinking": "Pensando",
+    "imageMsgTitle": "Mensaje con imagen"
+  },
+  "empty": {
+    "readyToChat": "Listo para chatear",
+    "description": "Inicie una nueva conversación o seleccione una de la barra lateral.",
+    "startChatting": "Iniciar Chat",
+    "noMainAgent": "Sin Agente Principal",
+    "configureText": "Configure un Agente Principal en <a>Configuración del Proyecto</a> para comenzar a chatear."
+  },
+  "input": {
+    "placeholder": "Escriba un mensaje...",
+    "dropPlaceholder": "Suelte imágenes aquí...",
+    "attachImage": "Adjuntar imagen",
+    "recordAudio": "Grabar audio",
+    "transcribing": "Transcribiendo...",
+    "transcriptionFailed": "Error en la transcripción",
+    "startRecordingFailed": "Error al iniciar la grabación",
+    "retryFailed": "Error al reintentar"
+  },
+  "message": {
+    "reasoning": "Razonamiento",
+    "untitledFile": "Archivo sin título",
+    "copy": "Copiar"
+  },
+  "compact": {
+    "title": "CONVERSACIÓN COMPACTADA",
+    "summary": "RESUMEN",
+    "tokensSummary": "{{input}} entrada / {{output}} salida"
+  },
+  "tool": {
+    "running": "Ejecutando...",
+    "awaitingApproval": "Esperando aprobación",
+    "approved": "Aprobado",
+    "done": "Listo",
+    "denied": "Denegado",
+    "input": "ENTRADA",
+    "output": "SALIDA",
+    "error": "ERROR",
+    "task": "TAREA",
+    "tools": "HERRAMIENTAS",
+    "toolCountRunning": "[{{running}}/{{total}} herramientas]",
+    "toolCountDone": "[{{total}} herramientas]",
+    "taskCreate": "Crear Tarea",
+    "taskGet": "Obtener Tarea",
+    "taskList": "Listar Tareas",
+    "taskUpdate": "Actualizar Tarea"
+  }
+}

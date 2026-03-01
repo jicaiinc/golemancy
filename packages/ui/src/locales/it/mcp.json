@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Server MCP",
+    "serverCount_one": "{{count}} server",
+    "serverCount_other": "{{count}} server",
+    "newServerBtn": "+ Nuovo Server"
+  },
+  "tabs": {
+    "installed": "Installati",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "LIMITATO",
+    "restrictedMsg": "Modalità limitata: i server MCP stdio sono disabilitati e non verranno caricati",
+    "riskBadge": "ATTENZIONE",
+    "riskMsg": "I server MCP di terze parti possono accedere o modificare file sul computer.",
+    "applyToMcpHint": "Attiva \"Applica a MCP\" in Impostazioni > Permessi per sandboxare i server MCP.",
+    "sandboxUnavailable": "Il runtime Sandbox non è disponibile su questa piattaforma."
+  },
+  "import": {
+    "invalidFormat": "Formato non valido: atteso { mcpServers: { ... } }",
+    "noServers": "Nessun server trovato nel file di configurazione",
+    "importedCount_one": "Importato {{count}} server MCP",
+    "importedCount_other": "Importati {{count}} server MCP",
+    "parseError": "Impossibile analizzare il file di configurazione"
+  },
+  "server": {
+    "testing": "Test in corso...",
+    "testOk_one": "OK ({{count}} strumento)",
+    "testOk_other": "OK ({{count}} strumenti)",
+    "connectionFailed": "Connessione fallita",
+    "testFailed": "Test fallito",
+    "blockedRestricted": "Bloccato dalla modalità limitata — i server stdio non vengono caricati a runtime",
+    "usedByAgents_one": "Usato da {{count}} agente",
+    "usedByAgents_other": "Usato da {{count}} agenti",
+    "deleteErrorInUse_one": "Il server MCP \"{{name}}\" è usato da {{count}} agente. Rimuovi i riferimenti prima.",
+    "deleteErrorInUse_other": "Il server MCP \"{{name}}\" è usato da {{count}} agenti. Rimuovi i riferimenti prima.",
+    "deleteError": "Impossibile eliminare il server MCP",
+    "testBtn": "Test"
+  },
+  "empty": {
+    "title": "Nessun server MCP configurato",
+    "addFirstBtn": "Aggiungi il Tuo Primo Server"
+  },
+  "loading": "Caricamento server MCP...",
+  "comingSoon": "Prossimamente",
+  "form": {
+    "newTitle": "Nuovo Server MCP",
+    "editTitle": "Modifica Server MCP",
+    "nameLabel": "NOME",
+    "descriptionLabel": "DESCRIZIONE",
+    "transportLabel": "TRASPORTO",
+    "commandLabel": "COMANDO",
+    "argsLabel": "ARGOMENTI (separati da spazi)",
+    "envLabel": "ENV (CHIAVE=VALORE per riga)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Chiave: Valore per riga)"
+  }
+}

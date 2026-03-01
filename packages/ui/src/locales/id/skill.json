@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Skill",
+    "skillCount_one": "{{count}} skill",
+    "skillCount_other": "{{count}} skill",
+    "newSkillBtn": "+ Skill Baru"
+  },
+  "tabs": {
+    "installed": "Terpasang",
+    "marketplace": "Marketplace"
+  },
+  "import": {
+    "noValidFiles": "Tidak ada file .md atau .zip ditemukan. Seret file markdown atau zip untuk mengimpor skill.",
+    "importedCount_one": "{{count}} skill diimpor",
+    "importedCount_other": "{{count}} skill diimpor",
+    "importError": "Gagal mengimpor skill"
+  },
+  "deleteError": {
+    "inUse_one": "Skill \"{{name}}\" ditetapkan ke {{count}} agent. Hapus penetapan terlebih dahulu.",
+    "inUse_other": "Skill \"{{name}}\" ditetapkan ke {{count}} agent. Hapus penetapan terlebih dahulu.",
+    "generic": "Gagal menghapus skill"
+  },
+  "loading": "Memuat skill...",
+  "empty": {
+    "title": "Belum ada skill",
+    "createFirstBtn": "Buat Skill Pertama Anda"
+  },
+  "comingSoon": "Segera Hadir",
+  "form": {
+    "newTitle": "Skill Baru",
+    "editTitle": "Edit Skill",
+    "nameLabel": "NAMA",
+    "descriptionLabel": "DESKRIPSI",
+    "instructionsLabel": "INSTRUKSI",
+    "instructionsPlaceholder": "Tulis instruksi skill dalam markdown..."
+  }
+}

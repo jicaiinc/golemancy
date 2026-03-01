@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "saving": "Opslaan...",
+    "saved": "Opgeslagen",
+    "delete": "Verwijderen",
+    "deleting": "Verwijderen...",
+    "edit": "Bewerken",
+    "add": "Toevoegen",
+    "confirm": "Bevestigen",
+    "retry": "Opnieuw",
+    "back": "Terug",
+    "next": "Volgende",
+    "close": "Sluiten",
+    "create": "Aanmaken",
+    "creating": "Aanmaken...",
+    "refresh": "Vernieuwen",
+    "send": "Verzenden",
+    "stop": "Stoppen",
+    "dismiss": "Negeren",
+    "done": "Gereed",
+    "copy": "Kopiëren"
+  },
+  "status": {
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Gelukt"
+  },
+  "time": {
+    "justNow": "zojuist",
+    "minsAgo_one": "{{count}}m geleden",
+    "minsAgo_other": "{{count}}m geleden",
+    "hoursAgo_one": "{{count}}u geleden",
+    "hoursAgo_other": "{{count}}u geleden",
+    "daysAgo_one": "{{count}}d geleden",
+    "daysAgo_other": "{{count}}d geleden",
+    "now": "nu",
+    "inMins_one": "over {{count}}m",
+    "inMins_other": "over {{count}}m",
+    "inHours_one": "over {{count}}u",
+    "inHours_other": "over {{count}}u",
+    "inDays_one": "over {{count}}d",
+    "inDays_other": "over {{count}}d",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Verwijderen",
+    "deleteMessage": "Deze actie kan niet ongedaan worden gemaakt.",
+    "areYouSure": "Weet u het zeker?"
+  },
+  "empty": {
+    "noData": "Geen gegevens"
+  },
+  "list": {
+    "noneConfigured": "Geen geconfigureerd"
+  },
+  "label": {
+    "name": "Naam",
+    "description": "Beschrijving",
+    "type": "Type",
+    "enabled": "Ingeschakeld",
+    "disabled": "Uitgeschakeld"
+  },
+  "dropZone": {
+    "releaseToDrop": "Loslaten om neer te zetten",
+    "dragAndDrop": "Sleep bestanden hierheen, of klik om te uploaden",
+    "accepts": "Accepteert: {{extensions}}"
+  }
+}

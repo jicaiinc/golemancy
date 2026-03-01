@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Sohbet ge\u00e7mi\u015fini gizle",
+    "showHistory": "Sohbet ge\u00e7mi\u015fini g\u00f6ster",
+    "new": "+ Yeni",
+    "clickToRename": "Yeniden adland\u0131rmak i\u00e7in t\u0131klay\u0131n"
+  },
+  "sidebar": {
+    "newChat": "+ Yeni Sohbet",
+    "noConversations": "Hen\u00fcz konu\u015fma yok"
+  },
+  "window": {
+    "startConversation": "Konu\u015fmay\u0131 ba\u015flat\u0131n...",
+    "compacting": "S\u0131k\u0131\u015ft\u0131r\u0131l\u0131yor",
+    "thinking": "D\u00fc\u015f\u00fcn\u00fcyor",
+    "imageMsgTitle": "G\u00f6rsel mesaj"
+  },
+  "empty": {
+    "readyToChat": "Sohbete haz\u0131r",
+    "description": "Yeni bir konu\u015fma ba\u015flat\u0131n veya kenar \u00e7ubu\u011fundan se\u00e7in.",
+    "startChatting": "Sohbete Ba\u015fla",
+    "noMainAgent": "Main Agent Yok",
+    "configureText": "Sohbete ba\u015flamak i\u00e7in <a>Proje Ayarlar\u0131</a>'nda bir Main Agent yap\u0131land\u0131r\u0131n."
+  },
+  "input": {
+    "placeholder": "Mesaj yaz\u0131n...",
+    "dropPlaceholder": "G\u00f6rselleri buraya b\u0131rak\u0131n...",
+    "attachImage": "G\u00f6rsel ekle",
+    "recordAudio": "Ses kaydet",
+    "transcribing": "Yaz\u0131ya d\u00f6k\u00fcl\u00fcyor...",
+    "transcriptionFailed": "Yaz\u0131ya d\u00f6kme ba\u015far\u0131s\u0131z",
+    "startRecordingFailed": "Kay\u0131t ba\u015flat\u0131lamad\u0131",
+    "retryFailed": "Tekrar deneme ba\u015far\u0131s\u0131z"
+  },
+  "message": {
+    "reasoning": "Ak\u0131l Y\u00fcr\u00fctme",
+    "untitledFile": "Ads\u0131z dosya",
+    "copy": "Kopyala"
+  },
+  "compact": {
+    "title": "KONU\u015eMA SIKI\u015eTIRILDI",
+    "summary": "\u00d6ZET",
+    "tokensSummary": "{{input}} giri\u015f / {{output}} \u00e7\u0131k\u0131\u015f"
+  },
+  "tool": {
+    "running": "\u00c7al\u0131\u015f\u0131yor...",
+    "awaitingApproval": "Onay bekleniyor",
+    "approved": "Onayland\u0131",
+    "done": "Tamam",
+    "denied": "Reddedildi",
+    "input": "G\u0130R\u0130\u015e",
+    "output": "\u00c7IKI\u015e",
+    "error": "HATA",
+    "task": "G\u00d6REV",
+    "tools": "ARA\u00c7LAR",
+    "toolCountRunning": "[{{running}}/{{total}} ara\u00e7]",
+    "toolCountDone": "[{{total}} ara\u00e7]",
+    "taskCreate": "G\u00f6rev Olu\u015ftur",
+    "taskGet": "G\u00f6rev Getir",
+    "taskList": "G\u00f6revleri Listele",
+    "taskUpdate": "G\u00f6rev G\u00fcncelle"
+  }
+}

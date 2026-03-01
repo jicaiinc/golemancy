@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "NOME PROGETTO",
+    "description": "DESCRIZIONE",
+    "icon": "ICONA",
+    "projectId": "ID PROGETTO"
+  },
+  "list": {
+    "title": "Tutti i Progetti",
+    "subtitle_one": "{{count}} progetto nel tuo workspace",
+    "subtitle_other": "{{count}} progetti nel tuo workspace",
+    "newBtn": "+ Nuovo Progetto",
+    "empty": "Nessun progetto",
+    "createFirst": "Crea il Tuo Primo Progetto",
+    "openInWindow": "Apri in Nuova Finestra",
+    "agents_one": "{{count}} agente",
+    "agents_other": "{{count}} agenti",
+    "running_one": "{{count}} in esecuzione",
+    "running_other": "{{count}} in esecuzione"
+  },
+  "create": {
+    "modalTitle": "Crea Nuovo Progetto",
+    "createBtn": "Crea Progetto",
+    "namePlaceholder": "Il Mio Progetto Fantastico",
+    "descPlaceholder": "Di cosa tratta questo progetto?"
+  },
+  "settings": {
+    "title": "Impostazioni Progetto",
+    "savedMsg": "Salvato!",
+    "clickToCopy": "Clicca per copiare",
+    "tabs": {
+      "general": "Generale",
+      "agent": "Agente",
+      "permissions": "Permessi"
+    },
+    "agent": {
+      "mainLabel": "AGENTE PRINCIPALE",
+      "mainDesc": "L'agente predefinito per le nuove conversazioni in questo progetto.",
+      "noAgents": "Nessun agente in questo progetto. Crea prima un agente.",
+      "goToAgents": "Vai agli Agenti",
+      "none": "Nessuno",
+      "configure": "Configura Agente \u2192"
+    },
+    "general": {
+      "sectionTitle": "INFO GENERALI",
+      "saveBtn": "Salva Modifiche"
+    }
+  }
+}

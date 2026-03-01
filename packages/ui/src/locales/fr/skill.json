@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Skills",
+    "skillCount_one": "{{count}} skill",
+    "skillCount_other": "{{count}} skills",
+    "newSkillBtn": "+ Nouvelle Skill"
+  },
+  "tabs": {
+    "installed": "Installées",
+    "marketplace": "Marketplace"
+  },
+  "import": {
+    "noValidFiles": "Aucun fichier .md ou .zip trouvé. Déposez des fichiers markdown ou zip pour importer des skills.",
+    "importedCount_one": "{{count}} skill importée",
+    "importedCount_other": "{{count}} skills importées",
+    "importError": "Échec de l'importation des skills"
+  },
+  "deleteError": {
+    "inUse_one": "La skill « {{name}} » est assignée à {{count}} agent. Retirez d'abord l'assignation.",
+    "inUse_other": "La skill « {{name}} » est assignée à {{count}} agents. Retirez d'abord l'assignation.",
+    "generic": "Échec de la suppression de la skill"
+  },
+  "loading": "Chargement des skills...",
+  "empty": {
+    "title": "Aucune skill pour le moment",
+    "createFirstBtn": "Créez Votre Première Skill"
+  },
+  "comingSoon": "Bientôt Disponible",
+  "form": {
+    "newTitle": "Nouvelle Skill",
+    "editTitle": "Modifier la Skill",
+    "nameLabel": "NOM",
+    "descriptionLabel": "DESCRIPTION",
+    "instructionsLabel": "INSTRUCTIONS",
+    "instructionsPlaceholder": "Rédigez les instructions de la skill en markdown..."
+  }
+}

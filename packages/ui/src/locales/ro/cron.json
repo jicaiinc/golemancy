@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automatizări",
+    "newBtn": "+ Nou"
+  },
+  "empty": {
+    "noJobs": "Nicio automatizare încă",
+    "createFirstBtn": "Creați prima automatizare"
+  },
+  "job": {
+    "runBtn": "Executare",
+    "historyBtn": "Istoric",
+    "runningStatus": "Se execută...",
+    "viewChat": "Vedeți conversația →",
+    "next": "Următorul: {{time}}",
+    "at": "La {{time}}",
+    "agentNotFound": "Agentul nu a fost găsit",
+    "overdue": "întârziat",
+    "once": "o dată"
+  },
+  "delete": {
+    "title": "Ștergere automatizare",
+    "confirm": "Sunteți sigur că doriți să ștergeți \"{{name}}\"? Această acțiune nu poate fi anulată."
+  },
+  "runsModal": {
+    "titleWithName": "Istoric execuții — {{name}}",
+    "title": "Istoric execuții",
+    "noRuns": "Nicio execuție încă",
+    "openChat": "DESCHIDERE CONVERSAȚIE →"
+  },
+  "status": {
+    "success": "succes",
+    "error": "eroare",
+    "running": "rulează"
+  },
+  "form": {
+    "newTitle": "Automatizare nouă",
+    "editTitle": "Editare automatizare",
+    "nameLabel": "NUME",
+    "namePlaceholder": "Revizuire cod zilnică",
+    "typeLabel": "TIP",
+    "recurring": "Recurent",
+    "oneTime": "O singură dată",
+    "cronLabel": "EXPRESIE CRON",
+    "scheduledAtLabel": "PROGRAMAT LA (ora locală)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Selectați un agent",
+    "instructionLabel": "INSTRUCȚIUNE (opțional)",
+    "instructionPlaceholder": "Instrucțiuni de trimis agentului la declanșare",
+    "enabledLabel": "Activat",
+    "presets": {
+      "every5min": "La fiecare 5 min",
+      "everyHour": "La fiecare oră",
+      "every12h": "La fiecare 12h",
+      "daily9am": "Zilnic la 9",
+      "weeklyMon": "Săptămânal luni"
+    },
+    "invalidExpression": "Expresie nevalidă"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Global Settings"
+  },
+  "tabs": {
+    "general": "Pangkalahatan",
+    "providers": "Mga Provider",
+    "speech": "Pagsasalita"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Kontrolin ang Iyong mga AI Golem"
+  },
+  "general": {
+    "appearance": "HITSURA",
+    "light": "Maliwanag",
+    "dark": "Madilim",
+    "system": "System",
+    "language": "WIKA"
+  },
+  "defaultModel": {
+    "sectionTitle": "DEFAULT MODEL",
+    "description": "Ginagamit kapag gumagawa ng bagong project at agent.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Wala --",
+    "selectProviderFirst": "-- Pumili muna ng provider --",
+    "noModels": "Walang available na model",
+    "saved": "Na-save!"
+  },
+  "providers": {
+    "sectionTitle": "MGA PROVIDER",
+    "addProvider": "+ Magdagdag ng Provider",
+    "selectProvider": "PUMILI NG PROVIDER",
+    "customProvider": "CUSTOM PROVIDER",
+    "custom": "Custom",
+    "anyEndpoint": "anumang endpoint",
+    "nameLabel": "PANGALAN",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "URI NG SDK",
+    "empty": "Walang naka-configure na provider. I-click ang \"+ Magdagdag ng Provider\" para magsimula."
+  },
+  "provider": {
+    "testing": "Tine-test...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Nabigo",
+    "untested": "Hindi pa na-test",
+    "noKey": "Walang Key",
+    "retest": "I-test Muli",
+    "test": "I-test",
+    "del": "I-delete",
+    "deleteConfirm": "I-delete ang {{name}}? Hindi na maibabalik ito.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "hindi pa nakatakda",
+    "hide": "Itago",
+    "show": "Ipakita",
+    "urlLabel": "URL:",
+    "modelsCount": "Mga Model ({{count}})",
+    "addModel": "+ Magdagdag ng Model",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opsyonal)",
+    "hideKey": "Itago ang Key",
+    "showKey": "Ipakita ang Key"
+  },
+  "threshold": {
+    "tokens": "token"
+  }
+}

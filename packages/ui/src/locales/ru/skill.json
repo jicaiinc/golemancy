@@ -1,0 +1,43 @@
+{
+  "page": {
+    "title": "Навыки",
+    "skillCount_one": "{{count}} навык",
+    "skillCount_few": "{{count}} навыка",
+    "skillCount_many": "{{count}} навыков",
+    "skillCount_other": "{{count}} навыков",
+    "newSkillBtn": "+ Новый навык"
+  },
+  "tabs": {
+    "installed": "Установленные",
+    "marketplace": "Маркетплейс"
+  },
+  "import": {
+    "noValidFiles": "Файлы .md или .zip не найдены. Перетащите файлы markdown или zip для импорта навыков.",
+    "importedCount_one": "Импортирован {{count}} навык",
+    "importedCount_few": "Импортировано {{count}} навыка",
+    "importedCount_many": "Импортировано {{count}} навыков",
+    "importedCount_other": "Импортировано {{count}} навыков",
+    "importError": "Не удалось импортировать навыки"
+  },
+  "deleteError": {
+    "inUse_one": "Навык «{{name}}» назначен {{count}} агенту. Сначала снимите назначение.",
+    "inUse_few": "Навык «{{name}}» назначен {{count}} агентам. Сначала снимите назначение.",
+    "inUse_many": "Навык «{{name}}» назначен {{count}} агентам. Сначала снимите назначение.",
+    "inUse_other": "Навык «{{name}}» назначен {{count}} агентам. Сначала снимите назначение.",
+    "generic": "Не удалось удалить навык"
+  },
+  "loading": "Загрузка навыков...",
+  "empty": {
+    "title": "Навыков пока нет",
+    "createFirstBtn": "Создайте первый навык"
+  },
+  "comingSoon": "Скоро",
+  "form": {
+    "newTitle": "Новый навык",
+    "editTitle": "Редактирование навыка",
+    "nameLabel": "НАЗВАНИЕ",
+    "descriptionLabel": "ОПИСАНИЕ",
+    "instructionsLabel": "ИНСТРУКЦИИ",
+    "instructionsPlaceholder": "Напишите инструкции навыка в формате markdown..."
+  }
+}

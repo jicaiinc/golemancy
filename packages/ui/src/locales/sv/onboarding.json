@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Installation",
+    "skipSetup": "Hoppa över"
+  },
+  "steps": {
+    "welcome": "Välkommen",
+    "provider": "Provider",
+    "speech": "Tal",
+    "project": "Projekt",
+    "complete": "Klart"
+  },
+  "error": {
+    "somethingWentWrong": "Något gick fel. Försök igen.",
+    "failedToSkip": "Kunde inte hoppa över installationen. Försök igen.",
+    "connectionTestFailed": "Anslutningstestet misslyckades",
+    "testFailed": "Testet misslyckades",
+    "unknownError": "Okänt fel"
+  },
+  "button": {
+    "createProject": "Skapa projekt",
+    "getStarted": "Kom igång",
+    "continue": "Fortsätt",
+    "startChatting": "Börja chatta",
+    "goToDashboard": "Gå till översikten",
+    "change": "Ändra",
+    "testConnection": "Testa anslutning",
+    "testing": "Testar...",
+    "reTest": "Testa igen",
+    "test": "Testa",
+    "hide": "Dölj",
+    "show": "Visa"
+  },
+  "welcome": {
+    "tagline": "Välkommen",
+    "heading": "Styr dina AI Golems",
+    "description": "Orkestrera autonoma AI-agenter direkt från skrivbordet."
+  },
+  "provider": {
+    "heading": "Anslut en AI-provider",
+    "description": "Välj en provider och ange din API-nyckel för att komma igång.",
+    "customLabel": "Anpassad",
+    "customSubtitle": "valfri endpoint",
+    "customCardTitle": "ANPASSAD PROVIDER",
+    "labelApiKey": "API-NYCKEL",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NAMN",
+    "labelSdkType": "SDK-TYP",
+    "statusConnected": "Ansluten",
+    "statusFailed": "Misslyckades",
+    "statusConnecting": "Ansluter...",
+    "none": "Ingen",
+    "defaultModel": {
+      "title": "STANDARDMODELL",
+      "descriptionPreset": "Välj en modell att använda som standard för nya agenter.",
+      "descriptionCustom": "Ange modellnamnet att använda som standard.",
+      "labelModelName": "MODELLNAMN"
+    }
+  },
+  "speech": {
+    "heading": "Tal-till-text",
+    "description": "Aktivera röstinmatning för snabbare interaktion. Du kan hoppa över detta och konfigurera det senare.",
+    "labelApiKey": "OPENAI API-NYCKEL",
+    "labelModel": "MODELL",
+    "labelLanguage": "SPRÅK",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Misslyckades"
+  },
+  "project": {
+    "heading": "Skapa ditt första projekt",
+    "description": "Projekt organiserar dina agenter, konversationer och arbetsflöden.",
+    "labelName": "PROJEKTNAMN",
+    "placeholderName": "Mitt fantastiska projekt",
+    "labelDescription": "BESKRIVNING",
+    "placeholderDescription": "Vad ska detta projekt göra?",
+    "labelIcon": "IKON",
+    "fromTemplate": "FRÅN MALL",
+    "comingSoon": "Kommer snart"
+  },
+  "complete": {
+    "heading": "Allt är klart!",
+    "description": "Här är en sammanfattning av din konfiguration.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "STANDARDMODELL",
+    "labelSpeechToText": "TAL-TILL-TEXT",
+    "labelProject": "PROJEKT",
+    "sttEnabled": "Aktiverad",
+    "sttSkipped": "Överhoppad",
+    "links": {
+      "settings": "Inställningar",
+      "website": "Webbplats"
+    }
+  }
+}

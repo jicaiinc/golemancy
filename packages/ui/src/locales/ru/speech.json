@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "История транскрибирования"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} запись",
+    "recordCount_few": "{{count}} записи",
+    "recordCount_many": "{{count}} записей",
+    "recordCount_other": "{{count}} записей",
+    "used": "{{size}} использовано",
+    "loading": "Загрузка информации о хранилище..."
+  },
+  "clearAll": {
+    "confirm_one": "Удалить {{count}} запись?",
+    "confirm_few": "Удалить все {{count}} записи?",
+    "confirm_many": "Удалить все {{count}} записей?",
+    "confirm_other": "Удалить все {{count}} записей?",
+    "confirmWithFree_one": "Удалить {{count}} запись и освободить {{size}}?",
+    "confirmWithFree_few": "Удалить все {{count}} записи и освободить {{size}}?",
+    "confirmWithFree_many": "Удалить все {{count}} записей и освободить {{size}}?",
+    "confirmWithFree_other": "Удалить все {{count}} записей и освободить {{size}}?"
+  },
+  "loading": "Загрузка истории...",
+  "empty": {
+    "hint": "Нажмите кнопку микрофона в чате,\nчтобы создать первую голосовую запись",
+    "settingsBtn": "Перейти в настройки"
+  },
+  "player": {
+    "play": "Воспроизвести",
+    "pause": "Пауза",
+    "close": "Закрыть плеер"
+  },
+  "actions": {
+    "copy": "Копировать текст транскрибирования",
+    "retry": "Повторить транскрибирование",
+    "delete": "Удалить запись"
+  },
+  "enable": {
+    "enabled": "Включено",
+    "disabled": "Отключено",
+    "sectionTitle": "РАСПОЗНАВАНИЕ РЕЧИ"
+  },
+  "provider": {
+    "sectionTitle": "ПРОВАЙДЕР",
+    "typeLabel": "ТИП",
+    "customType": "Пользовательский (OpenAI-совместимый)",
+    "apiKeyLabel": "API КЛЮЧ",
+    "baseUrlRequired": "BASE URL (ОБЯЗАТЕЛЬНО)",
+    "baseUrlOptional": "BASE URL (НЕОБЯЗАТЕЛЬНО)",
+    "baseUrlPlaceholder": "Оставьте пустым для значения по умолчанию",
+    "modelLabel": "МОДЕЛЬ",
+    "modelOther": "Другая...",
+    "presets": "Шаблоны",
+    "languageLabel": "ЯЗЫК",
+    "hide": "Скрыть",
+    "show": "Показать"
+  },
+  "test": {
+    "testing": "Тестирование...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Перепроверить",
+    "test": "Тест",
+    "failed": "Ошибка",
+    "untested": "Не проверено",
+    "unknownError": "Неизвестная ошибка"
+  },
+  "history": {
+    "sectionTitle": "ИСТОРИЯ",
+    "recordsInfo": "{{recordCount}} записей / {{size}}",
+    "clearAll": "Очистить всё",
+    "confirmClear": "Очистить всё?",
+    "empty": "Транскрибирований пока нет",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "transcribing": "Транскрибирование...",
+    "openChat": "Открыть чат \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ОШ",
+    "deleteConfirm": "Удалить эту запись и её аудиофайл?",
+    "retryConfirm": "Существующее транскрибирование будет перезаписано.",
+    "transcriptionFailed": "Ошибка транскрибирования: {{error}}",
+    "retranscribe": "Перетранскрибировать"
+  }
+}

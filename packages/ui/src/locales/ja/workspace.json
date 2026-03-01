@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "アーティファクト",
+    "refreshBtn": "更新"
+  },
+  "deleteModal": {
+    "title": "ファイルを削除",
+    "confirmPrefix": "本当に削除しますか",
+    "warning": "この操作は取り消せません。"
+  },
+  "preview": {
+    "selectFile": "ファイルを選択してプレビュー",
+    "loading": "ファイルを読み込み中...",
+    "loadingImage": "画像を読み込み中...",
+    "imageError": "画像の読み込みに失敗：{{error}}",
+    "emptyCsv": "空の CSV",
+    "noPreview": "このファイルタイプのインラインプレビューはありません",
+    "download": "DL",
+    "open": "開く",
+    "meta": {
+      "type": "タイプ",
+      "mime": "MIME",
+      "size": "サイズ",
+      "modified": "更新日時"
+    }
+  },
+  "tree": {
+    "root": "アーティファクト",
+    "emptyDir": "空のディレクトリ"
+  }
+}

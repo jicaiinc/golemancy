@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Panel",
+    "chats": "Czaty",
+    "automations": "Automatyzacje",
+    "agents": "Agenci",
+    "skills": "Umiejętności",
+    "mcpServers": "Serwery MCP",
+    "tasks": "Zadania rozmowy",
+    "artifacts": "Artefakty",
+    "memory": "Pamięć",
+    "settings": "Ustawienia"
+  },
+  "sidebar": {
+    "navigation": "NAWIGACJA",
+    "config": "KONFIGURACJA",
+    "collapse": "<< Zwiń"
+  },
+  "global": {
+    "allProjects": "Wszystkie projekty",
+    "dashboard": "Panel",
+    "settings": "Ustawienia"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Ograniczony",
+      "sandbox": "Sandbox",
+      "unrestricted": "Bez ograniczeń"
+    },
+    "degraded": "(degradacja → {{mode}})",
+    "tasks": "Zadania {{completed}}/{{total}}",
+    "conversationTasks": "ZADANIA ROZMOWY",
+    "contextUsage": "Kontekst: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Kontekst: -- / {{max}}",
+    "contextWindow": "OKNO KONTEKSTU",
+    "usage": "Użycie",
+    "compacting": "Kompresja",
+    "compactingAuto": "Kompresja (auto)",
+    "compactNow": "Kompresuj teraz",
+    "byAgent": "WG AGENTÓW",
+    "byModel": "WG MODELI",
+    "tokensInOut": "{{input}} wej / {{output}} wyj",
+    "tokens": "Tokeny: {{input}} wej / {{output}} wyj",
+    "tokensEmpty": "Tokeny: --"
+  }
+}

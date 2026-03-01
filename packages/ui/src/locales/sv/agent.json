@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "NAMN",
+    "agentName": "AGENTNAMN",
+    "description": "BESKRIVNING",
+    "systemPrompt": "SYSTEMPROMPT",
+    "provider": "PROVIDER",
+    "model": "MODELL"
+  },
+  "statusLabel": {
+    "idle": "vilande",
+    "running": "kör",
+    "error": "fel",
+    "paused": "pausad"
+  },
+  "currentMain": "NUVARANDE HUVUDAGENT",
+  "currentMainTooltip": "Nuvarande vald huvudagent för detta projekt",
+  "noProviders": "Inga providers konfigurerade",
+  "noModels": "Inga modeller tillgängliga",
+  "savedMsg": "Sparat!",
+  "list": {
+    "title": "Agenter",
+    "subtitle_one": "{{count}} agent i detta projekt",
+    "subtitle_other": "{{count}} agenter i detta projekt",
+    "newBtn": "+ Ny agent",
+    "viewGrid": "Rutnät",
+    "viewTopology": "Topologi",
+    "empty": "Inga agenter ännu",
+    "createFirst": "Skapa din första agent"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skills",
+    "tools_one": "{{count}} verktyg",
+    "tools_other": "{{count}} verktyg",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_other": "{{count}} sub-agenter",
+    "mcpServers_one": "{{count}} MCP-server",
+    "mcpServers_other": "{{count}} MCP-servrar"
+  },
+  "create": {
+    "modalTitle": "Skapa ny agent",
+    "createBtn": "Skapa agent",
+    "namePlaceholder": "t.ex. Forskningsassistent",
+    "descPlaceholder": "Vad gör denna agent?",
+    "promptPlaceholder": "Du är en hjälpsam assistent som..."
+  },
+  "detail": {
+    "notFound": "Agent hittades inte.",
+    "backToAgents": "< Tillbaka till agenter",
+    "backBtn": "< Agenter",
+    "tabs": {
+      "general": "Allmänt",
+      "modelConfig": "Modellkonfiguration",
+      "skills": "Skills",
+      "tools": "Verktyg",
+      "subAgents": "Sub-agenter"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Radera agent"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODELLKONFIGURATION",
+    "compactLabel": "KOMPRIMERINGSSTRÖSKEL"
+  },
+  "skills": {
+    "assigned": "TILLDELADE SKILLS",
+    "noneAssigned": "Inga skills tilldelade till denna agent.",
+    "addSection": "LÄGG TILL SKILL",
+    "noneInProject": "Inga skills i detta projekt",
+    "goTo": "Gå till Skills",
+    "manage": "Hantera Skills \u2192"
+  },
+  "tools": {
+    "builtinSection": "INBYGGDA VERKTYG",
+    "comingSoon": "KOMMER SNART",
+    "customSection": "ANPASSADE VERKTYG",
+    "bashDesc": "Kör bash-kommandon, läs och skriv filer",
+    "browserDesc": "Styr webbläsare för automatisering",
+    "osControlDesc": "Skrivbordsautomatisering och systemkontroll",
+    "taskDesc": "Skapa och hantera uppgifter i konversationen"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 VARNING",
+    "warningText": "Tredjepartsservrar för MCP kan komma åt eller ändra filer på din dator.",
+    "enableSandboxHint": "Aktivera \"Tillämpa på MCP\" i Inställningar > Behörigheter för att sandboxa MCP-servrar.",
+    "sandboxUnavailable": "Sandbox-runtime är inte tillgängligt på denna plattform.",
+    "assigned": "TILLDELADE MCP-SERVRAR",
+    "noneAssigned": "Inga MCP-servrar tilldelade till denna agent.",
+    "addSection": "LÄGG TILL MCP-SERVER",
+    "noneInProject": "Inga MCP-servrar i detta projekt",
+    "goTo": "Gå till MCP Servers",
+    "manage": "Hantera MCP Servers \u2192",
+    "restricted": "Begränsad"
+  },
+  "subAgents": {
+    "assigned": "TILLDELADE SUB-AGENTER",
+    "noneAssigned": "Inga sub-agenter tilldelade till denna agent.",
+    "addSection": "LÄGG TILL SUB-AGENT",
+    "noneAvailable": "Inga andra agenter tillgängliga i detta projekt.",
+    "unknown": "Okänd",
+    "rolePlaceholder": "Roll..."
+  },
+  "panel": {
+    "modelLabel": "MODELL",
+    "inherited": "Ärvd",
+    "capabilities": "FÖRMÅGOR",
+    "subAgentsLabel": "SUB-AGENTER",
+    "openDetail": "Öppna detaljer"
+  },
+  "topology": {
+    "resetLayout": "Återställ layout",
+    "editAgent": "Redigera agent",
+    "setMainAgent": "Ange som Main Agent"
+  }
+}

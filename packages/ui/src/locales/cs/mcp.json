@@ -1,0 +1,70 @@
+{
+  "page": {
+    "title": "MCP servery",
+    "serverCount_one": "{{count}} server",
+    "serverCount_few": "{{count}} servery",
+    "serverCount_many": "{{count}} serverů",
+    "serverCount_other": "{{count}} serverů",
+    "newServerBtn": "+ Nový server"
+  },
+  "tabs": {
+    "installed": "Nainstalované",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "OMEZENO",
+    "restrictedMsg": "Omezený režim: stdio MCP servery jsou vypnuty a nebudou načteny",
+    "riskBadge": "VAROVÁNÍ",
+    "riskMsg": "MCP servery třetích stran mohou přistupovat k souborům na vašem počítači nebo je měnit.",
+    "applyToMcpHint": "Zapněte «Použít na MCP» v Nastavení > Oprávnění pro izolaci MCP serverů.",
+    "sandboxUnavailable": "Prostředí Sandbox není na této platformě dostupné."
+  },
+  "import": {
+    "invalidFormat": "Neplatný formát: očekáváno { mcpServers: { ... } }",
+    "noServers": "V konfiguračním souboru nebyly nalezeny žádné servery",
+    "importedCount_one": "Importován {{count}} MCP server",
+    "importedCount_few": "Importovány {{count}} MCP servery",
+    "importedCount_many": "Importováno {{count}} MCP serverů",
+    "importedCount_other": "Importováno {{count}} MCP serverů",
+    "parseError": "Nepodařilo se zpracovat konfigurační soubor"
+  },
+  "server": {
+    "testing": "Testování...",
+    "testOk_one": "OK ({{count}} nástroj)",
+    "testOk_few": "OK ({{count}} nástroje)",
+    "testOk_many": "OK ({{count}} nástrojů)",
+    "testOk_other": "OK ({{count}} nástrojů)",
+    "connectionFailed": "Připojení selhalo",
+    "testFailed": "Test selhal",
+    "blockedRestricted": "Blokováno omezeným režimem — stdio servery nejsou za běhu načítány",
+    "usedByAgents_one": "Používán {{count}} agentem",
+    "usedByAgents_few": "Používán {{count}} agenty",
+    "usedByAgents_many": "Používán {{count}} agenty",
+    "usedByAgents_other": "Používán {{count}} agenty",
+    "deleteErrorInUse_one": "MCP server «{{name}}» je používán {{count}} agentem. Nejprve odstraňte odkazy.",
+    "deleteErrorInUse_few": "MCP server «{{name}}» je používán {{count}} agenty. Nejprve odstraňte odkazy.",
+    "deleteErrorInUse_many": "MCP server «{{name}}» je používán {{count}} agenty. Nejprve odstraňte odkazy.",
+    "deleteErrorInUse_other": "MCP server «{{name}}» je používán {{count}} agenty. Nejprve odstraňte odkazy.",
+    "deleteError": "Nepodařilo se smazat MCP server",
+    "testBtn": "Test"
+  },
+  "empty": {
+    "title": "Žádné MCP servery nejsou nakonfigurovány",
+    "addFirstBtn": "Přidejte první server"
+  },
+  "loading": "Načítání MCP serverů...",
+  "comingSoon": "Brzy",
+  "form": {
+    "newTitle": "Nový MCP server",
+    "editTitle": "Úprava MCP serveru",
+    "nameLabel": "NÁZEV",
+    "descriptionLabel": "POPIS",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "PŘÍKAZ",
+    "argsLabel": "ARGUMENTY (oddělené mezerami)",
+    "envLabel": "PROMĚNNÉ PROSTŘEDÍ (KEY=VALUE na řádek)",
+    "cwdLabel": "PRACOVNÍ ADRESÁŘ",
+    "urlLabel": "URL",
+    "headersLabel": "HLAVIČKY (Key: Value na řádek)"
+  }
+}

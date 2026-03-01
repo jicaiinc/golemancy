@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "L\u1ecbch S\u1eed Phi\u00ean D\u1ecbch"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} b\u1ea3n ghi",
+    "recordCount_other": "{{count}} b\u1ea3n ghi",
+    "used": "\u0111\u00e3 d\u00f9ng {{size}}",
+    "loading": "\u0110ang t\u1ea3i th\u00f4ng tin l\u01b0u tr\u1eef..."
+  },
+  "clearAll": {
+    "confirm_one": "X\u00f3a t\u1ea5t c\u1ea3 {{count}} b\u1ea3n ghi?",
+    "confirm_other": "X\u00f3a t\u1ea5t c\u1ea3 {{count}} b\u1ea3n ghi?",
+    "confirmWithFree_one": "X\u00f3a t\u1ea5t c\u1ea3 {{count}} b\u1ea3n ghi v\u00e0 gi\u1ea3i ph\u00f3ng {{size}}?",
+    "confirmWithFree_other": "X\u00f3a t\u1ea5t c\u1ea3 {{count}} b\u1ea3n ghi v\u00e0 gi\u1ea3i ph\u00f3ng {{size}}?"
+  },
+  "loading": "\u0110ang t\u1ea3i l\u1ecbch s\u1eed...",
+  "empty": {
+    "hint": "S\u1eed d\u1ee5ng n\u00fat microphone trong chat\n\u0111\u1ec3 t\u1ea1o b\u1ea3n ghi \u00e2m \u0111\u1ea7u ti\u00ean",
+    "settingsBtn": "\u0110i \u0111\u1ebfn C\u00e0i \u0110\u1eb7t"
+  },
+  "player": {
+    "play": "Ph\u00e1t",
+    "pause": "T\u1ea1m d\u1eebng",
+    "close": "\u0110\u00f3ng tr\u00ecnh ph\u00e1t"
+  },
+  "actions": {
+    "copy": "Sao ch\u00e9p v\u0103n b\u1ea3n phi\u00ean d\u1ecbch",
+    "retry": "Th\u1eed phi\u00ean d\u1ecbch l\u1ea1i",
+    "delete": "X\u00f3a b\u1ea3n ghi"
+  },
+  "enable": {
+    "enabled": "\u0110\u00e3 b\u1eadt",
+    "disabled": "\u0110\u00e3 t\u1eaft",
+    "sectionTitle": "SPEECH-TO-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "LO\u1ea0I",
+    "customType": "T\u00f9y ch\u1ec9nh (T\u01b0\u01a1ng th\u00edch OpenAI)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (B\u1eaeT BU\u1ed8C)",
+    "baseUrlOptional": "BASE URL (T\u00d9Y CH\u1eccN)",
+    "baseUrlPlaceholder": "\u0110\u1ec3 tr\u1ed1ng cho m\u1eb7c \u0111\u1ecbnh",
+    "modelLabel": "MODEL",
+    "modelOther": "Kh\u00e1c...",
+    "presets": "M\u1eabu c\u00f3 s\u1eb5n",
+    "languageLabel": "NG\u00d4N NG\u1eee",
+    "hide": "\u1ea8n",
+    "show": "Hi\u1ec3n"
+  },
+  "test": {
+    "testing": "\u0110ang ki\u1ec3m tra...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Ki\u1ec3m Tra L\u1ea1i",
+    "test": "Ki\u1ec3m Tra",
+    "failed": "Th\u1ea5t b\u1ea1i",
+    "untested": "Ch\u01b0a ki\u1ec3m tra",
+    "unknownError": "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh"
+  },
+  "history": {
+    "sectionTitle": "L\u1ecaCH S\u1eed",
+    "recordsInfo": "{{recordCount}} b\u1ea3n ghi / {{size}}",
+    "clearAll": "X\u00f3a T\u1ea5t C\u1ea3",
+    "confirmClear": "X\u00f3a t\u1ea5t c\u1ea3?",
+    "empty": "Ch\u01b0a c\u00f3 phi\u00ean d\u1ecbch",
+    "today": "H\u00f4m nay",
+    "yesterday": "H\u00f4m qua",
+    "transcribing": "\u0110ang phi\u00ean d\u1ecbch...",
+    "openChat": "M\u1edf chat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "X\u00f3a b\u1ea3n ghi n\u00e0y v\u00e0 file \u00e2m thanh?",
+    "retryConfirm": "Thao t\u00e1c n\u00e0y s\u1ebd ghi \u0111\u00e8 phi\u00ean d\u1ecbch hi\u1ec7n c\u00f3.",
+    "transcriptionFailed": "Phi\u00ean d\u1ecbch th\u1ea5t b\u1ea1i: {{error}}",
+    "retranscribe": "Phi\u00ean D\u1ecbch L\u1ea1i"
+  }
+}

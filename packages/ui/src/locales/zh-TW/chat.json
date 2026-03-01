@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "隱藏聊天記錄",
+    "showHistory": "顯示聊天記錄",
+    "new": "+ 新建",
+    "clickToRename": "點擊重新命名"
+  },
+  "sidebar": {
+    "newChat": "+ 新對話",
+    "noConversations": "尚無對話"
+  },
+  "window": {
+    "startConversation": "開始對話...",
+    "compacting": "壓縮中",
+    "thinking": "思考中",
+    "imageMsgTitle": "圖片訊息"
+  },
+  "empty": {
+    "readyToChat": "準備就緒",
+    "description": "開始新對話，或從側邊欄選擇一個對話。",
+    "startChatting": "開始聊天",
+    "noMainAgent": "未設定主 Agent",
+    "configureText": "在<a>專案設定</a>中設定主 Agent 以開始聊天。"
+  },
+  "input": {
+    "placeholder": "輸入訊息...",
+    "dropPlaceholder": "拖放圖片到此處...",
+    "attachImage": "附加圖片",
+    "recordAudio": "錄製音訊",
+    "transcribing": "轉錄中...",
+    "transcriptionFailed": "轉錄失敗",
+    "startRecordingFailed": "啟動錄音失敗",
+    "retryFailed": "重試失敗"
+  },
+  "message": {
+    "reasoning": "推理過程",
+    "untitledFile": "未命名檔案",
+    "copy": "複製"
+  },
+  "compact": {
+    "title": "對話已壓縮",
+    "summary": "摘要",
+    "tokensSummary": "{{input}} 輸入 / {{output}} 輸出"
+  },
+  "tool": {
+    "running": "執行中...",
+    "awaitingApproval": "等待核准",
+    "approved": "已核准",
+    "done": "完成",
+    "denied": "已拒絕",
+    "input": "輸入",
+    "output": "輸出",
+    "error": "錯誤",
+    "task": "任務",
+    "tools": "工具",
+    "toolCountRunning": "[{{running}}/{{total}} 個工具]",
+    "toolCountDone": "[{{total}} 個工具]",
+    "taskCreate": "建立任務",
+    "taskGet": "取得任務",
+    "taskList": "任務清單",
+    "taskUpdate": "更新任務"
+  }
+}

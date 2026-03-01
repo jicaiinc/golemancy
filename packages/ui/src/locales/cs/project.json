@@ -1,0 +1,55 @@
+{
+  "label": {
+    "projectName": "NÁZEV PROJEKTU",
+    "description": "POPIS",
+    "icon": "IKONA",
+    "projectId": "ID PROJEKTU"
+  },
+  "list": {
+    "title": "Všechny projekty",
+    "subtitle_one": "{{count}} projekt ve vašem pracovním prostoru",
+    "subtitle_few": "{{count}} projekty ve vašem pracovním prostoru",
+    "subtitle_many": "{{count}} projektů ve vašem pracovním prostoru",
+    "subtitle_other": "{{count}} projektů ve vašem pracovním prostoru",
+    "newBtn": "+ Nový projekt",
+    "empty": "Zatím žádné projekty",
+    "createFirst": "Vytvořte první projekt",
+    "openInWindow": "Otevřít v novém okně",
+    "agents_one": "{{count}} agent",
+    "agents_few": "{{count}} agenti",
+    "agents_many": "{{count}} agentů",
+    "agents_other": "{{count}} agentů",
+    "running_one": "{{count}} běží",
+    "running_few": "{{count}} běží",
+    "running_many": "{{count}} běží",
+    "running_other": "{{count}} běží"
+  },
+  "create": {
+    "modalTitle": "Vytvořit nový projekt",
+    "createBtn": "Vytvořit projekt",
+    "namePlaceholder": "Můj projekt",
+    "descPlaceholder": "O čem je tento projekt?"
+  },
+  "settings": {
+    "title": "Nastavení projektu",
+    "savedMsg": "Uloženo!",
+    "clickToCopy": "Klikněte pro kopírování",
+    "tabs": {
+      "general": "Obecné",
+      "agent": "Agent",
+      "permissions": "Oprávnění"
+    },
+    "agent": {
+      "mainLabel": "HLAVNÍ AGENT",
+      "mainDesc": "Výchozí agent pro nové konverzace v tomto projektu.",
+      "noAgents": "V projektu nejsou žádní agenti. Nejprve vytvořte agenta.",
+      "goToAgents": "Přejít na agenty",
+      "none": "Žádný",
+      "configure": "Konfigurovat agenta \u2192"
+    },
+    "general": {
+      "sectionTitle": "ZÁKLADNÍ INFORMACE",
+      "saveBtn": "Uložit změny"
+    }
+  }
+}

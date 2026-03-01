@@ -1,0 +1,43 @@
+{
+  "page": {
+    "title": "Umiejętności",
+    "skillCount_one": "{{count}} umiejętność",
+    "skillCount_few": "{{count}} umiejętności",
+    "skillCount_many": "{{count}} umiejętności",
+    "skillCount_other": "{{count}} umiejętności",
+    "newSkillBtn": "+ Nowa umiejętność"
+  },
+  "tabs": {
+    "installed": "Zainstalowane",
+    "marketplace": "Marketplace"
+  },
+  "import": {
+    "noValidFiles": "Nie znaleziono plików .md ani .zip. Upuść pliki markdown lub zip, aby zaimportować umiejętności.",
+    "importedCount_one": "Zaimportowano {{count}} umiejętność",
+    "importedCount_few": "Zaimportowano {{count}} umiejętności",
+    "importedCount_many": "Zaimportowano {{count}} umiejętności",
+    "importedCount_other": "Zaimportowano {{count}} umiejętności",
+    "importError": "Nie udało się zaimportować umiejętności"
+  },
+  "deleteError": {
+    "inUse_one": "Umiejętność «{{name}}» jest przypisana do {{count}} agenta. Najpierw usuń przypisanie.",
+    "inUse_few": "Umiejętność «{{name}}» jest przypisana do {{count}} agentów. Najpierw usuń przypisanie.",
+    "inUse_many": "Umiejętność «{{name}}» jest przypisana do {{count}} agentów. Najpierw usuń przypisanie.",
+    "inUse_other": "Umiejętność «{{name}}» jest przypisana do {{count}} agentów. Najpierw usuń przypisanie.",
+    "generic": "Nie udało się usunąć umiejętności"
+  },
+  "loading": "Ładowanie umiejętności...",
+  "empty": {
+    "title": "Brak umiejętności",
+    "createFirstBtn": "Utwórz pierwszą umiejętność"
+  },
+  "comingSoon": "Wkrótce",
+  "form": {
+    "newTitle": "Nowa umiejętność",
+    "editTitle": "Edycja umiejętności",
+    "nameLabel": "NAZWA",
+    "descriptionLabel": "OPIS",
+    "instructionsLabel": "INSTRUKCJE",
+    "instructionsPlaceholder": "Napisz instrukcje umiejętności w formacie markdown..."
+  }
+}

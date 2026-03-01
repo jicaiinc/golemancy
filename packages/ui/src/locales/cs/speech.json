@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Historie transkripce"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} záznam",
+    "recordCount_few": "{{count}} záznamy",
+    "recordCount_many": "{{count}} záznamů",
+    "recordCount_other": "{{count}} záznamů",
+    "used": "{{size}} využito",
+    "loading": "Načítání informací o úložišti..."
+  },
+  "clearAll": {
+    "confirm_one": "Smazat {{count}} záznam?",
+    "confirm_few": "Smazat všechny {{count}} záznamy?",
+    "confirm_many": "Smazat všech {{count}} záznamů?",
+    "confirm_other": "Smazat všech {{count}} záznamů?",
+    "confirmWithFree_one": "Smazat {{count}} záznam a uvolnit {{size}}?",
+    "confirmWithFree_few": "Smazat všechny {{count}} záznamy a uvolnit {{size}}?",
+    "confirmWithFree_many": "Smazat všech {{count}} záznamů a uvolnit {{size}}?",
+    "confirmWithFree_other": "Smazat všech {{count}} záznamů a uvolnit {{size}}?"
+  },
+  "loading": "Načítání historie...",
+  "empty": {
+    "hint": "Použijte tlačítko mikrofonu v chatu\npro vytvoření prvního hlasového záznamu",
+    "settingsBtn": "Přejít do nastavení"
+  },
+  "player": {
+    "play": "Přehrát",
+    "pause": "Pozastavit",
+    "close": "Zavřít přehrávač"
+  },
+  "actions": {
+    "copy": "Kopírovat text transkripce",
+    "retry": "Opakovat transkripci",
+    "delete": "Smazat záznam"
+  },
+  "enable": {
+    "enabled": "Zapnuto",
+    "disabled": "Vypnuto",
+    "sectionTitle": "ROZPOZNÁVÁNÍ ŘEČI"
+  },
+  "provider": {
+    "sectionTitle": "POSKYTOVATEL",
+    "typeLabel": "TYP",
+    "customType": "Vlastní (kompatibilní s OpenAI)",
+    "apiKeyLabel": "API KLÍČ",
+    "baseUrlRequired": "BASE URL (POVINNÉ)",
+    "baseUrlOptional": "BASE URL (VOLITELNÉ)",
+    "baseUrlPlaceholder": "Ponechte prázdné pro výchozí",
+    "modelLabel": "MODEL",
+    "modelOther": "Jiný...",
+    "presets": "Šablony",
+    "languageLabel": "JAZYK",
+    "hide": "Skrýt",
+    "show": "Zobrazit"
+  },
+  "test": {
+    "testing": "Testování...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Přetestovat",
+    "test": "Test",
+    "failed": "Chyba",
+    "untested": "Netestováno",
+    "unknownError": "Neznámá chyba"
+  },
+  "history": {
+    "sectionTitle": "HISTORIE",
+    "recordsInfo": "{{recordCount}} záznamů / {{size}}",
+    "clearAll": "Vymazat vše",
+    "confirmClear": "Vymazat vše?",
+    "empty": "Zatím žádné transkripce",
+    "today": "Dnes",
+    "yesterday": "Včera",
+    "transcribing": "Transkripce...",
+    "openChat": "Otevřít chat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "CH",
+    "deleteConfirm": "Smazat tento záznam a jeho zvukový soubor?",
+    "retryConfirm": "Stávající transkripce bude přepsána.",
+    "transcriptionFailed": "Transkripce selhala: {{error}}",
+    "retranscribe": "Přetranskribovat"
+  }
+}

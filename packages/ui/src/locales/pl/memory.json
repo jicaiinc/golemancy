@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Bank pamięci",
+    "entryCount_one": "{{count}} wpis",
+    "entryCount_few": "{{count}} wpisy",
+    "entryCount_many": "{{count}} wpisów",
+    "entryCount_other": "{{count}} wpisów",
+    "addEntryBtn": "+ Dodaj wpis"
+  },
+  "search": {
+    "placeholder": "Szukaj po treści, źródle lub tagu..."
+  },
+  "filter": {
+    "all": "wszystkie"
+  },
+  "loading": "Ładowanie wpisów...",
+  "empty": {
+    "noMatch": "Nie znaleziono pasujących wpisów",
+    "noEntries": "Brak wpisów",
+    "hint": "Wpisy pamięci pomagają agentom zachować kontekst między rozmowami"
+  },
+  "form": {
+    "addTitle": "Dodaj wpis pamięci",
+    "editTitle": "Edycja wpisu pamięci",
+    "contentLabel": "TREŚĆ",
+    "sourceLabel": "ŹRÓDŁO",
+    "sourcePlaceholder": "np. Badacz",
+    "tagsLabel": "TAGI (rozdzielone przecinkami)",
+    "tagsPlaceholder": "np. strategia, odbiorcy"
+  }
+}

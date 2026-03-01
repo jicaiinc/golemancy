@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "NOM DU PROJET",
+    "description": "DESCRIPTION",
+    "icon": "ICÔNE",
+    "projectId": "ID DU PROJET"
+  },
+  "list": {
+    "title": "Tous les Projets",
+    "subtitle_one": "{{count}} projet dans votre espace de travail",
+    "subtitle_other": "{{count}} projets dans votre espace de travail",
+    "newBtn": "+ Nouveau Projet",
+    "empty": "Aucun projet pour le moment",
+    "createFirst": "Créez Votre Premier Projet",
+    "openInWindow": "Ouvrir dans une Nouvelle Fenêtre",
+    "agents_one": "{{count}} agent",
+    "agents_other": "{{count}} agents",
+    "running_one": "{{count}} en cours",
+    "running_other": "{{count}} en cours"
+  },
+  "create": {
+    "modalTitle": "Créer un Nouveau Projet",
+    "createBtn": "Créer le Projet",
+    "namePlaceholder": "Mon Super Projet",
+    "descPlaceholder": "De quoi traite ce projet ?"
+  },
+  "settings": {
+    "title": "Paramètres du Projet",
+    "savedMsg": "Enregistré !",
+    "clickToCopy": "Cliquez pour copier",
+    "tabs": {
+      "general": "Général",
+      "agent": "Agent",
+      "permissions": "Permissions"
+    },
+    "agent": {
+      "mainLabel": "AGENT PRINCIPAL",
+      "mainDesc": "L'agent par défaut pour les nouvelles conversations de ce projet.",
+      "noAgents": "Aucun agent dans ce projet. Créez d'abord un agent.",
+      "goToAgents": "Aller aux Agents",
+      "none": "Aucun",
+      "configure": "Configurer l'Agent \u2192"
+    },
+    "general": {
+      "sectionTitle": "INFORMATIONS DE BASE",
+      "saveBtn": "Enregistrer les Modifications"
+    }
+  }
+}

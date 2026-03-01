@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefakter",
+    "refreshBtn": "Uppdatera"
+  },
+  "deleteModal": {
+    "title": "Radera fil",
+    "confirmPrefix": "Är du säker på att du vill radera",
+    "warning": "Denna åtgärd kan inte ångras."
+  },
+  "preview": {
+    "selectFile": "Välj en fil att förhandsgranska",
+    "loading": "Laddar fil...",
+    "loadingImage": "Laddar bild...",
+    "imageError": "Kunde inte ladda bild: {{error}}",
+    "emptyCsv": "Tom CSV",
+    "noPreview": "Ingen förhandsgranskning tillgänglig för denna filtyp",
+    "download": "DL",
+    "open": "Öppna",
+    "meta": {
+      "type": "TYP",
+      "mime": "MIME",
+      "size": "STORLEK",
+      "modified": "ÄNDRAD"
+    }
+  },
+  "tree": {
+    "root": "artefakter",
+    "emptyDir": "Tom katalog"
+  }
+}

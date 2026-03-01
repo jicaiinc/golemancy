@@ -1,0 +1,55 @@
+{
+  "label": {
+    "projectName": "НАЗВА ПРОЄКТУ",
+    "description": "ОПИС",
+    "icon": "ІКОНКА",
+    "projectId": "ID ПРОЄКТУ"
+  },
+  "list": {
+    "title": "Усі проєкти",
+    "subtitle_one": "{{count}} проєкт у вашому просторі",
+    "subtitle_few": "{{count}} проєкти у вашому просторі",
+    "subtitle_many": "{{count}} проєктів у вашому просторі",
+    "subtitle_other": "{{count}} проєктів у вашому просторі",
+    "newBtn": "+ Новий проєкт",
+    "empty": "Проєктів поки немає",
+    "createFirst": "Створіть перший проєкт",
+    "openInWindow": "Відкрити у новому вікні",
+    "agents_one": "{{count}} агент",
+    "agents_few": "{{count}} агенти",
+    "agents_many": "{{count}} агентів",
+    "agents_other": "{{count}} агентів",
+    "running_one": "{{count}} працює",
+    "running_few": "{{count}} працюють",
+    "running_many": "{{count}} працюють",
+    "running_other": "{{count}} працюють"
+  },
+  "create": {
+    "modalTitle": "Створити новий проєкт",
+    "createBtn": "Створити проєкт",
+    "namePlaceholder": "Мій проєкт",
+    "descPlaceholder": "Про що цей проєкт?"
+  },
+  "settings": {
+    "title": "Налаштування проєкту",
+    "savedMsg": "Збережено!",
+    "clickToCopy": "Натисніть для копіювання",
+    "tabs": {
+      "general": "Основне",
+      "agent": "Агент",
+      "permissions": "Дозволи"
+    },
+    "agent": {
+      "mainLabel": "ОСНОВНИЙ АГЕНТ",
+      "mainDesc": "Агент за замовчуванням для нових розмов у цьому проєкті.",
+      "noAgents": "У проєкті немає агентів. Спочатку створіть агента.",
+      "goToAgents": "Перейти до агентів",
+      "none": "Немає",
+      "configure": "Налаштувати агента \u2192"
+    },
+    "general": {
+      "sectionTitle": "ОСНОВНА ІНФОРМАЦІЯ",
+      "saveBtn": "Зберегти зміни"
+    }
+  }
+}

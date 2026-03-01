@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Memoria",
+    "entryCount_one": "{{count}} memoria",
+    "entryCount_other": "{{count}} memorie",
+    "addEntryBtn": "+ Aggiungi Voce"
+  },
+  "search": {
+    "placeholder": "Cerca memorie per contenuto, fonte o tag..."
+  },
+  "filter": {
+    "all": "tutte"
+  },
+  "loading": "Caricamento memorie...",
+  "empty": {
+    "noMatch": "Nessuna memoria corrispondente",
+    "noEntries": "Nessuna memoria",
+    "hint": "Le memorie aiutano gli agenti a mantenere il contesto tra le conversazioni"
+  },
+  "form": {
+    "addTitle": "Aggiungi Voce Memoria",
+    "editTitle": "Modifica Voce Memoria",
+    "contentLabel": "CONTENUTO",
+    "sourceLabel": "FONTE",
+    "sourcePlaceholder": "es. Ricercatore",
+    "tagsLabel": "TAG (separati da virgola)",
+    "tagsPlaceholder": "es. strategia, pubblico"
+  }
+}

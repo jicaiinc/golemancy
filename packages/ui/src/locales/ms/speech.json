@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Sejarah Transkripsi"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} rekod",
+    "recordCount_other": "{{count}} rekod",
+    "used": "{{size}} digunakan",
+    "loading": "Memuatkan maklumat storan..."
+  },
+  "clearAll": {
+    "confirm_one": "Padam semua {{count}} rekod?",
+    "confirm_other": "Padam semua {{count}} rekod?",
+    "confirmWithFree_one": "Padam semua {{count}} rekod dan bebaskan {{size}}?",
+    "confirmWithFree_other": "Padam semua {{count}} rekod dan bebaskan {{size}}?"
+  },
+  "loading": "Memuatkan sejarah...",
+  "empty": {
+    "hint": "Gunakan butang mikrofon dalam chat\nuntuk mencipta rakaman suara pertama anda",
+    "settingsBtn": "Ke Tetapan"
+  },
+  "player": {
+    "play": "Main",
+    "pause": "Jeda",
+    "close": "Tutup pemain"
+  },
+  "actions": {
+    "copy": "Salin teks transkripsi",
+    "retry": "Cuba transkripsi semula",
+    "delete": "Padam rekod"
+  },
+  "enable": {
+    "enabled": "Diaktifkan",
+    "disabled": "Dinyahaktifkan",
+    "sectionTitle": "SPEECH-TO-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "JENIS",
+    "customType": "Tersuai (Serasi OpenAI)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (DIPERLUKAN)",
+    "baseUrlOptional": "BASE URL (PILIHAN)",
+    "baseUrlPlaceholder": "Biarkan kosong untuk lalai",
+    "modelLabel": "MODEL",
+    "modelOther": "Lain-lain...",
+    "presets": "Pratetap",
+    "languageLabel": "BAHASA",
+    "hide": "Sembunyikan",
+    "show": "Tunjukkan"
+  },
+  "test": {
+    "testing": "Menguji...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Uji Semula",
+    "test": "Uji",
+    "failed": "Gagal",
+    "untested": "Belum diuji",
+    "unknownError": "Ralat tidak diketahui"
+  },
+  "history": {
+    "sectionTitle": "SEJARAH",
+    "recordsInfo": "{{recordCount}} rekod / {{size}}",
+    "clearAll": "Kosongkan Semua",
+    "confirmClear": "Kosongkan semua?",
+    "empty": "Belum ada transkripsi",
+    "today": "Hari Ini",
+    "yesterday": "Semalam",
+    "transcribing": "Mentranskripsi...",
+    "openChat": "Buka chat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "Padam rekod ini beserta fail audionya?",
+    "retryConfirm": "Ini akan menimpa transkripsi sedia ada.",
+    "transcriptionFailed": "Transkripsi gagal: {{error}}",
+    "retranscribe": "Transkripsi Semula"
+  }
+}

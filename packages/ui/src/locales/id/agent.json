@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "NAMA",
+    "agentName": "NAMA AGENT",
+    "description": "DESKRIPSI",
+    "systemPrompt": "SYSTEM PROMPT",
+    "provider": "PROVIDER",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "diam",
+    "running": "berjalan",
+    "error": "error",
+    "paused": "dijeda"
+  },
+  "currentMain": "MAIN SAAT INI",
+  "currentMainTooltip": "Main agent yang dipilih saat ini untuk proyek ini",
+  "noProviders": "Belum ada provider yang dikonfigurasi",
+  "noModels": "Tidak ada model tersedia",
+  "savedMsg": "Tersimpan!",
+  "list": {
+    "title": "Agent",
+    "subtitle_one": "{{count}} agent dalam proyek ini",
+    "subtitle_other": "{{count}} agent dalam proyek ini",
+    "newBtn": "+ Agent Baru",
+    "viewGrid": "Grid",
+    "viewTopology": "Topologi",
+    "empty": "Belum ada agent",
+    "createFirst": "Buat Agent Pertama Anda"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skill",
+    "tools_one": "{{count}} tool",
+    "tools_other": "{{count}} tool",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_other": "{{count}} sub-agent",
+    "mcpServers_one": "{{count}} MCP server",
+    "mcpServers_other": "{{count}} MCP server"
+  },
+  "create": {
+    "modalTitle": "Buat Agent Baru",
+    "createBtn": "Buat Agent",
+    "namePlaceholder": "mis. Asisten Riset",
+    "descPlaceholder": "Apa yang dilakukan agent ini?",
+    "promptPlaceholder": "Kamu adalah asisten yang membantu yang..."
+  },
+  "detail": {
+    "notFound": "Agent tidak ditemukan.",
+    "backToAgents": "< Kembali ke Agent",
+    "backBtn": "< Agent",
+    "tabs": {
+      "general": "Umum",
+      "modelConfig": "Konfigurasi Model",
+      "skills": "Skill",
+      "tools": "Tools",
+      "subAgents": "Sub-Agent"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Hapus Agent"
+  },
+  "modelConfig": {
+    "sectionTitle": "KONFIGURASI MODEL",
+    "compactLabel": "AMBANG BATAS COMPACT"
+  },
+  "skills": {
+    "assigned": "SKILL YANG DITETAPKAN",
+    "noneAssigned": "Belum ada skill yang ditetapkan ke agent ini.",
+    "addSection": "TAMBAH SKILL",
+    "noneInProject": "Tidak ada skill dalam proyek ini",
+    "goTo": "Ke Halaman Skill",
+    "manage": "Kelola Skill \u2192"
+  },
+  "tools": {
+    "builtinSection": "TOOL BAWAAN",
+    "comingSoon": "SEGERA HADIR",
+    "customSection": "TOOL KUSTOM",
+    "bashDesc": "Jalankan perintah bash, baca dan tulis file",
+    "browserDesc": "Kontrol browser web untuk otomasi",
+    "osControlDesc": "Otomasi desktop dan kontrol sistem",
+    "taskDesc": "Buat dan kelola tugas dalam percakapan"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 PERINGATAN",
+    "warningText": "MCP server pihak ketiga dapat mengakses atau mengubah file di komputer Anda.",
+    "enableSandboxHint": "Aktifkan \"Apply to MCP\" di Pengaturan > Permissions untuk sandbox MCP server.",
+    "sandboxUnavailable": "Sandbox runtime tidak tersedia di platform ini.",
+    "assigned": "MCP SERVER YANG DITETAPKAN",
+    "noneAssigned": "Belum ada MCP server yang ditetapkan ke agent ini.",
+    "addSection": "TAMBAH MCP SERVER",
+    "noneInProject": "Tidak ada MCP server dalam proyek ini",
+    "goTo": "Ke Halaman MCP Server",
+    "manage": "Kelola MCP Server \u2192",
+    "restricted": "Restricted"
+  },
+  "subAgents": {
+    "assigned": "SUB-AGENT YANG DITETAPKAN",
+    "noneAssigned": "Belum ada sub-agent yang ditetapkan ke agent ini.",
+    "addSection": "TAMBAH SUB-AGENT",
+    "noneAvailable": "Tidak ada agent lain yang tersedia dalam proyek ini.",
+    "unknown": "Tidak dikenal",
+    "rolePlaceholder": "Peran..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Diwarisi",
+    "capabilities": "KEMAMPUAN",
+    "subAgentsLabel": "SUB-AGENT",
+    "openDetail": "Buka Detail"
+  },
+  "topology": {
+    "resetLayout": "Reset Tata Letak",
+    "editAgent": "Edit Agent",
+    "setMainAgent": "Jadikan Main Agent"
+  }
+}

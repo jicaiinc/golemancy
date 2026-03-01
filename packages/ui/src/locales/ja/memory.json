@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "メモリーバンク",
+    "entryCount_one": "{{count}} 件のメモリー",
+    "entryCount_other": "{{count}} 件のメモリー",
+    "addEntryBtn": "+ エントリーを追加"
+  },
+  "search": {
+    "placeholder": "コンテンツ、ソース、タグでメモリーを検索..."
+  },
+  "filter": {
+    "all": "すべて"
+  },
+  "loading": "メモリーを読み込み中...",
+  "empty": {
+    "noMatch": "一致するメモリーがありません",
+    "noEntries": "メモリーがありません",
+    "hint": "メモリーは Agent が会話をまたいでコンテキストを保持するのに役立ちます"
+  },
+  "form": {
+    "addTitle": "メモリーエントリーを追加",
+    "editTitle": "メモリーエントリーを編集",
+    "contentLabel": "コンテンツ",
+    "sourceLabel": "ソース",
+    "sourcePlaceholder": "例：リサーチャー",
+    "tagsLabel": "タグ（カンマ区切り）",
+    "tagsPlaceholder": "例：戦略, オーディエンス"
+  }
+}

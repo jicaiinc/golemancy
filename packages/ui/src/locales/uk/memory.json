@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Банк пам'яті",
+    "entryCount_one": "{{count}} запис",
+    "entryCount_few": "{{count}} записи",
+    "entryCount_many": "{{count}} записів",
+    "entryCount_other": "{{count}} записів",
+    "addEntryBtn": "+ Додати запис"
+  },
+  "search": {
+    "placeholder": "Пошук за вмістом, джерелом або тегом..."
+  },
+  "filter": {
+    "all": "усі"
+  },
+  "loading": "Завантаження записів...",
+  "empty": {
+    "noMatch": "Збігів не знайдено",
+    "noEntries": "Записів поки немає",
+    "hint": "Записи пам'яті допомагають агентам зберігати контекст між розмовами"
+  },
+  "form": {
+    "addTitle": "Додати запис пам'яті",
+    "editTitle": "Редагування запису пам'яті",
+    "contentLabel": "ВМІСТ",
+    "sourceLabel": "ДЖЕРЕЛО",
+    "sourcePlaceholder": "напр. Дослідник",
+    "tagsLabel": "ТЕГИ (через кому)",
+    "tagsPlaceholder": "напр. стратегія, аудиторія"
+  }
+}

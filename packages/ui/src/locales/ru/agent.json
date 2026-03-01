@@ -1,0 +1,128 @@
+{
+  "label": {
+    "name": "НАЗВАНИЕ",
+    "agentName": "ИМЯ АГЕНТА",
+    "description": "ОПИСАНИЕ",
+    "systemPrompt": "СИСТЕМНЫЙ ПРОМПТ",
+    "provider": "ПРОВАЙДЕР",
+    "model": "МОДЕЛЬ"
+  },
+  "statusLabel": {
+    "idle": "простаивает",
+    "running": "работает",
+    "error": "ошибка",
+    "paused": "приостановлен"
+  },
+  "currentMain": "ТЕКУЩИЙ ОСНОВНОЙ",
+  "currentMainTooltip": "Текущий основной агент этого проекта",
+  "noProviders": "Провайдеры не настроены",
+  "noModels": "Нет доступных моделей",
+  "savedMsg": "Сохранено!",
+  "list": {
+    "title": "Агенты",
+    "subtitle_one": "{{count}} агент в этом проекте",
+    "subtitle_few": "{{count}} агента в этом проекте",
+    "subtitle_many": "{{count}} агентов в этом проекте",
+    "subtitle_other": "{{count}} агентов в этом проекте",
+    "newBtn": "+ Новый агент",
+    "viewGrid": "Сетка",
+    "viewTopology": "Топология",
+    "empty": "Агентов пока нет",
+    "createFirst": "Создайте первого агента"
+  },
+  "count": {
+    "skills_one": "{{count}} навык",
+    "skills_few": "{{count}} навыка",
+    "skills_many": "{{count}} навыков",
+    "skills_other": "{{count}} навыков",
+    "tools_one": "{{count}} инструмент",
+    "tools_few": "{{count}} инструмента",
+    "tools_many": "{{count}} инструментов",
+    "tools_other": "{{count}} инструментов",
+    "subAgents_one": "{{count}} суб-агент",
+    "subAgents_few": "{{count}} суб-агента",
+    "subAgents_many": "{{count}} суб-агентов",
+    "subAgents_other": "{{count}} суб-агентов",
+    "mcpServers_one": "{{count}} MCP сервер",
+    "mcpServers_few": "{{count}} MCP сервера",
+    "mcpServers_many": "{{count}} MCP серверов",
+    "mcpServers_other": "{{count}} MCP серверов"
+  },
+  "create": {
+    "modalTitle": "Создать нового агента",
+    "createBtn": "Создать агента",
+    "namePlaceholder": "напр. Помощник исследователя",
+    "descPlaceholder": "Чем занимается этот агент?",
+    "promptPlaceholder": "Вы — полезный помощник, который..."
+  },
+  "detail": {
+    "notFound": "Агент не найден.",
+    "backToAgents": "< Назад к агентам",
+    "backBtn": "< Агенты",
+    "tabs": {
+      "general": "Основное",
+      "modelConfig": "Конфигурация модели",
+      "skills": "Навыки",
+      "tools": "Инструменты",
+      "subAgents": "Суб-агенты"
+    }
+  },
+  "general": {
+    "sectionTitle": "ИНФОРМАЦИЯ",
+    "deleteBtn": "Удалить агента"
+  },
+  "modelConfig": {
+    "sectionTitle": "КОНФИГУРАЦИЯ МОДЕЛИ",
+    "compactLabel": "ПОРОГ СЖАТИЯ"
+  },
+  "skills": {
+    "assigned": "НАЗНАЧЕННЫЕ НАВЫКИ",
+    "noneAssigned": "Этому агенту не назначены навыки.",
+    "addSection": "ДОБАВИТЬ НАВЫК",
+    "noneInProject": "В проекте нет навыков",
+    "goTo": "Перейти к навыкам",
+    "manage": "Управление навыками \u2192"
+  },
+  "tools": {
+    "builtinSection": "ВСТРОЕННЫЕ ИНСТРУМЕНТЫ",
+    "comingSoon": "СКОРО",
+    "customSection": "ПОЛЬЗОВАТЕЛЬСКИЕ ИНСТРУМЕНТЫ",
+    "bashDesc": "Выполнение команд Bash, чтение и запись файлов",
+    "browserDesc": "Управление браузером для автоматизации",
+    "osControlDesc": "Автоматизация рабочего стола и управление системой",
+    "taskDesc": "Создание и управление задачами в разговоре"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 ПРЕДУПРЕЖДЕНИЕ",
+    "warningText": "Сторонние MCP серверы могут получить доступ к файлам на вашем компьютере или изменить их.",
+    "enableSandboxHint": "Включите «Применить к MCP» в Настройки > Разрешения для изоляции MCP серверов.",
+    "sandboxUnavailable": "Среда Sandbox недоступна на этой платформе.",
+    "assigned": "НАЗНАЧЕННЫЕ MCP СЕРВЕРЫ",
+    "noneAssigned": "Этому агенту не назначены MCP серверы.",
+    "addSection": "ДОБАВИТЬ MCP СЕРВЕР",
+    "noneInProject": "В проекте нет MCP серверов",
+    "goTo": "Перейти к MCP серверам",
+    "manage": "Управление MCP серверами \u2192",
+    "restricted": "Ограниченный"
+  },
+  "subAgents": {
+    "assigned": "НАЗНАЧЕННЫЕ СУБ-АГЕНТЫ",
+    "noneAssigned": "Этому агенту не назначены суб-агенты.",
+    "addSection": "ДОБАВИТЬ СУБ-АГЕНТА",
+    "noneAvailable": "В этом проекте нет других доступных агентов.",
+    "unknown": "Неизвестно",
+    "rolePlaceholder": "Роль..."
+  },
+  "panel": {
+    "modelLabel": "МОДЕЛЬ",
+    "inherited": "Наследуемая",
+    "capabilities": "ВОЗМОЖНОСТИ",
+    "subAgentsLabel": "СУБ-АГЕНТЫ",
+    "openDetail": "Открыть подробности"
+  },
+  "topology": {
+    "resetLayout": "Сбросить макет",
+    "editAgent": "Изменить агента",
+    "setMainAgent": "Назначить основным агентом"
+  }
+}

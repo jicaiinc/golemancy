@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Riwayat Transkripsi"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} rekaman",
+    "recordCount_other": "{{count}} rekaman",
+    "used": "{{size}} digunakan",
+    "loading": "Memuat info penyimpanan..."
+  },
+  "clearAll": {
+    "confirm_one": "Hapus semua {{count}} rekaman?",
+    "confirm_other": "Hapus semua {{count}} rekaman?",
+    "confirmWithFree_one": "Hapus semua {{count}} rekaman dan bebaskan {{size}}?",
+    "confirmWithFree_other": "Hapus semua {{count}} rekaman dan bebaskan {{size}}?"
+  },
+  "loading": "Memuat riwayat...",
+  "empty": {
+    "hint": "Gunakan tombol mikrofon di chat\nuntuk membuat rekaman suara pertama Anda",
+    "settingsBtn": "Ke Pengaturan"
+  },
+  "player": {
+    "play": "Putar",
+    "pause": "Jeda",
+    "close": "Tutup pemutar"
+  },
+  "actions": {
+    "copy": "Salin teks transkripsi",
+    "retry": "Coba transkripsi ulang",
+    "delete": "Hapus rekaman"
+  },
+  "enable": {
+    "enabled": "Aktif",
+    "disabled": "Nonaktif",
+    "sectionTitle": "SPEECH-TO-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "TIPE",
+    "customType": "Kustom (Kompatibel OpenAI)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (WAJIB)",
+    "baseUrlOptional": "BASE URL (OPSIONAL)",
+    "baseUrlPlaceholder": "Kosongkan untuk default",
+    "modelLabel": "MODEL",
+    "modelOther": "Lainnya...",
+    "presets": "Preset",
+    "languageLabel": "BAHASA",
+    "hide": "Sembunyikan",
+    "show": "Tampilkan"
+  },
+  "test": {
+    "testing": "Menguji...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Uji Ulang",
+    "test": "Uji",
+    "failed": "Gagal",
+    "untested": "Belum diuji",
+    "unknownError": "Error tidak dikenal"
+  },
+  "history": {
+    "sectionTitle": "RIWAYAT",
+    "recordsInfo": "{{recordCount}} rekaman / {{size}}",
+    "clearAll": "Hapus Semua",
+    "confirmClear": "Hapus semua?",
+    "empty": "Belum ada transkripsi",
+    "today": "Hari Ini",
+    "yesterday": "Kemarin",
+    "transcribing": "Mentranskrip...",
+    "openChat": "Buka chat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "Hapus rekaman ini beserta file audionya?",
+    "retryConfirm": "Ini akan menimpa transkripsi yang ada.",
+    "transcriptionFailed": "Transkripsi gagal: {{error}}",
+    "retranscribe": "Transkripsi Ulang"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Nascondi cronologia chat",
+    "showHistory": "Mostra cronologia chat",
+    "new": "+ Nuova",
+    "clickToRename": "Clicca per rinominare"
+  },
+  "sidebar": {
+    "newChat": "+ Nuova Chat",
+    "noConversations": "Nessuna conversazione"
+  },
+  "window": {
+    "startConversation": "Inizia la conversazione...",
+    "compacting": "Compattazione",
+    "thinking": "In elaborazione",
+    "imageMsgTitle": "Messaggio immagine"
+  },
+  "empty": {
+    "readyToChat": "Pronto per chattare",
+    "description": "Inizia una nuova conversazione o selezionane una dalla barra laterale.",
+    "startChatting": "Inizia a Chattare",
+    "noMainAgent": "Nessun Agente Principale",
+    "configureText": "Configura un Agente Principale nelle <a>Impostazioni Progetto</a> per iniziare a chattare."
+  },
+  "input": {
+    "placeholder": "Scrivi un messaggio...",
+    "dropPlaceholder": "Rilascia le immagini qui...",
+    "attachImage": "Allega immagine",
+    "recordAudio": "Registra audio",
+    "transcribing": "Trascrizione...",
+    "transcriptionFailed": "Trascrizione fallita",
+    "startRecordingFailed": "Impossibile avviare la registrazione",
+    "retryFailed": "Nuovo tentativo fallito"
+  },
+  "message": {
+    "reasoning": "Ragionamento",
+    "untitledFile": "File senza titolo",
+    "copy": "Copia"
+  },
+  "compact": {
+    "title": "CONVERSAZIONE COMPATTATA",
+    "summary": "RIEPILOGO",
+    "tokensSummary": "{{input}} in / {{output}} out"
+  },
+  "tool": {
+    "running": "In esecuzione...",
+    "awaitingApproval": "In attesa di approvazione",
+    "approved": "Approvato",
+    "done": "Completato",
+    "denied": "Rifiutato",
+    "input": "INPUT",
+    "output": "OUTPUT",
+    "error": "ERRORE",
+    "task": "ATTIVITÀ",
+    "tools": "STRUMENTI",
+    "toolCountRunning": "[{{running}}/{{total}} strumenti]",
+    "toolCountDone": "[{{total}} strumenti]",
+    "taskCreate": "Crea Attività",
+    "taskGet": "Ottieni Attività",
+    "taskList": "Lista Attività",
+    "taskUpdate": "Aggiorna Attività"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "NOMBRE",
+    "agentName": "NOMBRE DEL AGENTE",
+    "description": "DESCRIPCIÓN",
+    "systemPrompt": "PROMPT DEL SISTEMA",
+    "provider": "PROVEEDOR",
+    "model": "MODELO"
+  },
+  "statusLabel": {
+    "idle": "inactivo",
+    "running": "ejecutando",
+    "error": "error",
+    "paused": "pausado"
+  },
+  "currentMain": "PRINCIPAL ACTUAL",
+  "currentMainTooltip": "Agente principal seleccionado para este proyecto",
+  "noProviders": "No hay proveedores configurados",
+  "noModels": "No hay modelos disponibles",
+  "savedMsg": "¡Guardado!",
+  "list": {
+    "title": "Agentes",
+    "subtitle_one": "{{count}} agente en este proyecto",
+    "subtitle_other": "{{count}} agentes en este proyecto",
+    "newBtn": "+ Nuevo Agente",
+    "viewGrid": "Cuadrícula",
+    "viewTopology": "Topología",
+    "empty": "Aún no hay agentes",
+    "createFirst": "Cree Su Primer Agente"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skills",
+    "tools_one": "{{count}} herramienta",
+    "tools_other": "{{count}} herramientas",
+    "subAgents_one": "{{count}} sub-agente",
+    "subAgents_other": "{{count}} sub-agentes",
+    "mcpServers_one": "{{count}} servidor MCP",
+    "mcpServers_other": "{{count}} servidores MCP"
+  },
+  "create": {
+    "modalTitle": "Crear Nuevo Agente",
+    "createBtn": "Crear Agente",
+    "namePlaceholder": "p. ej. Asistente de Investigación",
+    "descPlaceholder": "¿Qué hace este agente?",
+    "promptPlaceholder": "Eres un asistente útil que..."
+  },
+  "detail": {
+    "notFound": "Agente no encontrado.",
+    "backToAgents": "< Volver a Agentes",
+    "backBtn": "< Agentes",
+    "tabs": {
+      "general": "General",
+      "modelConfig": "Modelo",
+      "skills": "Skills",
+      "tools": "Herramientas",
+      "subAgents": "Sub-Agentes"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Eliminar Agente"
+  },
+  "modelConfig": {
+    "sectionTitle": "CONFIGURACIÓN DEL MODELO",
+    "compactLabel": "UMBRAL DE COMPACTACIÓN"
+  },
+  "skills": {
+    "assigned": "SKILLS ASIGNADAS",
+    "noneAssigned": "No hay skills asignadas a este agente.",
+    "addSection": "AGREGAR SKILL",
+    "noneInProject": "No hay skills en este proyecto",
+    "goTo": "Ir a Skills",
+    "manage": "Gestionar Skills \u2192"
+  },
+  "tools": {
+    "builtinSection": "HERRAMIENTAS INTEGRADAS",
+    "comingSoon": "PRÓXIMAMENTE",
+    "customSection": "HERRAMIENTAS PERSONALIZADAS",
+    "bashDesc": "Ejecutar comandos bash, leer y escribir archivos",
+    "browserDesc": "Controlar navegador web para automatización",
+    "osControlDesc": "Automatización de escritorio y control del sistema",
+    "taskDesc": "Crear y gestionar tareas dentro de la conversación"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 ADVERTENCIA",
+    "warningText": "Los servidores MCP de terceros pueden acceder o modificar archivos en su computadora.",
+    "enableSandboxHint": "Active \"Aplicar a MCP\" en Configuración > Permisos para ejecutar servidores MCP en sandbox.",
+    "sandboxUnavailable": "El entorno sandbox no está disponible en esta plataforma.",
+    "assigned": "SERVIDORES MCP ASIGNADOS",
+    "noneAssigned": "No hay servidores MCP asignados a este agente.",
+    "addSection": "AGREGAR SERVIDOR MCP",
+    "noneInProject": "No hay servidores MCP en este proyecto",
+    "goTo": "Ir a Servidores MCP",
+    "manage": "Gestionar Servidores MCP \u2192",
+    "restricted": "Restringido"
+  },
+  "subAgents": {
+    "assigned": "SUB-AGENTES ASIGNADOS",
+    "noneAssigned": "No hay sub-agentes asignados a este agente.",
+    "addSection": "AGREGAR SUB-AGENTE",
+    "noneAvailable": "No hay otros agentes disponibles en este proyecto.",
+    "unknown": "Desconocido",
+    "rolePlaceholder": "Rol..."
+  },
+  "panel": {
+    "modelLabel": "MODELO",
+    "inherited": "Heredado",
+    "capabilities": "CAPACIDADES",
+    "subAgentsLabel": "SUB-AGENTES",
+    "openDetail": "Abrir Detalle"
+  },
+  "topology": {
+    "resetLayout": "Restablecer Diseño",
+    "editAgent": "Editar Agente",
+    "setMainAgent": "Establecer como Agente Principal"
+  }
+}

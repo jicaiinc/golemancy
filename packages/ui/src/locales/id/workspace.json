@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefak",
+    "refreshBtn": "Segarkan"
+  },
+  "deleteModal": {
+    "title": "Hapus File",
+    "confirmPrefix": "Apakah Anda yakin ingin menghapus",
+    "warning": "Tindakan ini tidak dapat dibatalkan."
+  },
+  "preview": {
+    "selectFile": "Pilih file untuk pratinjau",
+    "loading": "Memuat file...",
+    "loadingImage": "Memuat gambar...",
+    "imageError": "Gagal memuat gambar: {{error}}",
+    "emptyCsv": "CSV kosong",
+    "noPreview": "Pratinjau inline tidak tersedia untuk tipe file ini",
+    "download": "DL",
+    "open": "Buka",
+    "meta": {
+      "type": "TIPE",
+      "mime": "MIME",
+      "size": "UKURAN",
+      "modified": "DIMODIFIKASI"
+    }
+  },
+  "tree": {
+    "root": "artifacts",
+    "emptyDir": "Direktori kosong"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "檔案",
+    "refreshBtn": "重新整理"
+  },
+  "deleteModal": {
+    "title": "刪除檔案",
+    "confirmPrefix": "確定要刪除",
+    "warning": "此操作無法復原。"
+  },
+  "preview": {
+    "selectFile": "選擇檔案以預覽",
+    "loading": "載入檔案...",
+    "loadingImage": "載入圖片...",
+    "imageError": "載入圖片失敗：{{error}}",
+    "emptyCsv": "空 CSV",
+    "noPreview": "此檔案類型不支援內嵌預覽",
+    "download": "下載",
+    "open": "開啟",
+    "meta": {
+      "type": "類型",
+      "mime": "MIME",
+      "size": "大小",
+      "modified": "修改時間"
+    }
+  },
+  "tree": {
+    "root": "檔案",
+    "emptyDir": "空目錄"
+  }
+}

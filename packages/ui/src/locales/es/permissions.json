@@ -1,0 +1,104 @@
+{
+  "loading": "Cargando permisos...",
+  "section": {
+    "permissionMode": "MODO DE PERMISOS",
+    "configuration": "CONFIGURACIÓN"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restringido",
+      "subtitle": "Solo Bash, sin sandbox",
+      "description": "Entorno de ejecución mínimo. Sin entorno sandbox, sin soporte MCP.",
+      "badge": "Limitado"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Aislamiento configurable",
+      "description": "Entorno sandbox con restricciones configurables de sistema de archivos, red y comandos.",
+      "badge": "Recomendado"
+    },
+    "unrestricted": {
+      "name": "Sin restricciones",
+      "subtitle": "Acceso total al sistema",
+      "description": "Sin restricciones de sandbox. Todos los comandos se ejecutan con permisos completos del sistema.",
+      "badge": "Riesgoso"
+    }
+  },
+  "config": {
+    "default": "Predeterminado",
+    "selectConfig": "Seleccionar configuración...",
+    "saveAs": "Guardar Como...",
+    "rename": "Renombrar",
+    "resetToDefault": "Restablecer Valores Predeterminados",
+    "saved": "¡Guardado!",
+    "editingDefault": "Editando valores predeterminados. Haga clic en Guardar para crear una nueva configuración con nombre."
+  },
+  "modal": {
+    "unrestrictedTitle": "¿Activar Modo Sin Restricciones?",
+    "unrestrictedBody": "Esto elimina toda la protección de sandbox. Los agentes AI tendrán acceso completo a su sistema, incluyendo:",
+    "unrestrictedReadWrite": "Leer/escribir cualquier archivo en su computadora",
+    "unrestrictedExecute": "Ejecutar cualquier comando del sistema",
+    "unrestrictedNetwork": "Acceso a la red sin restricciones",
+    "unrestrictedSysconfig": "Modificar la configuración del sistema",
+    "unrestrictedFooter": "Use esto solo para desarrollo local en entornos confiables.",
+    "enableUnrestricted": "Entiendo, Activar",
+    "sandboxUnavailableTitle": "Modo Sandbox No Disponible",
+    "sandboxUnavailableBody": "No se cumplen los requisitos previos del entorno sandbox. Se encontraron los siguientes problemas:",
+    "sandboxUnavailableFooter": "Activar el modo sandbox de todos modos causará degradación al modo restringido.",
+    "enableAnyway": "Activar de Todos Modos",
+    "saveAsTitle": "Guardar Como Nueva Configuración",
+    "configNameLabel": "NOMBRE DE CONFIGURACIÓN",
+    "configNamePlaceholder": "p. ej., Dev Estricto, Python Desactivado",
+    "renameTitle": "Renombrar Configuración",
+    "newNameLabel": "NUEVO NOMBRE",
+    "newNamePlaceholder": "p. ej., Mi Configuración Personalizada",
+    "renaming": "Renombrando...",
+    "deleteTitle": "¿Eliminar \"{{title}}\"?",
+    "deleteBody": "Esta configuración se eliminará permanentemente. El proyecto volverá a los valores predeterminados del sistema."
+  },
+  "filesystem": {
+    "sectionTitle": "PERMISOS DEL SISTEMA DE ARCHIVOS",
+    "allowWrite": "PERMITIR ESCRITURA",
+    "allowWriteHelper": "Rutas donde los agentes pueden escribir archivos. Predeterminado: directorio del espacio de trabajo del proyecto.",
+    "allowWritePlaceholder": "p. ej., /Users/nombre/workspace",
+    "denyRead": "DENEGAR LECTURA",
+    "denyReadHelper": "Archivos/carpetas sensibles para bloquear la lectura.",
+    "denyReadPlaceholder": "p. ej., ~/.ssh, .env",
+    "denyWrite": "DENEGAR ESCRITURA",
+    "denyWriteHelper": "Rutas donde la escritura está bloqueada. Tiene prioridad sobre permitir escritura.",
+    "denyWritePlaceholder": "p. ej., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "RESTRICCIONES DE RED",
+    "enableLabel": "Activar",
+    "statusEnabled": "Solo los dominios configurados son accesibles",
+    "statusDisabled": "Todo el tráfico de red está permitido",
+    "allowedDomains": "DOMINIOS PERMITIDOS",
+    "allowedDomainsHelper": "Dominios a los que los agentes pueden acceder. Exacto: example.com — Comodín: *.example.com (2+ partes después de *.)",
+    "allowedDomainsPlaceholder": "p. ej., api.github.com",
+    "deniedDomains": "DOMINIOS DENEGADOS",
+    "deniedDomainsHelper": "Dominios a bloquear. Mismo formato que dominios permitidos.",
+    "deniedDomainsPlaceholder": "p. ej., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "RESTRICCIONES DE COMANDOS",
+    "deniedCommands": "COMANDOS DENEGADOS",
+    "deniedCommandsHelper": "Comandos a bloquear de la ejecución.",
+    "deniedCommandsPlaceholder": "p. ej., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Aplicar a MCP",
+    "warning": "(\u26A0 Desactivar esto puede permitir que servidores MCP de terceros accedan o modifiquen archivos en su computadora)",
+    "description": "Cuando está activado, los comandos del servidor MCP se ejecutarán con el entorno sandbox (srt). Esto aplica las mismas restricciones de sistema de archivos, red y comandos a los servidores MCP."
+  },
+  "windows": {
+    "notice": "\u26A0 AVISO DE WINDOWS",
+    "message": "El entorno sandbox no está disponible en Windows. Solo se admite el bloqueo de comandos."
+  },
+  "validation": {
+    "removeProtocol": "Elimine protocolo, ruta o puerto — solo el dominio",
+    "wildcardParts": "El comodín necesita 2+ partes después de *. (p. ej., *.example.com)",
+    "onlyWildcard": "Solo se admite el formato de comodín *.dominio.com",
+    "validDomain": "Debe ser un dominio válido con al menos un punto (p. ej., example.com)"
+  }
+}

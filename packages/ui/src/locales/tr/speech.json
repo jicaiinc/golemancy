@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Transkripsiyon Ge\u00e7mi\u015fi"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} kay\u0131t",
+    "recordCount_other": "{{count}} kay\u0131t",
+    "used": "{{size}} kullan\u0131l\u0131yor",
+    "loading": "Depolama bilgisi y\u00fckleniyor..."
+  },
+  "clearAll": {
+    "confirm_one": "T\u00fcm {{count}} kay\u0131t silinsin mi?",
+    "confirm_other": "T\u00fcm {{count}} kay\u0131t silinsin mi?",
+    "confirmWithFree_one": "T\u00fcm {{count}} kay\u0131t silinsin ve {{size}} bo\u015falt\u0131ls\u0131n m\u0131?",
+    "confirmWithFree_other": "T\u00fcm {{count}} kay\u0131t silinsin ve {{size}} bo\u015falt\u0131ls\u0131n m\u0131?"
+  },
+  "loading": "Ge\u00e7mi\u015f y\u00fckleniyor...",
+  "empty": {
+    "hint": "\u0130lk ses kayd\u0131n\u0131z\u0131 olu\u015fturmak i\u00e7in\nsohbetteki mikrofon d\u00fc\u011fmesini kullan\u0131n",
+    "settingsBtn": "Ayarlara Git"
+  },
+  "player": {
+    "play": "Oynat",
+    "pause": "Duraklat",
+    "close": "Oynat\u0131c\u0131y\u0131 kapat"
+  },
+  "actions": {
+    "copy": "Transkripsiyon metnini kopyala",
+    "retry": "Transkripsiyonu tekrar dene",
+    "delete": "Kayd\u0131 sil"
+  },
+  "enable": {
+    "enabled": "Etkin",
+    "disabled": "Devre D\u0131\u015f\u0131",
+    "sectionTitle": "SPEECH-TO-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "SA\u011eLAYICI",
+    "typeLabel": "T\u00dcR",
+    "customType": "\u00d6zel (OpenAI Uyumlu)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (ZORUNLU)",
+    "baseUrlOptional": "BASE URL (\u0130STE\u011eE BA\u011eLI)",
+    "baseUrlPlaceholder": "Varsay\u0131lan i\u00e7in bo\u015f b\u0131rak\u0131n",
+    "modelLabel": "MODEL",
+    "modelOther": "Di\u011fer...",
+    "presets": "\u00d6n Ayarlar",
+    "languageLabel": "D\u0130L",
+    "hide": "Gizle",
+    "show": "G\u00f6ster"
+  },
+  "test": {
+    "testing": "Test ediliyor...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Tekrar Test",
+    "test": "Test",
+    "failed": "Ba\u015far\u0131s\u0131z",
+    "untested": "Test edilmedi",
+    "unknownError": "Bilinmeyen hata"
+  },
+  "history": {
+    "sectionTitle": "GE\u00c7M\u0130\u015e",
+    "recordsInfo": "{{recordCount}} kay\u0131t / {{size}}",
+    "clearAll": "T\u00fcm\u00fcn\u00fc Temizle",
+    "confirmClear": "T\u00fcm\u00fc temizlensin mi?",
+    "empty": "Hen\u00fcz transkripsiyon yok",
+    "today": "Bug\u00fcn",
+    "yesterday": "D\u00fcn",
+    "transcribing": "Yaz\u0131ya d\u00f6k\u00fcl\u00fcyor...",
+    "openChat": "Sohbeti a\u00e7 \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "HATA",
+    "deleteConfirm": "Bu kay\u0131t ve ses dosyas\u0131 silinsin mi?",
+    "retryConfirm": "Bu, mevcut transkripsiyonun \u00fczerine yazacak.",
+    "transcriptionFailed": "Transkripsiyon ba\u015far\u0131s\u0131z: {{error}}",
+    "retranscribe": "Tekrar Yaz\u0131ya D\u00f6k"
+  }
+}

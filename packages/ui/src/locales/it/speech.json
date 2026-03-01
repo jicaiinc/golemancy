@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Cronologia Trascrizioni"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} record",
+    "recordCount_other": "{{count}} record",
+    "used": "{{size}} utilizzati",
+    "loading": "Caricamento info archiviazione..."
+  },
+  "clearAll": {
+    "confirm_one": "Eliminare {{count}} record?",
+    "confirm_other": "Eliminare tutti i {{count}} record?",
+    "confirmWithFree_one": "Eliminare {{count}} record e liberare {{size}}?",
+    "confirmWithFree_other": "Eliminare tutti i {{count}} record e liberare {{size}}?"
+  },
+  "loading": "Caricamento cronologia...",
+  "empty": {
+    "hint": "Usa il pulsante microfono nella chat\nper creare la tua prima registrazione vocale",
+    "settingsBtn": "Vai alle Impostazioni"
+  },
+  "player": {
+    "play": "Riproduci",
+    "pause": "Pausa",
+    "close": "Chiudi lettore"
+  },
+  "actions": {
+    "copy": "Copia testo trascritto",
+    "retry": "Riprova trascrizione",
+    "delete": "Elimina record"
+  },
+  "enable": {
+    "enabled": "Attivo",
+    "disabled": "Disattivo",
+    "sectionTitle": "SPEECH-TO-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "TIPO",
+    "customType": "Personalizzato (compatibile OpenAI)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (OBBLIGATORIO)",
+    "baseUrlOptional": "BASE URL (OPZIONALE)",
+    "baseUrlPlaceholder": "Lascia vuoto per predefinito",
+    "modelLabel": "MODELLO",
+    "modelOther": "Altro...",
+    "presets": "Predefiniti",
+    "languageLabel": "LINGUA",
+    "hide": "Nascondi",
+    "show": "Mostra"
+  },
+  "test": {
+    "testing": "Test in corso...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Ri-testa",
+    "test": "Test",
+    "failed": "Fallito",
+    "untested": "Non testato",
+    "unknownError": "Errore sconosciuto"
+  },
+  "history": {
+    "sectionTitle": "CRONOLOGIA",
+    "recordsInfo": "{{recordCount}} record / {{size}}",
+    "clearAll": "Cancella Tutto",
+    "confirmClear": "Cancellare tutto?",
+    "empty": "Nessuna trascrizione",
+    "today": "Oggi",
+    "yesterday": "Ieri",
+    "transcribing": "Trascrizione...",
+    "openChat": "Apri chat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "Eliminare questo record e il file audio?",
+    "retryConfirm": "Questo sovrascriverà la trascrizione esistente.",
+    "transcriptionFailed": "Trascrizione fallita: {{error}}",
+    "retranscribe": "Ri-trascrivi"
+  }
+}

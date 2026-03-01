@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Configurare",
+    "skipSetup": "Omitere configurare"
+  },
+  "steps": {
+    "welcome": "Bun venit",
+    "provider": "Furnizor",
+    "speech": "Vorbire",
+    "project": "Proiect",
+    "complete": "Finalizare"
+  },
+  "error": {
+    "somethingWentWrong": "Ceva nu a funcționat. Vă rugăm să încercați din nou.",
+    "failedToSkip": "Omiterea configurării a eșuat. Vă rugăm să încercați din nou.",
+    "connectionTestFailed": "Testul de conexiune a eșuat",
+    "testFailed": "Testul a eșuat",
+    "unknownError": "Eroare necunoscută"
+  },
+  "button": {
+    "createProject": "Creare proiect",
+    "getStarted": "Începeți",
+    "continue": "Continuare",
+    "startChatting": "Începeți conversația",
+    "goToDashboard": "Mergeți la panou",
+    "change": "Modificare",
+    "testConnection": "Testare conexiune",
+    "testing": "Se testează...",
+    "reTest": "Retestare",
+    "test": "Testare",
+    "hide": "Ascundere",
+    "show": "Afișare"
+  },
+  "welcome": {
+    "tagline": "Bun venit",
+    "heading": "Comandați-vă Golemii AI",
+    "description": "Orchestrați agenți AI autonomi direct de pe desktop."
+  },
+  "provider": {
+    "heading": "Conectare furnizor AI",
+    "description": "Alegeți un furnizor și introduceți cheia API pentru a începe.",
+    "customLabel": "Personalizat",
+    "customSubtitle": "orice endpoint",
+    "customCardTitle": "FURNIZOR PERSONALIZAT",
+    "labelApiKey": "CHEIE API",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NUME",
+    "labelSdkType": "TIP SDK",
+    "statusConnected": "Conectat",
+    "statusFailed": "Eșuat",
+    "statusConnecting": "Se conectează...",
+    "none": "Niciunul",
+    "defaultModel": {
+      "title": "MODEL IMPLICIT",
+      "descriptionPreset": "Alegeți un model de utilizat implicit pentru agenți noi.",
+      "descriptionCustom": "Introduceți numele modelului de utilizat implicit.",
+      "labelModelName": "NUME MODEL"
+    }
+  },
+  "speech": {
+    "heading": "Vorbire-în-text",
+    "description": "Activați introducerea vocală pentru interacțiune mai rapidă. Puteți omite acest pas și să configurați mai târziu.",
+    "labelApiKey": "CHEIE API OPENAI",
+    "labelModel": "MODEL",
+    "labelLanguage": "LIMBĂ",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Eșuat"
+  },
+  "project": {
+    "heading": "Creați primul proiect",
+    "description": "Proiectele organizează agenții, conversațiile și fluxurile de lucru.",
+    "labelName": "NUME PROIECT",
+    "placeholderName": "Proiectul meu extraordinar",
+    "labelDescription": "DESCRIERE",
+    "placeholderDescription": "Ce va face acest proiect?",
+    "labelIcon": "PICTOGRAMĂ",
+    "fromTemplate": "DIN ȘABLON",
+    "comingSoon": "În curând"
+  },
+  "complete": {
+    "heading": "Totul este pregătit!",
+    "description": "Iată un rezumat al configurării dumneavoastră.",
+    "labelProvider": "FURNIZOR",
+    "labelDefaultModel": "MODEL IMPLICIT",
+    "labelSpeechToText": "VORBIRE-ÎN-TEXT",
+    "labelProject": "PROIECT",
+    "sttEnabled": "Activat",
+    "sttSkipped": "Omis",
+    "links": {
+      "settings": "Setări",
+      "website": "Website"
+    }
+  }
+}

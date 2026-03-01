@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefactos",
+    "refreshBtn": "Actualizar"
+  },
+  "deleteModal": {
+    "title": "Eliminar Archivo",
+    "confirmPrefix": "¿Está seguro de que desea eliminar",
+    "warning": "Esta acción no se puede deshacer."
+  },
+  "preview": {
+    "selectFile": "Seleccione un archivo para previsualizar",
+    "loading": "Cargando archivo...",
+    "loadingImage": "Cargando imagen...",
+    "imageError": "Error al cargar la imagen: {{error}}",
+    "emptyCsv": "CSV vacío",
+    "noPreview": "Vista previa no disponible para este tipo de archivo",
+    "download": "DL",
+    "open": "Abrir",
+    "meta": {
+      "type": "TIPO",
+      "mime": "MIME",
+      "size": "TAMAÑO",
+      "modified": "MODIFICADO"
+    }
+  },
+  "tree": {
+    "root": "artefactos",
+    "emptyDir": "Directorio vacío"
+  }
+}

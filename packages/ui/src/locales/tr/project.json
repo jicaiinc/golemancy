@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "PROJE ADI",
+    "description": "A\u00c7IKLAMA",
+    "icon": "S\u0130MGE",
+    "projectId": "PROJE ID"
+  },
+  "list": {
+    "title": "T\u00fcm Projeler",
+    "subtitle_one": "\u00c7al\u0131\u015fma alan\u0131n\u0131zda {{count}} proje",
+    "subtitle_other": "\u00c7al\u0131\u015fma alan\u0131n\u0131zda {{count}} proje",
+    "newBtn": "+ Yeni Proje",
+    "empty": "Hen\u00fcz proje yok",
+    "createFirst": "\u0130lk Projenizi Olu\u015fturun",
+    "openInWindow": "Yeni Pencerede A\u00e7",
+    "agents_one": "{{count}} ajan",
+    "agents_other": "{{count}} ajan",
+    "running_one": "{{count}} \u00e7al\u0131\u015f\u0131yor",
+    "running_other": "{{count}} \u00e7al\u0131\u015f\u0131yor"
+  },
+  "create": {
+    "modalTitle": "Yeni Proje Olu\u015ftur",
+    "createBtn": "Proje Olu\u015ftur",
+    "namePlaceholder": "Harika Projem",
+    "descPlaceholder": "Bu proje ne hakk\u0131nda?"
+  },
+  "settings": {
+    "title": "Proje Ayarlar\u0131",
+    "savedMsg": "Kaydedildi!",
+    "clickToCopy": "Kopyalamak i\u00e7in t\u0131klay\u0131n",
+    "tabs": {
+      "general": "Genel",
+      "agent": "Ajan",
+      "permissions": "\u0130zinler"
+    },
+    "agent": {
+      "mainLabel": "MAIN AGENT",
+      "mainDesc": "Bu projedeki yeni konu\u015fmalar i\u00e7in varsay\u0131lan ajan.",
+      "noAgents": "Bu projede ajan yok. \u00d6nce bir ajan olu\u015fturun.",
+      "goToAgents": "Ajanlara Git",
+      "none": "Yok",
+      "configure": "Ajan\u0131 Yap\u0131land\u0131r \u2192"
+    },
+    "general": {
+      "sectionTitle": "TEMEL B\u0130LG\u0130",
+      "saveBtn": "De\u011fi\u015fiklikleri Kaydet"
+    }
+  }
+}

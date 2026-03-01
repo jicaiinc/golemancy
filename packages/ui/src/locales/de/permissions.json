@@ -1,0 +1,104 @@
+{
+  "loading": "Berechtigungen laden...",
+  "section": {
+    "permissionMode": "BERECHTIGUNGSMODUS",
+    "configuration": "KONFIGURATION"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Eingeschränkt",
+      "subtitle": "Nur Bash, keine Sandbox",
+      "description": "Minimale Ausführungsumgebung. Keine Sandbox-Runtime, kein MCP-Support.",
+      "badge": "Begrenzt"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Konfigurierbare Isolation",
+      "description": "Sandbox-Runtime mit konfigurierbaren Dateisystem-, Netzwerk- und Befehlsbeschränkungen.",
+      "badge": "Empfohlen"
+    },
+    "unrestricted": {
+      "name": "Uneingeschränkt",
+      "subtitle": "Voller Systemzugriff",
+      "description": "Keine Sandbox-Beschränkungen. Alle Befehle werden mit vollen Systemberechtigungen ausgeführt.",
+      "badge": "Riskant"
+    }
+  },
+  "config": {
+    "default": "Standard",
+    "selectConfig": "Konfiguration auswählen...",
+    "saveAs": "Speichern unter...",
+    "rename": "Umbenennen",
+    "resetToDefault": "Auf Standard zurücksetzen",
+    "saved": "Gespeichert!",
+    "editingDefault": "Standardwerte bearbeiten. Klicken Sie auf Speichern, um eine neue benannte Konfiguration zu erstellen."
+  },
+  "modal": {
+    "unrestrictedTitle": "Uneingeschränkten Modus aktivieren?",
+    "unrestrictedBody": "Dies entfernt den gesamten Sandbox-Schutz. AI-Agenten haben vollen Zugriff auf Ihr System, einschließlich:",
+    "unrestrictedReadWrite": "Lesen/Schreiben jeder Datei auf Ihrem Computer",
+    "unrestrictedExecute": "Ausführen jedes Systembefehls",
+    "unrestrictedNetwork": "Uneingeschränkter Netzwerkzugriff",
+    "unrestrictedSysconfig": "Ändern der Systemkonfiguration",
+    "unrestrictedFooter": "Nur für lokale Entwicklung in vertrauenswürdigen Umgebungen verwenden.",
+    "enableUnrestricted": "Verstanden, Aktivieren",
+    "sandboxUnavailableTitle": "Sandbox-Modus nicht verfügbar",
+    "sandboxUnavailableBody": "Die Voraussetzungen für die Sandbox-Runtime sind nicht erfüllt. Folgende Probleme wurden gefunden:",
+    "sandboxUnavailableFooter": "Die Aktivierung des Sandbox-Modus führt dennoch zu einer Herabstufung auf den eingeschränkten Modus.",
+    "enableAnyway": "Trotzdem aktivieren",
+    "saveAsTitle": "Als neue Konfiguration speichern",
+    "configNameLabel": "KONFIGURATIONSNAME",
+    "configNamePlaceholder": "z.B., Strenge Entwicklung, Python Deaktiviert",
+    "renameTitle": "Konfiguration umbenennen",
+    "newNameLabel": "NEUER NAME",
+    "newNamePlaceholder": "z.B., Meine Konfiguration",
+    "renaming": "Umbenennen...",
+    "deleteTitle": "\"{{title}}\" löschen?",
+    "deleteBody": "Diese Konfiguration wird dauerhaft gelöscht. Das Projekt wird auf Systemstandards zurückgesetzt."
+  },
+  "filesystem": {
+    "sectionTitle": "DATEISYSTEM-BERECHTIGUNGEN",
+    "allowWrite": "SCHREIBEN ERLAUBEN",
+    "allowWriteHelper": "Pfade, in denen Agenten Dateien schreiben dürfen. Standard: Projekt-Arbeitsverzeichnis.",
+    "allowWritePlaceholder": "z.B., /Users/name/workspace",
+    "denyRead": "LESEN VERWEIGERN",
+    "denyReadHelper": "Sensible Dateien/Ordner, die vom Lesen ausgeschlossen werden.",
+    "denyReadPlaceholder": "z.B., ~/.ssh, .env",
+    "denyWrite": "SCHREIBEN VERWEIGERN",
+    "denyWriteHelper": "Pfade, in denen das Schreiben blockiert ist. Hat Vorrang vor Schreiben erlauben.",
+    "denyWritePlaceholder": "z.B., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "NETZWERKBESCHRÄNKUNGEN",
+    "enableLabel": "Aktivieren",
+    "statusEnabled": "Nur konfigurierte Domains sind erreichbar",
+    "statusDisabled": "Gesamter Netzwerkverkehr ist erlaubt",
+    "allowedDomains": "ERLAUBTE DOMAINS",
+    "allowedDomainsHelper": "Domains, auf die Agenten zugreifen können. Exakt: example.com — Wildcard: *.example.com (2+ Teile nach *.)",
+    "allowedDomainsPlaceholder": "z.B., api.github.com",
+    "deniedDomains": "BLOCKIERTE DOMAINS",
+    "deniedDomainsHelper": "Domains, die blockiert werden. Gleiches Format wie erlaubte Domains.",
+    "deniedDomainsPlaceholder": "z.B., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "BEFEHLSBESCHRÄNKUNGEN",
+    "deniedCommands": "BLOCKIERTE BEFEHLE",
+    "deniedCommandsHelper": "Befehle, die von der Ausführung ausgeschlossen werden.",
+    "deniedCommandsPlaceholder": "z.B., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Auf MCP anwenden",
+    "warning": "(\u26A0 Das Deaktivieren kann Drittanbieter-MCP-Servern erlauben, auf Dateien auf Ihrem Computer zuzugreifen oder diese zu ändern)",
+    "description": "Wenn aktiviert, werden MCP-Server-Befehle in der Sandbox-Runtime (srt) ausgeführt. Dies wendet die gleichen Dateisystem-, Netzwerk- und Befehlsbeschränkungen auf MCP-Server an."
+  },
+  "windows": {
+    "notice": "\u26A0 WINDOWS-HINWEIS",
+    "message": "Die Sandbox-Runtime ist unter Windows nicht verfügbar. Nur Befehlsblockierung wird unterstützt."
+  },
+  "validation": {
+    "removeProtocol": "Entfernen Sie Protokoll, Pfad oder Port — nur die Domain",
+    "wildcardParts": "Wildcard benötigt 2+ Teile nach *. (z.B., *.example.com)",
+    "onlyWildcard": "Nur das Wildcard-Format *.domain.com wird unterstützt",
+    "validDomain": "Muss eine gültige Domain mit mindestens einem Punkt sein (z.B., example.com)"
+  }
+}

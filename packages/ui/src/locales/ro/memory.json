@@ -1,0 +1,30 @@
+{
+  "page": {
+    "title": "Bancă de memorie",
+    "entryCount_one": "{{count}} amintire",
+    "entryCount_few": "{{count}} amintiri",
+    "entryCount_other": "{{count}} de amintiri",
+    "addEntryBtn": "+ Adăugare intrare"
+  },
+  "search": {
+    "placeholder": "Căutare amintiri după conținut, sursă sau etichetă..."
+  },
+  "filter": {
+    "all": "toate"
+  },
+  "loading": "Se încarcă amintirile...",
+  "empty": {
+    "noMatch": "Nicio amintire potrivită",
+    "noEntries": "Nicio amintire încă",
+    "hint": "Amintirile ajută agenții să păstreze contextul între conversații"
+  },
+  "form": {
+    "addTitle": "Adăugare intrare memorie",
+    "editTitle": "Editare intrare memorie",
+    "contentLabel": "CONȚINUT",
+    "sourceLabel": "SURSĂ",
+    "sourcePlaceholder": "ex. Cercetător",
+    "tagsLabel": "ETICHETE (separate prin virgulă)",
+    "tagsPlaceholder": "ex. strategie, public"
+  }
+}

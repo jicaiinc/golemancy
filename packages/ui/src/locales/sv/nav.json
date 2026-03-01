@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Översikt",
+    "chats": "Chattar",
+    "automations": "Automatiseringar",
+    "agents": "Agenter",
+    "skills": "Skills",
+    "mcpServers": "MCP Servers",
+    "tasks": "Konversationsuppgifter",
+    "artifacts": "Artefakter",
+    "memory": "Minne",
+    "settings": "Inställningar"
+  },
+  "sidebar": {
+    "navigation": "NAVIGERING",
+    "config": "KONFIGURATION",
+    "collapse": "<< Fäll ihop"
+  },
+  "global": {
+    "allProjects": "Alla projekt",
+    "dashboard": "Översikt",
+    "settings": "Inställningar"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Begränsad",
+      "sandbox": "Sandbox",
+      "unrestricted": "Obegränsad"
+    },
+    "degraded": "(degraderad → {{mode}})",
+    "tasks": "Uppgifter {{completed}}/{{total}}",
+    "conversationTasks": "KONVERSATIONSUPPGIFTER",
+    "contextUsage": "Kontext: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Kontext: -- / {{max}}",
+    "contextWindow": "KONTEXTFÖNSTER",
+    "usage": "Användning",
+    "compacting": "Komprimerar",
+    "compactingAuto": "Komprimerar (auto)",
+    "compactNow": "Komprimera nu",
+    "byAgent": "PER AGENT",
+    "byModel": "PER MODELL",
+    "tokensInOut": "{{input}} in / {{output}} ut",
+    "tokens": "Tokens: {{input}} in / {{output}} ut",
+    "tokensEmpty": "Tokens: --"
+  }
+}

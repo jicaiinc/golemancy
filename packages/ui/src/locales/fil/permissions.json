@@ -1,0 +1,104 @@
+{
+  "loading": "Nilo-load ang mga pahintulot...",
+  "section": {
+    "permissionMode": "MODE NG PAHINTULOT",
+    "configuration": "CONFIGURATION"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restricted",
+      "subtitle": "Bash lang, walang sandbox",
+      "description": "Pinakamababang execution environment. Walang sandbox runtime, walang MCP support.",
+      "badge": "Limitado"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Maaaring i-configure na isolation",
+      "description": "Sandbox runtime na may maaaring i-configure na filesystem, network, at command restrictions.",
+      "badge": "Inirerekomenda"
+    },
+    "unrestricted": {
+      "name": "Unrestricted",
+      "subtitle": "Buong access sa system",
+      "description": "Walang sandbox restrictions. Lahat ng commands ay tumatakbo na may buong system permissions.",
+      "badge": "May Panganib"
+    }
+  },
+  "config": {
+    "default": "Default",
+    "selectConfig": "Pumili ng config...",
+    "saveAs": "I-save Bilang...",
+    "rename": "Palitan ang Pangalan",
+    "resetToDefault": "I-reset sa Default",
+    "saved": "Na-save!",
+    "editingDefault": "Ine-edit ang default values. I-click ang Save para gumawa ng bagong named configuration."
+  },
+  "modal": {
+    "unrestrictedTitle": "I-enable ang Unrestricted Mode?",
+    "unrestrictedBody": "Aalisin nito ang lahat ng sandbox protection. Ang mga AI agent ay magkakaroon ng buong access sa iyong system, kabilang ang:",
+    "unrestrictedReadWrite": "Magbasa/magsulat ng anumang file sa iyong computer",
+    "unrestrictedExecute": "Mag-execute ng anumang system command",
+    "unrestrictedNetwork": "Mag-access ng network nang walang restrictions",
+    "unrestrictedSysconfig": "Baguhin ang system configuration",
+    "unrestrictedFooter": "Gamitin lamang ito para sa local development sa mga pinagkakatiwalaang environment.",
+    "enableUnrestricted": "Naiintindihan Ko, I-enable",
+    "sandboxUnavailableTitle": "Hindi Available ang Sandbox Mode",
+    "sandboxUnavailableBody": "Hindi natutugunan ang mga prerequisite ng sandbox runtime. Ang mga sumusunod na isyu ang natagpuan:",
+    "sandboxUnavailableFooter": "Ang pag-enable ng sandbox mode kahit na ganito ay magiging sanhi ng runtime degradation sa restricted mode.",
+    "enableAnyway": "I-enable Pa Rin",
+    "saveAsTitle": "I-save Bilang Bagong Configuration",
+    "configNameLabel": "PANGALAN NG CONFIG",
+    "configNamePlaceholder": "hal., Strict Dev, Python Disabled",
+    "renameTitle": "Palitan ang Pangalan ng Configuration",
+    "newNameLabel": "BAGONG PANGALAN",
+    "newNamePlaceholder": "hal., Custom Config Ko",
+    "renaming": "Pinapalitan ang pangalan...",
+    "deleteTitle": "I-delete ang \"{{title}}\"?",
+    "deleteBody": "Permanenteng ide-delete ang configuration na ito. Babalik ang project sa system defaults."
+  },
+  "filesystem": {
+    "sectionTitle": "MGA PAHINTULOT SA FILESYSTEM",
+    "allowWrite": "PAYAGAN ANG PAGSULAT",
+    "allowWriteHelper": "Mga path kung saan maaaring magsulat ng files ang mga agent. Default: project workspace directory.",
+    "allowWritePlaceholder": "hal., /Users/name/workspace",
+    "denyRead": "TANGGIHAN ANG PAGBASA",
+    "denyReadHelper": "Mga sensitibong file/folder na na-block sa pagbabasa.",
+    "denyReadPlaceholder": "hal., ~/.ssh, .env",
+    "denyWrite": "TANGGIHAN ANG PAGSULAT",
+    "denyWriteHelper": "Mga path kung saan na-block ang pagsulat. Mas mataas ang priority kaysa sa payagan ang pagsulat.",
+    "denyWritePlaceholder": "hal., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "MGA NETWORK RESTRICTION",
+    "enableLabel": "I-enable",
+    "statusEnabled": "Tanging mga naka-configure na domain lang ang maa-access",
+    "statusDisabled": "Lahat ng network traffic ay pinapayagan",
+    "allowedDomains": "MGA PINAPAYAGANG DOMAIN",
+    "allowedDomainsHelper": "Mga domain na maa-access ng mga agent. Eksakto: example.com — Wildcard: *.example.com (2+ bahagi pagkatapos ng *.)",
+    "allowedDomainsPlaceholder": "hal., api.github.com",
+    "deniedDomains": "MGA TINANGGIHANG DOMAIN",
+    "deniedDomainsHelper": "Mga domain na bina-block. Parehong format sa mga pinapayagang domain.",
+    "deniedDomainsPlaceholder": "hal., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "MGA COMMAND RESTRICTION",
+    "deniedCommands": "MGA TINANGGIHANG COMMAND",
+    "deniedCommandsHelper": "Mga command na bina-block sa pag-execute.",
+    "deniedCommandsPlaceholder": "hal., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "I-apply sa MCP",
+    "warning": "(\u26A0 Ang pag-disable nito ay maaaring payagan ang third-party MCP servers na ma-access o mabago ang mga file sa iyong computer)",
+    "description": "Kapag naka-enable, ang mga MCP server command ay ibibalot ng sandbox runtime (srt). Inaapply nito ang parehong filesystem, network, at command restrictions sa mga MCP server."
+  },
+  "windows": {
+    "notice": "\u26A0 PAUNAWA PARA SA WINDOWS",
+    "message": "Hindi available ang Sandbox runtime sa Windows. Command blocking lang ang sinusuportahan."
+  },
+  "validation": {
+    "removeProtocol": "Alisin ang protocol, path, o port — domain lang",
+    "wildcardParts": "Kailangan ng wildcard ng 2+ bahagi pagkatapos ng *. (hal., *.example.com)",
+    "onlyWildcard": "Tanging *.domain.com wildcard format lang ang sinusuportahan",
+    "validDomain": "Dapat valid na domain na may kahit isang tuldok (hal., example.com)"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Глобальные настройки"
+  },
+  "tabs": {
+    "general": "Основное",
+    "providers": "Провайдеры",
+    "speech": "Речь"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Управляйте своими AI Golem'ами"
+  },
+  "general": {
+    "appearance": "ОФОРМЛЕНИЕ",
+    "light": "Светлая",
+    "dark": "Тёмная",
+    "system": "Системная",
+    "language": "ЯЗЫК"
+  },
+  "defaultModel": {
+    "sectionTitle": "МОДЕЛЬ ПО УМОЛЧАНИЮ",
+    "description": "Используется при создании новых проектов и агентов.",
+    "providerLabel": "ПРОВАЙДЕР",
+    "modelLabel": "МОДЕЛЬ",
+    "noProvider": "-- Нет --",
+    "selectProviderFirst": "-- Сначала выберите провайдера --",
+    "noModels": "Нет доступных моделей",
+    "saved": "Сохранено!"
+  },
+  "providers": {
+    "sectionTitle": "ПРОВАЙДЕРЫ",
+    "addProvider": "+ Добавить провайдера",
+    "selectProvider": "ВЫБЕРИТЕ ПРОВАЙДЕРА",
+    "customProvider": "ПОЛЬЗОВАТЕЛЬСКИЙ ПРОВАЙДЕР",
+    "custom": "Пользовательский",
+    "anyEndpoint": "любой endpoint",
+    "nameLabel": "НАЗВАНИЕ",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "ТИП SDK",
+    "empty": "Провайдеры не настроены. Нажмите «+ Добавить провайдера», чтобы начать."
+  },
+  "provider": {
+    "testing": "Тестирование...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Ошибка",
+    "untested": "Не проверено",
+    "noKey": "Нет ключа",
+    "retest": "Перепроверить",
+    "test": "Тест",
+    "del": "Удл",
+    "deleteConfirm": "Удалить {{name}}? Это действие нельзя отменить.",
+    "apiKeyLabel": "API ключ:",
+    "notSet": "не задан",
+    "hide": "Скрыть",
+    "show": "Показать",
+    "urlLabel": "URL:",
+    "modelsCount": "Модели ({{count}})",
+    "addModel": "+ Добавить модель",
+    "apiKeyInputLabel": "API КЛЮЧ",
+    "baseUrlOptional": "BASE URL (необязательно)",
+    "hideKey": "Скрыть ключ",
+    "showKey": "Показать ключ"
+  },
+  "threshold": {
+    "tokens": "токенов"
+  }
+}

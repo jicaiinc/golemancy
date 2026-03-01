@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artifak",
+    "refreshBtn": "Muat Semula"
+  },
+  "deleteModal": {
+    "title": "Padam Fail",
+    "confirmPrefix": "Adakah anda pasti ingin memadam",
+    "warning": "Tindakan ini tidak boleh dibatalkan."
+  },
+  "preview": {
+    "selectFile": "Pilih fail untuk pratonton",
+    "loading": "Memuatkan fail...",
+    "loadingImage": "Memuatkan gambar...",
+    "imageError": "Gagal memuatkan gambar: {{error}}",
+    "emptyCsv": "CSV kosong",
+    "noPreview": "Pratonton inline tidak tersedia untuk jenis fail ini",
+    "download": "DL",
+    "open": "Buka",
+    "meta": {
+      "type": "JENIS",
+      "mime": "MIME",
+      "size": "SAIZ",
+      "modified": "DIUBAH SUAI"
+    }
+  },
+  "tree": {
+    "root": "artifacts",
+    "emptyDir": "Direktori kosong"
+  }
+}

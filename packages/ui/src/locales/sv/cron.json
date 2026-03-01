@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automatiseringar",
+    "newBtn": "+ Ny"
+  },
+  "empty": {
+    "noJobs": "Inga automatiseringar ännu",
+    "createFirstBtn": "Skapa första automatiseringen"
+  },
+  "job": {
+    "runBtn": "Kör",
+    "historyBtn": "Historik",
+    "runningStatus": "Kör...",
+    "viewChat": "Visa chatt →",
+    "next": "Nästa: {{time}}",
+    "at": "Kl {{time}}",
+    "agentNotFound": "Agent hittades inte",
+    "overdue": "försenad",
+    "once": "engångs"
+  },
+  "delete": {
+    "title": "Radera automatisering",
+    "confirm": "Är du säker på att du vill radera \"{{name}}\"? Denna åtgärd kan inte ångras."
+  },
+  "runsModal": {
+    "titleWithName": "Körhistorik — {{name}}",
+    "title": "Körhistorik",
+    "noRuns": "Inga körningar ännu",
+    "openChat": "ÖPPNA CHATT →"
+  },
+  "status": {
+    "success": "lyckad",
+    "error": "fel",
+    "running": "kör"
+  },
+  "form": {
+    "newTitle": "Ny automatisering",
+    "editTitle": "Redigera automatisering",
+    "nameLabel": "NAMN",
+    "namePlaceholder": "Daglig kodgranskning",
+    "typeLabel": "TYP",
+    "recurring": "Återkommande",
+    "oneTime": "Engångs",
+    "cronLabel": "CRON-UTTRYCK",
+    "scheduledAtLabel": "SCHEMALAGD TID (lokal tid)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Välj en agent",
+    "instructionLabel": "INSTRUKTION (valfritt)",
+    "instructionPlaceholder": "Instruktioner att skicka till agenten vid aktivering",
+    "enabledLabel": "Aktiverad",
+    "presets": {
+      "every5min": "Var 5:e min",
+      "everyHour": "Varje timme",
+      "every12h": "Var 12:e h",
+      "daily9am": "Dagligen kl 9",
+      "weeklyMon": "Varje måndag"
+    },
+    "invalidExpression": "Ogiltigt uttryck"
+  }
+}

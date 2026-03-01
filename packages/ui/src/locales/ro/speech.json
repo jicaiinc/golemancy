@@ -1,0 +1,84 @@
+{
+  "page": {
+    "title": "Istoric transcrieri"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} înregistrare",
+    "recordCount_few": "{{count}} înregistrări",
+    "recordCount_other": "{{count}} de înregistrări",
+    "used": "{{size}} utilizat",
+    "loading": "Se încarcă informațiile de stocare..."
+  },
+  "clearAll": {
+    "confirm_one": "Ștergeți {{count}} înregistrare?",
+    "confirm_few": "Ștergeți toate cele {{count}} înregistrări?",
+    "confirm_other": "Ștergeți toate cele {{count}} de înregistrări?",
+    "confirmWithFree_one": "Ștergeți {{count}} înregistrare și eliberați {{size}}?",
+    "confirmWithFree_few": "Ștergeți toate cele {{count}} înregistrări și eliberați {{size}}?",
+    "confirmWithFree_other": "Ștergeți toate cele {{count}} de înregistrări și eliberați {{size}}?"
+  },
+  "loading": "Se încarcă istoricul...",
+  "empty": {
+    "hint": "Utilizați butonul de microfon din conversație\npentru a crea prima înregistrare vocală",
+    "settingsBtn": "Mergeți la setări"
+  },
+  "player": {
+    "play": "Redare",
+    "pause": "Pauză",
+    "close": "Închidere player"
+  },
+  "actions": {
+    "copy": "Copiere text transcris",
+    "retry": "Reîncercare transcriere",
+    "delete": "Ștergere înregistrare"
+  },
+  "enable": {
+    "enabled": "Activat",
+    "disabled": "Dezactivat",
+    "sectionTitle": "VORBIRE-ÎN-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "FURNIZOR",
+    "typeLabel": "TIP",
+    "customType": "Personalizat (compatibil OpenAI)",
+    "apiKeyLabel": "CHEIE API",
+    "baseUrlRequired": "BASE URL (OBLIGATORIU)",
+    "baseUrlOptional": "BASE URL (OPȚIONAL)",
+    "baseUrlPlaceholder": "Lăsați gol pentru implicit",
+    "modelLabel": "MODEL",
+    "modelOther": "Altul...",
+    "presets": "Presetări",
+    "languageLabel": "LIMBĂ",
+    "hide": "Ascundere",
+    "show": "Afișare"
+  },
+  "test": {
+    "testing": "Se testează...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Retestare",
+    "test": "Testare",
+    "failed": "Eșuat",
+    "untested": "Netestat",
+    "unknownError": "Eroare necunoscută"
+  },
+  "history": {
+    "sectionTitle": "ISTORIC",
+    "recordsInfo": "{{recordCount}} înregistrări / {{size}}",
+    "clearAll": "Ștergere tot",
+    "confirmClear": "Ștergeți tot?",
+    "empty": "Nicio transcriere încă",
+    "today": "Astăzi",
+    "yesterday": "Ieri",
+    "transcribing": "Se transcrie...",
+    "openChat": "Deschidere conversație \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "Ștergeți această înregistrare și fișierul audio?",
+    "retryConfirm": "Aceasta va suprascrie transcrierea existentă.",
+    "transcriptionFailed": "Transcrierea a eșuat: {{error}}",
+    "retranscribe": "Re-transcriere"
+  }
+}

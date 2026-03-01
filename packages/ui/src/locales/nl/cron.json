@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automatiseringen",
+    "newBtn": "+ Nieuw"
+  },
+  "empty": {
+    "noJobs": "Nog geen automatiseringen",
+    "createFirstBtn": "Eerste Automatisering Aanmaken"
+  },
+  "job": {
+    "runBtn": "Uitvoeren",
+    "historyBtn": "Geschiedenis",
+    "runningStatus": "Wordt uitgevoerd...",
+    "viewChat": "Chat Bekijken →",
+    "next": "Volgende: {{time}}",
+    "at": "Om {{time}}",
+    "agentNotFound": "Agent niet gevonden",
+    "overdue": "achterstallig",
+    "once": "eenmalig"
+  },
+  "delete": {
+    "title": "Automatisering Verwijderen",
+    "confirm": "\"{{name}}\" verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+  },
+  "runsModal": {
+    "titleWithName": "Uitvoeringsgeschiedenis — {{name}}",
+    "title": "Uitvoeringsgeschiedenis",
+    "noRuns": "Nog geen uitvoeringen",
+    "openChat": "CHAT OPENEN →"
+  },
+  "status": {
+    "success": "geslaagd",
+    "error": "fout",
+    "running": "actief"
+  },
+  "form": {
+    "newTitle": "Nieuwe Automatisering",
+    "editTitle": "Automatisering Bewerken",
+    "nameLabel": "NAAM",
+    "namePlaceholder": "Dagelijkse code-review",
+    "typeLabel": "TYPE",
+    "recurring": "Terugkerend",
+    "oneTime": "Eenmalig",
+    "cronLabel": "CRON-EXPRESSIE",
+    "scheduledAtLabel": "GEPLAND TIJDSTIP (lokale tijd)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Selecteer een agent",
+    "instructionLabel": "INSTRUCTIE (optioneel)",
+    "instructionPlaceholder": "Instructies om naar de agent te sturen bij activering",
+    "enabledLabel": "Ingeschakeld",
+    "presets": {
+      "every5min": "Elke 5 min",
+      "everyHour": "Elk uur",
+      "every12h": "Elke 12u",
+      "daily9am": "Dagelijks 9u",
+      "weeklyMon": "Wekelijks ma"
+    },
+    "invalidExpression": "Ongeldige expressie"
+  }
+}

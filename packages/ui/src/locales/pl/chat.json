@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Ukryj historię czatu",
+    "showHistory": "Pokaż historię czatu",
+    "new": "+ Nowy",
+    "clickToRename": "Kliknij, aby zmienić nazwę"
+  },
+  "sidebar": {
+    "newChat": "+ Nowy czat",
+    "noConversations": "Brak rozmów"
+  },
+  "window": {
+    "startConversation": "Rozpocznij rozmowę...",
+    "compacting": "Kompresja",
+    "thinking": "Myślenie",
+    "imageMsgTitle": "Obraz"
+  },
+  "empty": {
+    "readyToChat": "Gotowy do rozmowy",
+    "description": "Rozpocznij nową rozmowę lub wybierz istniejącą z panelu bocznego.",
+    "startChatting": "Rozpocznij czat",
+    "noMainAgent": "Brak agenta głównego",
+    "configureText": "Skonfiguruj agenta głównego w <a>Ustawieniach projektu</a>, aby rozpocząć czat."
+  },
+  "input": {
+    "placeholder": "Wpisz wiadomość...",
+    "dropPlaceholder": "Upuść obrazy tutaj...",
+    "attachImage": "Załącz obraz",
+    "recordAudio": "Nagraj dźwięk",
+    "transcribing": "Transkrypcja...",
+    "transcriptionFailed": "Transkrypcja nie powiodła się",
+    "startRecordingFailed": "Nie udało się rozpocząć nagrywania",
+    "retryFailed": "Ponowna próba nie powiodła się"
+  },
+  "message": {
+    "reasoning": "Rozumowanie",
+    "untitledFile": "Bez tytułu",
+    "copy": "Kopiuj"
+  },
+  "compact": {
+    "title": "ROZMOWA SKOMPRESOWANA",
+    "summary": "PODSUMOWANIE",
+    "tokensSummary": "{{input}} wej / {{output}} wyj"
+  },
+  "tool": {
+    "running": "Wykonywanie...",
+    "awaitingApproval": "Oczekiwanie na zatwierdzenie",
+    "approved": "Zatwierdzone",
+    "done": "Gotowe",
+    "denied": "Odrzucone",
+    "input": "WEJŚCIE",
+    "output": "WYJŚCIE",
+    "error": "BŁĄD",
+    "task": "ZADANIE",
+    "tools": "NARZĘDZIA",
+    "toolCountRunning": "[{{running}}/{{total}} narzędzi]",
+    "toolCountDone": "[{{total}} narzędzi]",
+    "taskCreate": "Utwórz zadanie",
+    "taskGet": "Pobierz zadanie",
+    "taskList": "Lista zadań",
+    "taskUpdate": "Zaktualizuj zadanie"
+  }
+}

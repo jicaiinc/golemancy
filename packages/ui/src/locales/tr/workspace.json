@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Eserler",
+    "refreshBtn": "Yenile"
+  },
+  "deleteModal": {
+    "title": "Dosyay\u0131 Sil",
+    "confirmPrefix": "Silmek istedi\u011finizden emin misiniz",
+    "warning": "Bu i\u015flem geri al\u0131namaz."
+  },
+  "preview": {
+    "selectFile": "\u00d6nizlemek i\u00e7in dosya se\u00e7in",
+    "loading": "Dosya y\u00fckleniyor...",
+    "loadingImage": "G\u00f6rsel y\u00fckleniyor...",
+    "imageError": "G\u00f6rsel y\u00fcklenemedi: {{error}}",
+    "emptyCsv": "Bo\u015f CSV",
+    "noPreview": "Bu dosya t\u00fcr\u00fc i\u00e7in sat\u0131r i\u00e7i \u00f6nizleme mevcut de\u011fil",
+    "download": "DL",
+    "open": "A\u00e7",
+    "meta": {
+      "type": "T\u00dcR",
+      "mime": "MIME",
+      "size": "BOYUT",
+      "modified": "DE\u011e\u0130\u015eT\u0130R\u0130LME"
+    }
+  },
+  "tree": {
+    "root": "artifacts",
+    "emptyDir": "Bo\u015f dizin"
+  }
+}

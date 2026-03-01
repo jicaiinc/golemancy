@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Annulla",
+    "save": "Salva",
+    "saving": "Salvataggio...",
+    "saved": "Salvato",
+    "delete": "Elimina",
+    "deleting": "Eliminazione...",
+    "edit": "Modifica",
+    "add": "Aggiungi",
+    "confirm": "Conferma",
+    "retry": "Riprova",
+    "back": "Indietro",
+    "next": "Avanti",
+    "close": "Chiudi",
+    "create": "Crea",
+    "creating": "Creazione...",
+    "refresh": "Aggiorna",
+    "send": "Invia",
+    "stop": "Ferma",
+    "dismiss": "Ignora",
+    "done": "Fatto",
+    "copy": "Copia"
+  },
+  "status": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo"
+  },
+  "time": {
+    "justNow": "adesso",
+    "minsAgo_one": "{{count}}m fa",
+    "minsAgo_other": "{{count}}m fa",
+    "hoursAgo_one": "{{count}}h fa",
+    "hoursAgo_other": "{{count}}h fa",
+    "daysAgo_one": "{{count}}g fa",
+    "daysAgo_other": "{{count}}g fa",
+    "now": "ora",
+    "inMins_one": "tra {{count}}m",
+    "inMins_other": "tra {{count}}m",
+    "inHours_one": "tra {{count}}h",
+    "inHours_other": "tra {{count}}h",
+    "inDays_one": "tra {{count}}g",
+    "inDays_other": "tra {{count}}g",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Elimina",
+    "deleteMessage": "Questa azione non può essere annullata.",
+    "areYouSure": "Confermare?"
+  },
+  "empty": {
+    "noData": "Nessun dato"
+  },
+  "list": {
+    "noneConfigured": "Nessuno configurato"
+  },
+  "label": {
+    "name": "Nome",
+    "description": "Descrizione",
+    "type": "Tipo",
+    "enabled": "Attivo",
+    "disabled": "Disattivo"
+  },
+  "dropZone": {
+    "releaseToDrop": "Rilascia per caricare",
+    "dragAndDrop": "Trascina i file qui, o clicca per caricare",
+    "accepts": "Formati accettati: {{extensions}}"
+  }
+}

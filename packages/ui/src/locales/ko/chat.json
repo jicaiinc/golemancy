@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "채팅 기록 숨기기",
+    "showHistory": "채팅 기록 표시",
+    "new": "+ 새로 만들기",
+    "clickToRename": "클릭하여 이름 변경"
+  },
+  "sidebar": {
+    "newChat": "+ 새 채팅",
+    "noConversations": "대화 없음"
+  },
+  "window": {
+    "startConversation": "대화를 시작하세요...",
+    "compacting": "압축 중",
+    "thinking": "생각 중",
+    "imageMsgTitle": "이미지 메시지"
+  },
+  "empty": {
+    "readyToChat": "채팅 준비 완료",
+    "description": "새 대화를 시작하거나 사이드바에서 선택하세요.",
+    "startChatting": "채팅 시작",
+    "noMainAgent": "메인 Agent 미설정",
+    "configureText": "<a>프로젝트 설정</a>에서 메인 Agent를 설정하여 채팅을 시작하세요."
+  },
+  "input": {
+    "placeholder": "메시지를 입력하세요...",
+    "dropPlaceholder": "이미지를 여기에 드롭하세요...",
+    "attachImage": "이미지 첨부",
+    "recordAudio": "음성 녹음",
+    "transcribing": "전사 중...",
+    "transcriptionFailed": "전사 실패",
+    "startRecordingFailed": "녹음 시작 실패",
+    "retryFailed": "재시도 실패"
+  },
+  "message": {
+    "reasoning": "추론",
+    "untitledFile": "제목 없는 파일",
+    "copy": "복사"
+  },
+  "compact": {
+    "title": "대화가 압축되었습니다",
+    "summary": "요약",
+    "tokensSummary": "{{input}} 입력 / {{output}} 출력"
+  },
+  "tool": {
+    "running": "실행 중...",
+    "awaitingApproval": "승인 대기",
+    "approved": "승인됨",
+    "done": "완료",
+    "denied": "거부됨",
+    "input": "입력",
+    "output": "출력",
+    "error": "오류",
+    "task": "작업",
+    "tools": "도구",
+    "toolCountRunning": "[{{running}}/{{total}} 도구]",
+    "toolCountDone": "[{{total}} 도구]",
+    "taskCreate": "작업 생성",
+    "taskGet": "작업 조회",
+    "taskList": "작업 목록",
+    "taskUpdate": "작업 업데이트"
+  }
+}

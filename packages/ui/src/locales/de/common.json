@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "saved": "Gespeichert",
+    "delete": "Löschen",
+    "deleting": "Löschen...",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "confirm": "Bestätigen",
+    "retry": "Wiederholen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "close": "Schließen",
+    "create": "Erstellen",
+    "creating": "Erstellen...",
+    "refresh": "Aktualisieren",
+    "send": "Senden",
+    "stop": "Stopp",
+    "dismiss": "Verwerfen",
+    "done": "Fertig",
+    "copy": "Kopieren"
+  },
+  "status": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg"
+  },
+  "time": {
+    "justNow": "gerade eben",
+    "minsAgo_one": "vor {{count}}m",
+    "minsAgo_other": "vor {{count}}m",
+    "hoursAgo_one": "vor {{count}}h",
+    "hoursAgo_other": "vor {{count}}h",
+    "daysAgo_one": "vor {{count}}T",
+    "daysAgo_other": "vor {{count}}T",
+    "now": "jetzt",
+    "inMins_one": "in {{count}}m",
+    "inMins_other": "in {{count}}m",
+    "inHours_one": "in {{count}}h",
+    "inHours_other": "in {{count}}h",
+    "inDays_one": "in {{count}}T",
+    "inDays_other": "in {{count}}T",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Löschen",
+    "deleteMessage": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "areYouSure": "Sind Sie sicher?"
+  },
+  "empty": {
+    "noData": "Keine Daten"
+  },
+  "list": {
+    "noneConfigured": "Keine konfiguriert"
+  },
+  "label": {
+    "name": "Name",
+    "description": "Beschreibung",
+    "type": "Typ",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert"
+  },
+  "dropZone": {
+    "releaseToDrop": "Loslassen zum Ablegen",
+    "dragAndDrop": "Dateien hierher ziehen oder klicken zum Hochladen",
+    "accepts": "Akzeptiert: {{extensions}}"
+  }
+}

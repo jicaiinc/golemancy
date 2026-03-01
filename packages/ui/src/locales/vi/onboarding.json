@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Thi\u1ebft l\u1eadp",
+    "skipSetup": "B\u1ecf qua Thi\u1ebft l\u1eadp"
+  },
+  "steps": {
+    "welcome": "Ch\u00e0o m\u1eebng",
+    "provider": "Provider",
+    "speech": "Gi\u1ecdng n\u00f3i",
+    "project": "D\u1ef1 \u00e1n",
+    "complete": "Ho\u00e0n t\u1ea5t"
+  },
+  "error": {
+    "somethingWentWrong": "\u0110\u00e3 x\u1ea3y ra l\u1ed7i. Vui l\u00f2ng th\u1eed l\u1ea1i.",
+    "failedToSkip": "Kh\u00f4ng th\u1ec3 b\u1ecf qua thi\u1ebft l\u1eadp. Vui l\u00f2ng th\u1eed l\u1ea1i.",
+    "connectionTestFailed": "Ki\u1ec3m tra k\u1ebft n\u1ed1i th\u1ea5t b\u1ea1i",
+    "testFailed": "Ki\u1ec3m tra th\u1ea5t b\u1ea1i",
+    "unknownError": "L\u1ed7i kh\u00f4ng x\u00e1c \u0111\u1ecbnh"
+  },
+  "button": {
+    "createProject": "T\u1ea1o D\u1ef1 \u00c1n",
+    "getStarted": "B\u1eaft \u0110\u1ea7u",
+    "continue": "Ti\u1ebfp T\u1ee5c",
+    "startChatting": "B\u1eaft \u0110\u1ea7u Chat",
+    "goToDashboard": "\u0110i \u0111\u1ebfn B\u1ea3ng \u0110i\u1ec1u Khi\u1ec3n",
+    "change": "Thay \u0110\u1ed5i",
+    "testConnection": "Ki\u1ec3m Tra K\u1ebft N\u1ed1i",
+    "testing": "\u0110ang ki\u1ec3m tra...",
+    "reTest": "Ki\u1ec3m Tra L\u1ea1i",
+    "test": "Ki\u1ec3m Tra",
+    "hide": "\u1ea8n",
+    "show": "Hi\u1ec3n"
+  },
+  "welcome": {
+    "tagline": "Ch\u00e0o M\u1eebng",
+    "heading": "\u0110i\u1ec1u Khi\u1ec3n AI Golem C\u1ee7a B\u1ea1n",
+    "description": "\u0110i\u1ec1u ph\u1ed1i c\u00e1c agent AI t\u1ef1 ch\u1ee7 t\u1eeb m\u00e0n h\u00ecnh c\u1ee7a b\u1ea1n."
+  },
+  "provider": {
+    "heading": "K\u1ebft N\u1ed1i Provider AI",
+    "description": "Ch\u1ecdn provider v\u00e0 nh\u1eadp API key \u0111\u1ec3 b\u1eaft \u0111\u1ea7u.",
+    "customLabel": "T\u00f9y ch\u1ec9nh",
+    "customSubtitle": "endpoint b\u1ea5t k\u1ef3",
+    "customCardTitle": "PROVIDER T\u00d9Y CH\u1ec8NH",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "T\u00caN",
+    "labelSdkType": "LO\u1ea0I SDK",
+    "statusConnected": "\u0110\u00e3 k\u1ebft n\u1ed1i",
+    "statusFailed": "Th\u1ea5t b\u1ea1i",
+    "statusConnecting": "\u0110ang k\u1ebft n\u1ed1i...",
+    "none": "Kh\u00f4ng c\u00f3",
+    "defaultModel": {
+      "title": "MODEL M\u1eb6C \u0110\u1eccNH",
+      "descriptionPreset": "Ch\u1ecdn model s\u1eed d\u1ee5ng m\u1eb7c \u0111\u1ecbnh cho agent m\u1edbi.",
+      "descriptionCustom": "Nh\u1eadp t\u00ean model s\u1eed d\u1ee5ng m\u1eb7c \u0111\u1ecbnh.",
+      "labelModelName": "T\u00caN MODEL"
+    }
+  },
+  "speech": {
+    "heading": "Speech-to-Text",
+    "description": "B\u1eadt nh\u1eadp li\u1ec7u b\u1eb1ng gi\u1ecdng n\u00f3i \u0111\u1ec3 t\u01b0\u01a1ng t\u00e1c nhanh h\u01a1n. B\u1ea1n c\u00f3 th\u1ec3 b\u1ecf qua v\u00e0 c\u1ea5u h\u00ecnh sau.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODEL",
+    "labelLanguage": "NG\u00d4N NG\u1eee",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Th\u1ea5t b\u1ea1i"
+  },
+  "project": {
+    "heading": "T\u1ea1o D\u1ef1 \u00c1n \u0110\u1ea7u Ti\u00ean",
+    "description": "D\u1ef1 \u00e1n t\u1ed5 ch\u1ee9c c\u00e1c agent, cu\u1ed9c tr\u00f2 chuy\u1ec7n v\u00e0 quy tr\u00ecnh l\u00e0m vi\u1ec7c c\u1ee7a b\u1ea1n.",
+    "labelName": "T\u00caN D\u1ef0 \u00c1N",
+    "placeholderName": "D\u1ef1 \u00c1n Tuy\u1ec7t V\u1eddi",
+    "labelDescription": "M\u00d4 T\u1ea2",
+    "placeholderDescription": "D\u1ef1 \u00e1n n\u00e0y s\u1ebd l\u00e0m g\u00ec?",
+    "labelIcon": "BI\u1ec2U T\u01af\u1ee2NG",
+    "fromTemplate": "T\u1eea M\u1eaaU",
+    "comingSoon": "S\u1eafp Ra M\u1eaft"
+  },
+  "complete": {
+    "heading": "T\u1ea5t C\u1ea3 \u0110\u00e3 S\u1eb5n S\u00e0ng!",
+    "description": "D\u01b0\u1edbi \u0111\u00e2y l\u00e0 t\u00f3m t\u1eaft c\u1ea5u h\u00ecnh c\u1ee7a b\u1ea1n.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "MODEL M\u1eb6C \u0110\u1eccNH",
+    "labelSpeechToText": "SPEECH-TO-TEXT",
+    "labelProject": "D\u1ef0 \u00c1N",
+    "sttEnabled": "\u0110\u00e3 b\u1eadt",
+    "sttSkipped": "\u0110\u00e3 b\u1ecf qua",
+    "links": {
+      "settings": "C\u00e0i \u0111\u1eb7t",
+      "website": "Trang web"
+    }
+  }
+}

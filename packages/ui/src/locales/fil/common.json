@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Kanselahin",
+    "save": "I-save",
+    "saving": "Sine-save...",
+    "saved": "Na-save",
+    "delete": "I-delete",
+    "deleting": "Dine-delete...",
+    "edit": "I-edit",
+    "add": "Idagdag",
+    "confirm": "Kumpirmahin",
+    "retry": "Subukan Muli",
+    "back": "Bumalik",
+    "next": "Susunod",
+    "close": "Isara",
+    "create": "Gumawa",
+    "creating": "Gumagawa...",
+    "refresh": "I-refresh",
+    "send": "Ipadala",
+    "stop": "Ihinto",
+    "dismiss": "I-dismiss",
+    "done": "Tapos",
+    "copy": "Kopyahin"
+  },
+  "status": {
+    "loading": "Naglo-load...",
+    "error": "Error",
+    "success": "Matagumpay"
+  },
+  "time": {
+    "justNow": "kamakailan lang",
+    "minsAgo_one": "{{count}} min nakalipas",
+    "minsAgo_other": "{{count}} min nakalipas",
+    "hoursAgo_one": "{{count}} oras nakalipas",
+    "hoursAgo_other": "{{count}} oras nakalipas",
+    "daysAgo_one": "{{count}} araw nakalipas",
+    "daysAgo_other": "{{count}} araw nakalipas",
+    "now": "ngayon",
+    "inMins_one": "sa {{count}} min",
+    "inMins_other": "sa {{count}} min",
+    "inHours_one": "sa {{count}} oras",
+    "inHours_other": "sa {{count}} oras",
+    "inDays_one": "sa {{count}} araw",
+    "inDays_other": "sa {{count}} araw",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "I-delete",
+    "deleteMessage": "Hindi na maibabalik ang aksyon na ito.",
+    "areYouSure": "Sigurado ka ba?"
+  },
+  "empty": {
+    "noData": "Walang data"
+  },
+  "list": {
+    "noneConfigured": "Wala pang naka-configure"
+  },
+  "label": {
+    "name": "Pangalan",
+    "description": "Paglalarawan",
+    "type": "Uri",
+    "enabled": "Naka-enable",
+    "disabled": "Naka-disable"
+  },
+  "dropZone": {
+    "releaseToDrop": "Bitawan para i-upload",
+    "dragAndDrop": "I-drag & drop ang mga file dito, o mag-click para mag-upload",
+    "accepts": "Tinatanggap: {{extensions}}"
+  }
+}

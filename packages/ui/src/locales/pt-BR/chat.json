@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Ocultar histórico de chat",
+    "showHistory": "Mostrar histórico de chat",
+    "new": "+ Novo",
+    "clickToRename": "Clique para renomear"
+  },
+  "sidebar": {
+    "newChat": "+ Novo Chat",
+    "noConversations": "Sem conversas"
+  },
+  "window": {
+    "startConversation": "Iniciar a conversa...",
+    "compacting": "Compactando",
+    "thinking": "Pensando",
+    "imageMsgTitle": "Mensagem com imagem"
+  },
+  "empty": {
+    "readyToChat": "Pronto para conversar",
+    "description": "Inicie uma nova conversa ou selecione uma na barra lateral.",
+    "startChatting": "Iniciar Conversa",
+    "noMainAgent": "Sem Agente Principal",
+    "configureText": "Configure um Agente Principal em <a>Configurações do Projeto</a> para começar a conversar."
+  },
+  "input": {
+    "placeholder": "Digite uma mensagem...",
+    "dropPlaceholder": "Solte imagens aqui...",
+    "attachImage": "Anexar imagem",
+    "recordAudio": "Gravar áudio",
+    "transcribing": "Transcrevendo...",
+    "transcriptionFailed": "Falha na transcrição",
+    "startRecordingFailed": "Falha ao iniciar gravação",
+    "retryFailed": "Falha ao tentar novamente"
+  },
+  "message": {
+    "reasoning": "Raciocínio",
+    "untitledFile": "Arquivo sem título",
+    "copy": "Copiar"
+  },
+  "compact": {
+    "title": "CONVERSA COMPACTADA",
+    "summary": "RESUMO",
+    "tokensSummary": "{{input}} entrada / {{output}} saída"
+  },
+  "tool": {
+    "running": "Executando...",
+    "awaitingApproval": "Aguardando aprovação",
+    "approved": "Aprovado",
+    "done": "Concluído",
+    "denied": "Negado",
+    "input": "ENTRADA",
+    "output": "SAÍDA",
+    "error": "ERRO",
+    "task": "TAREFA",
+    "tools": "FERRAMENTAS",
+    "toolCountRunning": "[{{running}}/{{total}} ferramentas]",
+    "toolCountDone": "[{{total}} ferramentas]",
+    "taskCreate": "Criar Tarefa",
+    "taskGet": "Obter Tarefa",
+    "taskList": "Listar Tarefas",
+    "taskUpdate": "Atualizar Tarefa"
+  }
+}

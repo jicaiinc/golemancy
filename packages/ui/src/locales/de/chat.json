@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Chatverlauf ausblenden",
+    "showHistory": "Chatverlauf anzeigen",
+    "new": "+ Neu",
+    "clickToRename": "Klicken zum Umbenennen"
+  },
+  "sidebar": {
+    "newChat": "+ Neuer Chat",
+    "noConversations": "Keine Konversationen"
+  },
+  "window": {
+    "startConversation": "Konversation starten...",
+    "compacting": "Komprimierung",
+    "thinking": "Denkt nach",
+    "imageMsgTitle": "Bildnachricht"
+  },
+  "empty": {
+    "readyToChat": "Bereit zum Chatten",
+    "description": "Starten Sie eine neue Konversation oder wählen Sie eine aus der Seitenleiste.",
+    "startChatting": "Chat starten",
+    "noMainAgent": "Kein Haupt-Agent",
+    "configureText": "Konfigurieren Sie einen Haupt-Agent in den <a>Projekteinstellungen</a>, um mit dem Chatten zu beginnen."
+  },
+  "input": {
+    "placeholder": "Nachricht eingeben...",
+    "dropPlaceholder": "Bilder hier ablegen...",
+    "attachImage": "Bild anhängen",
+    "recordAudio": "Audio aufnehmen",
+    "transcribing": "Transkription...",
+    "transcriptionFailed": "Transkription fehlgeschlagen",
+    "startRecordingFailed": "Aufnahme konnte nicht gestartet werden",
+    "retryFailed": "Erneuter Versuch fehlgeschlagen"
+  },
+  "message": {
+    "reasoning": "Überlegung",
+    "untitledFile": "Unbenannte Datei",
+    "copy": "Kopieren"
+  },
+  "compact": {
+    "title": "KONVERSATION KOMPRIMIERT",
+    "summary": "ZUSAMMENFASSUNG",
+    "tokensSummary": "{{input}} in / {{output}} out"
+  },
+  "tool": {
+    "running": "Wird ausgeführt...",
+    "awaitingApproval": "Wartet auf Genehmigung",
+    "approved": "Genehmigt",
+    "done": "Fertig",
+    "denied": "Abgelehnt",
+    "input": "EINGABE",
+    "output": "AUSGABE",
+    "error": "FEHLER",
+    "task": "AUFGABE",
+    "tools": "WERKZEUGE",
+    "toolCountRunning": "[{{running}}/{{total}} Werkzeuge]",
+    "toolCountDone": "[{{total}} Werkzeuge]",
+    "taskCreate": "Aufgabe erstellen",
+    "taskGet": "Aufgabe abrufen",
+    "taskList": "Aufgaben auflisten",
+    "taskUpdate": "Aufgabe aktualisieren"
+  }
+}

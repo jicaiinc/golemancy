@@ -1,0 +1,65 @@
+{
+  "page": {
+    "title": "Servere MCP",
+    "serverCount_one": "{{count}} server",
+    "serverCount_few": "{{count}} servere",
+    "serverCount_other": "{{count}} de servere",
+    "newServerBtn": "+ Server nou"
+  },
+  "tabs": {
+    "installed": "Instalate",
+    "marketplace": "Piață"
+  },
+  "warning": {
+    "restrictedBadge": "RESTRICȚIONAT",
+    "restrictedMsg": "Mod restricționat: serverele MCP stdio sunt dezactivate și nu vor fi încărcate",
+    "riskBadge": "AVERTISMENT",
+    "riskMsg": "Serverele MCP terțe pot accesa sau modifica fișierele de pe computerul dumneavoastră.",
+    "applyToMcpHint": "Activați \"Aplicare la MCP\" în Setări > Permisiuni pentru a izola serverele MCP în sandbox.",
+    "sandboxUnavailable": "Sandbox runtime nu este disponibil pe această platformă."
+  },
+  "import": {
+    "invalidFormat": "Format nevalid: se așteaptă { mcpServers: { ... } }",
+    "noServers": "Niciun server găsit în fișierul de configurare",
+    "importedCount_one": "{{count}} server MCP importat",
+    "importedCount_few": "{{count}} servere MCP importate",
+    "importedCount_other": "{{count}} de servere MCP importate",
+    "parseError": "Parsarea fișierului de configurare a eșuat"
+  },
+  "server": {
+    "testing": "Se testează...",
+    "testOk_one": "OK ({{count}} instrument)",
+    "testOk_few": "OK ({{count}} instrumente)",
+    "testOk_other": "OK ({{count}} de instrumente)",
+    "connectionFailed": "Conexiunea a eșuat",
+    "testFailed": "Testul a eșuat",
+    "blockedRestricted": "Blocat de modul restricționat — serverele stdio nu sunt încărcate la runtime",
+    "usedByAgents_one": "Utilizat de {{count}} agent",
+    "usedByAgents_few": "Utilizat de {{count}} agenți",
+    "usedByAgents_other": "Utilizat de {{count}} de agenți",
+    "deleteErrorInUse_one": "Serverul MCP \"{{name}}\" este utilizat de {{count}} agent. Eliminați referințele mai întâi.",
+    "deleteErrorInUse_few": "Serverul MCP \"{{name}}\" este utilizat de {{count}} agenți. Eliminați referințele mai întâi.",
+    "deleteErrorInUse_other": "Serverul MCP \"{{name}}\" este utilizat de {{count}} de agenți. Eliminați referințele mai întâi.",
+    "deleteError": "Ștergerea serverului MCP a eșuat",
+    "testBtn": "Testare"
+  },
+  "empty": {
+    "title": "Niciun server MCP configurat",
+    "addFirstBtn": "Adăugați primul server"
+  },
+  "loading": "Se încarcă serverele MCP...",
+  "comingSoon": "În curând",
+  "form": {
+    "newTitle": "Server MCP nou",
+    "editTitle": "Editare server MCP",
+    "nameLabel": "NUME",
+    "descriptionLabel": "DESCRIERE",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "COMANDĂ",
+    "argsLabel": "ARGUMENTE (separate prin spațiu)",
+    "envLabel": "VARIABILE MEDIU (CHEIE=VALOARE per linie)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERE (Cheie: Valoare per linie)"
+  }
+}

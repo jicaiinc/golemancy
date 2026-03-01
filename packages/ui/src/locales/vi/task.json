@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Nhi\u1ec7m V\u1ee5 H\u1ed9i Tho\u1ea1i",
+    "taskCount_one": "t\u1ed5ng {{count}} nhi\u1ec7m v\u1ee5",
+    "taskCount_other": "t\u1ed5ng {{count}} nhi\u1ec7m v\u1ee5"
+  },
+  "loading": "\u0110ang t\u1ea3i nhi\u1ec7m v\u1ee5...",
+  "empty": {
+    "noTasks": "Kh\u00f4ng t\u00ecm th\u1ea5y nhi\u1ec7m v\u1ee5"
+  },
+  "openChat": "M\u1ede CHAT \u2192",
+  "detail": {
+    "description": "M\u00d4 T\u1ea2",
+    "blockedBy": "B\u1eca CH\u1eb6N B\u1edeI",
+    "metadata": "METADATA"
+  },
+  "status": {
+    "pending": "ch\u1edd x\u1eed l\u00fd",
+    "in_progress": "\u0111ang th\u1ef1c hi\u1ec7n",
+    "completed": "ho\u00e0n th\u00e0nh",
+    "deleted": "\u0111\u00e3 x\u00f3a"
+  }
+}

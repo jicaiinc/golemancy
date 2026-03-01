@@ -1,0 +1,104 @@
+{
+  "loading": "Laddar behörigheter...",
+  "section": {
+    "permissionMode": "BEHÖRIGHETSLÄGE",
+    "configuration": "KONFIGURATION"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Begränsad",
+      "subtitle": "Bara Bash, ingen sandbox",
+      "description": "Minimal exekveringsmiljö. Ingen sandbox-runtime, inget MCP-stöd.",
+      "badge": "Begränsad"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Konfigurerbar isolering",
+      "description": "Sandbox-runtime med konfigurerbara begränsningar för filsystem, nätverk och kommandon.",
+      "badge": "Rekommenderad"
+    },
+    "unrestricted": {
+      "name": "Obegränsad",
+      "subtitle": "Full systemåtkomst",
+      "description": "Inga sandbox-begränsningar. Alla kommandon körs med fulla systembehörigheter.",
+      "badge": "Riskfyllt"
+    }
+  },
+  "config": {
+    "default": "Standard",
+    "selectConfig": "Välj konfiguration...",
+    "saveAs": "Spara som...",
+    "rename": "Byt namn",
+    "resetToDefault": "Återställ till standard",
+    "saved": "Sparat!",
+    "editingDefault": "Redigerar standardvärden. Klicka Spara för att skapa en ny namngiven konfiguration."
+  },
+  "modal": {
+    "unrestrictedTitle": "Aktivera obegränsat läge?",
+    "unrestrictedBody": "Detta tar bort allt sandbox-skydd. AI-agenter får full åtkomst till ditt system, inklusive:",
+    "unrestrictedReadWrite": "Läsa/skriva vilken fil som helst på din dator",
+    "unrestrictedExecute": "Köra vilka systemkommandon som helst",
+    "unrestrictedNetwork": "Åtkomst till nätverk utan begränsningar",
+    "unrestrictedSysconfig": "Ändra systemkonfiguration",
+    "unrestrictedFooter": "Använd bara detta för lokal utveckling i betrodda miljöer.",
+    "enableUnrestricted": "Jag förstår, aktivera",
+    "sandboxUnavailableTitle": "Sandbox-läge ej tillgängligt",
+    "sandboxUnavailableBody": "Förutsättningarna för sandbox-runtime är inte uppfyllda. Följande problem hittades:",
+    "sandboxUnavailableFooter": "Att aktivera sandbox-läge ändå leder till degradering till begränsat läge.",
+    "enableAnyway": "Aktivera ändå",
+    "saveAsTitle": "Spara som ny konfiguration",
+    "configNameLabel": "KONFIGURATIONSNAMN",
+    "configNamePlaceholder": "t.ex. Strikt Dev, Python Inaktiverad",
+    "renameTitle": "Byt namn på konfiguration",
+    "newNameLabel": "NYTT NAMN",
+    "newNamePlaceholder": "t.ex. Min anpassade konfiguration",
+    "renaming": "Byter namn...",
+    "deleteTitle": "Radera \"{{title}}\"?",
+    "deleteBody": "Denna konfiguration raderas permanent. Projektet återgår till systemstandard."
+  },
+  "filesystem": {
+    "sectionTitle": "FILSYSTEMSBEHÖRIGHETER",
+    "allowWrite": "TILLÅT SKRIVNING",
+    "allowWriteHelper": "Sökvägar där agenter kan skriva filer. Standard: projektets arbetsyta.",
+    "allowWritePlaceholder": "t.ex. /Users/name/workspace",
+    "denyRead": "NEKA LÄSNING",
+    "denyReadHelper": "Känsliga filer/mappar att blockera från läsning.",
+    "denyReadPlaceholder": "t.ex. ~/.ssh, .env",
+    "denyWrite": "NEKA SKRIVNING",
+    "denyWriteHelper": "Sökvägar där skrivning blockeras. Har företräde framför tillåt skrivning.",
+    "denyWritePlaceholder": "t.ex. /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "NÄTVERKSBEGRÄNSNINGAR",
+    "enableLabel": "Aktivera",
+    "statusEnabled": "Bara konfigurerade domäner är tillgängliga",
+    "statusDisabled": "All nätverkstrafik är tillåten",
+    "allowedDomains": "TILLÅTNA DOMÄNER",
+    "allowedDomainsHelper": "Domäner som agenter kan nå. Exakt: example.com — Wildcard: *.example.com (2+ delar efter *.)",
+    "allowedDomainsPlaceholder": "t.ex. api.github.com",
+    "deniedDomains": "NEKADE DOMÄNER",
+    "deniedDomainsHelper": "Domäner att blockera. Samma format som tillåtna domäner.",
+    "deniedDomainsPlaceholder": "t.ex. malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "KOMMANDOBEGRÄNSNINGAR",
+    "deniedCommands": "NEKADE KOMMANDON",
+    "deniedCommandsHelper": "Kommandon att blockera från exekvering.",
+    "deniedCommandsPlaceholder": "t.ex. python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Tillämpa på MCP",
+    "warning": "(\u26A0 Att inaktivera detta kan tillåta tredjeparts MCP-servrar att komma åt eller ändra filer på din dator)",
+    "description": "När aktiverat körs MCP-serverkommandon via sandbox-runtime (srt). Samma begränsningar för filsystem, nätverk och kommandon tillämpas på MCP-servrar."
+  },
+  "windows": {
+    "notice": "\u26A0 WINDOWS-MEDDELANDE",
+    "message": "Sandbox-runtime är inte tillgängligt på Windows. Bara kommandoblockerng stöds."
+  },
+  "validation": {
+    "removeProtocol": "Ta bort protokoll, sökväg eller port — bara domänen",
+    "wildcardParts": "Wildcard behöver 2+ delar efter *. (t.ex. *.example.com)",
+    "onlyWildcard": "Bara *.domain.com wildcard-format stöds",
+    "validDomain": "Måste vara en giltig domän med minst en punkt (t.ex. example.com)"
+  }
+}

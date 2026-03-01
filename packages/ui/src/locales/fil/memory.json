@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Memory Bank",
+    "entryCount_one": "{{count}} memory",
+    "entryCount_other": "{{count}} memory",
+    "addEntryBtn": "+ Magdagdag ng Entry"
+  },
+  "search": {
+    "placeholder": "Maghanap ng memory ayon sa content, source, o tag..."
+  },
+  "filter": {
+    "all": "lahat"
+  },
+  "loading": "Nilo-load ang mga memory...",
+  "empty": {
+    "noMatch": "Walang tumutugmang memory",
+    "noEntries": "Wala pang memory",
+    "hint": "Ang mga memory ay tumutulong sa mga agent na mapanatili ang context sa iba't ibang pag-uusap"
+  },
+  "form": {
+    "addTitle": "Magdagdag ng Memory Entry",
+    "editTitle": "I-edit ang Memory Entry",
+    "contentLabel": "NILALAMAN",
+    "sourceLabel": "PINAGMULAN",
+    "sourcePlaceholder": "hal. Researcher",
+    "tagsLabel": "MGA TAG (pinaghihiwalay ng kuwit)",
+    "tagsPlaceholder": "hal. strategy, audience"
+  }
+}

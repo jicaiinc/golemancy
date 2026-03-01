@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "轉錄歷史"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} 條記錄",
+    "recordCount_other": "{{count}} 條記錄",
+    "used": "已使用 {{size}}",
+    "loading": "載入儲存空間資訊..."
+  },
+  "clearAll": {
+    "confirm_one": "刪除全部 {{count}} 條記錄？",
+    "confirm_other": "刪除全部 {{count}} 條記錄？",
+    "confirmWithFree_one": "刪除全部 {{count}} 條記錄並釋放 {{size}}？",
+    "confirmWithFree_other": "刪除全部 {{count}} 條記錄並釋放 {{size}}？"
+  },
+  "loading": "載入歷史...",
+  "empty": {
+    "hint": "在聊天中使用麥克風按鈕\n建立你的第一條語音錄製",
+    "settingsBtn": "前往設定"
+  },
+  "player": {
+    "play": "播放",
+    "pause": "暫停",
+    "close": "關閉播放器"
+  },
+  "actions": {
+    "copy": "複製轉錄文字",
+    "retry": "重試轉錄",
+    "delete": "刪除記錄"
+  },
+  "enable": {
+    "enabled": "已啟用",
+    "disabled": "已停用",
+    "sectionTitle": "語音轉文字"
+  },
+  "provider": {
+    "sectionTitle": "供應商",
+    "typeLabel": "類型",
+    "customType": "自訂（OpenAI 相容）",
+    "apiKeyLabel": "API 金鑰",
+    "baseUrlRequired": "基礎 URL（必填）",
+    "baseUrlOptional": "基礎 URL（選填）",
+    "baseUrlPlaceholder": "留空使用預設值",
+    "modelLabel": "模型",
+    "modelOther": "其他...",
+    "presets": "預設",
+    "languageLabel": "語言",
+    "hide": "隱藏",
+    "show": "顯示"
+  },
+  "test": {
+    "testing": "測試中...",
+    "ok": "正常",
+    "okLatency": "正常 ({{latency}}ms)",
+    "retest": "重新測試",
+    "test": "測試",
+    "failed": "失敗",
+    "untested": "未測試",
+    "unknownError": "未知錯誤"
+  },
+  "history": {
+    "sectionTitle": "歷史記錄",
+    "recordsInfo": "{{recordCount}} 條記錄 / {{size}}",
+    "clearAll": "清除全部",
+    "confirmClear": "確定清除？",
+    "empty": "尚無轉錄記錄",
+    "today": "今天",
+    "yesterday": "昨天",
+    "transcribing": "轉錄中...",
+    "openChat": "開啟對話 \u2192"
+  },
+  "record": {
+    "statusOk": "正常",
+    "statusErr": "錯誤",
+    "deleteConfirm": "刪除此記錄及其音訊檔案？",
+    "retryConfirm": "這將覆蓋現有的轉錄內容。",
+    "transcriptionFailed": "轉錄失敗：{{error}}",
+    "retranscribe": "重新轉錄"
+  }
+}

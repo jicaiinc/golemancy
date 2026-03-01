@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP-Server",
+    "serverCount_one": "{{count}} Server",
+    "serverCount_other": "{{count}} Server",
+    "newServerBtn": "+ Neuer Server"
+  },
+  "tabs": {
+    "installed": "Installiert",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "EINGESCHRÄNKT",
+    "restrictedMsg": "Eingeschränkter Modus: stdio-MCP-Server sind deaktiviert und werden nicht geladen",
+    "riskBadge": "WARNUNG",
+    "riskMsg": "Drittanbieter-MCP-Server können auf Dateien auf Ihrem Computer zugreifen oder diese ändern.",
+    "applyToMcpHint": "Aktivieren Sie \"Auf MCP anwenden\" unter Einstellungen > Berechtigungen, um MCP-Server zu sandboxen.",
+    "sandboxUnavailable": "Sandbox-Runtime ist auf dieser Plattform nicht verfügbar."
+  },
+  "import": {
+    "invalidFormat": "Ungültiges Format: erwartet { mcpServers: { ... } }",
+    "noServers": "Keine Server in der Konfigurationsdatei gefunden",
+    "importedCount_one": "{{count}} MCP-Server importiert",
+    "importedCount_other": "{{count}} MCP-Server importiert",
+    "parseError": "Konfigurationsdatei konnte nicht analysiert werden"
+  },
+  "server": {
+    "testing": "Test läuft...",
+    "testOk_one": "OK ({{count}} Werkzeug)",
+    "testOk_other": "OK ({{count}} Werkzeuge)",
+    "connectionFailed": "Verbindung fehlgeschlagen",
+    "testFailed": "Test fehlgeschlagen",
+    "blockedRestricted": "Durch eingeschränkten Modus blockiert — stdio-Server werden zur Laufzeit nicht geladen",
+    "usedByAgents_one": "Wird von {{count}} Agenten verwendet",
+    "usedByAgents_other": "Wird von {{count}} Agenten verwendet",
+    "deleteErrorInUse_one": "MCP-Server \"{{name}}\" wird von {{count}} Agenten verwendet. Entfernen Sie zuerst die Referenzen.",
+    "deleteErrorInUse_other": "MCP-Server \"{{name}}\" wird von {{count}} Agenten verwendet. Entfernen Sie zuerst die Referenzen.",
+    "deleteError": "MCP-Server konnte nicht gelöscht werden",
+    "testBtn": "Test"
+  },
+  "empty": {
+    "title": "Keine MCP-Server konfiguriert",
+    "addFirstBtn": "Ersten Server hinzufügen"
+  },
+  "loading": "MCP-Server laden...",
+  "comingSoon": "Demnächst",
+  "form": {
+    "newTitle": "Neuer MCP-Server",
+    "editTitle": "MCP-Server bearbeiten",
+    "nameLabel": "NAME",
+    "descriptionLabel": "BESCHREIBUNG",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "BEFEHL",
+    "argsLabel": "ARGUMENTE (durch Leerzeichen getrennt)",
+    "envLabel": "ENV (SCHLÜSSEL=WERT pro Zeile)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Schlüssel: Wert pro Zeile)"
+  }
+}

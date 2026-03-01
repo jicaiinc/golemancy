@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP-Servers",
+    "serverCount_one": "{{count}} server",
+    "serverCount_other": "{{count}} servers",
+    "newServerBtn": "+ Nieuwe Server"
+  },
+  "tabs": {
+    "installed": "Geïnstalleerd",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "BEPERKT",
+    "restrictedMsg": "Beperkte modus: stdio MCP-servers zijn uitgeschakeld en worden niet geladen",
+    "riskBadge": "WAARSCHUWING",
+    "riskMsg": "MCP-servers van derden kunnen bestanden op uw computer openen of wijzigen.",
+    "applyToMcpHint": "Schakel \"Toepassen op MCP\" in bij Instellingen > Machtigingen om MCP-servers te sandboxen.",
+    "sandboxUnavailable": "Sandbox-runtime is niet beschikbaar op dit platform."
+  },
+  "import": {
+    "invalidFormat": "Ongeldig formaat: verwacht { mcpServers: { ... } }",
+    "noServers": "Geen servers gevonden in configuratiebestand",
+    "importedCount_one": "{{count}} MCP-server geïmporteerd",
+    "importedCount_other": "{{count}} MCP-servers geïmporteerd",
+    "parseError": "Configuratiebestand kon niet worden verwerkt"
+  },
+  "server": {
+    "testing": "Testen...",
+    "testOk_one": "OK ({{count}} tool)",
+    "testOk_other": "OK ({{count}} tools)",
+    "connectionFailed": "Verbinding mislukt",
+    "testFailed": "Test mislukt",
+    "blockedRestricted": "Geblokkeerd door beperkte modus — stdio-servers worden niet geladen tijdens runtime",
+    "usedByAgents_one": "Gebruikt door {{count}} agent",
+    "usedByAgents_other": "Gebruikt door {{count}} agenten",
+    "deleteErrorInUse_one": "MCP-server \"{{name}}\" wordt gebruikt door {{count}} agent. Verwijder eerst de verwijzingen.",
+    "deleteErrorInUse_other": "MCP-server \"{{name}}\" wordt gebruikt door {{count}} agenten. Verwijder eerst de verwijzingen.",
+    "deleteError": "Kan MCP-server niet verwijderen",
+    "testBtn": "Test"
+  },
+  "empty": {
+    "title": "Geen MCP-servers geconfigureerd",
+    "addFirstBtn": "Voeg Uw Eerste Server Toe"
+  },
+  "loading": "MCP-servers laden...",
+  "comingSoon": "Binnenkort",
+  "form": {
+    "newTitle": "Nieuwe MCP-Server",
+    "editTitle": "MCP-Server Bewerken",
+    "nameLabel": "NAAM",
+    "descriptionLabel": "BESCHRIJVING",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "OPDRACHT",
+    "argsLabel": "ARGUMENTEN (gescheiden door spaties)",
+    "envLabel": "ENV (SLEUTEL=WAARDE per regel)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Sleutel: Waarde per regel)"
+  }
+}

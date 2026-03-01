@@ -1,0 +1,25 @@
+{
+  "page": {
+    "title": "Zadania rozmowy",
+    "taskCount_one": "{{count}} zadanie łącznie",
+    "taskCount_few": "{{count}} zadania łącznie",
+    "taskCount_many": "{{count}} zadań łącznie",
+    "taskCount_other": "{{count}} zadań łącznie"
+  },
+  "loading": "Ładowanie zadań...",
+  "empty": {
+    "noTasks": "Nie znaleziono zadań"
+  },
+  "openChat": "OTWÓRZ CZAT →",
+  "detail": {
+    "description": "OPIS",
+    "blockedBy": "ZABLOKOWANE PRZEZ",
+    "metadata": "METADANE"
+  },
+  "status": {
+    "pending": "oczekujące",
+    "in_progress": "w toku",
+    "completed": "zakończone",
+    "deleted": "usunięte"
+  }
+}

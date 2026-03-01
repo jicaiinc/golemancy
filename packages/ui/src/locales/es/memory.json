@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Banco de Memoria",
+    "entryCount_one": "{{count}} memoria",
+    "entryCount_other": "{{count}} memorias",
+    "addEntryBtn": "+ Agregar Entrada"
+  },
+  "search": {
+    "placeholder": "Buscar memorias por contenido, fuente o etiqueta..."
+  },
+  "filter": {
+    "all": "todas"
+  },
+  "loading": "Cargando memorias...",
+  "empty": {
+    "noMatch": "Sin memorias coincidentes",
+    "noEntries": "Aún no hay memorias",
+    "hint": "Las memorias ayudan a los agentes a retener contexto entre conversaciones"
+  },
+  "form": {
+    "addTitle": "Agregar Entrada de Memoria",
+    "editTitle": "Editar Entrada de Memoria",
+    "contentLabel": "CONTENIDO",
+    "sourceLabel": "FUENTE",
+    "sourcePlaceholder": "p. ej. Investigador",
+    "tagsLabel": "ETIQUETAS (separadas por comas)",
+    "tagsPlaceholder": "p. ej. estrategia, audiencia"
+  }
+}

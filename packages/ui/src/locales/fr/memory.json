@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Banque de Mémoire",
+    "entryCount_one": "{{count}} mémoire",
+    "entryCount_other": "{{count}} mémoires",
+    "addEntryBtn": "+ Ajouter une Entrée"
+  },
+  "search": {
+    "placeholder": "Rechercher des mémoires par contenu, source ou tag..."
+  },
+  "filter": {
+    "all": "toutes"
+  },
+  "loading": "Chargement des mémoires...",
+  "empty": {
+    "noMatch": "Aucune mémoire correspondante",
+    "noEntries": "Aucune mémoire pour le moment",
+    "hint": "Les mémoires aident les agents à conserver le contexte entre les conversations"
+  },
+  "form": {
+    "addTitle": "Ajouter une Entrée de Mémoire",
+    "editTitle": "Modifier l'Entrée de Mémoire",
+    "contentLabel": "CONTENU",
+    "sourceLabel": "SOURCE",
+    "sourcePlaceholder": "ex. Chercheur",
+    "tagsLabel": "TAGS (séparés par des virgules)",
+    "tagsPlaceholder": "ex. stratégie, audience"
+  }
+}

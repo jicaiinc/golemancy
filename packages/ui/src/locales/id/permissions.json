@@ -1,0 +1,104 @@
+{
+  "loading": "Memuat permissions...",
+  "section": {
+    "permissionMode": "MODE PERMISSION",
+    "configuration": "KONFIGURASI"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restricted",
+      "subtitle": "Hanya Bash, tanpa sandbox",
+      "description": "Lingkungan eksekusi minimal. Tanpa sandbox runtime, tanpa dukungan MCP.",
+      "badge": "Terbatas"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Isolasi yang dapat dikonfigurasi",
+      "description": "Sandbox runtime dengan pembatasan filesystem, jaringan, dan perintah yang dapat dikonfigurasi.",
+      "badge": "Direkomendasikan"
+    },
+    "unrestricted": {
+      "name": "Unrestricted",
+      "subtitle": "Akses sistem penuh",
+      "description": "Tanpa pembatasan sandbox. Semua perintah dijalankan dengan izin sistem penuh.",
+      "badge": "Berisiko"
+    }
+  },
+  "config": {
+    "default": "Default",
+    "selectConfig": "Pilih konfigurasi...",
+    "saveAs": "Simpan Sebagai...",
+    "rename": "Ganti Nama",
+    "resetToDefault": "Reset ke Default",
+    "saved": "Tersimpan!",
+    "editingDefault": "Mengedit nilai default. Klik Simpan untuk membuat konfigurasi baru bernama."
+  },
+  "modal": {
+    "unrestrictedTitle": "Aktifkan Mode Unrestricted?",
+    "unrestrictedBody": "Ini menghapus semua perlindungan sandbox. AI agent akan memiliki akses penuh ke sistem Anda, termasuk:",
+    "unrestrictedReadWrite": "Membaca/menulis file apa pun di komputer Anda",
+    "unrestrictedExecute": "Menjalankan perintah sistem apa pun",
+    "unrestrictedNetwork": "Mengakses jaringan tanpa batasan",
+    "unrestrictedSysconfig": "Mengubah konfigurasi sistem",
+    "unrestrictedFooter": "Hanya gunakan ini untuk pengembangan lokal di lingkungan tepercaya.",
+    "enableUnrestricted": "Saya Mengerti, Aktifkan",
+    "sandboxUnavailableTitle": "Mode Sandbox Tidak Tersedia",
+    "sandboxUnavailableBody": "Prasyarat sandbox runtime belum terpenuhi. Masalah berikut ditemukan:",
+    "sandboxUnavailableFooter": "Mengaktifkan mode sandbox tetap akan menyebabkan degradasi runtime ke mode restricted.",
+    "enableAnyway": "Aktifkan Tetap",
+    "saveAsTitle": "Simpan Sebagai Konfigurasi Baru",
+    "configNameLabel": "NAMA KONFIGURASI",
+    "configNamePlaceholder": "mis., Strict Dev, Python Disabled",
+    "renameTitle": "Ganti Nama Konfigurasi",
+    "newNameLabel": "NAMA BARU",
+    "newNamePlaceholder": "mis., Konfigurasi Kustom Saya",
+    "renaming": "Mengganti nama...",
+    "deleteTitle": "Hapus \"{{title}}\"?",
+    "deleteBody": "Konfigurasi ini akan dihapus secara permanen. Proyek akan kembali ke pengaturan default sistem."
+  },
+  "filesystem": {
+    "sectionTitle": "PERMISSIONS FILESYSTEM",
+    "allowWrite": "IZINKAN TULIS",
+    "allowWriteHelper": "Path di mana agent dapat menulis file. Default: direktori workspace proyek.",
+    "allowWritePlaceholder": "mis., /Users/name/workspace",
+    "denyRead": "TOLAK BACA",
+    "denyReadHelper": "File/folder sensitif yang diblokir dari pembacaan.",
+    "denyReadPlaceholder": "mis., ~/.ssh, .env",
+    "denyWrite": "TOLAK TULIS",
+    "denyWriteHelper": "Path di mana penulisan diblokir. Diprioritaskan atas izinkan tulis.",
+    "denyWritePlaceholder": "mis., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "PEMBATASAN JARINGAN",
+    "enableLabel": "Aktifkan",
+    "statusEnabled": "Hanya domain yang dikonfigurasi yang dapat diakses",
+    "statusDisabled": "Semua lalu lintas jaringan diizinkan",
+    "allowedDomains": "DOMAIN DIIZINKAN",
+    "allowedDomainsHelper": "Domain yang dapat diakses agent. Tepat: example.com — Wildcard: *.example.com (2+ bagian setelah *.)",
+    "allowedDomainsPlaceholder": "mis., api.github.com",
+    "deniedDomains": "DOMAIN DITOLAK",
+    "deniedDomainsHelper": "Domain yang diblokir. Format sama seperti domain yang diizinkan.",
+    "deniedDomainsPlaceholder": "mis., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "PEMBATASAN PERINTAH",
+    "deniedCommands": "PERINTAH DITOLAK",
+    "deniedCommandsHelper": "Perintah yang diblokir dari eksekusi.",
+    "deniedCommandsPlaceholder": "mis., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Terapkan ke MCP",
+    "warning": "(\u26A0 Menonaktifkan ini dapat memungkinkan MCP server pihak ketiga mengakses atau mengubah file di komputer Anda)",
+    "description": "Ketika diaktifkan, perintah MCP server akan dibungkus dengan sandbox runtime (srt). Ini menerapkan pembatasan filesystem, jaringan, dan perintah yang sama ke MCP server."
+  },
+  "windows": {
+    "notice": "\u26A0 PEMBERITAHUAN WINDOWS",
+    "message": "Sandbox runtime tidak tersedia di Windows. Hanya pemblokiran perintah yang didukung."
+  },
+  "validation": {
+    "removeProtocol": "Hapus protokol, path, atau port — hanya domain saja",
+    "wildcardParts": "Wildcard membutuhkan 2+ bagian setelah *. (mis., *.example.com)",
+    "onlyWildcard": "Hanya format wildcard *.domain.com yang didukung",
+    "validDomain": "Harus berupa domain valid dengan minimal satu titik (mis., example.com)"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Minnesbank",
+    "entryCount_one": "{{count}} minne",
+    "entryCount_other": "{{count}} minnen",
+    "addEntryBtn": "+ Lägg till post"
+  },
+  "search": {
+    "placeholder": "Sök minnen efter innehåll, källa eller tagg..."
+  },
+  "filter": {
+    "all": "alla"
+  },
+  "loading": "Laddar minnen...",
+  "empty": {
+    "noMatch": "Inga matchande minnen",
+    "noEntries": "Inga minnen ännu",
+    "hint": "Minnen hjälper agenter behålla kontext mellan konversationer"
+  },
+  "form": {
+    "addTitle": "Lägg till minnespost",
+    "editTitle": "Redigera minnespost",
+    "contentLabel": "INNEHÅLL",
+    "sourceLabel": "KÄLLA",
+    "sourcePlaceholder": "t.ex. Forskare",
+    "tagsLabel": "TAGGAR (kommaseparerade)",
+    "tagsPlaceholder": "t.ex. strategi, målgrupp"
+  }
+}

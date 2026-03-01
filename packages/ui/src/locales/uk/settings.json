@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Глобальні налаштування"
+  },
+  "tabs": {
+    "general": "Основне",
+    "providers": "Провайдери",
+    "speech": "Мовлення"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Керуйте своїми AI Golem'ами"
+  },
+  "general": {
+    "appearance": "ОФОРМЛЕННЯ",
+    "light": "Світла",
+    "dark": "Темна",
+    "system": "Системна",
+    "language": "МОВА"
+  },
+  "defaultModel": {
+    "sectionTitle": "МОДЕЛЬ ЗА ЗАМОВЧУВАННЯМ",
+    "description": "Використовується при створенні нових проєктів та агентів.",
+    "providerLabel": "ПРОВАЙДЕР",
+    "modelLabel": "МОДЕЛЬ",
+    "noProvider": "-- Немає --",
+    "selectProviderFirst": "-- Спочатку оберіть провайдера --",
+    "noModels": "Немає доступних моделей",
+    "saved": "Збережено!"
+  },
+  "providers": {
+    "sectionTitle": "ПРОВАЙДЕРИ",
+    "addProvider": "+ Додати провайдера",
+    "selectProvider": "ОБЕРІТЬ ПРОВАЙДЕРА",
+    "customProvider": "КОРИСТУВАЦЬКИЙ ПРОВАЙДЕР",
+    "custom": "Користувацький",
+    "anyEndpoint": "будь-який endpoint",
+    "nameLabel": "НАЗВА",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "ТИП SDK",
+    "empty": "Провайдери не налаштовані. Натисніть «+ Додати провайдера», щоб почати."
+  },
+  "provider": {
+    "testing": "Тестування...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Помилка",
+    "untested": "Не перевірено",
+    "noKey": "Немає ключа",
+    "retest": "Переперевірити",
+    "test": "Тест",
+    "del": "Вид",
+    "deleteConfirm": "Видалити {{name}}? Цю дію неможливо скасувати.",
+    "apiKeyLabel": "API ключ:",
+    "notSet": "не задано",
+    "hide": "Приховати",
+    "show": "Показати",
+    "urlLabel": "URL:",
+    "modelsCount": "Моделі ({{count}})",
+    "addModel": "+ Додати модель",
+    "apiKeyInputLabel": "API КЛЮЧ",
+    "baseUrlOptional": "BASE URL (необов'язково)",
+    "hideKey": "Приховати ключ",
+    "showKey": "Показати ключ"
+  },
+  "threshold": {
+    "tokens": "токенів"
+  }
+}

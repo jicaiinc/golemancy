@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "グローバル設定"
+  },
+  "tabs": {
+    "general": "一般",
+    "providers": "プロバイダー",
+    "speech": "音声"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — AI Golem を操ろう"
+  },
+  "general": {
+    "appearance": "外観",
+    "light": "ライト",
+    "dark": "ダーク",
+    "system": "システム",
+    "language": "言語"
+  },
+  "defaultModel": {
+    "sectionTitle": "デフォルトモデル",
+    "description": "新規プロジェクトや Agent 作成時に使用するデフォルトモデル。",
+    "providerLabel": "プロバイダー",
+    "modelLabel": "モデル",
+    "noProvider": "-- なし --",
+    "selectProviderFirst": "-- まずプロバイダーを選択 --",
+    "noModels": "利用可能なモデルがありません",
+    "saved": "保存しました！"
+  },
+  "providers": {
+    "sectionTitle": "プロバイダー",
+    "addProvider": "+ プロバイダーを追加",
+    "selectProvider": "プロバイダーを選択",
+    "customProvider": "カスタムプロバイダー",
+    "custom": "カスタム",
+    "anyEndpoint": "任意のエンドポイント",
+    "nameLabel": "名前",
+    "baseUrlLabel": "ベース URL",
+    "sdkTypeLabel": "SDK タイプ",
+    "empty": "プロバイダーが設定されていません。「+ プロバイダーを追加」をクリックして始めましょう。"
+  },
+  "provider": {
+    "testing": "テスト中...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "失敗",
+    "untested": "未テスト",
+    "noKey": "キーなし",
+    "retest": "再テスト",
+    "test": "テスト",
+    "del": "削除",
+    "deleteConfirm": "{{name}} を削除しますか？この操作は取り消せません。",
+    "apiKeyLabel": "API キー：",
+    "notSet": "未設定",
+    "hide": "非表示",
+    "show": "表示",
+    "urlLabel": "URL：",
+    "modelsCount": "モデル ({{count}})",
+    "addModel": "+ モデルを追加",
+    "apiKeyInputLabel": "API キー",
+    "baseUrlOptional": "ベース URL（任意）",
+    "hideKey": "キーを非表示",
+    "showKey": "キーを表示"
+  },
+  "threshold": {
+    "tokens": "Token"
+  }
+}

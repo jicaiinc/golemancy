@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Bank Memori",
+    "entryCount_one": "{{count}} memori",
+    "entryCount_other": "{{count}} memori",
+    "addEntryBtn": "+ Tambah Entri"
+  },
+  "search": {
+    "placeholder": "Cari memori mengikut kandungan, sumber, atau tag..."
+  },
+  "filter": {
+    "all": "semua"
+  },
+  "loading": "Memuatkan memori...",
+  "empty": {
+    "noMatch": "Tiada memori yang sepadan",
+    "noEntries": "Belum ada memori",
+    "hint": "Memori membantu agen menyimpan konteks merentasi perbualan"
+  },
+  "form": {
+    "addTitle": "Tambah Entri Memori",
+    "editTitle": "Sunting Entri Memori",
+    "contentLabel": "KANDUNGAN",
+    "sourceLabel": "SUMBER",
+    "sourcePlaceholder": "cth. Penyelidik",
+    "tagsLabel": "TAG (dipisahkan koma)",
+    "tagsPlaceholder": "cth. strategi, audiens"
+  }
+}

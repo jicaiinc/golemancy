@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Mga Artifact",
+    "refreshBtn": "I-refresh"
+  },
+  "deleteModal": {
+    "title": "I-delete ang File",
+    "confirmPrefix": "Sigurado ka bang gusto mong i-delete ang",
+    "warning": "Hindi na maibabalik ang aksyon na ito."
+  },
+  "preview": {
+    "selectFile": "Pumili ng file para i-preview",
+    "loading": "Nilo-load ang file...",
+    "loadingImage": "Nilo-load ang larawan...",
+    "imageError": "Nabigo ang pag-load ng larawan: {{error}}",
+    "emptyCsv": "Walang laman ang CSV",
+    "noPreview": "Walang inline preview para sa ganitong uri ng file",
+    "download": "DL",
+    "open": "Buksan",
+    "meta": {
+      "type": "URI",
+      "mime": "MIME",
+      "size": "LAKI",
+      "modified": "BINAGO"
+    }
+  },
+  "tree": {
+    "root": "artifacts",
+    "emptyDir": "Walang laman ang directory"
+  }
+}

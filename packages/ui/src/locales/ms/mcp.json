@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Pelayan MCP",
+    "serverCount_one": "{{count}} pelayan",
+    "serverCount_other": "{{count}} pelayan",
+    "newServerBtn": "+ Pelayan Baharu"
+  },
+  "tabs": {
+    "installed": "Dipasang",
+    "marketplace": "Pasaran"
+  },
+  "warning": {
+    "restrictedBadge": "TERHAD",
+    "restrictedMsg": "Mod restricted: pelayan MCP stdio dinyahaktifkan dan tidak akan dimuatkan",
+    "riskBadge": "AMARAN",
+    "riskMsg": "Pelayan MCP pihak ketiga mungkin mengakses atau mengubah fail di komputer anda.",
+    "applyToMcpHint": "Aktifkan \"Apply to MCP\" dalam Tetapan > Permissions untuk sandbox pelayan MCP.",
+    "sandboxUnavailable": "Sandbox runtime tidak tersedia di platform ini."
+  },
+  "import": {
+    "invalidFormat": "Format tidak sah: dijangka { mcpServers: { ... } }",
+    "noServers": "Tiada pelayan ditemui dalam fail konfigurasi",
+    "importedCount_one": "{{count}} pelayan MCP diimport",
+    "importedCount_other": "{{count}} pelayan MCP diimport",
+    "parseError": "Gagal mengurai fail konfigurasi"
+  },
+  "server": {
+    "testing": "Menguji...",
+    "testOk_one": "OK ({{count}} alat)",
+    "testOk_other": "OK ({{count}} alat)",
+    "connectionFailed": "Sambungan gagal",
+    "testFailed": "Ujian gagal",
+    "blockedRestricted": "Disekat oleh mod restricted — pelayan stdio tidak dimuatkan semasa runtime",
+    "usedByAgents_one": "Digunakan oleh {{count}} agen",
+    "usedByAgents_other": "Digunakan oleh {{count}} agen",
+    "deleteErrorInUse_one": "Pelayan MCP \"{{name}}\" digunakan oleh {{count}} agen. Buang rujukan dahulu.",
+    "deleteErrorInUse_other": "Pelayan MCP \"{{name}}\" digunakan oleh {{count}} agen. Buang rujukan dahulu.",
+    "deleteError": "Gagal memadam pelayan MCP",
+    "testBtn": "Uji"
+  },
+  "empty": {
+    "title": "Tiada pelayan MCP dikonfigurasi",
+    "addFirstBtn": "Tambah Pelayan Pertama Anda"
+  },
+  "loading": "Memuatkan pelayan MCP...",
+  "comingSoon": "Akan Datang",
+  "form": {
+    "newTitle": "Pelayan MCP Baharu",
+    "editTitle": "Sunting Pelayan MCP",
+    "nameLabel": "NAMA",
+    "descriptionLabel": "PENERANGAN",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "PERINTAH",
+    "argsLabel": "ARGS (dipisahkan ruang)",
+    "envLabel": "ENV (KEY=VALUE setiap baris)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Key: Value setiap baris)"
+  }
+}

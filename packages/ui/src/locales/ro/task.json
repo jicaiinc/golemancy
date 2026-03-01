@@ -1,0 +1,24 @@
+{
+  "page": {
+    "title": "Sarcini conversație",
+    "taskCount_one": "{{count}} sarcină în total",
+    "taskCount_few": "{{count}} sarcini în total",
+    "taskCount_other": "{{count}} de sarcini în total"
+  },
+  "loading": "Se încarcă sarcinile...",
+  "empty": {
+    "noTasks": "Nicio sarcină găsită"
+  },
+  "openChat": "DESCHIDERE CONVERSAȚIE →",
+  "detail": {
+    "description": "DESCRIERE",
+    "blockedBy": "BLOCAT DE",
+    "metadata": "METADATE"
+  },
+  "status": {
+    "pending": "în așteptare",
+    "in_progress": "în curs",
+    "completed": "finalizat",
+    "deleted": "șters"
+  }
+}

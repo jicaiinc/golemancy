@@ -1,0 +1,104 @@
+{
+  "loading": "権限を読み込み中...",
+  "section": {
+    "permissionMode": "権限モード",
+    "configuration": "設定"
+  },
+  "modes": {
+    "restricted": {
+      "name": "制限付き",
+      "subtitle": "Bash のみ、サンドボックスなし",
+      "description": "最小限の実行環境。サンドボックスランタイムなし、MCP 非対応。",
+      "badge": "制限"
+    },
+    "sandbox": {
+      "name": "サンドボックス",
+      "subtitle": "設定可能な分離",
+      "description": "ファイルシステム、ネットワーク、コマンド制限を設定可能なサンドボックスランタイム。",
+      "badge": "推奨"
+    },
+    "unrestricted": {
+      "name": "無制限",
+      "subtitle": "完全なシステムアクセス",
+      "description": "サンドボックス制限なし。すべてのコマンドがフルシステム権限で実行されます。",
+      "badge": "リスク"
+    }
+  },
+  "config": {
+    "default": "デフォルト",
+    "selectConfig": "設定を選択...",
+    "saveAs": "名前を付けて保存...",
+    "rename": "名前を変更",
+    "resetToDefault": "デフォルトに戻す",
+    "saved": "保存しました！",
+    "editingDefault": "デフォルト値を編集中。保存をクリックすると新しい名前付き設定が作成されます。"
+  },
+  "modal": {
+    "unrestrictedTitle": "無制限モードを有効にしますか？",
+    "unrestrictedBody": "すべてのサンドボックス保護が解除されます。AI Agent はシステムへの完全なアクセス権を持ちます：",
+    "unrestrictedReadWrite": "コンピューター上の任意のファイルの読み書き",
+    "unrestrictedExecute": "任意のシステムコマンドの実行",
+    "unrestrictedNetwork": "制限なしのネットワークアクセス",
+    "unrestrictedSysconfig": "システム設定の変更",
+    "unrestrictedFooter": "信頼できるローカル開発環境でのみ使用してください。",
+    "enableUnrestricted": "理解しました、有効にする",
+    "sandboxUnavailableTitle": "サンドボックスモード利用不可",
+    "sandboxUnavailableBody": "サンドボックスランタイムの前提条件が満たされていません。以下の問題が見つかりました：",
+    "sandboxUnavailableFooter": "サンドボックスモードを強制的に有効にすると、ランタイムは制限付きモードに劣化します。",
+    "enableAnyway": "それでも有効にする",
+    "saveAsTitle": "新しい設定として保存",
+    "configNameLabel": "設定名",
+    "configNamePlaceholder": "例：厳格開発、Python 無効",
+    "renameTitle": "設定名を変更",
+    "newNameLabel": "新しい名前",
+    "newNamePlaceholder": "例：マイカスタム設定",
+    "renaming": "名前を変更中...",
+    "deleteTitle": "「{{title}}」を削除しますか？",
+    "deleteBody": "この設定は完全に削除されます。プロジェクトはシステムデフォルトに戻ります。"
+  },
+  "filesystem": {
+    "sectionTitle": "ファイルシステム権限",
+    "allowWrite": "書き込み許可",
+    "allowWriteHelper": "Agent がファイルを書き込めるパス。デフォルト：プロジェクトワークスペースディレクトリ。",
+    "allowWritePlaceholder": "例：/Users/name/workspace",
+    "denyRead": "読み取り拒否",
+    "denyReadHelper": "読み取りをブロックする機密ファイル/フォルダ。",
+    "denyReadPlaceholder": "例：~/.ssh, .env",
+    "denyWrite": "書き込み拒否",
+    "denyWriteHelper": "書き込みをブロックするパス。書き込み許可より優先されます。",
+    "denyWritePlaceholder": "例：/etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "ネットワーク制限",
+    "enableLabel": "有効",
+    "statusEnabled": "設定済みドメインのみアクセス可能",
+    "statusDisabled": "すべてのネットワークトラフィックを許可",
+    "allowedDomains": "許可ドメイン",
+    "allowedDomainsHelper": "Agent がアクセスできるドメイン。完全一致：example.com — ワイルドカード：*.example.com（*. の後に 2+ パーツ必要）。",
+    "allowedDomainsPlaceholder": "例：api.github.com",
+    "deniedDomains": "拒否ドメイン",
+    "deniedDomainsHelper": "ブロックするドメイン。許可ドメインと同じ形式。",
+    "deniedDomainsPlaceholder": "例：malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "コマンド制限",
+    "deniedCommands": "拒否コマンド",
+    "deniedCommandsHelper": "実行をブロックするコマンド。",
+    "deniedCommandsPlaceholder": "例：python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "MCP に適用",
+    "warning": "(\u26A0 無効にすると、サードパーティ MCP サーバーがコンピューター上のファイルにアクセスまたは変更する可能性があります)",
+    "description": "有効にすると、MCP サーバーコマンドはサンドボックスランタイム (srt) でラップされます。これにより、同じファイルシステム、ネットワーク、コマンド制限が MCP サーバーに適用されます。"
+  },
+  "windows": {
+    "notice": "\u26A0 WINDOWS のお知らせ",
+    "message": "サンドボックスランタイムは Windows では利用できません。コマンドブロックのみ対応しています。"
+  },
+  "validation": {
+    "removeProtocol": "プロトコル、パス、ポートを削除してください — ドメインのみ入力",
+    "wildcardParts": "ワイルドカードは *. の後に 2+ パーツが必要です（例：*.example.com）",
+    "onlyWildcard": "*.domain.com 形式のワイルドカードのみ対応しています",
+    "validDomain": "少なくとも 1 つのドットを含む有効なドメインである必要があります（例：example.com）"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Speicher",
+    "entryCount_one": "{{count}} Eintrag",
+    "entryCount_other": "{{count}} Einträge",
+    "addEntryBtn": "+ Eintrag hinzufügen"
+  },
+  "search": {
+    "placeholder": "Speicher nach Inhalt, Quelle oder Tag durchsuchen..."
+  },
+  "filter": {
+    "all": "alle"
+  },
+  "loading": "Speicher laden...",
+  "empty": {
+    "noMatch": "Keine passenden Einträge",
+    "noEntries": "Noch keine Einträge",
+    "hint": "Der Speicher hilft Agenten, Kontext über Konversationen hinweg zu behalten"
+  },
+  "form": {
+    "addTitle": "Speichereintrag hinzufügen",
+    "editTitle": "Speichereintrag bearbeiten",
+    "contentLabel": "INHALT",
+    "sourceLabel": "QUELLE",
+    "sourcePlaceholder": "z.B. Rechercheur",
+    "tagsLabel": "TAGS (kommagetrennt)",
+    "tagsPlaceholder": "z.B. Strategie, Zielgruppe"
+  }
+}

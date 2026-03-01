@@ -1,0 +1,104 @@
+{
+  "loading": "Načítání oprávnění...",
+  "section": {
+    "permissionMode": "REŽIM OPRÁVNĚNÍ",
+    "configuration": "KONFIGURACE"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Omezený",
+      "subtitle": "Pouze Bash, bez Sandbox",
+      "description": "Minimální prostředí pro spouštění. Bez Sandbox, bez podpory MCP.",
+      "badge": "Omezený"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Konfigurovatelná izolace",
+      "description": "Prostředí Sandbox s konfigurovatelným omezením souborového systému, sítě a příkazů.",
+      "badge": "Doporučený"
+    },
+    "unrestricted": {
+      "name": "Bez omezení",
+      "subtitle": "Plný přístup k systému",
+      "description": "Bez omezení Sandbox. Všechny příkazy jsou spouštěny s plnými systémovými oprávněními.",
+      "badge": "Rizikový"
+    }
+  },
+  "config": {
+    "default": "Výchozí",
+    "selectConfig": "Vyberte konfiguraci...",
+    "saveAs": "Uložit jako...",
+    "rename": "Přejmenovat",
+    "resetToDefault": "Obnovit výchozí",
+    "saved": "Uloženo!",
+    "editingDefault": "Úprava výchozích hodnot. Klikněte na «Uložit» pro vytvoření pojmenované konfigurace."
+  },
+  "modal": {
+    "unrestrictedTitle": "Zapnout režim bez omezení?",
+    "unrestrictedBody": "Tím se vypne veškerá ochrana Sandbox. AI agenti získají plný přístup k vašemu systému, včetně:",
+    "unrestrictedReadWrite": "Čtení/zápis jakýchkoliv souborů na vašem počítači",
+    "unrestrictedExecute": "Spouštění jakýchkoliv systémových příkazů",
+    "unrestrictedNetwork": "Neomezený přístup k síti",
+    "unrestrictedSysconfig": "Úprava konfigurace systému",
+    "unrestrictedFooter": "Používejte pouze pro lokální vývoj v důvěryhodném prostředí.",
+    "enableUnrestricted": "Rozumím, zapnout",
+    "sandboxUnavailableTitle": "Režim Sandbox není dostupný",
+    "sandboxUnavailableBody": "Předpoklady pro Sandbox nejsou splněny. Byly zjištěny následující problémy:",
+    "sandboxUnavailableFooter": "Zapnutí Sandbox i přesto povede k degradaci na omezený režim.",
+    "enableAnyway": "Přesto zapnout",
+    "saveAsTitle": "Uložit jako novou konfiguraci",
+    "configNameLabel": "NÁZEV KONFIGURACE",
+    "configNamePlaceholder": "např. Přísný vývoj, Python vypnut",
+    "renameTitle": "Přejmenovat konfiguraci",
+    "newNameLabel": "NOVÝ NÁZEV",
+    "newNamePlaceholder": "např. Moje konfigurace",
+    "renaming": "Přejmenovávání...",
+    "deleteTitle": "Smazat «{{title}}»?",
+    "deleteBody": "Tato konfigurace bude trvale smazána. Projekt se vrátí k výchozímu nastavení."
+  },
+  "filesystem": {
+    "sectionTitle": "OPRÁVNĚNÍ SOUBOROVÉHO SYSTÉMU",
+    "allowWrite": "POVOLIT ZÁPIS",
+    "allowWriteHelper": "Cesty, kam agenti mohou zapisovat soubory. Výchozí: pracovní adresář projektu.",
+    "allowWritePlaceholder": "např. /Users/name/workspace",
+    "denyRead": "ZAKÁZAT ČTENÍ",
+    "denyReadHelper": "Citlivé soubory/složky blokované pro čtení.",
+    "denyReadPlaceholder": "např. ~/.ssh, .env",
+    "denyWrite": "ZAKÁZAT ZÁPIS",
+    "denyWriteHelper": "Cesty, kde je zápis blokován. Má přednost před «Povolit zápis».",
+    "denyWritePlaceholder": "např. /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "SÍŤOVÁ OMEZENÍ",
+    "enableLabel": "Zapnout",
+    "statusEnabled": "Dostupné jsou pouze nakonfigurované domény",
+    "statusDisabled": "Veškerý síťový provoz je povolen",
+    "allowedDomains": "POVOLENÉ DOMÉNY",
+    "allowedDomainsHelper": "Domény, ke kterým mají agenti přístup. Přesná: example.com — Zástupná: *.example.com (2+ části za *.)",
+    "allowedDomainsPlaceholder": "např. api.github.com",
+    "deniedDomains": "ZAKÁZANÉ DOMÉNY",
+    "deniedDomainsHelper": "Domény k blokování. Stejný formát jako povolené domény.",
+    "deniedDomainsPlaceholder": "např. malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "OMEZENÍ PŘÍKAZŮ",
+    "deniedCommands": "ZAKÁZANÉ PŘÍKAZY",
+    "deniedCommandsHelper": "Příkazy blokované pro spuštění.",
+    "deniedCommandsPlaceholder": "např. python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Použít na MCP",
+    "warning": "(\u26A0 Vypnutí může umožnit MCP serverům třetích stran přístup k souborům na vašem počítači nebo jejich úpravu)",
+    "description": "Při zapnutí budou příkazy MCP serverů obaleny prostředím Sandbox (srt). Tím se aplikují stejná omezení souborového systému, sítě a příkazů na MCP servery."
+  },
+  "windows": {
+    "notice": "\u26A0 UPOZORNĚNÍ PRO WINDOWS",
+    "message": "Prostředí Sandbox není ve Windows dostupné. Je podporováno pouze blokování příkazů."
+  },
+  "validation": {
+    "removeProtocol": "Odstraňte protokol, cestu nebo port — pouze doména",
+    "wildcardParts": "Zástupný znak vyžaduje 2+ části za *. (např. *.example.com)",
+    "onlyWildcard": "Je podporován pouze formát *.domain.com",
+    "validDomain": "Musí být platná doména s alespoň jednou tečkou (např. example.com)"
+  }
+}

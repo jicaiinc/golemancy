@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Transkriptionsverlauf"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} Datensatz",
+    "recordCount_other": "{{count}} Datensätze",
+    "used": "{{size}} belegt",
+    "loading": "Speicherinfo laden..."
+  },
+  "clearAll": {
+    "confirm_one": "{{count}} Datensatz löschen?",
+    "confirm_other": "Alle {{count}} Datensätze löschen?",
+    "confirmWithFree_one": "{{count}} Datensatz löschen und {{size}} freigeben?",
+    "confirmWithFree_other": "Alle {{count}} Datensätze löschen und {{size}} freigeben?"
+  },
+  "loading": "Verlauf laden...",
+  "empty": {
+    "hint": "Verwenden Sie die Mikrofontaste im Chat\num Ihre erste Sprachaufnahme zu erstellen",
+    "settingsBtn": "Zu Einstellungen"
+  },
+  "player": {
+    "play": "Wiedergabe",
+    "pause": "Pause",
+    "close": "Player schließen"
+  },
+  "actions": {
+    "copy": "Transkribierten Text kopieren",
+    "retry": "Transkription wiederholen",
+    "delete": "Datensatz löschen"
+  },
+  "enable": {
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "sectionTitle": "SPEECH-TO-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "TYP",
+    "customType": "Benutzerdefiniert (OpenAI-kompatibel)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (ERFORDERLICH)",
+    "baseUrlOptional": "BASE URL (OPTIONAL)",
+    "baseUrlPlaceholder": "Leer lassen für Standard",
+    "modelLabel": "MODELL",
+    "modelOther": "Andere...",
+    "presets": "Voreinstellungen",
+    "languageLabel": "SPRACHE",
+    "hide": "Ausblenden",
+    "show": "Anzeigen"
+  },
+  "test": {
+    "testing": "Test läuft...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Erneut testen",
+    "test": "Test",
+    "failed": "Fehlgeschlagen",
+    "untested": "Nicht getestet",
+    "unknownError": "Unbekannter Fehler"
+  },
+  "history": {
+    "sectionTitle": "VERLAUF",
+    "recordsInfo": "{{recordCount}} Datensätze / {{size}}",
+    "clearAll": "Alle löschen",
+    "confirmClear": "Alle löschen?",
+    "empty": "Noch keine Transkriptionen",
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "transcribing": "Transkription...",
+    "openChat": "Chat öffnen \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "Diesen Datensatz und die Audiodatei löschen?",
+    "retryConfirm": "Dies überschreibt die vorhandene Transkription.",
+    "transcriptionFailed": "Transkription fehlgeschlagen: {{error}}",
+    "retranscribe": "Erneut transkribieren"
+  }
+}
