@@ -132,12 +132,17 @@ export function OnboardingPage() {
 
   function goBack() {
     if (step <= 0) return
+    setStepError('')
     setDirection(-1)
     setStep(s => s - 1)
   }
 
   async function skipSetup() {
-    await updateSettings({ onboardingCompleted: true })
+    try {
+      await updateSettings({ onboardingCompleted: true })
+    } catch (err) {
+      setStepError(err instanceof Error ? err.message : 'Failed to skip setup. Please try again.')
+    }
   }
 
   // --- Persist helpers ---

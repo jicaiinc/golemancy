@@ -82,7 +82,7 @@ export function CompleteStep({
       <div className="flex gap-4 text-[10px]">
         <a href="#/settings" className="text-accent-blue hover:text-text-primary transition-colors">Settings</a>
         <a href="https://discord.gg/xksGkxd6SV" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:text-text-primary transition-colors">Discord</a>
-        <a href="https://golemancy.ai" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:text-text-primary transition-colors">Documentation</a>
+        <a href="https://golemancy.ai" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:text-text-primary transition-colors">Website</a>
       </div>
     </div>
   )

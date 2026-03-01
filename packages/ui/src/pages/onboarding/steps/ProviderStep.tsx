@@ -24,6 +24,12 @@ const SDK_TYPE_OPTIONS: { value: ProviderSdkType; label: string }[] = [
   { value: 'anthropic', label: 'Anthropic' },
   { value: 'openai', label: 'OpenAI' },
   { value: 'google', label: 'Google' },
+  { value: 'deepseek', label: 'DeepSeek' },
+  { value: 'xai', label: 'xAI (Grok)' },
+  { value: 'groq', label: 'Groq' },
+  { value: 'mistral', label: 'Mistral' },
+  { value: 'moonshot', label: 'Moonshot (Kimi)' },
+  { value: 'alibaba', label: 'Alibaba (Qwen)' },
 ]
 
 export function ProviderStep({
