@@ -3,6 +3,7 @@
 
 # Internal docs & working directories
 /_*/
+!/__*/
 
 node_modules/
 dist/
