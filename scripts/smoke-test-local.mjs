@@ -138,8 +138,8 @@ async function checkArtifacts() {
 function forkServer(bundledNode, serverEntry) {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
-      reject(new Error('Server did not send IPC ready message within 10 seconds'))
-    }, 10_000)
+      reject(new Error('Server did not send IPC ready message within 60 seconds'))
+    }, 60_000)
 
     const child = fork(serverEntry, [], {
       execPath: bundledNode,

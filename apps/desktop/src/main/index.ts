@@ -89,7 +89,7 @@ function startServer(): Promise<number> {
       }
     })
 
-    setTimeout(() => reject(new Error('Server startup timeout')), 15000)
+    setTimeout(() => reject(new Error('Server startup timeout')), 60000)
   })
 }
 

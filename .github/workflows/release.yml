@@ -139,8 +139,9 @@ jobs:
             exit 1
           fi
 
-          # Fork server entry, wait for IPC ready or 15s timeout.
-          # Timeout matches Electron main process (15s) to account for slow CI runners.
+          # Fork server entry, wait for IPC ready or 60s timeout.
+          # Timeout matches Electron main process (60s). Windows Defender can delay
+          # first execution of unsigned bundled node.exe by 30+ seconds.
           # NODE_ENV=production is required — pino-pretty transport (dev-only) is not bundled.
           node -e "
             const { fork } = require('child_process');
@@ -154,10 +155,10 @@ jobs:
             child.stderr.on('data', (d) => process.stderr.write(d));
 
             const timeout = setTimeout(() => {
-              console.error('ERROR: Server did not send ready message within 15 seconds');
+              console.error('ERROR: Server did not send ready message within 60 seconds');
               child.kill();
               process.exit(1);
-            }, 15000);
+            }, 60000);
 
             child.on('message', (msg) => {
               if (msg && msg.type === 'ready') {
