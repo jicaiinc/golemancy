@@ -227,7 +227,12 @@ jobs:
         if: matrix.platform == 'win'
         shell: pwsh
         run: |
-          $files = Get-ChildItem "apps/desktop/release" -Include *.exe,*.msi -Recurse
+          # Only check top-level installer files — not files inside win-unpacked/
+          $files = Get-ChildItem "apps/desktop/release" -File | Where-Object { $_.Extension -in '.exe','.msi' }
+          if ($files.Count -eq 0) {
+            Write-Error "ERROR: No .exe or .msi installer files found in apps/desktop/release/"
+            exit 1
+          }
           foreach ($file in $files) {
             $sizeMB = [math]::Round($file.Length / 1MB, 1)
             if ($sizeMB -lt 50) {
