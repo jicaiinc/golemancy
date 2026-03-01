@@ -66,6 +66,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ── Step 0: Verify tag matches package.json version ──
+      # Prevents releasing artifacts with mismatched version numbers.
+      # Uses GITHUB_REF_NAME env var (safe — set by GitHub, not user input).
+      - name: Verify version matches tag
+        shell: bash
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          PKG_VERSION=$(node -p "require('./apps/desktop/package.json').version")
+          TAG_VERSION="${TAG_NAME#v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Version mismatch: package.json has $PKG_VERSION but tag is $TAG_VERSION"
+            echo "Fix: Update apps/desktop/package.json version to $TAG_VERSION before tagging"
+            exit 1
+          fi
+          echo "Version verified: $PKG_VERSION"
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -86,8 +103,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ── Step 1: Download bundled runtimes (Node.js + Python) ──
+      # Use --force in CI to ensure clean downloads (no stale cache from previous runs)
       - name: Download runtimes
-        run: bash scripts/download-runtime.sh --arch ${{ matrix.arch }}
+        run: bash scripts/download-runtime.sh --arch ${{ matrix.arch }} --force
         shell: bash
 
       # ── Step 2: Build Electron app (main + preload + renderer) ──
@@ -121,7 +139,8 @@ jobs:
             exit 1
           fi
 
-          # Fork server entry, wait for IPC ready or 5s timeout.
+          # Fork server entry, wait for IPC ready or 15s timeout.
+          # Timeout matches Electron main process (15s) to account for slow CI runners.
           # NODE_ENV=production is required — pino-pretty transport (dev-only) is not bundled.
           node -e "
             const { fork } = require('child_process');
@@ -135,10 +154,10 @@ jobs:
             child.stderr.on('data', (d) => process.stderr.write(d));
 
             const timeout = setTimeout(() => {
-              console.error('ERROR: Server did not send ready message within 5 seconds');
+              console.error('ERROR: Server did not send ready message within 15 seconds');
               child.kill();
               process.exit(1);
-            }, 5000);
+            }, 15000);
 
             child.on('message', (msg) => {
               if (msg && msg.type === 'ready') {
@@ -173,6 +192,51 @@ jobs:
           # Disable code signing (no Apple Developer / Windows cert)
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
+      # ── Step 7: Verify package integrity ──
+      # Every platform gets a verification step to catch corrupted artifacts
+      # before they reach users. Previously only macOS had this.
+      - name: Verify DMG integrity (macOS)
+        if: matrix.platform == 'mac'
+        run: |
+          for dmg in apps/desktop/release/*.dmg; do
+            echo "Verifying: $dmg"
+            hdiutil verify "$dmg"
+            echo "✓ $(basename "$dmg") is valid"
+          done
+
+      - name: Verify Linux packages
+        if: matrix.platform == 'linux'
+        run: |
+          for deb in apps/desktop/release/*.deb; do
+            echo "Verifying: $deb"
+            dpkg-deb --info "$deb" > /dev/null
+            SIZE=$(stat --format=%s "$deb")
+            if [ "$SIZE" -lt 50000000 ]; then
+              echo "WARNING: $deb is suspiciously small ($(numfmt --to=iec $SIZE))"
+            fi
+            echo "✓ $(basename "$deb") is valid ($(numfmt --to=iec $SIZE))"
+          done
+          for rpm_file in apps/desktop/release/*.rpm; do
+            echo "Verifying: $rpm_file"
+            rpm -qpl "$rpm_file" > /dev/null
+            SIZE=$(stat --format=%s "$rpm_file")
+            echo "✓ $(basename "$rpm_file") is valid ($(numfmt --to=iec $SIZE))"
+          done
+
+      - name: Verify Windows packages
+        if: matrix.platform == 'win'
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem "apps/desktop/release" -Include *.exe,*.msi -Recurse
+          foreach ($file in $files) {
+            $sizeMB = [math]::Round($file.Length / 1MB, 1)
+            if ($sizeMB -lt 50) {
+              Write-Error "ERROR: $($file.Name) is suspiciously small ($sizeMB MB) — expected >50 MB for a full Electron app"
+              exit 1
+            }
+            Write-Host "✓ $($file.Name) — $sizeMB MB"
+          }
+
       # ── Upload artifacts for release job ──
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -204,6 +268,13 @@ jobs:
 
       - name: List release files
         run: ls -lhR artifacts/
+
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          sha256sum * > SHA256SUMS.txt
+          echo "Generated checksums:"
+          cat SHA256SUMS.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -239,6 +310,13 @@ jobs:
             | `.rpm` | Fedora, RHEL, CentOS, openSUSE | |
 
             > **Not sure which to pick?** Choose the **Recommended** option — it covers the vast majority of users.
+
+            ### Verify Downloads
+
+            Download `SHA256SUMS.txt` and verify:
+            ```bash
+            sha256sum -c SHA256SUMS.txt
+            ```
 
             ### Installation Notes
 

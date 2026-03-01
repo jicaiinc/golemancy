@@ -15,15 +15,6 @@
     "dist": "turbo build && pnpm --filter @golemancy/desktop run dist",
     "verify": "pnpm lint && pnpm test && pnpm build && pnpm --filter @golemancy/desktop download-runtime && pnpm --filter @golemancy/desktop bundle-server && pnpm --filter @golemancy/desktop preflight-check && node scripts/smoke-test-local.mjs && pnpm test:build"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@vscode/ripgrep",
-      "electron",
-      "esbuild",
-      "@tailwindcss/oxide",
-      "better-sqlite3"
-    ]
-  },
   "devDependencies": {
     "turbo": "^2.8.0",
     "typescript": "^5.8.0"

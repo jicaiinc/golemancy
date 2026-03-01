@@ -12,7 +12,7 @@
  * empty/missing directories.
  */
 
-import { access, constants, readdir, stat } from 'node:fs/promises'
+import { access, constants, readdir, readFile, stat } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 
 const ROOT = resolve(import.meta.dirname, '..')
@@ -150,6 +150,30 @@ async function main() {
     'Native: @vscode/ripgrep',
     "Run 'pnpm --filter @golemancy/desktop bundle-server' to generate",
   )
+
+  await checkFile(
+    join(serverDeps, 'node_modules/agent-browser/package.json'),
+    'Native: agent-browser',
+    "Run 'pnpm --filter @golemancy/desktop bundle-server' to generate",
+  )
+
+  // Verify deps/package.json has "type": "module" (required for ESM bundle)
+  try {
+    const depsPackageJson = JSON.parse(await readFile(join(serverDeps, 'package.json'), 'utf-8'))
+    if (depsPackageJson.type !== 'module') {
+      errors.push({
+        description: 'Server deps package.json missing "type": "module" (ESM bundle will fail)',
+        path: join(serverDeps, 'package.json'),
+        fix: "Run 'pnpm --filter @golemancy/desktop bundle-server' to regenerate",
+      })
+    }
+  } catch {
+    errors.push({
+      description: 'Server deps package.json not found',
+      path: join(serverDeps, 'package.json'),
+      fix: "Run 'pnpm --filter @golemancy/desktop bundle-server' to generate",
+    })
+  }
 
   // ── 3. Electron-vite build output ──────────────────────────
 

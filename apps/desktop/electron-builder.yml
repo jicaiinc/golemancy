@@ -23,11 +23,7 @@ asarUnpack: []  # native modules are in extraResources, not in ASAR
 mac:
   category: public.app-category.developer-tools
   icon: resources/build/icons/mac/icon.icns
-  target:
-    - target: dmg
-      arch: [arm64]
-    - target: zip
-      arch: [arm64]
+  target: [dmg, zip]
   hardenedRuntime: true
   entitlements: resources/build/entitlements.mac.plist
   entitlementsInherit: resources/build/entitlements.mac.plist

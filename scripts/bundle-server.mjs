@@ -21,7 +21,7 @@
 
 import { execSync, execFileSync } from 'node:child_process'
 import { chmod, cp, mkdir, readdir, readFile, rm, stat, symlink, writeFile } from 'node:fs/promises'
-import { createRequire } from 'node:module'
+import { builtinModules, createRequire } from 'node:module'
 import { arch as osArch, tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
@@ -625,6 +625,13 @@ async function bundleServer() {
     // by nesting incompatible versions in per-package node_modules.
     // Note: lifecycle scripts don't run in hoisted mode, which is fine — native
     // packages are overlaid from the deploy in the next step.
+    //
+    // Known limitation: This install runs without --frozen-lockfile because the
+    // temp directory has a modified package.json (workspace deps stripped, native
+    // deps promoted). The risk of version drift is limited because:
+    //   1. Native packages (the critical ones) are overlaid from the pnpm deploy
+    //      step which DOES use the real lockfile
+    //   2. Only transitive deps of native packages come from this hoisted install
     try {
       execSync('pnpm install --prod', {
         cwd: TEMP_DEPLOY_DIR,
@@ -679,6 +686,12 @@ async function bundleServer() {
   }
 
   // ── [4/5] Verify external imports (isolated subprocess) ───
+  // Known limitation: Verification uses the HOST Node.js (process.execPath), not the
+  // bundled target-arch Node.js. For cross-compilation, native .node addons for the
+  // target arch will fail to load on the host — but this is correctly handled: the
+  // verification only checks for ERR_MODULE_NOT_FOUND (bundling errors), not load
+  // failures (which are expected for cross-arch .node files). ABI mismatches are
+  // caught later by the CI smoke test which uses the bundled target-arch Node.js.
   console.log('\n[4/5] Verifying external imports (isolated subprocess)...')
 
   // Extract all external imports from bundled output
@@ -703,14 +716,8 @@ async function bundleServer() {
     }
   }
 
-  // Filter out Node.js built-in modules
-  const NODE_BUILTINS = new Set([
-    'fs', 'path', 'os', 'child_process', 'crypto', 'http', 'https', 'net',
-    'url', 'util', 'stream', 'events', 'buffer', 'module', 'worker_threads',
-    'tty', 'assert', 'zlib', 'dns', 'tls', 'async_hooks', 'perf_hooks',
-    'v8', 'vm', 'readline', 'string_decoder', 'querystring',
-    'diagnostics_channel', 'inspector',
-  ])
+  // Filter out Node.js built-in modules (auto-detected from running Node.js)
+  const NODE_BUILTINS = new Set(builtinModules)
   const pkgsToVerify = [...allImportedPkgs].filter(
     pkg => !pkg.startsWith('node:') && !NODE_BUILTINS.has(pkg),
   )

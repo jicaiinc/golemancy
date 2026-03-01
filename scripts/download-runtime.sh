@@ -66,10 +66,13 @@ download_python() {
   local platform="$1"
   local python_dir="${RUNTIME_DIR}/python"
 
-  # Idempotent: skip if already downloaded
+  # Idempotent: skip if already downloaded (unless --force)
   # Windows: python.exe at root; Unix: bin/python3.13
-  if [ -f "${python_dir}/python.exe" ] || [ -x "${python_dir}/bin/python3.13" ]; then
-    echo "Python ${PYTHON_VERSION} already present, skipping"
+  if [ "$FORCE_DOWNLOAD" = true ]; then
+    echo "Force mode: removing existing Python runtime..."
+    rm -rf "${python_dir}"
+  elif [ -f "${python_dir}/python.exe" ] || [ -x "${python_dir}/bin/python3.13" ]; then
+    echo "Python ${PYTHON_VERSION} already present, skipping (use --force to re-download)"
     return 0
   fi
 
@@ -130,10 +133,13 @@ download_node() {
   local platform="$1"
   local node_dir="${RUNTIME_DIR}/node"
 
-  # Idempotent: skip if already downloaded
+  # Idempotent: skip if already downloaded (unless --force)
   # Windows: node.exe at root; Unix: bin/node
-  if [ -f "${node_dir}/node.exe" ] || [ -x "${node_dir}/bin/node" ]; then
-    echo "Node.js ${NODE_VERSION} already present, skipping"
+  if [ "$FORCE_DOWNLOAD" = true ]; then
+    echo "Force mode: removing existing Node.js runtime..."
+    rm -rf "${node_dir}"
+  elif [ -f "${node_dir}/node.exe" ] || [ -x "${node_dir}/bin/node" ]; then
+    echo "Node.js ${NODE_VERSION} already present, skipping (use --force to re-download)"
     return 0
   fi
 
@@ -213,6 +219,7 @@ download_node() {
 # ── Argument parsing ──
 
 OVERRIDE_ARCH=""
+FORCE_DOWNLOAD=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -220,12 +227,27 @@ while [[ $# -gt 0 ]]; do
       OVERRIDE_ARCH="$2"
       shift 2
       ;;
+    --force)
+      FORCE_DOWNLOAD=true
+      shift
+      ;;
     *)
-      echo "Usage: $0 [--arch arm64|x64]"
+      echo "Usage: $0 [--arch arm64|x64] [--force]"
       exit 1
       ;;
   esac
 done
+
+# Validate --arch value
+if [ -n "$OVERRIDE_ARCH" ]; then
+  case "$OVERRIDE_ARCH" in
+    arm64|x64) ;;
+    *)
+      echo "ERROR: Invalid --arch value: '${OVERRIDE_ARCH}'. Must be 'arm64' or 'x64'."
+      exit 1
+      ;;
+  esac
+fi
 
 # ── Main ──
 

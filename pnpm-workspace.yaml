@@ -2,6 +2,13 @@ packages:
   - "apps/*"
   - "packages/*"
 
+# Allowlist of packages permitted to run install scripts (pnpm v10 security).
+# All 5 packages need native compilation or post-install binary downloads.
+# Previously split between here and package.json — consolidated here as the
+# canonical location per pnpm v10 docs.
 onlyBuiltDependencies:
+  - "@tailwindcss/oxide"
+  - "@vscode/ripgrep"
+  - better-sqlite3
   - electron
   - esbuild
