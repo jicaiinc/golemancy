@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/jicaiinc/golemancy/releases/latest"><img alt="Latest Release" src="https://img.shields.io/github/v/release/jicaiinc/golemancy?style=flat-square&color=4ADE80"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/jicaiinc/golemancy?style=flat-square&color=4ADE80"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/jicaiinc/golemancy?style=flat-square&color=4ADE80&cacheSeconds=1"></a>
   <a href="https://discord.gg/xksGkxd6SV"><img alt="Discord" src="https://img.shields.io/discord/1476526765848662108?style=flat-square&label=Discord&color=5865F2"></a>
   <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-333?style=flat-square">
 </p>
@@ -30,11 +30,7 @@
   <img src="docs/screenshot.png" alt="Golemancy Screenshot" width="800">
 </p> -->
 
-One person. Infinite golems.
-
 Golemancy is a free, open-source desktop app for orchestrating autonomous AI agents. Summon multiple agents, equip them with tools and skills, and let them work in parallel — all running locally on your machine.
-
-Built for one-person teams.
 
 ## Features
 
