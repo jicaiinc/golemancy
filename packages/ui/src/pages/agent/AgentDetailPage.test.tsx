@@ -137,9 +137,10 @@ describe('AgentDetailPage', () => {
     expect(screen.getByText('idle')).toBeInTheDocument()
   })
 
-  it('renders all 5 tab labels', () => {
+  it('renders all 6 tab labels', () => {
     renderAtRoute()
     expect(screen.getByText('General')).toBeInTheDocument()
+    expect(screen.getByText('Model Config')).toBeInTheDocument()
     expect(screen.getByText('Skills')).toBeInTheDocument()
     expect(screen.getByText('Tools')).toBeInTheDocument()
     expect(screen.getByText('MCP')).toBeInTheDocument()
@@ -162,15 +163,21 @@ describe('AgentDetailPage', () => {
     expect(screen.getByText('1 sub-agents')).toBeInTheDocument()
   })
 
-  it('renders General tab with Info and Model Config sections', () => {
+  it('renders General tab with Info section', () => {
     renderAtRoute()
     // General tab is default — shows Info section
     expect(screen.getByText('INFO')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Test Agent')).toBeInTheDocument()
     expect(screen.getByDisplayValue('A test agent for unit tests')).toBeInTheDocument()
     expect(screen.getByDisplayValue('You are a helpful assistant.')).toBeInTheDocument()
-    // Shows Model Config section
-    expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+  })
+
+  it('renders Model Config tab with MODEL CONFIG section', async () => {
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Model Config'))
+    await waitFor(() => {
+      expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+    })
   })
 
   it('Save button calls updateAgent', async () => {
