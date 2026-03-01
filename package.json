@@ -12,7 +12,8 @@
     "test:live": "pnpm --filter @golemancy/server test:live",
     "test:build": "node --test scripts/preflight-check.test.mjs scripts/bundle-server.test.mjs",
     "pack": "turbo build && pnpm --filter @golemancy/desktop run pack",
-    "dist": "turbo build && pnpm --filter @golemancy/desktop run dist"
+    "dist": "turbo build && pnpm --filter @golemancy/desktop run dist",
+    "verify": "pnpm lint && pnpm test && pnpm build && pnpm --filter @golemancy/desktop download-runtime && pnpm --filter @golemancy/desktop bundle-server && pnpm --filter @golemancy/desktop preflight-check && node scripts/smoke-test-local.mjs && pnpm test:build"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

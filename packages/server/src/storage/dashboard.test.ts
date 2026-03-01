@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm'
 import { createTestDb } from '../test/helpers'
 import { DashboardService } from './dashboard'
 import { TokenRecordStorage } from './token-records'
+import { toLocalDate } from '../utils/time-range'
 import type { AppDatabase } from '../db/client'
 import type { ProjectId, AgentId, IProjectService, IAgentService } from '@golemancy/shared'
 
@@ -10,7 +11,7 @@ const projId = 'proj-1' as ProjectId
 const agentId = 'agent-1' as AgentId
 
 function today() {
-  return new Date().toISOString().slice(0, 10)
+  return toLocalDate()
 }
 
 function todayISO() {
