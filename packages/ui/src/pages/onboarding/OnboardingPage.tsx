@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { useTranslation } from 'react-i18next'
+import i18next from 'i18next'
 import type { AgentModelConfig, ProjectId, SpeechToTextSettings } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services/container'
@@ -220,6 +221,12 @@ export function OnboardingPage() {
     return getServices().speech.testProvider(config)
   }, [])
 
+  // --- Language change ---
+  const handleLanguageChange = useCallback(async (lang: string) => {
+    i18next.changeLanguage(lang)
+    await updateSettings({ language: lang })
+  }, [updateSettings])
+
   // --- Resolve display name ---
   function getProviderName(): string {
     if (!data.selectedProvider) return t('provider.none')
@@ -276,7 +283,7 @@ export function OnboardingPage() {
               exit={{ opacity: 0, x: direction * -40 }}
               transition={{ duration: 0.2 }}
             >
-              {step === 0 && <WelcomeStep onGetStarted={goNext} />}
+              {step === 0 && <WelcomeStep onGetStarted={goNext} onLanguageChange={handleLanguageChange} />}
               {step === 1 && (
                 <ProviderStep
                   selectedProvider={data.selectedProvider}
