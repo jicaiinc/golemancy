@@ -10,9 +10,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jicaiinc/golemancy/releases/latest"><img alt="Latest Release" src="https://img.shields.io/github/v/release/jicaiinc/golemancy?style=flat-square&color=4ADE80"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/jicaiinc/golemancy?style=flat-square&color=4ADE80"></a>
-  <a href="https://discord.gg/xksGkxd6SV"><img alt="Discord" src="https://img.shields.io/discord/1234567890?style=flat-square&label=Discord&color=5865F2"></a>
+  <a href="https://github.com/jicaiinc/golemancy/releases/latest"><img alt="Latest Release" src="https://img.shields.io/github/v/release/jicaiinc/golemancy?style=flat-square&color=2D7A4F"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/jicaiinc/golemancy?style=flat-square&color=2D7A4F&cacheSeconds=1"></a>
+  <a href="https://discord.gg/xksGkxd6SV"><img alt="Discord" src="https://img.shields.io/discord/1476526765848662108?style=flat-square&label=Discord&color=5865F2"></a>
   <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-333?style=flat-square">
 </p>
 
@@ -30,11 +30,7 @@
   <img src="docs/screenshot.png" alt="Golemancy Screenshot" width="800">
 </p> -->
 
-One person. Infinite golems.
-
 Golemancy is a free, open-source desktop app for orchestrating autonomous AI agents. Summon multiple agents, equip them with tools and skills, and let them work in parallel — all running locally on your machine.
-
-Built for one-person teams.
 
 ## Features
 
@@ -127,6 +123,16 @@ For bugs and feature requests, [open an issue](https://github.com/jicaiinc/golem
 - [Discord](https://discord.gg/xksGkxd6SV) — Chat, get help, share what you build
 - [Twitter](https://x.com/golemancyai) — Updates and announcements
 - [Email](mailto:hi@golemancy.ai) — hi@golemancy.ai
+
+## Star History
+
+<a href="https://star-history.com/#jicaiinc/golemancy&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jicaiinc/golemancy&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jicaiinc/golemancy&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jicaiinc/golemancy&type=Date" />
+ </picture>
+</a>
 
 ## License
 

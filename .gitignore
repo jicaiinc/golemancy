@@ -1,6 +1,9 @@
 /.idea/
 /.claude/
 
+# Internal docs & working directories
+/_*/
+
 node_modules/
 dist/
 out/
