@@ -180,7 +180,9 @@ These are deliberate decisions — do NOT use the alternatives:
 
 Tailwind CSS v4 with CSS-first config in `packages/ui/src/styles/global.css`:
 - Design tokens defined in `@theme {}` block (colors, fonts, shadows)
-- Pixel font: Press Start 2P. Body font: JetBrains Mono
+- Three font roles: `--font-arcade` (logo only, Press Start 2P), `--font-pixel` (titles/badges, Press Start 2P + Fusion Pixel CJK with `size-adjust: 150%`), `--font-mono` (body/code, JetBrains Mono + Noto Sans Mono CJK)
+- CJK font strategy: `:lang()` overrides select per-language variant (SC/TC/JP/KR); `unicode-range` fallback families ("Pixel CJK", "Mono CJK") catch CJK chars in non-CJK language modes
+- Font design doc: `_design/font-system.md`
 - No border-radius anywhere (pixel art style)
 - Shadow system: `shadow-pixel-raised`, `shadow-pixel-sunken`, `shadow-pixel-drop`
 - PostCSS config lives in `apps/desktop/postcss.config.js`
