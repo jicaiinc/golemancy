@@ -17,6 +17,8 @@
   "dependencies": {
     "@ai-sdk/react": "^3.0.84",
     "@dagrejs/dagre": "^2.0.4",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/press-start-2p": "^5.2.7",
     "@golemancy/shared": "workspace:*",
     "@xyflow/react": "^12.10.0",
     "ai": "^6.0.82",
