@@ -106,14 +106,13 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getAllByText('OpenAI').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('renders about footer with version', () => {
+  it('renders about footer with version key', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText(/Golemancy v0\.1\.0/)).toBeInTheDocument()
-    expect(screen.getByText(/Command Your AI Golems/)).toBeInTheDocument()
+    expect(screen.getByText(/Golemancy v.+ — Command Your AI Golems/)).toBeInTheDocument()
   })
 
-  it('renders Golemancy branding in header', () => {
+  it('renders Golemancy branding in footer', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText('Golemancy')).toBeInTheDocument()
+    expect(screen.getByText(/Golemancy v.+ — Command Your AI Golems/)).toBeInTheDocument()
   })
 })

@@ -38,7 +38,7 @@ export function createRuntimeRoutes() {
       return c.json(packages)
     } catch (err) {
       log.error({ err, projectId }, 'failed to list Python packages')
-      return c.json({ error: 'Failed to list packages', detail: String(err) }, 500)
+      return c.json({ error: 'FAILED_TO_LIST_PACKAGES', detail: String(err) }, 500)
     }
   })
 
@@ -49,13 +49,13 @@ export function createRuntimeRoutes() {
     const body = await c.req.json<{ packages: string[] }>()
 
     if (!body.packages || !Array.isArray(body.packages) || body.packages.length === 0) {
-      return c.json({ error: 'packages array is required' }, 400)
+      return c.json({ error: 'PACKAGES_REQUIRED' }, 400)
     }
 
     // Validate package names (basic sanitization)
     const invalidPackage = body.packages.find(p => !/^[a-zA-Z0-9._\-\[\]>=<!, ]+$/.test(p))
     if (invalidPackage) {
-      return c.json({ error: `Invalid package specifier: ${invalidPackage}` }, 400)
+      return c.json({ error: 'INVALID_PACKAGE_SPECIFIER' }, 400)
     }
 
     log.info({ projectId, packages: body.packages }, 'installing Python packages')
@@ -65,7 +65,7 @@ export function createRuntimeRoutes() {
       return c.json({ ok: true, output })
     } catch (err) {
       log.error({ err, projectId }, 'failed to install Python packages')
-      return c.json({ error: 'Install failed', detail: String(err) }, 500)
+      return c.json({ error: 'INSTALL_FAILED', detail: String(err) }, 500)
     }
   })
 
@@ -75,7 +75,7 @@ export function createRuntimeRoutes() {
     const name = c.req.param('name')
 
     if (!name || !/^[a-zA-Z0-9._-]+$/.test(name)) {
-      return c.json({ error: 'Invalid package name' }, 400)
+      return c.json({ error: 'INVALID_PACKAGE_NAME' }, 400)
     }
 
     log.info({ projectId, packageName: name }, 'uninstalling Python package')
@@ -85,7 +85,7 @@ export function createRuntimeRoutes() {
       return c.json({ ok: true, output })
     } catch (err) {
       log.error({ err, projectId, packageName: name }, 'failed to uninstall Python package')
-      return c.json({ error: 'Uninstall failed', detail: String(err) }, 500)
+      return c.json({ error: 'UNINSTALL_FAILED', detail: String(err) }, 500)
     }
   })
 
@@ -99,7 +99,7 @@ export function createRuntimeRoutes() {
       return c.json({ ok: true })
     } catch (err) {
       log.error({ err, projectId }, 'failed to reset Python venv')
-      return c.json({ error: 'Reset failed', detail: String(err) }, 500)
+      return c.json({ error: 'RESET_FAILED', detail: String(err) }, 500)
     }
   })
 

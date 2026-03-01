@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { AgentId } from '@golemancy/shared'
 import { useNavigate, useParams } from 'react-router'
 import { useAppStore } from '../../../stores'
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function NodeDetailPanel({ agentId, onClose }: Props) {
+  const { t } = useTranslation('agent')
   const agents = useAppStore(s => s.agents)
   const agent = agents.find(a => a.id === agentId)
   const navigate = useNavigate()
@@ -43,7 +45,7 @@ export function NodeDetailPanel({ agentId, onClose }: Props) {
           <PixelAvatar size="md" initials={agent.name} status={statusMap[agent.status]} />
           <div className="min-w-0">
             <h3 className="font-pixel text-[10px] text-text-primary truncate">{agent.name}</h3>
-            <PixelBadge variant={agent.status}>{agent.status}</PixelBadge>
+            <PixelBadge variant={agent.status}>{t(`statusLabel.${agent.status}`)}</PixelBadge>
           </div>
         </div>
 
@@ -52,19 +54,19 @@ export function NodeDetailPanel({ agentId, onClose }: Props) {
         {/* Model */}
         <div className="border-t-2 border-border-dim my-3" />
         <div className="mb-3">
-          <div className="font-pixel text-[8px] text-text-dim mb-1">MODEL</div>
+          <div className="font-pixel text-[8px] text-text-dim mb-1">{t('panel.modelLabel')}</div>
           <div className="font-mono text-[12px] text-accent-blue">
-            {agent.modelConfig.model ?? 'Inherited'}
+            {agent.modelConfig.model ?? t('panel.inherited')}
           </div>
         </div>
 
         {/* Capabilities */}
         <div className="border-t-2 border-border-dim my-3" />
         <div className="mb-3">
-          <div className="font-pixel text-[8px] text-text-dim mb-1">CAPABILITIES</div>
+          <div className="font-pixel text-[8px] text-text-dim mb-1">{t('panel.capabilities')}</div>
           <div className="flex flex-col gap-1 text-[11px] text-text-secondary font-mono">
-            <span>{(agent.skillIds ?? []).length} skill{(agent.skillIds ?? []).length !== 1 ? 's' : ''}</span>
-            <span>{agent.tools.length} tool{agent.tools.length !== 1 ? 's' : ''}</span>
+            <span>{t('count.skills', { count: (agent.skillIds ?? []).length })}</span>
+            <span>{t('count.tools', { count: agent.tools.length })}</span>
           </div>
         </div>
 
@@ -73,7 +75,7 @@ export function NodeDetailPanel({ agentId, onClose }: Props) {
           <>
             <div className="border-t-2 border-border-dim my-3" />
             <div className="mb-3">
-              <div className="font-pixel text-[8px] text-text-dim mb-1">SUB-AGENTS</div>
+              <div className="font-pixel text-[8px] text-text-dim mb-1">{t('panel.subAgentsLabel')}</div>
               <div className="flex flex-col gap-1 text-[11px] font-mono">
                 {agent.subAgents.map(sub => {
                   const subAgent = agents.find(a => a.id === sub.agentId)
@@ -97,7 +99,7 @@ export function NodeDetailPanel({ agentId, onClose }: Props) {
             className="flex-1"
             onClick={() => navigate(`/projects/${projectId}/agents/${agentId}`)}
           >
-            Open Detail
+            {t('panel.openDetail')}
           </PixelButton>
         </div>
       </motion.div>

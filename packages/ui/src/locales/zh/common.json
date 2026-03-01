@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "取消",
+    "save": "保存",
+    "saving": "保存中...",
+    "saved": "已保存",
+    "delete": "删除",
+    "deleting": "删除中...",
+    "edit": "编辑",
+    "add": "添加",
+    "confirm": "确认",
+    "retry": "重试",
+    "back": "返回",
+    "next": "下一步",
+    "close": "关闭",
+    "create": "创建",
+    "creating": "创建中...",
+    "refresh": "刷新",
+    "send": "发送",
+    "stop": "停止",
+    "dismiss": "关闭",
+    "done": "完成",
+    "copy": "复制"
+  },
+  "status": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "minsAgo_one": "{{count}}分钟前",
+    "minsAgo_other": "{{count}}分钟前",
+    "hoursAgo_one": "{{count}}小时前",
+    "hoursAgo_other": "{{count}}小时前",
+    "daysAgo_one": "{{count}}天前",
+    "daysAgo_other": "{{count}}天前",
+    "now": "现在",
+    "inMins_one": "{{count}}分钟后",
+    "inMins_other": "{{count}}分钟后",
+    "inHours_one": "{{count}}小时后",
+    "inHours_other": "{{count}}小时后",
+    "inDays_one": "{{count}}天后",
+    "inDays_other": "{{count}}天后",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "删除",
+    "deleteMessage": "此操作无法撤销。",
+    "areYouSure": "确定吗？"
+  },
+  "empty": {
+    "noData": "暂无数据"
+  },
+  "list": {
+    "noneConfigured": "未配置"
+  },
+  "label": {
+    "name": "名称",
+    "description": "描述",
+    "type": "类型",
+    "enabled": "已启用",
+    "disabled": "已禁用"
+  },
+  "dropZone": {
+    "releaseToDrop": "释放以上传",
+    "dragAndDrop": "拖放文件到此处，或点击上传",
+    "accepts": "支持格式：{{extensions}}"
+  }
+}

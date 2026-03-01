@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import cronstrue from 'cronstrue'
 import type { CronJob, CronJobId, CronJobRun } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -12,24 +13,12 @@ import { staggerContainer, staggerItem } from '../../lib/motion'
 import { CronJobFormModal } from './CronJobFormModal'
 import { CronJobRunsModal } from './CronJobRunsModal'
 
-function tryParseCron(expr: string): string {
+function tryParseCron(expr: string, invalidLabel: string): string {
   try {
     return cronstrue.toString(expr)
   } catch {
-    return 'Invalid expression'
+    return invalidLabel
   }
-}
-
-function formatRelativeTime(iso?: string): string {
-  if (!iso) return '—'
-  const diff = new Date(iso).getTime() - Date.now()
-  if (diff < 0) return 'overdue'
-  const mins = Math.floor(diff / 60000)
-  if (mins < 60) return `in ${mins}m`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `in ${hours}h`
-  const days = Math.floor(hours / 24)
-  return `in ${days}d`
 }
 
 function formatScheduledAt(iso?: string): string {
@@ -44,6 +33,7 @@ const runStatusVariant: Record<CronJobRun['status'], 'success' | 'error' | 'runn
 }
 
 export function CronJobsPage() {
+  const { t } = useTranslation('cron')
   const { projectId } = useParams()
   const navigate = useNavigate()
   const agents = useAppStore(s => s.agents)
@@ -61,6 +51,18 @@ export function CronJobsPage() {
   const [historyJobId, setHistoryJobId] = useState<CronJobId | null>(null)
 
   const editingJob = editingId ? cronJobs.find(j => j.id === editingId) : undefined
+
+  function formatRelativeTime(iso?: string): string {
+    if (!iso) return '—'
+    const diff = new Date(iso).getTime() - Date.now()
+    if (diff < 0) return t('job.overdue')
+    const mins = Math.floor(diff / 60000)
+    if (mins < 60) return t('common:time.inMins', { count: mins })
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return t('common:time.inHours', { count: hours })
+    const days = Math.floor(hours / 24)
+    return t('common:time.inDays', { count: days })
+  }
 
   function handleEdit(id: CronJobId) {
     setEditingId(id)
@@ -106,11 +108,11 @@ export function CronJobsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="font-pixel text-[14px] text-text-primary">Automations</h1>
+          <h1 className="font-pixel text-[14px] text-text-primary">{t('page.title')}</h1>
           <PixelBadge variant="info">{cronJobs.length}</PixelBadge>
         </div>
         <PixelButton variant="primary" data-testid="cron-new-btn" onClick={() => setShowForm(true)}>
-          + New
+          {t('page.newBtn')}
         </PixelButton>
       </div>
 
@@ -118,9 +120,9 @@ export function CronJobsPage() {
       {cronJobs.length === 0 ? (
         <PixelCard variant="outlined" className="text-center py-12">
           <div className="font-pixel text-[20px] text-text-dim mb-4">::</div>
-          <p className="font-pixel text-[10px] text-text-secondary mb-4">No automations yet</p>
+          <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('empty.noJobs')}</p>
           <PixelButton variant="primary" onClick={() => setShowForm(true)}>
-            Create First Automation
+            {t('empty.createFirstBtn')}
           </PixelButton>
         </PixelCard>
       ) : (
@@ -153,7 +155,7 @@ export function CronJobsPage() {
                         </span>
                         {job.scheduleType === 'once' ? (
                           <span className="font-mono text-[11px] text-text-dim bg-deep px-2 py-0.5 border border-border-dim">
-                            once
+                            {t('job.once')}
                           </span>
                         ) : (
                           <span className="font-mono text-[11px] text-text-dim bg-deep px-2 py-0.5 border border-border-dim">
@@ -162,19 +164,19 @@ export function CronJobsPage() {
                         )}
                         {job.lastRunStatus && job.lastRunStatus !== 'running' && (
                           <PixelBadge variant={runStatusVariant[job.lastRunStatus]}>
-                            {job.lastRunStatus}
+                            {t(`status.${job.lastRunStatus}`)}
                           </PixelBadge>
                         )}
                       </div>
                       <p className="text-[10px] text-text-dim mt-0.5 font-mono">
                         {job.scheduleType === 'once'
-                          ? `At ${formatScheduledAt(job.scheduledAt)}`
-                          : tryParseCron(job.cronExpression)
+                          ? t('job.at', { time: formatScheduledAt(job.scheduledAt) })
+                          : tryParseCron(job.cronExpression, t('form.invalidExpression'))
                         }
                       </p>
                       {job.nextRunAt && job.scheduleType !== 'once' && (
                         <p className="text-[10px] text-text-dim mt-0.5 font-mono">
-                          Next: {formatRelativeTime(job.nextRunAt)}
+                          {t('job.next', { time: formatRelativeTime(job.nextRunAt) })}
                         </p>
                       )}
                     </div>
@@ -183,22 +185,22 @@ export function CronJobsPage() {
                     {agent ? (
                       <PixelBadge variant="info">{agent.name}</PixelBadge>
                     ) : (
-                      <PixelBadge variant="error">Agent not found</PixelBadge>
+                      <PixelBadge variant="error">{t('job.agentNotFound')}</PixelBadge>
                     )}
 
                     {/* Actions */}
                     <div className="flex items-center gap-1 shrink-0">
                       <PixelButton size="sm" variant="ghost" data-testid="cron-trigger-btn" onClick={() => triggerCronJob(job.id)}>
-                        Run
+                        {t('job.runBtn')}
                       </PixelButton>
                       <PixelButton size="sm" variant="ghost" data-testid="cron-history-btn" onClick={() => setHistoryJobId(job.id)}>
-                        History
+                        {t('job.historyBtn')}
                       </PixelButton>
                       <PixelButton size="sm" variant="ghost" onClick={() => handleEdit(job.id)}>
-                        Edit
+                        {t('common:button.edit')}
                       </PixelButton>
                       <PixelButton size="sm" variant="ghost" onClick={() => setDeletingJob(job)}>
-                        Delete
+                        {t('common:button.delete')}
                       </PixelButton>
                     </div>
                   </div>
@@ -207,13 +209,13 @@ export function CronJobsPage() {
                   {job.lastRunStatus === 'running' && (
                     <div className="mt-2 flex items-center gap-2 bg-accent-green/10 border-2 border-accent-green/30 px-3 py-1.5">
                       <span className="w-2 h-2 bg-accent-green animate-pulse" />
-                      <span className="text-[10px] text-accent-green font-mono">Running...</span>
+                      <span className="text-[10px] text-accent-green font-mono">{t('job.runningStatus')}</span>
                       {job.lastRunId && (
                         <button
                           onClick={() => navigateToRunChat(job)}
                           className="ml-auto text-[10px] text-accent-green font-mono cursor-pointer hover:underline"
                         >
-                          View Chat →
+                          {t('job.viewChat')}
                         </button>
                       )}
                     </div>
@@ -236,17 +238,17 @@ export function CronJobsPage() {
       <PixelModal
         open={!!deletingJob}
         onClose={() => setDeletingJob(null)}
-        title="Delete Automation"
+        title={t('delete.title')}
         size="sm"
         footer={
           <>
-            <PixelButton variant="ghost" onClick={() => setDeletingJob(null)}>Cancel</PixelButton>
-            <PixelButton variant="danger" onClick={handleConfirmDelete}>Delete</PixelButton>
+            <PixelButton variant="ghost" onClick={() => setDeletingJob(null)}>{t('common:button.cancel')}</PixelButton>
+            <PixelButton variant="danger" onClick={handleConfirmDelete}>{t('common:button.delete')}</PixelButton>
           </>
         }
       >
         <p className="text-[12px] text-text-secondary">
-          Are you sure you want to delete &quot;{deletingJob?.name}&quot;? This action cannot be undone.
+          {t('delete.confirm', { name: deletingJob?.name })}
         </p>
       </PixelModal>
 

@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automations",
+    "newBtn": "+ New"
+  },
+  "empty": {
+    "noJobs": "No automations yet",
+    "createFirstBtn": "Create First Automation"
+  },
+  "job": {
+    "runBtn": "Run",
+    "historyBtn": "History",
+    "runningStatus": "Running...",
+    "viewChat": "View Chat →",
+    "next": "Next: {{time}}",
+    "at": "At {{time}}",
+    "agentNotFound": "Agent not found",
+    "overdue": "overdue",
+    "once": "once"
+  },
+  "delete": {
+    "title": "Delete Automation",
+    "confirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+  },
+  "runsModal": {
+    "titleWithName": "Run History — {{name}}",
+    "title": "Run History",
+    "noRuns": "No runs yet",
+    "openChat": "OPEN CHAT →"
+  },
+  "status": {
+    "success": "success",
+    "error": "error",
+    "running": "running"
+  },
+  "form": {
+    "newTitle": "New Automation",
+    "editTitle": "Edit Automation",
+    "nameLabel": "NAME",
+    "namePlaceholder": "Daily code review",
+    "typeLabel": "TYPE",
+    "recurring": "Recurring",
+    "oneTime": "One-time",
+    "cronLabel": "CRON EXPRESSION",
+    "scheduledAtLabel": "SCHEDULED AT (local time)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Select an agent",
+    "instructionLabel": "INSTRUCTION (optional)",
+    "instructionPlaceholder": "Instructions to send to the agent when triggered",
+    "enabledLabel": "Enabled",
+    "presets": {
+      "every5min": "Every 5 min",
+      "everyHour": "Every hour",
+      "every12h": "Every 12h",
+      "daily9am": "Daily 9am",
+      "weeklyMon": "Weekly Mon"
+    },
+    "invalidExpression": "Invalid expression"
+  }
+}

@@ -76,15 +76,15 @@ export function createSettingsRoutes(storage: ISettingsService) {
     const settings = await storage.get()
     const entry = settings.providers[slug]
     if (!entry) {
-      return c.json({ ok: false, error: `Provider "${slug}" not found` }, 404)
+      return c.json({ ok: false, error: 'PROVIDER_NOT_FOUND' }, 404)
     }
     if (!entry.apiKey && !entry.baseUrl?.includes('localhost')) {
-      return c.json({ ok: false, error: 'No API key configured' }, 400)
+      return c.json({ ok: false, error: 'NO_API_KEY' }, 400)
     }
 
     const testModel = entry.models[0]
     if (!testModel) {
-      return c.json({ ok: false, error: 'No models configured for this provider' }, 400)
+      return c.json({ ok: false, error: 'NO_MODELS_CONFIGURED' }, 400)
     }
 
     try {

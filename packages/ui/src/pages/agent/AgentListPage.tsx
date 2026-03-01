@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { AgentStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelSpinner } from '../../components'
@@ -35,6 +36,7 @@ const statusBadgeVariant: Record<AgentStatus, 'idle' | 'running' | 'error' | 'pa
 }
 
 function ViewSwitcher({ mode, onChange }: { mode: ViewMode; onChange: (mode: ViewMode) => void }) {
+  const { t } = useTranslation('agent')
   return (
     <div className="flex border-2 border-border-dim">
       <button
@@ -45,7 +47,7 @@ function ViewSwitcher({ mode, onChange }: { mode: ViewMode; onChange: (mode: Vie
         }`}
         onClick={() => onChange('grid')}
       >
-        Grid
+        {t('list.viewGrid')}
       </button>
       <button
         className={`h-7 px-3 text-[12px] font-mono flex items-center gap-1.5 transition-all cursor-pointer border-l-2 border-border-dim ${
@@ -55,13 +57,14 @@ function ViewSwitcher({ mode, onChange }: { mode: ViewMode; onChange: (mode: Vie
         }`}
         onClick={() => onChange('topology')}
       >
-        Topology
+        {t('list.viewTopology')}
       </button>
     </div>
   )
 }
 
 export function AgentListPage() {
+  const { t } = useTranslation('agent')
   const { projectId } = useParams<{ projectId: string }>()
   const agents = useAppStore(s => s.agents)
   const agentsLoading = useAppStore(s => s.agentsLoading)
@@ -86,15 +89,15 @@ export function AgentListPage() {
       {/* Header */}
       <div className={`flex items-center justify-between ${viewMode === 'topology' ? 'px-6 pt-6 pb-3' : 'mb-6'}`}>
         <div>
-          <h1 className="font-pixel text-[14px] text-text-primary">Agents</h1>
+          <h1 className="font-pixel text-[14px] text-text-primary">{t('list.title')}</h1>
           <p className="mt-1 text-text-secondary text-[13px]">
-            {agents.length} agent{agents.length !== 1 ? 's' : ''} in this project
+            {t('list.subtitle', { count: agents.length })}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <ViewSwitcher mode={viewMode} onChange={setViewMode} />
           <PixelButton data-testid="create-agent-btn" variant="primary" onClick={() => setShowCreate(true)}>
-            + New Agent
+            {t('list.newBtn')}
           </PixelButton>
         </div>
       </div>
@@ -106,9 +109,9 @@ export function AgentListPage() {
           {agents.length === 0 ? (
             <PixelCard variant="outlined" className="text-center py-12">
               <div className="font-pixel text-[20px] text-text-dim mb-4">{'{}'}</div>
-              <p className="font-pixel text-[10px] text-text-secondary mb-4">No agents yet</p>
+              <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('list.empty')}</p>
               <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
-                Create Your First Agent
+                {t('list.createFirst')}
               </PixelButton>
             </PixelCard>
           ) : (
@@ -133,8 +136,8 @@ export function AgentListPage() {
 
                     {/* Main agent label */}
                     {isMain && (
-                      <div className="mt-1" title="Current selected main agent for this project">
-                        <span className="font-pixel text-[8px] text-mc-gold">CURRENT MAIN</span>
+                      <div className="mt-1" title={t('currentMainTooltip')}>
+                        <span className="font-pixel text-[8px] text-mc-gold">{t('currentMain')}</span>
                       </div>
                     )}
 
@@ -148,7 +151,7 @@ export function AgentListPage() {
                         <div className="flex items-center gap-2">
                           <h3 className="font-pixel text-[10px] text-text-primary truncate">{agent.name}</h3>
                           <PixelBadge variant={statusBadgeVariant[agent.status]}>
-                            {agent.status}
+                            {t(`statusLabel.${agent.status}`)}
                           </PixelBadge>
                         </div>
                         <p className="text-[12px] text-text-secondary mt-1 line-clamp-2">
@@ -161,17 +164,17 @@ export function AgentListPage() {
                     <div className="flex items-center gap-3 mt-auto pt-3 border-t-2 border-border-dim">
                       {(agent.skillIds ?? []).length > 0 && (
                         <span className="text-[11px] text-text-dim">
-                          {agent.skillIds.length} skill{agent.skillIds.length !== 1 ? 's' : ''}
+                          {t('count.skills', { count: agent.skillIds.length })}
                         </span>
                       )}
                       {agent.tools.length > 0 && (
                         <span className="text-[11px] text-text-dim">
-                          {agent.tools.length} tool{agent.tools.length !== 1 ? 's' : ''}
+                          {t('count.tools', { count: agent.tools.length })}
                         </span>
                       )}
                       {agent.subAgents.length > 0 && (
                         <span className="text-[11px] text-accent-purple">
-                          {agent.subAgents.length} sub-agent{agent.subAgents.length !== 1 ? 's' : ''}
+                          {t('count.subAgents', { count: agent.subAgents.length })}
                         </span>
                       )}
                       {agent.modelConfig.model && (

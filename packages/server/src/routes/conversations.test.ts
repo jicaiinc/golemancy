@@ -154,7 +154,7 @@ describe('Conversations routes', () => {
         parts: [],
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('Invalid role')
+      expect((await res.json()).error).toBe('INVALID_MESSAGE_ROLE')
     })
   })
 

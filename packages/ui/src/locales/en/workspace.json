@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artifacts",
+    "refreshBtn": "Refresh"
+  },
+  "deleteModal": {
+    "title": "Delete File",
+    "confirmPrefix": "Are you sure you want to delete",
+    "warning": "This action cannot be undone."
+  },
+  "preview": {
+    "selectFile": "Select a file to preview",
+    "loading": "Loading file...",
+    "loadingImage": "Loading image...",
+    "imageError": "Failed to load image: {{error}}",
+    "emptyCsv": "Empty CSV",
+    "noPreview": "No inline preview available for this file type",
+    "download": "DL",
+    "open": "Open",
+    "meta": {
+      "type": "TYPE",
+      "mime": "MIME",
+      "size": "SIZE",
+      "modified": "MODIFIED"
+    }
+  },
+  "tree": {
+    "root": "artifacts",
+    "emptyDir": "Empty directory"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "对话任务",
+    "taskCount_one": "共 {{count}} 个任务",
+    "taskCount_other": "共 {{count}} 个任务"
+  },
+  "loading": "加载任务...",
+  "empty": {
+    "noTasks": "未找到任务"
+  },
+  "openChat": "打开对话 →",
+  "detail": {
+    "description": "描述",
+    "blockedBy": "被阻塞",
+    "metadata": "元数据"
+  },
+  "status": {
+    "pending": "待处理",
+    "in_progress": "进行中",
+    "completed": "已完成",
+    "deleted": "已删除"
+  }
+}

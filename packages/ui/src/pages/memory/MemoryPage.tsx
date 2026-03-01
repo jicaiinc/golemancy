@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { MemoryEntry } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
@@ -8,18 +9,10 @@ import {
   PixelModal, PixelSpinner, PixelBadge,
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
-
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}h ago`
-  return `${Math.floor(hours / 24)}d ago`
-}
+import { relativeTime } from '../../lib/time'
 
 export function MemoryPage() {
+  const { t } = useTranslation(['memory', 'common'])
   const project = useCurrentProject()
   const memories = useAppStore(s => s.memories)
   const memoriesLoading = useAppStore(s => s.memoriesLoading)
@@ -48,7 +41,7 @@ export function MemoryPage() {
       return (
         e.content.toLowerCase().includes(q) ||
         e.source.toLowerCase().includes(q) ||
-        e.tags.some(t => t.toLowerCase().includes(q))
+        e.tags.some(tag => tag.toLowerCase().includes(q))
       )
     })
   }, [memories, search, filterTag])
@@ -60,19 +53,19 @@ export function MemoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-pixel text-[14px] text-text-primary">Memory Bank</h1>
+          <h1 className="font-pixel text-[14px] text-text-primary">{t('memory:page.title')}</h1>
           <p className="text-[12px] text-text-secondary mt-1">
-            {memories.length} memor{memories.length !== 1 ? 'ies' : 'y'}
+            {t('memory:page.entryCount', { count: memories.length })}
           </p>
         </div>
-        <PixelButton variant="primary" data-testid="memory-add-btn" onClick={() => setShowAdd(true)}>+ Add Entry</PixelButton>
+        <PixelButton variant="primary" data-testid="memory-add-btn" onClick={() => setShowAdd(true)}>{t('memory:page.addEntryBtn')}</PixelButton>
       </div>
 
       {/* Search */}
       <motion.div {...staggerItem} className="mb-4">
         <PixelInput
           data-testid="memory-search"
-          placeholder="Search memories by content, source, or tag..."
+          placeholder={t('memory:search.placeholder')}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -86,7 +79,7 @@ export function MemoryPage() {
             className="cursor-pointer"
             onClick={() => setFilterTag(null)}
           >
-            all
+            {t('memory:filter.all')}
           </PixelBadge>
           {allTags.map(tag => (
             <PixelBadge
@@ -104,7 +97,7 @@ export function MemoryPage() {
       {/* Memory list */}
       {memoriesLoading ? (
         <div className="flex justify-center py-12">
-          <PixelSpinner label="Loading memories..." />
+          <PixelSpinner label={t('memory:loading')} />
         </div>
       ) : filtered.length === 0 ? (
         <motion.div {...staggerItem}>
@@ -112,11 +105,11 @@ export function MemoryPage() {
             <div className="text-center py-8">
               <div className="font-pixel text-[20px] text-text-dim mb-4">()</div>
               <p className="font-pixel text-[10px] text-text-secondary">
-                {search || filterTag ? 'No matching memories' : 'No memories yet'}
+                {search || filterTag ? t('memory:empty.noMatch') : t('memory:empty.noEntries')}
               </p>
               {!search && !filterTag && (
                 <p className="text-[12px] text-text-dim mt-2">
-                  Memories help agents retain context across conversations
+                  {t('memory:empty.hint')}
                 </p>
               )}
             </div>
@@ -142,11 +135,11 @@ export function MemoryPage() {
                           {tag}
                         </PixelBadge>
                       ))}
-                      <span className="ml-auto text-[10px] text-text-dim shrink-0">{relativeTime(entry.updatedAt)}</span>
+                      <span className="ml-auto text-[10px] text-text-dim shrink-0">{relativeTime(entry.updatedAt, t)}</span>
                     </div>
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <PixelButton size="sm" variant="ghost" onClick={() => setEditEntry(entry)}>Edit</PixelButton>
+                    <PixelButton size="sm" variant="ghost" onClick={() => setEditEntry(entry)}>{t('common:button.edit')}</PixelButton>
                     <PixelButton size="sm" variant="ghost" onClick={() => deleteMemory(entry.id)}>&times;</PixelButton>
                   </div>
                 </div>
@@ -164,7 +157,7 @@ export function MemoryPage() {
           await createMemory({ content, source, tags })
           setShowAdd(false)
         }}
-        title="Add Memory Entry"
+        title={t('memory:form.addTitle')}
       />
 
       {/* Edit modal */}
@@ -176,7 +169,7 @@ export function MemoryPage() {
             await updateMemory(editEntry.id, { content, tags })
             setEditEntry(null)
           }}
-          title="Edit Memory Entry"
+          title={t('memory:form.editTitle')}
           initialContent={editEntry.content}
           initialSource={editEntry.source}
           initialTags={editEntry.tags.join(', ')}
@@ -198,6 +191,7 @@ function MemoryFormModal({ open, onClose, onSubmit, title, initialContent = '', 
   initialTags?: string
   sourceReadonly?: boolean
 }) {
+  const { t } = useTranslation(['memory', 'common'])
   const [content, setContent] = useState(initialContent)
   const [source, setSource] = useState(initialSource)
   const [tags, setTags] = useState(initialTags)
@@ -210,7 +204,7 @@ function MemoryFormModal({ open, onClose, onSubmit, title, initialContent = '', 
 
   function handleSubmit() {
     if (!content.trim()) return
-    const tagList = tags.split(',').map(t => t.trim()).filter(Boolean)
+    const tagList = tags.split(',').map(tag => tag.trim()).filter(Boolean)
     onSubmit(content.trim(), source.trim() || 'User', tagList)
   }
 
@@ -222,25 +216,25 @@ function MemoryFormModal({ open, onClose, onSubmit, title, initialContent = '', 
       size="md"
       footer={
         <>
-          <PixelButton variant="ghost" onClick={onClose}>Cancel</PixelButton>
-          <PixelButton variant="primary" disabled={!content.trim()} onClick={handleSubmit}>Save</PixelButton>
+          <PixelButton variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
+          <PixelButton variant="primary" disabled={!content.trim()} onClick={handleSubmit}>{t('common:button.save')}</PixelButton>
         </>
       }
     >
       <div className="flex flex-col gap-4">
-        <PixelTextArea label="CONTENT" value={content} onChange={e => setContent(e.target.value)} rows={4} autoFocus />
+        <PixelTextArea label={t('memory:form.contentLabel')} value={content} onChange={e => setContent(e.target.value)} rows={4} autoFocus />
         <PixelInput
-          label="SOURCE"
+          label={t('memory:form.sourceLabel')}
           value={source}
           onChange={e => setSource(e.target.value)}
-          placeholder="e.g. Researcher"
+          placeholder={t('memory:form.sourcePlaceholder')}
           disabled={sourceReadonly}
         />
         <PixelInput
-          label="TAGS (comma-separated)"
+          label={t('memory:form.tagsLabel')}
           value={tags}
           onChange={e => setTags(e.target.value)}
-          placeholder="e.g. strategy, audience"
+          placeholder={t('memory:form.tagsPlaceholder')}
         />
       </div>
     </PixelModal>

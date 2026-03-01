@@ -29,12 +29,12 @@ export function createUploadRoutes() {
     try {
       validateId(projectId)
     } catch {
-      return c.json({ error: 'Invalid project ID' }, 400)
+      return c.json({ error: 'INVALID_PROJECT_ID' }, 400)
     }
 
     // Strict filename validation
     if (!isValidUploadFilename(filename)) {
-      return c.json({ error: 'Invalid filename' }, 400)
+      return c.json({ error: 'INVALID_FILENAME' }, 400)
     }
 
     try {
@@ -49,7 +49,7 @@ export function createUploadRoutes() {
     } catch (err) {
       if (isNodeError(err) && err.code === 'ENOENT') {
         log.warn({ projectId, filename }, 'upload file not found')
-        return c.json({ error: 'Not found' }, 404)
+        return c.json({ error: 'NOT_FOUND' }, 404)
       }
       log.error({ err, projectId, filename }, 'failed to read upload file')
       throw err

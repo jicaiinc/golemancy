@@ -31,16 +31,16 @@ export function createSpeechRoutes(deps: SpeechRouteDeps) {
     const sttConfig = settings.speechToText
 
     if (!sttConfig?.enabled) {
-      return c.json({ error: 'Speech-to-text is not enabled' }, 400)
+      return c.json({ error: 'STT_NOT_ENABLED' }, 400)
     }
     if (!sttConfig.apiKey) {
-      return c.json({ error: 'No API key configured for speech-to-text' }, 400)
+      return c.json({ error: 'NO_API_KEY' }, 400)
     }
 
     const formData = await c.req.formData()
     const audioFile = formData.get('audio') as File | null
     if (!audioFile) {
-      return c.json({ error: 'Missing audio file' }, 400)
+      return c.json({ error: 'MISSING_AUDIO_FILE' }, 400)
     }
 
     const audioDurationMs = Number(formData.get('audioDurationMs') ?? 0)
@@ -111,7 +111,7 @@ export function createSpeechRoutes(deps: SpeechRouteDeps) {
     const filePath = await deps.storage.findAudioFile(audioFileId)
 
     if (!filePath) {
-      return c.json({ error: 'Audio file not found' }, 404)
+      return c.json({ error: 'AUDIO_NOT_FOUND' }, 404)
     }
 
     const { default: fs } = await import('node:fs/promises')
@@ -147,23 +147,23 @@ export function createSpeechRoutes(deps: SpeechRouteDeps) {
     const record = await deps.storage.getRecord(id)
 
     if (!record) {
-      return c.json({ error: 'Record not found' }, 404)
+      return c.json({ error: 'RECORD_NOT_FOUND' }, 404)
     }
     if (record.status === 'pending') {
-      return c.json({ error: 'Transcription is already in progress' }, 400)
+      return c.json({ error: 'TRANSCRIPTION_IN_PROGRESS' }, 400)
     }
 
     const settings = await deps.settingsStorage.get()
     const sttConfig = settings.speechToText
 
     if (!sttConfig?.enabled || !sttConfig.apiKey) {
-      return c.json({ error: 'Speech-to-text is not configured' }, 400)
+      return c.json({ error: 'STT_NOT_CONFIGURED' }, 400)
     }
 
     // Read the audio file from disk
     const filePath = await deps.storage.findAudioFile(record.audioFileId)
     if (!filePath) {
-      return c.json({ error: 'Audio file not found on disk' }, 404)
+      return c.json({ error: 'AUDIO_NOT_FOUND_ON_DISK' }, 404)
     }
 
     const { default: fs } = await import('node:fs/promises')

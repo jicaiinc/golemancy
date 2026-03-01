@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelButton, PixelModal } from '../../components'
@@ -8,6 +9,7 @@ import { FileTree } from './FileTree'
 import { FilePreview } from './FilePreview'
 
 export function WorkspacePage() {
+  const { t } = useTranslation(['workspace', 'common'])
   const project = useCurrentProject()
   const projectId = useAppStore(s => s.currentProjectId)
   const entries = useAppStore(s => s.workspaceEntries)
@@ -47,9 +49,9 @@ export function WorkspacePage() {
     <motion.div className="h-full flex flex-col" data-testid="workspace-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <motion.div {...staggerItem} className="px-6 py-4 border-b-2 border-border-dim flex items-center gap-3">
-        <h1 className="font-pixel text-[14px] text-text-primary">Artifacts</h1>
+        <h1 className="font-pixel text-[14px] text-text-primary">{t('workspace:page.title')}</h1>
         <PixelButton variant="ghost" size="sm" data-testid="workspace-refresh-btn" onClick={handleRefresh}>
-          Refresh
+          {t('workspace:page.refreshBtn')}
         </PixelButton>
       </motion.div>
 
@@ -74,23 +76,24 @@ export function WorkspacePage() {
       <PixelModal
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete File"
+        title={t('workspace:deleteModal.title')}
         size="sm"
         footer={
           <>
             <PixelButton variant="secondary" size="sm" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              {t('common:button.cancel')}
             </PixelButton>
             <PixelButton variant="danger" size="sm" onClick={handleDelete}>
-              Delete
+              {t('common:button.delete')}
             </PixelButton>
           </>
         }
       >
         <p className="text-[12px] text-text-primary">
-          Are you sure you want to delete <span className="font-mono text-accent-amber">{deleteTarget}</span>?
+          {t('workspace:deleteModal.confirmPrefix')}{' '}
+          <span className="font-mono text-accent-amber">{deleteTarget}</span>?
         </p>
-        <p className="text-[11px] text-text-dim mt-2">This action cannot be undone.</p>
+        <p className="text-[11px] text-text-dim mt-2">{t('workspace:deleteModal.warning')}</p>
       </PixelModal>
     </motion.div>
   )

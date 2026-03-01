@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { AgentModelConfig } from '@golemancy/shared'
 import { PixelCard, PixelButton } from '../../../components'
 
@@ -33,34 +34,36 @@ export function CompleteStep({
   onStartChatting,
   onGoToDashboard,
 }: CompleteStepProps) {
+  const { t } = useTranslation('onboarding')
+
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="text-center">
-        <h2 className="font-pixel text-[18px] text-accent-green mb-3">You're All Set!</h2>
-        <p className="font-mono text-[12px] text-text-secondary">Here's a summary of your configuration.</p>
+        <h2 className="font-pixel text-[18px] text-accent-green mb-3">{t('complete.heading')}</h2>
+        <p className="font-mono text-[12px] text-text-secondary">{t('complete.description')}</p>
       </div>
 
       {/* Summary */}
       <PixelCard className="w-full">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="font-pixel text-[9px] text-text-dim">PROVIDER</span>
+            <span className="font-pixel text-[9px] text-text-dim">{t('complete.labelProvider')}</span>
             <span className="font-mono text-[12px] text-accent-green">{providerName}</span>
           </div>
           {defaultModel && (
             <div className="flex items-center justify-between">
-              <span className="font-pixel text-[9px] text-text-dim">DEFAULT MODEL</span>
+              <span className="font-pixel text-[9px] text-text-dim">{t('complete.labelDefaultModel')}</span>
               <span className="font-mono text-[12px] text-text-primary">{defaultModel.model}</span>
             </div>
           )}
           <div className="flex items-center justify-between">
-            <span className="font-pixel text-[9px] text-text-dim">SPEECH-TO-TEXT</span>
+            <span className="font-pixel text-[9px] text-text-dim">{t('complete.labelSpeechToText')}</span>
             <span className={`font-mono text-[12px] ${sttEnabled ? 'text-accent-green' : 'text-text-dim'}`}>
-              {sttEnabled ? 'Enabled' : 'Skipped'}
+              {sttEnabled ? t('complete.sttEnabled') : t('complete.sttSkipped')}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="font-pixel text-[9px] text-text-dim">PROJECT</span>
+            <span className="font-pixel text-[9px] text-text-dim">{t('complete.labelProject')}</span>
             <span className="font-mono text-[12px] text-text-primary">
               {ICON_MAP[projectIcon] ?? '\u26CF'} {projectName}
             </span>
@@ -71,18 +74,18 @@ export function CompleteStep({
       {/* CTAs */}
       <div className="flex gap-3">
         <PixelButton variant="primary" size="lg" onClick={onStartChatting} disabled={!createdProjectId}>
-          Start Chatting
+          {t('button.startChatting')}
         </PixelButton>
         <PixelButton variant="secondary" size="lg" onClick={onGoToDashboard} disabled={!createdProjectId}>
-          Go to Dashboard
+          {t('button.goToDashboard')}
         </PixelButton>
       </div>
 
       {/* Quick links */}
       <div className="flex gap-4 text-[10px]">
-        <a href="#/settings" className="text-accent-blue hover:text-text-primary transition-colors">Settings</a>
+        <a href="#/settings" className="text-accent-blue hover:text-text-primary transition-colors">{t('complete.links.settings')}</a>
         <a href="https://discord.gg/xksGkxd6SV" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:text-text-primary transition-colors">Discord</a>
-        <a href="https://golemancy.ai" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:text-text-primary transition-colors">Website</a>
+        <a href="https://golemancy.ai" target="_blank" rel="noopener noreferrer" className="text-accent-blue hover:text-text-primary transition-colors">{t('complete.links.website')}</a>
       </div>
     </div>
   )

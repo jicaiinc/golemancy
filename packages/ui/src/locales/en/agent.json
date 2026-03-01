@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "NAME",
+    "agentName": "AGENT NAME",
+    "description": "DESCRIPTION",
+    "systemPrompt": "SYSTEM PROMPT",
+    "provider": "PROVIDER",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "idle",
+    "running": "running",
+    "error": "error",
+    "paused": "paused"
+  },
+  "currentMain": "CURRENT MAIN",
+  "currentMainTooltip": "Current selected main agent for this project",
+  "noProviders": "No providers configured",
+  "noModels": "No models available",
+  "savedMsg": "Saved!",
+  "list": {
+    "title": "Agents",
+    "subtitle_one": "{{count}} agent in this project",
+    "subtitle_other": "{{count}} agents in this project",
+    "newBtn": "+ New Agent",
+    "viewGrid": "Grid",
+    "viewTopology": "Topology",
+    "empty": "No agents yet",
+    "createFirst": "Create Your First Agent"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skills",
+    "tools_one": "{{count}} tool",
+    "tools_other": "{{count}} tools",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_other": "{{count}} sub-agents",
+    "mcpServers_one": "{{count}} MCP server",
+    "mcpServers_other": "{{count}} MCP servers"
+  },
+  "create": {
+    "modalTitle": "Create New Agent",
+    "createBtn": "Create Agent",
+    "namePlaceholder": "e.g. Research Assistant",
+    "descPlaceholder": "What does this agent do?",
+    "promptPlaceholder": "You are a helpful assistant that..."
+  },
+  "detail": {
+    "notFound": "Agent not found.",
+    "backToAgents": "< Back to Agents",
+    "backBtn": "< Agents",
+    "tabs": {
+      "general": "General",
+      "modelConfig": "Model Config",
+      "skills": "Skills",
+      "tools": "Tools",
+      "subAgents": "Sub-Agents"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Delete Agent"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODEL CONFIG",
+    "compactLabel": "COMPACT THRESHOLD"
+  },
+  "skills": {
+    "assigned": "ASSIGNED SKILLS",
+    "noneAssigned": "No skills assigned to this agent.",
+    "addSection": "ADD SKILL",
+    "noneInProject": "No skills in this project",
+    "goTo": "Go to Skills",
+    "manage": "Manage Skills \u2192"
+  },
+  "tools": {
+    "builtinSection": "BUILT-IN TOOLS",
+    "comingSoon": "COMING SOON",
+    "customSection": "CUSTOM TOOLS",
+    "bashDesc": "Execute bash commands, read and write files",
+    "browserDesc": "Control web browser for automation",
+    "osControlDesc": "Desktop automation and system control",
+    "taskDesc": "Create and manage tasks within the conversation"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 WARNING",
+    "warningText": "Third-party MCP servers may access or modify files on your computer.",
+    "enableSandboxHint": "Enable \"Apply to MCP\" in Settings > Permissions to sandbox MCP servers.",
+    "sandboxUnavailable": "Sandbox runtime is not available on this platform.",
+    "assigned": "ASSIGNED MCP SERVERS",
+    "noneAssigned": "No MCP servers assigned to this agent.",
+    "addSection": "ADD MCP SERVER",
+    "noneInProject": "No MCP servers in this project",
+    "goTo": "Go to MCP Servers",
+    "manage": "Manage MCP Servers \u2192",
+    "restricted": "Restricted"
+  },
+  "subAgents": {
+    "assigned": "ASSIGNED SUB-AGENTS",
+    "noneAssigned": "No sub-agents assigned to this agent.",
+    "addSection": "ADD SUB-AGENT",
+    "noneAvailable": "No other agents available in this project.",
+    "unknown": "Unknown",
+    "rolePlaceholder": "Role..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Inherited",
+    "capabilities": "CAPABILITIES",
+    "subAgentsLabel": "SUB-AGENTS",
+    "openDetail": "Open Detail"
+  },
+  "topology": {
+    "resetLayout": "Reset Layout",
+    "editAgent": "Edit Agent",
+    "setMainAgent": "Set as Main Agent"
+  }
+}

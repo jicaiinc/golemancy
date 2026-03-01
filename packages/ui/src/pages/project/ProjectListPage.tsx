@@ -1,21 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
 import { PixelButton, PixelCard, PixelBadge, PixelSpinner, OpenExternalIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { ProjectCreateModal } from './ProjectCreateModal'
-
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}h ago`
-  return `${Math.floor(hours / 24)}d ago`
-}
+import { relativeTime } from '../../lib/time'
 
 const iconMap: Record<string, string> = {
   pickaxe: '⛏',
@@ -29,6 +21,7 @@ const iconMap: Record<string, string> = {
 }
 
 export function ProjectListPage() {
+  const { t } = useTranslation('project')
   const projects = useAppStore(s => s.projects)
   const projectsLoading = useAppStore(s => s.projectsLoading)
   const navigate = useNavigate()
@@ -48,13 +41,13 @@ export function ProjectListPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="font-pixel text-[12px] text-text-primary">All Projects</h2>
+            <h2 className="font-pixel text-[12px] text-text-primary">{t('list.title')}</h2>
             <p className="mt-2 text-text-secondary text-[13px]">
-              {projects.length} project{projects.length !== 1 ? 's' : ''} in your workspace
+              {t('list.subtitle', { count: projects.length })}
             </p>
           </div>
           <PixelButton data-testid="create-project-btn" variant="primary" onClick={() => setShowCreate(true)}>
-            + New Project
+            {t('list.newBtn')}
           </PixelButton>
         </div>
 
@@ -62,9 +55,9 @@ export function ProjectListPage() {
         {projects.length === 0 ? (
           <PixelCard variant="outlined" className="text-center py-12">
             <div className="font-pixel text-[20px] text-text-dim mb-4">⛏</div>
-            <p className="font-pixel text-[10px] text-text-secondary mb-4">No projects yet</p>
+            <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('list.empty')}</p>
             <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
-              Create Your First Project
+              {t('list.createFirst')}
             </PixelButton>
           </PixelCard>
         ) : (
@@ -97,7 +90,7 @@ export function ProjectListPage() {
                     {window.electronAPI?.openNewWindow && (
                       <button
                         className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0"
-                        title="Open in New Window"
+                        title={t('list.openInWindow')}
                         onClick={(e) => {
                           e.stopPropagation()
                           window.electronAPI!.openNewWindow(project.id)
@@ -111,11 +104,11 @@ export function ProjectListPage() {
                   {/* Stats */}
                   <div className="flex items-center gap-3 mt-auto pt-3 border-t-2 border-border-dim">
                     <span className="text-[11px] text-text-dim">
-                      {project.agentCount} agent{project.agentCount !== 1 ? 's' : ''}
+                      {t('list.agents', { count: project.agentCount })}
                     </span>
                     {project.activeAgentCount > 0 && (
                       <PixelBadge variant="running">
-                        {project.activeAgentCount} running
+                        {t('list.running', { count: project.activeAgentCount })}
                       </PixelBadge>
                     )}
                     <span className="ml-auto text-[11px] text-text-dim">

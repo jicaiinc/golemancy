@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "Global Settings"
+  },
+  "tabs": {
+    "general": "General",
+    "providers": "Providers",
+    "speech": "Speech"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — Command Your AI Golems"
+  },
+  "general": {
+    "appearance": "APPEARANCE",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "language": "LANGUAGE"
+  },
+  "defaultModel": {
+    "sectionTitle": "DEFAULT MODEL",
+    "description": "Used when creating new projects and agents.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- None --",
+    "selectProviderFirst": "-- Select provider first --",
+    "noModels": "No models available",
+    "saved": "Saved!"
+  },
+  "providers": {
+    "sectionTitle": "PROVIDERS",
+    "addProvider": "+ Add Provider",
+    "selectProvider": "SELECT PROVIDER",
+    "customProvider": "CUSTOM PROVIDER",
+    "custom": "Custom",
+    "anyEndpoint": "any endpoint",
+    "nameLabel": "NAME",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "SDK TYPE",
+    "empty": "No providers configured. Click \"+ Add Provider\" to get started."
+  },
+  "provider": {
+    "testing": "Testing...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Failed",
+    "untested": "Untested",
+    "noKey": "No Key",
+    "retest": "Re-test",
+    "test": "Test",
+    "del": "Del",
+    "deleteConfirm": "Delete {{name}}? This cannot be undone.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "not set",
+    "hide": "Hide",
+    "show": "Show",
+    "urlLabel": "URL:",
+    "modelsCount": "Models ({{count}})",
+    "addModel": "+ Add Model",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (optional)",
+    "hideKey": "Hide Key",
+    "showKey": "Show Key"
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

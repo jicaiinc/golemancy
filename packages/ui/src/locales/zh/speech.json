@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "转录历史"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} 条记录",
+    "recordCount_other": "{{count}} 条记录",
+    "used": "已使用 {{size}}",
+    "loading": "加载存储信息..."
+  },
+  "clearAll": {
+    "confirm_one": "删除全部 {{count}} 条记录？",
+    "confirm_other": "删除全部 {{count}} 条记录？",
+    "confirmWithFree_one": "删除全部 {{count}} 条记录并释放 {{size}}？",
+    "confirmWithFree_other": "删除全部 {{count}} 条记录并释放 {{size}}？"
+  },
+  "loading": "加载历史...",
+  "empty": {
+    "hint": "在聊天中使用麦克风按钮\n创建你的第一条语音录制",
+    "settingsBtn": "前往设置"
+  },
+  "player": {
+    "play": "播放",
+    "pause": "暂停",
+    "close": "关闭播放器"
+  },
+  "actions": {
+    "copy": "复制转录文本",
+    "retry": "重试转录",
+    "delete": "删除记录"
+  },
+  "enable": {
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "sectionTitle": "语音转文字"
+  },
+  "provider": {
+    "sectionTitle": "供应商",
+    "typeLabel": "类型",
+    "customType": "自定义（OpenAI 兼容）",
+    "apiKeyLabel": "API 密钥",
+    "baseUrlRequired": "基础 URL（必填）",
+    "baseUrlOptional": "基础 URL（可选）",
+    "baseUrlPlaceholder": "留空使用默认值",
+    "modelLabel": "模型",
+    "modelOther": "其他...",
+    "presets": "预设",
+    "languageLabel": "语言",
+    "hide": "隐藏",
+    "show": "显示"
+  },
+  "test": {
+    "testing": "测试中...",
+    "ok": "正常",
+    "okLatency": "正常 ({{latency}}ms)",
+    "retest": "重新测试",
+    "test": "测试",
+    "failed": "失败",
+    "untested": "未测试",
+    "unknownError": "未知错误"
+  },
+  "history": {
+    "sectionTitle": "历史记录",
+    "recordsInfo": "{{recordCount}} 条记录 / {{size}}",
+    "clearAll": "清除全部",
+    "confirmClear": "确定清除？",
+    "empty": "暂无转录记录",
+    "today": "今天",
+    "yesterday": "昨天",
+    "transcribing": "转录中...",
+    "openChat": "打开对话 →"
+  },
+  "record": {
+    "statusOk": "正常",
+    "statusErr": "错误",
+    "deleteConfirm": "删除此记录及其音频文件？",
+    "retryConfirm": "这将覆盖现有的转录内容。",
+    "transcriptionFailed": "转录失败：{{error}}",
+    "retranscribe": "重新转录"
+  }
+}

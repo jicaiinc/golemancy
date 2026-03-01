@@ -19,7 +19,7 @@ export function createProjectRoutes(storage: IProjectService) {
     const id = c.req.param('id') as ProjectId
     log.debug({ projectId: id }, 'getting project')
     const project = await storage.getById(id)
-    if (!project) return c.json({ error: 'Not found' }, 404)
+    if (!project) return c.json({ error: 'NOT_FOUND' }, 404)
     return c.json(project)
   })
 

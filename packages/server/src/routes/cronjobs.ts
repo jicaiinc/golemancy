@@ -48,7 +48,7 @@ export function createCronJobRoutes(deps: CronJobRouteDeps) {
     const cronJobId = c.req.param('id') as CronJobId
     log.debug({ projectId, cronJobId }, 'getting cron job')
     const job = await storage.getById(projectId, cronJobId)
-    if (!job) return c.json({ error: 'Not found' }, 404)
+    if (!job) return c.json({ error: 'NOT_FOUND' }, 404)
     return c.json(job)
   })
 
@@ -63,12 +63,12 @@ export function createCronJobRoutes(deps: CronJobRouteDeps) {
     if (data.scheduleType === 'once') {
       // Validate scheduledAt for one-time schedules
       if (!data.scheduledAt || isNaN(new Date(data.scheduledAt).getTime())) {
-        return c.json({ error: 'scheduledAt is required and must be a valid date for one-time schedules' }, 400)
+        return c.json({ error: 'SCHEDULED_AT_REQUIRED' }, 400)
       }
     } else {
       // Validate cron expression for recurring schedules
       if (data.cronExpression && !validateCronExpression(data.cronExpression)) {
-        return c.json({ error: 'Invalid cron expression' }, 400)
+        return c.json({ error: 'INVALID_CRON_EXPRESSION' }, 400)
       }
     }
 
@@ -89,12 +89,12 @@ export function createCronJobRoutes(deps: CronJobRouteDeps) {
 
     if (data.scheduleType === 'once') {
       if (data.scheduledAt !== undefined && isNaN(new Date(data.scheduledAt).getTime())) {
-        return c.json({ error: 'scheduledAt must be a valid date' }, 400)
+        return c.json({ error: 'INVALID_SCHEDULED_AT' }, 400)
       }
     } else if (data.scheduleType === 'cron' || data.cronExpression) {
       // Validate cron expression if provided
       if (data.cronExpression && !validateCronExpression(data.cronExpression)) {
-        return c.json({ error: 'Invalid cron expression' }, 400)
+        return c.json({ error: 'INVALID_CRON_EXPRESSION' }, 400)
       }
     }
 

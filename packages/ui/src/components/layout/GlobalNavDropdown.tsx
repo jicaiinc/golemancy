@@ -1,20 +1,17 @@
 import { useNavigate, useLocation } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { PixelDropdown } from '../base'
 
-const NAV_ITEMS = [
-  { label: 'All Projects', value: '/' },
-  { label: 'Dashboard', value: '/dashboard' },
-  { label: 'Settings', value: '/settings' },
-]
-
 export function GlobalNavDropdown() {
+  const { t } = useTranslation('nav')
   const navigate = useNavigate()
   const location = useLocation()
 
-  const items = NAV_ITEMS.map(item => ({
-    ...item,
-    selected: location.pathname === item.value,
-  }))
+  const items = [
+    { label: t('global.allProjects'), value: '/', selected: location.pathname === '/' },
+    { label: t('global.dashboard'), value: '/dashboard', selected: location.pathname === '/dashboard' },
+    { label: t('global.settings'), value: '/settings', selected: location.pathname === '/settings' },
+  ]
 
   return (
     <PixelDropdown

@@ -45,7 +45,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     const convId = c.req.param('id') as ConversationId
     log.debug({ projectId, conversationId: convId }, 'getting conversation')
     const conv = await storage.getById(projectId, convId)
-    if (!conv) return c.json({ error: 'Not found' }, 404)
+    if (!conv) return c.json({ error: 'NOT_FOUND' }, 404)
     // Resolve golemancy-upload: references to HTTP URLs for client rendering
     const baseUrl = getBaseUrl(c)
     const compactRecords = await deps.compactRecordStorage.list(projectId, convId)
@@ -93,12 +93,12 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     const { id, role, parts, content } = await c.req.json<{ id: string; role: string; parts: unknown[]; content: string }>()
 
     if (!id || !role || !Array.isArray(parts)) {
-      return c.json({ error: 'id, role, and parts are required' }, 400)
+      return c.json({ error: 'MESSAGE_FIELDS_REQUIRED' }, 400)
     }
 
     const ALLOWED_ROLES = ['user', 'assistant']
     if (!ALLOWED_ROLES.includes(role)) {
-      return c.json({ error: `Invalid role: ${role}` }, 400)
+      return c.json({ error: 'INVALID_MESSAGE_ROLE' }, 400)
     }
 
     log.debug({ projectId, conversationId: convId, messageId: id, role }, 'saving message')
@@ -151,11 +151,11 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     log.info({ projectId, conversationId: convId }, 'manual compact requested')
 
     const conv = await storage.getById(projectId, convId)
-    if (!conv) return c.json({ error: 'Not found' }, 404)
-    if (conv.messages.length === 0) return c.json({ error: 'No messages to compact' }, 400)
+    if (!conv) return c.json({ error: 'NOT_FOUND' }, 404)
+    if (conv.messages.length === 0) return c.json({ error: 'NO_MESSAGES_TO_COMPACT' }, 400)
 
     const agent = await agentStorage.getById(projectId, conv.agentId)
-    if (!agent) return c.json({ error: 'Agent not found' }, 404)
+    if (!agent) return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
 
     const settings = await deps.settingsStorage.get()
     const model = await resolveModel(settings, agent.modelConfig)

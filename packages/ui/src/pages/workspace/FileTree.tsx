@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { WorkspaceEntry, FileCategory } from '@golemancy/shared'
 import { PixelSpinner } from '../../components'
 
@@ -29,6 +30,7 @@ interface FileTreeProps {
 }
 
 export function FileTree({ entries, currentPath, loading, selectedFile, onNavigate, onSelectFile }: FileTreeProps) {
+  const { t } = useTranslation('workspace')
   const pathSegments = currentPath ? currentPath.split('/') : []
 
   return (
@@ -39,7 +41,7 @@ export function FileTree({ entries, currentPath, loading, selectedFile, onNaviga
           onClick={() => onNavigate('')}
           className="font-pixel text-[10px] text-accent-blue hover:text-accent-green cursor-pointer"
         >
-          artifacts
+          {t('tree.root')}
         </button>
         {pathSegments.map((seg, i) => {
           const path = pathSegments.slice(0, i + 1).join('/')
@@ -65,7 +67,7 @@ export function FileTree({ entries, currentPath, loading, selectedFile, onNaviga
           </div>
         ) : entries.length === 0 ? (
           <div className="text-center py-8">
-            <p className="font-pixel text-[10px] text-text-dim">Empty directory</p>
+            <p className="font-pixel text-[10px] text-text-dim">{t('tree.emptyDir')}</p>
           </div>
         ) : (
           <div className="py-1">

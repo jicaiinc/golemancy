@@ -1,0 +1,68 @@
+{
+  "page": {
+    "title": "全局设置"
+  },
+  "tabs": {
+    "general": "通用",
+    "providers": "供应商",
+    "speech": "语音"
+  },
+  "about": {
+    "version": "Golemancy v{{version}} — 指挥你的 AI Golem"
+  },
+  "general": {
+    "appearance": "外观",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统",
+    "language": "语言"
+  },
+  "defaultModel": {
+    "sectionTitle": "默认模型",
+    "description": "创建新项目和 Agent 时使用的默认模型。",
+    "providerLabel": "供应商",
+    "modelLabel": "模型",
+    "noProvider": "-- 无 --",
+    "selectProviderFirst": "-- 请先选择供应商 --",
+    "noModels": "无可用模型",
+    "saved": "已保存！"
+  },
+  "providers": {
+    "sectionTitle": "供应商",
+    "addProvider": "+ 添加供应商",
+    "selectProvider": "选择供应商",
+    "customProvider": "自定义供应商",
+    "custom": "自定义",
+    "anyEndpoint": "任意接口",
+    "nameLabel": "名称",
+    "baseUrlLabel": "基础 URL",
+    "sdkTypeLabel": "SDK 类型",
+    "empty": "暂无供应商。点击\"+ 添加供应商\"开始配置。"
+  },
+  "provider": {
+    "testing": "测试中...",
+    "ok": "正常",
+    "okLatency": "正常 ({{latency}}ms)",
+    "failed": "失败",
+    "untested": "未测试",
+    "noKey": "无密钥",
+    "retest": "重新测试",
+    "test": "测试",
+    "del": "删除",
+    "deleteConfirm": "删除 {{name}}？此操作无法撤销。",
+    "apiKeyLabel": "API 密钥：",
+    "notSet": "未设置",
+    "hide": "隐藏",
+    "show": "显示",
+    "urlLabel": "URL：",
+    "modelsCount": "模型 ({{count}})",
+    "addModel": "+ 添加模型",
+    "apiKeyInputLabel": "API 密钥",
+    "baseUrlOptional": "基础 URL（可选）",
+    "hideKey": "隐藏密钥",
+    "showKey": "显示密钥"
+  },
+  "threshold": {
+    "tokens": "Token"
+  }
+}

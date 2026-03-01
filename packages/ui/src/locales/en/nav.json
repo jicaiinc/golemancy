@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Dashboard",
+    "chats": "Chats",
+    "automations": "Automations",
+    "agents": "Agents",
+    "skills": "Skills",
+    "mcpServers": "MCP Servers",
+    "tasks": "Conversation Tasks",
+    "artifacts": "Artifacts",
+    "memory": "Memory",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "navigation": "NAVIGATION",
+    "config": "CONFIG",
+    "collapse": "<< Collapse"
+  },
+  "global": {
+    "allProjects": "All Projects",
+    "dashboard": "Dashboard",
+    "settings": "Settings"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Restricted",
+      "sandbox": "Sandbox",
+      "unrestricted": "Unrestricted"
+    },
+    "degraded": "(degraded → {{mode}})",
+    "tasks": "Tasks {{completed}}/{{total}}",
+    "conversationTasks": "CONVERSATION TASKS",
+    "contextUsage": "Context: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Context: -- / {{max}}",
+    "contextWindow": "CONTEXT WINDOW",
+    "usage": "Usage",
+    "compacting": "Compacting",
+    "compactingAuto": "Compacting (auto)",
+    "compactNow": "Compact Now",
+    "byAgent": "BY AGENT",
+    "byModel": "BY MODEL",
+    "tokensInOut": "{{input}} in / {{output}} out",
+    "tokens": "Tokens: {{input}} in / {{output}} out",
+    "tokensEmpty": "Tokens: --"
+  }
+}

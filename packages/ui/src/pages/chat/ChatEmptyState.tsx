@@ -1,5 +1,6 @@
 import { useParams } from 'react-router'
 import type { AgentId } from '@golemancy/shared'
+import { Trans, useTranslation } from 'react-i18next'
 import { PixelCard, PixelButton, SidebarToggleIcon } from '../../components'
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 export function ChatEmptyState({ mainAgentId, onNewChat, canNewChat, chatHistoryExpanded, onToggleChatHistory }: Props) {
   const { projectId } = useParams<{ projectId: string }>()
+  const { t } = useTranslation('chat')
 
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-void">
@@ -21,13 +23,13 @@ export function ChatEmptyState({ mainAgentId, onNewChat, canNewChat, chatHistory
           <button
             className="text-text-secondary hover:text-text-primary transition-colors p-1"
             onClick={onToggleChatHistory}
-            title={chatHistoryExpanded ? 'Hide chat history' : 'Show chat history'}
+            title={chatHistoryExpanded ? t('header.hideHistory') : t('header.showHistory')}
           >
             <SidebarToggleIcon className="w-[18px] h-[16px]" />
           </button>
           {!chatHistoryExpanded && (
             <PixelButton size="sm" variant="ghost" onClick={onNewChat} disabled={!canNewChat}>
-              + New
+              {t('header.new')}
             </PixelButton>
           )}
         </div>
@@ -43,18 +45,18 @@ export function ChatEmptyState({ mainAgentId, onNewChat, canNewChat, chatHistory
             <div className="relative inline-block mb-6">
               <div className="bg-surface border-2 border-border-dim px-4 py-3 shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.05)]">
                 <p className="font-pixel text-[10px] text-text-secondary">
-                  Ready to chat
+                  {t('empty.readyToChat')}
                 </p>
               </div>
               <div className="absolute -bottom-2 left-6 w-3 h-2 bg-surface border-b-2 border-r-2 border-border-dim" />
             </div>
 
             <p className="text-[12px] text-text-dim mb-6">
-              Start a new conversation or select one from the sidebar.
+              {t('empty.description')}
             </p>
 
             <PixelButton variant="primary" onClick={onNewChat} disabled={!canNewChat}>
-              Start Chatting
+              {t('empty.startChatting')}
             </PixelButton>
           </div>
         ) : (
@@ -64,21 +66,20 @@ export function ChatEmptyState({ mainAgentId, onNewChat, canNewChat, chatHistory
             </div>
             <div className="relative inline-block mb-6">
               <div className="bg-surface border-2 border-border-dim px-4 py-3 shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.05)]">
-                <p className="font-pixel text-[10px] text-text-secondary">No Main Agent</p>
+                <p className="font-pixel text-[10px] text-text-secondary">{t('empty.noMainAgent')}</p>
               </div>
               <div className="absolute -bottom-2 left-6 w-3 h-2 bg-surface border-b-2 border-r-2 border-border-dim" />
             </div>
 
             <PixelCard variant="outlined" className="mb-6 text-left">
               <p className="text-[12px] text-text-dim">
-                Configure a Main Agent in{' '}
-                <a
-                  href={`#/projects/${projectId}/settings`}
-                  className="text-accent-blue hover:underline"
-                >
-                  Project Settings
-                </a>
-                {' '}to start chatting.
+                <Trans
+                  t={t}
+                  i18nKey="empty.configureText"
+                  components={{
+                    a: <a href={`#/projects/${projectId}/settings`} className="text-accent-blue hover:underline" />,
+                  }}
+                />
               </p>
             </PixelCard>
           </div>

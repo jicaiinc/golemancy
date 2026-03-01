@@ -26,7 +26,7 @@ export function createAgentRoutes(deps: AgentRouteDeps) {
     const agentId = c.req.param('id') as AgentId
     log.debug({ projectId, agentId }, 'getting agent')
     const agent = await storage.getById(projectId, agentId)
-    if (!agent) return c.json({ error: 'Not found' }, 404)
+    if (!agent) return c.json({ error: 'NOT_FOUND' }, 404)
     return c.json(agent)
   })
 

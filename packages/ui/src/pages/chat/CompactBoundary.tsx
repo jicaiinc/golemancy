@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { CompactRecord } from '@golemancy/shared'
 
 interface CompactBoundaryProps {
@@ -7,6 +8,7 @@ interface CompactBoundaryProps {
 }
 
 export function CompactBoundary({ compact }: CompactBoundaryProps) {
+  const { t } = useTranslation('chat')
   const [expanded, setExpanded] = useState(false)
 
   // Format token counts
@@ -23,13 +25,13 @@ export function CompactBoundary({ compact }: CompactBoundaryProps) {
           {expanded ? '[-]' : '[+]'}
         </span>
         <span className="font-pixel text-[10px] text-accent-purple">
-          CONVERSATION COMPACTED
+          {t('compact.title')}
         </span>
         <span className="text-[10px] font-mono text-text-dim ml-1">
           [{compact.trigger}]
         </span>
         <span className="ml-auto text-[10px] font-mono text-text-dim">
-          {formatTokens(compact.inputTokens)} in / {formatTokens(compact.outputTokens)} out
+          {t('compact.tokensSummary', { input: formatTokens(compact.inputTokens), output: formatTokens(compact.outputTokens) })}
         </span>
       </button>
 
@@ -44,7 +46,7 @@ export function CompactBoundary({ compact }: CompactBoundaryProps) {
           >
             <div className="px-3 pb-3 border-t-2 border-accent-purple/30">
               <div className="mt-2">
-                <span className="text-[9px] font-pixel text-text-dim">SUMMARY</span>
+                <span className="text-[9px] font-pixel text-text-dim">{t('compact.summary')}</span>
                 <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto whitespace-pre-wrap max-h-[300px] overflow-y-auto">
                   {compact.summary}
                 </pre>

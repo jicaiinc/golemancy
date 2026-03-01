@@ -199,7 +199,7 @@ describe('HTTP API routes', () => {
       const res = await app.request('/api/projects/proj-missing')
       expect(res.status).toBe(404)
       const body = await res.json()
-      expect(body.error).toBe('Not found')
+      expect(body.error).toBe('NOT_FOUND')
     })
 
     it('GET /api/projects/:id returns project when found', async () => {
@@ -484,7 +484,7 @@ describe('HTTP API routes', () => {
       const res = await app.request('/api/projects/proj-1/mcp-servers/missing')
       expect(res.status).toBe(404)
       const body = await res.json()
-      expect(body.error).toBe('MCP server not found')
+      expect(body.error).toBe('MCP_SERVER_NOT_FOUND')
     })
 
     it('GET /api/projects/:projectId/mcp-servers/:name returns server when found', async () => {
@@ -562,7 +562,7 @@ describe('HTTP API routes', () => {
       const res = await app.request('/api/projects/proj-1/mcp-servers/fs', { method: 'DELETE' })
       expect(res.status).toBe(409)
       const body = await res.json()
-      expect(body.error).toBe('MCP server is referenced by agents')
+      expect(body.error).toBe('MCP_SERVER_IN_USE')
     })
 
     it('DELETE /api/projects/:projectId/mcp-servers/:name returns 404 when not found', async () => {
@@ -582,7 +582,7 @@ describe('HTTP API routes', () => {
       }))
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toBe('projectId is required')
+      expect(body.error).toBe('PROJECT_ID_REQUIRED')
     })
 
     it('POST /api/chat returns 400 when messages is empty', async () => {
@@ -592,7 +592,7 @@ describe('HTTP API routes', () => {
       }))
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toBe('messages is required')
+      expect(body.error).toBe('MESSAGES_REQUIRED')
     })
 
     it('POST /api/chat returns 400 when no agentId or conversationId', async () => {
@@ -605,7 +605,7 @@ describe('HTTP API routes', () => {
       }))
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toBe('agentId or conversationId is required')
+      expect(body.error).toBe('AGENT_ID_REQUIRED')
     })
 
     it('POST /api/chat returns 404 when agent not found', async () => {
@@ -619,7 +619,7 @@ describe('HTTP API routes', () => {
       }))
       expect(res.status).toBe(404)
       const body = await res.json()
-      expect(body.error).toBe('Agent agent-nonexistent not found')
+      expect(body.error).toBe('AGENT_NOT_FOUND')
     })
 
     it('POST /api/chat resolves agentId from conversationId', async () => {

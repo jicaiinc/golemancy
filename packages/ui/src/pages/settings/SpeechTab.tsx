@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import type { SpeechToTextSettings, TranscriptionRecord, TranscriptionId, ProjectId, ConversationId } from '@golemancy/shared'
@@ -123,20 +124,20 @@ function formatTime(dateStr: string): string {
   return new Date(dateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-function getDateGroup(dateStr: string): string {
+function getDateGroupKey(dateStr: string): string {
   const date = new Date(dateStr)
   const today = new Date()
   const yesterday = new Date(today)
   yesterday.setDate(today.getDate() - 1)
-  if (date.toDateString() === today.toDateString()) return 'Today'
-  if (date.toDateString() === yesterday.toDateString()) return 'Yesterday'
+  if (date.toDateString() === today.toDateString()) return 'today'
+  if (date.toDateString() === yesterday.toDateString()) return 'yesterday'
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 function groupByDate(records: TranscriptionRecord[]): [string, TranscriptionRecord[]][] {
   const groups = new Map<string, TranscriptionRecord[]>()
   for (const record of records) {
-    const group = getDateGroup(record.createdAt)
+    const group = getDateGroupKey(record.createdAt)
     if (!groups.has(group)) groups.set(group, [])
     groups.get(group)!.push(record)
   }
@@ -198,6 +199,7 @@ function InlineAudioPlayer({ audioUrl, durationMs }: { audioUrl: string; duratio
 // ---- Record Row ----
 
 function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: TranscriptionRecord; onRetry: (id: TranscriptionId) => Promise<void>; onDelete: (id: TranscriptionId) => Promise<void>; convTitleMap: Record<string, string> }) {
+  const { t } = useTranslation('speech')
   const [expanded, setExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -225,29 +227,29 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
         {/* Main row */}
         <div className="flex items-center gap-2 min-w-0">
           <span className="shrink-0 text-[11px] leading-none">
-            {record.status === 'success' ? <span className="text-accent-green">OK</span> : record.status === 'failed' ? <span className="text-accent-red">ERR</span> : <span className="text-accent-amber">...</span>}
+            {record.status === 'success' ? <span className="text-accent-green">{t('record.statusOk')}</span> : record.status === 'failed' ? <span className="text-accent-red">{t('record.statusErr')}</span> : <span className="text-accent-amber">...</span>}
           </span>
           <span className="font-mono text-[10px] text-text-dim shrink-0 tabular-nums">{formatDuration(record.audioDurationMs)}</span>
           <span className={`font-mono text-[11px] flex-1 min-w-0 ${expanded ? 'whitespace-pre-wrap break-words' : 'truncate'}`}>
             {retrying ? (
-              <span className="text-accent-amber animate-pulse">Transcribing...</span>
+              <span className="text-accent-amber animate-pulse">{t('history.transcribing')}</span>
             ) : record.status === 'success' && record.text ? (
               <span className="text-text-primary">{record.text}</span>
             ) : record.status === 'failed' ? (
               <span className="text-accent-red">{record.error}</span>
             ) : (
-              <span className="text-accent-amber">Transcribing...</span>
+              <span className="text-accent-amber">{t('history.transcribing')}</span>
             )}
           </span>
           {!expanded && <span className="font-mono text-[9px] text-text-dim shrink-0">{formatTime(record.createdAt)}</span>}
           {/* Actions — stop propagation so clicks don't toggle the row */}
           <div className="flex items-center gap-0.5 shrink-0" onClick={e => e.stopPropagation()}>
             {record.status === 'success' && record.text && (
-              <button onClick={async () => { await navigator.clipboard.writeText(record.text!); setCopied(true); setTimeout(() => setCopied(false), 1500) }} title="Copy" className="w-5 h-5 flex items-center justify-center transition-colors cursor-pointer">
+              <button onClick={async () => { await navigator.clipboard.writeText(record.text!); setCopied(true); setTimeout(() => setCopied(false), 1500) }} title={t('common:button.copy')} className="w-5 h-5 flex items-center justify-center transition-colors cursor-pointer">
                 {copied ? <CheckIcon className="text-accent-green" /> : <CopyIcon className="text-text-dim hover:text-text-primary" />}
               </button>
             )}
-            <button onClick={() => setConfirmDelete(true)} title="Delete" className="w-5 h-5 flex items-center justify-center text-text-dim hover:text-accent-red transition-colors cursor-pointer">
+            <button onClick={() => setConfirmDelete(true)} title={t('common:button.delete')} className="w-5 h-5 flex items-center justify-center text-text-dim hover:text-accent-red transition-colors cursor-pointer">
               <TrashIcon />
             </button>
           </div>
@@ -266,7 +268,7 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
                 ) : canRetry ? (
                   <button
                     onClick={() => record.status === 'failed' ? void doRetry() : setConfirmRetry(true)}
-                    title="Re-transcribe"
+                    title={t('record.retranscribe')}
                     className="shrink-0 w-6 h-6 flex items-center justify-center text-text-dim hover:text-accent-amber transition-colors cursor-pointer"
                   >
                     <RetryIcon />
@@ -286,7 +288,7 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
                       onClick={() => navigate(`/projects/${record.projectId}/chat?conv=${record.conversationId}`)}
                       className="font-mono text-[9px] text-accent-blue hover:text-accent-blue/70 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                     >
-                      Open chat &rarr;
+                      {t('history.openChat')}
                     </button>
                   </div>
                 )}
@@ -297,9 +299,9 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
                 {confirmRetry && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.1 }} className="overflow-hidden">
                     <div className="mt-1 p-1.5 bg-accent-amber/10 border border-accent-amber/30 flex items-center gap-2">
-                      <span className="text-[10px] text-accent-amber flex-1">This will overwrite the existing transcription.</span>
-                      <PixelButton size="sm" variant="secondary" onClick={() => void doRetry()}>Confirm</PixelButton>
-                      <PixelButton size="sm" variant="ghost" onClick={() => setConfirmRetry(false)}>Cancel</PixelButton>
+                      <span className="text-[10px] text-accent-amber flex-1">{t('record.retryConfirm')}</span>
+                      <PixelButton size="sm" variant="secondary" onClick={() => void doRetry()}>{t('common:button.confirm')}</PixelButton>
+                      <PixelButton size="sm" variant="ghost" onClick={() => setConfirmRetry(false)}>{t('common:button.cancel')}</PixelButton>
                     </div>
                   </motion.div>
                 )}
@@ -313,11 +315,11 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
           {confirmDelete && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.1 }} className="overflow-hidden" onClick={e => e.stopPropagation()}>
               <div className="mt-1 p-1.5 bg-accent-red/10 border border-accent-red/30 flex items-center gap-2">
-                <span className="text-[10px] text-accent-red flex-1">Delete this record?</span>
+                <span className="text-[10px] text-accent-red flex-1">{t('record.deleteConfirm')}</span>
                 <PixelButton size="sm" variant="danger" disabled={deleting} onClick={async () => { setDeleting(true); try { await onDelete(record.id) } finally { setDeleting(false); setConfirmDelete(false) } }}>
-                  {deleting ? '...' : 'Yes'}
+                  {deleting ? '...' : t('common:button.confirm')}
                 </PixelButton>
-                <PixelButton size="sm" variant="ghost" disabled={deleting} onClick={() => setConfirmDelete(false)}>No</PixelButton>
+                <PixelButton size="sm" variant="ghost" disabled={deleting} onClick={() => setConfirmDelete(false)}>{t('common:button.cancel')}</PixelButton>
               </div>
             </motion.div>
           )}
@@ -330,6 +332,7 @@ function RecordRow({ record, onRetry, onDelete, convTitleMap }: { record: Transc
 // ---- Main Component ----
 
 export function SpeechTab() {
+  const { t } = useTranslation('speech')
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
 
@@ -449,11 +452,11 @@ export function SpeechTab() {
         setTestLatency(result.latencyMs ?? 0)
         await save({ testStatus: 'ok' })
       } else {
-        setTestError(result.error ?? 'Unknown error')
+        setTestError(result.error ?? t('test.unknownError'))
         await save({ testStatus: 'error' })
       }
     } catch (err) {
-      setTestError(err instanceof Error ? err.message : 'Test failed')
+      setTestError(err instanceof Error ? err.message : t('test.failed'))
       await save({ testStatus: 'error' })
     } finally {
       setTesting(false)
@@ -487,8 +490,8 @@ export function SpeechTab() {
     <div className="flex flex-col gap-2">
       {/* Enable toggle — compact inline */}
       <div className="flex items-center gap-3 px-1">
-        <PixelToggle checked={stt.enabled} onChange={handleToggleEnabled} label={stt.enabled ? 'Enabled' : 'Disabled'} />
-        <span className="font-pixel text-[8px] text-text-dim">SPEECH-TO-TEXT</span>
+        <PixelToggle checked={stt.enabled} onChange={handleToggleEnabled} label={stt.enabled ? t('enable.enabled') : t('enable.disabled')} />
+        <span className="font-pixel text-[8px] text-text-dim">{t('enable.sectionTitle')}</span>
       </div>
 
       {/* Provider Configuration — collapsible */}
@@ -500,7 +503,7 @@ export function SpeechTab() {
             className="w-full flex items-center gap-2 px-3 py-2 hover:bg-elevated/30 transition-colors cursor-pointer"
           >
             <ChevronIcon open={providerOpen} className="text-text-dim" />
-            <span className="font-pixel text-[8px] text-text-secondary">PROVIDER</span>
+            <span className="font-pixel text-[8px] text-text-secondary">{t('provider.sectionTitle')}</span>
             {/* Config summary when collapsed */}
             <span className="ml-auto flex items-center gap-2">
               <span className="font-mono text-[10px] text-text-dim">
@@ -525,55 +528,55 @@ export function SpeechTab() {
                 <div className="flex flex-col gap-3 px-3 pb-3 border-t border-border-dim pt-3">
                   {/* Provider Type */}
                   <div>
-                    <label className="font-pixel text-[8px] text-text-dim block mb-1">TYPE</label>
+                    <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('provider.typeLabel')}</label>
                     <select
                       value={stt.providerType}
                       onChange={e => handleProviderTypeChange(e.target.value as 'openai' | 'openai-compatible')}
                       className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer"
                     >
                       <option value="openai">OpenAI</option>
-                      <option value="openai-compatible">Custom (OpenAI-Compatible)</option>
+                      <option value="openai-compatible">{t('provider.customType')}</option>
                     </select>
                   </div>
 
                   {/* API Key */}
                   <div className="flex items-end gap-2">
                     <div className="flex-1">
-                      <PixelInput label="API KEY" type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} onBlur={handleApiKeyBlur} placeholder="sk-..." />
+                      <PixelInput label={t('provider.apiKeyLabel')} type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} onBlur={handleApiKeyBlur} placeholder="sk-..." />
                     </div>
-                    <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>{showKey ? 'Hide' : 'Show'}</PixelButton>
+                    <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>{showKey ? t('provider.hide') : t('provider.show')}</PixelButton>
                   </div>
 
                   {/* Base URL */}
                   <PixelInput
-                    label={isCustomProvider ? 'BASE URL (REQUIRED)' : 'BASE URL (OPTIONAL)'}
+                    label={isCustomProvider ? t('provider.baseUrlRequired') : t('provider.baseUrlOptional')}
                     value={baseUrl}
                     onChange={e => setBaseUrl(e.target.value)}
                     onBlur={handleBaseUrlBlur}
-                    placeholder={isCustomProvider ? 'https://api.example.com/v1' : 'Leave empty for default'}
+                    placeholder={isCustomProvider ? 'https://api.example.com/v1' : t('provider.baseUrlPlaceholder')}
                   />
 
                   {/* Model */}
                   <div>
-                    <label className="font-pixel text-[8px] text-text-dim block mb-1">MODEL</label>
+                    <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('provider.modelLabel')}</label>
                     {isCustomProvider || useCustomModel ? (
                       <div className="flex items-center gap-2">
                         <input type="text" value={model} onChange={e => setModel(e.target.value)} onBlur={handleCustomModelBlur} placeholder="model-id" className="flex-1 h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none" />
                         {!isCustomProvider && (
-                          <button onClick={() => { setUseCustomModel(false); const p = OPENAI_STT_MODELS[0]; setModel(p); save({ model: p, testStatus: 'untested' }) }} className="text-[9px] text-accent-blue hover:text-text-primary cursor-pointer whitespace-nowrap">Presets</button>
+                          <button onClick={() => { setUseCustomModel(false); const p = OPENAI_STT_MODELS[0]; setModel(p); save({ model: p, testStatus: 'untested' }) }} className="text-[9px] text-accent-blue hover:text-text-primary cursor-pointer whitespace-nowrap">{t('provider.presets')}</button>
                         )}
                       </div>
                     ) : (
                       <select value={OPENAI_STT_MODELS.includes(model) ? model : '__custom__'} onChange={e => handleModelSelect(e.target.value)} className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer">
                         {OPENAI_STT_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
-                        <option value="__custom__">Other...</option>
+                        <option value="__custom__">{t('provider.modelOther')}</option>
                       </select>
                     )}
                   </div>
 
                   {/* Language */}
                   <div>
-                    <label className="font-pixel text-[8px] text-text-dim block mb-1">LANGUAGE</label>
+                    <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('provider.languageLabel')}</label>
                     <select
                       value={language}
                       onChange={e => { setLanguage(e.target.value); void save({ language: e.target.value || undefined }) }}
@@ -590,16 +593,16 @@ export function SpeechTab() {
                   {/* Test */}
                   <div className="flex items-center gap-2">
                     <PixelButton size="sm" variant={testStatus === 'ok' ? 'ghost' : 'secondary'} onClick={runTest} disabled={testing}>
-                      {testing ? '...' : testStatus === 'ok' ? 'Re-test' : 'Test'}
+                      {testing ? '...' : testStatus === 'ok' ? t('test.retest') : t('test.test')}
                     </PixelButton>
                     {testing ? (
-                      <span className="text-[9px] text-accent-blue animate-pulse">Testing...</span>
+                      <span className="text-[9px] text-accent-blue animate-pulse">{t('test.testing')}</span>
                     ) : testStatus === 'ok' ? (
-                      <span className="text-[9px] text-accent-green">OK{testLatency > 0 ? ` (${testLatency}ms)` : ''}</span>
+                      <span className="text-[9px] text-accent-green">{testLatency > 0 ? t('test.okLatency', { latency: testLatency }) : t('test.ok')}</span>
                     ) : testStatus === 'error' ? (
-                      <span className="text-[9px] text-accent-red">Failed</span>
+                      <span className="text-[9px] text-accent-red">{t('test.failed')}</span>
                     ) : (
-                      <span className="text-[9px] text-text-dim">Untested</span>
+                      <span className="text-[9px] text-text-dim">{t('test.untested')}</span>
                     )}
                   </div>
                   {!testing && testStatus === 'error' && testError && (
@@ -619,23 +622,23 @@ export function SpeechTab() {
         <div className="flex flex-col gap-1.5 mt-1">
           {/* History header */}
           <div className="flex items-center gap-2 px-1">
-            <span className="font-pixel text-[8px] text-text-secondary">HISTORY</span>
+            <span className="font-pixel text-[8px] text-text-secondary">{t('history.sectionTitle')}</span>
             {speechStorageUsage != null && (
               <span className="font-mono text-[9px] text-text-dim">
-                {speechStorageUsage.recordCount} records / {formatBytes(speechStorageUsage.totalBytes)}
+                {t('history.recordsInfo', { recordCount: speechStorageUsage.recordCount, size: formatBytes(speechStorageUsage.totalBytes) })}
               </span>
             )}
             <div className="ml-auto">
               <AnimatePresence mode="wait">
                 {confirmClearAll ? (
                   <motion.div key="confirm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.1 }} className="flex items-center gap-1.5">
-                    <span className="text-[9px] text-accent-red">Clear all?</span>
-                    <PixelButton size="sm" variant="danger" disabled={clearingAll} onClick={handleClearAll}>{clearingAll ? '...' : 'Yes'}</PixelButton>
-                    <PixelButton size="sm" variant="ghost" disabled={clearingAll} onClick={() => setConfirmClearAll(false)}>No</PixelButton>
+                    <span className="text-[9px] text-accent-red">{t('history.confirmClear')}</span>
+                    <PixelButton size="sm" variant="danger" disabled={clearingAll} onClick={handleClearAll}>{clearingAll ? '...' : t('common:button.confirm')}</PixelButton>
+                    <PixelButton size="sm" variant="ghost" disabled={clearingAll} onClick={() => setConfirmClearAll(false)}>{t('common:button.cancel')}</PixelButton>
                   </motion.div>
                 ) : (
                   <motion.div key="btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.1 }}>
-                    <PixelButton size="sm" variant="ghost" disabled={!speechHistory.length} onClick={() => setConfirmClearAll(true)}>Clear All</PixelButton>
+                    <PixelButton size="sm" variant="ghost" disabled={!speechHistory.length} onClick={() => setConfirmClearAll(true)}>{t('history.clearAll')}</PixelButton>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -645,18 +648,20 @@ export function SpeechTab() {
           {/* History content */}
           {speechHistoryLoading ? (
             <div className="flex items-center justify-center py-8">
-              <PixelSpinner label="Loading..." />
+              <PixelSpinner label={t('common:status.loading')} />
             </div>
           ) : speechHistory.length === 0 ? (
             <div className="py-6 text-center">
-              <p className="font-mono text-[11px] text-text-dim">No transcriptions yet</p>
+              <p className="font-mono text-[11px] text-text-dim">{t('history.empty')}</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
               {grouped.map(([group, records]) => (
                 <div key={group}>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-pixel text-[8px] text-text-dim whitespace-nowrap">{group}</span>
+                    <span className="font-pixel text-[8px] text-text-dim whitespace-nowrap">
+                      {group === 'today' ? t('history.today') : group === 'yesterday' ? t('history.yesterday') : group}
+                    </span>
                     <div className="flex-1 border-t border-border-dim" />
                   </div>
                   <div className="flex flex-col gap-1">

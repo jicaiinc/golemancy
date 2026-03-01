@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { ProviderSdkType, ProviderEntry, AgentModelConfig } from '@golemancy/shared'
+import { useTranslation } from 'react-i18next'
+import type { ProviderSdkType, AgentModelConfig } from '@golemancy/shared'
 import { PixelCard, PixelButton, PixelInput } from '../../../components'
 import { PROVIDER_PRESETS } from '../../../lib/provider-presets'
 
@@ -19,6 +20,7 @@ interface ProviderStepProps {
   onTestProvider: () => Promise<void>
 }
 
+// Provider/SDK type labels are brand names — not translated per guidelines
 const SDK_TYPE_OPTIONS: { value: ProviderSdkType; label: string }[] = [
   { value: 'openai-compatible', label: 'OpenAI-Compatible' },
   { value: 'anthropic', label: 'Anthropic' },
@@ -41,6 +43,7 @@ export function ProviderStep({
   onUpdate,
   onTestProvider,
 }: ProviderStepProps) {
+  const { t } = useTranslation(['onboarding', 'common'])
   const [showKey, setShowKey] = useState(false)
   const [customMode, setCustomMode] = useState(false)
   const [customName, setCustomName] = useState('')
@@ -93,7 +96,7 @@ export function ProviderStep({
     try {
       await onTestProvider()
     } catch (err) {
-      setTestError(err instanceof Error ? err.message : 'Test failed')
+      setTestError(err instanceof Error ? err.message : t('error.testFailed'))
     }
   }
 
@@ -112,8 +115,8 @@ export function ProviderStep({
   return (
     <div className="flex flex-col gap-6">
       <div className="text-center">
-        <h2 className="font-pixel text-[14px] text-text-primary mb-2">Connect an AI Provider</h2>
-        <p className="font-mono text-[11px] text-text-dim">Choose a provider and enter your API key to get started.</p>
+        <h2 className="font-pixel text-[14px] text-text-primary mb-2">{t('provider.heading')}</h2>
+        <p className="font-mono text-[11px] text-text-dim">{t('provider.description')}</p>
       </div>
 
       {/* Provider grid */}
@@ -133,8 +136,8 @@ export function ProviderStep({
             onClick={handleSelectCustom}
             className="p-3 border-2 border-border-dim border-dashed bg-deep hover:border-accent-green cursor-pointer transition-colors text-left"
           >
-            <div className="text-[11px] text-text-primary">Custom</div>
-            <div className="text-[9px] text-text-dim mt-1">any endpoint</div>
+            <div className="text-[11px] text-text-primary">{t('provider.customLabel')}</div>
+            <div className="text-[9px] text-text-dim mt-1">{t('provider.customSubtitle')}</div>
           </button>
         </div>
       )}
@@ -142,16 +145,16 @@ export function ProviderStep({
       {/* Custom provider form */}
       {customMode && !selectedProvider && (
         <PixelCard variant="outlined">
-          <div className="font-pixel text-[10px] text-text-secondary mb-3">CUSTOM PROVIDER</div>
+          <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('provider.customCardTitle')}</div>
           <div className="flex flex-col gap-3">
             <PixelInput
-              label="NAME"
+              label={t('provider.labelName')}
               value={customName}
               onChange={e => setCustomName(e.target.value)}
               placeholder="My Provider"
             />
             <div>
-              <label className="font-pixel text-[8px] text-text-dim block mb-1">SDK TYPE</label>
+              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('provider.labelSdkType')}</label>
               <select
                 value={customSdkType}
                 onChange={e => setCustomSdkType(e.target.value as ProviderSdkType)}
@@ -164,10 +167,10 @@ export function ProviderStep({
             </div>
             <div className="flex gap-2">
               <PixelButton size="sm" variant="primary" onClick={handleConfirmCustom} disabled={!customName.trim()}>
-                Continue
+                {t('button.continue')}
               </PixelButton>
               <PixelButton size="sm" variant="ghost" onClick={() => { setCustomMode(false); onUpdate({ selectedProvider: null }) }}>
-                Back
+                {t('common:button.back')}
               </PixelButton>
             </div>
           </div>
@@ -183,10 +186,10 @@ export function ProviderStep({
                 {isCustomProvider ? customProviderName : preset?.name}
               </span>
               {providerTestStatus === 'ok' && (
-                <span className="text-[10px] text-accent-green">{'\u2705'} Connected</span>
+                <span className="text-[10px] text-accent-green">{'\u2705'} {t('provider.statusConnected')}</span>
               )}
               {providerTestStatus === 'error' && (
-                <span className="text-[10px] text-accent-red">{'\u274C'} Failed</span>
+                <span className="text-[10px] text-accent-red">{'\u274C'} {t('provider.statusFailed')}</span>
               )}
             </div>
             <PixelButton
@@ -194,7 +197,7 @@ export function ProviderStep({
               variant="ghost"
               onClick={() => onUpdate({ selectedProvider: null, apiKey: '', baseUrl: '', providerTestStatus: 'untested', defaultModel: null })}
             >
-              Change
+              {t('button.change')}
             </PixelButton>
           </div>
 
@@ -203,7 +206,7 @@ export function ProviderStep({
             <div className="flex items-end gap-2">
               <div className="flex-1">
                 <PixelInput
-                  label="API KEY"
+                  label={t('provider.labelApiKey')}
                   type={showKey ? 'text' : 'password'}
                   value={apiKey}
                   onChange={e => onUpdate({ apiKey: e.target.value, providerTestStatus: 'untested' })}
@@ -211,14 +214,14 @@ export function ProviderStep({
                 />
               </div>
               <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>
-                {showKey ? 'Hide' : 'Show'}
+                {showKey ? t('button.hide') : t('button.show')}
               </PixelButton>
             </div>
 
             {/* Base URL (optional for presets, shown for custom) */}
             {(isCustomProvider || baseUrl) && (
               <PixelInput
-                label="BASE URL"
+                label={t('provider.labelBaseUrl')}
                 value={baseUrl}
                 onChange={e => onUpdate({ baseUrl: e.target.value, providerTestStatus: 'untested' })}
                 placeholder="https://api.example.com/v1"
@@ -233,10 +236,10 @@ export function ProviderStep({
                 onClick={handleTest}
                 disabled={providerTestStatus === 'testing' || !apiKey || (isCustomProvider && models.length === 0 && !defaultModel?.model?.trim())}
               >
-                {providerTestStatus === 'testing' ? 'Testing...' : providerTestStatus === 'ok' ? 'Re-test' : 'Test Connection'}
+                {providerTestStatus === 'testing' ? t('button.testing') : providerTestStatus === 'ok' ? t('button.reTest') : t('button.testConnection')}
               </PixelButton>
               {providerTestStatus === 'testing' && (
-                <span className="text-[10px] text-accent-blue animate-pulse">Connecting...</span>
+                <span className="text-[10px] text-accent-blue animate-pulse">{t('provider.statusConnecting')}</span>
               )}
             </div>
 
@@ -250,11 +253,11 @@ export function ProviderStep({
             {/* Default model selector (after test passes, or always for custom providers) */}
             {(providerTestStatus === 'ok' || (isCustomProvider && models.length === 0)) && (
               <div className="mt-2 pt-3 border-t-2 border-border-dim">
-                <div className="font-pixel text-[10px] text-text-secondary mb-2">DEFAULT MODEL</div>
+                <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('provider.defaultModel.title')}</div>
                 <p className="text-[11px] text-text-dim mb-3">
                   {models.length > 0
-                    ? 'Choose a model to use by default for new agents.'
-                    : 'Enter the model name to use by default.'}
+                    ? t('provider.defaultModel.descriptionPreset')
+                    : t('provider.defaultModel.descriptionCustom')}
                 </p>
                 {models.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
@@ -274,7 +277,7 @@ export function ProviderStep({
                   </div>
                 ) : (
                   <PixelInput
-                    label="MODEL NAME"
+                    label={t('provider.defaultModel.labelModelName')}
                     value={defaultModel?.model ?? ''}
                     onChange={e => handleModelSelect(e.target.value)}
                     placeholder="e.g. gpt-4o, claude-sonnet-4-5"

@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "仪表盘",
+    "chats": "对话",
+    "automations": "自动化",
+    "agents": "Agent",
+    "skills": "技能",
+    "mcpServers": "MCP 服务器",
+    "tasks": "对话任务",
+    "artifacts": "工件",
+    "memory": "记忆",
+    "settings": "设置"
+  },
+  "sidebar": {
+    "navigation": "导航",
+    "config": "配置",
+    "collapse": "<< 收起"
+  },
+  "global": {
+    "allProjects": "所有项目",
+    "dashboard": "仪表盘",
+    "settings": "设置"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "受限",
+      "sandbox": "沙盒",
+      "unrestricted": "无限制"
+    },
+    "degraded": "(降级 → {{mode}})",
+    "tasks": "任务 {{completed}}/{{total}}",
+    "conversationTasks": "对话任务",
+    "contextUsage": "上下文：{{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "上下文：-- / {{max}}",
+    "contextWindow": "上下文窗口",
+    "usage": "用量",
+    "compacting": "压缩中",
+    "compactingAuto": "自动压缩中",
+    "compactNow": "立即压缩",
+    "byAgent": "按 AGENT",
+    "byModel": "按模型",
+    "tokensInOut": "{{input}} 输入 / {{output}} 输出",
+    "tokens": "Token：{{input}} 输入 / {{output}} 输出",
+    "tokensEmpty": "Token：--"
+  }
+}

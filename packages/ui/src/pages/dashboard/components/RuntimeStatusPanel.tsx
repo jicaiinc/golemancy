@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { RuntimeStatus, ProjectId, ConversationId, CronJobId } from '@golemancy/shared'
 import { PixelCard, PixelTabs, PixelBadge } from '../../../components'
 import { relativeTime, formatDuration, formatTokens } from '../utils'
@@ -11,19 +12,20 @@ interface RuntimeStatusPanelProps {
 }
 
 export function RuntimeStatusPanel({ status, showProject, onOpenChat, onOpenCron }: RuntimeStatusPanelProps) {
+  const { t } = useTranslation('dashboard')
   const [tab, setTab] = useState('active')
 
   if (!status) return null
 
   const tabs = [
-    { id: 'active', label: `Active (${status.runningChats.length + status.runningCrons.length})` },
-    { id: 'scheduled', label: `Scheduled (${status.upcoming.length})` },
-    { id: 'recent', label: 'Recent' },
+    { id: 'active', label: t('runtimePanel.tabActive', { count: status.runningChats.length + status.runningCrons.length }) },
+    { id: 'scheduled', label: t('runtimePanel.tabScheduled', { count: status.upcoming.length }) },
+    { id: 'recent', label: t('runtimePanel.tabRecent') },
   ]
 
   return (
     <PixelCard variant="default">
-      <h3 className="font-pixel text-[10px] text-text-secondary mb-3">ACTIVITY</h3>
+      <h3 className="font-pixel text-[10px] text-text-secondary mb-3">{t('runtimePanel.title')}</h3>
       <PixelTabs tabs={tabs} activeTab={tab} onTabChange={setTab} />
 
       <div className="mt-3 min-h-[80px]">
@@ -45,12 +47,13 @@ export function RuntimeStatusPanel({ status, showProject, onOpenChat, onOpenCron
 const badgeClass = 'min-w-[4.5rem] text-center'
 
 function OpenLink({ onClick }: { onClick: (e: React.MouseEvent) => void }) {
+  const { t } = useTranslation('dashboard')
   return (
     <button
       className="font-pixel text-[8px] text-accent-cyan hover:text-accent-blue transition-colors cursor-pointer shrink-0"
       onClick={onClick}
     >
-      OPEN &rarr;
+      {t('runtimePanel.openLink')}
     </button>
   )
 }
@@ -64,14 +67,15 @@ function ActiveTab({
   onOpenChat?: (conversationId: ConversationId, projectId: ProjectId) => void
   onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
 }) {
+  const { t } = useTranslation('dashboard')
   if (chats.length === 0 && crons.length === 0) {
-    return <p className="text-[10px] text-text-dim text-center py-4">No active runs</p>
+    return <p className="text-[10px] text-text-dim text-center py-4">{t('runtimePanel.noActiveRuns')}</p>
   }
   return (
     <div className="flex flex-col gap-1">
       {chats.map(c => (
         <div key={c.conversationId} className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors">
-          <div className={badgeClass}><PixelBadge variant="running">Chat</PixelBadge></div>
+          <div className={badgeClass}><PixelBadge variant="running">{t('runtimePanel.badgeChat')}</PixelBadge></div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] text-text-primary truncate block">{c.title || c.conversationId}</span>
             <span className="text-[9px] text-text-dim">
@@ -86,7 +90,7 @@ function ActiveTab({
       ))}
       {crons.map(c => (
         <div key={c.runId} className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors">
-          <div className={badgeClass}><PixelBadge variant="info">Cron</PixelBadge></div>
+          <div className={badgeClass}><PixelBadge variant="info">{t('runtimePanel.badgeCron')}</PixelBadge></div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] text-text-primary truncate block">{c.cronJobName}</span>
             <span className="text-[9px] text-text-dim">
@@ -110,14 +114,15 @@ function ScheduledTab({
   showProject?: boolean
   onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
 }) {
+  const { t } = useTranslation('dashboard')
   if (items.length === 0) {
-    return <p className="text-[10px] text-text-dim text-center py-4">No scheduled runs</p>
+    return <p className="text-[10px] text-text-dim text-center py-4">{t('runtimePanel.noScheduledRuns')}</p>
   }
   return (
     <div className="flex flex-col gap-1">
       {items.map(item => (
         <div key={`${item.cronJobId}-${item.nextRunAt}`} className="flex items-center gap-3 px-2 py-1.5 hover:bg-elevated/50 transition-colors">
-          <div className={badgeClass}><PixelBadge variant="info">Cron</PixelBadge></div>
+          <div className={badgeClass}><PixelBadge variant="info">{t('runtimePanel.badgeCron')}</PixelBadge></div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] text-text-primary truncate block">{item.cronJobName}</span>
             <span className="text-[9px] text-text-dim">
@@ -142,8 +147,9 @@ function RecentTab({
   onOpenChat?: (conversationId: ConversationId, projectId: ProjectId) => void
   onOpenCron?: (cronJobId: CronJobId, projectId: ProjectId) => void
 }) {
+  const { t } = useTranslation('dashboard')
   if (items.length === 0) {
-    return <p className="text-[10px] text-text-dim text-center py-4">No recent activity</p>
+    return <p className="text-[10px] text-text-dim text-center py-4">{t('runtimePanel.noRecentActivity')}</p>
   }
   return (
     <div className="flex flex-col gap-1">
@@ -156,7 +162,7 @@ function RecentTab({
           >
             <div className={badgeClass}>
               <PixelBadge variant={item.status === 'error' ? 'error' : isChat ? 'success' : 'info'}>
-                {isChat ? 'Chat' : 'Cron'}
+                {isChat ? t('runtimePanel.badgeChat') : t('runtimePanel.badgeCron')}
               </PixelBadge>
             </div>
             <div className="min-w-0 flex-1">
@@ -169,7 +175,7 @@ function RecentTab({
                   <span className="text-[9px] text-text-dim">{formatDuration(item.durationMs)}</span>
                 )}
                 {item.totalTokens != null && item.totalTokens > 0 && (
-                  <span className="text-[9px] text-text-dim">{formatTokens(item.totalTokens)} tokens</span>
+                  <span className="text-[9px] text-text-dim">{t('runtimePanel.tokenCount', { tokens: formatTokens(item.totalTokens) })}</span>
                 )}
               </div>
             </div>

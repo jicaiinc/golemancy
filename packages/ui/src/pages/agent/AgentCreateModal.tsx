@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../components'
 
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
+  const { t } = useTranslation('agent')
   const { projectId } = useParams<{ projectId: string }>()
   const createAgent = useAppStore(s => s.createAgent)
   const settings = useAppStore(s => s.settings)
@@ -82,13 +84,13 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
     <PixelModal
       open={open}
       onClose={onClose}
-      title="Create New Agent"
+      title={t('create.modalTitle')}
       size="md"
       footer={
         <>
-          <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>Cancel</PixelButton>
+          <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
           <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || !providerSlug || !model || saving} onClick={handleSubmit}>
-            {saving ? 'Creating...' : 'Create Agent'}
+            {saving ? t('common:button.creating') : t('create.createBtn')}
           </PixelButton>
         </>
       }
@@ -96,24 +98,24 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
       <div className="flex flex-col gap-4">
         <PixelInput
           data-testid="agent-name-input"
-          label="AGENT NAME"
-          placeholder="e.g. Research Assistant"
+          label={t('label.agentName')}
+          placeholder={t('create.namePlaceholder')}
           value={name}
           onChange={e => setName(e.target.value)}
           autoFocus
         />
 
         <PixelInput
-          label="DESCRIPTION"
-          placeholder="What does this agent do?"
+          label={t('label.description')}
+          placeholder={t('create.descPlaceholder')}
           value={description}
           onChange={e => setDescription(e.target.value)}
         />
 
         <PixelTextArea
           data-testid="agent-prompt-input"
-          label="SYSTEM PROMPT"
-          placeholder="You are a helpful assistant that..."
+          label={t('label.systemPrompt')}
+          placeholder={t('create.promptPlaceholder')}
           value={systemPrompt}
           onChange={e => setSystemPrompt(e.target.value)}
           rows={4}
@@ -121,26 +123,26 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('label.provider')}</label>
             <select
               value={providerSlug}
               onChange={e => handleProviderChange(e.target.value)}
               className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
             >
-              {availableProviders.length === 0 && <option value="">No providers configured</option>}
+              {availableProviders.length === 0 && <option value="">{t('noProviders')}</option>}
               {availableProviders.map(([slug, entry]) => (
                 <option key={slug} value={slug}>{entry.name}</option>
               ))}
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('label.model')}</label>
             <select
               value={model}
               onChange={e => setModel(e.target.value)}
               className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
             >
-              {models.length === 0 && <option value="">No models available</option>}
+              {models.length === 0 && <option value="">{t('noModels')}</option>}
               {models.map(m => (
                 <option key={m} value={m}>{m}</option>
               ))}

@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "隐藏聊天记录",
+    "showHistory": "显示聊天记录",
+    "new": "+ 新建",
+    "clickToRename": "点击重命名"
+  },
+  "sidebar": {
+    "newChat": "+ 新对话",
+    "noConversations": "暂无对话"
+  },
+  "window": {
+    "startConversation": "开始对话...",
+    "compacting": "压缩中",
+    "thinking": "思考中",
+    "imageMsgTitle": "图片消息"
+  },
+  "empty": {
+    "readyToChat": "准备就绪",
+    "description": "开始新对话，或从侧边栏选择一个对话。",
+    "startChatting": "开始聊天",
+    "noMainAgent": "未设置主 Agent",
+    "configureText": "在<a>项目设置</a>中配置主 Agent 以开始聊天。"
+  },
+  "input": {
+    "placeholder": "输入消息...",
+    "dropPlaceholder": "拖放图片到此处...",
+    "attachImage": "附加图片",
+    "recordAudio": "录制音频",
+    "transcribing": "转录中...",
+    "transcriptionFailed": "转录失败",
+    "startRecordingFailed": "启动录音失败",
+    "retryFailed": "重试失败"
+  },
+  "message": {
+    "reasoning": "推理过程",
+    "untitledFile": "未命名文件",
+    "copy": "复制"
+  },
+  "compact": {
+    "title": "对话已压缩",
+    "summary": "摘要",
+    "tokensSummary": "{{input}} 输入 / {{output}} 输出"
+  },
+  "tool": {
+    "running": "运行中...",
+    "awaitingApproval": "等待审批",
+    "approved": "已批准",
+    "done": "完成",
+    "denied": "已拒绝",
+    "input": "输入",
+    "output": "输出",
+    "error": "错误",
+    "task": "任务",
+    "tools": "工具",
+    "toolCountRunning": "[{{running}}/{{total}} 个工具]",
+    "toolCountDone": "[{{total}} 个工具]",
+    "taskCreate": "创建任务",
+    "taskGet": "获取任务",
+    "taskList": "任务列表",
+    "taskUpdate": "更新任务"
+  }
+}

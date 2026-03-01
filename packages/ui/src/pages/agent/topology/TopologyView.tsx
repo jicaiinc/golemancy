@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect, useRef, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AnimatePresence } from 'motion/react'
 import {
   ReactFlow,
@@ -27,6 +28,7 @@ interface TopologyViewProps {
 }
 
 export function TopologyView({ onCreateAgent }: TopologyViewProps) {
+  const { t } = useTranslation('agent')
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
   const deleteAgent = useAppStore(s => s.deleteAgent)
@@ -155,7 +157,7 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
               closeContextMenu()
             }}
           >
-            Edit Agent
+            {t('topology.editAgent')}
           </button>
           <button
             className="block w-full text-left px-3 py-2 text-[12px] font-mono text-mc-gold hover:bg-elevated transition-colors cursor-pointer"
@@ -166,7 +168,7 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
               closeContextMenu()
             }}
           >
-            Set as Main Agent
+            {t('topology.setMainAgent')}
           </button>
           <div className="border-t-2 border-border-dim my-1" />
           <button
@@ -177,7 +179,7 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
               setSelectedAgentId(null)
             }}
           >
-            Delete Agent
+            {t('general.deleteBtn')}
           </button>
         </div>
       )}

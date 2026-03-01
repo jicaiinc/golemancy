@@ -1,4 +1,5 @@
 import '../styles/global.css'
+import '../i18n/config'
 import { ErrorBoundary } from '../components'
 import { Providers } from './providers'
 import { AppRoutes } from './routes'

@@ -101,7 +101,7 @@ describe('Skills routes', () => {
         instructions: '',
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('name')
+      expect((await res.json()).error).toBe('NAME_REQUIRED')
     })
 
     it('returns 400 when name is whitespace only', async () => {
@@ -131,7 +131,7 @@ describe('Skills routes', () => {
         name: '  ',
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('name')
+      expect((await res.json()).error).toBe('NAME_EMPTY')
     })
   })
 
@@ -153,7 +153,7 @@ describe('Skills routes', () => {
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}/skills/${skillId}`)
       expect(res.status).toBe(409)
       const body = await res.json()
-      expect(body.error).toContain('assigned to agents')
+      expect(body.error).toBe('SKILL_IN_USE')
       expect(body.agents).toHaveLength(1)
     })
   })

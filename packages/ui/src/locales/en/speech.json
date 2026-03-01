@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Transcription History"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} record",
+    "recordCount_other": "{{count}} records",
+    "used": "{{size}} used",
+    "loading": "Loading storage info..."
+  },
+  "clearAll": {
+    "confirm_one": "Delete all {{count}} record?",
+    "confirm_other": "Delete all {{count}} records?",
+    "confirmWithFree_one": "Delete all {{count}} record and free {{size}}?",
+    "confirmWithFree_other": "Delete all {{count}} records and free {{size}}?"
+  },
+  "loading": "Loading history...",
+  "empty": {
+    "hint": "Use the microphone button in chat\nto create your first voice recording",
+    "settingsBtn": "Go to Settings"
+  },
+  "player": {
+    "play": "Play",
+    "pause": "Pause",
+    "close": "Close player"
+  },
+  "actions": {
+    "copy": "Copy transcribed text",
+    "retry": "Retry transcription",
+    "delete": "Delete record"
+  },
+  "enable": {
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "sectionTitle": "SPEECH-TO-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "TYPE",
+    "customType": "Custom (OpenAI-Compatible)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (REQUIRED)",
+    "baseUrlOptional": "BASE URL (OPTIONAL)",
+    "baseUrlPlaceholder": "Leave empty for default",
+    "modelLabel": "MODEL",
+    "modelOther": "Other...",
+    "presets": "Presets",
+    "languageLabel": "LANGUAGE",
+    "hide": "Hide",
+    "show": "Show"
+  },
+  "test": {
+    "testing": "Testing...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Re-test",
+    "test": "Test",
+    "failed": "Failed",
+    "untested": "Untested",
+    "unknownError": "Unknown error"
+  },
+  "history": {
+    "sectionTitle": "HISTORY",
+    "recordsInfo": "{{recordCount}} records / {{size}}",
+    "clearAll": "Clear All",
+    "confirmClear": "Clear all?",
+    "empty": "No transcriptions yet",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "transcribing": "Transcribing...",
+    "openChat": "Open chat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "Delete this record and its audio file?",
+    "retryConfirm": "This will overwrite the existing transcription.",
+    "transcriptionFailed": "Transcription failed: {{error}}",
+    "retranscribe": "Re-transcribe"
+  }
+}

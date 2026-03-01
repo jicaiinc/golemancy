@@ -1,0 +1,104 @@
+{
+  "loading": "加载权限配置...",
+  "section": {
+    "permissionMode": "权限模式",
+    "configuration": "配置"
+  },
+  "modes": {
+    "restricted": {
+      "name": "受限",
+      "subtitle": "仅 Bash，无沙盒",
+      "description": "最小执行环境。无沙盒运行时，不支持 MCP。",
+      "badge": "有限"
+    },
+    "sandbox": {
+      "name": "沙盒",
+      "subtitle": "可配置隔离",
+      "description": "沙盒运行时，可配置文件系统、网络和命令限制。",
+      "badge": "推荐"
+    },
+    "unrestricted": {
+      "name": "无限制",
+      "subtitle": "完全系统访问",
+      "description": "无沙盒限制。所有命令以完全系统权限运行。",
+      "badge": "风险"
+    }
+  },
+  "config": {
+    "default": "默认",
+    "selectConfig": "选择配置...",
+    "saveAs": "另存为...",
+    "rename": "重命名",
+    "resetToDefault": "恢复默认",
+    "saved": "已保存！",
+    "editingDefault": "正在编辑默认值。点击保存以创建新的命名配置。"
+  },
+  "modal": {
+    "unrestrictedTitle": "启用无限制模式？",
+    "unrestrictedBody": "这将移除所有沙盒保护。AI Agent 将拥有对系统的完全访问权限，包括：",
+    "unrestrictedReadWrite": "读写电脑上的任何文件",
+    "unrestrictedExecute": "执行任何系统命令",
+    "unrestrictedNetwork": "不受限制地访问网络",
+    "unrestrictedSysconfig": "修改系统配置",
+    "unrestrictedFooter": "仅在受信任的本地开发环境中使用。",
+    "enableUnrestricted": "我已了解，启用",
+    "sandboxUnavailableTitle": "沙盒模式不可用",
+    "sandboxUnavailableBody": "沙盒运行时前置条件未满足，发现以下问题：",
+    "sandboxUnavailableFooter": "强制启用沙盒模式将导致运行时降级为受限模式。",
+    "enableAnyway": "仍然启用",
+    "saveAsTitle": "另存为新配置",
+    "configNameLabel": "配置名称",
+    "configNamePlaceholder": "例如：严格开发、禁用 Python",
+    "renameTitle": "重命名配置",
+    "newNameLabel": "新名称",
+    "newNamePlaceholder": "例如：我的自定义配置",
+    "renaming": "重命名中...",
+    "deleteTitle": "删除 \"{{title}}\"？",
+    "deleteBody": "此配置将被永久删除。项目将恢复为系统默认设置。"
+  },
+  "filesystem": {
+    "sectionTitle": "文件系统权限",
+    "allowWrite": "允许写入",
+    "allowWriteHelper": "Agent 可以写入文件的路径。默认：项目工作区目录。",
+    "allowWritePlaceholder": "例如：/Users/name/workspace",
+    "denyRead": "禁止读取",
+    "denyReadHelper": "禁止读取的敏感文件/目录。",
+    "denyReadPlaceholder": "例如：~/.ssh, .env",
+    "denyWrite": "禁止写入",
+    "denyWriteHelper": "禁止写入的路径。优先级高于允许写入。",
+    "denyWritePlaceholder": "例如：/etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "网络限制",
+    "enableLabel": "启用",
+    "statusEnabled": "仅可访问已配置的域名",
+    "statusDisabled": "允许所有网络流量",
+    "allowedDomains": "允许的域名",
+    "allowedDomainsHelper": "Agent 可访问的域名。精确：example.com — 通配符：*.example.com（*. 后需 2+ 部分）。",
+    "allowedDomainsPlaceholder": "例如：api.github.com",
+    "deniedDomains": "禁止的域名",
+    "deniedDomainsHelper": "要屏蔽的域名。格式同允许的域名。",
+    "deniedDomainsPlaceholder": "例如：malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "命令限制",
+    "deniedCommands": "禁止的命令",
+    "deniedCommandsHelper": "禁止执行的命令。",
+    "deniedCommandsPlaceholder": "例如：python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "应用到 MCP",
+    "warning": "(⚠ 禁用此选项可能允许第三方 MCP 服务器访问或修改你电脑上的文件)",
+    "description": "启用后，MCP 服务器命令将通过沙盒运行时 (srt) 包装。这会将相同的文件系统、网络和命令限制应用到 MCP 服务器。"
+  },
+  "windows": {
+    "notice": "⚠ WINDOWS 提示",
+    "message": "沙盒运行时在 Windows 上不可用。仅支持命令阻止。"
+  },
+  "validation": {
+    "removeProtocol": "请移除协议、路径或端口 — 仅输入域名",
+    "wildcardParts": "通配符需要 *. 后有 2+ 部分（例如：*.example.com）",
+    "onlyWildcard": "仅支持 *.domain.com 通配符格式",
+    "validDomain": "必须是包含至少一个点的有效域名（例如：example.com）"
+  }
+}

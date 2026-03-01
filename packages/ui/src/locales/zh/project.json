@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "项目名称",
+    "description": "描述",
+    "icon": "图标",
+    "projectId": "项目 ID"
+  },
+  "list": {
+    "title": "所有项目",
+    "subtitle_one": "工作区中有 {{count}} 个项目",
+    "subtitle_other": "工作区中有 {{count}} 个项目",
+    "newBtn": "+ 新建项目",
+    "empty": "暂无项目",
+    "createFirst": "创建第一个项目",
+    "openInWindow": "在新窗口中打开",
+    "agents_one": "{{count}} 个 Agent",
+    "agents_other": "{{count}} 个 Agent",
+    "running_one": "{{count}} 个运行中",
+    "running_other": "{{count}} 个运行中"
+  },
+  "create": {
+    "modalTitle": "创建新项目",
+    "createBtn": "创建项目",
+    "namePlaceholder": "我的超棒项目",
+    "descPlaceholder": "这个项目是做什么的？"
+  },
+  "settings": {
+    "title": "项目设置",
+    "savedMsg": "已保存！",
+    "clickToCopy": "点击复制",
+    "tabs": {
+      "general": "基本信息",
+      "agent": "Agent",
+      "permissions": "权限"
+    },
+    "agent": {
+      "mainLabel": "主 AGENT",
+      "mainDesc": "该项目新对话的默认 Agent。",
+      "noAgents": "项目中暂无 Agent，请先创建一个。",
+      "goToAgents": "前往 Agent 页面",
+      "none": "无",
+      "configure": "配置 Agent →"
+    },
+    "general": {
+      "sectionTitle": "基本信息",
+      "saveBtn": "保存更改"
+    }
+  }
+}

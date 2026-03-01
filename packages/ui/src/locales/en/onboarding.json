@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Setup",
+    "skipSetup": "Skip Setup"
+  },
+  "steps": {
+    "welcome": "Welcome",
+    "provider": "Provider",
+    "speech": "Speech",
+    "project": "Project",
+    "complete": "Complete"
+  },
+  "error": {
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "failedToSkip": "Failed to skip setup. Please try again.",
+    "connectionTestFailed": "Connection test failed",
+    "testFailed": "Test failed",
+    "unknownError": "Unknown error"
+  },
+  "button": {
+    "createProject": "Create Project",
+    "getStarted": "Get Started",
+    "continue": "Continue",
+    "startChatting": "Start Chatting",
+    "goToDashboard": "Go to Dashboard",
+    "change": "Change",
+    "testConnection": "Test Connection",
+    "testing": "Testing...",
+    "reTest": "Re-test",
+    "test": "Test",
+    "hide": "Hide",
+    "show": "Show"
+  },
+  "welcome": {
+    "tagline": "Welcome",
+    "heading": "Command Your AI Golems",
+    "description": "Orchestrate autonomous AI agents from your desktop."
+  },
+  "provider": {
+    "heading": "Connect an AI Provider",
+    "description": "Choose a provider and enter your API key to get started.",
+    "customLabel": "Custom",
+    "customSubtitle": "any endpoint",
+    "customCardTitle": "CUSTOM PROVIDER",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NAME",
+    "labelSdkType": "SDK TYPE",
+    "statusConnected": "Connected",
+    "statusFailed": "Failed",
+    "statusConnecting": "Connecting...",
+    "none": "None",
+    "defaultModel": {
+      "title": "DEFAULT MODEL",
+      "descriptionPreset": "Choose a model to use by default for new agents.",
+      "descriptionCustom": "Enter the model name to use by default.",
+      "labelModelName": "MODEL NAME"
+    }
+  },
+  "speech": {
+    "heading": "Speech-to-Text",
+    "description": "Enable voice input for faster interaction. You can skip this and configure it later.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODEL",
+    "labelLanguage": "LANGUAGE",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Failed"
+  },
+  "project": {
+    "heading": "Create Your First Project",
+    "description": "Projects organize your agents, conversations, and workflows.",
+    "labelName": "PROJECT NAME",
+    "placeholderName": "My Awesome Project",
+    "labelDescription": "DESCRIPTION",
+    "placeholderDescription": "What will this project do?",
+    "labelIcon": "ICON",
+    "fromTemplate": "FROM TEMPLATE",
+    "comingSoon": "Coming Soon"
+  },
+  "complete": {
+    "heading": "You're All Set!",
+    "description": "Here's a summary of your configuration.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "DEFAULT MODEL",
+    "labelSpeechToText": "SPEECH-TO-TEXT",
+    "labelProject": "PROJECT",
+    "sttEnabled": "Enabled",
+    "sttSkipped": "Skipped",
+    "links": {
+      "settings": "Settings",
+      "website": "Website"
+    }
+  }
+}

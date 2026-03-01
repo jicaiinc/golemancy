@@ -1,0 +1,104 @@
+{
+  "loading": "Loading permissions...",
+  "section": {
+    "permissionMode": "PERMISSION MODE",
+    "configuration": "CONFIGURATION"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restricted",
+      "subtitle": "Just Bash, no sandbox",
+      "description": "Minimal execution environment. No sandbox runtime, no MCP support.",
+      "badge": "Limited"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Configurable isolation",
+      "description": "Sandbox runtime with configurable filesystem, network, and command restrictions.",
+      "badge": "Recommended"
+    },
+    "unrestricted": {
+      "name": "Unrestricted",
+      "subtitle": "Full system access",
+      "description": "No sandbox restrictions. All commands run with full system permissions.",
+      "badge": "Risky"
+    }
+  },
+  "config": {
+    "default": "Default",
+    "selectConfig": "Select config...",
+    "saveAs": "Save As...",
+    "rename": "Rename",
+    "resetToDefault": "Reset to Default",
+    "saved": "Saved!",
+    "editingDefault": "Editing default values. Click Save to create a new named configuration."
+  },
+  "modal": {
+    "unrestrictedTitle": "Enable Unrestricted Mode?",
+    "unrestrictedBody": "This removes all sandbox protection. AI agents will have full access to your system, including:",
+    "unrestrictedReadWrite": "Read/write any file on your computer",
+    "unrestrictedExecute": "Execute any system command",
+    "unrestrictedNetwork": "Access network without restrictions",
+    "unrestrictedSysconfig": "Modify system configuration",
+    "unrestrictedFooter": "Only use this for local development in trusted environments.",
+    "enableUnrestricted": "I Understand, Enable",
+    "sandboxUnavailableTitle": "Sandbox Mode Unavailable",
+    "sandboxUnavailableBody": "Sandbox runtime prerequisites are not met. The following issues were found:",
+    "sandboxUnavailableFooter": "Enabling sandbox mode anyway will cause runtime degradation to restricted mode.",
+    "enableAnyway": "Enable Anyway",
+    "saveAsTitle": "Save As New Configuration",
+    "configNameLabel": "CONFIG NAME",
+    "configNamePlaceholder": "e.g., Strict Dev, Python Disabled",
+    "renameTitle": "Rename Configuration",
+    "newNameLabel": "NEW NAME",
+    "newNamePlaceholder": "e.g., My Custom Config",
+    "renaming": "Renaming...",
+    "deleteTitle": "Delete \"{{title}}\"?",
+    "deleteBody": "This configuration will be permanently deleted. The project will revert to system defaults."
+  },
+  "filesystem": {
+    "sectionTitle": "FILESYSTEM PERMISSIONS",
+    "allowWrite": "ALLOW WRITE",
+    "allowWriteHelper": "Paths where agents can write files. Default: project workspace directory.",
+    "allowWritePlaceholder": "e.g., /Users/name/workspace",
+    "denyRead": "DENY READ",
+    "denyReadHelper": "Sensitive files/folders to block from reading.",
+    "denyReadPlaceholder": "e.g., ~/.ssh, .env",
+    "denyWrite": "DENY WRITE",
+    "denyWriteHelper": "Paths where writing is blocked. Takes precedence over allow write.",
+    "denyWritePlaceholder": "e.g., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "NETWORK RESTRICTIONS",
+    "enableLabel": "Enable",
+    "statusEnabled": "Only configured domains are accessible",
+    "statusDisabled": "All network traffic is allowed",
+    "allowedDomains": "ALLOWED DOMAINS",
+    "allowedDomainsHelper": "Domains agents can access. Exact: example.com — Wildcard: *.example.com (2+ parts after *.)",
+    "allowedDomainsPlaceholder": "e.g., api.github.com",
+    "deniedDomains": "DENIED DOMAINS",
+    "deniedDomainsHelper": "Domains to block. Same format as allowed domains.",
+    "deniedDomainsPlaceholder": "e.g., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "COMMAND RESTRICTIONS",
+    "deniedCommands": "DENIED COMMANDS",
+    "deniedCommandsHelper": "Commands to block from execution.",
+    "deniedCommandsPlaceholder": "e.g., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Apply to MCP",
+    "warning": "(\u26A0 Disabling this may allow third-party MCP servers to access or modify files on your computer)",
+    "description": "When enabled, MCP server commands will be wrapped with sandbox runtime (srt). This applies the same filesystem, network, and command restrictions to MCP servers."
+  },
+  "windows": {
+    "notice": "\u26A0 WINDOWS NOTICE",
+    "message": "Sandbox runtime is not available on Windows. Only command blocking is supported."
+  },
+  "validation": {
+    "removeProtocol": "Remove protocol, path, or port — just the domain",
+    "wildcardParts": "Wildcard needs 2+ parts after *. (e.g., *.example.com)",
+    "onlyWildcard": "Only *.domain.com wildcard format is supported",
+    "validDomain": "Must be a valid domain with at least one dot (e.g., example.com)"
+  }
+}

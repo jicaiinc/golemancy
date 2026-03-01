@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, usePermissionConfig } from '../../hooks'
@@ -9,11 +10,6 @@ import {
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { MCPFormModal } from './MCPFormModal'
 
-const TABS = [
-  { id: 'installed', label: 'Installed' },
-  { id: 'marketplace', label: 'Marketplace' },
-]
-
 const transportColors: Record<string, string> = {
   stdio: 'text-accent-green',
   sse: 'text-accent-amber',
@@ -21,6 +17,7 @@ const transportColors: Record<string, string> = {
 }
 
 export function MCPServersPage() {
+  const { t } = useTranslation('mcp')
   const project = useCurrentProject()
   const mcpServers = useAppStore(s => s.mcpServers)
   const mcpServersLoading = useAppStore(s => s.mcpServersLoading)
@@ -30,6 +27,11 @@ export function MCPServersPage() {
   const deleteMCPServer = useAppStore(s => s.deleteMCPServer)
   const testMCPServer = useAppStore(s => s.testMCPServer)
   const { mode, applyToMCP, sandboxSupported } = usePermissionConfig()
+
+  const tabs = [
+    { id: 'installed', label: t('tabs.installed') },
+    { id: 'marketplace', label: t('tabs.marketplace') },
+  ]
 
   const [activeTab, setActiveTab] = useState('installed')
   const [showCreate, setShowCreate] = useState(false)
@@ -61,12 +63,12 @@ export function MCPServersPage() {
     try {
       const result = await testMCPServer(name)
       if (result.ok) {
-        setTestResults(prev => ({ ...prev, [name]: { status: 'ok', message: `OK (${result.toolCount} tools)` } }))
+        setTestResults(prev => ({ ...prev, [name]: { status: 'ok', message: t('server.testOk', { count: result.toolCount }) } }))
       } else {
-        setTestResults(prev => ({ ...prev, [name]: { status: 'error', message: result.error ?? 'Connection failed' } }))
+        setTestResults(prev => ({ ...prev, [name]: { status: 'error', message: result.error ?? t('server.connectionFailed') } }))
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Test failed'
+      const message = err instanceof Error ? err.message : t('server.testFailed')
       setTestResults(prev => ({ ...prev, [name]: { status: 'error', message } }))
     }
   }
@@ -97,14 +99,14 @@ export function MCPServersPage() {
   async function handleDelete(server: MCPServerConfig) {
     const refCount = getReferencingAgentCount(server.name)
     if (refCount > 0) {
-      setDeleteError(`MCP server "${server.name}" is used by ${refCount} agent(s). Remove references first.`)
+      setDeleteError(t('server.deleteErrorInUse', { name: server.name, count: refCount }))
       return
     }
     setDeleteError(null)
     try {
       await deleteMCPServer(server.name)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete MCP server'
+      const message = err instanceof Error ? err.message : t('server.deleteError')
       setDeleteError(message)
     }
   }
@@ -117,44 +119,44 @@ export function MCPServersPage() {
       const text = await file.text()
       const parsed = JSON.parse(text) as MCPProjectFile
       if (!parsed.mcpServers || typeof parsed.mcpServers !== 'object') {
-        setImportStatus({ type: 'error', message: 'Invalid format: expected { mcpServers: { ... } }' })
+        setImportStatus({ type: 'error', message: t('import.invalidFormat') })
         return
       }
       const entries = Object.entries(parsed.mcpServers)
       if (entries.length === 0) {
-        setImportStatus({ type: 'error', message: 'No servers found in config file' })
+        setImportStatus({ type: 'error', message: t('import.noServers') })
         return
       }
       await Promise.all(entries.map(([name, config]) =>
         createMCPServer({ name, ...config, enabled: config.enabled ?? true })
       ))
-      setImportStatus({ type: 'success', message: `Imported ${entries.length} MCP server${entries.length !== 1 ? 's' : ''}` })
+      setImportStatus({ type: 'success', message: t('import.importedCount', { count: entries.length }) })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to parse config file'
+      const message = err instanceof Error ? err.message : t('import.parseError')
       setImportStatus({ type: 'error', message })
     }
-  }, [createMCPServer])
+  }, [createMCPServer, t])
 
   return (
     <motion.div className="p-6" data-testid="mcp-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-pixel text-[14px] text-text-primary">MCP Servers</h1>
+          <h1 className="font-pixel text-[14px] text-text-primary">{t('page.title')}</h1>
           <p className="text-[12px] text-text-secondary mt-1">
-            {mcpServers.length} server{mcpServers.length !== 1 ? 's' : ''}
+            {t('page.serverCount', { count: mcpServers.length })}
           </p>
         </div>
-        <PixelButton variant="primary" data-testid="mcp-new-btn" onClick={() => setShowCreate(true)}>+ New Server</PixelButton>
+        <PixelButton variant="primary" data-testid="mcp-new-btn" onClick={() => setShowCreate(true)}>{t('page.newServerBtn')}</PixelButton>
       </div>
 
       {/* MCP security warning */}
       {mcpWarning === 'restricted' && (
         <PixelCard variant="outlined" className="mb-4 border-accent-blue bg-accent-blue/5">
           <div className="flex items-center gap-2">
-            <span className="font-pixel text-[10px] text-accent-blue shrink-0">{'\u26D4'} RESTRICTED</span>
+            <span className="font-pixel text-[10px] text-accent-blue shrink-0">{'\u26D4'} {t('warning.restrictedBadge')}</span>
             <span className="text-[12px] text-text-secondary">
-              Restricted mode: stdio MCP servers are disabled and will not be loaded
+              {t('warning.restrictedMsg')}
             </span>
           </div>
         </PixelCard>
@@ -162,16 +164,16 @@ export function MCPServersPage() {
       {mcpWarning === 'risk' && (
         <PixelCard variant="outlined" className="mb-4 border-accent-amber bg-accent-amber/5">
           <div className="flex items-start gap-2">
-            <span className="font-pixel text-[10px] text-accent-amber shrink-0 mt-0.5">{'\u26A0'} WARNING</span>
+            <span className="font-pixel text-[10px] text-accent-amber shrink-0 mt-0.5">{'\u26A0'} {t('warning.riskBadge')}</span>
             <div className="text-[12px] text-text-secondary">
-              <p>Third-party MCP servers may access or modify files on your computer.</p>
+              <p>{t('warning.riskMsg')}</p>
               {mode === 'sandbox' && sandboxSupported && !applyToMCP && (
                 <p className="mt-1 text-text-dim">
-                  Enable "Apply to MCP" in Settings &gt; Permissions to sandbox MCP servers.
+                  {t('warning.applyToMcpHint')}
                 </p>
               )}
               {mode === 'sandbox' && !sandboxSupported && (
-                <p className="mt-1 text-text-dim">Sandbox runtime is not available on this platform.</p>
+                <p className="mt-1 text-text-dim">{t('warning.sandboxUnavailable')}</p>
               )}
             </div>
           </div>
@@ -196,7 +198,7 @@ export function MCPServersPage() {
       )}
 
       {/* Tabs */}
-      <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+      <PixelTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="mt-4">
         {activeTab === 'installed' && (
@@ -215,15 +217,15 @@ export function MCPServersPage() {
 
             {mcpServersLoading ? (
               <div className="flex justify-center py-12">
-                <PixelSpinner label="Loading MCP servers..." />
+                <PixelSpinner label={t('loading')} />
               </div>
             ) : mcpServers.length === 0 ? (
               <motion.div {...staggerItem}>
                 <PixelCard variant="outlined" className="text-center py-12">
                   <div className="font-pixel text-[20px] text-text-dim mb-4">~&gt;</div>
-                  <p className="font-pixel text-[10px] text-text-secondary mb-4">No MCP servers configured</p>
+                  <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('empty.title')}</p>
                   <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
-                    Add Your First Server
+                    {t('empty.addFirstBtn')}
                   </PixelButton>
                 </PixelCard>
               </motion.div>
@@ -247,7 +249,7 @@ export function MCPServersPage() {
                                   testResult.status === 'testing' ? 'text-text-dim' :
                                   testResult.status === 'ok' ? 'text-accent-green' : 'text-accent-red'
                                 }`}>
-                                  {testResult.status === 'testing' ? 'Testing...' : testResult.message}
+                                  {testResult.status === 'testing' ? t('server.testing') : testResult.message}
                                 </span>
                               )}
                             </div>
@@ -264,11 +266,11 @@ export function MCPServersPage() {
                             </div>
                             {mode === 'restricted' && server.transportType === 'stdio' && (
                               <div className="mt-1 text-[10px] text-accent-blue">
-                                {'\u26D4'} Blocked by restricted mode — stdio servers are not loaded at runtime
+                                {'\u26D4'} {t('server.blockedRestricted')}
                               </div>
                             )}
                             <div className="mt-1 text-[10px] text-text-dim">
-                              Used by {refCount} agent{refCount !== 1 ? 's' : ''}
+                              {t('server.usedByAgents', { count: refCount })}
                             </div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
@@ -278,10 +280,10 @@ export function MCPServersPage() {
                               onClick={() => handleTest(server.name)}
                               disabled={testResult?.status === 'testing'}
                             >
-                              Test
+                              {t('server.testBtn')}
                             </PixelButton>
                             <PixelToggle checked={server.enabled} onChange={() => handleToggleEnabled(server)} />
-                            <PixelButton size="sm" variant="ghost" onClick={() => setEditServer(server)}>Edit</PixelButton>
+                            <PixelButton size="sm" variant="ghost" onClick={() => setEditServer(server)}>{t('common:button.edit')}</PixelButton>
                             <PixelButton size="sm" variant="ghost" onClick={() => handleDelete(server)}>&times;</PixelButton>
                           </div>
                         </div>
@@ -298,7 +300,7 @@ export function MCPServersPage() {
           <motion.div {...staggerItem}>
             <PixelCard variant="outlined" className="text-center py-12">
               <p className="font-pixel text-[12px] text-text-dim animate-[pixel-blink_2s_steps(2)_infinite]">
-                Coming Soon
+                {t('comingSoon')}
               </p>
             </PixelCard>
           </motion.div>
@@ -310,7 +312,7 @@ export function MCPServersPage() {
         open={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={handleCreate}
-        title="New MCP Server"
+        title={t('form.newTitle')}
       />
 
       {/* Edit modal */}
@@ -319,7 +321,7 @@ export function MCPServersPage() {
           open
           onClose={() => setEditServer(null)}
           onSubmit={handleEdit}
-          title="Edit MCP Server"
+          title={t('form.editTitle')}
           initial={editServer}
         />
       )}

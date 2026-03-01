@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { DashboardSummary } from '@golemancy/shared'
 import { PixelCard } from '../../../components'
 import { staggerContainer, staggerItem } from '../../../lib/motion'
@@ -9,13 +10,15 @@ interface TokenSummaryCardsProps {
 }
 
 export function TokenSummaryCards({ summary }: TokenSummaryCardsProps) {
+  const { t } = useTranslation('dashboard')
+
   if (!summary) return null
 
   const cards = [
-    { label: 'Total Tokens', value: formatTokens(summary.todayTokens.total), icon: '$>', color: 'text-accent-amber' },
-    { label: 'Input Tokens', value: formatTokens(summary.todayTokens.input), icon: '>>', color: 'text-accent-blue' },
-    { label: 'Output Tokens', value: formatTokens(summary.todayTokens.output), icon: '<<', color: 'text-accent-emerald' },
-    { label: 'API Calls', value: summary.todayTokens.callCount.toLocaleString(), icon: '[#]', color: 'text-accent-cyan' },
+    { label: t('summary.totalTokens'), value: formatTokens(summary.todayTokens.total), icon: '$>', color: 'text-accent-amber' },
+    { label: t('summary.inputTokens'), value: formatTokens(summary.todayTokens.input), icon: '>>', color: 'text-accent-blue' },
+    { label: t('summary.outputTokens'), value: formatTokens(summary.todayTokens.output), icon: '<<', color: 'text-accent-emerald' },
+    { label: t('summary.apiCalls'), value: summary.todayTokens.callCount.toLocaleString(), icon: '[#]', color: 'text-accent-cyan' },
   ]
 
   return (

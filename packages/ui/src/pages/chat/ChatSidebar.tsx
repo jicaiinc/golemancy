@@ -1,6 +1,8 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
 import type { Agent, Conversation, ConversationId } from '@golemancy/shared'
+import { useTranslation } from 'react-i18next'
 import { PixelButton } from '../../components'
+import { relativeTime } from '../../lib/time'
 
 interface ChatSidebarProps {
   agents: Agent[]
@@ -12,16 +14,6 @@ interface ChatSidebarProps {
   canNewChat?: boolean
 }
 
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diff / 60_000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}h ago`
-  return `${Math.floor(hours / 24)}d ago`
-}
-
 export function ChatSidebar({
   agents,
   conversations,
@@ -31,6 +23,7 @@ export function ChatSidebar({
   onNewChat,
   canNewChat = false,
 }: ChatSidebarProps) {
+  const { t } = useTranslation('chat')
   const [editingId, setEditingId] = useState<ConversationId | null>(null)
   const [editValue, setEditValue] = useState('')
   const editInputRef = useRef<HTMLInputElement>(null)
@@ -87,7 +80,7 @@ export function ChatSidebar({
           onClick={onNewChat}
           disabled={!canNewChat}
         >
-          + New Chat
+          {t('sidebar.newChat')}
         </PixelButton>
       </div>
 
@@ -95,7 +88,7 @@ export function ChatSidebar({
       <div className="flex-1 overflow-y-auto">
         {sorted.length === 0 ? (
           <div className="p-4 text-center">
-            <p className="text-[11px] text-text-dim font-mono">No conversations</p>
+            <p className="text-[11px] text-text-dim font-mono">{t('sidebar.noConversations')}</p>
           </div>
         ) : (
           sorted.map(conv => {

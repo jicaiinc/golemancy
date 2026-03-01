@@ -206,7 +206,7 @@ describe('Chat routes', () => {
         body: JSON.stringify({ ...validBody, projectId: '' }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('projectId')
+      expect((await res.json()).error).toBe('PROJECT_ID_REQUIRED')
     })
 
     it('returns 400 when messages is empty', async () => {
@@ -216,7 +216,7 @@ describe('Chat routes', () => {
         body: JSON.stringify({ ...validBody, messages: [] }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('messages')
+      expect((await res.json()).error).toBe('MESSAGES_REQUIRED')
     })
 
     it('returns 400 when messages is not an array', async () => {
@@ -238,7 +238,7 @@ describe('Chat routes', () => {
         }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('role')
+      expect((await res.json()).error).toBe('INVALID_MESSAGE_FORMAT')
     })
 
     it('returns 400 for invalid message role', async () => {
@@ -251,7 +251,7 @@ describe('Chat routes', () => {
         }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('Invalid message role')
+      expect((await res.json()).error).toBe('INVALID_MESSAGE_ROLE')
     })
 
     it('returns 400 when neither agentId nor conversationId provided', async () => {
@@ -264,7 +264,7 @@ describe('Chat routes', () => {
         }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('agentId')
+      expect((await res.json()).error).toBe('AGENT_ID_REQUIRED')
     })
   })
 
@@ -276,7 +276,7 @@ describe('Chat routes', () => {
         body: JSON.stringify(validBody),
       })
       expect(res.status).toBe(404)
-      expect((await res.json()).error).toContain('not found')
+      expect((await res.json()).error).toBe('AGENT_NOT_FOUND')
     })
 
     it('resolves agentId from conversation when not provided directly', async () => {

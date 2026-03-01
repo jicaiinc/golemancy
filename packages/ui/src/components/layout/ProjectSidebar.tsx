@@ -1,8 +1,9 @@
 import { useNavigate, useLocation, useParams } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
 
 interface NavItem {
-  label: string
+  key: string
   path: string
   icon: string
   /** Stable testid suffix for E2E selectors (e.g., 'agents' → data-testid="nav-agents") */
@@ -10,22 +11,23 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '', icon: '[]', testId: 'dashboard' },
-  { label: 'Chats', path: '/chat', icon: '>_', testId: 'chat' },
-  { label: 'Automations', path: '/cron', icon: '::', testId: 'cron' },
-  { label: 'Agents', path: '/agents', icon: '{}', testId: 'agents' },
-  { label: 'Skills', path: '/skills', icon: '<>', testId: 'skills' },
-  { label: 'MCP Servers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
-  { label: 'Conversation Tasks', path: '/tasks', icon: '#', testId: 'tasks' },
-  { label: 'Artifacts', path: '/artifacts', icon: '..', testId: 'artifacts' },
-  { label: 'Memory', path: '/memory', icon: '()', testId: 'memory' },
+  { key: 'item.dashboard', path: '', icon: '[]', testId: 'dashboard' },
+  { key: 'item.chats', path: '/chat', icon: '>_', testId: 'chat' },
+  { key: 'item.automations', path: '/cron', icon: '::', testId: 'cron' },
+  { key: 'item.agents', path: '/agents', icon: '{}', testId: 'agents' },
+  { key: 'item.skills', path: '/skills', icon: '<>', testId: 'skills' },
+  { key: 'item.mcpServers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
+  { key: 'item.tasks', path: '/tasks', icon: '#', testId: 'tasks' },
+  { key: 'item.artifacts', path: '/artifacts', icon: '..', testId: 'artifacts' },
+  { key: 'item.memory', path: '/memory', icon: '()', testId: 'memory' },
 ]
 
 const configItems: NavItem[] = [
-  { label: 'Settings', path: '/settings', icon: '*', testId: 'settings' },
+  { key: 'item.settings', path: '/settings', icon: '*', testId: 'settings' },
 ]
 
 export function ProjectSidebar() {
+  const { t } = useTranslation('nav')
   const navigate = useNavigate()
   const location = useLocation()
   const { projectId } = useParams()
@@ -55,7 +57,7 @@ export function ProjectSidebar() {
                   ? 'bg-elevated text-accent-green border-l-2 border-l-accent-green'
                   : 'text-text-secondary hover:text-text-primary hover:bg-elevated/50'
               }`}
-              title={item.label}
+              title={t(item.key)}
             >
               {item.icon}
             </button>
@@ -76,7 +78,7 @@ export function ProjectSidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-2">
         <div className="px-3 py-1">
-          <span className="font-pixel text-[8px] text-text-dim">NAVIGATION</span>
+          <span className="font-pixel text-[8px] text-text-dim">{t('sidebar.navigation')}</span>
         </div>
         {navItems.map(item => (
           <button
@@ -90,12 +92,12 @@ export function ProjectSidebar() {
             }`}
           >
             <span className="w-4 text-center text-[10px]">{item.icon}</span>
-            {item.label}
+            {t(item.key)}
           </button>
         ))}
 
         <div className="px-3 py-1 mt-2">
-          <span className="font-pixel text-[8px] text-text-dim">CONFIG</span>
+          <span className="font-pixel text-[8px] text-text-dim">{t('sidebar.config')}</span>
         </div>
         {configItems.map(item => (
           <button
@@ -109,7 +111,7 @@ export function ProjectSidebar() {
             }`}
           >
             <span className="w-4 text-center text-[10px]">{item.icon}</span>
-            {item.label}
+            {t(item.key)}
           </button>
         ))}
       </nav>
@@ -119,7 +121,7 @@ export function ProjectSidebar() {
         onClick={toggleSidebar}
         className="h-10 flex items-center justify-center text-text-dim hover:text-text-secondary font-mono text-[12px] cursor-pointer border-t-2 border-border-dim"
       >
-        &lt;&lt; Collapse
+        {t('sidebar.collapse')}
       </button>
     </aside>
   )
