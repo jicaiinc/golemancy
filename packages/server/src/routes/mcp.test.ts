@@ -145,7 +145,7 @@ describe('MCP routes', () => {
 
       expect(res.status).toBe(409)
       const body = await res.json()
-      expect(body.error).toContain('already exists')
+      expect(body.error).toBe('MCP_SERVER_DUPLICATE')
     })
 
     it('returns 400 when name is missing', async () => {
@@ -157,7 +157,7 @@ describe('MCP routes', () => {
 
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toContain('name')
+      expect(body.error).toBe('NAME_REQUIRED')
     })
 
     it('returns 400 for invalid transportType', async () => {
@@ -169,7 +169,7 @@ describe('MCP routes', () => {
 
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toContain('transportType')
+      expect(body.error).toBe('INVALID_TRANSPORT_TYPE')
     })
   })
 
@@ -226,7 +226,7 @@ describe('MCP routes', () => {
 
       expect(res.status).toBe(409)
       const body = await res.json()
-      expect(body.error).toContain('referenced by agents')
+      expect(body.error).toBe('MCP_SERVER_IN_USE')
       expect(body.agents).toHaveLength(1)
     })
 

@@ -65,7 +65,7 @@ describe('Runtime routes', () => {
 
       const res = await app.request(`/api/projects/${projId}/runtime/python/packages`)
       expect(res.status).toBe(500)
-      expect((await res.json()).error).toBe('Failed to list packages')
+      expect((await res.json()).error).toBe('FAILED_TO_LIST_PACKAGES')
     })
   })
 
@@ -100,7 +100,7 @@ describe('Runtime routes', () => {
         body: JSON.stringify({ packages: ['req;rm -rf /'] }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toContain('Invalid package specifier')
+      expect((await res.json()).error).toBe('INVALID_PACKAGE_SPECIFIER')
     })
 
     it('returns 500 on install failure', async () => {

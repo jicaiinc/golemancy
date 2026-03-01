@@ -1,6 +1,7 @@
 import { memo, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { UIMessage } from 'ai'
+import { useTranslation } from 'react-i18next'
 import { CopyIcon, CheckIcon } from '../../components'
 import { ToolCallDisplay } from './ToolCallDisplay'
 
@@ -13,6 +14,7 @@ function BlinkingCursor() {
 
 /** Collapsible reasoning display */
 function ReasoningDisplay({ text, state }: { text: string; state?: string }) {
+  const { t } = useTranslation('chat')
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -25,7 +27,7 @@ function ReasoningDisplay({ text, state }: { text: string; state?: string }) {
           {expanded ? '[-]' : '[+]'}
         </span>
         <span className="text-[11px] font-mono text-accent-purple">
-          Reasoning
+          {t('message.reasoning')}
         </span>
         {state === 'streaming' && <BlinkingCursor />}
       </button>
@@ -52,7 +54,8 @@ function ReasoningDisplay({ text, state }: { text: string; state?: string }) {
 
 /** File attachment display */
 function FileDisplay({ mediaType, filename, url }: { mediaType: string; filename?: string; url: string }) {
-  const displayName = filename || 'Untitled file'
+  const { t } = useTranslation('chat')
+  const displayName = filename || t('message.untitledFile')
   const isImage = mediaType.startsWith('image/')
 
   if (isImage) {
@@ -130,6 +133,7 @@ function extractToolInvocation(part: { type: string; [key: string]: unknown }) {
 
 /** Copy-to-clipboard button — floats to the side of the text bubble, never overlapping content */
 function CopyButton({ text, position }: { text: string; position: 'left' | 'right' }) {
+  const { t } = useTranslation('chat')
   const [copied, setCopied] = useState(false)
 
   const handleCopy = useCallback(async () => {
@@ -154,7 +158,7 @@ function CopyButton({ text, position }: { text: string; position: 'left' | 'righ
     <button
       onClick={handleCopy}
       className={`absolute top-1 ${position === 'left' ? '-left-8' : '-right-8'} p-1 opacity-0 group-hover/text:opacity-100 transition-opacity text-text-dim hover:text-text-primary`}
-      title="Copy"
+      title={t('message.copy')}
     >
       {copied
         ? <CheckIcon className="w-3.5 h-3.5 text-accent-green" />

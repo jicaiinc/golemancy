@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PixelButton, PixelInput, PixelTextArea, PixelModal } from '../../components'
 
 interface SkillFormModalProps {
@@ -15,6 +16,7 @@ export function SkillFormModal({
   open, onClose, onSubmit, title,
   initialName = '', initialDescription = '', initialInstructions = '',
 }: SkillFormModalProps) {
+  const { t } = useTranslation(['skill', 'common'])
   const [name, setName] = useState(initialName)
   const [description, setDescription] = useState(initialDescription)
   const [instructions, setInstructions] = useState(initialInstructions)
@@ -44,22 +46,22 @@ export function SkillFormModal({
       size="md"
       footer={
         <>
-          <PixelButton variant="ghost" onClick={onClose} disabled={submitting}>Cancel</PixelButton>
+          <PixelButton variant="ghost" onClick={onClose} disabled={submitting}>{t('common:button.cancel')}</PixelButton>
           <PixelButton variant="primary" disabled={!name.trim() || submitting} onClick={handleSubmit}>
-            {submitting ? 'Saving...' : 'Save'}
+            {submitting ? t('common:button.saving') : t('common:button.save')}
           </PixelButton>
         </>
       }
     >
       <div className="flex flex-col gap-4">
-        <PixelInput label="NAME" value={name} onChange={e => setName(e.target.value)} autoFocus />
-        <PixelInput label="DESCRIPTION" value={description} onChange={e => setDescription(e.target.value)} />
+        <PixelInput label={t('skill:form.nameLabel')} value={name} onChange={e => setName(e.target.value)} autoFocus />
+        <PixelInput label={t('skill:form.descriptionLabel')} value={description} onChange={e => setDescription(e.target.value)} />
         <PixelTextArea
-          label="INSTRUCTIONS"
+          label={t('skill:form.instructionsLabel')}
           value={instructions}
           onChange={e => setInstructions(e.target.value)}
           rows={10}
-          placeholder="Write skill instructions in markdown..."
+          placeholder={t('skill:form.instructionsPlaceholder')}
         />
       </div>
     </PixelModal>

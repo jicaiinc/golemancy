@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import type {
   DashboardSummary, DashboardTokenTrend, DashboardTokenByModel, DashboardTokenByAgent,
   RuntimeStatus, TimeRange, ProjectId, ConversationId, CronJobId,
@@ -21,6 +22,7 @@ interface TokenByProject {
 
 // --- Token Trend Chart (prop-driven for local state) ---
 function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[]; timeRange: TimeRange }) {
+  const { t } = useTranslation('dashboard')
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   const slicedData = useMemo(() => {
@@ -38,7 +40,7 @@ function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[
   if (slicedData.length === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="font-pixel text-[9px] text-text-dim">No token data available</p>
+        <p className="font-pixel text-[9px] text-text-dim">{t('chart.noData')}</p>
       </div>
     )
   }
@@ -67,8 +69,8 @@ function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[
                 {hoveredIdx === i && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-elevated border-2 border-border-dim shadow-pixel-drop px-2 py-1 z-10 whitespace-nowrap">
                     <div className="text-[9px] font-mono text-text-primary">{d.date}</div>
-                    <div className="text-[8px] font-mono text-accent-blue">In: {formatTokens(d.inputTokens)}</div>
-                    <div className="text-[8px] font-mono text-accent-emerald">Out: {formatTokens(d.outputTokens)}</div>
+                    <div className="text-[8px] font-mono text-accent-blue">{t('chart.tooltipIn', { tokens: formatTokens(d.inputTokens) })}</div>
+                    <div className="text-[8px] font-mono text-accent-emerald">{t('chart.tooltipOut', { tokens: formatTokens(d.outputTokens) })}</div>
                   </div>
                 )}
                 <div className="w-full transition-all duration-150" style={{ height: `${heightPct}%` }}>
@@ -98,11 +100,11 @@ function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[
       <div className="flex items-center gap-4 mt-3">
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-accent-blue/70" />
-          <span className="text-[9px] text-text-dim font-mono">Input</span>
+          <span className="text-[9px] text-text-dim font-mono">{t('chart.legendInput')}</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-accent-emerald/70" />
-          <span className="text-[9px] text-text-dim font-mono">Output</span>
+          <span className="text-[9px] text-text-dim font-mono">{t('chart.legendOutput')}</span>
         </div>
       </div>
     </div>
@@ -111,6 +113,7 @@ function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[
 
 // --- Main Global Dashboard Page ---
 export function GlobalDashboardPage() {
+  const { t } = useTranslation('dashboard')
   const navigate = useNavigate()
   const { addListener } = useWs()
 
@@ -229,20 +232,20 @@ export function GlobalDashboardPage() {
       <div className="max-w-[1400px] mx-auto p-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="font-pixel text-[14px] text-text-primary">Global Dashboard</h1>
-          <p className="mt-1 text-text-secondary text-[13px]">Cross-project overview</p>
+          <h1 className="font-pixel text-[14px] text-text-primary">{t('global.title')}</h1>
+          <p className="mt-1 text-text-secondary text-[13px]">{t('global.subtitle')}</p>
         </div>
 
         {loading && !summary ? (
           <div className="flex items-center justify-center h-64">
-            <PixelSpinner label="Loading dashboard..." />
+            <PixelSpinner label={t('page.loading')} />
           </div>
         ) : (
           <>
             {/* Section 1: Token Usage — TimeRange + Summary */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN USAGE</h2>
+                <h2 className="font-pixel text-[11px] text-text-secondary">{t('tokenUsage.title')}</h2>
                 <TimeRangeSelector value={timeRange} onChange={handleTimeRangeChange} />
               </div>
               <TokenSummaryCards summary={summary} />
@@ -254,19 +257,19 @@ export function GlobalDashboardPage() {
                 <div className="mb-4">
                   <PixelTabs
                     tabs={[
-                      { id: 'trend', label: 'Trend' },
-                      { id: 'by-project', label: 'By Project' },
-                      { id: 'by-model', label: 'By Model' },
-                      { id: 'by-agent', label: 'By Agent' },
+                      { id: 'trend', label: t('tabs.trend') },
+                      { id: 'by-project', label: t('tabs.byProject') },
+                      { id: 'by-model', label: t('tabs.byModel') },
+                      { id: 'by-agent', label: t('tabs.byAgent') },
                     ]}
                     activeTab={tokenTab}
                     onTabChange={setTokenTab}
                   />
                 </div>
                 {tokenTab === 'trend' && <GlobalTokenTrendChart data={tokenTrend} timeRange={timeRange} />}
-                {tokenTab === 'by-project' && <TokenBreakdownTable title="TOKEN BY PROJECT" data={breakdownByProject} inline />}
-                {tokenTab === 'by-model' && <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} inline />}
-                {tokenTab === 'by-agent' && <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} inline />}
+                {tokenTab === 'by-project' && <TokenBreakdownTable title={t('table.titleByProject')} data={breakdownByProject} inline />}
+                {tokenTab === 'by-model' && <TokenBreakdownTable title={t('table.titleByModel')} data={breakdownByModel} inline />}
+                {tokenTab === 'by-agent' && <TokenBreakdownTable title={t('table.titleByAgent')} data={breakdownByAgent} inline />}
               </PixelCard>
             </div>
 
@@ -277,9 +280,9 @@ export function GlobalDashboardPage() {
 
             {/* Section 4: Overview - Top Projects */}
             <PixelCard variant="default">
-              <h3 className="font-pixel text-[10px] text-text-secondary mb-3">TOP PROJECTS</h3>
+              <h3 className="font-pixel text-[10px] text-text-secondary mb-3">{t('global.topProjects')}</h3>
               {tokenByProject.length === 0 ? (
-                <p className="text-[10px] text-text-dim text-center py-4">No project data</p>
+                <p className="text-[10px] text-text-dim text-center py-4">{t('global.noProjectData')}</p>
               ) : (
                 <div className="flex flex-col gap-1">
                   {tokenByProject.map(p => (
@@ -289,7 +292,7 @@ export function GlobalDashboardPage() {
                       </div>
                       <div className="shrink-0 text-right">
                         <span className="text-[10px] text-text-secondary font-mono">
-                          {formatTokens(p.inputTokens + p.outputTokens)} tokens · {p.callCount} calls
+                          {t('global.projectStats', { tokens: formatTokens(p.inputTokens + p.outputTokens), calls: p.callCount })}
                         </span>
                       </div>
                     </div>

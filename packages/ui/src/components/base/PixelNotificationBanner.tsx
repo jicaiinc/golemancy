@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type Severity = 'error' | 'warning' | 'info' | 'success'
 
@@ -23,6 +24,8 @@ const dismissClasses: Record<Severity, string> = {
 }
 
 export function PixelNotificationBanner({ severity, onDismiss, children }: PixelNotificationBannerProps) {
+  const { t } = useTranslation('common')
+
   return (
     <div
       role="alert"
@@ -33,7 +36,7 @@ export function PixelNotificationBanner({ severity, onDismiss, children }: Pixel
         <button
           onClick={onDismiss}
           className={`shrink-0 px-1 py-0.5 text-[12px] font-mono hover:text-text-primary ${dismissClasses[severity]} transition-colors cursor-pointer`}
-          title="Dismiss"
+          title={t('button.dismiss')}
         >
           [x]
         </button>

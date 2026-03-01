@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "PROJECT NAME",
+    "description": "DESCRIPTION",
+    "icon": "ICON",
+    "projectId": "PROJECT ID"
+  },
+  "list": {
+    "title": "All Projects",
+    "subtitle_one": "{{count}} project in your workspace",
+    "subtitle_other": "{{count}} projects in your workspace",
+    "newBtn": "+ New Project",
+    "empty": "No projects yet",
+    "createFirst": "Create Your First Project",
+    "openInWindow": "Open in New Window",
+    "agents_one": "{{count}} agent",
+    "agents_other": "{{count}} agents",
+    "running_one": "{{count}} running",
+    "running_other": "{{count}} running"
+  },
+  "create": {
+    "modalTitle": "Create New Project",
+    "createBtn": "Create Project",
+    "namePlaceholder": "My Awesome Project",
+    "descPlaceholder": "What is this project about?"
+  },
+  "settings": {
+    "title": "Project Settings",
+    "savedMsg": "Saved!",
+    "clickToCopy": "Click to copy",
+    "tabs": {
+      "general": "General",
+      "agent": "Agent",
+      "permissions": "Permissions"
+    },
+    "agent": {
+      "mainLabel": "MAIN AGENT",
+      "mainDesc": "The default agent for new conversations in this project.",
+      "noAgents": "No agents in this project. Create an agent first.",
+      "goToAgents": "Go to Agents",
+      "none": "None",
+      "configure": "Configure Agent \u2192"
+    },
+    "general": {
+      "sectionTitle": "BASIC INFO",
+      "saveBtn": "Save Changes"
+    }
+  }
+}

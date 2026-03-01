@@ -1,4 +1,5 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react'
+import { Translation } from 'react-i18next'
 import { PixelButton } from './base'
 
 interface Props {
@@ -29,11 +30,13 @@ export class ErrorBoundary extends Component<Props, State> {
     if (!this.state.hasError) return this.props.children
 
     return (
-      <div className="flex items-center justify-center h-screen bg-void">
-        <div className="text-center max-w-[400px] p-8">
-          {/* Pixel Creeper face */}
-          <div className="font-mono text-accent-green text-[10px] leading-[10px] mb-6 select-none">
-            <pre>{`
+      <Translation ns={['error', 'common']}>
+        {(t) => (
+          <div className="flex items-center justify-center h-screen bg-void">
+            <div className="text-center max-w-[400px] p-8">
+              {/* Pixel Creeper face */}
+              <div className="font-mono text-accent-green text-[10px] leading-[10px] mb-6 select-none">
+                <pre>{`
   ████████████████
   ██  ████  ████
   ██  ████  ████
@@ -43,28 +46,30 @@ export class ErrorBoundary extends Component<Props, State> {
   ██  ██    ██  ██
   ████        ████
   ████████████████
-            `.trim()}</pre>
-          </div>
+                `.trim()}</pre>
+              </div>
 
-          <h1 className="font-pixel text-[14px] text-accent-red mb-2">Something Exploded</h1>
-          <p className="text-[12px] text-text-secondary mb-4">
-            A wild error appeared! Don&apos;t worry, your data is safe.
-          </p>
-
-          {this.state.error && (
-            <div className="bg-deep border-2 border-accent-red/30 p-3 mb-4 text-left">
-              <span className="font-pixel text-[8px] text-accent-red">ERROR</span>
-              <p className="text-[11px] text-text-primary font-mono mt-1">
-                {this.state.error.message}
+              <h1 className="font-pixel text-[14px] text-accent-red mb-2">{t('error:boundary.title')}</h1>
+              <p className="text-[12px] text-text-secondary mb-4">
+                {t('error:boundary.message')}
               </p>
-            </div>
-          )}
 
-          <PixelButton variant="primary" onClick={this.handleReset}>
-            Try Again
-          </PixelButton>
-        </div>
-      </div>
+              {this.state.error && (
+                <div className="bg-deep border-2 border-accent-red/30 p-3 mb-4 text-left">
+                  <span className="font-pixel text-[8px] text-accent-red">{t('error:boundary.errorLabel')}</span>
+                  <p className="text-[11px] text-text-primary font-mono mt-1">
+                    {this.state.error.message}
+                  </p>
+                </div>
+              )}
+
+              <PixelButton variant="primary" onClick={this.handleReset}>
+                {t('error:boundary.tryAgain')}
+              </PixelButton>
+            </div>
+          </div>
+        )}
+      </Translation>
     )
   }
 }

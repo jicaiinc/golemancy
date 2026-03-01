@@ -158,9 +158,9 @@ describe('AgentDetailPage', () => {
     })
     renderAtRoute()
     expect(screen.getByText('2 skills')).toBeInTheDocument()
-    expect(screen.getByText('1 tools')).toBeInTheDocument()
-    expect(screen.getByText('1 MCP servers')).toBeInTheDocument()
-    expect(screen.getByText('1 sub-agents')).toBeInTheDocument()
+    expect(screen.getByText('1 tool')).toBeInTheDocument()
+    expect(screen.getByText('1 MCP server')).toBeInTheDocument()
+    expect(screen.getByText('1 sub-agent')).toBeInTheDocument()
   })
 
   it('renders General tab with Info section', () => {

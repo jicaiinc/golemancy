@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { AgentModelConfig, ProjectId, SpeechToTextSettings } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services/container'
@@ -85,6 +86,7 @@ function computeInitialStep(onboardingStep: number | undefined, hasProviders: bo
 }
 
 export function OnboardingPage() {
+  const { t } = useTranslation(['onboarding', 'common'])
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
   const createProject = useAppStore(s => s.createProject)
@@ -124,7 +126,7 @@ export function OnboardingPage() {
       setDirection(1)
       setStep(s => Math.min(s + 1, TOTAL_STEPS - 1))
     } catch (err) {
-      setStepError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setStepError(err instanceof Error ? err.message : t('error.somethingWentWrong'))
     } finally {
       setSaving(false)
     }
@@ -141,7 +143,7 @@ export function OnboardingPage() {
     try {
       await updateSettings({ onboardingCompleted: true })
     } catch (err) {
-      setStepError(err instanceof Error ? err.message : 'Failed to skip setup. Please try again.')
+      setStepError(err instanceof Error ? err.message : t('error.failedToSkip'))
     }
   }
 
@@ -205,13 +207,13 @@ export function OnboardingPage() {
         await updateSettings({ providers: { ...providers, [providerKey]: providerEntry } as any })
       } else {
         updateData({ providerTestStatus: 'error' })
-        throw new Error(result.error ?? 'Connection test failed')
+        throw new Error(result.error ?? t('error.connectionTestFailed'))
       }
     } catch (err) {
       updateData({ providerTestStatus: 'error' })
       throw err
     }
-  }, [data.selectedProvider, data.apiKey, data.baseUrl, data.defaultModel, settings?.providers, updateData, updateSettings])
+  }, [data.selectedProvider, data.apiKey, data.baseUrl, data.defaultModel, settings?.providers, updateData, updateSettings, t])
 
   // --- Speech test ---
   const handleTestSpeech = useCallback(async (config: SpeechToTextSettings) => {
@@ -220,7 +222,7 @@ export function OnboardingPage() {
 
   // --- Resolve display name ---
   function getProviderName(): string {
-    if (!data.selectedProvider) return 'None'
+    if (!data.selectedProvider) return t('provider.none')
     if (data.selectedProvider.startsWith('custom:')) return data.selectedProvider.split(':').slice(3).join(':')
     return PROVIDER_PRESETS[data.selectedProvider]?.name ?? data.selectedProvider
   }
@@ -234,11 +236,11 @@ export function OnboardingPage() {
       <div className="flex items-center justify-between px-6 py-4 border-b-2 border-border-dim">
         <div className="flex items-center gap-3">
           <span className="font-pixel text-[12px] text-accent-green">Golemancy</span>
-          <span className="font-pixel text-[9px] text-text-dim">Setup</span>
+          <span className="font-pixel text-[9px] text-text-dim">{t('header.setup')}</span>
         </div>
         {step < TOTAL_STEPS - 1 && (
           <PixelButton size="sm" variant="ghost" onClick={skipSetup}>
-            Skip Setup
+            {t('header.skipSetup')}
           </PixelButton>
         )}
       </div>
@@ -255,7 +257,7 @@ export function OnboardingPage() {
                   i <= step ? 'text-accent-green' : 'text-text-dim'
                 }`}
               >
-                {label}
+                {t(`steps.${label.toLowerCase()}`)}
               </span>
             ))}
           </div>
@@ -347,14 +349,14 @@ export function OnboardingPage() {
               onClick={goBack}
               disabled={step === 0}
             >
-              Back
+              {t('common:button.back')}
             </PixelButton>
             <PixelButton
               variant="primary"
               onClick={goNext}
               disabled={!canProceed() || saving}
             >
-              {saving ? 'Saving...' : step === 3 ? 'Create Project' : 'Next'}
+              {saving ? t('common:button.saving') : step === 3 ? t('button.createProject') : t('common:button.next')}
             </PixelButton>
           </div>
         </div>

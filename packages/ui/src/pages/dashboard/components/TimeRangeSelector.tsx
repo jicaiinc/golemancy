@@ -1,11 +1,12 @@
+import { useTranslation } from 'react-i18next'
 import type { TimeRange } from '@golemancy/shared'
 import { PixelButton } from '../../../components'
 
-const OPTIONS: { value: TimeRange; label: string }[] = [
-  { value: 'today', label: 'Today' },
-  { value: '7d', label: '7 Days' },
-  { value: '30d', label: '30 Days' },
-  { value: 'all', label: 'All Time' },
+const OPTIONS: { value: TimeRange; tKey: string }[] = [
+  { value: 'today', tKey: 'timeRange.today' },
+  { value: '7d', tKey: 'timeRange.sevenDays' },
+  { value: '30d', tKey: 'timeRange.thirtyDays' },
+  { value: 'all', tKey: 'timeRange.allTime' },
 ]
 
 interface TimeRangeSelectorProps {
@@ -14,6 +15,8 @@ interface TimeRangeSelectorProps {
 }
 
 export function TimeRangeSelector({ value, onChange }: TimeRangeSelectorProps) {
+  const { t } = useTranslation('dashboard')
+
   return (
     <div className="flex gap-1">
       {OPTIONS.map(opt => (
@@ -23,7 +26,7 @@ export function TimeRangeSelector({ value, onChange }: TimeRangeSelectorProps) {
           variant={value === opt.value ? 'primary' : 'ghost'}
           onClick={() => onChange(opt.value)}
         >
-          {opt.label}
+          {t(opt.tKey)}
         </PixelButton>
       ))}
     </div>

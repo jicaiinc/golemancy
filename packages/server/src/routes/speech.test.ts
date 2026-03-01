@@ -149,7 +149,7 @@ describe('Speech routes', () => {
       })
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toContain('not enabled')
+      expect(body.error).toBe('STT_NOT_ENABLED')
     })
 
     it('returns 400 when no API key configured', async () => {
@@ -168,7 +168,7 @@ describe('Speech routes', () => {
       })
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toContain('API key')
+      expect(body.error).toBe('NO_API_KEY')
     })
   })
 
@@ -186,7 +186,7 @@ describe('Speech routes', () => {
       const res = await app.request('/api/speech/trans-1/retry', { method: 'POST' })
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toContain('already in progress')
+      expect(body.error).toBe('TRANSCRIPTION_IN_PROGRESS')
     })
   })
 })

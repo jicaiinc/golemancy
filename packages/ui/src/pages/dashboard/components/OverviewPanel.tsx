@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import type { DashboardAgentStats, DashboardRecentChat } from '@golemancy/shared'
 import { PixelCard, PixelAvatar, PixelBadge, PixelButton } from '../../../components'
 import { formatTokens, relativeTime } from '../utils'
@@ -16,6 +17,7 @@ const statusToAvatar: Record<string, 'online' | 'offline' | 'paused' | 'error'> 
 }
 
 export function OverviewPanel({ agentStats, recentChats }: OverviewPanelProps) {
+  const { t } = useTranslation('dashboard')
   const navigate = useNavigate()
 
   return (
@@ -23,13 +25,13 @@ export function OverviewPanel({ agentStats, recentChats }: OverviewPanelProps) {
       {/* Agents */}
       <PixelCard variant="default">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-pixel text-[10px] text-text-secondary">AGENTS</h3>
+          <h3 className="font-pixel text-[10px] text-text-secondary">{t('overview.agents')}</h3>
           <PixelButton size="sm" variant="ghost" onClick={() => navigate('agents')}>
-            View All &rarr;
+            {t('overview.viewAll')}
           </PixelButton>
         </div>
         {agentStats.length === 0 ? (
-          <p className="text-[10px] text-text-dim text-center py-4">No agents</p>
+          <p className="text-[10px] text-text-dim text-center py-4">{t('overview.noAgents')}</p>
         ) : (
           <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
             {agentStats.map(agent => (
@@ -59,13 +61,13 @@ export function OverviewPanel({ agentStats, recentChats }: OverviewPanelProps) {
       {/* Recent Chats */}
       <PixelCard variant="default">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-pixel text-[10px] text-text-secondary">RECENT CHATS</h3>
+          <h3 className="font-pixel text-[10px] text-text-secondary">{t('overview.recentChats')}</h3>
           <PixelButton size="sm" variant="ghost" onClick={() => navigate('chat')}>
-            View All &rarr;
+            {t('overview.viewAll')}
           </PixelButton>
         </div>
         {recentChats.length === 0 ? (
-          <p className="text-[10px] text-text-dim text-center py-4">No recent chats</p>
+          <p className="text-[10px] text-text-dim text-center py-4">{t('overview.noRecentChats')}</p>
         ) : (
           <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
             {recentChats.map(chat => (
@@ -80,7 +82,7 @@ export function OverviewPanel({ agentStats, recentChats }: OverviewPanelProps) {
                 </div>
                 <div className="shrink-0 text-right">
                   <div className="text-[10px] text-text-secondary font-mono">
-                    {chat.messageCount} msgs &middot; {formatTokens(chat.totalTokens)}
+                    {t('overview.chatStats', { count: chat.messageCount, tokens: formatTokens(chat.totalTokens) })}
                   </div>
                   <div className="text-[9px] text-text-dim font-mono">{relativeTime(chat.lastMessageAt)}</div>
                 </div>

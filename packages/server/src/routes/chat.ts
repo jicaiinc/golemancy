@@ -59,19 +59,19 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     let { agentId } = body
 
     if (!projectId) {
-      return c.json({ error: 'projectId is required' }, 400)
+      return c.json({ error: 'PROJECT_ID_REQUIRED' }, 400)
     }
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return c.json({ error: 'messages is required' }, 400)
+      return c.json({ error: 'MESSAGES_REQUIRED' }, 400)
     }
 
     // Validate message structure and whitelist allowed roles
     for (const msg of messages) {
       if (!msg.role || !Array.isArray(msg.parts)) {
-        return c.json({ error: 'Each message must have role and parts' }, 400)
+        return c.json({ error: 'INVALID_MESSAGE_FORMAT' }, 400)
       }
       if (msg.role !== 'user' && msg.role !== 'assistant') {
-        return c.json({ error: `Invalid message role: "${msg.role}"` }, 400)
+        return c.json({ error: 'INVALID_MESSAGE_ROLE' }, 400)
       }
     }
 
@@ -87,7 +87,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     }
 
     if (!agentId) {
-      return c.json({ error: 'agentId or conversationId is required' }, 400)
+      return c.json({ error: 'AGENT_ID_REQUIRED' }, 400)
     }
 
     // Look up agent config
@@ -96,7 +96,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       agentId as AgentId,
     )
     if (!agent) {
-      return c.json({ error: `Agent ${agentId} not found` }, 404)
+      return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
     }
 
     // Get project config for permissions config reference

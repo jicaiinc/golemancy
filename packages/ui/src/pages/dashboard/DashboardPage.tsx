@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import type { ProjectId, ConversationId, CronJobId, TimeRange } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
@@ -10,6 +11,7 @@ import { formatTokens } from './utils'
 
 // --- Token Trend Chart (pure div + Tailwind, no chart library) ---
 function TokenTrendChart() {
+  const { t } = useTranslation('dashboard')
   const tokenTrend = useAppStore(s => s.dashboardTokenTrend)
   const timeRange = useAppStore(s => s.dashboardTimeRange)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
@@ -29,7 +31,7 @@ function TokenTrendChart() {
   if (data.length === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="font-pixel text-[9px] text-text-dim">No token data available</p>
+        <p className="font-pixel text-[9px] text-text-dim">{t('chart.noData')}</p>
       </div>
     )
   }
@@ -62,8 +64,8 @@ function TokenTrendChart() {
                 {hoveredIdx === i && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-elevated border-2 border-border-dim shadow-pixel-drop px-2 py-1 z-10 whitespace-nowrap">
                     <div className="text-[9px] font-mono text-text-primary">{d.date}</div>
-                    <div className="text-[8px] font-mono text-accent-blue">In: {formatTokens(d.inputTokens)}</div>
-                    <div className="text-[8px] font-mono text-accent-emerald">Out: {formatTokens(d.outputTokens)}</div>
+                    <div className="text-[8px] font-mono text-accent-blue">{t('chart.tooltipIn', { tokens: formatTokens(d.inputTokens) })}</div>
+                    <div className="text-[8px] font-mono text-accent-emerald">{t('chart.tooltipOut', { tokens: formatTokens(d.outputTokens) })}</div>
                   </div>
                 )}
                 <div className="w-full transition-all duration-150" style={{ height: `${heightPct}%` }}>
@@ -97,11 +99,11 @@ function TokenTrendChart() {
       <div className="flex items-center gap-4 mt-3">
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-accent-blue/70" />
-          <span className="text-[9px] text-text-dim font-mono">Input</span>
+          <span className="text-[9px] text-text-dim font-mono">{t('chart.legendInput')}</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-accent-emerald/70" />
-          <span className="text-[9px] text-text-dim font-mono">Output</span>
+          <span className="text-[9px] text-text-dim font-mono">{t('chart.legendOutput')}</span>
         </div>
       </div>
     </div>
@@ -110,6 +112,7 @@ function TokenTrendChart() {
 
 // --- Main Dashboard Page ---
 export function DashboardPage() {
+  const { t } = useTranslation('dashboard')
   const { projectId } = useParams()
   const navigate = useNavigate()
   const project = useCurrentProject()
@@ -194,7 +197,7 @@ export function DashboardPage() {
   if (dashboardLoading && !summary) {
     return (
       <div className="flex items-center justify-center h-full">
-        <PixelSpinner label="Loading dashboard..." />
+        <PixelSpinner label={t('page.loading')} />
       </div>
     )
   }
@@ -204,14 +207,14 @@ export function DashboardPage() {
       <div className="max-w-[1400px] mx-auto p-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="font-pixel text-[14px] text-text-primary">{project?.name ?? 'Dashboard'}</h1>
-          <p className="mt-1 text-text-secondary text-[13px]">{project?.description ?? 'Project overview'}</p>
+          <h1 className="font-pixel text-[14px] text-text-primary">{project?.name ?? t('page.titleFallback')}</h1>
+          <p className="mt-1 text-text-secondary text-[13px]">{project?.description ?? t('page.descriptionFallback')}</p>
         </div>
 
         {/* Section 1: Token Usage — TimeRange + Summary */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-pixel text-[11px] text-text-secondary">TOKEN USAGE</h2>
+            <h2 className="font-pixel text-[11px] text-text-secondary">{t('tokenUsage.title')}</h2>
             <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
           </div>
           <TokenSummaryCards summary={summary} />
@@ -223,17 +226,17 @@ export function DashboardPage() {
             <div className="mb-4">
               <PixelTabs
                 tabs={[
-                  { id: 'trend', label: 'Trend' },
-                  { id: 'by-agent', label: 'By Agent' },
-                  { id: 'by-model', label: 'By Model' },
+                  { id: 'trend', label: t('tabs.trend') },
+                  { id: 'by-agent', label: t('tabs.byAgent') },
+                  { id: 'by-model', label: t('tabs.byModel') },
                 ]}
                 activeTab={tokenTab}
                 onTabChange={setTokenTab}
               />
             </div>
             {tokenTab === 'trend' && <TokenTrendChart />}
-            {tokenTab === 'by-agent' && <TokenBreakdownTable title="TOKEN BY AGENT" data={breakdownByAgent} inline />}
-            {tokenTab === 'by-model' && <TokenBreakdownTable title="TOKEN BY MODEL" data={breakdownByModel} inline />}
+            {tokenTab === 'by-agent' && <TokenBreakdownTable title={t('table.titleByAgent')} data={breakdownByAgent} inline />}
+            {tokenTab === 'by-model' && <TokenBreakdownTable title={t('table.titleByModel')} data={breakdownByModel} inline />}
           </PixelCard>
         </div>
 

@@ -25,7 +25,7 @@ export function createSkillRoutes(deps: { skillStorage: ISkillService; agentStor
     const projectId = c.req.param('projectId') as ProjectId
     const skillId = c.req.param('id') as SkillId
     const skill = await deps.skillStorage.getById(projectId, skillId)
-    if (!skill) return c.json({ error: 'Skill not found' }, 404)
+    if (!skill) return c.json({ error: 'SKILL_NOT_FOUND' }, 404)
     return c.json(skill)
   })
 
@@ -34,7 +34,7 @@ export function createSkillRoutes(deps: { skillStorage: ISkillService; agentStor
     const body = await c.req.json()
     const name = typeof body.name === 'string' ? body.name.trim() : ''
     if (!name) {
-      return c.json({ error: 'name is required' }, 400)
+      return c.json({ error: 'NAME_REQUIRED' }, 400)
     }
     const data = {
       name,
@@ -54,7 +54,7 @@ export function createSkillRoutes(deps: { skillStorage: ISkillService; agentStor
     const data: Record<string, string> = {}
     if (typeof body.name === 'string') {
       const name = body.name.trim()
-      if (!name) return c.json({ error: 'name cannot be empty' }, 400)
+      if (!name) return c.json({ error: 'NAME_EMPTY' }, 400)
       data.name = name
     }
     if (typeof body.description === 'string') data.description = body.description
@@ -73,7 +73,7 @@ export function createSkillRoutes(deps: { skillStorage: ISkillService; agentStor
     const referencingAgents = agents.filter(a => a.skillIds.includes(skillId))
     if (referencingAgents.length > 0) {
       return c.json({
-        error: 'Skill is assigned to agents',
+        error: 'SKILL_IN_USE',
         agents: referencingAgents.map(a => ({ id: a.id, name: a.name })),
       }, 409)
     }
@@ -92,7 +92,7 @@ export function createSkillRoutes(deps: { skillStorage: ISkillService; agentStor
     const file = body['file']
 
     if (!file || typeof file === 'string') {
-      return c.json({ error: 'No file uploaded' }, 400)
+      return c.json({ error: 'NO_FILE_UPLOADED' }, 400)
     }
 
     try {

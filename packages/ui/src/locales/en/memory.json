@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Memory Bank",
+    "entryCount_one": "{{count}} memory",
+    "entryCount_other": "{{count}} memories",
+    "addEntryBtn": "+ Add Entry"
+  },
+  "search": {
+    "placeholder": "Search memories by content, source, or tag..."
+  },
+  "filter": {
+    "all": "all"
+  },
+  "loading": "Loading memories...",
+  "empty": {
+    "noMatch": "No matching memories",
+    "noEntries": "No memories yet",
+    "hint": "Memories help agents retain context across conversations"
+  },
+  "form": {
+    "addTitle": "Add Memory Entry",
+    "editTitle": "Edit Memory Entry",
+    "contentLabel": "CONTENT",
+    "sourceLabel": "SOURCE",
+    "sourcePlaceholder": "e.g. Researcher",
+    "tagsLabel": "TAGS (comma-separated)",
+    "tagsPlaceholder": "e.g. strategy, audience"
+  }
+}

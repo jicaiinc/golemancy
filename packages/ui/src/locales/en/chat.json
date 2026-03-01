@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Hide chat history",
+    "showHistory": "Show chat history",
+    "new": "+ New",
+    "clickToRename": "Click to rename"
+  },
+  "sidebar": {
+    "newChat": "+ New Chat",
+    "noConversations": "No conversations"
+  },
+  "window": {
+    "startConversation": "Start the conversation...",
+    "compacting": "Compacting",
+    "thinking": "Thinking",
+    "imageMsgTitle": "Image message"
+  },
+  "empty": {
+    "readyToChat": "Ready to chat",
+    "description": "Start a new conversation or select one from the sidebar.",
+    "startChatting": "Start Chatting",
+    "noMainAgent": "No Main Agent",
+    "configureText": "Configure a Main Agent in <a>Project Settings</a> to start chatting."
+  },
+  "input": {
+    "placeholder": "Type a message...",
+    "dropPlaceholder": "Drop images here...",
+    "attachImage": "Attach image",
+    "recordAudio": "Record audio",
+    "transcribing": "Transcribing...",
+    "transcriptionFailed": "Transcription failed",
+    "startRecordingFailed": "Failed to start recording",
+    "retryFailed": "Retry failed"
+  },
+  "message": {
+    "reasoning": "Reasoning",
+    "untitledFile": "Untitled file",
+    "copy": "Copy"
+  },
+  "compact": {
+    "title": "CONVERSATION COMPACTED",
+    "summary": "SUMMARY",
+    "tokensSummary": "{{input}} in / {{output}} out"
+  },
+  "tool": {
+    "running": "Running...",
+    "awaitingApproval": "Awaiting approval",
+    "approved": "Approved",
+    "done": "Done",
+    "denied": "Denied",
+    "input": "INPUT",
+    "output": "OUTPUT",
+    "error": "ERROR",
+    "task": "TASK",
+    "tools": "TOOLS",
+    "toolCountRunning": "[{{running}}/{{total}} tools]",
+    "toolCountDone": "[{{total}} tools]",
+    "taskCreate": "Create Task",
+    "taskGet": "Get Task",
+    "taskList": "List Tasks",
+    "taskUpdate": "Update Task"
+  }
+}

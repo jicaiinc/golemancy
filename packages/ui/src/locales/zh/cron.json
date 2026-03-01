@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "自动化",
+    "newBtn": "+ 新建"
+  },
+  "empty": {
+    "noJobs": "暂无自动化任务",
+    "createFirstBtn": "创建第一个自动化"
+  },
+  "job": {
+    "runBtn": "运行",
+    "historyBtn": "历史",
+    "runningStatus": "运行中...",
+    "viewChat": "查看对话 →",
+    "next": "下次：{{time}}",
+    "at": "时间：{{time}}",
+    "agentNotFound": "Agent 未找到",
+    "overdue": "已过期",
+    "once": "一次性"
+  },
+  "delete": {
+    "title": "删除自动化",
+    "confirm": "确定要删除 \"{{name}}\" 吗？此操作无法撤销。"
+  },
+  "runsModal": {
+    "titleWithName": "运行历史 — {{name}}",
+    "title": "运行历史",
+    "noRuns": "暂无运行记录",
+    "openChat": "打开对话 →"
+  },
+  "status": {
+    "success": "成功",
+    "error": "错误",
+    "running": "运行中"
+  },
+  "form": {
+    "newTitle": "新建自动化",
+    "editTitle": "编辑自动化",
+    "nameLabel": "名称",
+    "namePlaceholder": "每日代码审查",
+    "typeLabel": "类型",
+    "recurring": "周期性",
+    "oneTime": "一次性",
+    "cronLabel": "CRON 表达式",
+    "scheduledAtLabel": "执行时间（本地时间）",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "选择一个 Agent",
+    "instructionLabel": "指令（可选）",
+    "instructionPlaceholder": "触发时发送给 Agent 的指令",
+    "enabledLabel": "启用",
+    "presets": {
+      "every5min": "每 5 分钟",
+      "everyHour": "每小时",
+      "every12h": "每 12 小时",
+      "daily9am": "每天 9 点",
+      "weeklyMon": "每周一"
+    },
+    "invalidExpression": "无效的表达式"
+  }
+}

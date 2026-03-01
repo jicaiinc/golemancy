@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { SpeechToTextSettings } from '@golemancy/shared'
 import { PixelCard, PixelButton, PixelInput, PixelToggle } from '../../../components'
 
 const OPENAI_STT_MODELS = ['gpt-4o-mini-transcribe', 'gpt-4o-transcribe', 'whisper-1']
 
+// Language names are in their native scripts — not translated per guidelines
 const STT_LANGUAGES: { code: string; label: string }[] = [
   { code: '', label: 'Auto-detect' },
   { code: 'en', label: 'English' },
@@ -37,6 +39,7 @@ export function SpeechStep({
   onUpdate,
   onTestSpeech,
 }: SpeechStepProps) {
+  const { t } = useTranslation(['onboarding', 'common'])
   const [showKey, setShowKey] = useState(false)
   const [testing, setTesting] = useState(false)
   const [testStatus, setTestStatus] = useState<'untested' | 'ok' | 'error'>('untested')
@@ -60,21 +63,21 @@ export function SpeechStep({
         setTestLatency(result.latencyMs ?? 0)
       } else {
         setTestStatus('error')
-        setTestError(result.error ?? 'Unknown error')
+        setTestError(result.error ?? t('error.unknownError'))
       }
     } catch (err) {
       setTestStatus('error')
-      setTestError(err instanceof Error ? err.message : 'Test failed')
+      setTestError(err instanceof Error ? err.message : t('error.testFailed'))
     } finally {
       setTesting(false)
     }
-  }, [sttApiKey, sttModel, sttLanguage, onTestSpeech])
+  }, [sttApiKey, sttModel, sttLanguage, onTestSpeech, t])
 
   return (
     <div className="flex flex-col gap-6">
       <div className="text-center">
-        <h2 className="font-pixel text-[14px] text-text-primary mb-2">Speech-to-Text</h2>
-        <p className="font-mono text-[11px] text-text-dim">Enable voice input for faster interaction. You can skip this and configure it later.</p>
+        <h2 className="font-pixel text-[14px] text-text-primary mb-2">{t('speech.heading')}</h2>
+        <p className="font-mono text-[11px] text-text-dim">{t('speech.description')}</p>
       </div>
 
       <PixelCard>
@@ -82,7 +85,7 @@ export function SpeechStep({
           <PixelToggle
             checked={sttEnabled}
             onChange={checked => onUpdate({ sttEnabled: checked })}
-            label={sttEnabled ? 'Enabled' : 'Disabled'}
+            label={sttEnabled ? t('common:label.enabled') : t('common:label.disabled')}
           />
         </div>
 
@@ -92,7 +95,7 @@ export function SpeechStep({
             <div className="flex items-end gap-2">
               <div className="flex-1">
                 <PixelInput
-                  label="OPENAI API KEY"
+                  label={t('speech.labelApiKey')}
                   type={showKey ? 'text' : 'password'}
                   value={sttApiKey}
                   onChange={e => { onUpdate({ sttApiKey: e.target.value }); setTestStatus('untested') }}
@@ -100,13 +103,13 @@ export function SpeechStep({
                 />
               </div>
               <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>
-                {showKey ? 'Hide' : 'Show'}
+                {showKey ? t('button.hide') : t('button.show')}
               </PixelButton>
             </div>
 
             {/* Model */}
             <div>
-              <label className="font-pixel text-[8px] text-text-dim block mb-1">MODEL</label>
+              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('speech.labelModel')}</label>
               <select
                 value={sttModel}
                 onChange={e => { onUpdate({ sttModel: e.target.value }); setTestStatus('untested') }}
@@ -118,7 +121,7 @@ export function SpeechStep({
 
             {/* Language */}
             <div>
-              <label className="font-pixel text-[8px] text-text-dim block mb-1">LANGUAGE</label>
+              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('speech.labelLanguage')}</label>
               <select
                 value={sttLanguage}
                 onChange={e => onUpdate({ sttLanguage: e.target.value })}
@@ -140,11 +143,15 @@ export function SpeechStep({
                 onClick={runTest}
                 disabled={testing || !sttApiKey}
               >
-                {testing ? 'Testing...' : testStatus === 'ok' ? 'Re-test' : 'Test'}
+                {testing ? t('button.testing') : testStatus === 'ok' ? t('button.reTest') : t('button.test')}
               </PixelButton>
-              {testing && <span className="text-[10px] text-accent-blue animate-pulse">Testing...</span>}
-              {testStatus === 'ok' && <span className="text-[10px] text-accent-green">OK{testLatency > 0 ? ` (${testLatency}ms)` : ''}</span>}
-              {testStatus === 'error' && !testing && <span className="text-[10px] text-accent-red">Failed</span>}
+              {testing && <span className="text-[10px] text-accent-blue animate-pulse">{t('button.testing')}</span>}
+              {testStatus === 'ok' && (
+                <span className="text-[10px] text-accent-green">
+                  {testLatency > 0 ? t('speech.statusOkLatency', { ms: testLatency }) : t('speech.statusOk')}
+                </span>
+              )}
+              {testStatus === 'error' && !testing && <span className="text-[10px] text-accent-red">{t('speech.statusFailed')}</span>}
             </div>
             {testStatus === 'error' && testError && (
               <div className="p-2 bg-accent-red/10 border-2 border-accent-red/30">

@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, type KeyboardEvent, type DragEvent, type ClipboardEvent } from 'react'
 import type { FileUIPart } from 'ai'
 import type { TranscriptionId, ProjectId, ConversationId } from '@golemancy/shared'
+import { useTranslation } from 'react-i18next'
 import { PixelButton, PixelSpinner, ImageAttachIcon, CloseSmallIcon, CheckIcon, MicIcon, StopSquareIcon, VoiceWaveform } from '../../components'
 import { useAudioRecorder } from '../../hooks/useAudioRecorder'
 import { useAppStore } from '../../stores'
@@ -44,6 +45,7 @@ async function filesToFileUIParts(files: File[]): Promise<FileUIPart[]> {
 }
 
 export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputProps) {
+  const { t } = useTranslation(['chat', 'common'])
   const [value, setValue] = useState('')
   const [attachedFiles, setAttachedFiles] = useState<FileUIPart[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
@@ -146,9 +148,9 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
       await startRecording()
     } catch (err) {
       setRecordingState('error')
-      setTranscriptionError(err instanceof Error ? err.message : 'Failed to start recording')
+      setTranscriptionError(err instanceof Error ? err.message : t('input.startRecordingFailed'))
     }
-  }, [startRecording])
+  }, [startRecording, t])
 
   const handleStopRecording = useCallback(async () => {
     const blob = await stopRecording()
@@ -175,15 +177,15 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
         setRecordingState('idle')
       } else if (record.status === 'failed') {
         setRecordingState('error')
-        setTranscriptionError(record.error ?? 'Transcription failed')
+        setTranscriptionError(record.error ?? t('input.transcriptionFailed'))
       } else {
         setRecordingState('idle')
       }
     } catch (err) {
       setRecordingState('error')
-      setTranscriptionError(err instanceof Error ? err.message : 'Transcription failed')
+      setTranscriptionError(err instanceof Error ? err.message : t('input.transcriptionFailed'))
     }
-  }, [stopRecording, transcribeAudio, durationMs, currentProjectId, currentConversationId])
+  }, [stopRecording, transcribeAudio, durationMs, currentProjectId, currentConversationId, t])
 
   const handleCancelRecording = useCallback(() => {
     cancelRecording()
@@ -205,13 +207,13 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
         setRecordingState('idle')
       } else {
         setRecordingState('error')
-        setTranscriptionError(record.error ?? 'Retry failed')
+        setTranscriptionError(record.error ?? t('input.retryFailed'))
       }
     } catch (err) {
       setRecordingState('error')
-      setTranscriptionError(err instanceof Error ? err.message : 'Retry failed')
+      setTranscriptionError(err instanceof Error ? err.message : t('input.retryFailed'))
     }
-  }, [lastTranscriptionId, retrySpeechRecord])
+  }, [lastTranscriptionId, retrySpeechRecord, t])
 
   const handleDismissError = useCallback(() => {
     setRecordingState('idle')
@@ -237,13 +239,13 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
               <div key={i} className="relative group/thumb">
                 <img
                   src={file.url}
-                  alt={file.filename || 'Attached image'}
+                  alt={file.filename || t('message.untitledFile')}
                   className="w-14 h-14 object-cover border-2 border-border-dim"
                 />
                 <button
                   onClick={() => handleRemoveFile(i)}
                   className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center bg-accent-red text-white opacity-0 group-hover/thumb:opacity-100 transition-opacity"
-                  title="Remove"
+                  title={t('common:button.cancel')}
                 >
                   <CloseSmallIcon className="w-[8px] h-[8px]" />
                 </button>
@@ -258,7 +260,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
             <button
               onClick={handleCancelRecording}
               className="shrink-0 w-9 h-9 flex items-center justify-center border-2 border-border-dim bg-deep hover:border-accent-red hover:text-accent-red text-text-dim transition-colors cursor-pointer"
-              title="Cancel"
+              title={t('common:button.cancel')}
             >
               <CloseSmallIcon className="w-[14px] h-[14px]" />
             </button>
@@ -271,7 +273,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
             <button
               onClick={handleStopRecording}
               className="shrink-0 w-9 h-9 flex items-center justify-center border-2 border-accent-green/50 bg-deep hover:border-accent-green text-accent-green transition-colors cursor-pointer"
-              title="Done"
+              title={t('common:button.done')}
             >
               <CheckIcon className="w-[16px] h-[16px]" />
             </button>
@@ -282,7 +284,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
         {recordingState === 'transcribing' && (
           <div className="flex items-center gap-2 px-3 py-2">
             <PixelSpinner size="sm" />
-            <span className="font-pixel text-[10px] text-text-secondary">Transcribing...</span>
+            <span className="font-pixel text-[10px] text-text-secondary">{t('input.transcribing')}</span>
           </div>
         )}
 
@@ -292,11 +294,11 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
             <span className="font-mono text-[11px] text-accent-red truncate flex-1">{transcriptionError}</span>
             {lastTranscriptionId && (
               <PixelButton variant="secondary" size="sm" onClick={handleRetry} className="!h-5 !px-2 !text-[9px]">
-                Retry
+                {t('common:button.retry')}
               </PixelButton>
             )}
             <PixelButton variant="ghost" size="sm" onClick={handleDismissError} className="!h-5 !px-2 !text-[9px]">
-              Dismiss
+              {t('common:button.dismiss')}
             </PixelButton>
           </div>
         )}
@@ -310,7 +312,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
-            placeholder={isDragOver ? 'Drop images here...' : 'Type a message...'}
+            placeholder={isDragOver ? t('input.dropPlaceholder') : t('input.placeholder')}
             disabled={disabled}
             rows={1}
             className="w-full min-h-[36px] max-h-[160px] bg-transparent px-3 py-2 font-mono text-[13px] text-text-primary placeholder:text-text-dim outline-none resize-none"
@@ -325,7 +327,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
                 onClick={handleAttachClick}
                 disabled={disabled || recordingState !== 'idle'}
                 className="p-0.5 text-text-dim hover:text-accent-blue transition-colors disabled:opacity-50"
-                title="Attach image"
+                title={t('input.attachImage')}
               >
                 <ImageAttachIcon className="w-[14px] h-[12px]" />
               </button>
@@ -347,7 +349,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
                   onClick={handleMicClick}
                   disabled={disabled}
                   className="p-1 text-accent-green hover:text-accent-green/70 transition-colors disabled:opacity-50 cursor-pointer"
-                  title="Record audio"
+                  title={t('input.recordAudio')}
                 >
                   <MicIcon className="w-[14px] h-[14px]" />
                 </button>
@@ -362,7 +364,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
                   className="!h-6 !px-2 !text-[10px]"
                 >
                   <StopSquareIcon className="w-[8px] h-[8px] mr-1" />
-                  Stop
+                  {t('common:button.stop')}
                 </PixelButton>
               ) : recordingState === 'idle' ? (
                 <PixelButton
@@ -373,7 +375,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
                   onClick={handleSend}
                   className="!h-6 !px-2 !text-[10px]"
                 >
-                  Send
+                  {t('common:button.send')}
                 </PixelButton>
               ) : null}
             </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../components'
 
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function ProjectCreateModal({ open, onClose }: Props) {
+  const { t } = useTranslation('project')
   const createProject = useAppStore(s => s.createProject)
   const navigate = useNavigate()
   const [name, setName] = useState('')
@@ -54,13 +56,13 @@ export function ProjectCreateModal({ open, onClose }: Props) {
     <PixelModal
       open={open}
       onClose={onClose}
-      title="Create New Project"
+      title={t('create.modalTitle')}
       size="sm"
       footer={
         <>
-          <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>Cancel</PixelButton>
+          <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
           <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
-            {saving ? 'Creating...' : 'Create Project'}
+            {saving ? t('common:button.creating') : t('create.createBtn')}
           </PixelButton>
         </>
       }
@@ -68,8 +70,8 @@ export function ProjectCreateModal({ open, onClose }: Props) {
       <div className="flex flex-col gap-4">
         <PixelInput
           data-testid="project-name-input"
-          label="PROJECT NAME"
-          placeholder="My Awesome Project"
+          label={t('label.projectName')}
+          placeholder={t('create.namePlaceholder')}
           value={name}
           onChange={e => setName(e.target.value)}
           autoFocus
@@ -77,8 +79,8 @@ export function ProjectCreateModal({ open, onClose }: Props) {
 
         <PixelTextArea
           data-testid="project-desc-input"
-          label="DESCRIPTION"
-          placeholder="What is this project about?"
+          label={t('label.description')}
+          placeholder={t('create.descPlaceholder')}
           value={description}
           onChange={e => setDescription(e.target.value)}
           rows={3}
@@ -87,7 +89,7 @@ export function ProjectCreateModal({ open, onClose }: Props) {
         {/* Icon picker */}
         <div className="flex flex-col gap-1">
           <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">
-            ICON
+            {t('label.icon')}
           </label>
           <div className="flex gap-2">
             {ICONS.map(ic => (

@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import type { AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
@@ -16,13 +17,8 @@ const ICONS = [
   { id: 'bolt', label: '\u26A1' },
 ]
 
-const SETTINGS_TABS = [
-  { id: 'general', label: 'General' },
-  { id: 'agent', label: 'Agent' },
-  { id: 'permissions', label: 'Permissions' },
-]
-
 export function ProjectSettingsPage() {
+  const { t } = useTranslation('project')
   const { projectId } = useParams<{ projectId: string }>()
   const project = useCurrentProject()
   const updateProject = useAppStore(s => s.updateProject)
@@ -37,6 +33,12 @@ export function ProjectSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  const settingsTabs = useMemo(() => [
+    { id: 'general', label: t('settings.tabs.general') },
+    { id: 'agent', label: t('settings.tabs.agent') },
+    { id: 'permissions', label: t('settings.tabs.permissions') },
+  ], [t])
 
   useEffect(() => {
     if (!project) return
@@ -78,9 +80,9 @@ export function ProjectSettingsPage() {
 
   return (
     <div className={`p-6 ${activeTab === 'permissions' ? 'max-w-[960px]' : 'max-w-[640px]'}`}>
-      <h1 className="font-pixel text-[14px] text-text-primary mb-6">Project Settings</h1>
+      <h1 className="font-pixel text-[14px] text-text-primary mb-6">{t('settings.title')}</h1>
 
-      <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} testIdPrefix="project-settings" />
+      <PixelTabs tabs={settingsTabs} activeTab={activeTab} onTabChange={setActiveTab} testIdPrefix="project-settings" />
 
       <div className="mt-4">
         {activeTab === 'agent' && (
@@ -131,25 +133,26 @@ function AgentTab({
   onMainAgentChange: (agentId: AgentId | undefined) => void
   navigate: ReturnType<typeof useNavigate>
 }) {
+  const { t } = useTranslation('project')
   return (
     <div className="flex flex-col gap-4">
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-2">MAIN AGENT</div>
+        <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('settings.agent.mainLabel')}</div>
         <p className="text-[12px] text-text-dim mb-3">
-          The default agent for new conversations in this project.
+          {t('settings.agent.mainDesc')}
         </p>
 
         {agents.length === 0 ? (
           <PixelCard variant="outlined" className="text-center py-4">
             <p className="text-[12px] text-text-dim mb-3">
-              No agents in this project. Create an agent first.
+              {t('settings.agent.noAgents')}
             </p>
             <PixelButton
               variant="primary"
               size="sm"
               onClick={() => navigate(`/projects/${projectId}/agents`)}
             >
-              Go to Agents
+              {t('settings.agent.goToAgents')}
             </PixelButton>
           </PixelCard>
         ) : (
@@ -161,7 +164,7 @@ function AgentTab({
               )}
               className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
             >
-              <option value="">None</option>
+              <option value="">{t('settings.agent.none')}</option>
               {agents.map(a => (
                 <option key={a.id} value={a.id}>{a.name}</option>
               ))}
@@ -174,7 +177,7 @@ function AgentTab({
                 className="mt-3"
                 onClick={() => navigate(`/projects/${projectId}/agents/${mainAgent.id}`)}
               >
-                Configure Agent →
+                {t('settings.agent.configure')}
               </PixelButton>
             )}
           </>
@@ -208,25 +211,26 @@ function GeneralTab({
   saved: boolean
   onSave: () => void
 }) {
+  const { t } = useTranslation('project')
   return (
     <div className="flex flex-col gap-4">
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-4">BASIC INFO</div>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">{t('settings.general.sectionTitle')}</div>
         <div className="flex flex-col gap-4">
-          <CopyableId label="PROJECT ID" value={project.id} />
+          <CopyableId label={t('label.projectId')} value={project.id} />
           <PixelInput
-            label="PROJECT NAME"
+            label={t('label.projectName')}
             value={name}
             onChange={e => setName(e.target.value)}
           />
           <PixelTextArea
-            label="DESCRIPTION"
+            label={t('label.description')}
             value={description}
             onChange={e => setDescription(e.target.value)}
             rows={3}
           />
           <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">ICON</label>
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('label.icon')}</label>
             <div className="flex gap-2">
               {ICONS.map(ic => (
                 <button
@@ -248,9 +252,9 @@ function GeneralTab({
 
       <div className="flex items-center gap-3">
         <PixelButton variant="primary" data-testid="save-btn" onClick={onSave} disabled={saving || !name.trim()}>
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? t('common:button.saving') : t('settings.general.saveBtn')}
         </PixelButton>
-        {saved && <span className="text-[12px] text-accent-green">Saved!</span>}
+        {saved && <span className="text-[12px] text-accent-green">{t('settings.savedMsg')}</span>}
       </div>
     </div>
   )
@@ -258,6 +262,7 @@ function GeneralTab({
 
 // ========== Copyable ID Display ==========
 function CopyableId({ label, value }: { label: string; value: string }) {
+  const { t } = useTranslation('project')
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
@@ -278,7 +283,7 @@ function CopyableId({ label, value }: { label: string; value: string }) {
         tabIndex={0}
         onClick={handleCopy}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleCopy() }}
-        title="Click to copy"
+        title={t('settings.clickToCopy')}
         className="group flex items-center gap-2 w-fit px-2 py-1 bg-deep border border-border-dim cursor-pointer select-all hover:border-border-bright transition-colors"
       >
         <span className="font-mono text-[11px] text-text-dim">{value}</span>
@@ -289,4 +294,3 @@ function CopyableId({ label, value }: { label: string; value: string }) {
     </div>
   )
 }
-

@@ -14,12 +14,12 @@ describe('parseErrorMessage', () => {
 
   it('converts Internal Server Error to friendly message', () => {
     const error = new Error('500: {"error":"Internal Server Error"}')
-    expect(parseErrorMessage(error)).toBe('Something went wrong. Please try again later.')
+    expect(parseErrorMessage(error)).toBe('generic')
   })
 
   it('converts raw Internal Server Error JSON to friendly message', () => {
     const error = new Error('{"error":"Internal Server Error"}')
-    expect(parseErrorMessage(error)).toBe('Something went wrong. Please try again later.')
+    expect(parseErrorMessage(error)).toBe('generic')
   })
 
   it('passes through plain messages', () => {
@@ -34,6 +34,17 @@ describe('parseErrorMessage', () => {
 
   it('treats empty error field as generic', () => {
     const error = new Error('422: {"error":""}')
-    expect(parseErrorMessage(error)).toBe('Something went wrong. Please try again later.')
+    expect(parseErrorMessage(error)).toBe('generic')
+  })
+
+  it('translates UPPER_SNAKE_CASE server error codes via i18n fallback', () => {
+    const error = new Error('404: {"error":"AGENT_NOT_FOUND"}')
+    // i18next mock returns last key segment as fallback
+    expect(parseErrorMessage(error)).toBe('AGENT_NOT_FOUND')
+  })
+
+  it('translates status-prefixed server error codes', () => {
+    const error = new Error('409: {"error":"SKILL_IN_USE","agents":[]}')
+    expect(parseErrorMessage(error)).toBe('SKILL_IN_USE')
   })
 })

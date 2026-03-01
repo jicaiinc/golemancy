@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { PermissionMode, PermissionsConfig, PermissionsConfigFile, PermissionsConfigId, ProjectId, SandboxReadinessIssue, SandboxReadinessResult } from '@golemancy/shared'
 import { DEFAULT_PERMISSIONS_CONFIG, isSandboxRuntimeSupported, type SupportedPlatform } from '@golemancy/shared'
 import { fetchJson, getBaseUrl } from '../../services/http/base'
@@ -13,31 +14,8 @@ interface PermissionsSettingsProps {
   projectId: ProjectId
 }
 
-const MODE_OPTIONS: ExecutionModeOption[] = [
-  {
-    id: 'restricted',
-    name: 'Restricted',
-    subtitle: 'Just Bash, no sandbox',
-    description: 'Minimal execution environment. No sandbox runtime, no MCP support.',
-    badge: { label: 'Limited', variant: 'warning' },
-  },
-  {
-    id: 'sandbox',
-    name: 'Sandbox',
-    subtitle: 'Configurable isolation',
-    description: 'Sandbox runtime with configurable filesystem, network, and command restrictions.',
-    badge: { label: 'Recommended', variant: 'success' },
-  },
-  {
-    id: 'unrestricted',
-    name: 'Unrestricted',
-    subtitle: 'Full system access',
-    description: 'No sandbox restrictions. All commands run with full system permissions.',
-    badge: { label: 'Risky', variant: 'error' },
-  },
-]
-
 export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
+  const { t } = useTranslation('permissions')
   const { permissionsConfig: service } = useServices()
   const project = useCurrentProject()
   const updateProject = useAppStore(s => s.updateProject)
@@ -111,9 +89,9 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
     if (isDefault) {
       // Create a new config with the new mode
       const titleMap: Record<PermissionMode, string> = {
-        restricted: 'Restricted',
-        sandbox: 'Sandbox',
-        unrestricted: 'Unrestricted',
+        restricted: t('modes.restricted.name'),
+        sandbox: t('modes.sandbox.name'),
+        unrestricted: t('modes.unrestricted.name'),
       }
       const created = await service.create(projectId, {
         title: titleMap[newMode],
@@ -274,17 +252,41 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
     setRenameModalOpen(true)
   }
 
+  const MODE_OPTIONS: ExecutionModeOption[] = [
+    {
+      id: 'restricted',
+      name: t('modes.restricted.name'),
+      subtitle: t('modes.restricted.subtitle'),
+      description: t('modes.restricted.description'),
+      badge: { label: t('modes.restricted.badge'), variant: 'warning' },
+    },
+    {
+      id: 'sandbox',
+      name: t('modes.sandbox.name'),
+      subtitle: t('modes.sandbox.subtitle'),
+      description: t('modes.sandbox.description'),
+      badge: { label: t('modes.sandbox.badge'), variant: 'success' },
+    },
+    {
+      id: 'unrestricted',
+      name: t('modes.unrestricted.name'),
+      subtitle: t('modes.unrestricted.subtitle'),
+      description: t('modes.unrestricted.description'),
+      badge: { label: t('modes.unrestricted.badge'), variant: 'error' },
+    },
+  ]
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <span className="font-pixel text-[10px] text-text-dim">Loading permissions...</span>
+        <span className="font-pixel text-[10px] text-text-dim">{t('loading')}</span>
       </div>
     )
   }
 
   const currentConfig = configs.find(c => c.id === selectedConfigId)
   const dropdownItems = configs.map(c => ({
-    label: c.id === ('default' as PermissionsConfigId) ? 'Default' : c.title,
+    label: c.id === ('default' as PermissionsConfigId) ? t('config.default') : c.title,
     value: c.id,
     selected: c.id === selectedConfigId,
   }))
@@ -293,7 +295,7 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
     <div className="flex flex-col gap-4">
       {/* Permission Mode Selector */}
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">PERMISSION MODE</div>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('section.permissionMode')}</div>
         <ExecutionModeCard
           options={MODE_OPTIONS}
           value={mode}
@@ -305,15 +307,15 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       {mode === 'sandbox' && (
         <>
           <PixelCard variant="elevated">
-            <div className="font-pixel text-[10px] text-text-secondary mb-3">CONFIGURATION</div>
+            <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('section.configuration')}</div>
             <div className="flex items-center gap-2 flex-wrap">
               <PixelDropdown
                 trigger={
                   <PixelButton variant="ghost" className="min-w-[180px] text-left justify-between">
                     <span className="truncate font-mono text-[12px]">
                       {currentConfig
-                        ? isDefault ? 'Default' : currentConfig.title
-                        : 'Select config...'
+                        ? isDefault ? t('config.default') : currentConfig.title
+                        : t('config.selectConfig')
                       }
                     </span>
                     <span className="ml-2 text-text-dim">{'\u25BC'}</span>
@@ -325,30 +327,30 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
               />
 
               <PixelButton variant="primary" size="sm" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : 'Save'}
+                {saving ? t('common:button.saving') : t('common:button.save')}
               </PixelButton>
               <PixelButton variant="ghost" size="sm" onClick={openSaveAsModal}>
-                Save As...
+                {t('config.saveAs')}
               </PixelButton>
               {!isDefault && (
                 <>
                   <PixelButton variant="ghost" size="sm" onClick={openRenameModal}>
-                    Rename
+                    {t('config.rename')}
                   </PixelButton>
                   <PixelButton variant="ghost" size="sm" className="text-accent-red hover:text-accent-red" onClick={() => setDeleteModalOpen(true)}>
-                    Delete
+                    {t('common:button.delete')}
                   </PixelButton>
                   <PixelButton variant="ghost" size="sm" className="ml-auto text-text-dim" onClick={handleResetToDefault}>
-                    Reset to Default
+                    {t('config.resetToDefault')}
                   </PixelButton>
                 </>
               )}
 
-              {saved && <span className="text-[11px] text-accent-green ml-2 shrink-0">Saved!</span>}
+              {saved && <span className="text-[11px] text-accent-green ml-2 shrink-0">{t('config.saved')}</span>}
             </div>
             {isDefault && (
               <div className="mt-2 text-[10px] text-text-dim font-mono">
-                Editing default values. Click Save to create a new named configuration.
+                {t('config.editingDefault')}
               </div>
             )}
           </PixelCard>
@@ -365,31 +367,31 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       <PixelModal
         open={showUnrestrictedModal}
         onClose={() => setShowUnrestrictedModal(false)}
-        title="Enable Unrestricted Mode?"
+        title={t('modal.unrestrictedTitle')}
         size="sm"
         footer={
           <>
             <PixelButton variant="ghost" size="sm" onClick={() => setShowUnrestrictedModal(false)}>
-              Cancel
+              {t('common:button.cancel')}
             </PixelButton>
             <PixelButton variant="danger" size="sm" onClick={confirmUnrestricted}>
-              I Understand, Enable
+              {t('modal.enableUnrestricted')}
             </PixelButton>
           </>
         }
       >
         <div className="text-[12px] text-text-secondary leading-relaxed">
           <p className="mb-3">
-            This removes all sandbox protection. AI agents will have full access to your system, including:
+            {t('modal.unrestrictedBody')}
           </p>
           <ul className="list-disc list-inside space-y-1 text-text-dim mb-3">
-            <li>Read/write any file on your computer</li>
-            <li>Execute any system command</li>
-            <li>Access network without restrictions</li>
-            <li>Modify system configuration</li>
+            <li>{t('modal.unrestrictedReadWrite')}</li>
+            <li>{t('modal.unrestrictedExecute')}</li>
+            <li>{t('modal.unrestrictedNetwork')}</li>
+            <li>{t('modal.unrestrictedSysconfig')}</li>
           </ul>
           <p className="text-text-dim">
-            Only use this for local development in trusted environments.
+            {t('modal.unrestrictedFooter')}
           </p>
         </div>
       </PixelModal>
@@ -398,22 +400,22 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       <PixelModal
         open={showSandboxUnavailableModal}
         onClose={() => setShowSandboxUnavailableModal(false)}
-        title="Sandbox Mode Unavailable"
+        title={t('modal.sandboxUnavailableTitle')}
         size="sm"
         footer={
           <>
             <PixelButton variant="ghost" size="sm" onClick={() => setShowSandboxUnavailableModal(false)}>
-              Cancel
+              {t('common:button.cancel')}
             </PixelButton>
             <PixelButton variant="secondary" size="sm" className="text-accent-amber border-accent-amber" onClick={confirmSandboxAnyway}>
-              Enable Anyway
+              {t('modal.enableAnyway')}
             </PixelButton>
           </>
         }
       >
         <div className="text-[12px] text-text-secondary leading-relaxed">
           <p className="mb-3">
-            Sandbox runtime prerequisites are not met. The following issues were found:
+            {t('modal.sandboxUnavailableBody')}
           </p>
           <div className="flex flex-col gap-2">
             {sandboxIssues.map((issue, i) => (
@@ -429,7 +431,7 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
             ))}
           </div>
           <p className="text-text-dim mt-3">
-            Enabling sandbox mode anyway will cause runtime degradation to restricted mode.
+            {t('modal.sandboxUnavailableFooter')}
           </p>
         </div>
       </PixelModal>
@@ -438,24 +440,24 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       <PixelModal
         open={saveAsModalOpen}
         onClose={() => setSaveAsModalOpen(false)}
-        title="Save As New Configuration"
+        title={t('modal.saveAsTitle')}
         size="sm"
         footer={
           <>
             <PixelButton variant="ghost" size="sm" onClick={() => setSaveAsModalOpen(false)}>
-              Cancel
+              {t('common:button.cancel')}
             </PixelButton>
             <PixelButton variant="primary" size="sm" onClick={handleSaveAs} disabled={!modalTitle.trim() || saving}>
-              {saving ? 'Saving...' : 'Save'}
+              {saving ? t('common:button.saving') : t('common:button.save')}
             </PixelButton>
           </>
         }
       >
         <PixelInput
-          label="CONFIG NAME"
+          label={t('modal.configNameLabel')}
           value={modalTitle}
           onChange={e => setModalTitle(e.target.value)}
-          placeholder="e.g., Strict Dev, Python Disabled"
+          placeholder={t('modal.configNamePlaceholder')}
         />
       </PixelModal>
 
@@ -463,24 +465,24 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       <PixelModal
         open={renameModalOpen}
         onClose={() => setRenameModalOpen(false)}
-        title="Rename Configuration"
+        title={t('modal.renameTitle')}
         size="sm"
         footer={
           <>
             <PixelButton variant="ghost" size="sm" onClick={() => setRenameModalOpen(false)}>
-              Cancel
+              {t('common:button.cancel')}
             </PixelButton>
             <PixelButton variant="primary" size="sm" onClick={handleRename} disabled={!modalTitle.trim() || saving}>
-              {saving ? 'Renaming...' : 'Rename'}
+              {saving ? t('modal.renaming') : t('config.rename')}
             </PixelButton>
           </>
         }
       >
         <PixelInput
-          label="NEW NAME"
+          label={t('modal.newNameLabel')}
           value={modalTitle}
           onChange={e => setModalTitle(e.target.value)}
-          placeholder="e.g., My Custom Config"
+          placeholder={t('modal.newNamePlaceholder')}
         />
       </PixelModal>
 
@@ -488,21 +490,21 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       <PixelModal
         open={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
-        title={`Delete "${currentConfig?.title ?? ''}"?`}
+        title={t('modal.deleteTitle', { title: currentConfig?.title ?? '' })}
         size="sm"
         footer={
           <>
             <PixelButton variant="ghost" size="sm" onClick={() => setDeleteModalOpen(false)}>
-              Cancel
+              {t('common:button.cancel')}
             </PixelButton>
             <PixelButton variant="danger" size="sm" onClick={handleDelete} disabled={saving}>
-              {saving ? 'Deleting...' : 'Delete'}
+              {saving ? t('common:button.deleting') : t('common:button.delete')}
             </PixelButton>
           </>
         }
       >
         <p className="text-[12px] text-text-secondary">
-          This configuration will be permanently deleted. The project will revert to system defaults.
+          {t('modal.deleteBody')}
         </p>
       </PixelModal>
     </div>
@@ -512,21 +514,21 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
 // ========== Domain Validation ==========
 function validateDomainPattern(value: string): string | null {
   if (value.includes('://') || value.includes('/') || value.includes(':'))
-    return 'Remove protocol, path, or port — just the domain'
+    return 'removeProtocol'
   if (value === 'localhost') return null
   if (value.startsWith('*.')) {
     const domain = value.slice(2)
     if (!domain.includes('.') || domain.startsWith('.') || domain.endsWith('.'))
-      return 'Wildcard needs 2+ parts after *. (e.g., *.example.com)'
+      return 'wildcardParts'
     const parts = domain.split('.')
     if (parts.length < 2 || parts.some(p => p.length === 0))
-      return 'Wildcard needs 2+ parts after *. (e.g., *.example.com)'
+      return 'wildcardParts'
     return null
   }
   if (value.includes('*'))
-    return 'Only *.domain.com wildcard format is supported'
+    return 'onlyWildcard'
   if (!value.includes('.') || value.startsWith('.') || value.endsWith('.'))
-    return 'Must be a valid domain with at least one dot (e.g., example.com)'
+    return 'validDomain'
   return null
 }
 
@@ -538,80 +540,87 @@ function SandboxConfigEditor({
   config: PermissionsConfig
   onUpdate: (partial: Partial<PermissionsConfig>) => void
 }) {
+  const { t } = useTranslation('permissions')
+
+  function translateValidation(key: string | null): string | null {
+    if (!key) return null
+    return t(`validation.${key}`)
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <PixelCard>
-        <div className="font-pixel text-[9px] text-text-dim mb-3">FILESYSTEM PERMISSIONS</div>
+        <div className="font-pixel text-[9px] text-text-dim mb-3">{t('filesystem.sectionTitle')}</div>
         <div className="flex flex-col gap-4">
           <PathListEditor
-            label="ALLOW WRITE"
+            label={t('filesystem.allowWrite')}
             items={config.allowWrite}
             onChange={items => onUpdate({ allowWrite: items })}
-            placeholder="e.g., /Users/name/workspace"
-            helperText="Paths where agents can write files. Default: project workspace directory."
+            placeholder={t('filesystem.allowWritePlaceholder')}
+            helperText={t('filesystem.allowWriteHelper')}
           />
           <PathListEditor
-            label="DENY READ"
+            label={t('filesystem.denyRead')}
             items={config.denyRead}
             onChange={items => onUpdate({ denyRead: items })}
-            placeholder="e.g., ~/.ssh, .env"
-            helperText="Sensitive files/folders to block from reading."
+            placeholder={t('filesystem.denyReadPlaceholder')}
+            helperText={t('filesystem.denyReadHelper')}
           />
           <PathListEditor
-            label="DENY WRITE"
+            label={t('filesystem.denyWrite')}
             items={config.denyWrite}
             onChange={items => onUpdate({ denyWrite: items })}
-            placeholder="e.g., /etc, /usr"
-            helperText="Paths where writing is blocked. Takes precedence over allow write."
+            placeholder={t('filesystem.denyWritePlaceholder')}
+            helperText={t('filesystem.denyWriteHelper')}
           />
         </div>
       </PixelCard>
 
       <PixelCard>
-        <div className="font-pixel text-[9px] text-text-dim mb-3">NETWORK RESTRICTIONS</div>
+        <div className="font-pixel text-[9px] text-text-dim mb-3">{t('network.sectionTitle')}</div>
         <div className="flex items-center gap-2">
           <PixelToggle
             checked={config.networkRestrictionsEnabled}
             onChange={checked => onUpdate({ networkRestrictionsEnabled: checked })}
-            label="Enable"
+            label={t('network.enableLabel')}
           />
           <span className="font-mono text-[11px] text-text-dim">
             {config.networkRestrictionsEnabled
-              ? 'Only configured domains are accessible'
-              : 'All network traffic is allowed'}
+              ? t('network.statusEnabled')
+              : t('network.statusDisabled')}
           </span>
         </div>
 
         {config.networkRestrictionsEnabled && (
           <div className="flex flex-col gap-4 mt-4">
             <PathListEditor
-              label="ALLOWED DOMAINS"
+              label={t('network.allowedDomains')}
               items={config.allowedDomains}
               onChange={items => onUpdate({ allowedDomains: items })}
-              placeholder="e.g., api.github.com"
-              helperText="Domains agents can access. Exact: example.com — Wildcard: *.example.com (2+ parts after *.)"
-              validateItem={validateDomainPattern}
+              placeholder={t('network.allowedDomainsPlaceholder')}
+              helperText={t('network.allowedDomainsHelper')}
+              validateItem={v => translateValidation(validateDomainPattern(v))}
             />
             <PathListEditor
-              label="DENIED DOMAINS"
+              label={t('network.deniedDomains')}
               items={config.deniedDomains}
               onChange={items => onUpdate({ deniedDomains: items })}
-              placeholder="e.g., malicious-site.com"
-              helperText="Domains to block. Same format as allowed domains."
-              validateItem={validateDomainPattern}
+              placeholder={t('network.deniedDomainsPlaceholder')}
+              helperText={t('network.deniedDomainsHelper')}
+              validateItem={v => translateValidation(validateDomainPattern(v))}
             />
           </div>
         )}
       </PixelCard>
 
       <PixelCard>
-        <div className="font-pixel text-[9px] text-text-dim mb-3">COMMAND RESTRICTIONS</div>
+        <div className="font-pixel text-[9px] text-text-dim mb-3">{t('commands.sectionTitle')}</div>
         <PathListEditor
-          label="DENIED COMMANDS"
+          label={t('commands.deniedCommands')}
           items={config.deniedCommands}
           onChange={items => onUpdate({ deniedCommands: items })}
-          placeholder="e.g., python, python3, pip"
-          helperText="Commands to block from execution."
+          placeholder={t('commands.deniedCommandsPlaceholder')}
+          helperText={t('commands.deniedCommandsHelper')}
         />
       </PixelCard>
 
@@ -620,16 +629,16 @@ function SandboxConfigEditor({
           <PixelToggle
             checked={config.applyToMCP}
             onChange={checked => onUpdate({ applyToMCP: checked })}
-            label="Apply to MCP"
+            label={t('mcp.applyLabel')}
           />
           {!config.applyToMCP && (
             <span className="font-mono text-[11px] text-accent-amber">
-              ({'\u26A0'} Disabling this may allow third-party MCP servers to access or modify files on your computer)
+              {t('mcp.warning')}
             </span>
           )}
         </div>
         <p className="mt-2 font-mono text-[11px] text-text-dim">
-          When enabled, MCP server commands will be wrapped with sandbox runtime (srt). This applies the same filesystem, network, and command restrictions to MCP servers.
+          {t('mcp.description')}
         </p>
       </PixelCard>
     </div>
@@ -644,25 +653,27 @@ function WindowsLimitedView({
   config: PermissionsConfig
   onUpdate: (partial: Partial<PermissionsConfig>) => void
 }) {
+  const { t } = useTranslation('permissions')
+
   return (
     <div className="flex flex-col gap-4">
       <PixelCard variant="outlined" className="border-accent-amber">
         <div className="font-pixel text-[10px] text-accent-amber mb-2">
-          {'\u26A0'} WINDOWS NOTICE
+          {t('windows.notice')}
         </div>
         <p className="font-mono text-[11px] text-text-secondary">
-          Sandbox runtime is not available on Windows. Only command blocking is supported.
+          {t('windows.message')}
         </p>
       </PixelCard>
 
       <PixelCard>
-        <div className="font-pixel text-[9px] text-text-dim mb-3">COMMAND RESTRICTIONS</div>
+        <div className="font-pixel text-[9px] text-text-dim mb-3">{t('commands.sectionTitle')}</div>
         <PathListEditor
-          label="DENIED COMMANDS"
+          label={t('commands.deniedCommands')}
           items={config.deniedCommands}
           onChange={items => onUpdate({ deniedCommands: items })}
-          placeholder="e.g., python, python3, pip"
-          helperText="Commands to block from execution."
+          placeholder={t('commands.deniedCommandsPlaceholder')}
+          helperText={t('commands.deniedCommandsHelper')}
         />
       </PixelCard>
     </div>

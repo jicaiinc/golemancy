@@ -80,7 +80,7 @@ export function createWorkspaceRoutes() {
   app.get('/file', async (c) => {
     const projectId = c.req.param('projectId') as string
     const filePath = c.req.query('path')
-    if (!filePath) return c.json({ error: 'path query param required' }, 400)
+    if (!filePath) return c.json({ error: 'PATH_REQUIRED' }, 400)
 
     const wsRoot = getWorkspacePath(projectId)
     const fullPath = validateFilePath(wsRoot, filePath)
@@ -89,7 +89,7 @@ export function createWorkspaceRoutes() {
 
     try {
       const stat = await fs.stat(fullPath)
-      if (!stat.isFile()) return c.json({ error: 'Not a file' }, 400)
+      if (!stat.isFile()) return c.json({ error: 'NOT_A_FILE' }, 400)
 
       const filename = path.basename(filePath)
       const ext = filename.split('.').pop()?.toLowerCase() ?? ''
@@ -147,7 +147,7 @@ export function createWorkspaceRoutes() {
       return c.json({ ...base, content: null } satisfies FilePreviewData)
 
     } catch (e) {
-      if (isNodeError(e) && e.code === 'ENOENT') return c.json({ error: 'File not found' }, 404)
+      if (isNodeError(e) && e.code === 'ENOENT') return c.json({ error: 'FILE_NOT_FOUND' }, 404)
       throw e
     }
   })
@@ -157,14 +157,14 @@ export function createWorkspaceRoutes() {
   app.get('/raw', async (c) => {
     const projectId = c.req.param('projectId') as string
     const filePath = c.req.query('path')
-    if (!filePath) return c.json({ error: 'path query param required' }, 400)
+    if (!filePath) return c.json({ error: 'PATH_REQUIRED' }, 400)
 
     const wsRoot = getWorkspacePath(projectId)
     const fullPath = validateFilePath(wsRoot, filePath)
 
     try {
       const stat = await fs.stat(fullPath)
-      if (!stat.isFile()) return c.json({ error: 'Not a file' }, 400)
+      if (!stat.isFile()) return c.json({ error: 'NOT_A_FILE' }, 400)
 
       const buffer = await fs.readFile(fullPath)
       const mimeType = getMimeType(path.basename(filePath))
@@ -175,7 +175,7 @@ export function createWorkspaceRoutes() {
 
       return c.body(new Uint8Array(buffer))
     } catch (e) {
-      if (isNodeError(e) && e.code === 'ENOENT') return c.json({ error: 'File not found' }, 404)
+      if (isNodeError(e) && e.code === 'ENOENT') return c.json({ error: 'FILE_NOT_FOUND' }, 404)
       throw e
     }
   })
@@ -185,7 +185,7 @@ export function createWorkspaceRoutes() {
   app.delete('/file', async (c) => {
     const projectId = c.req.param('projectId') as string
     const filePath = c.req.query('path')
-    if (!filePath) return c.json({ error: 'path query param required' }, 400)
+    if (!filePath) return c.json({ error: 'PATH_REQUIRED' }, 400)
 
     const wsRoot = getWorkspacePath(projectId)
     const fullPath = validateFilePath(wsRoot, filePath)
@@ -198,7 +198,7 @@ export function createWorkspaceRoutes() {
         // Only delete empty directories
         const entries = await fs.readdir(fullPath)
         if (entries.length > 0) {
-          return c.json({ error: 'Directory is not empty' }, 400)
+          return c.json({ error: 'DIRECTORY_NOT_EMPTY' }, 400)
         }
         await fs.rmdir(fullPath)
       } else {
@@ -206,7 +206,7 @@ export function createWorkspaceRoutes() {
       }
       return c.json({ ok: true })
     } catch (e) {
-      if (isNodeError(e) && e.code === 'ENOENT') return c.json({ error: 'File not found' }, 404)
+      if (isNodeError(e) && e.code === 'ENOENT') return c.json({ error: 'FILE_NOT_FOUND' }, 404)
       throw e
     }
   })

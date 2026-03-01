@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP Servers",
+    "serverCount_one": "{{count}} server",
+    "serverCount_other": "{{count}} servers",
+    "newServerBtn": "+ New Server"
+  },
+  "tabs": {
+    "installed": "Installed",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "RESTRICTED",
+    "restrictedMsg": "Restricted mode: stdio MCP servers are disabled and will not be loaded",
+    "riskBadge": "WARNING",
+    "riskMsg": "Third-party MCP servers may access or modify files on your computer.",
+    "applyToMcpHint": "Enable \"Apply to MCP\" in Settings > Permissions to sandbox MCP servers.",
+    "sandboxUnavailable": "Sandbox runtime is not available on this platform."
+  },
+  "import": {
+    "invalidFormat": "Invalid format: expected { mcpServers: { ... } }",
+    "noServers": "No servers found in config file",
+    "importedCount_one": "Imported {{count}} MCP server",
+    "importedCount_other": "Imported {{count}} MCP servers",
+    "parseError": "Failed to parse config file"
+  },
+  "server": {
+    "testing": "Testing...",
+    "testOk_one": "OK ({{count}} tool)",
+    "testOk_other": "OK ({{count}} tools)",
+    "connectionFailed": "Connection failed",
+    "testFailed": "Test failed",
+    "blockedRestricted": "Blocked by restricted mode — stdio servers are not loaded at runtime",
+    "usedByAgents_one": "Used by {{count}} agent",
+    "usedByAgents_other": "Used by {{count}} agents",
+    "deleteErrorInUse_one": "MCP server \"{{name}}\" is used by {{count}} agent. Remove references first.",
+    "deleteErrorInUse_other": "MCP server \"{{name}}\" is used by {{count}} agents. Remove references first.",
+    "deleteError": "Failed to delete MCP server",
+    "testBtn": "Test"
+  },
+  "empty": {
+    "title": "No MCP servers configured",
+    "addFirstBtn": "Add Your First Server"
+  },
+  "loading": "Loading MCP servers...",
+  "comingSoon": "Coming Soon",
+  "form": {
+    "newTitle": "New MCP Server",
+    "editTitle": "Edit MCP Server",
+    "nameLabel": "NAME",
+    "descriptionLabel": "DESCRIPTION",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "COMMAND",
+    "argsLabel": "ARGS (space-separated)",
+    "envLabel": "ENV (KEY=VALUE per line)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Key: Value per line)"
+  }
+}

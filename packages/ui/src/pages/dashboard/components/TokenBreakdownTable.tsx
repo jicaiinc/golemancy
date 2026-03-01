@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { PixelCard } from '../../../components'
 import { formatTokens } from '../utils'
 
@@ -18,10 +19,12 @@ interface TokenBreakdownTableProps {
 }
 
 export function TokenBreakdownTable({ title, data, onRowClick, inline }: TokenBreakdownTableProps) {
+  const { t } = useTranslation(['dashboard', 'common'])
+
   if (data.length === 0) {
     const empty = (
       <div className="py-6 text-center">
-        <p className="font-pixel text-[9px] text-text-dim">No data</p>
+        <p className="font-pixel text-[9px] text-text-dim">{t('common:empty.noData')}</p>
       </div>
     )
     return inline ? empty : <PixelCard variant="default">{empty}</PixelCard>
@@ -34,12 +37,12 @@ export function TokenBreakdownTable({ title, data, onRowClick, inline }: TokenBr
       {!inline && <h3 className="font-pixel text-[10px] text-text-secondary mb-3">{title}</h3>}
       {/* Header */}
       <div className="grid grid-cols-[1fr_5rem_5rem_5rem_4rem_8rem] gap-2 px-2 py-1 border-b-2 border-border-dim">
-        <span className="text-[9px] text-text-dim font-mono">Name</span>
-        <span className="text-[9px] text-text-dim font-mono text-right">Total</span>
-        <span className="text-[9px] text-text-dim font-mono text-right">Input</span>
-        <span className="text-[9px] text-text-dim font-mono text-right">Output</span>
-        <span className="text-[9px] text-text-dim font-mono text-right">Calls</span>
-        <span className="text-[9px] text-text-dim font-mono">Ratio</span>
+        <span className="text-[9px] text-text-dim font-mono">{t('table.colName')}</span>
+        <span className="text-[9px] text-text-dim font-mono text-right">{t('table.colTotal')}</span>
+        <span className="text-[9px] text-text-dim font-mono text-right">{t('table.colInput')}</span>
+        <span className="text-[9px] text-text-dim font-mono text-right">{t('table.colOutput')}</span>
+        <span className="text-[9px] text-text-dim font-mono text-right">{t('table.colCalls')}</span>
+        <span className="text-[9px] text-text-dim font-mono">{t('table.colRatio')}</span>
       </div>
       {/* Rows */}
       <div className="max-h-64 overflow-y-auto">

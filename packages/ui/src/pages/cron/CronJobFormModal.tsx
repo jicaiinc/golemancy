@@ -1,22 +1,15 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import cronstrue from 'cronstrue'
 import type { AgentId, CronJob } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelInput, PixelTextArea, PixelButton, PixelToggle } from '../../components'
 
-const PRESETS = [
-  { label: 'Every 5 min', value: '*/5 * * * *' },
-  { label: 'Every hour', value: '0 * * * *' },
-  { label: 'Every 12h', value: '0 */12 * * *' },
-  { label: 'Daily 9am', value: '0 9 * * *' },
-  { label: 'Weekly Mon', value: '0 9 * * 1' },
-]
-
-function tryParseCron(expr: string): string {
+function tryParseCron(expr: string, invalidLabel: string): string {
   try {
     return cronstrue.toString(expr)
   } catch {
-    return 'Invalid expression'
+    return invalidLabel
   }
 }
 
@@ -42,6 +35,7 @@ interface CronJobFormModalProps {
 }
 
 export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalProps) {
+  const { t } = useTranslation(['cron', 'common'])
   const agents = useAppStore(s => s.agents)
   const createCronJob = useAppStore(s => s.createCronJob)
   const updateCronJob = useAppStore(s => s.updateCronJob)
@@ -56,6 +50,14 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
   const [saving, setSaving] = useState(false)
 
   const isEdit = !!editJob
+
+  const presets = [
+    { label: t('cron:form.presets.every5min'), value: '*/5 * * * *' },
+    { label: t('cron:form.presets.everyHour'), value: '0 * * * *' },
+    { label: t('cron:form.presets.every12h'), value: '0 */12 * * *' },
+    { label: t('cron:form.presets.daily9am'), value: '0 9 * * *' },
+    { label: t('cron:form.presets.weeklyMon'), value: '0 9 * * 1' },
+  ]
 
   useEffect(() => {
     if (editJob) {
@@ -117,31 +119,31 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     <PixelModal
       open={open}
       onClose={onClose}
-      title={isEdit ? 'Edit Automation' : 'New Automation'}
+      title={isEdit ? t('cron:form.editTitle') : t('cron:form.newTitle')}
       footer={
         <>
-          <PixelButton variant="ghost" onClick={onClose}>Cancel</PixelButton>
+          <PixelButton variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
           <PixelButton
             variant="primary"
             onClick={handleSubmit}
             disabled={saving || !isValid}
           >
-            {saving ? 'Saving...' : isEdit ? 'Save' : 'Create'}
+            {saving ? t('common:button.saving') : isEdit ? t('common:button.save') : t('common:button.create')}
           </PixelButton>
         </>
       }
     >
       <div className="flex flex-col gap-4">
         <PixelInput
-          label="NAME"
+          label={t('cron:form.nameLabel')}
           value={name}
           onChange={e => setName(e.target.value)}
-          placeholder="Daily code review"
+          placeholder={t('cron:form.namePlaceholder')}
         />
 
         {/* Schedule Type Toggle */}
         <div className="flex flex-col gap-1">
-          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">TYPE</label>
+          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('cron:form.typeLabel')}</label>
           <div className="flex gap-2">
             <button
               onClick={() => setScheduleType('cron')}
@@ -151,7 +153,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
                   : 'bg-deep border-border-dim text-text-secondary hover:border-border-bright'
               }`}
             >
-              Recurring
+              {t('cron:form.recurring')}
             </button>
             <button
               onClick={() => setScheduleType('once')}
@@ -161,7 +163,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
                   : 'bg-deep border-border-dim text-text-secondary hover:border-border-bright'
               }`}
             >
-              One-time
+              {t('cron:form.oneTime')}
             </button>
           </div>
         </div>
@@ -169,17 +171,17 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
         {scheduleType === 'cron' ? (
           <div className="flex flex-col gap-1">
             <PixelInput
-              label="CRON EXPRESSION"
+              label={t('cron:form.cronLabel')}
               value={cronExpression}
               onChange={e => setCronExpression(e.target.value)}
               placeholder="0 * * * *"
             />
             <span className="text-[10px] text-text-dim font-mono">minute hour day month weekday</span>
-            <span className={`text-[10px] font-mono ${tryParseCron(cronExpression) !== 'Invalid expression' ? 'text-accent-green' : 'text-accent-red'}`}>
-              {tryParseCron(cronExpression)}
+            <span className={`text-[10px] font-mono ${tryParseCron(cronExpression, t('cron:form.invalidExpression')) !== t('cron:form.invalidExpression') ? 'text-accent-green' : 'text-accent-red'}`}>
+              {tryParseCron(cronExpression, t('cron:form.invalidExpression'))}
             </span>
             <div className="flex gap-2 mt-1">
-              {PRESETS.map(p => (
+              {presets.map(p => (
                 <button
                   key={p.value}
                   onClick={() => setCronExpression(p.value)}
@@ -196,7 +198,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">SCHEDULED AT (local time)</label>
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('cron:form.scheduledAtLabel')}</label>
             <input
               type="datetime-local"
               value={scheduledAtLocal}
@@ -207,13 +209,13 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
         )}
 
         <div className="flex flex-col gap-1">
-          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">AGENT</label>
+          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('cron:form.agentLabel')}</label>
           <select
             value={agentId}
             onChange={e => setAgentId(e.target.value as AgentId)}
             className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
           >
-            <option value="">Select an agent</option>
+            <option value="">{t('cron:form.agentPlaceholder')}</option>
             {agents.map(a => (
               <option key={a.id} value={a.id}>{a.name}</option>
             ))}
@@ -221,14 +223,14 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
         </div>
 
         <PixelTextArea
-          label="INSTRUCTION (optional)"
+          label={t('cron:form.instructionLabel')}
           value={instruction}
           onChange={e => setInstruction(e.target.value)}
           rows={3}
-          placeholder="Instructions to send to the agent when triggered"
+          placeholder={t('cron:form.instructionPlaceholder')}
         />
 
-        <PixelToggle checked={enabled} onChange={setEnabled} label="Enabled" />
+        <PixelToggle checked={enabled} onChange={setEnabled} label={t('cron:form.enabledLabel')} />
       </div>
     </PixelModal>
   )

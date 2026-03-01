@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { PermissionMode, ConversationTask, ConversationTokenUsageResult } from '@golemancy/shared'
 
-const MODE_STYLES: Record<PermissionMode, { label: string; className: string }> = {
-  restricted: { label: 'Restricted', className: 'text-accent-amber' },
-  sandbox: { label: 'Sandbox', className: 'text-accent-green' },
-  unrestricted: { label: 'Unrestricted', className: 'text-accent-red' },
+const MODE_CLASS: Record<PermissionMode, string> = {
+  restricted: 'text-accent-amber',
+  sandbox: 'text-accent-green',
+  unrestricted: 'text-accent-red',
 }
 
 interface StatusBarProps {
@@ -31,7 +32,10 @@ function formatTokenCount(n: number): string {
 }
 
 export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdown, taskSummary, taskList, contextTokens, compactThreshold, onCompactNow, compacting, compactSource, onCancelCompact, chatBusy }: StatusBarProps) {
-  const modeStyle = permissionMode ? MODE_STYLES[permissionMode] : null
+  const { t } = useTranslation(['nav', 'common'])
+  const modeClass = permissionMode ? MODE_CLASS[permissionMode] : null
+  const getModeLabel = (mode: PermissionMode) => t(`nav:statusBar.mode.${mode}`)
+
   const [showTaskPopover, setShowTaskPopover] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
   const [showTokenPopover, setShowTokenPopover] = useState(false)
@@ -82,12 +86,12 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
     <footer className="h-6 shrink-0 flex items-center justify-between px-4 bg-deep border-t-2 border-border-dim relative">
       {/* Left: permission mode */}
       <span className="font-mono text-[11px]">
-        {modeStyle ? (
+        {modeClass ? (
           <>
-            <span className={modeStyle.className}>{modeStyle.label}</span>
+            <span className={modeClass}>{getModeLabel(permissionMode!)}</span>
             {actualMode && actualMode !== permissionMode && (
               <span className="text-accent-amber text-[10px] ml-1">
-                (degraded → {MODE_STYLES[actualMode].label})
+                {t('nav:statusBar.degraded', { mode: getModeLabel(actualMode) })}
               </span>
             )}
           </>
@@ -105,7 +109,7 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
               data-testid="task-summary-btn"
               onClick={() => setShowTaskPopover(v => !v)}
             >
-              Tasks {taskSummary.completed}/{taskSummary.total}
+              {t('nav:statusBar.tasks', { completed: taskSummary.completed, total: taskSummary.total })}
             </button>
             <AnimatePresence>
               {showTaskPopover && taskList && (
@@ -118,18 +122,18 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
                   data-testid="task-popover"
                 >
                   <div className="px-3 py-2 border-b-2 border-border-dim">
-                    <span className="font-pixel text-[9px] text-text-dim">CONVERSATION TASKS</span>
+                    <span className="font-pixel text-[9px] text-text-dim">{t('nav:statusBar.conversationTasks')}</span>
                   </div>
                   <div className="max-h-96 overflow-y-auto">
-                    {taskList.filter(t => t.status !== 'deleted').map(t => (
-                      <div key={t.id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-deep/50">
+                    {taskList.filter(item => item.status !== 'deleted').map(task => (
+                      <div key={task.id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-deep/50">
                         <span className="text-[12px] font-mono">
-                          {t.status === 'completed' ? '\u2611' : t.status === 'in_progress' ? '\u25B6' : '\u2610'}
+                          {task.status === 'completed' ? '\u2611' : task.status === 'in_progress' ? '\u25B6' : '\u2610'}
                         </span>
                         <span className={`text-[11px] font-mono flex-1 truncate ${
-                          t.status === 'completed' ? 'text-text-dim line-through' : 'text-text-primary'
+                          task.status === 'completed' ? 'text-text-dim line-through' : 'text-text-primary'
                         }`}>
-                          {t.subject}
+                          {task.subject}
                         </span>
                       </div>
                     ))}
@@ -147,8 +151,12 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
               onClick={() => setShowContextPopover(v => !v)}
             >
               {contextTokens != null
-                ? `Context: ${formatTokenCount(contextTokens)} / ${formatTokenCount(compactThreshold)} (${contextPercent}%)`
-                : `Context: -- / ${formatTokenCount(compactThreshold)}`}
+                ? t('nav:statusBar.contextUsage', {
+                    used: formatTokenCount(contextTokens),
+                    max: formatTokenCount(compactThreshold),
+                    percent: contextPercent,
+                  })
+                : t('nav:statusBar.contextEmpty', { max: formatTokenCount(compactThreshold) })}
             </button>
             <AnimatePresence>
               {showContextPopover && (
@@ -161,12 +169,12 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
                   data-testid="context-popover"
                 >
                   <div className="px-3 py-2 border-b-2 border-border-dim">
-                    <span className="font-pixel text-[9px] text-text-dim">CONTEXT WINDOW</span>
+                    <span className="font-pixel text-[9px] text-text-dim">{t('nav:statusBar.contextWindow')}</span>
                   </div>
                   <div className="px-3 py-3 space-y-3">
                     <div className="space-y-1">
                       <div className="flex justify-between text-[11px] font-mono">
-                        <span className="text-text-dim">Usage</span>
+                        <span className="text-text-dim">{t('nav:statusBar.usage')}</span>
                         <span className={contextColorClass}>
                           {contextTokens != null ? `${formatTokenCount(contextTokens)} / ${formatTokenCount(compactThreshold)}` : '--'}
                         </span>
@@ -192,7 +200,7 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
                         <div className="w-full flex items-center justify-center gap-2 h-7 px-3 bg-accent-purple/10 border-2 border-accent-purple/40">
                           <span className="inline-block w-2 h-2 bg-accent-purple animate-pulse" />
                           <span className="font-mono text-[11px] text-accent-purple">
-                            Compacting{compactSource === 'auto' ? ' (auto)' : ''}
+                            {compactSource === 'auto' ? t('nav:statusBar.compactingAuto') : t('nav:statusBar.compacting')}
                           </span>
                         </div>
                         {compactSource === 'manual' && (
@@ -200,7 +208,7 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
                             className="w-full inline-flex items-center justify-center font-mono cursor-pointer transition-transform bg-elevated text-text-secondary border-2 border-border-dim shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)] hover:brightness-110 hover:text-accent-red active:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] active:translate-y-[2px] h-7 px-3 text-[11px]"
                             onClick={onCancelCompact}
                           >
-                            Cancel
+                            {t('common:button.cancel')}
                           </button>
                         )}
                       </div>
@@ -219,7 +227,7 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
                           }
                         }}
                       >
-                        Compact Now
+                        {t('nav:statusBar.compactNow')}
                       </button>
                     )}
                   </div>
@@ -234,8 +242,11 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
             onClick={() => setShowTokenPopover(v => !v)}
           >
             {tokenUsage
-              ? `Tokens: ${formatTokenCount(tokenUsage.inputTokens)} in / ${formatTokenCount(tokenUsage.outputTokens)} out`
-              : 'Tokens: --'}
+              ? t('nav:statusBar.tokens', {
+                  input: formatTokenCount(tokenUsage.inputTokens),
+                  output: formatTokenCount(tokenUsage.outputTokens),
+                })
+              : t('nav:statusBar.tokensEmpty')}
           </button>
           <AnimatePresence>
             {showTokenPopover && tokenBreakdown && (
@@ -248,37 +259,43 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
               >
                 {/* BY AGENT section */}
                 <div className="px-3 py-2 border-b-2 border-border-dim">
-                  <span className="font-pixel text-[9px] text-text-dim">BY AGENT</span>
+                  <span className="font-pixel text-[9px] text-text-dim">{t('nav:statusBar.byAgent')}</span>
                 </div>
                 <div className="max-h-48 overflow-y-auto">
                   {tokenBreakdown.byAgent.map(a => (
                     <div key={a.agentId} className="flex items-center justify-between px-3 py-1.5 hover:bg-deep/50">
                       <span className="text-[11px] font-mono text-text-primary truncate flex-1">{a.name}</span>
                       <span className="text-[11px] font-mono text-text-dim ml-2">
-                        {formatTokenCount(a.inputTokens)} in / {formatTokenCount(a.outputTokens)} out
+                        {t('nav:statusBar.tokensInOut', {
+                          input: formatTokenCount(a.inputTokens),
+                          output: formatTokenCount(a.outputTokens),
+                        })}
                       </span>
                     </div>
                   ))}
                   {tokenBreakdown.byAgent.length === 0 && (
-                    <div className="px-3 py-2 text-[11px] font-mono text-text-dim">No data</div>
+                    <div className="px-3 py-2 text-[11px] font-mono text-text-dim">{t('common:empty.noData')}</div>
                   )}
                 </div>
 
                 {/* BY MODEL section */}
                 <div className="px-3 py-2 border-b-2 border-border-dim border-t-2">
-                  <span className="font-pixel text-[9px] text-text-dim">BY MODEL</span>
+                  <span className="font-pixel text-[9px] text-text-dim">{t('nav:statusBar.byModel')}</span>
                 </div>
                 <div className="max-h-48 overflow-y-auto">
                   {tokenBreakdown.byModel.map(m => (
                     <div key={`${m.provider}/${m.model}`} className="flex items-center justify-between px-3 py-1.5 hover:bg-deep/50">
                       <span className="text-[11px] font-mono text-accent-cyan truncate flex-1">{m.provider}/{m.model}</span>
                       <span className="text-[11px] font-mono text-text-dim ml-2">
-                        {formatTokenCount(m.inputTokens)} in / {formatTokenCount(m.outputTokens)} out
+                        {t('nav:statusBar.tokensInOut', {
+                          input: formatTokenCount(m.inputTokens),
+                          output: formatTokenCount(m.outputTokens),
+                        })}
                       </span>
                     </div>
                   ))}
                   {tokenBreakdown.byModel.length === 0 && (
-                    <div className="px-3 py-2 text-[11px] font-mono text-text-dim">No data</div>
+                    <div className="px-3 py-2 text-[11px] font-mono text-text-dim">{t('common:empty.noData')}</div>
                   )}
                 </div>
               </motion.div>

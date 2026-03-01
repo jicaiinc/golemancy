@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
 import type { SubAgentStreamState, SubAgentToolCallState } from '@golemancy/shared'
 
@@ -24,6 +25,8 @@ interface ToolCallDisplayProps {
 }
 
 const DELEGATE_PREFIX = 'delegate_to_'
+
+type TFn = (key: string, options?: Record<string, unknown>) => string
 
 function formatTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
@@ -54,21 +57,21 @@ function useToolDisplayName(toolName: string): string {
   return agent ? agent.name : toolName
 }
 
-function getStatusLabel(state: string): { text: string; color: string } {
+function getStatusLabel(state: string, t: TFn): { text: string; color: string } {
   switch (state) {
     case 'input-streaming':
     case 'input-available':
-      return { text: 'Running...', color: 'text-accent-amber' }
+      return { text: t('tool.running'), color: 'text-accent-amber' }
     case 'approval-requested':
-      return { text: 'Awaiting approval', color: 'text-accent-amber' }
+      return { text: t('tool.awaitingApproval'), color: 'text-accent-amber' }
     case 'approval-responded':
-      return { text: 'Approved', color: 'text-accent-blue' }
+      return { text: t('tool.approved'), color: 'text-accent-blue' }
     case 'output-available':
-      return { text: 'Done', color: 'text-accent-green' }
+      return { text: t('tool.done'), color: 'text-accent-green' }
     case 'output-error':
-      return { text: 'Error', color: 'text-accent-red' }
+      return { text: t('common:status.error'), color: 'text-accent-red' }
     case 'output-denied':
-      return { text: 'Denied', color: 'text-accent-red' }
+      return { text: t('tool.denied'), color: 'text-accent-red' }
     default:
       return { text: state, color: 'text-text-dim' }
   }
@@ -99,6 +102,7 @@ interface SubAgentDisplayProps {
 }
 
 function SubAgentToolItem({ tc, chatStatus }: { tc: SubAgentToolCallState; chatStatus?: string }) {
+  const { t } = useTranslation(['chat', 'common'])
   const [expanded, setExpanded] = useState(false)
   const isRunning = tc.state === 'running' && !isChatDone(chatStatus)
 
@@ -123,7 +127,7 @@ function SubAgentToolItem({ tc, chatStatus }: { tc: SubAgentToolCallState; chatS
           <span className="inline-block w-[5px] h-[5px] bg-accent-amber animate-[pixel-blink_1s_steps(2)_infinite]" />
         )}
         <span className={`ml-auto text-[10px] font-mono ${isRunning ? 'text-accent-amber' : tc.state === 'error' ? 'text-accent-red' : 'text-accent-green'}`}>
-          {isRunning ? 'Running...' : tc.state === 'error' ? 'Error' : 'Done'}
+          {isRunning ? t('tool.running') : tc.state === 'error' ? t('common:status.error') : t('tool.done')}
         </span>
       </button>
       <AnimatePresence>
@@ -138,7 +142,7 @@ function SubAgentToolItem({ tc, chatStatus }: { tc: SubAgentToolCallState; chatS
             <div className="px-2 pb-2 border-t-2 border-border-dim">
               {tc.input !== undefined && (
                 <div className="mt-1">
-                  <span className="text-[9px] font-pixel text-text-dim">INPUT</span>
+                  <span className="text-[9px] font-pixel text-text-dim">{t('tool.input')}</span>
                   <pre className="mt-0.5 text-[10px] font-mono text-text-secondary bg-void p-1.5 overflow-x-auto">
                     {typeof tc.input === 'string' ? tc.input : JSON.stringify(tc.input, null, 2)}
                   </pre>
@@ -146,7 +150,7 @@ function SubAgentToolItem({ tc, chatStatus }: { tc: SubAgentToolCallState; chatS
               )}
               {tc.output !== undefined && (
                 <div className="mt-1">
-                  <span className="text-[9px] font-pixel text-text-dim">OUTPUT</span>
+                  <span className="text-[9px] font-pixel text-text-dim">{t('tool.output')}</span>
                   <pre className="mt-0.5 text-[10px] font-mono text-text-secondary bg-void p-1.5 overflow-x-auto">
                     {typeof tc.output === 'string' ? tc.output : JSON.stringify(tc.output, null, 2)}
                   </pre>
@@ -161,6 +165,7 @@ function SubAgentToolItem({ tc, chatStatus }: { tc: SubAgentToolCallState; chatS
 }
 
 function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProps) {
+  const { t } = useTranslation('chat')
   const isRunning = state.status === 'running' && !isChatDone(chatStatus)
   const [expanded, setExpanded] = useState(isRunning)
 
@@ -190,12 +195,14 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
         )}
         {toolCount > 0 && (
           <span className="text-[10px] font-mono text-text-dim">
-            [{runningTools > 0 ? `${runningTools}/${toolCount} tools` : `${toolCount} tools`}]
+            {runningTools > 0
+              ? t('tool.toolCountRunning', { running: runningTools, total: toolCount })
+              : t('tool.toolCountDone', { total: toolCount })}
           </span>
         )}
         {usage && <UsageBadge usage={usage} />}
         <span className={`ml-auto text-[11px] font-mono ${isRunning ? 'text-accent-cyan' : 'text-accent-green'}`}>
-          {isRunning ? 'Running...' : 'Done'}
+          {isRunning ? t('tool.running') : t('tool.done')}
         </span>
       </button>
 
@@ -213,7 +220,7 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
               {/* Task */}
               {task && (
                 <div className="mt-2">
-                  <span className="text-[10px] font-pixel text-text-dim">TASK</span>
+                  <span className="text-[10px] font-pixel text-text-dim">{t('tool.task')}</span>
                   <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto whitespace-pre-wrap">
                     {task}
                   </pre>
@@ -223,7 +230,7 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
               {/* Tool calls */}
               {state.toolCalls.length > 0 && (
                 <div className="mt-2 space-y-1">
-                  <span className="text-[10px] font-pixel text-text-dim">TOOLS</span>
+                  <span className="text-[10px] font-pixel text-text-dim">{t('tool.tools')}</span>
                   {state.toolCalls.map(tc => (
                     <SubAgentToolItem key={tc.id} tc={tc} chatStatus={chatStatus} />
                   ))}
@@ -233,7 +240,7 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
               {/* Output text */}
               {state.text && (
                 <div className="mt-2">
-                  <span className="text-[10px] font-pixel text-text-dim">OUTPUT</span>
+                  <span className="text-[10px] font-pixel text-text-dim">{t('tool.output')}</span>
                   <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto whitespace-pre-wrap">
                     {state.text}
                   </pre>
@@ -252,20 +259,21 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
 const TASK_TOOL_NAMES = new Set(['TaskCreate', 'TaskGet', 'TaskList', 'TaskUpdate'])
 
 function TaskToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallDisplayProps) {
+  const { t } = useTranslation('chat')
   const [expanded, setExpanded] = useState(false)
   const chatDone = isChatDone(chatStatus)
   const rawIsRunning = toolInvocation.state === 'input-streaming' || toolInvocation.state === 'input-available'
   const isRunning = rawIsRunning && !chatDone
   const effectiveState = rawIsRunning && chatDone ? 'output-available' : toolInvocation.state
-  const status = getStatusLabel(effectiveState)
+  const status = getStatusLabel(effectiveState, t)
   const hasOutput = toolInvocation.state === 'output-available' || (rawIsRunning && chatDone)
   const output = hasOutput ? toolInvocation.output : null
 
   const toolLabel: Record<string, string> = {
-    TaskCreate: 'Create Task',
-    TaskGet: 'Get Task',
-    TaskList: 'List Tasks',
-    TaskUpdate: 'Update Task',
+    TaskCreate: t('tool.taskCreate'),
+    TaskGet: t('tool.taskGet'),
+    TaskList: t('tool.taskList'),
+    TaskUpdate: t('tool.taskUpdate'),
   }
 
   // Parse output for display
@@ -360,6 +368,7 @@ function TaskToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallDisp
 // --- Main ToolCallDisplay ---
 
 export function ToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallDisplayProps) {
+  const { t } = useTranslation(['chat', 'common'])
   const [expanded, setExpanded] = useState(false)
   const displayName = useToolDisplayName(toolInvocation.toolName)
 
@@ -367,7 +376,7 @@ export function ToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallD
   const rawIsRunning = toolInvocation.state === 'input-streaming' || toolInvocation.state === 'input-available'
   const isRunning = rawIsRunning && !chatDone
   const effectiveState = rawIsRunning && chatDone ? 'output-available' : toolInvocation.state
-  const status = getStatusLabel(effectiveState)
+  const status = getStatusLabel(effectiveState, t)
   const hasOutput = toolInvocation.state === 'output-available' || (rawIsRunning && chatDone)
   const hasError = toolInvocation.state === 'output-error'
 
@@ -425,7 +434,7 @@ export function ToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallD
               {/* Input */}
               {toolInvocation.input !== undefined && (
                 <div className="mt-2">
-                  <span className="text-[10px] font-pixel text-text-dim">INPUT</span>
+                  <span className="text-[10px] font-pixel text-text-dim">{t('tool.input')}</span>
                   <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto">
                     {JSON.stringify(toolInvocation.input, null, 2)}
                   </pre>
@@ -434,7 +443,7 @@ export function ToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallD
               {/* Output */}
               {hasOutput && toolInvocation.output !== undefined && (
                 <div className="mt-2">
-                  <span className="text-[10px] font-pixel text-text-dim">OUTPUT</span>
+                  <span className="text-[10px] font-pixel text-text-dim">{t('tool.output')}</span>
                   <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto">
                     {typeof toolInvocation.output === 'string'
                       ? toolInvocation.output
@@ -445,7 +454,7 @@ export function ToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallD
               {/* Error */}
               {hasError && toolInvocation.errorText && (
                 <div className="mt-2">
-                  <span className="text-[10px] font-pixel text-accent-red">ERROR</span>
+                  <span className="text-[10px] font-pixel text-accent-red">{t('tool.error')}</span>
                   <pre className="mt-1 text-[11px] font-mono text-accent-red bg-void p-2 overflow-x-auto">
                     {toolInvocation.errorText}
                   </pre>

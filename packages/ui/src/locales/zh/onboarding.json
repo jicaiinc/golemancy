@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "设置",
+    "skipSetup": "跳过设置"
+  },
+  "steps": {
+    "welcome": "欢迎",
+    "provider": "供应商",
+    "speech": "语音",
+    "project": "项目",
+    "complete": "完成"
+  },
+  "error": {
+    "somethingWentWrong": "出了点问题，请重试。",
+    "failedToSkip": "跳过设置失败，请重试。",
+    "connectionTestFailed": "连接测试失败",
+    "testFailed": "测试失败",
+    "unknownError": "未知错误"
+  },
+  "button": {
+    "createProject": "创建项目",
+    "getStarted": "开始使用",
+    "continue": "继续",
+    "startChatting": "开始聊天",
+    "goToDashboard": "前往仪表盘",
+    "change": "更改",
+    "testConnection": "测试连接",
+    "testing": "测试中...",
+    "reTest": "重新测试",
+    "test": "测试",
+    "hide": "隐藏",
+    "show": "显示"
+  },
+  "welcome": {
+    "tagline": "欢迎",
+    "heading": "指挥你的 AI Golem",
+    "description": "从桌面端编排自主 AI Agent。"
+  },
+  "provider": {
+    "heading": "连接 AI 供应商",
+    "description": "选择一个供应商并输入 API 密钥以开始使用。",
+    "customLabel": "自定义",
+    "customSubtitle": "任意接口",
+    "customCardTitle": "自定义供应商",
+    "labelApiKey": "API 密钥",
+    "labelBaseUrl": "基础 URL",
+    "labelName": "名称",
+    "labelSdkType": "SDK 类型",
+    "statusConnected": "已连接",
+    "statusFailed": "失败",
+    "statusConnecting": "连接中...",
+    "none": "无",
+    "defaultModel": {
+      "title": "默认模型",
+      "descriptionPreset": "选择新 Agent 默认使用的模型。",
+      "descriptionCustom": "输入默认使用的模型名称。",
+      "labelModelName": "模型名称"
+    }
+  },
+  "speech": {
+    "heading": "语音转文字",
+    "description": "启用语音输入以加快交互速度。你可以跳过此步骤，稍后再配置。",
+    "labelApiKey": "OPENAI API 密钥",
+    "labelModel": "模型",
+    "labelLanguage": "语言",
+    "statusOk": "正常",
+    "statusOkLatency": "正常 ({{ms}}ms)",
+    "statusFailed": "失败"
+  },
+  "project": {
+    "heading": "创建第一个项目",
+    "description": "项目用于组织你的 Agent、对话和工作流。",
+    "labelName": "项目名称",
+    "placeholderName": "我的超棒项目",
+    "labelDescription": "描述",
+    "placeholderDescription": "这个项目是做什么的？",
+    "labelIcon": "图标",
+    "fromTemplate": "从模板创建",
+    "comingSoon": "即将推出"
+  },
+  "complete": {
+    "heading": "设置完成！",
+    "description": "以下是你的配置摘要。",
+    "labelProvider": "供应商",
+    "labelDefaultModel": "默认模型",
+    "labelSpeechToText": "语音转文字",
+    "labelProject": "项目",
+    "sttEnabled": "已启用",
+    "sttSkipped": "已跳过",
+    "links": {
+      "settings": "设置",
+      "website": "官网"
+    }
+  }
+}

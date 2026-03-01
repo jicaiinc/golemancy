@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { TranscriptionRecord, TranscriptionId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
 import { PixelCard, PixelButton, PixelSpinner, CopyIcon, CheckIcon, CloseSmallIcon } from '../../components'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { staggerContainer, staggerItem } from '../../lib/motion'
+import i18next from 'i18next'
 
 // ---- Inline pixel-art SVG icons ----
 
@@ -53,8 +55,8 @@ function getDateGroup(dateStr: string): string {
   const today = new Date()
   const yesterday = new Date(today)
   yesterday.setDate(today.getDate() - 1)
-  if (date.toDateString() === today.toDateString()) return 'Today'
-  if (date.toDateString() === yesterday.toDateString()) return 'Yesterday'
+  if (date.toDateString() === today.toDateString()) return i18next.t('speech:dateGroup.today')
+  if (date.toDateString() === yesterday.toDateString()) return i18next.t('speech:dateGroup.yesterday')
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
@@ -93,6 +95,7 @@ interface InlineAudioPlayerProps {
 }
 
 function InlineAudioPlayer({ audioUrl, durationMs, onClose }: InlineAudioPlayerProps) {
+  const { t } = useTranslation('speech')
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -156,7 +159,7 @@ function InlineAudioPlayer({ audioUrl, durationMs, onClose }: InlineAudioPlayerP
         />
         <button
           onClick={togglePlay}
-          title={playing ? 'Pause' : 'Play'}
+          title={playing ? t('player.pause') : t('player.play')}
           className="w-8 h-8 flex items-center justify-center border-2 border-border-dim bg-deep hover:border-border-bright text-text-primary transition-colors cursor-pointer flex-shrink-0"
         >
           {playing
@@ -179,7 +182,7 @@ function InlineAudioPlayer({ audioUrl, durationMs, onClose }: InlineAudioPlayerP
         </span>
         <button
           onClick={onClose}
-          title="Close player"
+          title={t('player.close')}
           className="text-text-dim hover:text-text-primary transition-colors cursor-pointer flex-shrink-0"
         >
           <CloseSmallIcon />
@@ -198,6 +201,7 @@ interface RecordCardProps {
 }
 
 function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
+  const { t } = useTranslation('speech')
   const [showPlayer, setShowPlayer] = useState(false)
   const [copied, setCopied] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -255,10 +259,10 @@ function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
               <span className="text-text-primary">"{record.text}"</span>
             )}
             {record.status === 'failed' && (
-              <span className="text-accent-red">Transcription failed: {record.error}</span>
+              <span className="text-accent-red">{t('record.transcriptionFailed', { error: record.error })}</span>
             )}
             {record.status === 'pending' && (
-              <span className="text-accent-amber">Transcribing...</span>
+              <span className="text-accent-amber">{t('history.transcribing')}</span>
             )}
           </span>
         </div>
@@ -276,7 +280,7 @@ function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
             {/* Play / stop player toggle */}
             <button
               onClick={() => setShowPlayer(v => !v)}
-              title={showPlayer ? 'Close player' : 'Play audio'}
+              title={showPlayer ? t('player.pause') : t('player.play')}
               className="w-6 h-6 flex items-center justify-center text-text-dim hover:text-text-primary transition-colors cursor-pointer"
             >
               {showPlayer ? <PauseIcon /> : <PlayIcon />}
@@ -285,7 +289,7 @@ function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
             {record.status === 'success' && record.text && (
               <button
                 onClick={handleCopy}
-                title="Copy transcribed text"
+                title={t('actions.copy')}
                 className="w-6 h-6 flex items-center justify-center transition-colors cursor-pointer"
               >
                 {copied
@@ -299,7 +303,7 @@ function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
               <button
                 onClick={handleRetry}
                 disabled={retrying}
-                title="Retry transcription"
+                title={t('actions.retry')}
                 className="w-6 h-6 flex items-center justify-center text-text-dim hover:text-accent-amber transition-colors cursor-pointer disabled:opacity-50"
               >
                 {retrying
@@ -311,7 +315,7 @@ function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
             {/* Delete */}
             <button
               onClick={() => setConfirmDelete(true)}
-              title="Delete record"
+              title={t('actions.delete')}
               className="w-6 h-6 flex items-center justify-center text-text-dim hover:text-accent-red transition-colors cursor-pointer"
             >
               <TrashIcon />
@@ -330,14 +334,14 @@ function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
               className="overflow-hidden"
             >
               <div className="mt-2 p-2 bg-accent-red/10 border-2 border-accent-red/30 flex items-center gap-3">
-                <span className="text-[11px] text-accent-red flex-1">Delete this record and its audio file?</span>
+                <span className="text-[11px] text-accent-red flex-1">{t('record.deleteConfirm')}</span>
                 <PixelButton
                   size="sm"
                   variant="danger"
                   disabled={deleting}
                   onClick={handleDelete}
                 >
-                  {deleting ? '...' : 'Confirm'}
+                  {deleting ? '...' : t('common:button.confirm')}
                 </PixelButton>
                 <PixelButton
                   size="sm"
@@ -345,7 +349,7 @@ function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
                   disabled={deleting}
                   onClick={() => setConfirmDelete(false)}
                 >
-                  Cancel
+                  {t('common:button.cancel')}
                 </PixelButton>
               </div>
             </motion.div>
@@ -370,6 +374,7 @@ function RecordCard({ record, onRetry, onDelete }: RecordCardProps) {
 // ---- Main Page ----
 
 export function TranscriptionHistoryPage() {
+  const { t } = useTranslation(['speech', 'common'])
   const navigate = useNavigate()
   const speechHistory = useAppStore(s => s.speechHistory)
   const speechHistoryLoading = useAppStore(s => s.speechHistoryLoading)
@@ -415,7 +420,7 @@ export function TranscriptionHistoryPage() {
     <GlobalLayout>
       <div className="max-w-[1000px] mx-auto p-8">
         {/* Page heading */}
-        <h2 className="font-pixel text-[12px] text-text-primary mb-6">Transcription History</h2>
+        <h2 className="font-pixel text-[12px] text-text-primary mb-6">{t('speech:page.title')}</h2>
 
         {/* Storage usage header */}
         <PixelCard className="mb-6">
@@ -424,15 +429,15 @@ export function TranscriptionHistoryPage() {
             {speechStorageUsage != null ? (
               <>
                 <span className="font-mono text-[12px] text-text-primary">
-                  {speechStorageUsage.recordCount} {speechStorageUsage.recordCount === 1 ? 'record' : 'records'}
+                  {t('speech:storage.recordCount', { count: speechStorageUsage.recordCount })}
                 </span>
                 <span className="text-text-dim">•</span>
                 <span className="font-mono text-[12px] text-text-secondary">
-                  {formatBytes(speechStorageUsage.totalBytes)} used
+                  {t('speech:storage.used', { size: formatBytes(speechStorageUsage.totalBytes) })}
                 </span>
               </>
             ) : (
-              <span className="font-mono text-[12px] text-text-dim">Loading storage info...</span>
+              <span className="font-mono text-[12px] text-text-dim">{t('speech:storage.loading')}</span>
             )}
             <div className="ml-auto">
               <AnimatePresence mode="wait">
@@ -446,11 +451,13 @@ export function TranscriptionHistoryPage() {
                     className="flex items-center gap-2"
                   >
                     <span className="text-[11px] text-accent-red">
-                      Delete all {speechStorageUsage?.recordCount ?? 0} records
                       {speechStorageUsage && speechStorageUsage.totalBytes > 0
-                        ? ` and free ${formatBytes(speechStorageUsage.totalBytes)}`
-                        : ''
-                      }?
+                        ? t('speech:clearAll.confirmWithFree', {
+                            count: speechStorageUsage.recordCount ?? 0,
+                            size: formatBytes(speechStorageUsage.totalBytes),
+                          })
+                        : t('speech:clearAll.confirm', { count: speechStorageUsage?.recordCount ?? 0 })
+                      }
                     </span>
                     <PixelButton
                       size="sm"
@@ -458,7 +465,7 @@ export function TranscriptionHistoryPage() {
                       disabled={clearingAll}
                       onClick={handleClearAll}
                     >
-                      {clearingAll ? '...' : 'Confirm'}
+                      {clearingAll ? '...' : t('common:button.confirm')}
                     </PixelButton>
                     <PixelButton
                       size="sm"
@@ -466,7 +473,7 @@ export function TranscriptionHistoryPage() {
                       disabled={clearingAll}
                       onClick={() => setConfirmClearAll(false)}
                     >
-                      Cancel
+                      {t('common:button.cancel')}
                     </PixelButton>
                   </motion.div>
                 ) : (
@@ -483,7 +490,7 @@ export function TranscriptionHistoryPage() {
                       disabled={!speechHistory.length}
                       onClick={() => setConfirmClearAll(true)}
                     >
-                      Clear All
+                      {t('speech:history.clearAll')}
                     </PixelButton>
                   </motion.div>
                 )}
@@ -495,24 +502,23 @@ export function TranscriptionHistoryPage() {
         {/* Loading state */}
         {speechHistoryLoading ? (
           <div className="flex items-center justify-center py-16">
-            <PixelSpinner label="Loading history..." />
+            <PixelSpinner label={t('speech:loading')} />
           </div>
         ) : speechHistory.length === 0 ? (
           /* Empty state */
           <PixelCard variant="outlined" className="py-12">
             <div className="flex flex-col items-center text-center gap-3">
               <div className="text-[48px]">🎤</div>
-              <div className="font-pixel text-[10px] text-text-secondary">No transcriptions yet</div>
+              <div className="font-pixel text-[10px] text-text-secondary">{t('speech:history.empty')}</div>
               <p className="font-mono text-[12px] text-text-dim leading-relaxed">
-                Use the microphone button in chat<br />
-                to create your first voice recording
+                {t('speech:empty.hint')}
               </p>
               <PixelButton
                 size="sm"
                 variant="secondary"
                 onClick={() => void navigate('/settings')}
               >
-                Go to Settings
+                {t('speech:empty.settingsBtn')}
               </PixelButton>
             </div>
           </PixelCard>

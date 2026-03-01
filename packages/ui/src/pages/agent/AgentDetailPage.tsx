@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, AgentStatus, SkillId } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -20,17 +21,8 @@ const statusAnimation: Record<AgentStatus, string> = {
   idle: '', running: 'animate-[pixel-pulse_1s_steps(2)_infinite]', error: 'animate-[pixel-shake_0.3s_steps(3)_infinite]', paused: 'animate-[pixel-blink_2s_steps(2)_infinite]',
 }
 
-// --- Tab definitions ---
-const TABS = [
-  { id: 'general', label: 'General' },
-  { id: 'model-config', label: 'Model Config' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'tools', label: 'Tools' },
-  { id: 'mcp', label: 'MCP' },
-  { id: 'sub-agents', label: 'Sub-Agents' },
-]
-
 export function AgentDetailPage() {
+  const { t } = useTranslation('agent')
   const { projectId, agentId } = useParams<{ projectId: string; agentId: string }>()
   const agents = useAppStore(s => s.agents)
   const updateAgent = useAppStore(s => s.updateAgent)
@@ -44,16 +36,25 @@ export function AgentDetailPage() {
   const agent = agents.find(a => a.id === agentId)
   const [activeTab, setActiveTab] = useState('general')
 
+  const tabs = useMemo(() => [
+    { id: 'general', label: t('detail.tabs.general') },
+    { id: 'model-config', label: t('detail.tabs.modelConfig') },
+    { id: 'skills', label: t('detail.tabs.skills') },
+    { id: 'tools', label: t('detail.tabs.tools') },
+    { id: 'mcp', label: 'MCP' },
+    { id: 'sub-agents', label: t('detail.tabs.subAgents') },
+  ], [t])
+
   if (!agent) {
     return (
       <div className="p-6">
-        <p className="text-text-dim">Agent not found.</p>
+        <p className="text-text-dim">{t('detail.notFound')}</p>
         <PixelButton
           variant="ghost"
           className="mt-2"
           onClick={() => navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined)}
         >
-          &lt; Back to Agents
+          {t('detail.backToAgents')}
         </PixelButton>
       </div>
     )
@@ -68,7 +69,7 @@ export function AgentDetailPage() {
           size="sm"
           onClick={() => navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined)}
         >
-          &lt; Agents
+          {t('detail.backBtn')}
         </PixelButton>
       </div>
 
@@ -84,14 +85,14 @@ export function AgentDetailPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
             <h1 className="font-pixel text-[14px] text-text-primary">{agent.name}</h1>
-            <PixelBadge variant={statusBadgeVariant[agent.status]}>{agent.status}</PixelBadge>
+            <PixelBadge variant={statusBadgeVariant[agent.status]}>{t(`statusLabel.${agent.status}`)}</PixelBadge>
           </div>
           <p className="text-[13px] text-text-secondary mt-1">{agent.description}</p>
           <div className="flex items-center gap-3 mt-2 text-[11px] text-text-dim">
-            <span>{(agent.skillIds ?? []).length} skills</span>
-            <span>{agent.tools.length} tools</span>
-            <span>{(agent.mcpServers ?? []).length} MCP servers</span>
-            <span>{agent.subAgents.length} sub-agents</span>
+            <span>{t('count.skills', { count: (agent.skillIds ?? []).length })}</span>
+            <span>{t('count.tools', { count: agent.tools.length })}</span>
+            <span>{t('count.mcpServers', { count: (agent.mcpServers ?? []).length })}</span>
+            <span>{t('count.subAgents', { count: agent.subAgents.length })}</span>
             {agent.modelConfig.model && (
               <span className="font-mono text-accent-blue">{agent.modelConfig.model}</span>
             )}
@@ -100,7 +101,7 @@ export function AgentDetailPage() {
       </div>
 
       {/* Tabs */}
-      <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+      <PixelTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="mt-4">
         {activeTab === 'general' && <GeneralAgentTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined) }} />}
@@ -120,6 +121,7 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
   onDelete: () => Promise<void>
 }) {
+  const { t } = useTranslation('agent')
   const [name, setName] = useState(agent.name)
   const [description, setDescription] = useState(agent.description)
   const [systemPrompt, setSystemPrompt] = useState(agent.systemPrompt)
@@ -147,21 +149,21 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   return (
     <div className="max-w-[640px] flex flex-col gap-4">
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-4">INFO</div>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">{t('general.sectionTitle')}</div>
         <div className="flex flex-col gap-4">
-          <PixelInput label="NAME" value={name} onChange={e => setName(e.target.value)} />
-          <PixelInput label="DESCRIPTION" value={description} onChange={e => setDescription(e.target.value)} />
-          <PixelTextArea label="SYSTEM PROMPT" value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} rows={8} />
+          <PixelInput label={t('label.name')} value={name} onChange={e => setName(e.target.value)} />
+          <PixelInput label={t('label.description')} value={description} onChange={e => setDescription(e.target.value)} />
+          <PixelTextArea label={t('label.systemPrompt')} value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} rows={8} />
         </div>
       </PixelCard>
 
       <div className="flex items-center gap-3">
         <PixelButton variant="primary" onClick={handleSave} disabled={saving || !name.trim()}>
-          {saving ? 'Saving...' : 'Save'}
+          {saving ? t('common:button.saving') : t('common:button.save')}
         </PixelButton>
-        {saved && <span className="text-[12px] text-accent-green">Saved!</span>}
+        {saved && <span className="text-[12px] text-accent-green">{t('savedMsg')}</span>}
         <div className="ml-auto">
-          <PixelButton variant="danger" onClick={onDelete}>Delete Agent</PixelButton>
+          <PixelButton variant="danger" onClick={onDelete}>{t('general.deleteBtn')}</PixelButton>
         </div>
       </div>
     </div>
@@ -173,6 +175,7 @@ function ModelConfigTab({ agent, onUpdate }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
+  const { t } = useTranslation('agent')
   const settings = useAppStore(s => s.settings)
   const [providerSlug, setProviderSlug] = useState(agent.modelConfig.provider)
   const [model, setModel] = useState(agent.modelConfig.model)
@@ -226,16 +229,16 @@ function ModelConfigTab({ agent, onUpdate }: {
     <div className="max-w-[640px] flex flex-col gap-4">
       {/* Model Config section */}
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-4">MODEL CONFIG</div>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">{t('modelConfig.sectionTitle')}</div>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('label.provider')}</label>
             <select
               value={providerSlug}
               onChange={e => handleProviderChange(e.target.value)}
               className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
             >
-              {availableProviders.length === 0 && <option value="">No providers configured</option>}
+              {availableProviders.length === 0 && <option value="">{t('noProviders')}</option>}
               {availableProviders.map(([slug, entry]) => (
                 <option key={slug} value={slug}>{entry.name}</option>
               ))}
@@ -243,13 +246,13 @@ function ModelConfigTab({ agent, onUpdate }: {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('label.model')}</label>
             <select
               value={model}
               onChange={e => setModel(e.target.value)}
               className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
             >
-              {models.length === 0 && <option value="">No models available</option>}
+              {models.length === 0 && <option value="">{t('noModels')}</option>}
               {models.map(m => (
                 <option key={m} value={m}>{m}</option>
               ))}
@@ -260,15 +263,15 @@ function ModelConfigTab({ agent, onUpdate }: {
 
       {/* Compact Threshold */}
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">COMPACT THRESHOLD</div>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('modelConfig.compactLabel')}</div>
         <CompactThresholdControl value={compactThreshold} onChange={setCompactThreshold} />
       </PixelCard>
 
       <div className="flex items-center gap-3">
         <PixelButton variant="primary" onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving...' : 'Save'}
+          {saving ? t('common:button.saving') : t('common:button.save')}
         </PixelButton>
-        {saved && <span className="text-[12px] text-accent-green">Saved!</span>}
+        {saved && <span className="text-[12px] text-accent-green">{t('savedMsg')}</span>}
       </div>
     </div>
   )
@@ -279,6 +282,7 @@ function SkillsTab({ agent, onUpdate }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
+  const { t } = useTranslation('agent')
   const skills = useAppStore(s => s.skills)
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
@@ -297,7 +301,7 @@ function SkillsTab({ agent, onUpdate }: {
   return (
     <div className="max-w-[640px]">
       {/* Assigned skills */}
-      <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED SKILLS</div>
+      <div className="font-pixel text-[8px] text-text-dim mb-2">{t('skills.assigned')}</div>
       {assigned.length > 0 ? (
         <div className="flex flex-col gap-2">
           {assigned.map(skill => (
@@ -313,7 +317,7 @@ function SkillsTab({ agent, onUpdate }: {
           ))}
         </div>
       ) : (
-        <p className="text-[12px] text-text-dim mb-2">No skills assigned to this agent.</p>
+        <p className="text-[12px] text-text-dim mb-2">{t('skills.noneAssigned')}</p>
       )}
 
       {/* Divider */}
@@ -322,7 +326,7 @@ function SkillsTab({ agent, onUpdate }: {
       {/* Available skills picker */}
       {available.length > 0 && (
         <div>
-          <div className="font-pixel text-[8px] text-text-dim mb-2">ADD SKILL</div>
+          <div className="font-pixel text-[8px] text-text-dim mb-2">{t('skills.addSection')}</div>
           <div className="flex flex-col gap-1">
             {available.map(skill => (
               <button
@@ -340,9 +344,9 @@ function SkillsTab({ agent, onUpdate }: {
 
       {skills.length === 0 && (
         <PixelCard variant="outlined" className="text-center py-8">
-          <p className="text-[12px] text-text-dim mb-2">No skills in this project</p>
+          <p className="text-[12px] text-text-dim mb-2">{t('skills.noneInProject')}</p>
           <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/skills`)}>
-            Go to Skills
+            {t('skills.goTo')}
           </PixelButton>
         </PixelCard>
       )}
@@ -351,7 +355,7 @@ function SkillsTab({ agent, onUpdate }: {
       {skills.length > 0 && (
         <div className="mt-4">
           <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/skills`)}>
-            Manage Skills &rarr;
+            {t('skills.manage')}
           </PixelButton>
         </div>
       )}
@@ -364,11 +368,12 @@ function ToolsTab({ agent, onUpdate }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
+  const { t } = useTranslation('agent')
   const builtinToolDefs = [
-    { id: 'bash', name: 'Bash', description: 'Execute bash commands, read and write files', defaultEnabled: true, available: true },
-    { id: 'browser', name: 'Browser', description: 'Control web browser for automation', defaultEnabled: false, available: true },
-    { id: 'os_control', name: 'OS Control', description: 'Desktop automation and system control', defaultEnabled: false, available: false },
-    { id: 'task', name: 'Task', description: 'Create and manage tasks within the conversation', defaultEnabled: true, available: true },
+    { id: 'bash', name: 'Bash', description: t('tools.bashDesc'), defaultEnabled: true, available: true },
+    { id: 'browser', name: 'Browser', description: t('tools.browserDesc'), defaultEnabled: false, available: true },
+    { id: 'os_control', name: 'OS Control', description: t('tools.osControlDesc'), defaultEnabled: false, available: false },
+    { id: 'task', name: 'Task', description: t('tools.taskDesc'), defaultEnabled: true, available: true },
   ]
 
   async function toggleBuiltinTool(toolId: string) {
@@ -383,7 +388,7 @@ function ToolsTab({ agent, onUpdate }: {
     <div className="max-w-[640px]">
       {/* Built-in Tools Section */}
       <div className="mb-6">
-        <div className="font-pixel text-[8px] text-text-dim mb-2">BUILT-IN TOOLS</div>
+        <div className="font-pixel text-[8px] text-text-dim mb-2">{t('tools.builtinSection')}</div>
         <div className="flex flex-col gap-2">
           {builtinToolDefs.map(tool => {
             const enabled = agent.builtinTools[tool.id] ?? (tool.defaultEnabled ?? false)
@@ -393,7 +398,7 @@ function ToolsTab({ agent, onUpdate }: {
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-[12px] text-accent-amber">{tool.name}</span>
                     {!tool.available && (
-                      <span className="text-[9px] text-text-dim font-pixel">COMING SOON</span>
+                      <span className="text-[9px] text-text-dim font-pixel">{t('tools.comingSoon')}</span>
                     )}
                   </div>
                   <div className="text-[11px] text-text-secondary mt-0.5">{tool.description}</div>
@@ -420,7 +425,7 @@ function ToolsTab({ agent, onUpdate }: {
       {/* Custom Tools Section */}
       {agent.tools.length > 0 && (
         <div>
-          <div className="font-pixel text-[8px] text-text-dim mb-2">CUSTOM TOOLS</div>
+          <div className="font-pixel text-[8px] text-text-dim mb-2">{t('tools.customSection')}</div>
           <div className="flex flex-col gap-2">
             {agent.tools.map(tool => (
               <PixelCard key={tool.id} className="flex items-start gap-3">
@@ -440,6 +445,7 @@ function MCPTab({ agent, onUpdate }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
+  const { t } = useTranslation('agent')
   const mcpServers = useAppStore(s => s.mcpServers)
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
@@ -474,16 +480,16 @@ function MCPTab({ agent, onUpdate }: {
       {showRiskWarning && (
         <PixelCard variant="outlined" className="mb-4 border-accent-amber bg-accent-amber/5">
           <div className="flex items-start gap-2">
-            <span className="font-pixel text-[10px] text-accent-amber shrink-0 mt-0.5">{'\u26A0'} WARNING</span>
+            <span className="font-pixel text-[10px] text-accent-amber shrink-0 mt-0.5">{t('mcp.warningTitle')}</span>
             <div className="text-[12px] text-text-secondary">
-              <p>Third-party MCP servers may access or modify files on your computer.</p>
+              <p>{t('mcp.warningText')}</p>
               {mode === 'sandbox' && sandboxSupported && !applyToMCP && (
                 <p className="mt-1 text-text-dim">
-                  Enable "Apply to MCP" in Settings &gt; Permissions to sandbox MCP servers.
+                  {t('mcp.enableSandboxHint')}
                 </p>
               )}
               {mode === 'sandbox' && !sandboxSupported && (
-                <p className="mt-1 text-text-dim">Sandbox runtime is not available on this platform.</p>
+                <p className="mt-1 text-text-dim">{t('mcp.sandboxUnavailable')}</p>
               )}
             </div>
           </div>
@@ -491,7 +497,7 @@ function MCPTab({ agent, onUpdate }: {
       )}
 
       {/* Assigned servers */}
-      <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED MCP SERVERS</div>
+      <div className="font-pixel text-[8px] text-text-dim mb-2">{t('mcp.assigned')}</div>
       {assigned.length > 0 ? (
         <div className="flex flex-col gap-2">
           {assigned.map(server => (
@@ -503,7 +509,7 @@ function MCPTab({ agent, onUpdate }: {
                     {server.transportType.toUpperCase()}
                   </span>
                   {isRestricted && server.transportType === 'stdio' && (
-                    <PixelBadge variant="error">Restricted</PixelBadge>
+                    <PixelBadge variant="error">{t('mcp.restricted')}</PixelBadge>
                   )}
                 </div>
                 {server.description && (
@@ -517,7 +523,7 @@ function MCPTab({ agent, onUpdate }: {
           ))}
         </div>
       ) : (
-        <p className="text-[12px] text-text-dim mb-2">No MCP servers assigned to this agent.</p>
+        <p className="text-[12px] text-text-dim mb-2">{t('mcp.noneAssigned')}</p>
       )}
 
       {/* Divider */}
@@ -526,7 +532,7 @@ function MCPTab({ agent, onUpdate }: {
       {/* Available servers picker */}
       {available.length > 0 && (
         <div>
-          <div className="font-pixel text-[8px] text-text-dim mb-2">ADD MCP SERVER</div>
+          <div className="font-pixel text-[8px] text-text-dim mb-2">{t('mcp.addSection')}</div>
           <div className="flex flex-col gap-1">
             {available.map(server => (
               <button
@@ -549,9 +555,9 @@ function MCPTab({ agent, onUpdate }: {
 
       {mcpServers.length === 0 && (
         <PixelCard variant="outlined" className="text-center py-8">
-          <p className="text-[12px] text-text-dim mb-2">No MCP servers in this project</p>
+          <p className="text-[12px] text-text-dim mb-2">{t('mcp.noneInProject')}</p>
           <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/mcp-servers`)}>
-            Go to MCP Servers
+            {t('mcp.goTo')}
           </PixelButton>
         </PixelCard>
       )}
@@ -560,7 +566,7 @@ function MCPTab({ agent, onUpdate }: {
       {mcpServers.length > 0 && (
         <div className="mt-4">
           <PixelButton variant="ghost" size="sm" onClick={() => navigate(`/projects/${projectId}/mcp-servers`)}>
-            Manage MCP Servers &rarr;
+            {t('mcp.manage')}
           </PixelButton>
         </div>
       )}
@@ -573,6 +579,7 @@ function SubAgentsTab({ agent, onUpdate }: {
   agent: Agent
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
+  const { t } = useTranslation('agent')
   const agents = useAppStore(s => s.agents)
   const available = agents.filter(a => a.id !== agent.id && !agent.subAgents.some(s => s.agentId === a.id))
 
@@ -597,7 +604,7 @@ function SubAgentsTab({ agent, onUpdate }: {
   return (
     <div className="max-w-[640px]">
       {/* Assigned sub-agents */}
-      <div className="font-pixel text-[8px] text-text-dim mb-2">ASSIGNED SUB-AGENTS</div>
+      <div className="font-pixel text-[8px] text-text-dim mb-2">{t('subAgents.assigned')}</div>
       {agent.subAgents.length > 0 ? (
         <div className="flex flex-col gap-2">
           {agent.subAgents.map(sub => {
@@ -606,12 +613,12 @@ function SubAgentsTab({ agent, onUpdate }: {
               <PixelCard key={sub.agentId} className="flex items-center gap-3">
                 <PixelAvatar size="sm" initials={subAgent?.name ?? '??'} />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-text-primary">{subAgent?.name ?? 'Unknown'}</div>
+                  <div className="text-[12px] text-text-primary">{subAgent?.name ?? t('subAgents.unknown')}</div>
                   <input
                     className="bg-transparent text-[11px] text-accent-purple outline-none border-b border-transparent focus:border-accent-purple w-full"
                     value={sub.role}
                     onChange={e => updateRole(sub.agentId, e.target.value)}
-                    placeholder="Role..."
+                    placeholder={t('subAgents.rolePlaceholder')}
                   />
                 </div>
                 <PixelButton size="sm" variant="ghost" onClick={() => removeSubAgent(sub.agentId)}>
@@ -622,7 +629,7 @@ function SubAgentsTab({ agent, onUpdate }: {
           })}
         </div>
       ) : (
-        <p className="text-[12px] text-text-dim mb-2">No sub-agents assigned to this agent.</p>
+        <p className="text-[12px] text-text-dim mb-2">{t('subAgents.noneAssigned')}</p>
       )}
 
       {/* Divider */}
@@ -631,7 +638,7 @@ function SubAgentsTab({ agent, onUpdate }: {
       {/* Add sub-agent picker */}
       {available.length > 0 ? (
         <div>
-          <div className="font-pixel text-[8px] text-text-dim mb-2">ADD SUB-AGENT</div>
+          <div className="font-pixel text-[8px] text-text-dim mb-2">{t('subAgents.addSection')}</div>
           <div className="flex flex-col gap-1">
             {available.map(a => (
               <button
@@ -647,9 +654,8 @@ function SubAgentsTab({ agent, onUpdate }: {
           </div>
         </div>
       ) : (
-        <p className="text-[12px] text-text-dim">No other agents available in this project.</p>
+        <p className="text-[12px] text-text-dim">{t('subAgents.noneAvailable')}</p>
       )}
     </div>
   )
 }
-

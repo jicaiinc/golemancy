@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
 import type { AgentId, AgentStatus } from '@golemancy/shared'
 import { PixelAvatar, PixelBadge } from '../../../components'
@@ -46,6 +47,7 @@ function mapStatus(status: AgentStatus): 'online' | 'error' | 'paused' | 'offlin
 }
 
 export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => {
+  const { t } = useTranslation('agent')
   return (
     <div
       data-testid="topology-node"
@@ -73,8 +75,8 @@ export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => 
 
       {/* Main agent label */}
       {data.isMainAgent && (
-        <div className="px-3 pt-1.5" title="Current selected main agent for this project">
-          <span className="font-pixel text-[8px] text-mc-gold">CURRENT MAIN</span>
+        <div className="px-3 pt-1.5" title={t('currentMainTooltip')}>
+          <span className="font-pixel text-[8px] text-mc-gold">{t('currentMain')}</span>
         </div>
       )}
 
@@ -92,7 +94,7 @@ export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => 
                 {data.name}
               </span>
               <PixelBadge variant={statusBadgeVariant[data.status]}>
-                {data.status}
+                {t(`statusLabel.${data.status}`)}
               </PixelBadge>
             </div>
             {data.model && (
@@ -110,17 +112,17 @@ export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => 
         <div className="flex items-center gap-2 flex-wrap text-[11px]">
           {data.skillCount > 0 && (
             <span className="text-text-secondary">
-              {data.skillCount} skill{data.skillCount !== 1 ? 's' : ''}
+              {t('count.skills', { count: data.skillCount })}
             </span>
           )}
           {data.toolCount > 0 && (
             <span className="text-text-secondary">
-              {data.toolCount} tool{data.toolCount !== 1 ? 's' : ''}
+              {t('count.tools', { count: data.toolCount })}
             </span>
           )}
           {data.subAgentCount > 0 && (
             <span className="text-accent-purple">
-              {data.subAgentCount} sub-agent{data.subAgentCount !== 1 ? 's' : ''}
+              {t('count.subAgents', { count: data.subAgentCount })}
             </span>
           )}
         </div>

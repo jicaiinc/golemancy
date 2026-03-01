@@ -21,7 +21,7 @@ export function createTaskRoutes(storage: ITaskService) {
     const taskId = c.req.param('id') as TaskId
     log.debug({ projectId, taskId }, 'getting task')
     const task = await storage.getById(projectId, taskId)
-    if (!task) return c.json({ error: 'Not found' }, 404)
+    if (!task) return c.json({ error: 'NOT_FOUND' }, 404)
     return c.json(task)
   })
 

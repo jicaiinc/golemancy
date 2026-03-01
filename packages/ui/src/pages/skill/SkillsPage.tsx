@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { Skill, SkillId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
@@ -9,12 +10,8 @@ import {
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { SkillFormModal } from './SkillFormModal'
 
-const TABS = [
-  { id: 'installed', label: 'Installed' },
-  { id: 'marketplace', label: 'Marketplace' },
-]
-
 export function SkillsPage() {
+  const { t } = useTranslation(['skill', 'common'])
   const project = useCurrentProject()
   const skills = useAppStore(s => s.skills)
   const skillsLoading = useAppStore(s => s.skillsLoading)
@@ -22,6 +19,11 @@ export function SkillsPage() {
   const createSkill = useAppStore(s => s.createSkill)
   const updateSkill = useAppStore(s => s.updateSkill)
   const deleteSkill = useAppStore(s => s.deleteSkill)
+
+  const tabs = [
+    { id: 'installed', label: t('skill:tabs.installed') },
+    { id: 'marketplace', label: t('skill:tabs.marketplace') },
+  ]
 
   const [activeTab, setActiveTab] = useState('installed')
   const [showCreate, setShowCreate] = useState(false)
@@ -38,14 +40,14 @@ export function SkillsPage() {
   async function handleDelete(skill: Skill) {
     const refCount = getReferencingAgentCount(skill.id)
     if (refCount > 0) {
-      setDeleteError(`Skill "${skill.name}" is assigned to ${refCount} agent(s). Unassign first.`)
+      setDeleteError(t('skill:deleteError.inUse', { name: skill.name, count: refCount }))
       return
     }
     setDeleteError(null)
     try {
       await deleteSkill(skill.id)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete skill'
+      const message = err instanceof Error ? err.message : t('skill:deleteError.generic')
       setDeleteError(message)
     }
   }
@@ -56,7 +58,7 @@ export function SkillsPage() {
     const zipFiles = files.filter(f => f.name.toLowerCase().endsWith('.zip'))
 
     if (mdFiles.length === 0 && zipFiles.length === 0) {
-      setImportStatus({ type: 'error', message: 'No .md or .zip files found. Drop markdown or zip files to import skills.' })
+      setImportStatus({ type: 'error', message: t('skill:import.noValidFiles') })
       return
     }
 
@@ -80,24 +82,24 @@ export function SkillsPage() {
         totalImported += result.count
       }
 
-      setImportStatus({ type: 'success', message: `Imported ${totalImported} skill${totalImported !== 1 ? 's' : ''}` })
+      setImportStatus({ type: 'success', message: t('skill:import.importedCount', { count: totalImported }) })
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to import skills'
+      const message = err instanceof Error ? err.message : t('skill:import.importError')
       setImportStatus({ type: 'error', message })
     }
-  }, [createSkill])
+  }, [createSkill, t])
 
   return (
     <motion.div className="p-6" data-testid="skills-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-pixel text-[14px] text-text-primary">Skills</h1>
+          <h1 className="font-pixel text-[14px] text-text-primary">{t('skill:page.title')}</h1>
           <p className="text-[12px] text-text-secondary mt-1">
-            {skills.length} skill{skills.length !== 1 ? 's' : ''}
+            {t('skill:page.skillCount', { count: skills.length })}
           </p>
         </div>
-        <PixelButton variant="primary" data-testid="skill-new-btn" onClick={() => setShowCreate(true)}>+ New Skill</PixelButton>
+        <PixelButton variant="primary" data-testid="skill-new-btn" onClick={() => setShowCreate(true)}>{t('skill:page.newSkillBtn')}</PixelButton>
       </div>
 
       {/* Drop zone for skill import */}
@@ -118,7 +120,7 @@ export function SkillsPage() {
       )}
 
       {/* Tabs */}
-      <PixelTabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} testIdPrefix="skill" />
+      <PixelTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} testIdPrefix="skill" />
 
       <div className="mt-4">
         {activeTab === 'installed' && (
@@ -137,15 +139,15 @@ export function SkillsPage() {
 
             {skillsLoading ? (
               <div className="flex justify-center py-12">
-                <PixelSpinner label="Loading skills..." />
+                <PixelSpinner label={t('skill:loading')} />
               </div>
             ) : skills.length === 0 ? (
               <motion.div {...staggerItem}>
                 <PixelCard variant="outlined" className="text-center py-12">
                   <div className="font-pixel text-[20px] text-text-dim mb-4">&lt;&gt;</div>
-                  <p className="font-pixel text-[10px] text-text-secondary mb-4">No skills yet</p>
+                  <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('skill:empty.title')}</p>
                   <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
-                    Create Your First Skill
+                    {t('skill:empty.createFirstBtn')}
                   </PixelButton>
                 </PixelCard>
               </motion.div>
@@ -163,7 +165,7 @@ export function SkillsPage() {
                           )}
                         </div>
                         <div className="flex gap-1 shrink-0">
-                          <PixelButton size="sm" variant="ghost" onClick={() => setEditSkill(skill)}>Edit</PixelButton>
+                          <PixelButton size="sm" variant="ghost" onClick={() => setEditSkill(skill)}>{t('common:button.edit')}</PixelButton>
                           <PixelButton size="sm" variant="ghost" onClick={() => handleDelete(skill)}>&times;</PixelButton>
                         </div>
                       </div>
@@ -179,7 +181,7 @@ export function SkillsPage() {
           <motion.div {...staggerItem}>
             <PixelCard variant="outlined" className="text-center py-12">
               <p className="font-pixel text-[12px] text-text-dim animate-[pixel-blink_2s_steps(2)_infinite]">
-                Coming Soon
+                {t('skill:comingSoon')}
               </p>
             </PixelCard>
           </motion.div>
@@ -194,7 +196,7 @@ export function SkillsPage() {
           await createSkill({ name, description, instructions })
           setShowCreate(false)
         }}
-        title="New Skill"
+        title={t('skill:form.newTitle')}
       />
 
       {/* Edit modal */}
@@ -206,7 +208,7 @@ export function SkillsPage() {
             await updateSkill(editSkill.id, { name, description, instructions })
             setEditSkill(null)
           }}
-          title="Edit Skill"
+          title={t('skill:form.editTitle')}
           initialName={editSkill.name}
           initialDescription={editSkill.description}
           initialInstructions={editSkill.instructions}

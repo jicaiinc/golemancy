@@ -1,4 +1,5 @@
 import { useMemo, useState, type KeyboardEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PixelButton, PixelInput } from '../base'
 
 interface PathListEditorProps {
@@ -21,6 +22,7 @@ export function PathListEditor({
   helperText,
   validateItem,
 }: PathListEditorProps) {
+  const { t } = useTranslation('common')
   const [inputValue, setInputValue] = useState('')
 
   // Compute validation results for all items
@@ -89,7 +91,7 @@ export function PathListEditor({
           )
         })}
         {items.length === 0 && (
-          <span className="text-[11px] text-text-dim italic py-1">None configured</span>
+          <span className="text-[11px] text-text-dim italic py-1">{t('list.noneConfigured')}</span>
         )}
       </div>
 
@@ -121,7 +123,7 @@ export function PathListEditor({
             onClick={handleAdd}
             disabled={!inputValue.trim()}
           >
-            Add
+            {t('button.add')}
           </PixelButton>
         </div>
       )}

@@ -158,7 +158,7 @@ describe('Workspace routes', () => {
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}/workspace/file?path=notempty`)
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toContain('not empty')
+      expect(body.error).toBe('DIRECTORY_NOT_EMPTY')
     })
 
     it('deletes empty directory', async () => {

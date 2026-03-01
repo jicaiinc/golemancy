@@ -21,7 +21,7 @@ export function createPermissionsConfigRoutes(storage: IPermissionsConfigService
     const id = c.req.param('id') as PermissionsConfigId
     log.debug({ projectId, configId: id }, 'getting permissions config')
     const config = await storage.getById(projectId, id)
-    if (!config) return c.json({ error: 'Not found' }, 404)
+    if (!config) return c.json({ error: 'NOT_FOUND' }, 404)
     return c.json(config)
   })
 
@@ -31,7 +31,7 @@ export function createPermissionsConfigRoutes(storage: IPermissionsConfigService
 
     const validation = validatePermissionsConfigFile(data)
     if (!validation.valid) {
-      return c.json({ error: 'Validation failed', details: validation.errors }, 400)
+      return c.json({ error: 'VALIDATION_FAILED', details: validation.errors }, 400)
     }
 
     log.debug({ projectId }, 'creating permissions config')
@@ -47,7 +47,7 @@ export function createPermissionsConfigRoutes(storage: IPermissionsConfigService
 
     const validation = validatePermissionsConfigFile(data)
     if (!validation.valid) {
-      return c.json({ error: 'Validation failed', details: validation.errors }, 400)
+      return c.json({ error: 'VALIDATION_FAILED', details: validation.errors }, 400)
     }
 
     log.debug({ projectId, configId: id }, 'updating permissions config')
@@ -70,10 +70,10 @@ export function createPermissionsConfigRoutes(storage: IPermissionsConfigService
     const title = body?.title
 
     if (typeof title !== 'string' || title.trim().length === 0) {
-      return c.json({ error: 'Validation failed', details: [{ field: 'title', message: 'Must be a non-empty string' }] }, 400)
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'title', message: 'Must be a non-empty string' }] }, 400)
     }
     if (title.length > 100) {
-      return c.json({ error: 'Validation failed', details: [{ field: 'title', message: 'Must be 100 characters or fewer' }] }, 400)
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'title', message: 'Must be 100 characters or fewer' }] }, 400)
     }
 
     log.debug({ projectId, sourceId: id, newTitle: title }, 'duplicating permissions config')

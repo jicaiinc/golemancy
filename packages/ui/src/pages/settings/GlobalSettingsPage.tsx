@@ -1,18 +1,14 @@
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
 import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
+import { PixelDropdown } from '../../components/base/PixelDropdown'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { SpeechTab } from './SpeechTab'
 import { PROVIDER_PRESETS } from '../../lib/provider-presets'
-
-const SETTINGS_TABS = [
-  { id: 'general', label: 'General' },
-  { id: 'providers', label: 'Providers' },
-  { id: 'speech', label: 'Speech' },
-]
 
 const SDK_TYPE_OPTIONS: { value: ProviderSdkType; label: string }[] = [
   { value: 'anthropic', label: 'Anthropic' },
@@ -47,17 +43,24 @@ function slugify(name: string): string {
 }
 
 export function GlobalSettingsPage() {
+  const { t } = useTranslation('settings')
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
   const [activeTab, setActiveTab] = useState('general')
 
   if (!settings) return null
 
+  const SETTINGS_TABS = [
+    { id: 'general', label: t('tabs.general') },
+    { id: 'providers', label: t('tabs.providers') },
+    { id: 'speech', label: t('tabs.speech') },
+  ]
+
   return (
     <GlobalLayout>
       <div data-testid="settings-form" className="max-w-[1000px] mx-auto p-8">
         {/* Page heading */}
-        <h2 className="font-pixel text-[12px] text-text-primary mb-6">Global Settings</h2>
+        <h2 className="font-pixel text-[12px] text-text-primary mb-6">{t('page.title')}</h2>
 
         <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -72,7 +75,7 @@ export function GlobalSettingsPage() {
         {/* About footer */}
         <div className="mt-8 pt-4 border-t-2 border-border-dim text-center">
           <span className="text-[11px] text-text-dim">
-            Golemancy v{APP_VERSION} — Command Your AI Golems
+            {t('about.version', { version: APP_VERSION })}
           </span>
         </div>
       </div>
@@ -85,6 +88,7 @@ function ProvidersTab({ settings, onUpdate }: {
   settings: GlobalSettings
   onUpdate: (data: Partial<GlobalSettings>) => Promise<void>
 }) {
+  const { t } = useTranslation('settings')
   const [addMode, setAddMode] = useState<false | 'select' | 'custom'>(false)
   const [customName, setCustomName] = useState('')
   const [customBaseUrl, setCustomBaseUrl] = useState('')
@@ -171,16 +175,16 @@ function ProvidersTab({ settings, onUpdate }: {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="font-pixel text-[10px] text-text-secondary">PROVIDERS</div>
+        <div className="font-pixel text-[10px] text-text-secondary">{t('providers.sectionTitle')}</div>
         <PixelButton size="sm" variant="primary" onClick={() => setAddMode(addMode ? false : 'select')}>
-          {addMode ? 'Cancel' : '+ Add Provider'}
+          {addMode ? t('common:button.cancel') : t('providers.addProvider')}
         </PixelButton>
       </div>
 
       {/* Add Provider Panel */}
       {addMode === 'select' && (
         <PixelCard variant="outlined">
-          <div className="font-pixel text-[10px] text-text-secondary mb-3">SELECT PROVIDER</div>
+          <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('providers.selectProvider')}</div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
             {remainingPresets.map(([key, preset]) => (
               <button
@@ -196,8 +200,8 @@ function ProvidersTab({ settings, onUpdate }: {
               onClick={() => setAddMode('custom')}
               className="p-3 border-2 border-border-dim border-dashed bg-deep hover:border-border-bright cursor-pointer transition-colors text-left"
             >
-              <div className="text-[11px] text-text-primary">Custom</div>
-              <div className="text-[9px] text-text-dim mt-1">any endpoint</div>
+              <div className="text-[11px] text-text-primary">{t('providers.custom')}</div>
+              <div className="text-[9px] text-text-dim mt-1">{t('providers.anyEndpoint')}</div>
             </button>
           </div>
         </PixelCard>
@@ -205,22 +209,22 @@ function ProvidersTab({ settings, onUpdate }: {
 
       {addMode === 'custom' && (
         <PixelCard variant="outlined">
-          <div className="font-pixel text-[10px] text-text-secondary mb-3">CUSTOM PROVIDER</div>
+          <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('providers.customProvider')}</div>
           <div className="flex flex-col gap-3">
             <PixelInput
-              label="NAME"
+              label={t('providers.nameLabel')}
               value={customName}
               onChange={e => setCustomName(e.target.value)}
               placeholder="My Provider"
             />
             <PixelInput
-              label="BASE URL"
+              label={t('providers.baseUrlLabel')}
               value={customBaseUrl}
               onChange={e => setCustomBaseUrl(e.target.value)}
               placeholder="https://api.example.com/v1"
             />
             <div>
-              <label className="font-pixel text-[8px] text-text-dim block mb-1">SDK TYPE</label>
+              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('providers.sdkTypeLabel')}</label>
               <select
                 value={customSdkType}
                 onChange={e => setCustomSdkType(e.target.value as ProviderSdkType)}
@@ -232,8 +236,8 @@ function ProvidersTab({ settings, onUpdate }: {
               </select>
             </div>
             <div className="flex gap-2">
-              <PixelButton size="sm" variant="primary" onClick={handleAddCustom}>Add</PixelButton>
-              <PixelButton size="sm" variant="ghost" onClick={() => setAddMode('select')}>Back</PixelButton>
+              <PixelButton size="sm" variant="primary" onClick={handleAddCustom}>{t('common:button.add')}</PixelButton>
+              <PixelButton size="sm" variant="ghost" onClick={() => setAddMode('select')}>{t('common:button.back')}</PixelButton>
             </div>
           </div>
         </PixelCard>
@@ -242,7 +246,7 @@ function ProvidersTab({ settings, onUpdate }: {
       {/* Provider Cards */}
       {providerKeys.length === 0 ? (
         <PixelCard variant="outlined" className="text-center py-6">
-          <p className="text-[12px] text-text-dim">No providers configured. Click "+ Add Provider" to get started.</p>
+          <p className="text-[12px] text-text-dim">{t('providers.empty')}</p>
         </PixelCard>
       ) : (
         providerKeys.map(key => (
@@ -266,6 +270,7 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
   defaultModel?: AgentModelConfig
   onChange: (model: AgentModelConfig | undefined) => Promise<void>
 }) {
+  const { t } = useTranslation('settings')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [provider, setProvider] = useState(defaultModel?.provider ?? '')
@@ -294,31 +299,31 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
 
   return (
     <PixelCard>
-      <div className="font-pixel text-[10px] text-text-secondary mb-2">DEFAULT MODEL</div>
-      <p className="text-[11px] text-text-dim mb-3">Used when creating new projects and agents.</p>
+      <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('defaultModel.sectionTitle')}</div>
+      <p className="text-[11px] text-text-dim mb-3">{t('defaultModel.description')}</p>
       <div className="flex items-end gap-3">
         <div className="flex flex-col gap-1 flex-1">
-          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">PROVIDER</label>
+          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('defaultModel.providerLabel')}</label>
           <select
             value={provider}
             onChange={e => handleProviderChange(e.target.value)}
             className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
           >
-            <option value="">-- None --</option>
+            <option value="">{t('defaultModel.noProvider')}</option>
             {availableProviders.map(([slug, entry]) => (
               <option key={slug} value={slug}>{entry.name}</option>
             ))}
           </select>
         </div>
         <div className="flex flex-col gap-1 flex-1">
-          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">MODEL</label>
+          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('defaultModel.modelLabel')}</label>
           <select
             value={model}
             onChange={e => setModel(e.target.value)}
             className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
           >
-            {!provider && <option value="">-- Select provider first --</option>}
-            {provider && models.length === 0 && <option value="">No models available</option>}
+            {!provider && <option value="">{t('defaultModel.selectProviderFirst')}</option>}
+            {provider && models.length === 0 && <option value="">{t('defaultModel.noModels')}</option>}
             {models.map(m => (
               <option key={m} value={m}>{m}</option>
             ))}
@@ -326,9 +331,9 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
         </div>
         <div className="flex items-center gap-2">
           <PixelButton size="sm" variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? '...' : 'Save'}
+            {saving ? t('common:button.saving') : t('common:button.save')}
           </PixelButton>
-          {saved && <span className="text-[11px] text-accent-green">Saved!</span>}
+          {saved && <span className="text-[11px] text-accent-green">{t('defaultModel.saved')}</span>}
         </div>
       </div>
     </PixelCard>
@@ -342,6 +347,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
   onUpdate: (entry: ProviderEntry) => Promise<void>
   onDelete: () => Promise<void>
 }) {
+  const { t } = useTranslation('settings')
   const services = useServices()
   const [editing, setEditing] = useState(false)
   const [apiKey, setApiKey] = useState(entry.apiKey ?? '')
@@ -368,11 +374,11 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
         setTestLatency(result.latencyMs ?? 0)
         await onUpdate({ ...(updatedEntry ?? entry), testStatus: 'ok' })
       } else {
-        setTestError(result.error ?? 'Unknown error')
+        setTestError(result.error ?? t('provider.failed'))
         await onUpdate({ ...(updatedEntry ?? entry), testStatus: 'error' })
       }
     } catch (err) {
-      setTestError(err instanceof Error ? err.message : 'Test failed')
+      setTestError(err instanceof Error ? err.message : t('provider.failed'))
       await onUpdate({ ...(updatedEntry ?? entry), testStatus: 'error' })
     } finally {
       setTesting(false)
@@ -424,32 +430,32 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
         <span className="text-[9px] text-text-dim font-mono">({providerKey})</span>
         {/* Status indicator */}
         {testing ? (
-          <span className="text-[10px] text-accent-blue animate-pulse">Testing...</span>
+          <span className="text-[10px] text-accent-blue animate-pulse">{t('provider.testing')}</span>
         ) : testStatus === 'ok' ? (
-          <span className="text-[10px] text-accent-green">{'\u2705'} OK{testLatency > 0 ? ` (${testLatency}ms)` : ''}</span>
+          <span className="text-[10px] text-accent-green">{'\u2705'} {testLatency > 0 ? t('provider.okLatency', { latency: testLatency }) : t('provider.ok')}</span>
         ) : testStatus === 'error' ? (
-          <span className="text-[10px] text-accent-red">{'\u274C'} Failed</span>
+          <span className="text-[10px] text-accent-red">{'\u274C'} {t('provider.failed')}</span>
         ) : hasCredentials(safeEntry) ? (
-          <span className="text-[10px] text-accent-amber">Untested</span>
+          <span className="text-[10px] text-accent-amber">{t('provider.untested')}</span>
         ) : (
-          <span className="text-[10px] text-text-dim">{'\u26AA'} No Key</span>
+          <span className="text-[10px] text-text-dim">{'\u26AA'} {t('provider.noKey')}</span>
         )}
         {/* Test button (only when has credentials and not editing) */}
         {hasCredentials(safeEntry) && !editing && !testing && (
           <PixelButton size="sm" variant="ghost" onClick={() => runTest()}>
-            {testStatus === 'ok' ? 'Re-test' : 'Test'}
+            {testStatus === 'ok' ? t('provider.retest') : t('provider.test')}
           </PixelButton>
         )}
         <div className="ml-auto flex gap-1">
           {!editing ? (
             <>
-              <PixelButton size="sm" variant="ghost" onClick={() => setEditing(true)}>Edit</PixelButton>
-              <PixelButton size="sm" variant="danger" onClick={() => setConfirmDelete(true)}>Del</PixelButton>
+              <PixelButton size="sm" variant="ghost" onClick={() => setEditing(true)}>{t('common:button.edit')}</PixelButton>
+              <PixelButton size="sm" variant="danger" onClick={() => setConfirmDelete(true)}>{t('provider.del')}</PixelButton>
             </>
           ) : (
             <>
-              <PixelButton size="sm" variant="ghost" onClick={handleCancelEdit}>Cancel</PixelButton>
-              <PixelButton size="sm" variant="primary" onClick={handleSave}>Save</PixelButton>
+              <PixelButton size="sm" variant="ghost" onClick={handleCancelEdit}>{t('common:button.cancel')}</PixelButton>
+              <PixelButton size="sm" variant="primary" onClick={handleSave}>{t('common:button.save')}</PixelButton>
             </>
           )}
         </div>
@@ -459,13 +465,13 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
       {confirmDelete && (
         <div className="mt-2 p-2 bg-accent-red/10 border-2 border-accent-red/30 flex items-center gap-3">
           <span className="text-[11px] text-accent-red flex-1">
-            Delete <strong>{entry.name}</strong>? This cannot be undone.
+            {t('provider.deleteConfirm', { name: entry.name })}
           </span>
           <PixelButton size="sm" variant="danger" onClick={() => { setConfirmDelete(false); onDelete() }}>
-            Confirm
+            {t('common:button.confirm')}
           </PixelButton>
           <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
-            Cancel
+            {t('common:button.cancel')}
           </PixelButton>
         </div>
       )}
@@ -481,22 +487,22 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
       {editing ? (
         <div className="flex flex-col gap-3 mt-3">
           <PixelInput
-            label="NAME"
+            label={t('providers.nameLabel')}
             value={name}
             onChange={e => setName(e.target.value)}
           />
           <PixelInput
-            label="API KEY"
+            label={t('provider.apiKeyInputLabel')}
             type={showKey ? 'text' : 'password'}
             value={apiKey}
             onChange={e => setApiKey(e.target.value)}
             placeholder="sk-..."
           />
           <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>
-            {showKey ? 'Hide Key' : 'Show Key'}
+            {showKey ? t('provider.hideKey') : t('provider.showKey')}
           </PixelButton>
           <PixelInput
-            label="BASE URL (optional)"
+            label={t('provider.baseUrlOptional')}
             value={baseUrl}
             onChange={e => setBaseUrl(e.target.value)}
             placeholder="https://api.example.com/v1"
@@ -506,24 +512,24 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
         <div className="mt-2">
           {/* API Key display */}
           <div className="flex items-center gap-2">
-            <label className="font-pixel text-[8px] text-text-dim">API Key:</label>
+            <label className="font-pixel text-[8px] text-text-dim">{t('provider.apiKeyLabel')}</label>
             {entry.apiKey ? (
               <span className="text-[11px] text-text-secondary font-mono">
                 {showKey ? entry.apiKey : maskedKey}
               </span>
             ) : (
-              <span className="text-[11px] text-text-dim italic">not set</span>
+              <span className="text-[11px] text-text-dim italic">{t('provider.notSet')}</span>
             )}
             {entry.apiKey && (
               <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>
-                {showKey ? 'Hide' : 'Show'}
+                {showKey ? t('provider.hide') : t('provider.show')}
               </PixelButton>
             )}
           </div>
           {/* Base URL display */}
           {entry.baseUrl && (
             <div className="flex items-center gap-2 mt-1">
-              <label className="font-pixel text-[8px] text-text-dim">URL:</label>
+              <label className="font-pixel text-[8px] text-text-dim">{t('provider.urlLabel')}</label>
               <span className="text-[11px] text-text-secondary font-mono">{entry.baseUrl}</span>
             </div>
           )}
@@ -538,7 +544,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
         >
           <span className="text-[10px] text-text-dim">{modelsExpanded ? '\u25BE' : '\u25B8'}</span>
           <span className="font-pixel text-[9px] text-text-secondary">
-            Models ({safeEntry.models.length})
+            {t('provider.modelsCount', { count: safeEntry.models.length })}
           </span>
           {!modelsExpanded && safeEntry.models.length > 0 && (
             <span className="text-[10px] text-text-dim font-mono truncate">
@@ -570,7 +576,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
                 placeholder="model-id"
                 className="flex-1 h-7 bg-deep px-2 text-[11px] text-text-primary font-mono border-2 border-border-dim outline-none focus:border-accent-blue"
               />
-              <PixelButton size="sm" variant="ghost" onClick={handleAddModel}>+ Add Model</PixelButton>
+              <PixelButton size="sm" variant="ghost" onClick={handleAddModel}>{t('provider.addModel')}</PixelButton>
             </div>
           </div>
         )}
@@ -581,6 +587,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
 
 // ========== General Tab ==========
 function GeneralTab() {
+  const { t, i18n } = useTranslation('settings')
   const themeMode = useAppStore(s => s.themeMode)
   const setTheme = useAppStore(s => s.setTheme)
   const updateSettings = useAppStore(s => s.updateSettings)
@@ -591,22 +598,27 @@ function GeneralTab() {
   }
 
   const themes: { mode: ThemeMode; label: string; bgPreview: string; surfPreview: string; textPreview: string }[] = [
-    { mode: 'light', label: 'Light', bgPreview: 'bg-[#F5F3EE]', surfPreview: 'bg-[#DEDBD4]', textPreview: 'bg-[#1A1612]' },
-    { mode: 'dark', label: 'Dark', bgPreview: 'bg-[#0B0E14]', surfPreview: 'bg-[#1E2430]', textPreview: 'bg-[#E8ECF1]' },
-    { mode: 'system', label: 'System', bgPreview: 'bg-gradient-to-r from-[#F5F3EE] to-[#0B0E14]', surfPreview: 'bg-gradient-to-r from-[#DEDBD4] to-[#1E2430]', textPreview: 'bg-gradient-to-r from-[#1A1612] to-[#E8ECF1]' },
+    { mode: 'light', label: t('general.light'), bgPreview: 'bg-[#F5F3EE]', surfPreview: 'bg-[#DEDBD4]', textPreview: 'bg-[#1A1612]' },
+    { mode: 'dark', label: t('general.dark'), bgPreview: 'bg-[#0B0E14]', surfPreview: 'bg-[#1E2430]', textPreview: 'bg-[#E8ECF1]' },
+    { mode: 'system', label: t('general.system'), bgPreview: 'bg-gradient-to-r from-[#F5F3EE] to-[#0B0E14]', surfPreview: 'bg-gradient-to-r from-[#DEDBD4] to-[#1E2430]', textPreview: 'bg-gradient-to-r from-[#1A1612] to-[#E8ECF1]' },
+  ]
+
+  const languageOptions = [
+    { label: 'English', value: 'en', selected: i18n.language === 'en' },
+    { label: '中文', value: 'zh', selected: i18n.language === 'zh' },
   ]
 
   return (
     <div className="flex flex-col gap-4">
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-4">APPEARANCE</div>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">{t('general.appearance')}</div>
         <div className="grid grid-cols-3 gap-3">
-          {themes.map(t => {
-            const isActive = themeMode === t.mode
+          {themes.map(theme => {
+            const isActive = themeMode === theme.mode
             return (
               <button
-                key={t.mode}
-                onClick={() => handleThemeChange(t.mode)}
+                key={theme.mode}
+                onClick={() => handleThemeChange(theme.mode)}
                 className={`p-3 border-2 cursor-pointer transition-colors ${
                   isActive
                     ? 'bg-elevated border-accent-green'
@@ -614,18 +626,34 @@ function GeneralTab() {
                 }`}
               >
                 {/* Mini preview */}
-                <div className={`w-full h-12 ${t.bgPreview} border border-border-dim mb-2 p-1.5 flex flex-col justify-between`}>
-                  <div className={`h-1.5 w-3/4 ${t.surfPreview}`} />
-                  <div className={`h-1 w-1/2 ${t.textPreview}`} />
-                  <div className={`h-1 w-2/3 ${t.textPreview} opacity-50`} />
+                <div className={`w-full h-12 ${theme.bgPreview} border border-border-dim mb-2 p-1.5 flex flex-col justify-between`}>
+                  <div className={`h-1.5 w-3/4 ${theme.surfPreview}`} />
+                  <div className={`h-1 w-1/2 ${theme.textPreview}`} />
+                  <div className={`h-1 w-2/3 ${theme.textPreview} opacity-50`} />
                 </div>
                 <div className={`text-[10px] text-center ${isActive ? 'text-accent-green' : 'text-text-secondary'}`}>
-                  {t.label}
+                  {theme.label}
                 </div>
               </button>
             )
           })}
         </div>
+      </PixelCard>
+
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">{t('general.language')}</div>
+        <PixelDropdown
+          trigger={
+            <PixelButton variant="ghost" className="min-w-[160px] text-left justify-between">
+              <span className="font-mono text-[12px]">
+                {languageOptions.find(o => o.value === i18n.language)?.label ?? 'English'}
+              </span>
+              <span className="ml-2 text-text-dim">{'\u25BC'}</span>
+            </PixelButton>
+          }
+          items={languageOptions}
+          onSelect={value => i18n.changeLanguage(value)}
+        />
       </PixelCard>
     </div>
   )

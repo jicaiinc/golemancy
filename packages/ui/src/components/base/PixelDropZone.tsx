@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, type DragEvent, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface PixelDropZoneProps {
   /** Accepted file extensions (e.g. ['.json', '.md', '.zip']) */
@@ -14,6 +15,7 @@ interface PixelDropZoneProps {
 }
 
 export function PixelDropZone({ accept, onDrop, children, className = '', disabled }: PixelDropZoneProps) {
+  const { t } = useTranslation('common')
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -92,11 +94,11 @@ export function PixelDropZone({ accept, onDrop, children, className = '', disabl
         <div className="flex flex-col items-center justify-center py-6 px-4">
           <span className="font-pixel text-[16px] text-text-dim mb-2">{isDragOver ? '[+]' : '[~]'}</span>
           <p className="font-mono text-[11px] text-text-secondary text-center">
-            {isDragOver ? 'Release to drop' : 'Drag & drop files here, or click to upload'}
+            {isDragOver ? t('dropZone.releaseToDrop') : t('dropZone.dragAndDrop')}
           </p>
           {accept && (
             <p className="font-mono text-[10px] text-text-dim mt-1">
-              Accepts: {accept.join(', ')}
+              {t('dropZone.accepts', { extensions: accept.join(', ') })}
             </p>
           )}
         </div>

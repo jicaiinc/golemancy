@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { PixelCard, PixelInput, PixelTextArea } from '../../../components'
 
 const ICONS = [
@@ -28,33 +29,35 @@ export function ProjectStep({
   projectIcon,
   onUpdate,
 }: ProjectStepProps) {
+  const { t } = useTranslation('onboarding')
+
   return (
     <div className="flex flex-col gap-6">
       <div className="text-center">
-        <h2 className="font-pixel text-[14px] text-text-primary mb-2">Create Your First Project</h2>
-        <p className="font-mono text-[11px] text-text-dim">Projects organize your agents, conversations, and workflows.</p>
+        <h2 className="font-pixel text-[14px] text-text-primary mb-2">{t('project.heading')}</h2>
+        <p className="font-mono text-[11px] text-text-dim">{t('project.description')}</p>
       </div>
 
       <PixelCard>
         <div className="flex flex-col gap-4">
           <PixelInput
-            label="PROJECT NAME"
+            label={t('project.labelName')}
             value={projectName}
             onChange={e => onUpdate({ projectName: e.target.value })}
-            placeholder="My Awesome Project"
+            placeholder={t('project.placeholderName')}
           />
 
           <PixelTextArea
-            label="DESCRIPTION"
+            label={t('project.labelDescription')}
             value={projectDescription}
             onChange={e => onUpdate({ projectDescription: e.target.value })}
-            placeholder="What will this project do?"
+            placeholder={t('project.placeholderDescription')}
           />
 
           {/* Icon picker */}
           <div className="flex flex-col gap-1">
             <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">
-              ICON
+              {t('project.labelIcon')}
             </label>
             <div className="flex gap-2">
               {ICONS.map(ic => (
@@ -76,8 +79,8 @@ export function ProjectStep({
           {/* Coming soon placeholder */}
           <div className="mt-2 pt-3 border-t-2 border-border-dim">
             <div className="flex items-center gap-2">
-              <span className="font-pixel text-[9px] text-text-dim">FROM TEMPLATE</span>
-              <span className="text-[9px] text-accent-amber font-mono">Coming Soon</span>
+              <span className="font-pixel text-[9px] text-text-dim">{t('project.fromTemplate')}</span>
+              <span className="text-[9px] text-accent-amber font-mono">{t('project.comingSoon')}</span>
             </div>
           </div>
         </div>

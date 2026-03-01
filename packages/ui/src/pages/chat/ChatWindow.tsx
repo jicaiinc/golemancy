@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import type { UIMessage, FileUIPart } from 'ai'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, CompactRecord, Conversation } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
@@ -46,6 +47,7 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate, onContextUpdate, onCompactingChange, onBusyChange, externalCompacting }: ChatWindowProps) {
+  const { t } = useTranslation(['chat', 'common'])
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
@@ -196,7 +198,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
     // Auto-title: if first message and user hasn't manually renamed
     const isFirstMessage = messages.length === 0
     if (isFirstMessage && !titleManuallyEdited) {
-      const autoTitle = content ? generateAutoTitle(content) : 'Image message'
+      const autoTitle = content ? generateAutoTitle(content) : t('window.imageMsgTitle')
       updateConversationTitle(conversation.id, autoTitle)
     }
 
@@ -225,7 +227,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
         }))
       }
     }
-  }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat, messages.length, updateConversationTitle, titleManuallyEdited])
+  }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat, messages.length, updateConversationTitle, titleManuallyEdited, t])
 
   const handleDelete = useCallback(async () => {
     if (!confirmDelete) {
@@ -261,13 +263,13 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
           <button
             className="text-text-secondary hover:text-text-primary transition-colors p-1"
             onClick={onToggleChatHistory}
-            title={chatHistoryExpanded ? 'Hide chat history' : 'Show chat history'}
+            title={chatHistoryExpanded ? t('header.hideHistory') : t('header.showHistory')}
           >
             <SidebarToggleIcon className="w-[18px] h-[16px]" />
           </button>
           {!chatHistoryExpanded && (
             <PixelButton size="sm" variant="ghost" onClick={onNewChat} disabled={!canNewChat}>
-              + New
+              {t('header.new')}
             </PixelButton>
           )}
         </div>
@@ -287,7 +289,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
             <h2
               className="font-pixel text-[10px] text-text-primary truncate cursor-pointer hover:text-accent-blue transition-colors"
               onClick={handleTitleClick}
-              title="Click to rename"
+              title={t('header.clickToRename')}
             >
               {conversation.title}
             </h2>
@@ -316,15 +318,15 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
           {confirmDelete ? (
             <div className="flex items-center gap-1">
               <PixelButton size="sm" variant="danger" onClick={handleDelete}>
-                Confirm
+                {t('common:button.confirm')}
               </PixelButton>
               <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
-                Cancel
+                {t('common:button.cancel')}
               </PixelButton>
             </div>
           ) : (
             <PixelButton size="sm" variant="ghost" onClick={handleDelete}>
-              Delete
+              {t('common:button.delete')}
             </PixelButton>
           )}
         </div>
@@ -353,7 +355,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
         {messages.length === 0 && !isBusy ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-[12px] text-text-dim font-mono">
-              Start the conversation...
+              {t('window.startConversation')}
             </p>
           </div>
         ) : (
@@ -371,7 +373,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
             {/* Compacting indicator */}
             {(compacting || externalCompacting) && (
               <div className="my-3 border-2 border-accent-purple/50 bg-accent-purple/5 px-3 py-2">
-                <PixelSpinner size="sm" label="Compacting" />
+                <PixelSpinner size="sm" label={t('window.compacting')} />
               </div>
             )}
 
@@ -379,7 +381,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
             {showThinking && !compacting && !externalCompacting && (
               <div className="flex items-start my-2">
                 <div className="px-3 py-2 border-2 border-border-dim bg-surface">
-                  <PixelSpinner size="sm" label="Thinking" />
+                  <PixelSpinner size="sm" label={t('window.thinking')} />
                 </div>
               </div>
             )}

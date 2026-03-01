@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { MCPTransportType, MCPServerConfig } from '@golemancy/shared'
 import { PixelButton, PixelInput, PixelTextArea, PixelModal } from '../../components'
 
@@ -21,6 +22,7 @@ interface MCPFormModalProps {
 }
 
 export function MCPFormModal({ open, onClose, onSubmit, title, initial }: MCPFormModalProps) {
+  const { t } = useTranslation(['mcp', 'common'])
   const [name, setName] = useState(initial?.name ?? '')
   const [transportType, setTransportType] = useState<MCPTransportType>(initial?.transportType ?? 'stdio')
   const [description, setDescription] = useState(initial?.description ?? '')
@@ -103,33 +105,33 @@ export function MCPFormModal({ open, onClose, onSubmit, title, initial }: MCPFor
       size="md"
       footer={
         <>
-          <PixelButton variant="ghost" onClick={onClose} disabled={submitting}>Cancel</PixelButton>
+          <PixelButton variant="ghost" onClick={onClose} disabled={submitting}>{t('common:button.cancel')}</PixelButton>
           <PixelButton variant="primary" disabled={!name.trim() || submitting} onClick={handleSubmit}>
-            {submitting ? 'Saving...' : 'Save'}
+            {submitting ? t('common:button.saving') : t('common:button.save')}
           </PixelButton>
         </>
       }
     >
       <div className="flex flex-col gap-4">
-        <PixelInput label="NAME" value={name} onChange={e => setName(e.target.value)} autoFocus disabled={isEdit} />
-        <PixelInput label="DESCRIPTION" value={description} onChange={e => setDescription(e.target.value)} />
+        <PixelInput label={t('mcp:form.nameLabel')} value={name} onChange={e => setName(e.target.value)} autoFocus disabled={isEdit} />
+        <PixelInput label={t('mcp:form.descriptionLabel')} value={description} onChange={e => setDescription(e.target.value)} />
 
         {/* Transport selector */}
         <div className="flex flex-col gap-1">
-          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">TRANSPORT</label>
+          <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('mcp:form.transportLabel')}</label>
           <div className="flex gap-2">
-            {(['stdio', 'sse', 'http'] as MCPTransportType[]).map(t => (
+            {(['stdio', 'sse', 'http'] as MCPTransportType[]).map(tp => (
               <button
-                key={t}
-                data-testid={`mcp-transport-${t}`}
-                onClick={() => setTransportType(t)}
+                key={tp}
+                data-testid={`mcp-transport-${tp}`}
+                onClick={() => setTransportType(tp)}
                 className={`px-3 py-1.5 font-mono text-[12px] border-2 cursor-pointer transition-colors ${
-                  transportType === t
+                  transportType === tp
                     ? 'bg-accent-green/20 border-accent-green text-accent-green'
                     : 'bg-deep border-border-dim text-text-secondary hover:border-text-dim'
                 }`}
               >
-                {t.toUpperCase()}
+                {tp.toUpperCase()}
               </button>
             ))}
           </div>
@@ -138,15 +140,15 @@ export function MCPFormModal({ open, onClose, onSubmit, title, initial }: MCPFor
         {/* Conditional fields */}
         {transportType === 'stdio' ? (
           <>
-            <PixelInput label="COMMAND" value={command} onChange={e => setCommand(e.target.value)} placeholder="npx" />
-            <PixelInput label="ARGS (space-separated)" value={args} onChange={e => setArgs(e.target.value)} placeholder="-y @modelcontextprotocol/server-filesystem /tmp" />
-            <PixelTextArea label="ENV (KEY=VALUE per line)" value={envText} onChange={e => setEnvText(e.target.value)} rows={3} placeholder="GITHUB_TOKEN=ghp_..." />
-            <PixelInput label="CWD" value={cwd} onChange={e => setCwd(e.target.value)} placeholder="{{workspaceDir}}" />
+            <PixelInput label={t('mcp:form.commandLabel')} value={command} onChange={e => setCommand(e.target.value)} placeholder="npx" />
+            <PixelInput label={t('mcp:form.argsLabel')} value={args} onChange={e => setArgs(e.target.value)} placeholder="-y @modelcontextprotocol/server-filesystem /tmp" />
+            <PixelTextArea label={t('mcp:form.envLabel')} value={envText} onChange={e => setEnvText(e.target.value)} rows={3} placeholder="GITHUB_TOKEN=ghp_..." />
+            <PixelInput label={t('mcp:form.cwdLabel')} value={cwd} onChange={e => setCwd(e.target.value)} placeholder="{{workspaceDir}}" />
           </>
         ) : (
           <>
-            <PixelInput label="URL" value={url} onChange={e => setUrl(e.target.value)} placeholder="http://localhost:3100/sse" />
-            <PixelTextArea label="HEADERS (Key: Value per line)" value={headersText} onChange={e => setHeadersText(e.target.value)} rows={3} placeholder="Authorization: Bearer ..." />
+            <PixelInput label={t('mcp:form.urlLabel')} value={url} onChange={e => setUrl(e.target.value)} placeholder="http://localhost:3100/sse" />
+            <PixelTextArea label={t('mcp:form.headersLabel')} value={headersText} onChange={e => setHeadersText(e.target.value)} rows={3} placeholder="Authorization: Bearer ..." />
           </>
         )}
       </div>

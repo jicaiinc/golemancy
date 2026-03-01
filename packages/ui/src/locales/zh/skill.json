@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "技能",
+    "skillCount_one": "{{count}} 个技能",
+    "skillCount_other": "{{count}} 个技能",
+    "newSkillBtn": "+ 新建技能"
+  },
+  "tabs": {
+    "installed": "已安装",
+    "marketplace": "市场"
+  },
+  "import": {
+    "noValidFiles": "未找到 .md 或 .zip 文件。拖放 Markdown 或 ZIP 文件以导入技能。",
+    "importedCount_one": "已导入 {{count}} 个技能",
+    "importedCount_other": "已导入 {{count}} 个技能",
+    "importError": "导入技能失败"
+  },
+  "deleteError": {
+    "inUse_one": "技能 \"{{name}}\" 已分配给 {{count}} 个 Agent，请先取消分配。",
+    "inUse_other": "技能 \"{{name}}\" 已分配给 {{count}} 个 Agent，请先取消分配。",
+    "generic": "删除技能失败"
+  },
+  "loading": "加载技能...",
+  "empty": {
+    "title": "暂无技能",
+    "createFirstBtn": "创建第一个技能"
+  },
+  "comingSoon": "即将推出",
+  "form": {
+    "newTitle": "新建技能",
+    "editTitle": "编辑技能",
+    "nameLabel": "名称",
+    "descriptionLabel": "描述",
+    "instructionsLabel": "指令",
+    "instructionsPlaceholder": "用 Markdown 编写技能指令..."
+  }
+}

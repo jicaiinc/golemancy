@@ -174,6 +174,7 @@ These are deliberate decisions — do NOT use the alternatives:
 | `drizzle-orm` | `prisma` / raw SQL | Server ORM |
 | `better-sqlite3` | `sql.js` / other | Server database |
 | `ai` (Vercel AI SDK v6) | direct API calls | AI integration |
+| `react-i18next` + `i18next` | `react-intl` / `lingui` | i18n framework |
 
 ## Styling
 
@@ -183,6 +184,15 @@ Tailwind CSS v4 with CSS-first config in `packages/ui/src/styles/global.css`:
 - No border-radius anywhere (pixel art style)
 - Shadow system: `shadow-pixel-raised`, `shadow-pixel-sunken`, `shadow-pixel-drop`
 - PostCSS config lives in `apps/desktop/postcss.config.js`
+
+## Internationalization (i18n)
+
+`react-i18next` + `i18next`，17 个 namespace，764 keys，支持 en/zh。翻译文件：`packages/ui/src/locales/{lang}/{namespace}.json`。详细 key 清单见 `_design/i18n-key-summary.md`。
+
+**i18n Notes:**
+- `server/agent/` 下所有文本（tool descriptions, system prompts, tool results, 权限拦截错误）是给 AI 读的，永远不做 i18n
+- 外部/动态错误（`err.message`, `record.error`, `run.error`）原样透传，只 i18n fallback 兜底字符串
+- 共用按钮必须用 `common:button.*`，复数用 `_one`/`_other` 后缀
 
 ## Naming Conventions
 

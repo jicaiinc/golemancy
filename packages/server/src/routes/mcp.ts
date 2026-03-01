@@ -29,7 +29,7 @@ export function createMCPRoutes(deps: MCPRouteDeps) {
     const projectId = c.req.param('projectId') as ProjectId
     const name = c.req.param('name')
     const server = await deps.mcpStorage.getByName(projectId, name)
-    if (!server) return c.json({ error: 'MCP server not found' }, 404)
+    if (!server) return c.json({ error: 'MCP_SERVER_NOT_FOUND' }, 404)
     return c.json(server)
   })
 
@@ -38,17 +38,17 @@ export function createMCPRoutes(deps: MCPRouteDeps) {
     const body = await c.req.json()
     const name = typeof body.name === 'string' ? body.name.trim() : ''
     if (!name) {
-      return c.json({ error: 'name is required' }, 400)
+      return c.json({ error: 'NAME_REQUIRED' }, 400)
     }
     const transportType = body.transportType
     if (!transportType || !['stdio', 'sse', 'http'].includes(transportType)) {
-      return c.json({ error: 'transportType must be one of: stdio, sse, http' }, 400)
+      return c.json({ error: 'INVALID_TRANSPORT_TYPE' }, 400)
     }
 
     // Check for duplicate name
     const existing = await deps.mcpStorage.getByName(projectId, name)
     if (existing) {
-      return c.json({ error: `MCP server "${name}" already exists` }, 409)
+      return c.json({ error: 'MCP_SERVER_DUPLICATE' }, 409)
     }
 
     const data = {
@@ -76,7 +76,7 @@ export function createMCPRoutes(deps: MCPRouteDeps) {
     const body = await c.req.json()
 
     if (body.transportType && !['stdio', 'sse', 'http'].includes(body.transportType)) {
-      return c.json({ error: 'Invalid transportType' }, 400)
+      return c.json({ error: 'INVALID_TRANSPORT_TYPE' }, 400)
     }
 
     const data: MCPServerUpdateData = {}
@@ -104,7 +104,7 @@ export function createMCPRoutes(deps: MCPRouteDeps) {
       return c.json(server)
     } catch (err) {
       if (err instanceof Error && err.message.includes('not found')) {
-        return c.json({ error: 'MCP server not found' }, 404)
+        return c.json({ error: 'MCP_SERVER_NOT_FOUND' }, 404)
       }
       throw err
     }
@@ -120,7 +120,7 @@ export function createMCPRoutes(deps: MCPRouteDeps) {
     const referencingAgents = agents.filter(a => a.mcpServers.includes(name))
     if (referencingAgents.length > 0) {
       return c.json({
-        error: 'MCP server is referenced by agents',
+        error: 'MCP_SERVER_IN_USE',
         agents: referencingAgents.map(a => ({ id: a.id, name: a.name })),
       }, 409)
     }
@@ -131,7 +131,7 @@ export function createMCPRoutes(deps: MCPRouteDeps) {
       return c.json({ ok: true })
     } catch (err) {
       if (err instanceof Error && err.message.includes('not found')) {
-        return c.json({ error: 'MCP server not found' }, 404)
+        return c.json({ error: 'MCP_SERVER_NOT_FOUND' }, 404)
       }
       throw err
     }
@@ -143,7 +143,7 @@ export function createMCPRoutes(deps: MCPRouteDeps) {
     const projectId = c.req.param('projectId') as ProjectId
     const name = c.req.param('name')
     const server = await deps.mcpStorage.getByName(projectId, name)
-    if (!server) return c.json({ error: 'MCP server not found' }, 404)
+    if (!server) return c.json({ error: 'MCP_SERVER_NOT_FOUND' }, 404)
 
     log.debug({ projectId, name }, 'testing MCP server connectivity')
 

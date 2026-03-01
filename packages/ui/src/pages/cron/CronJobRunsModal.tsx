@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import type { CronJobId, CronJobRun } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelCard, PixelBadge, PixelSpinner } from '../../components'
@@ -30,6 +31,7 @@ const statusVariant: Record<CronJobRun['status'], 'success' | 'error' | 'running
 }
 
 export function CronJobRunsModal({ open, onClose, cronJobId, cronJobName }: CronJobRunsModalProps) {
+  const { t } = useTranslation('cron')
   const { projectId } = useParams()
   const navigate = useNavigate()
   const cronJobRuns = useAppStore(s => s.cronJobRuns)
@@ -48,24 +50,28 @@ export function CronJobRunsModal({ open, onClose, cronJobId, cronJobName }: Cron
     navigate(`/projects/${projectId}/chat?conv=${run.conversationId}`)
   }
 
+  const title = cronJobName
+    ? t('runsModal.titleWithName', { name: cronJobName })
+    : t('runsModal.title')
+
   return (
     <PixelModal
       open={open}
       onClose={onClose}
-      title={`Run History${cronJobName ? ` — ${cronJobName}` : ''}`}
+      title={title}
       size="lg"
     >
       {cronJobRunsLoading ? (
         <div className="flex justify-center py-8"><PixelSpinner /></div>
       ) : cronJobRuns.length === 0 ? (
-        <p className="text-[11px] text-text-dim text-center py-8">No runs yet</p>
+        <p className="text-[11px] text-text-dim text-center py-8">{t('runsModal.noRuns')}</p>
       ) : (
         <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto">
           {cronJobRuns.map(run => (
             <PixelCard key={run.id} variant="outlined" className="p-3">
               <div className="flex items-center gap-3">
                 <PixelBadge variant={statusVariant[run.status]}>
-                  {run.status}
+                  {t(`status.${run.status}`)}
                 </PixelBadge>
                 <PixelBadge variant="info">
                   {run.triggeredBy}
@@ -81,7 +87,7 @@ export function CronJobRunsModal({ open, onClose, cronJobId, cronJobName }: Cron
                     className="font-pixel text-[8px] text-accent-cyan hover:text-accent-blue transition-colors cursor-pointer"
                     onClick={() => handleOpenChat(run)}
                   >
-                    OPEN CHAT &rarr;
+                    {t('runsModal.openChat')}
                   </button>
                 )}
               </div>

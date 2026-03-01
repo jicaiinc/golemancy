@@ -289,7 +289,8 @@ describe('ChatWindow', () => {
       useChatError = new Error('{"error":"Internal Server Error"}')
       render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
 
-      expect(screen.getByText('Something went wrong. Please try again later.')).toBeInTheDocument()
+      // i18next mock returns last key segment: 'error:fallback.generic' → 'generic'
+      expect(screen.getByText('generic')).toBeInTheDocument()
     })
 
     it('calls clearError when dismiss button is clicked on error banner', () => {
