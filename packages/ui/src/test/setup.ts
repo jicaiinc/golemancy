@@ -138,6 +138,7 @@ vi.mock('i18next', () => {
     t: (key: string) => key.split('.').pop() ?? key,
     use: () => instance,
     init: () => instance,
+    on: vi.fn(),
     language: 'en',
     changeLanguage: vi.fn(),
   }

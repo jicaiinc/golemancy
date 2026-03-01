@@ -96,4 +96,12 @@ i18next
     },
   })
 
+// Sync <html lang="..."> with current language so CSS :lang() selectors work
+i18next.on('languageChanged', (lng: string) => {
+  document.documentElement.lang = lng
+})
+if (i18next.language) {
+  document.documentElement.lang = i18next.language
+}
+
 export default i18next

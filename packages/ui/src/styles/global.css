@@ -172,6 +172,56 @@
   --shadow-pixel-drop: var(--shadow-pixel-drop);
 }
 
+/* === CJK pixel font (Fusion Pixel 12px) — per-language variants === */
+
+@font-face {
+  font-family: "Fusion Pixel ZH-Hans";
+  src: url("../assets/fonts/fusion-pixel-12px-zh_hans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fusion Pixel ZH-Hant";
+  src: url("../assets/fonts/fusion-pixel-12px-zh_hant.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fusion Pixel JA";
+  src: url("../assets/fonts/fusion-pixel-12px-ja.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fusion Pixel KO";
+  src: url("../assets/fonts/fusion-pixel-12px-ko.woff2") format("woff2");
+  font-display: swap;
+}
+
+/* Language-specific font overrides (requires <html lang="..."> to be set by i18n) */
+/* :lang(zh) matches zh, zh-CN, zh-TW etc. — zh-TW/zh-HK rule below overrides it */
+:root:lang(zh) {
+  --font-pixel: "Press Start 2P", "Fusion Pixel ZH-Hans", monospace;
+  --font-mono: "JetBrains Mono", "Fusion Pixel ZH-Hans", Menlo, Consolas, monospace;
+}
+
+:root:lang(zh-TW),
+:root:lang(zh-HK),
+:root:lang(zh-Hant) {
+  --font-pixel: "Press Start 2P", "Fusion Pixel ZH-Hant", monospace;
+  --font-mono: "JetBrains Mono", "Fusion Pixel ZH-Hant", Menlo, Consolas, monospace;
+}
+
+:root:lang(ja) {
+  --font-pixel: "Press Start 2P", "Fusion Pixel JA", monospace;
+  --font-mono: "JetBrains Mono", "Fusion Pixel JA", Menlo, Consolas, monospace;
+}
+
+:root:lang(ko) {
+  --font-pixel: "Press Start 2P", "Fusion Pixel KO", monospace;
+  --font-mono: "JetBrains Mono", "Fusion Pixel KO", Menlo, Consolas, monospace;
+}
+
 /* === Base reset for pixel art === */
 
 *,
