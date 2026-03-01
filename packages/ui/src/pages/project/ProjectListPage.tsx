@@ -54,7 +54,7 @@ export function ProjectListPage() {
         {/* Project grid */}
         {projects.length === 0 ? (
           <PixelCard variant="outlined" className="text-center py-12">
-            <div className="font-pixel text-[20px] text-text-dim mb-4">⛏</div>
+            <div className="font-arcade text-[20px] text-text-dim mb-4">⛏</div>
             <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('list.empty')}</p>
             <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
               {t('list.createFirst')}

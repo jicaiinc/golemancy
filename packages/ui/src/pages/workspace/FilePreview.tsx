@@ -51,7 +51,7 @@ export function FilePreview({ preview, loading, onDelete }: FilePreviewProps) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <div className="font-pixel text-[14px] text-text-dim mb-2">FILE</div>
+          <div className="font-arcade text-[14px] text-text-dim mb-2">FILE</div>
           <p className="font-pixel text-[10px] text-text-secondary">{t('workspace:preview.selectFile')}</p>
         </div>
       </div>
@@ -220,7 +220,7 @@ function MetaPreview({ preview, t }: { preview: FilePreviewData; t: ReturnType<t
   return (
     <PixelCard variant="elevated">
       <div className="text-center py-4">
-        <div className="font-pixel text-[14px] text-text-dim mb-4">FILE</div>
+        <div className="font-arcade text-[14px] text-text-dim mb-4">FILE</div>
         <h3 className="text-[14px] text-text-primary mb-4 font-mono">{preview.path.split('/').pop()}</h3>
         <div className="grid grid-cols-2 gap-2 max-w-[300px] mx-auto text-left">
           <span className="text-[10px] text-text-dim font-pixel">{t('workspace:preview.meta.type')}</span>

@@ -144,7 +144,7 @@ export function SkillsPage() {
             ) : skills.length === 0 ? (
               <motion.div {...staggerItem}>
                 <PixelCard variant="outlined" className="text-center py-12">
-                  <div className="font-pixel text-[20px] text-text-dim mb-4">&lt;&gt;</div>
+                  <div className="font-arcade text-[20px] text-text-dim mb-4">&lt;&gt;</div>
                   <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('skill:empty.title')}</p>
                   <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
                     {t('skill:empty.createFirstBtn')}

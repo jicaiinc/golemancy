@@ -242,7 +242,7 @@ export function OnboardingPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b-2 border-border-dim">
         <div className="flex items-center gap-3">
-          <span className="font-pixel text-[12px] text-accent-green">Golemancy</span>
+          <span className="font-arcade text-[12px] text-accent-green">Golemancy</span>
           <span className="font-pixel text-[9px] text-text-dim">{t('header.setup')}</span>
         </div>
         {step < TOTAL_STEPS - 1 && (

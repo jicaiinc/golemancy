@@ -9,6 +9,7 @@ import { PixelDropdown } from '../../components/base/PixelDropdown'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { SpeechTab } from './SpeechTab'
 import { PROVIDER_PRESETS } from '../../lib/provider-presets'
+import { LANGUAGES } from '../../i18n/languages'
 
 const SDK_TYPE_OPTIONS: { value: ProviderSdkType; label: string }[] = [
   { value: 'anthropic', label: 'Anthropic' },
@@ -603,10 +604,10 @@ function GeneralTab() {
     { mode: 'system', label: t('general.system'), bgPreview: 'bg-gradient-to-r from-[#F5F3EE] to-[#0B0E14]', surfPreview: 'bg-gradient-to-r from-[#DEDBD4] to-[#1E2430]', textPreview: 'bg-gradient-to-r from-[#1A1612] to-[#E8ECF1]' },
   ]
 
-  const languageOptions = [
-    { label: 'English', value: 'en', selected: i18n.language === 'en' },
-    { label: '中文', value: 'zh', selected: i18n.language === 'zh' },
-  ]
+  const languageOptions = LANGUAGES.map(lang => ({
+    ...lang,
+    selected: i18n.language === lang.value,
+  }))
 
   return (
     <div className="flex flex-col gap-4">

@@ -165,6 +165,7 @@
   /* Fonts */
   --font-pixel: "Press Start 2P", monospace;
   --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
+  --font-arcade: "Press Start 2P", monospace;
 
   /* Pixel shadows */
   --shadow-pixel-raised: var(--shadow-pixel-raised);
@@ -198,28 +199,29 @@
   font-display: swap;
 }
 
-/* Language-specific font overrides (requires <html lang="..."> to be set by i18n) */
-/* :lang(zh) matches zh, zh-CN, zh-TW etc. — zh-TW/zh-HK rule below overrides it */
+/* Language-specific font overrides (requires <html lang="..."> to be set by i18n).
+   Fusion Pixel is placed FIRST so CJK and Latin chars share the same baseline.
+   :lang(zh) matches zh, zh-CN, zh-TW etc. — zh-TW/zh-HK rule below overrides it. */
 :root:lang(zh) {
-  --font-pixel: "Press Start 2P", "Fusion Pixel ZH-Hans", monospace;
-  --font-mono: "JetBrains Mono", "Fusion Pixel ZH-Hans", Menlo, Consolas, monospace;
+  --font-pixel: "Fusion Pixel ZH-Hans", "Press Start 2P", monospace;
+  --font-mono: "Fusion Pixel ZH-Hans", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
 :root:lang(zh-TW),
 :root:lang(zh-HK),
 :root:lang(zh-Hant) {
-  --font-pixel: "Press Start 2P", "Fusion Pixel ZH-Hant", monospace;
-  --font-mono: "JetBrains Mono", "Fusion Pixel ZH-Hant", Menlo, Consolas, monospace;
+  --font-pixel: "Fusion Pixel ZH-Hant", "Press Start 2P", monospace;
+  --font-mono: "Fusion Pixel ZH-Hant", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
 :root:lang(ja) {
-  --font-pixel: "Press Start 2P", "Fusion Pixel JA", monospace;
-  --font-mono: "JetBrains Mono", "Fusion Pixel JA", Menlo, Consolas, monospace;
+  --font-pixel: "Fusion Pixel JA", "Press Start 2P", monospace;
+  --font-mono: "Fusion Pixel JA", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
 :root:lang(ko) {
-  --font-pixel: "Press Start 2P", "Fusion Pixel KO", monospace;
-  --font-mono: "JetBrains Mono", "Fusion Pixel KO", Menlo, Consolas, monospace;
+  --font-pixel: "Fusion Pixel KO", "Press Start 2P", monospace;
+  --font-mono: "Fusion Pixel KO", "JetBrains Mono", Menlo, Consolas, monospace;
 }
 
 /* === Base reset for pixel art === */

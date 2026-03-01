@@ -187,7 +187,11 @@ Tailwind CSS v4 with CSS-first config in `packages/ui/src/styles/global.css`:
 
 ## Internationalization (i18n)
 
-`react-i18next` + `i18next`，17 个 namespace，764 keys，支持 en/zh。翻译文件：`packages/ui/src/locales/{lang}/{namespace}.json`。详细 key 清单见 `_design/i18n-key-summary.md`。
+`react-i18next` + `i18next`，17 个 namespace，22 种语言。翻译文件：`packages/ui/src/locales/{lang}/{namespace}.json`。详细 key 清单见 `_design/i18n-key-summary.md`。
+
+**英文 (`en`) 是唯一标杆**。新功能只需实现英文翻译，其他语言后续补齐即可。
+
+**校验**：`pnpm check:i18n`（可指定语言如 `pnpm check:i18n ja de`）。检查缺失 key、多余 key、`{{placeholder}}` 一致性。缺失/占位符错误 → exit 1；仅多余 key → warning。
 
 **i18n Notes:**
 - `server/agent/` 下所有文本（tool descriptions, system prompts, tool results, 权限拦截错误）是给 AI 读的，永远不做 i18n

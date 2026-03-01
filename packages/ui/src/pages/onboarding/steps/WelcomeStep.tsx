@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { PixelButton } from '../../../components'
 import { PixelDropdown } from '../../../components/base/PixelDropdown'
+import { LANGUAGES } from '../../../i18n/languages'
 import logoSrc from '../../../assets/logo.png'
 
 // NOTE: Feature grid (8 cards with SVG icons matching golemancy.ai) is available
@@ -15,10 +16,10 @@ interface WelcomeStepProps {
 export function WelcomeStep({ onGetStarted, onLanguageChange }: WelcomeStepProps) {
   const { t, i18n } = useTranslation('onboarding')
 
-  const languageOptions = [
-    { label: 'English', value: 'en', selected: i18n.language === 'en' },
-    { label: '中文', value: 'zh', selected: i18n.language === 'zh' },
-  ]
+  const languageOptions = LANGUAGES.map(lang => ({
+    ...lang,
+    selected: i18n.language === lang.value,
+  }))
 
   return (
     <div className="flex flex-col items-center justify-center gap-5 text-center min-h-[50vh]">
