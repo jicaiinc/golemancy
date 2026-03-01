@@ -30,6 +30,7 @@ export interface GlobalSettings {
   providers: Record<string, ProviderEntry>
   defaultModel?: AgentModelConfig
   theme: ThemeMode
+  language?: string
   speechToText?: SpeechToTextSettings
   onboardingCompleted?: boolean
   onboardingStep?: number

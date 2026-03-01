@@ -42,7 +42,6 @@ i18next
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    lng: 'en',
     fallbackLng: 'en',
     supportedLngs: ['en', 'zh'],
     defaultNS: 'common',

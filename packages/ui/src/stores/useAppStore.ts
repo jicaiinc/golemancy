@@ -12,6 +12,7 @@ import type {
   AgentStatus,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
+import i18next from 'i18next'
 import { getServices } from '../services'
 import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
 
@@ -739,6 +740,10 @@ export const useAppStore = create<AppState>()(
         set({ settings })
         // Sync persisted theme with loaded settings (if not already overridden)
         applyThemeToDOM(get().themeMode)
+        // Sync language from server-side settings (fallback if localStorage was cleared)
+        if (settings.language) {
+          i18next.changeLanguage(settings.language)
+        }
       },
 
       async updateSettings(data) {
@@ -747,6 +752,9 @@ export const useAppStore = create<AppState>()(
         if (data.theme) {
           set({ themeMode: data.theme })
           applyThemeToDOM(data.theme)
+        }
+        if (data.language) {
+          i18next.changeLanguage(data.language)
         }
       },
 

@@ -652,7 +652,7 @@ function GeneralTab() {
             </PixelButton>
           }
           items={languageOptions}
-          onSelect={value => i18n.changeLanguage(value)}
+          onSelect={value => { i18n.changeLanguage(value); updateSettings({ language: value }) }}
         />
       </PixelCard>
     </div>
