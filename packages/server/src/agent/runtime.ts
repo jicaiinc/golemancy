@@ -1,5 +1,6 @@
 import { streamText, stepCountIs, type ModelMessage, type ToolSet } from 'ai'
 import type { Agent, ConversationId, GlobalSettings } from '@golemancy/shared'
+import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import { resolveModel } from './model'
 import { logger } from '../logger'
 
@@ -34,7 +35,7 @@ export async function runAgent(params: RunAgentParams) {
     system: agent.systemPrompt,
     messages,
     tools,
-    stopWhen: stepCountIs(10),
+    stopWhen: stepCountIs(DEFAULT_MAX_STEPS),
     abortSignal,
     onStepFinish: ({ toolCalls, usage }) => {
       if (onEvent) {

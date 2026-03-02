@@ -8,7 +8,7 @@ import type {
   AgentId, ProjectId, ConversationId, MessageId, CompactRecord, Message,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
-import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { CompactRecordStorage } from '../storage/compact-records'
@@ -333,7 +333,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           system: systemPrompt,
           messages: modelMessages,
           tools: hasTools ? allTools : undefined,
-          stopWhen: hasTools ? stepCountIs(10) : undefined,
+          stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           abortSignal: c.req.raw.signal,
           onStepFinish: ({ usage, finishReason, toolCalls }) => {
             stepIndex++

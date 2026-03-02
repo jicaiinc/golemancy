@@ -1,6 +1,7 @@
 import { tool, streamText, stepCountIs, type ToolSet } from 'ai'
 import { z } from 'zod'
 import type { Agent, GlobalSettings, ProjectId, IMCPService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
+import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
 import { resolveModel } from './model'
@@ -94,7 +95,7 @@ export function createSubAgentTool(
           model: childModel,
           system: systemPrompt,
           tools: hasTools ? childToolsResult.tools : undefined,
-          stopWhen: hasTools ? stepCountIs(10) : undefined,
+          stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           prompt: context ? `${task}\n\nContext: ${context}` : task,
           abortSignal,
           onAbort: async ({ steps }) => {
