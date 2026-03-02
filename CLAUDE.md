@@ -55,6 +55,9 @@ pnpm test:build
 # Package for distribution
 pnpm pack    # build + electron-builder --dir (local test)
 pnpm dist    # build + electron-builder (distributable)
+
+# Test auto-update UI (set a version lower than latest GitHub release)
+GOLEMANCY_DEV_UPDATE_CHECK=1 pnpm dev
 ```
 
 ## Monorepo Structure

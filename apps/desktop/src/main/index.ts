@@ -284,11 +284,11 @@ app.whenReady().then(async () => {
 
   createWindow()
 
-  // Start update checker (only in packaged builds)
-  if (app.isPackaged) {
+  // Start update checker (packaged builds, or dev with GOLEMANCY_DEV_UPDATE_CHECK=1)
+  console.log('[updater] app.isPackaged=%s, GOLEMANCY_DEV_UPDATE_CHECK=%s', app.isPackaged, process.env.GOLEMANCY_DEV_UPDATE_CHECK)
+  if (app.isPackaged || process.env.GOLEMANCY_DEV_UPDATE_CHECK) {
     startUpdateChecker(APP_VERSION)
   }
-
   ipcMain.handle('update:open-download', (_event, url: string) => {
     return openDownloadUrl(url)
   })

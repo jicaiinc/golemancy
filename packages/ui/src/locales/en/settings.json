@@ -20,7 +20,7 @@
   },
   "update": {
     "sectionTitle": "UPDATES",
-    "checkForUpdates": "Check for updates",
+    "checkForUpdates": "Update notifications",
     "upToDate": "You're up to date — v{{version}}",
     "available": "UPDATE AVAILABLE",
     "newVersion": "v{{current}} → v{{latest}}",

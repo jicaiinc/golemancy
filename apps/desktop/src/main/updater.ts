@@ -79,6 +79,8 @@ export function getLatestUpdateInfo(): UpdateInfo | null {
 }
 
 export function startUpdateChecker(currentVersion: string): void {
+  logger.info({ currentVersion }, 'update checker started, first check in %ds', INITIAL_DELAY_MS / 1000)
+
   async function check() {
     const info = await fetchLatestRelease(currentVersion)
     if (info) {
