@@ -3,7 +3,7 @@ import type {
   PaginationParams, PaginatedResult,
   IConversationService,
 } from '@golemancy/shared'
-import { eq, and, desc, sql } from 'drizzle-orm'
+import { eq, desc, sql } from 'drizzle-orm'
 import type { AppDatabase } from '../db/client'
 import * as schema from '../db/schema'
 import { generateId } from '../utils/ids'
@@ -20,17 +20,14 @@ export class SqliteConversationStorage implements IConversationService {
 
   async list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]> {
     const db = this.getProjectDb(projectId)
-    const conditions = agentId
-      ? and(eq(schema.conversations.projectId, projectId), eq(schema.conversations.agentId, agentId))
-      : eq(schema.conversations.projectId, projectId)
 
     const rows = await db
       .select()
       .from(schema.conversations)
-      .where(conditions)
+      .where(agentId ? eq(schema.conversations.agentId, agentId) : undefined)
       .orderBy(desc(schema.conversations.updatedAt))
 
-    return rows.map(r => this.rowToConversation(r))
+    return rows.map(r => this.rowToConversation(r, projectId))
   }
 
   async getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null> {
@@ -38,14 +35,14 @@ export class SqliteConversationStorage implements IConversationService {
     const rows = await db
       .select()
       .from(schema.conversations)
-      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))
+      .where(eq(schema.conversations.id, id))
       .limit(1)
 
     if (rows.length === 0) return null
 
     const messages = await this.loadMessages(db, id)
     log.debug({ conversationId: id, messageCount: messages.length }, 'getById loaded messages')
-    return this.rowToConversation(rows[0], messages)
+    return this.rowToConversation(rows[0], projectId, messages)
   }
 
   async create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation> {
@@ -56,7 +53,6 @@ export class SqliteConversationStorage implements IConversationService {
 
     await db.insert(schema.conversations).values({
       id,
-      projectId,
       agentId,
       title,
       lastMessageAt: now,
@@ -78,7 +74,7 @@ export class SqliteConversationStorage implements IConversationService {
 
   async sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void> {
     const db = this.getProjectDb(projectId)
-    await this.verifyOwnership(db, projectId, conversationId)
+    await this.verifyOwnership(db, conversationId)
 
     const now = new Date().toISOString()
     const msgId = generateId('msg')
@@ -104,7 +100,7 @@ export class SqliteConversationStorage implements IConversationService {
     data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; contextTokens?: number; provider?: string; model?: string; metadata?: Record<string, unknown> },
   ): Promise<void> {
     const db = this.getProjectDb(projectId)
-    await this.verifyOwnership(db, projectId, conversationId)
+    await this.verifyOwnership(db, conversationId)
 
     // Dedup: skip if message with this ID already exists
     const existing = await db
@@ -151,7 +147,7 @@ export class SqliteConversationStorage implements IConversationService {
     await db
       .update(schema.conversations)
       .set(updateFields)
-      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))
+      .where(eq(schema.conversations.id, id))
 
     const updated = await this.getById(projectId, id)
     if (!updated) throw new Error(`Conversation ${id} not found in project ${projectId}`)
@@ -163,7 +159,7 @@ export class SqliteConversationStorage implements IConversationService {
     log.debug({ projectId, conversationId: id }, 'deleting conversation')
     await db
       .delete(schema.conversations)
-      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.projectId, projectId)))
+      .where(eq(schema.conversations.id, id))
   }
 
   async getMessages(
@@ -172,7 +168,7 @@ export class SqliteConversationStorage implements IConversationService {
     params: PaginationParams,
   ): Promise<PaginatedResult<Message>> {
     const db = this.getProjectDb(projectId)
-    await this.verifyOwnership(db, projectId, conversationId)
+    await this.verifyOwnership(db, conversationId)
 
     const { page, pageSize } = params
     const offset = (page - 1) * pageSize
@@ -228,9 +224,7 @@ export class SqliteConversationStorage implements IConversationService {
       SELECT m.*
       FROM messages_fts fts
       JOIN messages m ON m.rowid = fts.rowid
-      JOIN conversations c ON c.id = m.conversation_id
       WHERE fts.content MATCH ${sanitized}
-        AND c.project_id = ${projectId}
       ORDER BY rank
       LIMIT ${pageSize}
       OFFSET ${offset}
@@ -240,9 +234,7 @@ export class SqliteConversationStorage implements IConversationService {
       SELECT count(*) as cnt
       FROM messages_fts fts
       JOIN messages m ON m.rowid = fts.rowid
-      JOIN conversations c ON c.id = m.conversation_id
       WHERE fts.content MATCH ${sanitized}
-        AND c.project_id = ${projectId}
     `)
 
     return {
@@ -269,16 +261,15 @@ export class SqliteConversationStorage implements IConversationService {
 
   private async verifyOwnership(
     db: AppDatabase,
-    projectId: ProjectId,
     conversationId: ConversationId,
   ): Promise<void> {
     const rows = await db
       .select({ id: schema.conversations.id })
       .from(schema.conversations)
-      .where(and(eq(schema.conversations.id, conversationId), eq(schema.conversations.projectId, projectId)))
+      .where(eq(schema.conversations.id, conversationId))
       .limit(1)
     if (rows.length === 0) {
-      throw new Error(`Conversation ${conversationId} not found in project ${projectId}`)
+      throw new Error(`Conversation ${conversationId} not found`)
     }
   }
 
@@ -292,10 +283,10 @@ export class SqliteConversationStorage implements IConversationService {
     return rows.map(r => this.rowToMessage(r))
   }
 
-  private rowToConversation(row: typeof schema.conversations.$inferSelect, messages: Message[] = []): Conversation {
+  private rowToConversation(row: typeof schema.conversations.$inferSelect, projectId: ProjectId, messages: Message[] = []): Conversation {
     return {
       id: row.id as ConversationId,
-      projectId: row.projectId as ProjectId,
+      projectId,
       agentId: row.agentId as AgentId,
       title: row.title,
       messages,

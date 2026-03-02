@@ -5,9 +5,8 @@ import type { AppDatabase } from '../db/client'
 import type { ProjectId, AgentId, ConversationId, MessageId } from '@golemancy/shared'
 
 describe('SqliteConversationStorage', () => {
-  let db: AppDatabase
-  let close: () => void
   let storage: SqliteConversationStorage
+  const projectDbs = new Map<string, { db: AppDatabase; close: () => void }>()
 
   const projId = 'proj-1' as ProjectId
   const projId2 = 'proj-2' as ProjectId
@@ -15,15 +14,18 @@ describe('SqliteConversationStorage', () => {
   const agentId2 = 'agent-2' as AgentId
 
   beforeEach(() => {
-    const test = createTestDb()
-    db = test.db
-    close = test.close
-    // All projects share the same in-memory DB for test simplicity
-    storage = new SqliteConversationStorage(() => db)
+    // Each project gets its own in-memory DB (matches real per-project DB architecture)
+    storage = new SqliteConversationStorage((projectId: ProjectId) => {
+      if (!projectDbs.has(projectId)) {
+        projectDbs.set(projectId, createTestDb())
+      }
+      return projectDbs.get(projectId)!.db
+    })
   })
 
   afterEach(() => {
-    close()
+    for (const { close } of projectDbs.values()) close()
+    projectDbs.clear()
   })
 
   describe('create', () => {

@@ -2,7 +2,6 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 
 export const conversations = sqliteTable('conversations', {
   id: text('id').primaryKey(),
-  projectId: text('project_id').notNull(),
   agentId: text('agent_id').notNull(),
   title: text('title').notNull(),
   lastMessageAt: text('last_message_at'),
@@ -72,7 +71,6 @@ export const compactRecords = sqliteTable('compact_records', {
 export const cronJobRuns = sqliteTable('cron_job_runs', {
   id: text('id').primaryKey(),
   cronJobId: text('cron_job_id').notNull(),
-  projectId: text('project_id').notNull(),
   agentId: text('agent_id').notNull(),
   conversationId: text('conversation_id'),
   status: text('status').notNull().default('running'),

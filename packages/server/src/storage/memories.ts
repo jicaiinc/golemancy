@@ -20,7 +20,7 @@ export class FileMemoryStorage implements IMemoryService {
   async list(projectId: ProjectId): Promise<MemoryEntry[]> {
     const entries = await listJsonFiles<MemoryEntry>(this.memoryDir(projectId))
     log.debug({ projectId, count: entries.length }, 'listed memories')
-    return entries
+    return entries.map(e => ({ ...e, projectId }))
   }
 
   async create(
@@ -39,7 +39,9 @@ export class FileMemoryStorage implements IMemoryService {
       updatedAt: now,
     }
 
-    await writeJson(this.memoryPath(projectId, id), entry)
+    // Write without projectId — ownership is determined by directory
+    const { projectId: _, ...toWrite } = entry
+    await writeJson(this.memoryPath(projectId, id), toWrite)
     return entry
   }
 
@@ -55,9 +57,12 @@ export class FileMemoryStorage implements IMemoryService {
     const updated: MemoryEntry = {
       ...existing,
       ...data,
+      projectId,
       updatedAt: new Date().toISOString(),
     }
-    await writeJson(this.memoryPath(projectId, id), updated)
+    // Write without projectId — ownership is determined by directory
+    const { projectId: _, ...toWrite } = updated
+    await writeJson(this.memoryPath(projectId, id), toWrite)
     return updated
   }
 

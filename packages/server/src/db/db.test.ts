@@ -40,11 +40,6 @@ describe('database migration', () => {
   })
 
   describe('indexes', () => {
-    it('creates conversation project index', () => {
-      const rows = db.all<any>(sql`SELECT name FROM sqlite_master WHERE type='index' AND name='idx_conversations_project'`)
-      expect(rows).toHaveLength(1)
-    })
-
     it('creates conversation agent index', () => {
       const rows = db.all<any>(sql`SELECT name FROM sqlite_master WHERE type='index' AND name='idx_conversations_agent'`)
       expect(rows).toHaveLength(1)
@@ -63,8 +58,8 @@ describe('database migration', () => {
 
   describe('foreign keys', () => {
     it('enforces cascade delete from conversations to messages', () => {
-      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
       db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
         VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"Hello"}]', 'Hello', '2024-01-01')`)
 
@@ -84,8 +79,8 @@ describe('database migration', () => {
 
   describe('FTS5 triggers', () => {
     it('indexes messages on insert', () => {
-      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
       db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
         VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"Hello world testing FTS"}]', 'Hello world testing FTS', '2024-01-01')`)
 
@@ -94,8 +89,8 @@ describe('database migration', () => {
     })
 
     it('removes from index on delete', () => {
-      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
       db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
         VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"unique term xyz"}]', 'unique term xyz', '2024-01-01')`)
 
@@ -106,8 +101,8 @@ describe('database migration', () => {
     })
 
     it('updates index on message update', () => {
-      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
       db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
         VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"old content alpha"}]', 'old content alpha', '2024-01-01')`)
 
@@ -121,8 +116,8 @@ describe('database migration', () => {
     })
 
     it('supports multi-word FTS search', () => {
-      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
       db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
         VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"The quick brown fox jumps"}]', 'The quick brown fox jumps', '2024-01-01')`)
       db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
@@ -135,8 +130,8 @@ describe('database migration', () => {
 
   describe('conversation_tasks', () => {
     it('stores and retrieves tasks', () => {
-      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
       db.run(sql`INSERT INTO conversation_tasks (id, conversation_id, subject, description, status, blocks, blocked_by, created_at, updated_at)
         VALUES ('task-1', 'conv-1', 'Test Task', 'desc', 'pending', '[]', '[]', '2024-01-01', '2024-01-01')`)
 
@@ -146,8 +141,8 @@ describe('database migration', () => {
     })
 
     it('stores JSON metadata', () => {
-      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
       db.run(sql`INSERT INTO conversation_tasks (id, conversation_id, subject, status, metadata, blocks, blocked_by, created_at, updated_at)
         VALUES ('task-1', 'conv-1', 'Task', 'pending', '{"key":"value"}', '[]', '[]', '2024-01-01', '2024-01-01')`)
 
@@ -156,8 +151,8 @@ describe('database migration', () => {
     })
 
     it('cascade deletes when conversation is deleted', () => {
-      db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-        VALUES ('conv-1', 'proj-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
+      db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+        VALUES ('conv-1', 'agent-1', 'Test', '2024-01-01', '2024-01-01')`)
       db.run(sql`INSERT INTO conversation_tasks (id, conversation_id, subject, status, blocks, blocked_by, created_at, updated_at)
         VALUES ('task-1', 'conv-1', 'Task', 'pending', '[]', '[]', '2024-01-01', '2024-01-01')`)
 

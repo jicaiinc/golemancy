@@ -23,7 +23,6 @@ export class SqliteCronJobRunStorage {
     db.insert(cronJobRuns).values({
       id: run.id,
       cronJobId: run.cronJobId,
-      projectId: run.projectId,
       agentId: run.agentId,
       conversationId: run.conversationId,
       status: run.status,
@@ -60,16 +59,15 @@ export class SqliteCronJobRunStorage {
       .orderBy(desc(cronJobRuns.createdAt))
       .limit(limit)
       .all()
-    return rows as CronJobRun[]
+    return (rows as Array<Omit<CronJobRun, 'projectId'>>).map(r => ({ ...r, projectId }) as CronJobRun)
   }
 
   async listByProject(projectId: ProjectId, limit = 50): Promise<CronJobRun[]> {
     const db = this.getProjectDb(projectId)
     const rows = db.select().from(cronJobRuns)
-      .where(eq(cronJobRuns.projectId, projectId))
       .orderBy(desc(cronJobRuns.createdAt))
       .limit(limit)
       .all()
-    return rows as CronJobRun[]
+    return (rows as Array<Omit<CronJobRun, 'projectId'>>).map(r => ({ ...r, projectId }) as CronJobRun)
   }
 }
