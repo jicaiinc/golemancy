@@ -201,7 +201,6 @@ function createWindow(options?: { projectId?: string }): void {
       additionalArguments: [
         `--server-port=${serverPort}`,
         ...(serverToken ? [`--server-token=${serverToken}`] : []),
-        ...(options?.projectId ? [`--project-id=${options.projectId}`] : []),
         `--app-version=${APP_VERSION}`,
       ],
     },
@@ -233,9 +232,15 @@ function createWindow(options?: { projectId?: string }): void {
   })
 
   if (process.env['ELECTRON_RENDERER_URL']) {
-    win.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    const url = options?.projectId
+      ? `${process.env['ELECTRON_RENDERER_URL']}#/projects/${options.projectId}`
+      : process.env['ELECTRON_RENDERER_URL']
+    win.loadURL(url)
   } else {
-    win.loadFile(join(__dirname, '../renderer/index.html'))
+    win.loadFile(
+      join(__dirname, '../renderer/index.html'),
+      options?.projectId ? { hash: `/projects/${options.projectId}` } : undefined,
+    )
   }
 
   // Send cached update info to new windows after page loads

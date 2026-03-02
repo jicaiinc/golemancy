@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, Navigate } from 'react-router'
+import { HashRouter, Routes, Route } from 'react-router'
 import { ProjectLayout } from './layouts/ProjectLayout'
 import { useAppStore } from '../stores'
 import {
@@ -19,17 +19,10 @@ import {
   OnboardingPage,
 } from '../pages'
 
-/** If window was opened with --project-id, redirect to that project */
 function RootRedirect() {
-  // Hooks must be called unconditionally (React rules of hooks)
   const settings = useAppStore(s => s.settings)
   const projects = useAppStore(s => s.projects)
   const projectsLoading = useAppStore(s => s.projectsLoading)
-
-  const projectId = window.electronAPI?.getInitialProjectId()
-  if (projectId) {
-    return <Navigate to={`/projects/${projectId}`} replace />
-  }
 
   // Wait for settings and projects to load before deciding
   if (!settings || projectsLoading) return null

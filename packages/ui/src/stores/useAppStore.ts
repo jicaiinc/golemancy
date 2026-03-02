@@ -243,7 +243,7 @@ export const useAppStore = create<AppState>()(
       // --- Project state ---
       projects: [],
       currentProjectId: null,
-      projectsLoading: false,
+      projectsLoading: true,
 
       async loadProjects() {
         set({ projectsLoading: true })
