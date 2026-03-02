@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Основне",
     "providers": "Провайдери",
-    "speech": "Мовлення"
+    "speech": "Мовлення",
+    "about": "Про програму"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Керуйте своїми AI Golem'ами"
+    "slogan": "Керуй своїми AI Големами",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "ОНОВЛЕННЯ",
+    "checkForUpdates": "Сповіщення про оновлення",
+    "upToDate": "У вас актуальна версія — v{{version}}",
+    "available": "ДОСТУПНЕ ОНОВЛЕННЯ",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Завантажити для {{platform}}",
+    "downloadGeneric": "Завантажити",
+    "skip": "Пропустити цю версію",
+    "skipped": "v{{version}} доступна (пропущено)"
   },
   "general": {
     "appearance": "ОФОРМЛЕННЯ",

@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Algemeen",
     "providers": "Providers",
-    "speech": "Spraak"
+    "speech": "Spraak",
+    "about": "Over"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Bestuur Uw AI Golems"
+    "slogan": "Bestuur je AI Golems",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "UPDATES",
+    "checkForUpdates": "Updatemeldingen",
+    "upToDate": "Je bent up-to-date — v{{version}}",
+    "available": "UPDATE BESCHIKBAAR",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Downloaden voor {{platform}}",
+    "downloadGeneric": "Downloaden",
+    "skip": "Deze versie overslaan",
+    "skipped": "v{{version}} beschikbaar (overgeslagen)"
   },
   "general": {
     "appearance": "UITERLIJK",

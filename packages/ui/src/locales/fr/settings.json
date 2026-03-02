@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Général",
     "providers": "Fournisseurs",
-    "speech": "Voix"
+    "speech": "Voix",
+    "about": "À propos"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Commandez Vos AI Golems"
+    "slogan": "Commandez vos AI Golems",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "MISES À JOUR",
+    "checkForUpdates": "Notifications de mise à jour",
+    "upToDate": "Vous êtes à jour — v{{version}}",
+    "available": "MISE À JOUR DISPONIBLE",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Télécharger pour {{platform}}",
+    "downloadGeneric": "Télécharger",
+    "skip": "Ignorer cette version",
+    "skipped": "v{{version}} disponible (ignorée)"
   },
   "general": {
     "appearance": "APPARENCE",

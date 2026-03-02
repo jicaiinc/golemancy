@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Pangkalahatan",
     "providers": "Mga Provider",
-    "speech": "Pagsasalita"
+    "speech": "Pagsasalita",
+    "about": "Tungkol"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Kontrolin ang Iyong mga AI Golem"
+    "slogan": "Mamuno sa iyong mga AI Golem",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "MGA UPDATE",
+    "checkForUpdates": "Mga notification sa update",
+    "upToDate": "Na-update ka na — v{{version}}",
+    "available": "MAY AVAILABLE NA UPDATE",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "I-download para sa {{platform}}",
+    "downloadGeneric": "I-download",
+    "skip": "Laktawan ang bersyon na ito",
+    "skipped": "v{{version}} available (nilaktawan)"
   },
   "general": {
     "appearance": "HITSURA",

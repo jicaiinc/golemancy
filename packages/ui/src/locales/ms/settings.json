@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Umum",
     "providers": "Provider",
-    "speech": "Pertuturan"
+    "speech": "Pertuturan",
+    "about": "Perihal"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Kawal AI Golem Anda"
+    "slogan": "Kawal AI Golem Anda",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "KEMASKINI",
+    "checkForUpdates": "Pemberitahuan kemaskini",
+    "upToDate": "Anda sudah dikemaskini — v{{version}}",
+    "available": "KEMASKINI TERSEDIA",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Muat turun untuk {{platform}}",
+    "downloadGeneric": "Muat turun",
+    "skip": "Langkau versi ini",
+    "skipped": "v{{version}} tersedia (dilangkau)"
   },
   "general": {
     "appearance": "PENAMPILAN",

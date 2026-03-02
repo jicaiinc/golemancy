@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Umum",
     "providers": "Provider",
-    "speech": "Ucapan"
+    "speech": "Ucapan",
+    "about": "Tentang"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Kendalikan AI Golem Anda"
+    "slogan": "Kendalikan AI Golem Anda",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "PEMBARUAN",
+    "checkForUpdates": "Notifikasi pembaruan",
+    "upToDate": "Anda sudah menggunakan versi terbaru — v{{version}}",
+    "available": "PEMBARUAN TERSEDIA",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Unduh untuk {{platform}}",
+    "downloadGeneric": "Unduh",
+    "skip": "Lewati versi ini",
+    "skipped": "v{{version}} tersedia (dilewati)"
   },
   "general": {
     "appearance": "TAMPILAN",

@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Chung",
     "providers": "Provider",
-    "speech": "Gi\u1ecdng n\u00f3i"
+    "speech": "Gi\u1ecdng n\u00f3i",
+    "about": "Gi\u1edbi thi\u1ec7u"
   },
   "about": {
-    "version": "Golemancy v{{version}} — \u0110i\u1ec1u Khi\u1ec3n AI Golem C\u1ee7a B\u1ea1n"
+    "slogan": "Ch\u1ec9 huy c\u00e1c AI Golem c\u1ee7a b\u1ea1n",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "\u00a9 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "C\u1eacP NH\u1eacT",
+    "checkForUpdates": "Th\u00f4ng b\u00e1o c\u1eadp nh\u1eadt",
+    "upToDate": "B\u1ea1n \u0111ang d\u00f9ng phi\u00ean b\u1ea3n m\u1edbi nh\u1ea5t \u2014 v{{version}}",
+    "available": "C\u00d3 B\u1ea2N C\u1eacP NH\u1eacT",
+    "newVersion": "v{{current}} \u2192 v{{latest}}",
+    "download": "T\u1ea3i xu\u1ed1ng cho {{platform}}",
+    "downloadGeneric": "T\u1ea3i xu\u1ed1ng",
+    "skip": "B\u1ecf qua phi\u00ean b\u1ea3n n\u00e0y",
+    "skipped": "v{{version}} kh\u1ea3 d\u1ee5ng (\u0111\u00e3 b\u1ecf qua)"
   },
   "general": {
     "appearance": "GIAO DI\u1ec6N",

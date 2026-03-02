@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Obecné",
     "providers": "Poskytovatelé",
-    "speech": "Řeč"
+    "speech": "Řeč",
+    "about": "O aplikaci"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Ovládejte své AI Golemy"
+    "slogan": "Ovládej své AI Golemy",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "AKTUALIZACE",
+    "checkForUpdates": "Oznámení o aktualizacích",
+    "upToDate": "Máte nejnovější verzi — v{{version}}",
+    "available": "AKTUALIZACE K DISPOZICI",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Stáhnout pro {{platform}}",
+    "downloadGeneric": "Stáhnout",
+    "skip": "Přeskočit tuto verzi",
+    "skipped": "v{{version}} k dispozici (přeskočeno)"
   },
   "general": {
     "appearance": "VZHLED",

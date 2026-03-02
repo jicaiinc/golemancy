@@ -5,10 +5,29 @@
   "tabs": {
     "general": "一般",
     "providers": "プロバイダー",
-    "speech": "音声"
+    "speech": "音声",
+    "about": "概要"
   },
   "about": {
-    "version": "Golemancy v{{version}} — AI Golem を操ろう"
+    "slogan": "AI Golem を操ろう",
+    "links": {
+      "website": "ウェブサイト",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "アップデート",
+    "checkForUpdates": "更新通知",
+    "upToDate": "最新バージョンです — v{{version}}",
+    "available": "アップデートあり",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "{{platform}} 版をダウンロード",
+    "downloadGeneric": "ダウンロード",
+    "skip": "このバージョンをスキップ",
+    "skipped": "v{{version}} が利用可能（スキップ済み）"
   },
   "general": {
     "appearance": "外観",

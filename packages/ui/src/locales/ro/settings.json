@@ -5,10 +5,29 @@
   "tabs": {
     "general": "General",
     "providers": "Furnizori",
-    "speech": "Vorbire"
+    "speech": "Vorbire",
+    "about": "Despre"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Comandați-vă Golemii AI"
+    "slogan": "Comandă-ți AI Golems",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "ACTUALIZĂRI",
+    "checkForUpdates": "Notificări de actualizare",
+    "upToDate": "Ești la zi — v{{version}}",
+    "available": "ACTUALIZARE DISPONIBILĂ",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Descarcă pentru {{platform}}",
+    "downloadGeneric": "Descarcă",
+    "skip": "Omite această versiune",
+    "skipped": "v{{version}} disponibilă (omisă)"
   },
   "general": {
     "appearance": "ASPECT",

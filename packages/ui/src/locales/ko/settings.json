@@ -5,10 +5,29 @@
   "tabs": {
     "general": "일반",
     "providers": "프로바이더",
-    "speech": "음성"
+    "speech": "음성",
+    "about": "정보"
   },
   "about": {
-    "version": "Golemancy v{{version}} — AI Golem을 지휘하세요"
+    "slogan": "AI 골렘을 지휘하세요",
+    "links": {
+      "website": "웹사이트",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "업데이트",
+    "checkForUpdates": "업데이트 알림",
+    "upToDate": "최신 버전입니다 — v{{version}}",
+    "available": "업데이트 가능",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "{{platform}} 버전 다운로드",
+    "downloadGeneric": "다운로드",
+    "skip": "이 버전 건너뛰기",
+    "skipped": "v{{version}} 사용 가능 (건너뜀)"
   },
   "general": {
     "appearance": "외관",

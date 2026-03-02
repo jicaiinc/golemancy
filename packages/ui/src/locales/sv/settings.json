@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Allmänt",
     "providers": "Providers",
-    "speech": "Tal"
+    "speech": "Tal",
+    "about": "Om"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Styr dina AI Golems"
+    "slogan": "Styr dina AI Golems",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "UPPDATERINGAR",
+    "checkForUpdates": "Uppdateringsaviseringar",
+    "upToDate": "Du är uppdaterad — v{{version}}",
+    "available": "UPPDATERING TILLGÄNGLIG",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Ladda ner för {{platform}}",
+    "downloadGeneric": "Ladda ner",
+    "skip": "Hoppa över denna version",
+    "skipped": "v{{version}} tillgänglig (överhoppad)"
   },
   "general": {
     "appearance": "UTSEENDE",

@@ -5,10 +5,29 @@
   "tabs": {
     "general": "Ogólne",
     "providers": "Dostawcy",
-    "speech": "Mowa"
+    "speech": "Mowa",
+    "about": "O programie"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Dowódź swoimi AI Golemami"
+    "slogan": "Dowódź swoimi AI Golemami",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "AKTUALIZACJE",
+    "checkForUpdates": "Powiadomienia o aktualizacjach",
+    "upToDate": "Masz najnowszą wersję — v{{version}}",
+    "available": "AKTUALIZACJA DOSTĘPNA",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Pobierz dla {{platform}}",
+    "downloadGeneric": "Pobierz",
+    "skip": "Pomiń tę wersję",
+    "skipped": "v{{version}} dostępna (pominięta)"
   },
   "general": {
     "appearance": "WYGLĄD",
