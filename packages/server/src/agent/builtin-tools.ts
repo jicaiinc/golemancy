@@ -183,13 +183,17 @@ async function ensureWorkspaceDir(projectId: string): Promise<string> {
   const workspaceDir = getProjectPath(projectId) + '/workspace'
   await nodeFs.mkdir(workspaceDir, { recursive: true })
 
-  // Anchor package.json so `npm install` stays in workspace instead of
-  // walking up the directory tree to the user's home directory.
+  // Anchor package.json for Node.js runtime — DO NOT REMOVE.
+  // Without this file, `npm install` walks up the directory tree and
+  // installs packages into the user's home directory instead of workspace.
   const pkgJsonPath = workspaceDir + '/package.json'
   try {
     await nodeFs.access(pkgJsonPath)
   } catch {
-    await nodeFs.writeFile(pkgJsonPath, '{ "private": true }\n')
+    await nodeFs.writeFile(pkgJsonPath, JSON.stringify({
+      private: true,
+      description: 'Anchor file for Node.js runtime — DO NOT DELETE. Ensures npm install stays in this workspace.',
+    }, null, 2) + '\n')
   }
 
   return workspaceDir
