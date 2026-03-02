@@ -187,6 +187,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       permissionsConfigId: project?.config.permissionsConfigId,
       permissionsConfigStorage: deps.permissionsConfigStorage,
       conversationId,
+      conversationStorage: deps.conversationStorage,
       taskStorage: deps.taskStorage,
       tokenRecordStorage: deps.tokenRecordStorage,
       onTokenUsage: (usage) => {

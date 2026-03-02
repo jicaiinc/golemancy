@@ -1,11 +1,12 @@
-import { tool, streamText, stepCountIs, type ToolSet } from 'ai'
+import { tool, streamText, stepCountIs, convertToModelMessages, type ToolSet, type UIMessage } from 'ai'
 import { z } from 'zod'
-import type { Agent, GlobalSettings, ProjectId, IMCPService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
+import type { Agent, GlobalSettings, ProjectId, AgentId, ConversationId, IMCPService, IConversationService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
 import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
 import { resolveModel } from './model'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
+import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:sub-agent' })
@@ -30,6 +31,33 @@ type LoadToolsFn = (params: LoadAgentToolsParams) => Promise<AgentToolsResult>
 const TEXT_THROTTLE_MS = 100
 
 /**
+ * Build assistant message parts from SubAgentStreamState.
+ * Format matches the tool-invocation part structure used in conversations.
+ */
+function buildAssistantParts(state: SubAgentStreamState): unknown[] {
+  const parts: unknown[] = []
+
+  for (const tc of state.toolCalls) {
+    parts.push({
+      type: 'tool-invocation',
+      toolInvocation: {
+        toolCallId: tc.id,
+        toolName: tc.name,
+        args: tc.input,
+        state: tc.state === 'done' ? 'result' : 'call',
+        ...(tc.output != null ? { result: tc.output } : {}),
+      },
+    })
+  }
+
+  if (state.text) {
+    parts.push({ type: 'text', text: state.text })
+  }
+
+  return parts
+}
+
+/**
  * Create a single sub-agent delegate tool.
  *
  * The tool is a lightweight shell — it only loads the child agent's tools
@@ -48,18 +76,62 @@ export function createSubAgentTool(
   mcpStorage: IMCPService,
   permissionsConfigStorage: IPermissionsConfigService,
   conversationId?: string,
+  conversationStorage?: IConversationService,
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
 ) {
   return tool({
-    description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}`,
+    description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}. Returns a sessionId in the result — pass it back in subsequent calls to maintain conversation context.`,
     inputSchema: z.object({
       task: z.string().describe('The task to delegate'),
       context: z.string().optional().describe('Additional context'),
+      sessionId: z.string().optional().describe('Session ID from a previous call to resume conversation context. Omit for a new session.'),
     }),
-    execute: async function*({ task, context }, { abortSignal }) {
-      log.debug({ childAgentId: childAgent.id, childAgentName: childAgent.name }, 'delegating to sub-agent')
+    execute: async function*({ task, context, sessionId }, { abortSignal }) {
+      log.debug({ childAgentId: childAgent.id, childAgentName: childAgent.name, sessionId }, 'delegating to sub-agent')
+
+      // --- Session resolution ---
+      let sessionConvId: string | undefined
+      let historyMessages: UIMessage[] = []
+
+      if (conversationStorage) {
+        if (sessionId) {
+          try {
+            const conv = await conversationStorage.getById(projectId as ProjectId, sessionId as ConversationId)
+            if (conv && conv.agentId === childAgent.id) {
+              sessionConvId = conv.id
+              historyMessages = conv.messages.map(m => ({
+                id: m.id,
+                role: m.role as 'user' | 'assistant',
+                parts: m.parts as UIMessage['parts'],
+              }))
+              log.debug({ sessionId, messageCount: historyMessages.length }, 'resumed sub-agent session')
+            } else {
+              log.warn({ sessionId, childAgentId: childAgent.id, foundAgentId: conv?.agentId }, 'invalid sessionId or agentId mismatch, creating new session')
+            }
+          } catch (err) {
+            log.warn({ err, sessionId }, 'failed to load session, creating new one')
+          }
+        }
+
+        if (!sessionConvId) {
+          try {
+            const conv = await conversationStorage.create(
+              projectId as ProjectId,
+              childAgent.id as AgentId,
+              `[Sub-agent] ${childAgent.name}`,
+            )
+            sessionConvId = conv.id
+            log.debug({ sessionConvId }, 'created new sub-agent session')
+          } catch (err) {
+            log.warn({ err, childAgentId: childAgent.id }, 'failed to create sub-agent session, falling back to prompt mode')
+          }
+        }
+      }
+
+      // Session conversationId for task tools scope; fallback to parent conversationId
+      const childConversationId = sessionConvId ?? conversationId
 
       const childToolsResult = await loadTools({
         agent: childAgent,
@@ -68,7 +140,8 @@ export function createSubAgentTool(
         allAgents,
         mcpStorage,
         permissionsConfigStorage,
-        conversationId,
+        conversationId: childConversationId,
+        conversationStorage,
         taskStorage,
         tokenRecordStorage,
         onTokenUsage,
@@ -88,18 +161,43 @@ export function createSubAgentTool(
           text: '',
           toolCalls: [],
           status: 'running',
+          sessionId: sessionConvId,
         }
         yield state
+
+        // --- Build user content and optionally model messages ---
+        const userContent = context ? `${task}\n\nContext: ${context}` : task
+        let modelMessages: Awaited<ReturnType<typeof convertToModelMessages>> | undefined
+
+        if (sessionConvId && conversationStorage) {
+          // Session mode: save user message and build full message history
+          const userMsgId = generateId('msg')
+          await conversationStorage.saveMessage(
+            projectId as ProjectId,
+            sessionConvId as ConversationId,
+            {
+              id: userMsgId,
+              role: 'user',
+              parts: [{ type: 'text', text: userContent }],
+              content: userContent,
+            },
+          )
+
+          const allUIMessages: UIMessage[] = [
+            ...historyMessages,
+            { id: userMsgId, role: 'user' as const, parts: [{ type: 'text' as const, text: userContent }] },
+          ]
+          modelMessages = await convertToModelMessages(allUIMessages)
+        }
 
         const result = streamText({
           model: childModel,
           system: systemPrompt,
           tools: hasTools ? childToolsResult.tools : undefined,
           stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
-          prompt: context ? `${task}\n\nContext: ${context}` : task,
+          ...(modelMessages ? { messages: modelMessages } : { prompt: userContent }),
           abortSignal,
           onAbort: async ({ steps }) => {
-            // Sum usage from completed steps (matches chat.ts pattern)
             let inputTokens = 0, outputTokens = 0
             for (const step of steps) {
               inputTokens += step.usage?.inputTokens ?? 0
@@ -190,7 +288,7 @@ export function createSubAgentTool(
           onTokenUsage({ inputTokens: childInputTokens, outputTokens: childOutputTokens })
         }
 
-        // Persist token_record for the sub-agent API call
+        // Persist token_record for the sub-agent API call (linked to parent conversation)
         if (tokenRecordStorage) {
           try {
             tokenRecordStorage.save(projectId as ProjectId, {
@@ -204,6 +302,30 @@ export function createSubAgentTool(
             })
           } catch (err) {
             log.error({ err, childAgentId: childAgent.id }, 'failed to save sub-agent token record')
+          }
+        }
+
+        // Save assistant message to session (session mode only)
+        if (sessionConvId && conversationStorage) {
+          try {
+            const assistantMsgId = generateId('msg')
+            await conversationStorage.saveMessage(
+              projectId as ProjectId,
+              sessionConvId as ConversationId,
+              {
+                id: assistantMsgId,
+                role: 'assistant',
+                parts: buildAssistantParts(state),
+                content: state.text,
+                inputTokens: childInputTokens,
+                outputTokens: childOutputTokens,
+                contextTokens: childUsage.totalTokens ?? 0,
+                provider: childAgent.modelConfig.provider,
+                model: childAgent.modelConfig.model,
+              },
+            )
+          } catch (err) {
+            log.error({ err, sessionConvId, childAgentId: childAgent.id }, 'failed to save sub-agent assistant message')
           }
         }
 
@@ -233,6 +355,7 @@ export function createSubAgentToolSet(
   mcpStorage: IMCPService,
   permissionsConfigStorage: IPermissionsConfigService,
   conversationId?: string,
+  conversationStorage?: IConversationService,
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
@@ -247,7 +370,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, onTokenUsage)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage)
 
     log.debug(
       { childAgent: childAgent.name, toolName },
