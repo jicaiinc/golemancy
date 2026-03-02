@@ -615,7 +615,6 @@ describe('F: Runtime environment integration', () => {
     expect(env.PIP_CACHE_DIR).toBeTruthy()
     expect(env.VIRTUAL_ENV).toBeTruthy()
     expect(env.npm_config_cache).toBeTruthy()
-    expect(env.NPM_CONFIG_PREFIX).toBeTruthy()
   })
 
   it('F1b: resolvePythonBinary() returns bundled or system python', () => {

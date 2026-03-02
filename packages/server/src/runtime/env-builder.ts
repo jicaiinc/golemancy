@@ -1,12 +1,15 @@
 import { delimiter } from 'node:path'
 import {
+  getBundledCertFilePath,
   getBundledNodeBinDir,
   getProjectPythonEnvPath,
   getProjectPythonEnvBinPath,
   getPipCachePath,
   getNpmCachePath,
-  getNpmGlobalPath,
 } from './paths'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'runtime:env-builder' })
 
 /**
  * Environment variables to inject into subprocess for bundled runtime support.
@@ -21,8 +24,8 @@ export interface RuntimeEnvVars {
   VIRTUAL_ENV: string
   /** npm download cache directory */
   npm_config_cache: string
-  /** npm global install prefix (for npx global installs) */
-  NPM_CONFIG_PREFIX: string
+  /** CA certificate bundle for OpenSSL (Python, curl, git, etc.) */
+  SSL_CERT_FILE?: string
 }
 
 /**
@@ -50,13 +53,21 @@ export function buildRuntimeEnv(projectId: string, basePath?: string): RuntimeEn
   // 3. Original PATH
   pathParts.push(currentPath)
 
-  return {
+  const env: RuntimeEnvVars = {
     PATH: pathParts.join(delimiter),
     PIP_CACHE_DIR: getPipCachePath(),
     VIRTUAL_ENV: getProjectPythonEnvPath(projectId),
     npm_config_cache: getNpmCachePath(),
-    NPM_CONFIG_PREFIX: getNpmGlobalPath(),
   }
+
+  // SSL certificate bundle for bundled Python's statically-compiled OpenSSL.
+  // Covers pip, requests, urllib, curl, git — anything using OpenSSL.
+  const certFile = getBundledCertFilePath()
+  if (certFile) env.SSL_CERT_FILE = certFile
+
+  log.debug({ projectId, env }, 'built runtime env')
+
+  return env
 }
 
 /**
@@ -73,9 +84,12 @@ export function buildMCPRuntimeEnv(basePath?: string): Record<string, string> {
   if (!nodeBinDir) return {}
 
   const currentPath = basePath ?? process.env.PATH ?? ''
-  return {
+  const env = {
     PATH: [nodeBinDir, currentPath].join(delimiter),
     npm_config_cache: getNpmCachePath(),
-    NPM_CONFIG_PREFIX: getNpmGlobalPath(),
   }
+
+  log.debug({ env }, 'built MCP runtime env')
+
+  return env
 }

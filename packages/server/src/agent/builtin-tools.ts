@@ -84,6 +84,8 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
           usesDedicatedWorker: true,
         }
 
+        log.debug({ workspaceDir, runtimeEnv, projectId: options.projectId }, 'sandbox mode: built runtime env')
+
         const handle = await sandboxPool.getHandle(
           options.projectId as ProjectId,
           bridgedConfig,
@@ -110,6 +112,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
       const runtimeEnv = options?.projectId
         ? { ...buildRuntimeEnv(options.projectId) }
         : {}
+      log.debug({ workspaceDir, runtimeEnv, projectId: options?.projectId }, 'unrestricted mode: built runtime env')
       const sandbox = new NativeSandbox({ workspaceRoot: workspaceDir, runtimeEnv })
       return createBashTool({ sandbox, destination: workspaceDir })
     }
@@ -179,6 +182,16 @@ async function createRestrictedBashTool(options?: BuiltinToolOptions) {
 async function ensureWorkspaceDir(projectId: string): Promise<string> {
   const workspaceDir = getProjectPath(projectId) + '/workspace'
   await nodeFs.mkdir(workspaceDir, { recursive: true })
+
+  // Anchor package.json so `npm install` stays in workspace instead of
+  // walking up the directory tree to the user's home directory.
+  const pkgJsonPath = workspaceDir + '/package.json'
+  try {
+    await nodeFs.access(pkgJsonPath)
+  } catch {
+    await nodeFs.writeFile(pkgJsonPath, '{ "private": true }\n')
+  }
+
   return workspaceDir
 }
 

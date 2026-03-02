@@ -21,6 +21,7 @@ vi.mock('node:fs/promises', () => ({
 }))
 
 vi.mock('./paths', () => ({
+  getBundledCertFilePath: vi.fn(() => null),
   getBundledPythonPath: vi.fn(() => null),
   getProjectPythonEnvPath: vi.fn((id: string) => `/data/projects/${id}/runtime/python-env`),
   getProjectPythonEnvBinPath: vi.fn((id: string) => `/data/projects/${id}/runtime/python-env/bin`),

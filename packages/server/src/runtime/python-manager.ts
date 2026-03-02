@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import {
+  getBundledCertFilePath,
   getBundledPythonPath,
   getProjectPythonEnvPath,
   getProjectPythonEnvBinPath,
@@ -109,9 +110,11 @@ export async function installPackages(
   const pipBin = path.join(getProjectPythonEnvBinPath(projectId), 'pip')
   log.info({ projectId, packages }, 'installing Python packages')
 
-  const result = await execCommand(pipBin, ['install', ...packages], {
-    PIP_CACHE_DIR: getPipCachePath(),
-  })
+  const extraEnv: Record<string, string> = { PIP_CACHE_DIR: getPipCachePath() }
+  const certFile = getBundledCertFilePath()
+  if (certFile) extraEnv.SSL_CERT_FILE = certFile
+
+  const result = await execCommand(pipBin, ['install', ...packages], extraEnv)
 
   if (result.exitCode !== 0) {
     throw new Error(`pip install failed:\n${result.stderr}`)

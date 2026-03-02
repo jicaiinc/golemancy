@@ -15,7 +15,6 @@ import {
   getProjectPythonEnvPath,
   getPipCachePath,
   getNpmCachePath,
-  getNpmGlobalPath,
 } from './paths'
 
 const PROJECT_ID = 'proj-envTest1'
@@ -35,7 +34,6 @@ describe('buildRuntimeEnv integration', () => {
     expect(env).toHaveProperty('PIP_CACHE_DIR')
     expect(env).toHaveProperty('VIRTUAL_ENV')
     expect(env).toHaveProperty('npm_config_cache')
-    expect(env).toHaveProperty('NPM_CONFIG_PREFIX')
   })
 
   it('PATH starts with project venv bin directory', () => {
@@ -67,12 +65,6 @@ describe('buildRuntimeEnv integration', () => {
     const env = buildRuntimeEnv(PROJECT_ID)
     expect(env.npm_config_cache).toBe(getNpmCachePath())
     expect(env.npm_config_cache).toContain('cache/npm')
-  })
-
-  it('NPM_CONFIG_PREFIX points to shared npm global prefix', () => {
-    const env = buildRuntimeEnv(PROJECT_ID)
-    expect(env.NPM_CONFIG_PREFIX).toBe(getNpmGlobalPath())
-    expect(env.NPM_CONFIG_PREFIX).toContain('npm-global')
   })
 
   it('uses process.env.PATH when basePath not provided', () => {
@@ -116,13 +108,12 @@ describe('buildRuntimeEnv integration', () => {
       expect(envA.PATH).not.toBe(envB.PATH)
     })
 
-    it('shared dirs (pip cache, npm cache, npm global) are the same', () => {
+    it('shared dirs (pip cache, npm cache) are the same', () => {
       const envA = buildRuntimeEnv('proj-envA')
       const envB = buildRuntimeEnv('proj-envB')
 
       expect(envA.PIP_CACHE_DIR).toBe(envB.PIP_CACHE_DIR)
       expect(envA.npm_config_cache).toBe(envB.npm_config_cache)
-      expect(envA.NPM_CONFIG_PREFIX).toBe(envB.NPM_CONFIG_PREFIX)
     })
   })
 
@@ -183,7 +174,6 @@ describe('buildMCPRuntimeEnv integration', () => {
     const env = buildMCPRuntimeEnv('/usr/bin')
     expect(env.PATH).toBe('/tmp/fake-node:/usr/bin')
     expect(env.npm_config_cache).toBe(getNpmCachePath())
-    expect(env.NPM_CONFIG_PREFIX).toBe(getNpmGlobalPath())
 
     if (saved !== undefined) process.env.GOLEMANCY_NODE_PATH = saved
     else delete process.env.GOLEMANCY_NODE_PATH
