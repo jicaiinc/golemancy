@@ -92,6 +92,7 @@ export function createMockStorage(): MockStorage {
       }),
       update: vi.fn(),
       testProvider: vi.fn(),
+      testEmbedding: vi.fn(),
     },
     dashboardService: {
       getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),

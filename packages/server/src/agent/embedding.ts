@@ -33,6 +33,7 @@ export function resolveEmbeddingConfig(
 ): ResolvedEmbeddingConfig | null {
   const globalEmbed = settings.embedding
   if (!globalEmbed?.enabled) return null
+  if (!globalEmbed.testPassed) return null
 
   const model = projectConfig?.embedding?.model || globalEmbed.model || DEFAULT_MODEL
   const apiKey = projectConfig?.embedding?.apiKey || globalEmbed.apiKey

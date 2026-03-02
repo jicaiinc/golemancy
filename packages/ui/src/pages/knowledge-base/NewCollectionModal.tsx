@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { KBCollectionTier } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
+import { useCurrentProject } from '../../hooks'
 import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../components'
+import { resolveEmbeddingConfig } from '../../lib/embedding'
 
 const TIERS: KBCollectionTier[] = ['hot', 'warm', 'cold', 'archive']
 
@@ -15,14 +17,21 @@ interface NewCollectionModalProps {
 export function NewCollectionModal({ open, defaultTier, onClose }: NewCollectionModalProps) {
   const { t } = useTranslation(['knowledgeBase', 'common'])
   const createKBCollection = useAppStore(s => s.createKBCollection)
+  const settings = useAppStore(s => s.settings)
+  const project = useCurrentProject()
+
+  const embeddingAvailable = !!resolveEmbeddingConfig(settings, project?.config)
+  const tierNeedsEmbedding = (t_tier: KBCollectionTier) => t_tier === 'warm' || t_tier === 'cold'
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [tier, setTier] = useState<KBCollectionTier>(defaultTier)
   const [submitting, setSubmitting] = useState(false)
 
+  const createDisabled = !name.trim() || submitting || (tierNeedsEmbedding(tier) && !embeddingAvailable)
+
   async function handleSubmit() {
-    if (!name.trim() || submitting) return
+    if (createDisabled) return
     setSubmitting(true)
     try {
       await createKBCollection({ name: name.trim(), description: description.trim() || undefined, tier })
@@ -41,7 +50,7 @@ export function NewCollectionModal({ open, defaultTier, onClose }: NewCollection
       footer={
         <>
           <PixelButton variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
-          <PixelButton variant="primary" disabled={!name.trim() || submitting} onClick={handleSubmit}>
+          <PixelButton variant="primary" disabled={createDisabled} onClick={handleSubmit}>
             {t('common:button.create')}
           </PixelButton>
         </>
@@ -80,6 +89,9 @@ export function NewCollectionModal({ open, defaultTier, onClose }: NewCollection
               </button>
             ))}
           </div>
+          {tierNeedsEmbedding(tier) && !embeddingAvailable && (
+            <p className="text-[10px] text-accent-amber mt-1">{t('knowledgeBase:newCollection.embeddingRequired')}</p>
+          )}
         </div>
       </div>
     </PixelModal>

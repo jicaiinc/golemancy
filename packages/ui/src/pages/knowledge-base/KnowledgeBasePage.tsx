@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import type { KBCollection, KBCollectionTier } from '@golemancy/shared'
@@ -9,6 +10,7 @@ import {
 } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { relativeTime } from '../../lib/time'
+import { resolveEmbeddingConfig } from '../../lib/embedding'
 import { NewCollectionModal } from './NewCollectionModal'
 import { CollectionDetailModal } from './CollectionDetailModal'
 
@@ -25,9 +27,11 @@ const tierColors: Record<KBCollectionTier, { header: string; bg: string; badge: 
 
 export function KnowledgeBasePage() {
   const { t } = useTranslation(['knowledgeBase', 'common'])
+  const navigate = useNavigate()
   const project = useCurrentProject()
   const collections = useAppStore(s => s.kbCollections)
   const loading = useAppStore(s => s.kbCollectionsLoading)
+  const settings = useAppStore(s => s.settings)
 
   const [newModalTier, setNewModalTier] = useState<KBCollectionTier | null>(null)
   const [selectedCollection, setSelectedCollection] = useState<KBCollection | null>(null)
@@ -48,6 +52,11 @@ export function KnowledgeBasePage() {
 
   if (!project) return null
 
+  const embeddingConfigured = !!resolveEmbeddingConfig(settings, project.config)
+
+  // Show embedding setup prompt whenever embedding is not configured
+  const showEmbeddingPrompt = !loading && !embeddingConfigured
+
   return (
     <motion.div className="flex flex-col h-full" data-testid="knowledge-base-page" {...staggerContainer} initial="initial" animate="animate">
       {/* Header */}
@@ -63,22 +72,42 @@ export function KnowledgeBasePage() {
         </PixelButton>
       </div>
 
-      {/* Kanban columns */}
-      {loading ? (
+      {/* Embedding not configured — large empty state when no collections, banner otherwise */}
+      {showEmbeddingPrompt && collections.length === 0 && (
+        <motion.div {...staggerItem} className="flex-1 flex items-center justify-center px-6">
+          <div className="text-center py-12 px-8 bg-accent-amber/10 border-2 border-accent-amber/30 max-w-[420px] w-full">
+            <p className="font-pixel text-[12px] text-accent-amber mb-2">{t('knowledgeBase:page.embeddingRequired')}</p>
+            <PixelButton size="sm" variant="primary" onClick={() => navigate('/settings', { state: { tab: 'embedding' } })}>
+              {t('knowledgeBase:page.configureEmbedding')}
+            </PixelButton>
+          </div>
+        </motion.div>
+      )}
+      {showEmbeddingPrompt && collections.length > 0 && (
+        <motion.div {...staggerItem} className="mx-6 mb-4 p-4 bg-accent-amber/10 border-2 border-accent-amber/30">
+          <p className="text-[12px] text-accent-amber mb-3">{t('knowledgeBase:page.embeddingRequired')}</p>
+          <PixelButton size="sm" variant="primary" onClick={() => navigate('/settings', { state: { tab: 'embedding' } })}>
+            {t('knowledgeBase:page.configureEmbedding')}
+          </PixelButton>
+        </motion.div>
+      )}
+
+      {/* Kanban columns — hidden when empty-state hero is showing */}
+      {showEmbeddingPrompt && collections.length === 0 ? null : loading ? (
         <div className="flex justify-center py-12">
           <PixelSpinner label={t('knowledgeBase:loading')} />
         </div>
       ) : (
-        <motion.div {...staggerItem} className="flex gap-3 px-6 pb-6 flex-1 min-h-0 overflow-x-auto">
+        <motion.div {...staggerItem} className="flex gap-2 px-6 pb-6 flex-1 min-h-0 overflow-x-auto">
           {TIERS.map(tier => {
             const cols = byTier[tier]
             const colors = tierColors[tier]
             return (
-              <div key={tier} className={`flex flex-col flex-1 min-w-[220px] border-2 border-border-dim ${colors.bg}`}>
+              <div key={tier} className={`flex flex-col flex-1 min-w-[180px] border-2 border-border-dim ${colors.bg}`}>
                 {/* Column header */}
-                <div className={`flex items-center justify-between px-3 py-2 border-b-2 ${colors.header} shrink-0`}>
-                  <div className="flex items-center gap-2">
-                    <span className="font-pixel text-[10px] text-text-primary uppercase">{t(`knowledgeBase:tier.${tier}`)}</span>
+                <div className={`flex items-center justify-between px-2 py-1.5 border-b-2 ${colors.header} shrink-0`}>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-pixel text-[9px] text-text-primary uppercase">{t(`knowledgeBase:tier.${tier}`)}</span>
                     <PixelBadge variant={colors.badge}>{cols.length}</PixelBadge>
                   </div>
                   <PixelButton size="sm" variant="ghost" onClick={() => setNewModalTier(tier)}>+</PixelButton>
@@ -86,10 +115,10 @@ export function KnowledgeBasePage() {
 
                 {/* Hot capacity indicator */}
                 {tier === 'hot' && (
-                  <div className="px-3 py-1.5 border-b-2 border-border-dim">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-text-dim">{t('knowledgeBase:tier.capacity')}</span>
-                      <span className="text-[10px] text-text-secondary font-mono">
+                  <div className="px-2 py-1 border-b-2 border-border-dim">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-[9px] text-text-dim">{t('knowledgeBase:tier.capacity')}</span>
+                      <span className="text-[9px] text-text-secondary font-mono">
                         {Math.round(hotTotalChars / 1000)}K / {HOT_CHAR_LIMIT / 1000}K
                       </span>
                     </div>
@@ -98,28 +127,27 @@ export function KnowledgeBasePage() {
                 )}
 
                 {/* Collection cards */}
-                <div className="flex-1 overflow-y-auto p-2 flex flex-col gap-2">
+                <div className="flex-1 overflow-y-auto p-1.5 flex flex-col gap-1">
                   {cols.length === 0 ? (
-                    <div className="text-center py-6">
-                      <p className="text-[11px] text-text-dim">{t('knowledgeBase:tier.empty')}</p>
+                    <div className="text-center py-4">
+                      <p className="text-[10px] text-text-dim">{t('knowledgeBase:tier.empty')}</p>
                     </div>
                   ) : (
                     cols.map(col => (
                       <PixelCard
                         key={col.id}
                         data-testid="kb-collection-card"
-                        className="cursor-pointer hover:border-border-bright transition-colors"
+                        className="!p-2 cursor-pointer hover:border-border-bright transition-colors"
                         onClick={() => setSelectedCollection(col)}
                       >
-                        <p className="font-pixel text-[10px] text-text-primary truncate">{col.name}</p>
+                        <p className="font-pixel text-[9px] text-text-primary truncate">{col.name}</p>
                         {col.description && (
-                          <p className="text-[11px] text-text-secondary mt-1 line-clamp-2">{col.description}</p>
+                          <p className="text-[10px] text-text-secondary mt-0.5 line-clamp-1">{col.description}</p>
                         )}
-                        <div className="flex items-center gap-3 mt-2 text-[10px] text-text-dim">
+                        <div className="flex items-center gap-2 mt-1 text-[9px] text-text-dim">
                           <span>{t('knowledgeBase:collection.docs', { count: col.documentCount })}</span>
-                          <span>{Math.round(col.totalChars / 1000)}K {t('knowledgeBase:collection.chars')}</span>
+                          <span>{Math.round(col.totalChars / 1000)}K</span>
                         </div>
-                        <div className="text-[9px] text-text-dim mt-1">{relativeTime(col.updatedAt, t)}</div>
                       </PixelCard>
                     ))
                   )}

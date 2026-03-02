@@ -165,15 +165,18 @@ export class KnowledgeBaseStorage {
     const needsChunks = tier === 'warm' || tier === 'cold'
 
     if (needsChunks) {
+      // Require embedding config for warm/cold tier
+      const config = await this.getEmbeddingConfig(projectId)
+      if (!config) {
+        throw new Error('Embedding not configured. Configure an embedding API key in Settings before adding documents to Warm/Cold tier collections.')
+      }
+
       chunks = chunkText(data.content)
 
       // Embed chunks (external API call — must happen before transaction)
-      const config = await this.getEmbeddingConfig(projectId)
-      if (config) {
-        await this.ensureVecTable(projectId, db)
-        const texts = chunks.map(c => c.content)
-        embeddings = await embedTexts(texts, config)
-      }
+      await this.ensureVecTable(projectId, db)
+      const texts = chunks.map(c => c.content)
+      embeddings = await embedTexts(texts, config)
     }
 
     // ── Phase 2: Atomic DB writes (transaction) ──

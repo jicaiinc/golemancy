@@ -75,7 +75,14 @@ async function main() {
     agentStorage,
     conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb),
     taskStorage: new SqliteConversationTaskStorage(dbManager.getProjectDb),
-    kbStorage: new KnowledgeBaseStorage(dbManager.getProjectDb, () => deps.settingsStorage.get()),
+    kbStorage: new KnowledgeBaseStorage(
+      dbManager.getProjectDb,
+      () => deps.settingsStorage.get(),
+      async (projectId) => {
+        const project = await projectStorage.getById(projectId)
+        return project?.config
+      },
+    ),
     skillStorage: new FileSkillStorage(agentStorage),
     cronJobStorage,
     cronJobRunStorage,

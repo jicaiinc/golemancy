@@ -27,6 +27,7 @@ function createTestServices(): ServiceContainer {
       get: vi.fn().mockResolvedValue(mockSettings),
       update: vi.fn().mockImplementation((data) => Promise.resolve({ ...mockSettings, ...data })),
       testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }),
+      testEmbedding: vi.fn().mockResolvedValue({ ok: true, latencyMs: 100 }),
     },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
@@ -104,6 +105,13 @@ describe('GlobalSettingsPage', () => {
     fireEvent.click(screen.getByText('Providers'))
     expect(screen.getByText('PROVIDERS')).toBeInTheDocument()
     expect(screen.getAllByText('OpenAI').length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('switches to Embedding tab and shows embedding section', () => {
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Embedding'))
+    expect(screen.getByText('EMBEDDING')).toBeInTheDocument()
+    expect(screen.getByText('Enable Embedding')).toBeInTheDocument()
   })
 
   it('renders About tab with app info', () => {

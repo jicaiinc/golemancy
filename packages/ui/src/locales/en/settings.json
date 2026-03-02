@@ -87,9 +87,14 @@
     "description": "Configure the embedding model used for Knowledge Base vector search (Warm/Cold tiers).",
     "enableLabel": "Enable Embedding",
     "modelLabel": "MODEL",
-    "apiKeyLabel": "API KEY",
+    "apiKeyLabel": "OPENAI API KEY",
     "prefillHint": "Pre-filled from OpenAI provider. You can override it.",
-    "saved": "Saved!"
+    "saved": "Saved!",
+    "testRequired": "API key has not been tested. Click \"Test\" to verify your key.",
+    "testBtn": "Test",
+    "testOk": "OK ({{latency}}ms)",
+    "testFailed": "Failed",
+    "testTesting": "Testing..."
   },
   "threshold": {
     "tokens": "tokens"

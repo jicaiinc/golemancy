@@ -217,7 +217,7 @@ export class HttpKnowledgeBaseService implements IKnowledgeBaseService {
       headers,
     })
     if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`)
-    return res.json()
+    return await res.json()
   }
   getDocument(projectId: ProjectId, documentId: KBDocumentId) {
     return fetchJson<KBDocument>(`${this.baseUrl}/api/projects/${projectId}/knowledge-base/documents/${documentId}`)
@@ -359,6 +359,12 @@ export class HttpSettingsService implements ISettingsService {
     return fetchJson<{ ok: boolean; error?: string; latencyMs?: number }>(
       `${this.baseUrl}/api/settings/providers/${encodeURIComponent(slug)}/test`,
       { method: 'POST' },
+    )
+  }
+  testEmbedding(apiKey: string, model: string) {
+    return fetchJson<{ ok: boolean; error?: string; latencyMs?: number }>(
+      `${this.baseUrl}/api/settings/embedding/test`,
+      { method: 'POST', body: JSON.stringify({ apiKey, model }) },
     )
   }
 }

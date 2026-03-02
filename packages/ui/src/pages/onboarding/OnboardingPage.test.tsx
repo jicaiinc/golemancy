@@ -91,7 +91,7 @@ function createTestServices(): ServiceContainer {
     settings: {
       get: vi.fn().mockResolvedValue(emptySettings),
       update: vi.fn().mockImplementation((data) => Promise.resolve({ ...emptySettings, ...data })),
-      testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 100 }),
+      testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 100 }), testEmbedding: vi.fn(),
     },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },

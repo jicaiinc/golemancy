@@ -2,10 +2,13 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { KBCollection, KBCollectionTier, KBDocument, KBSearchResult } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
+import { useCurrentProject } from '../../hooks'
 import {
   PixelModal, PixelButton, PixelBadge, PixelInput, PixelCard, PixelSpinner,
 } from '../../components'
 import { relativeTime } from '../../lib/time'
+import { parseErrorMessage } from '../../lib/parse-error'
+import { resolveEmbeddingConfig } from '../../lib/embedding'
 import { IngestTextModal } from './IngestTextModal'
 import { UploadFileModal } from './UploadFileModal'
 import { DocumentViewModal } from './DocumentViewModal'
@@ -36,6 +39,12 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
   const deleteKBCollection = useAppStore(s => s.deleteKBCollection)
   const searchKB = useAppStore(s => s.searchKB)
 
+  const settings = useAppStore(s => s.settings)
+  const project = useCurrentProject()
+  const embeddingConfigured = !!resolveEmbeddingConfig(settings, project?.config)
+  const needsEmbedding = collection.tier === 'warm' || collection.tier === 'cold'
+  const addDisabled = needsEmbedding && !embeddingConfigured
+
   const [showIngestText, setShowIngestText] = useState(false)
   const [showUploadFile, setShowUploadFile] = useState(false)
   const [viewDoc, setViewDoc] = useState<KBDocument | null>(null)
@@ -43,6 +52,7 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
   const [searchResults, setSearchResults] = useState<KBSearchResult[]>([])
   const [searching, setSearching] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const loadedRef = useRef<string | null>(null)
   useEffect(() => {
@@ -63,8 +73,13 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
   }
 
   async function handleTierChange(tier: KBCollectionTier) {
-    await updateKBCollection(collection.id, { tier })
-    // Collection will be updated in store; close and reopen from parent will show new tier
+    setError(null)
+    try {
+      await updateKBCollection(collection.id, { tier })
+      // Collection will be updated in store; close and reopen from parent will show new tier
+    } catch (err) {
+      setError(err instanceof Error ? parseErrorMessage(err) : String(err))
+    }
   }
 
   async function handleDeleteCollection() {
@@ -78,9 +93,9 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
         open={open}
         onClose={onClose}
         title={collection.name}
-        size="xl"
+        size="2xl"
       >
-        <div className="flex flex-col gap-4 max-h-[65vh] overflow-y-auto">
+        <div className="flex flex-col gap-4 max-h-[75vh] overflow-y-auto">
           {/* Collection info */}
           <div className="flex items-center gap-3 flex-wrap">
             <PixelBadge variant={tierBadgeVariant[collection.tier]}>
@@ -98,13 +113,18 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
-            <PixelButton size="sm" variant="primary" onClick={() => setShowIngestText(true)}>
-              {t('knowledgeBase:detail.addText')}
-            </PixelButton>
-            <PixelButton size="sm" variant="secondary" onClick={() => setShowUploadFile(true)}>
-              {t('knowledgeBase:detail.uploadFile')}
-            </PixelButton>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <PixelButton size="sm" variant="primary" disabled={addDisabled} onClick={() => setShowIngestText(true)}>
+                {t('knowledgeBase:detail.addText')}
+              </PixelButton>
+              <PixelButton size="sm" variant="secondary" disabled={addDisabled} onClick={() => setShowUploadFile(true)}>
+                {t('knowledgeBase:detail.uploadFile')}
+              </PixelButton>
+            </div>
+            {addDisabled && (
+              <p className="text-[10px] text-accent-amber">{t('knowledgeBase:detail.embeddingRequiredForWarmCold')}</p>
+            )}
           </div>
 
           {/* Search test */}
@@ -124,6 +144,12 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
             </div>
             {searchResults.length > 0 && (
               <div className="mt-2 flex flex-col gap-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-text-dim">{t('knowledgeBase:detail.searchResultCount', { count: searchResults.length })}</span>
+                  <PixelButton size="sm" variant="ghost" onClick={() => { setSearchResults([]); setSearchQuery('') }}>
+                    {t('knowledgeBase:detail.clearResults')}
+                  </PixelButton>
+                </div>
                 {searchResults.map((r, i) => (
                   <div key={i} className="flex items-start gap-2 p-2 bg-deep border border-border-dim">
                     <span className="text-[10px] text-accent-blue font-mono shrink-0">{(r.score * 100).toFixed(0)}%</span>
@@ -193,6 +219,7 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
                     </button>
                   ))}
                 </div>
+                {error && <p className="text-[11px] text-accent-red mt-1">{error}</p>}
               </div>
 
               {/* Delete */}
@@ -216,10 +243,10 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
 
       {/* Sub-modals */}
       {showIngestText && (
-        <IngestTextModal open collectionId={collection.id} onClose={() => setShowIngestText(false)} />
+        <IngestTextModal open collectionId={collection.id} tier={collection.tier} onClose={() => setShowIngestText(false)} />
       )}
       {showUploadFile && (
-        <UploadFileModal open collectionId={collection.id} onClose={() => setShowUploadFile(false)} />
+        <UploadFileModal open collectionId={collection.id} tier={collection.tier} onClose={() => setShowUploadFile(false)} />
       )}
       {viewDoc && (
         <DocumentViewModal open document={viewDoc} onClose={() => setViewDoc(null)} />

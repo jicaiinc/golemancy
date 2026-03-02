@@ -114,7 +114,7 @@ function createTestServices(): ServiceContainer {
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
     knowledgeBase: { listCollections: vi.fn(), createCollection: vi.fn(), updateCollection: vi.fn(), deleteCollection: vi.fn(), listDocuments: vi.fn(), ingestDocument: vi.fn(), uploadDocument: vi.fn(), getDocument: vi.fn(), deleteDocument: vi.fn(), search: vi.fn(), hasVectorData: vi.fn() },
-    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn(), testEmbedding: vi.fn() },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
     mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },

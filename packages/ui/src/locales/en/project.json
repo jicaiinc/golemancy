@@ -51,10 +51,11 @@
       "description": "Override the global embedding model and API key for this project.",
       "globalDisabled": "Embedding is disabled globally. Enable it in Global Settings first.",
       "modelLabel": "MODEL",
-      "useGlobal": "Use global ({{model}})",
       "locked": "Model locked — vector data exists. Delete Warm/Cold collections to unlock.",
-      "apiKeyLabel": "API KEY",
-      "fromOpenAI": "from OpenAI"
+      "apiKeyLabel": "OPENAI API KEY",
+      "testBtn": "Test",
+      "testOk": "OK ({{latency}}ms)",
+      "testFailed": "Failed"
     }
   }
 }

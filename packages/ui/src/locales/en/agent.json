@@ -80,7 +80,10 @@
     "bashDesc": "Execute bash commands, read and write files",
     "browserDesc": "Control web browser for automation",
     "osControlDesc": "Desktop automation and system control",
-    "taskDesc": "Create and manage tasks within the conversation"
+    "taskDesc": "Create and manage tasks within the conversation",
+    "knowledgeBaseDesc": "Search and store knowledge in the project knowledge base",
+    "embeddingNotConfigured": "CONFIGURE EMBEDDING",
+    "kbUnavailableHint": "Knowledge Base is enabled but embedding is not configured. Go to Settings > Embedding to set up and test your API key."
   },
   "mcp": {
     "warningTitle": "\u26a0 WARNING",

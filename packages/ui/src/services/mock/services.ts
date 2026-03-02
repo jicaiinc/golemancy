@@ -750,6 +750,11 @@ export class MockSettingsService implements ISettingsService {
     if (!entry.apiKey && !entry.baseUrl?.includes('localhost')) return { ok: false, error: 'No API key configured' }
     return { ok: true, latencyMs: 120 + Math.floor(Math.random() * 200) }
   }
+  async testEmbedding(apiKey: string, _model: string): Promise<{ ok: boolean; error?: string; latencyMs?: number }> {
+    await delay(300)
+    if (!apiKey) return { ok: false, error: 'No API key' }
+    return { ok: true, latencyMs: 80 + Math.floor(Math.random() * 150) }
+  }
 }
 
 // --- PermissionsConfigService ---

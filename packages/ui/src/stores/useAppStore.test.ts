@@ -91,7 +91,7 @@ function createTestServices(): ServiceContainer {
       update: vi.fn().mockImplementation((data) =>
         Promise.resolve({ ...data }),
       ),
-      testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }),
+      testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }), testEmbedding: vi.fn(),
     },
     cronJobs: {
       list: vi.fn().mockResolvedValue([]),

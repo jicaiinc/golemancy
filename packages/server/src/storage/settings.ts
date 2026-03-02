@@ -56,4 +56,8 @@ export class FileSettingsStorage implements ISettingsService {
     // This method exists to satisfy the interface; the route calls storage.get() directly.
     throw new Error('testProvider should be called via the HTTP route, not storage directly')
   }
+
+  async testEmbedding(_apiKey: string, _model: string): Promise<{ ok: boolean; error?: string; latencyMs?: number }> {
+    throw new Error('testEmbedding should be called via the HTTP route, not storage directly')
+  }
 }

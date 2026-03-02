@@ -42,6 +42,7 @@ export interface EmbeddingSettings {
   enabled: boolean
   model: string
   apiKey?: string
+  testPassed?: boolean
 }
 
 export interface ProjectEmbeddingConfig {

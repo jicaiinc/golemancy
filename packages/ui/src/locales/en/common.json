@@ -20,7 +20,13 @@
     "stop": "Stop",
     "dismiss": "Dismiss",
     "done": "Done",
-    "copy": "Copy"
+    "copy": "Copy",
+    "view": "View",
+    "clear": "Clear",
+    "show": "Show",
+    "hide": "Hide",
+    "test": "Test",
+    "testing": "Testing..."
   },
   "status": {
     "loading": "Loading...",

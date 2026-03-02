@@ -322,6 +322,7 @@ export const SEED_SETTINGS: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-mock-key', models: ['gpt-4o', 'gpt-4o-mini'], testStatus: 'ok' },
   },
   defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
+  embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-mock-embed', testPassed: true },
   theme: 'dark',
   onboardingCompleted: true,
 }

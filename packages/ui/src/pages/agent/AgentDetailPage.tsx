@@ -5,6 +5,7 @@ import type { Agent, AgentId, AgentStatus, SkillId } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { usePermissionConfig } from '../../hooks'
+import { resolveEmbeddingConfig } from '../../lib/embedding'
 import {
   PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelTabs,
   PixelInput, PixelTextArea, CompactThresholdControl,
@@ -369,11 +370,17 @@ function ToolsTab({ agent, onUpdate }: {
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
   const { t } = useTranslation('agent')
+  const settings = useAppStore(s => s.settings)
+  const projects = useAppStore(s => s.projects)
+  const currentProjectId = useAppStore(s => s.currentProjectId)
+  const currentProject = projects.find(p => p.id === currentProjectId)
+  const embeddingConfigured = !!resolveEmbeddingConfig(settings, currentProject?.config)
   const builtinToolDefs = [
     { id: 'bash', name: 'Bash', description: t('tools.bashDesc'), defaultEnabled: true, available: true },
     { id: 'browser', name: 'Browser', description: t('tools.browserDesc'), defaultEnabled: false, available: true },
-    { id: 'os_control', name: 'OS Control', description: t('tools.osControlDesc'), defaultEnabled: false, available: false },
+    { id: 'os_control', name: 'OS Control', description: t('tools.osControlDesc'), defaultEnabled: false, available: false, unavailableLabel: t('tools.comingSoon') },
     { id: 'task', name: 'Task', description: t('tools.taskDesc'), defaultEnabled: true, available: true },
+    { id: 'knowledge_base', name: 'Knowledge Base', description: t('tools.knowledgeBaseDesc'), defaultEnabled: true, available: embeddingConfigured, unavailableLabel: t('tools.embeddingNotConfigured') },
   ]
 
   async function toggleBuiltinTool(toolId: string) {
@@ -392,30 +399,36 @@ function ToolsTab({ agent, onUpdate }: {
         <div className="flex flex-col gap-2">
           {builtinToolDefs.map(tool => {
             const enabled = agent.builtinTools[tool.id] ?? (tool.defaultEnabled ?? false)
+            const showWarning = enabled && !tool.available && tool.id === 'knowledge_base'
             return (
-              <PixelCard key={tool.id} className={`flex items-center gap-3 ${!tool.available ? 'opacity-50' : ''}`}>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[12px] text-accent-amber">{tool.name}</span>
-                    {!tool.available && (
-                      <span className="text-[9px] text-text-dim font-pixel">{t('tools.comingSoon')}</span>
-                    )}
+              <PixelCard key={tool.id} className={`flex flex-col gap-1 ${!tool.available ? 'opacity-50' : ''}`}>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[12px] text-accent-amber">{tool.name}</span>
+                      {!tool.available && (
+                        <span className="text-[9px] text-text-dim font-pixel">{tool.unavailableLabel ?? t('tools.comingSoon')}</span>
+                      )}
+                    </div>
+                    <div className="text-[11px] text-text-secondary mt-0.5">{tool.description}</div>
                   </div>
-                  <div className="text-[11px] text-text-secondary mt-0.5">{tool.description}</div>
+                  <button
+                    className={`w-10 h-5 border-2 transition-colors cursor-pointer ${
+                      enabled && tool.available
+                        ? 'bg-accent-green border-accent-green'
+                        : 'bg-deep border-border-dim'
+                    } ${!tool.available ? 'cursor-not-allowed' : ''}`}
+                    onClick={() => tool.available && toggleBuiltinTool(tool.id)}
+                    disabled={!tool.available}
+                  >
+                    <div className={`w-3 h-3 bg-white transition-transform ${
+                      enabled && tool.available ? 'translate-x-4' : 'translate-x-0.5'
+                    }`} />
+                  </button>
                 </div>
-                <button
-                  className={`w-10 h-5 border-2 transition-colors cursor-pointer ${
-                    enabled && tool.available
-                      ? 'bg-accent-green border-accent-green'
-                      : 'bg-deep border-border-dim'
-                  } ${!tool.available ? 'cursor-not-allowed' : ''}`}
-                  onClick={() => tool.available && toggleBuiltinTool(tool.id)}
-                  disabled={!tool.available}
-                >
-                  <div className={`w-3 h-3 bg-white transition-transform ${
-                    enabled && tool.available ? 'translate-x-4' : 'translate-x-0.5'
-                  }`} />
-                </button>
+                {showWarning && (
+                  <p className="text-[10px] text-accent-amber">{t('tools.kbUnavailableHint')}</p>
+                )}
               </PixelCard>
             )
           })}

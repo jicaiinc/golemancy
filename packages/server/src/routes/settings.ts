@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import type { ISettingsService, ProviderSdkType } from '@golemancy/shared'
 import { generateText } from 'ai'
+import { embed } from 'ai'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:settings' })
@@ -111,6 +112,44 @@ export function createSettingsRoutes(storage: ISettingsService) {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err)
       log.warn({ slug, error: message }, 'provider test failed')
+      return c.json({ ok: false, error: message })
+    }
+  })
+
+  app.post('/embedding/test', async (c) => {
+    const { apiKey, model } = await c.req.json<{ apiKey?: string; model?: string }>()
+    log.info({ model }, 'testing embedding')
+
+    if (!apiKey) {
+      return c.json({ ok: false, error: 'NO_API_KEY' }, 400)
+    }
+
+    try {
+      const { createOpenAI } = await import('@ai-sdk/openai')
+      const openai = createOpenAI({ apiKey })
+      const embeddingModel = openai.embedding(model || 'text-embedding-3-small')
+
+      const start = Date.now()
+
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), TEST_TIMEOUT_MS)
+
+      try {
+        await embed({
+          model: embeddingModel,
+          value: 'test',
+          abortSignal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timeout)
+      }
+
+      const latencyMs = Date.now() - start
+      log.info({ model, latencyMs }, 'embedding test succeeded')
+      return c.json({ ok: true, latencyMs })
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      log.warn({ model, error: message }, 'embedding test failed')
       return c.json({ ok: false, error: message })
     }
   })
