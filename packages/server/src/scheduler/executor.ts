@@ -113,6 +113,7 @@ export class CronJobExecutor {
         permissionsConfigId: project?.config.permissionsConfigId,
         permissionsConfigStorage: this.deps.permissionsConfigStorage,
         conversationId,
+        conversationStorage: this.deps.conversationStorage,
         taskStorage: this.deps.taskStorage,
         tokenRecordStorage: this.deps.tokenRecordStorage,
       })
