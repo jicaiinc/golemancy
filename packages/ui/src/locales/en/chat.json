@@ -13,7 +13,8 @@
     "startConversation": "Start the conversation...",
     "compacting": "Compacting",
     "thinking": "Thinking",
-    "imageMsgTitle": "Image message"
+    "imageMsgTitle": "Image message",
+    "maxStepsReached": "Agent reached the maximum step limit ({{steps}}/{{maxSteps}}). Send another message to continue."
   },
   "empty": {
     "readyToChat": "Ready to chat",

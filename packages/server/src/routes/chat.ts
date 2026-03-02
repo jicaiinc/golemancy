@@ -328,6 +328,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
         // --- Chat stream ---
         let stepIndex = 0
+        let lastFinishReason: string | undefined
         const result = streamText({
           model,
           system: systemPrompt,
@@ -337,6 +338,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           abortSignal: c.req.raw.signal,
           onStepFinish: ({ usage, finishReason, toolCalls }) => {
             stepIndex++
+            lastFinishReason = finishReason
             const toolNames = toolCalls?.map(tc => tc.toolName) ?? []
             log.debug({
               conversationId, step: stepIndex, finishReason,
@@ -446,6 +448,15 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                 type: 'data-usage' as `data-${string}`,
                 data: { contextTokens, inputTokens: billingInput, outputTokens: billingOutput },
               })
+
+              // Notify client when agent was cut off by max steps limit
+              if (stepIndex >= DEFAULT_MAX_STEPS && lastFinishReason === 'tool-calls') {
+                log.info({ conversationId, stepIndex, maxSteps: DEFAULT_MAX_STEPS }, 'agent hit max steps limit')
+                writer.write({
+                  type: 'data-max_steps_reached' as `data-${string}`,
+                  data: { steps: stepIndex, maxSteps: DEFAULT_MAX_STEPS },
+                })
+              }
 
             } catch (err) {
               log.error({ err, conversationId }, 'failed to save assistant message')
