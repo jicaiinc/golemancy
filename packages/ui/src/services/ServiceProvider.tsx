@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { type ServiceContainer, configureServices } from './container'
 import { createMockServices } from './mock'
 import { createHttpServices } from './http'
 import { setAuthToken, setBaseUrl } from './http/base'
+import { useAppStore } from '../stores'
 
 const ServiceContext = createContext<ServiceContainer | null>(null)
 
@@ -32,6 +33,13 @@ function initServices(): ServiceContainer {
 
 export function ServiceProvider({ children }: { children: ReactNode }) {
   const [container] = useState<ServiceContainer>(initServices)
+
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onUpdateAvailable?.((info) => {
+      useAppStore.getState().setUpdateInfo(info)
+    })
+    return () => cleanup?.()
+  }, [])
 
   return (
     <ServiceContext.Provider value={container}>

@@ -106,13 +106,11 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getAllByText('OpenAI').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('renders about footer with version key', () => {
+  it('renders About tab with app info', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText(/Golemancy v.+ — Command Your AI Golems/)).toBeInTheDocument()
-  })
-
-  it('renders Golemancy branding in footer', () => {
-    renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText(/Golemancy v.+ — Command Your AI Golems/)).toBeInTheDocument()
+    fireEvent.click(screen.getByText('About'))
+    expect(screen.getByText('Command Your AI Golems')).toBeInTheDocument()
+    expect(screen.getByText('UPDATES')).toBeInTheDocument()
+    expect(screen.getByText(/You're up to date/)).toBeInTheDocument()
   })
 })

@@ -4,6 +4,7 @@ import { homedir } from 'os'
 import { fork, type ChildProcess } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
+import { startUpdateChecker, getLatestUpdateInfo, openDownloadUrl } from './updater'
 
 const APP_VERSION: string = JSON.parse(
   readFileSync(
@@ -201,6 +202,7 @@ function createWindow(options?: { projectId?: string }): void {
         `--server-port=${serverPort}`,
         ...(serverToken ? [`--server-token=${serverToken}`] : []),
         ...(options?.projectId ? [`--project-id=${options.projectId}`] : []),
+        `--app-version=${APP_VERSION}`,
       ],
     },
   })
@@ -224,11 +226,25 @@ function createWindow(options?: { projectId?: string }): void {
     )
   }
 
+  // Redirect all target="_blank" navigations to system browser
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url)
+    return { action: 'deny' }
+  })
+
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  // Send cached update info to new windows after page loads
+  win.webContents.once('did-finish-load', () => {
+    const cached = getLatestUpdateInfo()
+    if (cached) {
+      win.webContents.send('update:available', cached)
+    }
+  })
 }
 
 app.name = 'Golemancy'
@@ -267,6 +283,15 @@ app.whenReady().then(async () => {
   }
 
   createWindow()
+
+  // Start update checker (only in packaged builds)
+  if (app.isPackaged) {
+    startUpdateChecker(APP_VERSION)
+  }
+
+  ipcMain.handle('update:open-download', (_event, url: string) => {
+    return openDownloadUrl(url)
+  })
 
   ipcMain.handle('window:open', (_event, projectId?: string) => {
     createWindow(projectId ? { projectId } : undefined)

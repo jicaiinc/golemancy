@@ -1,7 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
-import { APP_VERSION } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
@@ -43,18 +42,28 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
+function BadgeDot() {
+  return <span className="inline-block w-2 h-2 bg-accent-green ml-1.5" />
+}
+
 export function GlobalSettingsPage() {
   const { t } = useTranslation('settings')
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
   const [activeTab, setActiveTab] = useState('general')
 
+  const updateInfo = useAppStore(s => s.updateInfo)
+  const skippedVersion = useAppStore(s => s.skippedVersion)
+  const notificationsEnabled = useAppStore(s => s.updateNotificationsEnabled)
+  const showBadge = updateInfo != null && updateInfo.version !== skippedVersion && notificationsEnabled
+
   if (!settings) return null
 
-  const SETTINGS_TABS = [
+  const SETTINGS_TABS: { id: string; label: ReactNode }[] = [
     { id: 'general', label: t('tabs.general') },
     { id: 'providers', label: t('tabs.providers') },
     { id: 'speech', label: t('tabs.speech') },
+    { id: 'about', label: <>{t('tabs.about')}{showBadge && <BadgeDot />}</> },
   ]
 
   return (
@@ -71,13 +80,7 @@ export function GlobalSettingsPage() {
             <ProvidersTab settings={settings} onUpdate={updateSettings} />
           )}
           {activeTab === 'speech' && <SpeechTab />}
-        </div>
-
-        {/* About footer */}
-        <div className="mt-8 pt-4 border-t-2 border-border-dim text-center">
-          <span className="text-[11px] text-text-dim">
-            {t('about.version', { version: APP_VERSION })}
-          </span>
+          {activeTab === 'about' && <AboutTab />}
         </div>
       </div>
     </GlobalLayout>
@@ -583,6 +586,108 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
         )}
       </div>
     </PixelCard>
+  )
+}
+
+// ========== About Tab ==========
+function AboutTab() {
+  const { t } = useTranslation('settings')
+  const appVersion = window.electronAPI?.getAppVersion() ?? '0.1.0'
+  const platformLabel = window.electronAPI?.getPlatformLabel()
+
+  const updateInfo = useAppStore(s => s.updateInfo)
+  const skippedVersion = useAppStore(s => s.skippedVersion)
+  const notificationsEnabled = useAppStore(s => s.updateNotificationsEnabled)
+  const skipVersion = useAppStore(s => s.skipVersion)
+  const setUpdateNotifications = useAppStore(s => s.setUpdateNotifications)
+
+  const isSkipped = updateInfo != null && updateInfo.version === skippedVersion
+
+  function handleDownload() {
+    if (!updateInfo) return
+    if (window.electronAPI?.openDownloadUrl) {
+      window.electronAPI.openDownloadUrl(updateInfo.downloadUrl)
+    } else {
+      window.open(updateInfo.downloadUrl, '_blank')
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* App Info */}
+      <PixelCard>
+        <div className="flex flex-col items-center py-4 gap-2">
+          <div className="font-arcade text-[14px] text-text-primary">Golemancy</div>
+          <div className="font-mono text-[13px] text-text-secondary">v{appVersion}</div>
+          <div className="text-[12px] text-text-dim">{t('about.slogan')}</div>
+          <div className="flex gap-4 mt-2">
+            <a href="https://golemancy.ai" target="_blank" rel="noopener noreferrer" className="text-[11px] text-accent-blue hover:underline">{t('about.links.website')}</a>
+            <a href="https://github.com/jicaiinc/golemancy" target="_blank" rel="noopener noreferrer" className="text-[11px] text-accent-blue hover:underline">{t('about.links.github')}</a>
+            <a href="https://discord.gg/xksGkxd6SV" target="_blank" rel="noopener noreferrer" className="text-[11px] text-accent-blue hover:underline">{t('about.links.discord')}</a>
+            <a href="https://x.com/golemancyai" target="_blank" rel="noopener noreferrer" className="text-[11px] text-accent-blue hover:underline">{t('about.links.twitter')}</a>
+          </div>
+          <div className="text-[10px] text-text-dim mt-1">{t('about.copyright')}</div>
+        </div>
+      </PixelCard>
+
+      {/* Updates */}
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('update.sectionTitle')}</div>
+
+        {/* Toggle */}
+        <label className="flex items-center gap-3 cursor-pointer mb-4">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={notificationsEnabled}
+            onClick={() => setUpdateNotifications(!notificationsEnabled)}
+            className={`relative inline-flex h-5 w-9 items-center border-2 transition-colors ${
+              notificationsEnabled ? 'bg-accent-green border-accent-green' : 'bg-deep border-border-dim'
+            }`}
+          >
+            <span className={`inline-block h-3 w-3 bg-text-primary transition-transform ${
+              notificationsEnabled ? 'translate-x-4' : 'translate-x-0.5'
+            }`} />
+          </button>
+          <span className="text-[12px] text-text-primary">{t('update.checkForUpdates')}</span>
+        </label>
+
+        {/* Update card */}
+        {updateInfo ? (
+          <div className={`p-3 border-2 ${isSkipped ? 'border-border-dim' : 'border-accent-green'}`}>
+            {isSkipped ? (
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-text-dim">
+                  {t('update.skipped', { version: updateInfo.version })}
+                </span>
+                <PixelButton size="sm" variant="ghost" onClick={handleDownload}>
+                  {platformLabel ? t('update.download', { platform: platformLabel }) : t('update.downloadGeneric')}
+                </PixelButton>
+              </div>
+            ) : (
+              <>
+                <div className="font-pixel text-[9px] text-accent-green mb-2">{t('update.available')}</div>
+                <div className="text-[12px] text-text-primary mb-3">
+                  {t('update.newVersion', { current: appVersion, latest: updateInfo.version })}
+                </div>
+                <div className="flex gap-2">
+                  <PixelButton size="sm" variant="primary" onClick={handleDownload}>
+                    {platformLabel ? t('update.download', { platform: platformLabel }) : t('update.downloadGeneric')}
+                  </PixelButton>
+                  <PixelButton size="sm" variant="ghost" onClick={() => skipVersion(updateInfo.version)}>
+                    {t('update.skip')}
+                  </PixelButton>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="text-[12px] text-text-dim">
+            {t('update.upToDate', { version: appVersion })}
+          </div>
+        )}
+      </PixelCard>
+    </div>
   )
 }
 
