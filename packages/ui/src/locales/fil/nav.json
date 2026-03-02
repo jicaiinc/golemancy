@@ -8,8 +8,8 @@
     "mcpServers": "MCP Servers",
     "tasks": "Mga Conversation Task",
     "artifacts": "Mga Artifact",
-    "memory": "Memory",
-    "settings": "Settings"
+    "settings": "Settings",
+    "knowledgeBase": "Knowledge Base"
   },
   "sidebar": {
     "navigation": "NABIGASYON",
@@ -27,7 +27,7 @@
       "sandbox": "Sandbox",
       "unrestricted": "Unrestricted"
     },
-    "degraded": "(bumaba \u2192 {{mode}})",
+    "degraded": "(bumaba → {{mode}})",
     "tasks": "Mga Task {{completed}}/{{total}}",
     "conversationTasks": "MGA CONVERSATION TASK",
     "contextUsage": "Context: {{used}} / {{max}} ({{percent}}%)",

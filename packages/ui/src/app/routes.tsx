@@ -13,7 +13,7 @@ import {
   TaskListPage,
   CronJobsPage,
   WorkspacePage,
-  MemoryPage,
+  KnowledgeBasePage,
   ProjectSettingsPage,
   GlobalSettingsPage,
   OnboardingPage,
@@ -57,7 +57,7 @@ export function AppRoutes() {
           <Route path="tasks" element={<TaskListPage />} />
           <Route path="cron" element={<CronJobsPage />} />
           <Route path="artifacts" element={<WorkspacePage />} />
-          <Route path="memory" element={<MemoryPage />} />
+          <Route path="knowledge-base" element={<KnowledgeBasePage />} />
           <Route path="settings" element={<ProjectSettingsPage />} />
         </Route>
       </Routes>

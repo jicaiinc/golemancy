@@ -19,7 +19,7 @@ const navItems: NavItem[] = [
   { key: 'item.mcpServers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
   { key: 'item.tasks', path: '/tasks', icon: '#', testId: 'tasks' },
   { key: 'item.artifacts', path: '/artifacts', icon: '..', testId: 'artifacts' },
-  { key: 'item.memory', path: '/memory', icon: '()', testId: 'memory' },
+  { key: 'item.knowledgeBase', path: '/knowledge-base', icon: '()', testId: 'knowledge-base' },
 ]
 
 const configItems: NavItem[] = [

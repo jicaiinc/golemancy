@@ -191,7 +191,60 @@ export function migrateDatabase(db: AppDatabase) {
     db.run(sql`ALTER TABLE cron_job_runs DROP COLUMN project_id`)
   }
 
-  // Set up FTS5
+  // --- Migration v8: Knowledge Base tables ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS kb_collections (
+      id          TEXT PRIMARY KEY,
+      name        TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      tier        TEXT NOT NULL DEFAULT 'warm',
+      created_at  TEXT NOT NULL,
+      updated_at  TEXT NOT NULL
+    )
+  `)
+
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS kb_documents (
+      id              TEXT PRIMARY KEY,
+      collection_id   TEXT NOT NULL REFERENCES kb_collections(id) ON DELETE CASCADE,
+      title           TEXT NOT NULL,
+      content         TEXT NOT NULL,
+      source_type     TEXT NOT NULL,
+      source_name     TEXT NOT NULL DEFAULT '',
+      metadata        TEXT,
+      tags            TEXT,
+      char_count      INTEGER NOT NULL DEFAULT 0,
+      chunk_count     INTEGER NOT NULL DEFAULT 0,
+      created_at      TEXT NOT NULL,
+      updated_at      TEXT NOT NULL
+    )
+  `)
+
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS kb_chunks (
+      id           TEXT PRIMARY KEY,
+      document_id  TEXT NOT NULL REFERENCES kb_documents(id) ON DELETE CASCADE,
+      chunk_index  INTEGER NOT NULL,
+      content      TEXT NOT NULL,
+      char_count   INTEGER NOT NULL DEFAULT 0,
+      created_at   TEXT NOT NULL
+    )
+  `)
+
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_kb_docs_collection ON kb_documents(collection_id)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_kb_chunks_doc ON kb_chunks(document_id)`)
+
+  // FTS5 for KB documents (normal mode — stores its own copy, no triggers needed)
+  db.run(sql`
+    CREATE VIRTUAL TABLE IF NOT EXISTS kb_documents_fts USING fts5(
+      document_id UNINDEXED,
+      title,
+      content,
+      tokenize = 'porter unicode61'
+    )
+  `)
+
+  // Set up FTS5 for messages
   setupFTS(db)
   log.info('database migrations complete')
 }

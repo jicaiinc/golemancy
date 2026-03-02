@@ -9,7 +9,7 @@
  * - Network errors
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { ProjectId, AgentId, ConversationId, TaskId, MemoryId, SkillId, CronJobId, PermissionsConfigId, MessageId } from '@golemancy/shared'
+import type { ProjectId, AgentId, ConversationId, TaskId, KBCollectionId, KBDocumentId, SkillId, CronJobId, PermissionsConfigId, MessageId } from '@golemancy/shared'
 import { setAuthToken } from './base'
 import {
   HttpProjectService,
@@ -17,7 +17,7 @@ import {
   HttpConversationService,
   HttpTaskService,
   HttpWorkspaceService,
-  HttpMemoryService,
+  HttpKnowledgeBaseService,
   HttpSkillService,
   HttpMCPService,
   HttpCronJobService,
@@ -353,28 +353,117 @@ describe('HttpWorkspaceService', () => {
   })
 })
 
-// ── HttpMemoryService ─────────────────────────────────────────
+// ── HttpKnowledgeBaseService ──────────────────────────────────
 
-describe('HttpMemoryService', () => {
-  const svc = new HttpMemoryService(BASE)
+describe('HttpKnowledgeBaseService', () => {
+  const svc = new HttpKnowledgeBaseService(BASE)
+  const COL = 'col-1' as KBCollectionId
+  const DOC = 'doc-1' as KBDocumentId
 
-  it('create() → POST with content, source, tags', async () => {
-    const data = { content: 'Remember this', source: 'user', tags: ['important'] }
-    mockFetch.mockResolvedValue(jsonResponse({ id: 'mem-1', ...data }))
-    await svc.create(PROJ, data as any)
+  it('listCollections() → GET /api/projects/:projectId/knowledge-base', async () => {
+    mockFetch.mockResolvedValue(jsonResponse([]))
+    await svc.listCollections(PROJ)
     expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/memories`,
+      `${BASE}/api/projects/${PROJ}/knowledge-base`,
+      expect.any(Object),
+    )
+  })
+
+  it('createCollection() → POST with name, tier', async () => {
+    const data = { name: 'Docs', tier: 'warm' as const }
+    mockFetch.mockResolvedValue(jsonResponse({ id: COL, ...data }))
+    await svc.createCollection(PROJ, data)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/knowledge-base`,
       expect.objectContaining({ method: 'POST', body: JSON.stringify(data) }),
     )
   })
 
-  it('update() → PATCH', async () => {
+  it('updateCollection() → PATCH', async () => {
     mockFetch.mockResolvedValue(jsonResponse({}))
-    await svc.update(PROJ, 'mem-1' as MemoryId, { content: 'Updated' })
+    await svc.updateCollection(PROJ, COL, { name: 'Updated' })
     expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/memories/mem-1`,
+      `${BASE}/api/projects/${PROJ}/knowledge-base/${COL}`,
       expect.objectContaining({ method: 'PATCH' }),
     )
+  })
+
+  it('deleteCollection() → DELETE', async () => {
+    mockFetch.mockResolvedValue(jsonResponse(null))
+    await svc.deleteCollection(PROJ, COL)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/knowledge-base/${COL}`,
+      expect.objectContaining({ method: 'DELETE' }),
+    )
+  })
+
+  it('listDocuments() → GET /knowledge-base/:colId/documents', async () => {
+    mockFetch.mockResolvedValue(jsonResponse([]))
+    await svc.listDocuments(PROJ, COL)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/knowledge-base/${COL}/documents`,
+      expect.any(Object),
+    )
+  })
+
+  it('ingestDocument() → POST with content and sourceType', async () => {
+    const data = { content: 'Some text', sourceType: 'manual' as const }
+    mockFetch.mockResolvedValue(jsonResponse({ id: DOC, ...data }))
+    await svc.ingestDocument(PROJ, COL, data)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/knowledge-base/${COL}/documents`,
+      expect.objectContaining({ method: 'POST', body: JSON.stringify(data) }),
+    )
+  })
+
+  it('uploadDocument() uses FormData (no JSON Content-Type)', async () => {
+    const mockFile = new File(['content'], 'doc.pdf', { type: 'application/pdf' })
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ id: DOC }),
+      text: () => Promise.resolve(''),
+    })
+
+    await svc.uploadDocument(PROJ, COL, mockFile)
+
+    const call = mockFetch.mock.calls[0]
+    expect(call[0]).toBe(`${BASE}/api/projects/${PROJ}/knowledge-base/${COL}/documents/upload`)
+    expect(call[1].method).toBe('POST')
+    expect(call[1].body).toBeInstanceOf(FormData)
+  })
+
+  it('deleteDocument() → DELETE', async () => {
+    mockFetch.mockResolvedValue(jsonResponse(null))
+    await svc.deleteDocument(PROJ, DOC)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/knowledge-base/documents/${DOC}`,
+      expect.objectContaining({ method: 'DELETE' }),
+    )
+  })
+
+  it('search() → POST /knowledge-base/search with query', async () => {
+    mockFetch.mockResolvedValue(jsonResponse([]))
+    await svc.search(PROJ, 'test query')
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/knowledge-base/search`,
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ query: 'test query' }) }),
+    )
+  })
+
+  it('hasVectorData() → GET /knowledge-base/has-vector-data', async () => {
+    mockFetch.mockResolvedValue(jsonResponse({ hasVectorData: true }))
+    const result = await svc.hasVectorData(PROJ)
+    expect(result).toBe(true)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/knowledge-base/has-vector-data`,
+      expect.any(Object),
+    )
+  })
+
+  it('hasVectorData() extracts boolean from response object', async () => {
+    mockFetch.mockResolvedValue(jsonResponse({ hasVectorData: false }))
+    const result = await svc.hasVectorData(PROJ)
+    expect(result).toBe(false)
   })
 })
 

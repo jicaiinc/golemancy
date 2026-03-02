@@ -8,8 +8,8 @@
     "mcpServers": "MCP-Servers",
     "tasks": "Gesprekstaken",
     "artifacts": "Artefacten",
-    "memory": "Geheugen",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "knowledgeBase": "Kennisbank"
   },
   "sidebar": {
     "navigation": "NAVIGATIE",

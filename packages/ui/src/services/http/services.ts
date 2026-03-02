@@ -1,7 +1,8 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  KBCollectionId, KBDocumentId, KBCollection, KBDocument, KBSearchResult, KBCollectionTier, KBSourceType,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -9,10 +10,10 @@ import type {
   WorkspaceEntry, FilePreviewData,
   ConversationTokenUsageResult, CompactRecord,
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
+  ITaskService, IKnowledgeBaseService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService,
 } from '@golemancy/shared'
-import { fetchJson } from './base'
+import { fetchJson, getAuthToken } from './base'
 
 export class HttpProjectService implements IProjectService {
   constructor(private baseUrl: string) {}
@@ -169,24 +170,70 @@ export class HttpWorkspaceService implements IWorkspaceService {
   }
 }
 
-export class HttpMemoryService implements IMemoryService {
+export class HttpKnowledgeBaseService implements IKnowledgeBaseService {
   constructor(private baseUrl: string) {}
 
-  list(projectId: ProjectId) {
-    return fetchJson<MemoryEntry[]>(`${this.baseUrl}/api/projects/${projectId}/memories`)
+  private kbUrl(projectId: ProjectId, ...segments: string[]) {
+    return `${this.baseUrl}/api/projects/${projectId}/knowledge-base${segments.length ? '/' + segments.join('/') : ''}`
   }
-  create(projectId: ProjectId, data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>) {
-    return fetchJson<MemoryEntry>(`${this.baseUrl}/api/projects/${projectId}/memories`, {
+
+  listCollections(projectId: ProjectId) {
+    return fetchJson<KBCollection[]>(this.kbUrl(projectId))
+  }
+  createCollection(projectId: ProjectId, data: { name: string; description?: string; tier: KBCollectionTier }) {
+    return fetchJson<KBCollection>(this.kbUrl(projectId), {
       method: 'POST', body: JSON.stringify(data),
     })
   }
-  update(projectId: ProjectId, id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>) {
-    return fetchJson<MemoryEntry>(`${this.baseUrl}/api/projects/${projectId}/memories/${id}`, {
+  updateCollection(projectId: ProjectId, id: KBCollectionId, data: Partial<{ name: string; description: string; tier: KBCollectionTier }>) {
+    return fetchJson<KBCollection>(this.kbUrl(projectId, id), {
       method: 'PATCH', body: JSON.stringify(data),
     })
   }
-  async delete(projectId: ProjectId, id: MemoryId) {
-    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/memories/${id}`, { method: 'DELETE' })
+  async deleteCollection(projectId: ProjectId, id: KBCollectionId) {
+    await fetchJson(this.kbUrl(projectId, id), { method: 'DELETE' })
+  }
+
+  listDocuments(projectId: ProjectId, collectionId: KBCollectionId) {
+    return fetchJson<KBDocument[]>(this.kbUrl(projectId, collectionId, 'documents'))
+  }
+  ingestDocument(projectId: ProjectId, collectionId: KBCollectionId, data: { title?: string; content: string; sourceType: KBSourceType; sourceName?: string }) {
+    return fetchJson<KBDocument>(this.kbUrl(projectId, collectionId, 'documents'), {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  async uploadDocument(projectId: ProjectId, collectionId: KBCollectionId, file: File, metadata?: { title?: string }): Promise<KBDocument> {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (metadata?.title) formData.append('title', metadata.title)
+
+    const headers: Record<string, string> = {}
+    const token = getAuthToken()
+    if (token) headers['Authorization'] = `Bearer ${token}`
+
+    const res = await fetch(this.kbUrl(projectId, collectionId, 'documents', 'upload'), {
+      method: 'POST',
+      body: formData,
+      headers,
+    })
+    if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`)
+    return res.json()
+  }
+  getDocument(projectId: ProjectId, documentId: KBDocumentId) {
+    return fetchJson<KBDocument>(`${this.baseUrl}/api/projects/${projectId}/knowledge-base/documents/${documentId}`)
+  }
+  async deleteDocument(projectId: ProjectId, documentId: KBDocumentId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/knowledge-base/documents/${documentId}`, { method: 'DELETE' })
+  }
+
+  search(projectId: ProjectId, query: string, options?: { collectionId?: KBCollectionId; limit?: number }) {
+    return fetchJson<KBSearchResult[]>(this.kbUrl(projectId, 'search'), {
+      method: 'POST', body: JSON.stringify({ query, ...options }),
+    })
+  }
+  async hasVectorData(projectId: ProjectId): Promise<boolean> {
+    const res = await fetchJson<{ hasVectorData: boolean }>(this.kbUrl(projectId, 'has-vector-data'))
+    return res.hasVectorData
   }
 }
 

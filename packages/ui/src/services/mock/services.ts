@@ -1,7 +1,9 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  KBCollection, KBDocument, KBSearchResult, KBCollectionTier, KBSourceType,
+  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  KBCollectionId, KBDocumentId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -12,13 +14,13 @@ import type {
 import { DEFAULT_PERMISSIONS_CONFIG, getFileCategory, getMimeType } from '@golemancy/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
+  ITaskService, IKnowledgeBaseService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IGlobalDashboardService, IPermissionsConfigService, IWorkspaceService,
 } from '../interfaces'
 import type { ConversationTokenUsageResult } from '@golemancy/shared'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
-  SEED_CONVERSATION_TASKS, SEED_MEMORIES, SEED_SETTINGS,
+  SEED_CONVERSATION_TASKS, SEED_KB_COLLECTIONS, SEED_KB_DOCUMENTS, SEED_SETTINGS,
   SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
   SEED_PERMISSIONS_CONFIGS,
   SEED_DASHBOARD_SUMMARY, SEED_DASHBOARD_AGENT_STATS, SEED_DASHBOARD_RECENT_CHATS, SEED_DASHBOARD_TOKEN_TREND,
@@ -390,42 +392,162 @@ export class MockWorkspaceService implements IWorkspaceService {
   }
 }
 
-// --- MemoryService ---
-export class MockMemoryService implements IMemoryService {
-  private data = new Map<MemoryId, MemoryEntry>(SEED_MEMORIES.map(m => [m.id, { ...m }]))
+// --- KnowledgeBaseService ---
+export class MockKnowledgeBaseService implements IKnowledgeBaseService {
+  private collections = new Map<KBCollectionId, KBCollection & { projectId: ProjectId }>(
+    SEED_KB_COLLECTIONS.map(c => [c.id, { ...c, projectId: 'proj-1' as ProjectId }])
+  )
+  private documents = new Map<KBDocumentId, KBDocument>(
+    SEED_KB_DOCUMENTS.map(d => [d.id, { ...d }])
+  )
 
-  async list(projectId: ProjectId): Promise<MemoryEntry[]> {
+  // Collections
+  async listCollections(projectId: ProjectId): Promise<KBCollection[]> {
     await delay()
-    return [...this.data.values()].filter(m => m.projectId === projectId)
+    return [...this.collections.values()]
+      .filter(c => c.projectId === projectId)
+      .map(({ projectId: _, ...rest }) => rest)
   }
 
-  async create(projectId: ProjectId, input: Pick<MemoryEntry, 'content' | 'source' | 'tags'>): Promise<MemoryEntry> {
+  async createCollection(projectId: ProjectId, data: { name: string; description?: string; tier: KBCollectionTier }): Promise<KBCollection> {
     await delay()
     const now = new Date().toISOString()
-    const entry: MemoryEntry = {
-      id: genId('mem') as MemoryId,
+    const collection: KBCollection & { projectId: ProjectId } = {
+      id: genId('kbc') as KBCollectionId,
+      name: data.name,
+      description: data.description ?? '',
+      tier: data.tier,
+      documentCount: 0,
+      totalChars: 0,
+      createdAt: now,
+      updatedAt: now,
       projectId,
-      ...input,
+    }
+    this.collections.set(collection.id, collection)
+    const { projectId: _, ...rest } = collection
+    return rest
+  }
+
+  async updateCollection(projectId: ProjectId, id: KBCollectionId, data: Partial<{ name: string; description: string; tier: KBCollectionTier }>): Promise<KBCollection> {
+    await delay()
+    const existing = this.collections.get(id)
+    if (!existing || existing.projectId !== projectId) throw new Error('Collection not found')
+    const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
+    this.collections.set(id, updated)
+    const { projectId: _, ...rest } = updated
+    return rest
+  }
+
+  async deleteCollection(projectId: ProjectId, id: KBCollectionId): Promise<void> {
+    await delay()
+    const c = this.collections.get(id)
+    if (c && c.projectId === projectId) {
+      // Delete all documents in the collection
+      for (const [docId, doc] of this.documents) {
+        if (doc.collectionId === id) this.documents.delete(docId)
+      }
+      this.collections.delete(id)
+    }
+  }
+
+  // Documents
+  async listDocuments(_projectId: ProjectId, collectionId: KBCollectionId): Promise<KBDocument[]> {
+    await delay()
+    return [...this.documents.values()].filter(d => d.collectionId === collectionId)
+  }
+
+  async ingestDocument(_projectId: ProjectId, collectionId: KBCollectionId, data: { title?: string; content: string; sourceType: KBSourceType; sourceName?: string }): Promise<KBDocument> {
+    await delay()
+    const now = new Date().toISOString()
+    const doc: KBDocument = {
+      id: genId('kbd') as KBDocumentId,
+      collectionId,
+      title: data.title ?? '',
+      content: data.content,
+      sourceType: data.sourceType,
+      sourceName: data.sourceName ?? '',
+      charCount: data.content.length,
+      chunkCount: Math.ceil(data.content.length / 500),
       createdAt: now,
       updatedAt: now,
     }
-    this.data.set(entry.id, entry)
-    return entry
+    this.documents.set(doc.id, doc)
+    // Update collection stats
+    const col = this.collections.get(collectionId)
+    if (col) {
+      col.documentCount++
+      col.totalChars += doc.charCount
+      col.updatedAt = now
+    }
+    return doc
   }
 
-  async update(projectId: ProjectId, id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>): Promise<MemoryEntry> {
+  async uploadDocument(_projectId: ProjectId, collectionId: KBCollectionId, file: File, metadata?: { title?: string }): Promise<KBDocument> {
     await delay()
-    const existing = this.data.get(id)
-    if (!existing || existing.projectId !== projectId) throw new Error('Memory not found')
-    const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
-    this.data.set(id, updated)
-    return updated
+    const now = new Date().toISOString()
+    const content = await file.text()
+    const doc: KBDocument = {
+      id: genId('kbd') as KBDocumentId,
+      collectionId,
+      title: metadata?.title ?? file.name,
+      content,
+      sourceType: 'upload',
+      sourceName: file.name,
+      charCount: content.length,
+      chunkCount: Math.ceil(content.length / 500),
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.documents.set(doc.id, doc)
+    const col = this.collections.get(collectionId)
+    if (col) {
+      col.documentCount++
+      col.totalChars += doc.charCount
+      col.updatedAt = now
+    }
+    return doc
   }
 
-  async delete(projectId: ProjectId, id: MemoryId): Promise<void> {
+  async getDocument(_projectId: ProjectId, documentId: KBDocumentId): Promise<KBDocument> {
     await delay()
-    const entry = this.data.get(id)
-    if (entry && entry.projectId === projectId) this.data.delete(id)
+    const doc = this.documents.get(documentId)
+    if (!doc) throw new Error('Document not found')
+    return { ...doc }
+  }
+
+  async deleteDocument(_projectId: ProjectId, documentId: KBDocumentId): Promise<void> {
+    await delay()
+    const doc = this.documents.get(documentId)
+    if (doc) {
+      const col = this.collections.get(doc.collectionId)
+      if (col) {
+        col.documentCount--
+        col.totalChars -= doc.charCount
+        col.updatedAt = new Date().toISOString()
+      }
+      this.documents.delete(documentId)
+    }
+  }
+
+  // Search
+  async search(_projectId: ProjectId, query: string, options?: { collectionId?: KBCollectionId; limit?: number }): Promise<KBSearchResult[]> {
+    await delay()
+    const lq = query.toLowerCase()
+    let docs = [...this.documents.values()]
+    if (options?.collectionId) docs = docs.filter(d => d.collectionId === options.collectionId)
+    return docs
+      .filter(d => d.content.toLowerCase().includes(lq) || d.title.toLowerCase().includes(lq))
+      .slice(0, options?.limit ?? 10)
+      .map(d => {
+        const col = this.collections.get(d.collectionId)
+        return { documentId: d.id, collectionName: col?.name ?? '', chunkContent: d.content.slice(0, 200), chunkIndex: 0, score: 0.85, sourceType: d.sourceType, sourceName: d.sourceName }
+      })
+  }
+
+  // Embedding lock check
+  async hasVectorData(_projectId: ProjectId): Promise<boolean> {
+    await delay()
+    return this.documents.size > 0
   }
 }
 

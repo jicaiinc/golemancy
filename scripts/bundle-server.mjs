@@ -60,7 +60,7 @@ const ENTRY_POINTS = {
 // Manual override: force-external packages that auto-detection misses.
 // Escape hatch for edge cases. Should normally be empty.
 const FORCE_EXTERNAL = new Set([
-  // Example: 'some-package-with-wasm-binary'
+  'sqlite-vec',
 ])
 
 // ── Native package detection ──────────────────────────────────

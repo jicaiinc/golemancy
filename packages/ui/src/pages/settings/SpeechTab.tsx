@@ -340,8 +340,12 @@ export function SpeechTab() {
   const sttRef = useRef(stt)
   sttRef.current = stt
 
+  // Prefill: use OpenAI provider's API key if STT apiKey is not set
+  const providers = settings?.providers ?? {}
+  const openaiKey = providers['openai']?.apiKey ?? ''
+
   // Provider form state
-  const [apiKey, setApiKey] = useState(stt.apiKey ?? '')
+  const [apiKey, setApiKey] = useState(stt.apiKey ?? openaiKey)
   const [baseUrl, setBaseUrl] = useState(stt.baseUrl ?? '')
   const [language, setLanguage] = useState(stt.language ?? '')
   const [model, setModel] = useState(stt.model)

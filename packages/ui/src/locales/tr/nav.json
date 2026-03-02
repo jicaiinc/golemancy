@@ -5,19 +5,19 @@
     "automations": "Otomasyonlar",
     "agents": "Ajanlar",
     "skills": "Beceriler",
-    "mcpServers": "MCP Sunucular\u0131",
-    "tasks": "Konu\u015fma G\u00f6revleri",
+    "mcpServers": "MCP Sunucuları",
+    "tasks": "Konuşma Görevleri",
     "artifacts": "Eserler",
-    "memory": "Haf\u0131za",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "knowledgeBase": "Bilgi Tabanı"
   },
   "sidebar": {
-    "navigation": "NAV\u0130GASYON",
+    "navigation": "NAVİGASYON",
     "config": "YAPILANDIRMA",
     "collapse": "<< Daralt"
   },
   "global": {
-    "allProjects": "T\u00fcm Projeler",
+    "allProjects": "Tüm Projeler",
     "dashboard": "Pano",
     "settings": "Ayarlar"
   },
@@ -27,20 +27,20 @@
       "sandbox": "Sandbox",
       "unrestricted": "Unrestricted"
     },
-    "degraded": "(d\u00fc\u015f\u00fcr\u00fcld\u00fc \u2192 {{mode}})",
-    "tasks": "G\u00f6revler {{completed}}/{{total}}",
-    "conversationTasks": "KONU\u015eMA G\u00d6REVLER\u0130",
-    "contextUsage": "Ba\u011flam: {{used}} / {{max}} ({{percent}}%)",
-    "contextEmpty": "Ba\u011flam: -- / {{max}}",
-    "contextWindow": "BA\u011eLAM PENCERES\u0130",
-    "usage": "Kullan\u0131m",
-    "compacting": "S\u0131k\u0131\u015ft\u0131r\u0131l\u0131yor",
-    "compactingAuto": "S\u0131k\u0131\u015ft\u0131r\u0131l\u0131yor (otomatik)",
-    "compactNow": "\u015eimdi S\u0131k\u0131\u015ft\u0131r",
-    "byAgent": "AJANA G\u00d6RE",
-    "byModel": "MODELE G\u00d6RE",
-    "tokensInOut": "{{input}} giri\u015f / {{output}} \u00e7\u0131k\u0131\u015f",
-    "tokens": "Token: {{input}} giri\u015f / {{output}} \u00e7\u0131k\u0131\u015f",
+    "degraded": "(düşürüldü → {{mode}})",
+    "tasks": "Görevler {{completed}}/{{total}}",
+    "conversationTasks": "KONUŞMA GÖREVLERİ",
+    "contextUsage": "Bağlam: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Bağlam: -- / {{max}}",
+    "contextWindow": "BAĞLAM PENCERESİ",
+    "usage": "Kullanım",
+    "compacting": "Sıkıştırılıyor",
+    "compactingAuto": "Sıkıştırılıyor (otomatik)",
+    "compactNow": "Şimdi Sıkıştır",
+    "byAgent": "AJANA GÖRE",
+    "byModel": "MODELE GÖRE",
+    "tokensInOut": "{{input}} giriş / {{output}} çıkış",
+    "tokens": "Token: {{input}} giriş / {{output}} çıkış",
     "tokensEmpty": "Token: --"
   }
 }

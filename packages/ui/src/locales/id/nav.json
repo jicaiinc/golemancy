@@ -8,8 +8,8 @@
     "mcpServers": "MCP Server",
     "tasks": "Tugas Percakapan",
     "artifacts": "Artefak",
-    "memory": "Memori",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "knowledgeBase": "Basis Pengetahuan"
   },
   "sidebar": {
     "navigation": "NAVIGASI",
@@ -27,7 +27,7 @@
       "sandbox": "Sandbox",
       "unrestricted": "Unrestricted"
     },
-    "degraded": "(terdegradasi \u2192 {{mode}})",
+    "degraded": "(terdegradasi → {{mode}})",
     "tasks": "Tugas {{completed}}/{{total}}",
     "conversationTasks": "TUGAS PERCAKAPAN",
     "contextUsage": "Konteks: {{used}} / {{max}} ({{percent}}%)",

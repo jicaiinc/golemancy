@@ -50,6 +50,7 @@ export function createSubAgentTool(
   conversationId?: string,
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
+  kbStorage?: import('../storage/knowledge-base').KnowledgeBaseStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
 ) {
   return tool({
@@ -71,6 +72,7 @@ export function createSubAgentTool(
         conversationId,
         taskStorage,
         tokenRecordStorage,
+        kbStorage,
         onTokenUsage,
       })
 
@@ -235,6 +237,7 @@ export function createSubAgentToolSet(
   conversationId?: string,
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
+  kbStorage?: import('../storage/knowledge-base').KnowledgeBaseStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
@@ -247,7 +250,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, onTokenUsage)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, kbStorage, onTokenUsage)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

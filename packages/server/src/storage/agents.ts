@@ -38,7 +38,7 @@ export class FileAgentStorage implements IAgentService {
       ...agent,
       skillIds: agent.skillIds ?? raw.skills?.map((s: { id: string }) => s.id) ?? [],
       mcpServers,
-      builtinTools: agent.builtinTools ?? { bash: true },
+      builtinTools: agent.builtinTools ?? { bash: true, knowledge_base: true },
     }
   }
 
@@ -70,7 +70,7 @@ export class FileAgentStorage implements IAgentService {
       tools: [],
       subAgents: [],
       mcpServers: [],
-      builtinTools: { bash: true },
+      builtinTools: { bash: true, knowledge_base: true },
       createdAt: now,
       updatedAt: now,
     }

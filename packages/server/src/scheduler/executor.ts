@@ -7,6 +7,7 @@ import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteCronJobRunStorage } from '../storage/cron-job-runs'
 import type { FileCronJobStorage } from '../storage/cronjobs'
 import type { TokenRecordStorage } from '../storage/token-records'
+import type { KnowledgeBaseStorage } from '../storage/knowledge-base'
 import type { WebSocketManager } from '../ws/handler'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import { resolveModel } from '../agent/model'
@@ -27,6 +28,7 @@ export interface ExecutorDeps {
   taskStorage: SqliteConversationTaskStorage
   projectStorage: IProjectService
   tokenRecordStorage: TokenRecordStorage
+  kbStorage?: KnowledgeBaseStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
 }
@@ -115,6 +117,7 @@ export class CronJobExecutor {
         conversationId,
         taskStorage: this.deps.taskStorage,
         tokenRecordStorage: this.deps.tokenRecordStorage,
+        kbStorage: this.deps.kbStorage,
       })
 
       const allTools = agentToolsResult.tools

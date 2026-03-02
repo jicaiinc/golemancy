@@ -68,6 +68,41 @@ export const compactRecords = sqliteTable('compact_records', {
   createdAt: text('created_at').notNull(),
 })
 
+export const kbCollections = sqliteTable('kb_collections', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description').notNull().default(''),
+  tier: text('tier').notNull().default('warm'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const kbDocuments = sqliteTable('kb_documents', {
+  id: text('id').primaryKey(),
+  collectionId: text('collection_id').notNull()
+    .references(() => kbCollections.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  sourceType: text('source_type').notNull(),
+  sourceName: text('source_name').notNull().default(''),
+  metadata: text('metadata', { mode: 'json' }),
+  tags: text('tags', { mode: 'json' }),
+  charCount: integer('char_count').notNull().default(0),
+  chunkCount: integer('chunk_count').notNull().default(0),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const kbChunks = sqliteTable('kb_chunks', {
+  id: text('id').primaryKey(),
+  documentId: text('document_id').notNull()
+    .references(() => kbDocuments.id, { onDelete: 'cascade' }),
+  chunkIndex: integer('chunk_index').notNull(),
+  content: text('content').notNull(),
+  charCount: integer('char_count').notNull().default(0),
+  createdAt: text('created_at').notNull(),
+})
+
 export const cronJobRuns = sqliteTable('cron_job_runs', {
   id: text('id').primaryKey(),
   cronJobId: text('cron_job_id').notNull(),

@@ -7,6 +7,7 @@ import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
 import { PixelDropdown } from '../../components/base/PixelDropdown'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { SpeechTab } from './SpeechTab'
+import { EmbeddingTab } from './EmbeddingTab'
 import { PROVIDER_PRESETS } from '../../lib/provider-presets'
 import { LANGUAGES } from '../../i18n/languages'
 
@@ -62,6 +63,7 @@ export function GlobalSettingsPage() {
   const SETTINGS_TABS: { id: string; label: ReactNode }[] = [
     { id: 'general', label: t('tabs.general') },
     { id: 'providers', label: t('tabs.providers') },
+    { id: 'embedding', label: t('tabs.embedding') },
     { id: 'speech', label: t('tabs.speech') },
     { id: 'about', label: <>{t('tabs.about')}{showBadge && <BadgeDot />}</> },
   ]
@@ -79,6 +81,7 @@ export function GlobalSettingsPage() {
           {activeTab === 'providers' && (
             <ProvidersTab settings={settings} onUpdate={updateSettings} />
           )}
+          {activeTab === 'embedding' && <EmbeddingTab />}
           {activeTab === 'speech' && <SpeechTab />}
           {activeTab === 'about' && <AboutTab />}
         </div>

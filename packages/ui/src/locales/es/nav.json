@@ -8,8 +8,8 @@
     "mcpServers": "Servidores MCP",
     "tasks": "Tareas de Conversación",
     "artifacts": "Artefactos",
-    "memory": "Memoria",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "knowledgeBase": "Base de conocimiento"
   },
   "sidebar": {
     "navigation": "NAVEGACIÓN",

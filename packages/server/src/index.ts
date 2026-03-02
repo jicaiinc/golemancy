@@ -12,7 +12,7 @@ import { FileProjectStorage } from './storage/projects'
 import { FileAgentStorage } from './storage/agents'
 import { SqliteConversationStorage } from './storage/conversations'
 import { SqliteConversationTaskStorage } from './storage/tasks'
-import { FileMemoryStorage } from './storage/memories'
+import { KnowledgeBaseStorage } from './storage/knowledge-base'
 import { FileSkillStorage } from './storage/skills'
 import { FileCronJobStorage } from './storage/cronjobs'
 import { FileMCPStorage } from './storage/mcp'
@@ -75,7 +75,7 @@ async function main() {
     agentStorage,
     conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb),
     taskStorage: new SqliteConversationTaskStorage(dbManager.getProjectDb),
-    memoryStorage: new FileMemoryStorage(),
+    kbStorage: new KnowledgeBaseStorage(dbManager.getProjectDb, () => deps.settingsStorage.get()),
     skillStorage: new FileSkillStorage(agentStorage),
     cronJobStorage,
     cronJobRunStorage,
@@ -181,6 +181,7 @@ async function main() {
       taskStorage: deps.taskStorage as SqliteConversationTaskStorage,
       projectStorage,
       tokenRecordStorage,
+      kbStorage: deps.kbStorage,
       wsManager,
     })
     cronScheduler.start({

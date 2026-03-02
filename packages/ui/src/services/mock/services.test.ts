@@ -6,7 +6,7 @@ import {
   MockConversationService,
   MockTaskService,
   MockWorkspaceService,
-  MockMemoryService,
+  MockKnowledgeBaseService,
   MockSettingsService,
   MockDashboardService,
 } from './services'
@@ -238,48 +238,48 @@ describe('MockWorkspaceService', () => {
   })
 })
 
-describe('MockMemoryService', () => {
-  let service: MockMemoryService
+describe('MockKnowledgeBaseService', () => {
+  let service: MockKnowledgeBaseService
 
   beforeEach(() => {
-    service = new MockMemoryService()
+    service = new MockKnowledgeBaseService()
   })
 
-  it('list() filters by projectId', async () => {
-    const memories = await service.list('proj-1' as ProjectId)
-    expect(memories.length).toBeGreaterThan(0)
-    memories.forEach(m => expect(m.projectId).toBe('proj-1'))
+  it('listCollections() returns seeded collections for proj-1', async () => {
+    const collections = await service.listCollections('proj-1' as ProjectId)
+    expect(collections.length).toBeGreaterThan(0)
   })
 
-  it('create() creates a new memory entry', async () => {
-    const entry = await service.create('proj-1' as ProjectId, {
-      content: 'New memory',
-      source: 'Test',
-      tags: ['test'],
+  it('createCollection() creates a new collection', async () => {
+    const col = await service.createCollection('proj-1' as ProjectId, {
+      name: 'Test Collection',
+      tier: 'warm',
     })
-    expect(entry.content).toBe('New memory')
-    expect(entry.projectId).toBe('proj-1')
+    expect(col.name).toBe('Test Collection')
+    expect(col.tier).toBe('warm')
   })
 
-  it('update() modifies a memory entry', async () => {
-    const entries = await service.list('proj-1' as ProjectId)
-    const updated = await service.update('proj-1' as ProjectId, entries[0].id, {
-      content: 'Updated content',
+  it('deleteCollection() removes collection and its documents', async () => {
+    const collections = await service.listCollections('proj-1' as ProjectId)
+    const col = collections[0]
+    await service.deleteCollection('proj-1' as ProjectId, col.id)
+    const remaining = await service.listCollections('proj-1' as ProjectId)
+    expect(remaining).toHaveLength(collections.length - 1)
+  })
+
+  it('ingestDocument() adds a document to a collection', async () => {
+    const collections = await service.listCollections('proj-1' as ProjectId)
+    const doc = await service.ingestDocument('proj-1' as ProjectId, collections[0].id, {
+      content: 'Test content',
+      sourceType: 'manual',
     })
-    expect(updated.content).toBe('Updated content')
+    expect(doc.content).toBe('Test content')
+    expect(doc.collectionId).toBe(collections[0].id)
   })
 
-  it('update() throws for wrong projectId', async () => {
-    await expect(
-      service.update('proj-2' as ProjectId, 'mem-1' as any, { content: 'Bad' }),
-    ).rejects.toThrow('not found')
-  })
-
-  it('delete() removes memory entry', async () => {
-    const entries = await service.list('proj-1' as ProjectId)
-    await service.delete('proj-1' as ProjectId, entries[0].id)
-    const remaining = await service.list('proj-1' as ProjectId)
-    expect(remaining).toHaveLength(entries.length - 1)
+  it('search() returns matching documents', async () => {
+    const results = await service.search('proj-1' as ProjectId, 'brand')
+    expect(results.length).toBeGreaterThan(0)
   })
 })
 

@@ -5,6 +5,7 @@
   "tabs": {
     "general": "General",
     "providers": "Providers",
+    "embedding": "Embedding",
     "speech": "Speech",
     "about": "About"
   },
@@ -80,6 +81,15 @@
     "baseUrlOptional": "BASE URL (optional)",
     "hideKey": "Hide Key",
     "showKey": "Show Key"
+  },
+  "embedding": {
+    "sectionTitle": "EMBEDDING",
+    "description": "Configure the embedding model used for Knowledge Base vector search (Warm/Cold tiers).",
+    "enableLabel": "Enable Embedding",
+    "modelLabel": "MODEL",
+    "apiKeyLabel": "API KEY",
+    "prefillHint": "Pre-filled from OpenAI provider. You can override it.",
+    "saved": "Saved!"
   },
   "threshold": {
     "tokens": "tokens"

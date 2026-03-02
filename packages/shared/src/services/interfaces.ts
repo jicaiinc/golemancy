@@ -1,6 +1,8 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, MemoryEntry, CronJob, CronJobRun, Skill,
-  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, CronJobId,
+  Project, Agent, Conversation, ConversationTask, CronJob, CronJobRun, Skill,
+  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId,
+  KBCollectionId, KBDocumentId,
+  KBCollection, KBDocument, KBSearchResult, KBCollectionTier, KBSourceType,
   PermissionsConfigId, TranscriptionId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
@@ -70,11 +72,25 @@ export interface IWorkspaceService {
   getFileUrl(projectId: ProjectId, filePath: string): string
 }
 
-export interface IMemoryService {
-  list(projectId: ProjectId): Promise<MemoryEntry[]>
-  create(projectId: ProjectId, data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>): Promise<MemoryEntry>
-  update(projectId: ProjectId, id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>): Promise<MemoryEntry>
-  delete(projectId: ProjectId, id: MemoryId): Promise<void>
+export interface IKnowledgeBaseService {
+  // Collections
+  listCollections(projectId: ProjectId): Promise<KBCollection[]>
+  createCollection(projectId: ProjectId, data: { name: string; description?: string; tier: KBCollectionTier }): Promise<KBCollection>
+  updateCollection(projectId: ProjectId, id: KBCollectionId, data: Partial<{ name: string; description: string; tier: KBCollectionTier }>): Promise<KBCollection>
+  deleteCollection(projectId: ProjectId, id: KBCollectionId): Promise<void>
+
+  // Documents
+  listDocuments(projectId: ProjectId, collectionId: KBCollectionId): Promise<KBDocument[]>
+  ingestDocument(projectId: ProjectId, collectionId: KBCollectionId, data: { title?: string; content: string; sourceType: KBSourceType; sourceName?: string }): Promise<KBDocument>
+  uploadDocument(projectId: ProjectId, collectionId: KBCollectionId, file: File, metadata?: { title?: string }): Promise<KBDocument>
+  getDocument(projectId: ProjectId, documentId: KBDocumentId): Promise<KBDocument>
+  deleteDocument(projectId: ProjectId, documentId: KBDocumentId): Promise<void>
+
+  // Search
+  search(projectId: ProjectId, query: string, options?: { collectionId?: KBCollectionId; limit?: number }): Promise<KBSearchResult[]>
+
+  // Embedding lock check
+  hasVectorData(projectId: ProjectId): Promise<boolean>
 }
 
 export interface ISkillService {

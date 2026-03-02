@@ -1,0 +1,62 @@
+{
+  "page": {
+    "title": "Knowledge Base",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "newCollectionBtn": "+ New Collection"
+  },
+  "loading": "Loading knowledge base...",
+  "tier": {
+    "hot": "Hot",
+    "warm": "Warm",
+    "cold": "Cold",
+    "archive": "Archive",
+    "capacity": "Capacity",
+    "empty": "No collections"
+  },
+  "collection": {
+    "docs_one": "{{count}} doc",
+    "docs_other": "{{count}} docs",
+    "chars": "chars"
+  },
+  "newCollection": {
+    "title": "New Collection",
+    "nameLabel": "NAME",
+    "namePlaceholder": "e.g. Brand Guidelines",
+    "descriptionLabel": "DESCRIPTION",
+    "descriptionPlaceholder": "Optional description",
+    "tierLabel": "TIER"
+  },
+  "detail": {
+    "addText": "+ Add Text",
+    "uploadFile": "Upload File",
+    "searchTest": "SEARCH TEST",
+    "searchPlaceholder": "Test a search query...",
+    "searchBtn": "Search",
+    "documents": "DOCUMENTS",
+    "noDocs": "No documents in this collection",
+    "settings": "SETTINGS",
+    "changeTier": "Tier",
+    "deleteCollection": "Delete Collection",
+    "confirmDelete": "Delete this collection and all its documents?"
+  },
+  "ingestText": {
+    "title": "Add Text Document",
+    "titleLabel": "TITLE",
+    "titlePlaceholder": "Optional document title",
+    "contentLabel": "CONTENT",
+    "contentPlaceholder": "Paste or type text content...",
+    "submit": "Add Document"
+  },
+  "uploadFile": {
+    "title": "Upload File",
+    "dropHint": "Drop a file here or click to browse ({{formats}})",
+    "titleLabel": "TITLE (optional)",
+    "titlePlaceholder": "Override document title",
+    "submit": "Upload"
+  },
+  "document": {
+    "untitled": "Untitled",
+    "chunks": "chunks"
+  }
+}
