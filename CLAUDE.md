@@ -16,6 +16,7 @@ Golemancy — AI Agent orchestration platform. Electron desktop app with pixel a
 | X (Twitter) | @golemancyai |
 | Support Email | hi@golemancy.ai |
 | Copyright | Jicai, Inc. |
+| Website Repo | `/Users/cai/developer/github/golemancyweb` (Next.js 官网，可参考其 GitHub API 集成、平台检测、下载逻辑等) |
 
 ## Commands
 
