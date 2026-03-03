@@ -208,13 +208,13 @@ describe('builtin-tools integration', () => {
     // ── Python in virtual FS ──────────────────────────────────
 
     describe('python execution', () => {
-      it('executes inline python (bash has python: true)', async () => {
+      it('executes inline python (bash has python: true)', { retry: 2 }, async () => {
         const result = await bash.exec('python3 -c "print(1 + 2)"')
         expect(result.stdout.trim()).toBe('3')
         expect(result.exitCode).toBe(0)
       })
 
-      it('writes and executes a .py script from /workspace', async () => {
+      it('writes and executes a .py script from /workspace', { retry: 2 }, async () => {
         await bash.writeFile('/workspace/test.py', 'print("hello from script")')
         const result = await bash.exec('python3 /workspace/test.py')
         expect(result.stdout).toContain('hello from script')

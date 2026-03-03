@@ -125,8 +125,9 @@ describe('GlobalDashboardPage', () => {
   })
 
   it('shows loading spinner initially', () => {
-    renderGlobalDashboard()
+    const { unmount } = renderGlobalDashboard()
     expect(screen.getByText('Loading dashboard...')).toBeInTheDocument()
+    unmount()
   })
 
   it('renders header with title and description', async () => {

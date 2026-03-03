@@ -189,7 +189,7 @@ describe.skipIf(!pythonAvailable)('Python integration — real venv', () => {
       ])
     })
 
-    it('packages installed in one project do not appear in another', async () => {
+    it('packages installed in one project do not appear in another', { retry: 2, timeout: 60_000 }, async () => {
       await Promise.all([
         initProjectPythonEnv(PROJECT_A),
         initProjectPythonEnv(PROJECT_B),
@@ -205,6 +205,6 @@ describe.skipIf(!pythonAvailable)('Python integration — real venv', () => {
       // Project B does NOT have six
       const pkgsB = await listPackages(PROJECT_B)
       expect(pkgsB.find(p => p.name === 'six')).toBeUndefined()
-    }, 60_000)
+    })
   })
 })

@@ -179,8 +179,9 @@ describe('DashboardPage', () => {
 
   it('shows loading spinner initially', () => {
     useAppStore.setState({ dashboardLoading: true })
-    renderDashboard()
+    const { unmount } = renderDashboard()
     expect(screen.getByText('Loading dashboard...')).toBeInTheDocument()
+    unmount()
   })
 
   it('renders project name as header', async () => {
