@@ -130,7 +130,7 @@ Auth token is generated per-session (`crypto.randomUUID()`), passed as Bearer he
 - `app.ts` — Hono app factory (CORS, auth, error handling). Routes inject storage dependencies.
 - `db/` — SQLite schema (drizzle-orm), FTS5 for message search, migrations. **Per-project databases** via `ProjectDbManager` (lazy-loads on first access).
 - `storage/` — Service implementations (file-based for config data, SQLite for messages/logs)
-- `routes/` — RESTful endpoints: projects, agents, conversations, chat (SSE streaming), tasks, artifacts, memories, skills, mcp, cron-jobs, settings, dashboard, topology, permissions-config, runtime, sandbox
+- `routes/` — RESTful endpoints: projects, agents, conversations, chat (SSE streaming), tasks, artifacts, skills, mcp, cron-jobs, settings, dashboard, topology, permissions-config, runtime, sandbox
 - `agent/` — AI runtime engine:
   - `runtime.ts` / `process.ts` — Agent execution with Vercel AI SDK `streamText`
   - `sub-agent.ts` — Recursive sub-agent orchestration (unlimited nesting)
@@ -146,7 +146,7 @@ Auth token is generated per-session (`crypto.randomUUID()`), passed as Bearer he
 
 ### State (Zustand v5)
 
-Single store at `packages/ui/src/stores/useAppStore.ts` with 13 slices: project, agent, conversation, task, artifact, memory, skill, mcp, cronJob, settings, ui, dashboard, topology.
+Single store at `packages/ui/src/stores/useAppStore.ts` with 12 slices: project, agent, conversation, task, artifact, skill, mcp, cronJob, settings, ui, dashboard, topology.
 
 Zustand v5 requires double-parenthesis pattern: `create<T>()(...)`.
 
@@ -154,7 +154,7 @@ Store persists theme + sidebar state to localStorage (`golemancy-prefs`). Uses A
 
 ### Service Layer (DI)
 
-- Interfaces: `packages/shared/src/services/interfaces.ts` — 12 services: IProjectService, IAgentService, IConversationService, ITaskService, IArtifactService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService, IPermissionsConfigService
+- Interfaces: `packages/shared/src/services/interfaces.ts` — 11 services: IProjectService, IAgentService, IConversationService, ITaskService, IArtifactService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService, IPermissionsConfigService
 - Container: `packages/ui/src/services/container.ts` — module-level singleton via `getServices()`/`configureServices()`
 - Mock implementations: `packages/ui/src/services/mock/` (seed data centralized in `data.ts` — never scatter)
 - HTTP implementations: `packages/ui/src/services/http/services.ts` (real backend integration)
@@ -179,7 +179,7 @@ Three permission modes for agent tool execution: `restricted` (no execution), `s
 
 ### Type System
 
-Branded ID types in `packages/shared/src/types/common.ts` (`ProjectId`, `AgentId`, etc.) prevent mixing IDs at compile time. 11 branded types total — never pass a raw string where a branded ID is expected.
+Branded ID types in `packages/shared/src/types/common.ts` (`ProjectId`, `AgentId`, etc.) prevent mixing IDs at compile time. 10 branded types total — never pass a raw string where a branded ID is expected.
 
 ## Critical Library Choices
 
@@ -210,7 +210,7 @@ Tailwind CSS v4 with CSS-first config in `packages/ui/src/styles/global.css`:
 
 ## Internationalization (i18n)
 
-`react-i18next` + `i18next`，17 个 namespace，22 种语言。翻译文件：`packages/ui/src/locales/{lang}/{namespace}.json`。详细 key 清单见 `_design/i18n-key-summary.md`。
+`react-i18next` + `i18next`，16 个 namespace，22 种语言。翻译文件：`packages/ui/src/locales/{lang}/{namespace}.json`。详细 key 清单见 `_design/i18n-key-summary.md`。
 
 **英文 (`en`) 是唯一标杆**。新功能只需实现英文翻译，其他语言后续补齐即可。
 

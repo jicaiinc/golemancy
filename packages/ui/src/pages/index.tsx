@@ -22,9 +22,6 @@ export { CronJobsPage } from './cron'
 // Workspace
 export { WorkspacePage } from './workspace'
 
-// Memory
-export { MemoryPage } from './memory'
-
 // Dashboard
 export { DashboardPage, GlobalDashboardPage } from './dashboard'
 

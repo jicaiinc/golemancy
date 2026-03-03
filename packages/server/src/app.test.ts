@@ -71,18 +71,6 @@ function createMockDeps() {
       ]),
       getById: vi.fn().mockResolvedValue(null),
     },
-    memoryStorage: {
-      list: vi.fn().mockResolvedValue([
-        { id: 'mem-1', content: 'Remember this' },
-      ]),
-      create: vi.fn().mockImplementation((_pid: any, data: any) =>
-        Promise.resolve({ id: 'mem-new', projectId: _pid, ...data }),
-      ),
-      update: vi.fn().mockImplementation((_pid: any, id: any, data: any) =>
-        Promise.resolve({ id, ...data }),
-      ),
-      delete: vi.fn().mockResolvedValue(undefined),
-    },
     settingsStorage: {
       get: vi.fn().mockResolvedValue({
         theme: 'dark', providers: {},
@@ -376,42 +364,6 @@ describe('HTTP API routes', () => {
       const res = await app.request('/api/projects/proj-1/tasks/task-1')
       expect(res.status).toBe(200)
       expect(deps.taskStorage.getById).toHaveBeenCalledWith('proj-1', 'task-1')
-    })
-  })
-
-  // ---- Memories ----
-
-  describe('memories routes', () => {
-    it('GET list returns memories', async () => {
-      const res = await app.request('/api/projects/proj-1/memories')
-      expect(res.status).toBe(200)
-      const body = await res.json()
-      expect(body).toHaveLength(1)
-      expect(deps.memoryStorage.list).toHaveBeenCalledWith('proj-1')
-    })
-
-    it('POST creates memory with 201', async () => {
-      const res = await app.request(jsonRequest('/api/projects/proj-1/memories', {
-        method: 'POST',
-        body: JSON.stringify({ content: 'New memory', source: 'agent-1', tags: ['test'] }),
-      }))
-      expect(res.status).toBe(201)
-      expect(deps.memoryStorage.create).toHaveBeenCalledWith('proj-1', { content: 'New memory', source: 'agent-1', tags: ['test'] })
-    })
-
-    it('PATCH /:id updates memory', async () => {
-      const res = await app.request(jsonRequest('/api/projects/proj-1/memories/mem-1', {
-        method: 'PATCH',
-        body: JSON.stringify({ content: 'Updated' }),
-      }))
-      expect(res.status).toBe(200)
-      expect(deps.memoryStorage.update).toHaveBeenCalledWith('proj-1', 'mem-1', { content: 'Updated' })
-    })
-
-    it('DELETE /:id deletes memory', async () => {
-      const res = await app.request('/api/projects/proj-1/memories/mem-1', { method: 'DELETE' })
-      expect(res.status).toBe(200)
-      expect(deps.memoryStorage.delete).toHaveBeenCalledWith('proj-1', 'mem-1')
     })
   })
 

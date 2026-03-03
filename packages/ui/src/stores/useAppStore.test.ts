@@ -68,12 +68,6 @@ function createTestServices(): ServiceContainer {
       deleteFile: vi.fn().mockResolvedValue(undefined),
       getFileUrl: vi.fn().mockReturnValue(''),
     },
-    memory: {
-      list: vi.fn().mockResolvedValue([]),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    },
     settings: {
       get: vi.fn().mockResolvedValue({
         providers: {

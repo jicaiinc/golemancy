@@ -1,7 +1,7 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -9,7 +9,7 @@ import type {
   WorkspaceEntry, FilePreviewData,
   ConversationTokenUsageResult, CompactRecord,
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
+  ITaskService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService,
 } from '@golemancy/shared'
 import { fetchJson } from './base'
@@ -166,27 +166,6 @@ export class HttpWorkspaceService implements IWorkspaceService {
 
   getFileUrl(projectId: ProjectId, filePath: string): string {
     return `${this.baseUrl}/api/projects/${projectId}/workspace/raw?path=${encodeURIComponent(filePath)}`
-  }
-}
-
-export class HttpMemoryService implements IMemoryService {
-  constructor(private baseUrl: string) {}
-
-  list(projectId: ProjectId) {
-    return fetchJson<MemoryEntry[]>(`${this.baseUrl}/api/projects/${projectId}/memories`)
-  }
-  create(projectId: ProjectId, data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>) {
-    return fetchJson<MemoryEntry>(`${this.baseUrl}/api/projects/${projectId}/memories`, {
-      method: 'POST', body: JSON.stringify(data),
-    })
-  }
-  update(projectId: ProjectId, id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>) {
-    return fetchJson<MemoryEntry>(`${this.baseUrl}/api/projects/${projectId}/memories/${id}`, {
-      method: 'PATCH', body: JSON.stringify(data),
-    })
-  }
-  async delete(projectId: ProjectId, id: MemoryId) {
-    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/memories/${id}`, { method: 'DELETE' })
   }
 }
 

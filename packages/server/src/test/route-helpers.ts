@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 import { Hono } from 'hono'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
-  IMemoryService, ISkillService, ISettingsService,
+  ISkillService, ISettingsService,
   IDashboardService, ICronJobService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { createApp, type ServerDependencies } from '../app'
@@ -13,7 +13,6 @@ export interface MockStorage extends ServerDependencies {
   agentStorage: MockedService<IAgentService>
   conversationStorage: MockedService<IConversationService>
   taskStorage: MockedService<ITaskService>
-  memoryStorage: MockedService<IMemoryService>
   skillStorage: MockedService<ISkillService>
   settingsStorage: MockedService<ISettingsService>
   dashboardService: MockedService<IDashboardService>
@@ -62,12 +61,6 @@ export function createMockStorage(): MockStorage {
     taskStorage: {
       list: vi.fn().mockResolvedValue([]),
       getById: vi.fn().mockResolvedValue(null),
-    },
-    memoryStorage: {
-      list: vi.fn().mockResolvedValue([]),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn().mockResolvedValue(undefined),
     },
     skillStorage: {
       list: vi.fn().mockResolvedValue([]),

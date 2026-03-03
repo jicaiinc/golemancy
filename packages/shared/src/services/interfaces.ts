@@ -1,6 +1,6 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, MemoryEntry, CronJob, CronJobRun, Skill,
-  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, CronJobId,
+  Project, Agent, Conversation, ConversationTask, CronJob, CronJobRun, Skill,
+  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId,
   PermissionsConfigId, TranscriptionId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
@@ -68,13 +68,6 @@ export interface IWorkspaceService {
 
   /** Get the full URL to download/serve a workspace file (for images, downloads). */
   getFileUrl(projectId: ProjectId, filePath: string): string
-}
-
-export interface IMemoryService {
-  list(projectId: ProjectId): Promise<MemoryEntry[]>
-  create(projectId: ProjectId, data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>): Promise<MemoryEntry>
-  update(projectId: ProjectId, id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>): Promise<MemoryEntry>
-  delete(projectId: ProjectId, id: MemoryId): Promise<void>
 }
 
 export interface ISkillService {

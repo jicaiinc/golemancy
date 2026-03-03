@@ -4,7 +4,6 @@ import type {
   IConversationService,
   ITaskService,
   IWorkspaceService,
-  IMemoryService,
   ISkillService,
   IMCPService,
   ISettingsService,
@@ -21,7 +20,6 @@ export interface ServiceContainer {
   conversations: IConversationService
   tasks: ITaskService
   workspace: IWorkspaceService
-  memory: IMemoryService
   skills: ISkillService
   mcp: IMCPService
   settings: ISettingsService

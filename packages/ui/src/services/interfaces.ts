@@ -4,7 +4,6 @@ export type {
   IConversationService,
   ITaskService,
   IWorkspaceService,
-  IMemoryService,
   ISkillService,
   IMCPService,
   ISettingsService,

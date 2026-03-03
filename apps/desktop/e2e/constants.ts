@@ -51,12 +51,6 @@ export const SELECTORS = {
   TASK_SUMMARY_BTN: '[data-testid="task-summary-btn"]',
   TASK_POPOVER: '[data-testid="task-popover"]',
 
-  // Memory
-  MEMORY_PAGE: '[data-testid="memory-page"]',
-  MEMORY_ADD_BTN: '[data-testid="memory-add-btn"]',
-  MEMORY_CARD: '[data-testid="memory-card"]',
-  MEMORY_SEARCH: '[data-testid="memory-search"]',
-
   // Skills
   SKILLS_PAGE: '[data-testid="skills-page"]',
   SKILL_NEW_BTN: '[data-testid="skill-new-btn"]',

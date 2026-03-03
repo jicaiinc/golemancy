@@ -1,13 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   ThemeMode, WorkspaceEntry, FilePreviewData,
   TranscriptionRecord, SpeechStorageUsage,
-  ProjectId, AgentId, ConversationId, MemoryId, SkillId, CronJobId, TranscriptionId,
+  ProjectId, AgentId, ConversationId, SkillId, CronJobId, TranscriptionId,
   SkillCreateData, SkillUpdateData,
   AgentStatus,
 } from '@golemancy/shared'
@@ -59,11 +59,6 @@ interface WorkspaceSlice {
   workspacePreview: FilePreviewData | null
   workspaceLoading: boolean
   workspacePreviewLoading: boolean
-}
-
-interface MemorySlice {
-  memories: MemoryEntry[]
-  memoriesLoading: boolean
 }
 
 interface SkillSlice {
@@ -163,13 +158,6 @@ interface WorkspaceActions {
   deleteWorkspaceFile(filePath: string): Promise<void>
 }
 
-interface MemoryActions {
-  loadMemories(projectId: ProjectId): Promise<void>
-  createMemory(data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>): Promise<MemoryEntry>
-  updateMemory(id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>): Promise<void>
-  deleteMemory(id: MemoryId): Promise<void>
-}
-
 interface SkillActions {
   loadSkills(projectId: ProjectId): Promise<void>
   createSkill(data: SkillCreateData): Promise<Skill>
@@ -234,8 +222,8 @@ interface SpeechActions {
 
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -266,7 +254,6 @@ export const useAppStore = create<AppState>()(
           conversations: [],
           conversationTasks: [],
           workspaceEntries: [],
-          memories: [],
           skills: [],
           mcpServers: [],
           cronJobs: [],
@@ -277,7 +264,6 @@ export const useAppStore = create<AppState>()(
           conversationsLoading: true,
           tasksLoading: true,
           workspaceLoading: false,
-          memoriesLoading: true,
           skillsLoading: true,
           mcpServersLoading: true,
           cronJobsLoading: true,
@@ -288,11 +274,10 @@ export const useAppStore = create<AppState>()(
         // Workspace is lazy-loaded on page visit, not on project select
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
-        const [agents, conversations, conversationTasks, memories, skills, mcpServers, cronJobs] = await Promise.all([
+        const [agents, conversations, conversationTasks, skills, mcpServers, cronJobs] = await Promise.all([
           safe(svc.agents.list(id)),
           safe(svc.conversations.list(id)),
           safe(svc.tasks.list(id)),
-          safe(svc.memory.list(id)),
           safe(svc.skills.list(id)),
           safe(svc.mcp.list(id)),
           safe(svc.cronJobs.list(id)),
@@ -305,14 +290,12 @@ export const useAppStore = create<AppState>()(
           agents,
           conversations,
           conversationTasks,
-          memories,
           skills,
           mcpServers,
           cronJobs,
           agentsLoading: false,
           conversationsLoading: false,
           tasksLoading: false,
-          memoriesLoading: false,
           skillsLoading: false,
           mcpServersLoading: false,
           cronJobsLoading: false,
@@ -331,7 +314,6 @@ export const useAppStore = create<AppState>()(
           workspacePreview: null,
           workspaceLoading: false,
           workspacePreviewLoading: false,
-          memories: [],
           skills: [],
           mcpServers: [],
           cronJobs: [],
@@ -385,7 +367,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], memories: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [] } : {}),
         }))
       },
 
@@ -558,38 +540,6 @@ export const useAppStore = create<AppState>()(
         if (get().workspacePreview?.path === filePath) {
           set({ workspacePreview: null })
         }
-      },
-
-      // --- Memory state ---
-      memories: [],
-      memoriesLoading: false,
-
-      async loadMemories(projectId: ProjectId) {
-        set({ memoriesLoading: true })
-        const memories = await getServices().memory.list(projectId)
-        set({ memories, memoriesLoading: false })
-      },
-
-      async createMemory(data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const entry = await getServices().memory.create(projectId, data)
-        set(s => ({ memories: [...s.memories, entry] }))
-        return entry
-      },
-
-      async updateMemory(id, data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const updated = await getServices().memory.update(projectId, id, data)
-        set(s => ({ memories: s.memories.map(m => m.id === id ? updated : m) }))
-      },
-
-      async deleteMemory(id) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().memory.delete(projectId, id)
-        set(s => ({ memories: s.memories.filter(m => m.id !== id) }))
       },
 
       // --- Skill state ---

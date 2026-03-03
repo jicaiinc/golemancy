@@ -26,7 +26,6 @@ locales/en/
 ├── cron.json         自动化任务
 ├── mcp.json          MCP 服务器
 ├── skill.json        技能
-├── memory.json       记忆库
 ├── task.json         对话任务
 ├── workspace.json    工件浏览、文件预览
 ├── speech.json       语音转写

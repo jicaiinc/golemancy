@@ -9,7 +9,6 @@ import cronEn from '../locales/en/cron.json'
 import dashboardEn from '../locales/en/dashboard.json'
 import errorEn from '../locales/en/error.json'
 import mcpEn from '../locales/en/mcp.json'
-import memoryEn from '../locales/en/memory.json'
 import navEn from '../locales/en/nav.json'
 import onboardingEn from '../locales/en/onboarding.json'
 import permissionsEn from '../locales/en/permissions.json'
@@ -27,7 +26,6 @@ import cronZh from '../locales/zh/cron.json'
 import dashboardZh from '../locales/zh/dashboard.json'
 import errorZh from '../locales/zh/error.json'
 import mcpZh from '../locales/zh/mcp.json'
-import memoryZh from '../locales/zh/memory.json'
 import navZh from '../locales/zh/nav.json'
 import onboardingZh from '../locales/zh/onboarding.json'
 import permissionsZh from '../locales/zh/permissions.json'
@@ -45,7 +43,6 @@ import cronZhTW from '../locales/zh-TW/cron.json'
 import dashboardZhTW from '../locales/zh-TW/dashboard.json'
 import errorZhTW from '../locales/zh-TW/error.json'
 import mcpZhTW from '../locales/zh-TW/mcp.json'
-import memoryZhTW from '../locales/zh-TW/memory.json'
 import navZhTW from '../locales/zh-TW/nav.json'
 import onboardingZhTW from '../locales/zh-TW/onboarding.json'
 import permissionsZhTW from '../locales/zh-TW/permissions.json'
@@ -63,7 +60,6 @@ import cronEs from '../locales/es/cron.json'
 import dashboardEs from '../locales/es/dashboard.json'
 import errorEs from '../locales/es/error.json'
 import mcpEs from '../locales/es/mcp.json'
-import memoryEs from '../locales/es/memory.json'
 import navEs from '../locales/es/nav.json'
 import onboardingEs from '../locales/es/onboarding.json'
 import permissionsEs from '../locales/es/permissions.json'
@@ -81,7 +77,6 @@ import cronFr from '../locales/fr/cron.json'
 import dashboardFr from '../locales/fr/dashboard.json'
 import errorFr from '../locales/fr/error.json'
 import mcpFr from '../locales/fr/mcp.json'
-import memoryFr from '../locales/fr/memory.json'
 import navFr from '../locales/fr/nav.json'
 import onboardingFr from '../locales/fr/onboarding.json'
 import permissionsFr from '../locales/fr/permissions.json'
@@ -99,7 +94,6 @@ import cronPtBR from '../locales/pt-BR/cron.json'
 import dashboardPtBR from '../locales/pt-BR/dashboard.json'
 import errorPtBR from '../locales/pt-BR/error.json'
 import mcpPtBR from '../locales/pt-BR/mcp.json'
-import memoryPtBR from '../locales/pt-BR/memory.json'
 import navPtBR from '../locales/pt-BR/nav.json'
 import onboardingPtBR from '../locales/pt-BR/onboarding.json'
 import permissionsPtBR from '../locales/pt-BR/permissions.json'
@@ -117,7 +111,6 @@ import cronJa from '../locales/ja/cron.json'
 import dashboardJa from '../locales/ja/dashboard.json'
 import errorJa from '../locales/ja/error.json'
 import mcpJa from '../locales/ja/mcp.json'
-import memoryJa from '../locales/ja/memory.json'
 import navJa from '../locales/ja/nav.json'
 import onboardingJa from '../locales/ja/onboarding.json'
 import permissionsJa from '../locales/ja/permissions.json'
@@ -135,7 +128,6 @@ import cronKo from '../locales/ko/cron.json'
 import dashboardKo from '../locales/ko/dashboard.json'
 import errorKo from '../locales/ko/error.json'
 import mcpKo from '../locales/ko/mcp.json'
-import memoryKo from '../locales/ko/memory.json'
 import navKo from '../locales/ko/nav.json'
 import onboardingKo from '../locales/ko/onboarding.json'
 import permissionsKo from '../locales/ko/permissions.json'
@@ -153,7 +145,6 @@ import cronDe from '../locales/de/cron.json'
 import dashboardDe from '../locales/de/dashboard.json'
 import errorDe from '../locales/de/error.json'
 import mcpDe from '../locales/de/mcp.json'
-import memoryDe from '../locales/de/memory.json'
 import navDe from '../locales/de/nav.json'
 import onboardingDe from '../locales/de/onboarding.json'
 import permissionsDe from '../locales/de/permissions.json'
@@ -171,7 +162,6 @@ import cronIt from '../locales/it/cron.json'
 import dashboardIt from '../locales/it/dashboard.json'
 import errorIt from '../locales/it/error.json'
 import mcpIt from '../locales/it/mcp.json'
-import memoryIt from '../locales/it/memory.json'
 import navIt from '../locales/it/nav.json'
 import onboardingIt from '../locales/it/onboarding.json'
 import permissionsIt from '../locales/it/permissions.json'
@@ -189,7 +179,6 @@ import cronNl from '../locales/nl/cron.json'
 import dashboardNl from '../locales/nl/dashboard.json'
 import errorNl from '../locales/nl/error.json'
 import mcpNl from '../locales/nl/mcp.json'
-import memoryNl from '../locales/nl/memory.json'
 import navNl from '../locales/nl/nav.json'
 import onboardingNl from '../locales/nl/onboarding.json'
 import permissionsNl from '../locales/nl/permissions.json'
@@ -207,7 +196,6 @@ import cronRu from '../locales/ru/cron.json'
 import dashboardRu from '../locales/ru/dashboard.json'
 import errorRu from '../locales/ru/error.json'
 import mcpRu from '../locales/ru/mcp.json'
-import memoryRu from '../locales/ru/memory.json'
 import navRu from '../locales/ru/nav.json'
 import onboardingRu from '../locales/ru/onboarding.json'
 import permissionsRu from '../locales/ru/permissions.json'
@@ -225,7 +213,6 @@ import cronUk from '../locales/uk/cron.json'
 import dashboardUk from '../locales/uk/dashboard.json'
 import errorUk from '../locales/uk/error.json'
 import mcpUk from '../locales/uk/mcp.json'
-import memoryUk from '../locales/uk/memory.json'
 import navUk from '../locales/uk/nav.json'
 import onboardingUk from '../locales/uk/onboarding.json'
 import permissionsUk from '../locales/uk/permissions.json'
@@ -243,7 +230,6 @@ import cronPl from '../locales/pl/cron.json'
 import dashboardPl from '../locales/pl/dashboard.json'
 import errorPl from '../locales/pl/error.json'
 import mcpPl from '../locales/pl/mcp.json'
-import memoryPl from '../locales/pl/memory.json'
 import navPl from '../locales/pl/nav.json'
 import onboardingPl from '../locales/pl/onboarding.json'
 import permissionsPl from '../locales/pl/permissions.json'
@@ -261,7 +247,6 @@ import cronCs from '../locales/cs/cron.json'
 import dashboardCs from '../locales/cs/dashboard.json'
 import errorCs from '../locales/cs/error.json'
 import mcpCs from '../locales/cs/mcp.json'
-import memoryCs from '../locales/cs/memory.json'
 import navCs from '../locales/cs/nav.json'
 import onboardingCs from '../locales/cs/onboarding.json'
 import permissionsCs from '../locales/cs/permissions.json'
@@ -279,7 +264,6 @@ import cronRo from '../locales/ro/cron.json'
 import dashboardRo from '../locales/ro/dashboard.json'
 import errorRo from '../locales/ro/error.json'
 import mcpRo from '../locales/ro/mcp.json'
-import memoryRo from '../locales/ro/memory.json'
 import navRo from '../locales/ro/nav.json'
 import onboardingRo from '../locales/ro/onboarding.json'
 import permissionsRo from '../locales/ro/permissions.json'
@@ -297,7 +281,6 @@ import cronSv from '../locales/sv/cron.json'
 import dashboardSv from '../locales/sv/dashboard.json'
 import errorSv from '../locales/sv/error.json'
 import mcpSv from '../locales/sv/mcp.json'
-import memorySv from '../locales/sv/memory.json'
 import navSv from '../locales/sv/nav.json'
 import onboardingSv from '../locales/sv/onboarding.json'
 import permissionsSv from '../locales/sv/permissions.json'
@@ -315,7 +298,6 @@ import cronId from '../locales/id/cron.json'
 import dashboardId from '../locales/id/dashboard.json'
 import errorId from '../locales/id/error.json'
 import mcpId from '../locales/id/mcp.json'
-import memoryId from '../locales/id/memory.json'
 import navId from '../locales/id/nav.json'
 import onboardingId from '../locales/id/onboarding.json'
 import permissionsId from '../locales/id/permissions.json'
@@ -333,7 +315,6 @@ import cronMs from '../locales/ms/cron.json'
 import dashboardMs from '../locales/ms/dashboard.json'
 import errorMs from '../locales/ms/error.json'
 import mcpMs from '../locales/ms/mcp.json'
-import memoryMs from '../locales/ms/memory.json'
 import navMs from '../locales/ms/nav.json'
 import onboardingMs from '../locales/ms/onboarding.json'
 import permissionsMs from '../locales/ms/permissions.json'
@@ -351,7 +332,6 @@ import cronVi from '../locales/vi/cron.json'
 import dashboardVi from '../locales/vi/dashboard.json'
 import errorVi from '../locales/vi/error.json'
 import mcpVi from '../locales/vi/mcp.json'
-import memoryVi from '../locales/vi/memory.json'
 import navVi from '../locales/vi/nav.json'
 import onboardingVi from '../locales/vi/onboarding.json'
 import permissionsVi from '../locales/vi/permissions.json'
@@ -369,7 +349,6 @@ import cronTr from '../locales/tr/cron.json'
 import dashboardTr from '../locales/tr/dashboard.json'
 import errorTr from '../locales/tr/error.json'
 import mcpTr from '../locales/tr/mcp.json'
-import memoryTr from '../locales/tr/memory.json'
 import navTr from '../locales/tr/nav.json'
 import onboardingTr from '../locales/tr/onboarding.json'
 import permissionsTr from '../locales/tr/permissions.json'
@@ -387,7 +366,6 @@ import cronFil from '../locales/fil/cron.json'
 import dashboardFil from '../locales/fil/dashboard.json'
 import errorFil from '../locales/fil/error.json'
 import mcpFil from '../locales/fil/mcp.json'
-import memoryFil from '../locales/fil/memory.json'
 import navFil from '../locales/fil/nav.json'
 import onboardingFil from '../locales/fil/onboarding.json'
 import permissionsFil from '../locales/fil/permissions.json'
@@ -415,7 +393,6 @@ i18next
         dashboard: dashboardEn,
         error: errorEn,
         mcp: mcpEn,
-        memory: memoryEn,
         nav: navEn,
         onboarding: onboardingEn,
         permissions: permissionsEn,
@@ -434,7 +411,6 @@ i18next
         dashboard: dashboardZh,
         error: errorZh,
         mcp: mcpZh,
-        memory: memoryZh,
         nav: navZh,
         onboarding: onboardingZh,
         permissions: permissionsZh,
@@ -453,7 +429,6 @@ i18next
         dashboard: dashboardZhTW,
         error: errorZhTW,
         mcp: mcpZhTW,
-        memory: memoryZhTW,
         nav: navZhTW,
         onboarding: onboardingZhTW,
         permissions: permissionsZhTW,
@@ -472,7 +447,6 @@ i18next
         dashboard: dashboardEs,
         error: errorEs,
         mcp: mcpEs,
-        memory: memoryEs,
         nav: navEs,
         onboarding: onboardingEs,
         permissions: permissionsEs,
@@ -491,7 +465,6 @@ i18next
         dashboard: dashboardFr,
         error: errorFr,
         mcp: mcpFr,
-        memory: memoryFr,
         nav: navFr,
         onboarding: onboardingFr,
         permissions: permissionsFr,
@@ -510,7 +483,6 @@ i18next
         dashboard: dashboardPtBR,
         error: errorPtBR,
         mcp: mcpPtBR,
-        memory: memoryPtBR,
         nav: navPtBR,
         onboarding: onboardingPtBR,
         permissions: permissionsPtBR,
@@ -529,7 +501,6 @@ i18next
         dashboard: dashboardJa,
         error: errorJa,
         mcp: mcpJa,
-        memory: memoryJa,
         nav: navJa,
         onboarding: onboardingJa,
         permissions: permissionsJa,
@@ -548,7 +519,6 @@ i18next
         dashboard: dashboardKo,
         error: errorKo,
         mcp: mcpKo,
-        memory: memoryKo,
         nav: navKo,
         onboarding: onboardingKo,
         permissions: permissionsKo,
@@ -567,7 +537,6 @@ i18next
         dashboard: dashboardDe,
         error: errorDe,
         mcp: mcpDe,
-        memory: memoryDe,
         nav: navDe,
         onboarding: onboardingDe,
         permissions: permissionsDe,
@@ -586,7 +555,6 @@ i18next
         dashboard: dashboardIt,
         error: errorIt,
         mcp: mcpIt,
-        memory: memoryIt,
         nav: navIt,
         onboarding: onboardingIt,
         permissions: permissionsIt,
@@ -605,7 +573,6 @@ i18next
         dashboard: dashboardNl,
         error: errorNl,
         mcp: mcpNl,
-        memory: memoryNl,
         nav: navNl,
         onboarding: onboardingNl,
         permissions: permissionsNl,
@@ -624,7 +591,6 @@ i18next
         dashboard: dashboardRu,
         error: errorRu,
         mcp: mcpRu,
-        memory: memoryRu,
         nav: navRu,
         onboarding: onboardingRu,
         permissions: permissionsRu,
@@ -643,7 +609,6 @@ i18next
         dashboard: dashboardUk,
         error: errorUk,
         mcp: mcpUk,
-        memory: memoryUk,
         nav: navUk,
         onboarding: onboardingUk,
         permissions: permissionsUk,
@@ -662,7 +627,6 @@ i18next
         dashboard: dashboardPl,
         error: errorPl,
         mcp: mcpPl,
-        memory: memoryPl,
         nav: navPl,
         onboarding: onboardingPl,
         permissions: permissionsPl,
@@ -681,7 +645,6 @@ i18next
         dashboard: dashboardCs,
         error: errorCs,
         mcp: mcpCs,
-        memory: memoryCs,
         nav: navCs,
         onboarding: onboardingCs,
         permissions: permissionsCs,
@@ -700,7 +663,6 @@ i18next
         dashboard: dashboardRo,
         error: errorRo,
         mcp: mcpRo,
-        memory: memoryRo,
         nav: navRo,
         onboarding: onboardingRo,
         permissions: permissionsRo,
@@ -719,7 +681,6 @@ i18next
         dashboard: dashboardSv,
         error: errorSv,
         mcp: mcpSv,
-        memory: memorySv,
         nav: navSv,
         onboarding: onboardingSv,
         permissions: permissionsSv,
@@ -738,7 +699,6 @@ i18next
         dashboard: dashboardId,
         error: errorId,
         mcp: mcpId,
-        memory: memoryId,
         nav: navId,
         onboarding: onboardingId,
         permissions: permissionsId,
@@ -757,7 +717,6 @@ i18next
         dashboard: dashboardMs,
         error: errorMs,
         mcp: mcpMs,
-        memory: memoryMs,
         nav: navMs,
         onboarding: onboardingMs,
         permissions: permissionsMs,
@@ -776,7 +735,6 @@ i18next
         dashboard: dashboardVi,
         error: errorVi,
         mcp: mcpVi,
-        memory: memoryVi,
         nav: navVi,
         onboarding: onboardingVi,
         permissions: permissionsVi,
@@ -795,7 +753,6 @@ i18next
         dashboard: dashboardTr,
         error: errorTr,
         mcp: mcpTr,
-        memory: memoryTr,
         nav: navTr,
         onboarding: onboardingTr,
         permissions: permissionsTr,
@@ -814,7 +771,6 @@ i18next
         dashboard: dashboardFil,
         error: errorFil,
         mcp: mcpFil,
-        memory: memoryFil,
         nav: navFil,
         onboarding: onboardingFil,
         permissions: permissionsFil,

@@ -1,10 +1,10 @@
 import type {
-  Project, Agent, Conversation, Message, ConversationTask, MemoryEntry, GlobalSettings,
+  Project, Agent, Conversation, Message, ConversationTask, GlobalSettings,
   CronJob, Skill, MCPServerConfig, PermissionsConfigFile,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus,
   TranscriptionRecord,
-  ProjectId, AgentId, ConversationId, MessageId, TaskId, MemoryId, SkillId, ToolId,
+  ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, ToolId,
   CronJobId, PermissionsConfigId, TranscriptionId,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT, DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
@@ -213,46 +213,6 @@ export const SEED_CONVERSATION_TASKS: ConversationTask[] = [
     blockedBy: ['task-1' as TaskId],
     createdAt: now,
     updatedAt: now,
-  },
-]
-
-// --- Memory ---
-export const SEED_MEMORIES: MemoryEntry[] = [
-  {
-    id: 'mem-1' as MemoryId,
-    projectId: 'proj-1' as ProjectId,
-    content: 'Target audience prefers long-form content (2000+ words)',
-    source: 'Researcher',
-    tags: ['content-strategy', 'audience'],
-    createdAt: dayAgo,
-    updatedAt: dayAgo,
-  },
-  {
-    id: 'mem-2' as MemoryId,
-    projectId: 'proj-1' as ProjectId,
-    content: 'Best posting times: Tuesday 9am, Thursday 2pm EST',
-    source: 'Writer',
-    tags: ['content-strategy', 'scheduling'],
-    createdAt: dayAgo,
-    updatedAt: dayAgo,
-  },
-  {
-    id: 'mem-3' as MemoryId,
-    projectId: 'proj-1' as ProjectId,
-    content: 'Competitor A uses Tailwind + Next.js for their blog. Competitor B uses WordPress with custom theme.',
-    source: 'Researcher',
-    tags: ['competitors', 'tech-stack'],
-    createdAt: hourAgo,
-    updatedAt: hourAgo,
-  },
-  {
-    id: 'mem-4' as MemoryId,
-    projectId: 'proj-1' as ProjectId,
-    content: 'Primary keyword targets: "AI automation", "solopreneur tools", "one-person business"',
-    source: 'Researcher',
-    tags: ['seo', 'keywords'],
-    createdAt: hourAgo,
-    updatedAt: hourAgo,
   },
 ]
 

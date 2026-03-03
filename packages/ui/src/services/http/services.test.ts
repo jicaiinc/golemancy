@@ -9,7 +9,7 @@
  * - Network errors
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { ProjectId, AgentId, ConversationId, TaskId, MemoryId, SkillId, CronJobId, PermissionsConfigId, MessageId } from '@golemancy/shared'
+import type { ProjectId, AgentId, ConversationId, TaskId, SkillId, CronJobId, PermissionsConfigId, MessageId } from '@golemancy/shared'
 import { setAuthToken } from './base'
 import {
   HttpProjectService,
@@ -17,7 +17,6 @@ import {
   HttpConversationService,
   HttpTaskService,
   HttpWorkspaceService,
-  HttpMemoryService,
   HttpSkillService,
   HttpMCPService,
   HttpCronJobService,
@@ -350,31 +349,6 @@ describe('HttpWorkspaceService', () => {
   it('getFileUrl() returns correct URL', () => {
     const url = svc.getFileUrl(PROJ, 'image.png')
     expect(url).toBe(`${BASE}/api/projects/${PROJ}/workspace/raw?path=${encodeURIComponent('image.png')}`)
-  })
-})
-
-// ── HttpMemoryService ─────────────────────────────────────────
-
-describe('HttpMemoryService', () => {
-  const svc = new HttpMemoryService(BASE)
-
-  it('create() → POST with content, source, tags', async () => {
-    const data = { content: 'Remember this', source: 'user', tags: ['important'] }
-    mockFetch.mockResolvedValue(jsonResponse({ id: 'mem-1', ...data }))
-    await svc.create(PROJ, data as any)
-    expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/memories`,
-      expect.objectContaining({ method: 'POST', body: JSON.stringify(data) }),
-    )
-  })
-
-  it('update() → PATCH', async () => {
-    mockFetch.mockResolvedValue(jsonResponse({}))
-    await svc.update(PROJ, 'mem-1' as MemoryId, { content: 'Updated' })
-    expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/memories/mem-1`,
-      expect.objectContaining({ method: 'PATCH' }),
-    )
   })
 })
 

@@ -1,7 +1,7 @@
 # i18n Key Summary
 
 > 生成时间：2026-03-01
-> 总计：764 keys × 2 语言 (en, zh)
+> 总计：747 keys × 2 语言 (en, zh)
 
 ## Namespace 统计
 
@@ -22,14 +22,13 @@
 | project | 33 | 项目列表/创建/设置(基本信息/Agent/权限标签页) |
 | skill | 23 | 技能列表/表单、导入/删除错误 |
 | workspace | 19 | 工件文件树、文件预览、删除确认 |
-| memory | 17 | 记忆库列表/搜索/表单 |
 | task | 13 | 对话任务列表/状态 |
 
 ## 翻译文件位置
 
 ```
 packages/ui/src/locales/
-├── en/          # English (17 files)
+├── en/          # English (16 files)
 │   ├── agent.json
 │   ├── chat.json
 │   ├── common.json
@@ -37,7 +36,6 @@ packages/ui/src/locales/
 │   ├── dashboard.json
 │   ├── error.json
 │   ├── mcp.json
-│   ├── memory.json
 │   ├── nav.json
 │   ├── onboarding.json
 │   ├── permissions.json
@@ -47,7 +45,7 @@ packages/ui/src/locales/
 │   ├── speech.json
 │   ├── task.json
 │   └── workspace.json
-└── zh/          # 中文 (17 files, same structure)
+└── zh/          # 中文 (16 files, same structure)
 ```
 
 ## Key 命名规则

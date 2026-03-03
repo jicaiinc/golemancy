@@ -6,7 +6,6 @@ import {
   MockConversationService,
   MockTaskService,
   MockWorkspaceService,
-  MockMemoryService,
   MockSettingsService,
   MockDashboardService,
 } from './services'
@@ -235,51 +234,6 @@ describe('MockWorkspaceService', () => {
   it('getFileUrl() returns URL string', () => {
     const url = service.getFileUrl('proj-1' as ProjectId, 'report.md')
     expect(url).toContain('report.md')
-  })
-})
-
-describe('MockMemoryService', () => {
-  let service: MockMemoryService
-
-  beforeEach(() => {
-    service = new MockMemoryService()
-  })
-
-  it('list() filters by projectId', async () => {
-    const memories = await service.list('proj-1' as ProjectId)
-    expect(memories.length).toBeGreaterThan(0)
-    memories.forEach(m => expect(m.projectId).toBe('proj-1'))
-  })
-
-  it('create() creates a new memory entry', async () => {
-    const entry = await service.create('proj-1' as ProjectId, {
-      content: 'New memory',
-      source: 'Test',
-      tags: ['test'],
-    })
-    expect(entry.content).toBe('New memory')
-    expect(entry.projectId).toBe('proj-1')
-  })
-
-  it('update() modifies a memory entry', async () => {
-    const entries = await service.list('proj-1' as ProjectId)
-    const updated = await service.update('proj-1' as ProjectId, entries[0].id, {
-      content: 'Updated content',
-    })
-    expect(updated.content).toBe('Updated content')
-  })
-
-  it('update() throws for wrong projectId', async () => {
-    await expect(
-      service.update('proj-2' as ProjectId, 'mem-1' as any, { content: 'Bad' }),
-    ).rejects.toThrow('not found')
-  })
-
-  it('delete() removes memory entry', async () => {
-    const entries = await service.list('proj-1' as ProjectId)
-    await service.delete('proj-1' as ProjectId, entries[0].id)
-    const remaining = await service.list('proj-1' as ProjectId)
-    expect(remaining).toHaveLength(entries.length - 1)
   })
 })
 

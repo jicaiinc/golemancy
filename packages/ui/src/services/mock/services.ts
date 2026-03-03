@@ -1,7 +1,7 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, MemoryId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -12,13 +12,13 @@ import type {
 import { DEFAULT_PERMISSIONS_CONFIG, getFileCategory, getMimeType } from '@golemancy/shared'
 import type {
   IProjectService, IAgentService, IConversationService,
-  ITaskService, IMemoryService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
+  ITaskService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IGlobalDashboardService, IPermissionsConfigService, IWorkspaceService,
 } from '../interfaces'
 import type { ConversationTokenUsageResult } from '@golemancy/shared'
 import {
   SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
-  SEED_CONVERSATION_TASKS, SEED_MEMORIES, SEED_SETTINGS,
+  SEED_CONVERSATION_TASKS, SEED_SETTINGS,
   SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
   SEED_PERMISSIONS_CONFIGS,
   SEED_DASHBOARD_SUMMARY, SEED_DASHBOARD_AGENT_STATS, SEED_DASHBOARD_RECENT_CHATS, SEED_DASHBOARD_TOKEN_TREND,
@@ -387,45 +387,6 @@ export class MockWorkspaceService implements IWorkspaceService {
 
   getFileUrl(_projectId: ProjectId, filePath: string): string {
     return `/mock/workspace/${encodeURIComponent(filePath)}`
-  }
-}
-
-// --- MemoryService ---
-export class MockMemoryService implements IMemoryService {
-  private data = new Map<MemoryId, MemoryEntry>(SEED_MEMORIES.map(m => [m.id, { ...m }]))
-
-  async list(projectId: ProjectId): Promise<MemoryEntry[]> {
-    await delay()
-    return [...this.data.values()].filter(m => m.projectId === projectId)
-  }
-
-  async create(projectId: ProjectId, input: Pick<MemoryEntry, 'content' | 'source' | 'tags'>): Promise<MemoryEntry> {
-    await delay()
-    const now = new Date().toISOString()
-    const entry: MemoryEntry = {
-      id: genId('mem') as MemoryId,
-      projectId,
-      ...input,
-      createdAt: now,
-      updatedAt: now,
-    }
-    this.data.set(entry.id, entry)
-    return entry
-  }
-
-  async update(projectId: ProjectId, id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>): Promise<MemoryEntry> {
-    await delay()
-    const existing = this.data.get(id)
-    if (!existing || existing.projectId !== projectId) throw new Error('Memory not found')
-    const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
-    this.data.set(id, updated)
-    return updated
-  }
-
-  async delete(projectId: ProjectId, id: MemoryId): Promise<void> {
-    await delay()
-    const entry = this.data.get(id)
-    if (entry && entry.projectId === projectId) this.data.delete(id)
   }
 }
 
