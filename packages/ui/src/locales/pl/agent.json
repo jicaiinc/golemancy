@@ -90,7 +90,7 @@
     "customSection": "NIESTANDARDOWE NARZĘDZIA",
     "bashDesc": "Wykonywanie poleceń Bash, odczyt i zapis plików",
     "browserDesc": "Sterowanie przeglądarką w celu automatyzacji",
-    "osControlDesc": "Automatyzacja pulpitu i sterowanie systemem",
+    "computerUseDesc": "Automatyzacja pulpitu i sterowanie systemem",
     "taskDesc": "Tworzenie i zarządzanie zadaniami w rozmowie",
     "memoryDesc": "Trwały bank pamięci między rozmowami"
   },

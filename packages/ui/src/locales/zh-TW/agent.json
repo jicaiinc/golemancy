@@ -80,7 +80,7 @@
     "customSection": "自訂工具",
     "bashDesc": "執行 Bash 指令，讀寫檔案",
     "browserDesc": "控制瀏覽器進行自動化操作",
-    "osControlDesc": "桌面自動化和系統控制",
+    "computerUseDesc": "桌面自動化和系統控制",
     "taskDesc": "在對話中建立和管理任務",
     "memoryDesc": "跨對話持久化記憶庫"
   },

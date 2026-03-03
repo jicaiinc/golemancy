@@ -80,7 +80,7 @@
     "customSection": "ALATAN TERSUAI",
     "bashDesc": "Jalankan perintah bash, baca dan tulis fail",
     "browserDesc": "Kawal pelayar web untuk automasi",
-    "osControlDesc": "Automasi desktop dan kawalan sistem",
+    "computerUseDesc": "Automasi desktop dan kawalan sistem",
     "taskDesc": "Cipta dan urus tugas dalam perbualan",
     "memoryDesc": "Storan memori kekal merentas perbualan"
   },

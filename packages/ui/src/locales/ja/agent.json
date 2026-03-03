@@ -80,7 +80,7 @@
     "customSection": "カスタムツール",
     "bashDesc": "Bash コマンドの実行、ファイルの読み書き",
     "browserDesc": "ブラウザを制御して自動操作",
-    "osControlDesc": "デスクトップ自動化とシステム制御",
+    "computerUseDesc": "デスクトップ自動化とシステム制御",
     "taskDesc": "会話中にタスクを作成・管理",
     "memoryDesc": "会話を跨ぐ永続メモリーバンク"
   },

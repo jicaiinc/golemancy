@@ -80,7 +80,7 @@
     "customSection": "MGA CUSTOM NA TOOL",
     "bashDesc": "Mag-execute ng bash commands, magbasa at magsulat ng mga file",
     "browserDesc": "Kontrolin ang web browser para sa automation",
-    "osControlDesc": "Desktop automation at system control",
+    "computerUseDesc": "Desktop automation at system control",
     "taskDesc": "Gumawa at pamahalaan ang mga task sa usapan",
     "memoryDesc": "Permanenteng memory bank sa mga usapan"
   },

@@ -80,7 +80,7 @@
     "customSection": "ANPASSADE VERKTYG",
     "bashDesc": "Kör bash-kommandon, läs och skriv filer",
     "browserDesc": "Styr webbläsare för automatisering",
-    "osControlDesc": "Skrivbordsautomatisering och systemkontroll",
+    "computerUseDesc": "Skrivbordsautomatisering och systemkontroll",
     "taskDesc": "Skapa och hantera uppgifter i konversationen",
     "memoryDesc": "Beständig minnesbank mellan konversationer"
   },

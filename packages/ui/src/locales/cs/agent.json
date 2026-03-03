@@ -90,7 +90,7 @@
     "customSection": "VLASTNÍ NÁSTROJE",
     "bashDesc": "Provádění příkazů Bash, čtení a zápis souborů",
     "browserDesc": "Ovládání prohlížeče pro automatizaci",
-    "osControlDesc": "Automatizace plochy a ovládání systému",
+    "computerUseDesc": "Automatizace plochy a ovládání systému",
     "taskDesc": "Vytváření a správa úkolů v konverzaci",
     "memoryDesc": "Trvalá paměťová banka napříč konverzacemi"
   },

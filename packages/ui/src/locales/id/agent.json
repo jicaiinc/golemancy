@@ -80,7 +80,7 @@
     "customSection": "TOOL KUSTOM",
     "bashDesc": "Jalankan perintah bash, baca dan tulis file",
     "browserDesc": "Kontrol browser web untuk otomasi",
-    "osControlDesc": "Otomasi desktop dan kontrol sistem",
+    "computerUseDesc": "Otomasi desktop dan kontrol sistem",
     "taskDesc": "Buat dan kelola tugas dalam percakapan",
     "memoryDesc": "Penyimpanan memori persisten lintas percakapan"
   },

@@ -16,57 +16,54 @@ from pathlib import Path
 from collections import defaultdict
 from datetime import datetime
 
-# Pricing per 1M tokens (USD) — https://docs.anthropic.com/en/docs/about-claude/models
-# As of 2025-06, using latest known pricing
+# Pricing per 1M tokens (USD) — https://platform.claude.com/docs/en/about-claude/pricing
+# As of 2026-03. Cache: write(5min)=1.25x input, write(1h)=2x input, read=0.1x input
 PRICING = {
-    # model_prefix: (input, output, cache_write, cache_read)
-    "claude-opus-4":     (15.0, 75.0, 18.75, 1.50),
-    "claude-sonnet-4":   (3.0, 15.0, 3.75, 0.30),
-    "claude-haiku-4":    (0.80, 4.0, 1.0, 0.08),
-    # Older models
-    "claude-3-7-sonnet": (3.0, 15.0, 3.75, 0.30),
-    "claude-3-5-sonnet": (3.0, 15.0, 3.75, 0.30),
-    "claude-3-5-haiku":  (0.80, 4.0, 1.0, 0.08),
-    "claude-3-opus":     (15.0, 75.0, 18.75, 1.50),
-    "claude-3-sonnet":   (3.0, 15.0, 3.75, 0.30),
-    "claude-3-haiku":    (0.25, 1.25, 0.3125, 0.025),
+    # model_prefix: (input, output)  — cache prices derived: 5min=1.25x, 1h=2x, read=0.1x
+    # Current gen (4.5/4.6 series)
+    "claude-opus-4":     (5.0, 25.0),
+    "claude-sonnet-4":   (3.0, 15.0),
+    "claude-haiku-4":    (1.0, 5.0),
+    # Legacy
+    "claude-3-7-sonnet": (3.0, 15.0),
+    "claude-3-5-sonnet": (3.0, 15.0),
+    "claude-3-5-haiku":  (0.80, 4.0),
+    "claude-3-opus":     (15.0, 75.0),
+    "claude-3-sonnet":   (3.0, 15.0),
+    "claude-3-haiku":    (0.25, 1.25),
 }
 
 def get_pricing(model_id: str):
-    """Match model ID to pricing. Returns (input, output, cache_write, cache_read) per 1M tokens."""
+    """Match model ID to pricing. Returns (input_price, output_price) per 1M tokens."""
     if not model_id:
-        # Default to sonnet pricing
-        return (3.0, 15.0, 3.75, 0.30)
+        return (3.0, 15.0)
     for prefix, pricing in PRICING.items():
         if model_id.startswith(prefix):
             return pricing
-    # Unknown model, default to sonnet
-    return (3.0, 15.0, 3.75, 0.30)
+    return (3.0, 15.0)
 
-def calc_cost(input_tokens, output_tokens, cache_create_tokens, cache_read_tokens, pricing):
+def calc_cost(input_tokens, output_tokens, cache_5m_tokens, cache_1h_tokens, cache_read_tokens, pricing):
     """Calculate cost in USD from token counts and pricing tuple."""
-    inp_price, out_price, cache_w_price, cache_r_price = pricing
+    inp_price, out_price = pricing
     cost = (
         input_tokens * inp_price / 1_000_000
         + output_tokens * out_price / 1_000_000
-        + cache_create_tokens * cache_w_price / 1_000_000
-        + cache_read_tokens * cache_r_price / 1_000_000
+        + cache_5m_tokens * (inp_price * 1.25) / 1_000_000
+        + cache_1h_tokens * (inp_price * 2.0) / 1_000_000
+        + cache_read_tokens * (inp_price * 0.1) / 1_000_000
     )
     return cost
 
-def parse_session(filepath: str):
-    """Parse a single session .jsonl file. Returns session info dict or None."""
-    try:
-        total_input = 0
-        total_output = 0
-        total_cache_create = 0
-        total_cache_read = 0
-        model = None
-        session_id = None
-        first_ts = None
-        last_ts = None
-        project_dir = None
+def parse_jsonl(filepath: str):
+    """Parse a single .jsonl file. Returns (model, msg_usages dict) or None."""
+    model = None
+    session_id = None
+    first_ts = None
+    last_ts = None
+    project_dir = None
+    msg_usages = {}  # msg_id -> (usage_dict, model_id)
 
+    try:
         with open(filepath, 'r', errors='ignore') as f:
             for line in f:
                 line = line.strip()
@@ -90,31 +87,97 @@ def parse_session(filepath: str):
 
                 msg = data.get('message', {})
                 if isinstance(msg, dict):
-                    if msg.get('model'):
-                        model = msg['model']
+                    msg_model = msg.get('model')
+                    if msg_model:
+                        model = msg_model
+                    msg_id = msg.get('id')
                     usage = msg.get('usage', {})
-                    if usage:
-                        total_input += usage.get('input_tokens', 0)
-                        total_output += usage.get('output_tokens', 0)
-                        total_cache_create += usage.get('cache_creation_input_tokens', 0)
-                        total_cache_read += usage.get('cache_read_input_tokens', 0)
+                    if usage and msg_id:
+                        # Always overwrite — last chunk has the final values
+                        msg_usages[msg_id] = (usage, msg_model or model)
+    except Exception:
+        return None
 
-        if not first_ts:
+    return {
+        'model': model,
+        'session_id': session_id,
+        'first_ts': first_ts,
+        'last_ts': last_ts,
+        'project_dir': project_dir,
+        'msg_usages': msg_usages,
+    }
+
+def calc_cost_from_usages(msg_usages: dict):
+    """Calculate total cost from {msg_id: (usage, model)} dict."""
+    total_cost = 0.0
+    total_input = 0
+    total_output = 0
+    total_cache_5m = 0
+    total_cache_1h = 0
+    total_cache_read = 0
+
+    for usage, model_id in msg_usages.values():
+        pricing = get_pricing(model_id)
+        inp = usage.get('input_tokens', 0)
+        out = usage.get('output_tokens', 0)
+        cr = usage.get('cache_read_input_tokens', 0)
+
+        # Separate 5min vs 1hour cache write tokens
+        cc_total = usage.get('cache_creation_input_tokens', 0)
+        cc_breakdown = usage.get('cache_creation', {})
+        c5m = cc_breakdown.get('ephemeral_5m_input_tokens', 0)
+        c1h = cc_breakdown.get('ephemeral_1h_input_tokens', 0)
+        # If breakdown doesn't sum to total, treat remainder as 1h (Claude Code default)
+        if c5m + c1h < cc_total:
+            c1h += cc_total - c5m - c1h
+
+        total_input += inp
+        total_output += out
+        total_cache_5m += c5m
+        total_cache_1h += c1h
+        total_cache_read += cr
+        total_cost += calc_cost(inp, out, c5m, c1h, cr, pricing)
+
+    return {
+        'cost': total_cost,
+        'input_tokens': total_input,
+        'output_tokens': total_output,
+        'cache_5m_tokens': total_cache_5m,
+        'cache_1h_tokens': total_cache_1h,
+        'cache_read_tokens': total_cache_read,
+    }
+
+def parse_session(filepath: str):
+    """Parse a session .jsonl file + its subagents. Returns session info dict or None."""
+    try:
+        result = parse_jsonl(filepath)
+        if not result or not result['first_ts']:
             return None
 
-        pricing = get_pricing(model)
-        cost = calc_cost(total_input, total_output, total_cache_create, total_cache_read, pricing)
+        # Merge all usages: main session + subagents
+        all_usages = dict(result['msg_usages'])
+
+        # Check for subagent files
+        session_dir = Path(filepath).with_suffix('')  # remove .jsonl
+        subagent_dir = session_dir / 'subagents'
+        if subagent_dir.is_dir():
+            for sub_file in subagent_dir.glob('*.jsonl'):
+                sub_result = parse_jsonl(str(sub_file))
+                if sub_result and sub_result['msg_usages']:
+                    all_usages.update(sub_result['msg_usages'])
+
+        totals = calc_cost_from_usages(all_usages)
 
         # Extract date from timestamp
         try:
-            dt = datetime.fromisoformat(first_ts.replace('Z', '+00:00'))
+            dt = datetime.fromisoformat(result['first_ts'].replace('Z', '+00:00'))
             date_str = dt.strftime('%Y-%m-%d')
         except Exception:
             date_str = 'unknown'
 
         # Derive project name from directory
+        project_dir = result['project_dir']
         project_name = project_dir or 'unknown'
-        # Shorten to last 2 path components
         parts = project_name.rstrip('/').split('/')
         if len(parts) >= 2:
             project_name = '/'.join(parts[-2:])
@@ -122,18 +185,19 @@ def parse_session(filepath: str):
             project_name = parts[-1]
 
         return {
-            'session_id': session_id or Path(filepath).stem,
-            'model': model or 'unknown',
+            'session_id': result['session_id'] or Path(filepath).stem,
+            'model': result['model'] or 'unknown',
             'project': project_name,
             'project_full': project_dir or 'unknown',
             'date': date_str,
-            'first_ts': first_ts,
-            'last_ts': last_ts,
-            'input_tokens': total_input,
-            'output_tokens': total_output,
-            'cache_create_tokens': total_cache_create,
-            'cache_read_tokens': total_cache_read,
-            'cost': cost,
+            'first_ts': result['first_ts'],
+            'last_ts': result['last_ts'],
+            'input_tokens': totals['input_tokens'],
+            'output_tokens': totals['output_tokens'],
+            'cache_5m_tokens': totals['cache_5m_tokens'],
+            'cache_1h_tokens': totals['cache_1h_tokens'],
+            'cache_read_tokens': totals['cache_read_tokens'],
+            'cost': totals['cost'],
         }
     except Exception as e:
         return None
@@ -154,7 +218,9 @@ def generate_html(sessions, by_project, by_date, by_model, total_cost):
         return f"${c:,.2f}"
 
     def fmt_tokens(t):
-        if t >= 1_000_000:
+        if t >= 1_000_000_000:
+            return f"{t/1_000_000_000:,.2f}B"
+        elif t >= 1_000_000:
             return f"{t/1_000_000:,.1f}M"
         elif t >= 1_000:
             return f"{t/1_000:,.1f}K"
@@ -202,7 +268,7 @@ def generate_html(sessions, by_project, by_date, by_model, total_cost):
             <td>{s['project']}</td>
             <td>{s['model']}</td>
             <td>{s['date']}</td>
-            <td class="num">{fmt_tokens(s['input_tokens'] + s['cache_create_tokens'] + s['cache_read_tokens'])}</td>
+            <td class="num">{fmt_tokens(s['input_tokens'] + s['cache_5m_tokens'] + s['cache_1h_tokens'] + s['cache_read_tokens'])}</td>
             <td class="num">{fmt_tokens(s['output_tokens'])}</td>
             <td class="num cost">{fmt_cost(s['cost'])}</td>
         </tr>"""
@@ -349,7 +415,7 @@ tr:hover {{
     </div>
     <div class="card">
         <div class="label">Total Input Tokens</div>
-        <div class="value tokens">{fmt_tokens(sum(s['input_tokens'] + s['cache_create_tokens'] + s['cache_read_tokens'] for s in sessions))}</div>
+        <div class="value tokens">{fmt_tokens(sum(s['input_tokens'] + s['cache_5m_tokens'] + s['cache_1h_tokens'] + s['cache_read_tokens'] for s in sessions))}</div>
     </div>
     <div class="card">
         <div class="label">Total Output Tokens</div>
@@ -505,7 +571,7 @@ def main():
         p['sessions'] += 1
         p['input'] += s['input_tokens']
         p['output'] += s['output_tokens']
-        p['cache_create'] += s['cache_create_tokens']
+        p['cache_create'] += s['cache_5m_tokens'] + s['cache_1h_tokens']
         p['cache_read'] += s['cache_read_tokens']
         p['cost'] += s['cost']
         p['full'] = s['project_full']
@@ -517,7 +583,7 @@ def main():
     for s in sessions:
         d = by_date[s['date']]
         d['sessions'] += 1
-        d['input'] += s['input_tokens'] + s['cache_create_tokens'] + s['cache_read_tokens']
+        d['input'] += s['input_tokens'] + s['cache_5m_tokens'] + s['cache_1h_tokens'] + s['cache_read_tokens']
         d['output'] += s['output_tokens']
         d['cost'] += s['cost']
 
@@ -529,7 +595,7 @@ def main():
         m = by_model[s['model']]
         m['sessions'] += 1
         m['total_tokens'] += (s['input_tokens'] + s['output_tokens']
-                              + s['cache_create_tokens'] + s['cache_read_tokens'])
+                              + s['cache_5m_tokens'] + s['cache_1h_tokens'] + s['cache_read_tokens'])
         m['cost'] += s['cost']
 
     total_cost = sum(s['cost'] for s in sessions)

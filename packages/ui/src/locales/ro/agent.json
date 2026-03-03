@@ -85,7 +85,7 @@
     "customSection": "INSTRUMENTE PERSONALIZATE",
     "bashDesc": "Executare comenzi bash, citire și scriere fișiere",
     "browserDesc": "Control browser web pentru automatizare",
-    "osControlDesc": "Automatizare desktop și control sistem",
+    "computerUseDesc": "Automatizare desktop și control sistem",
     "taskDesc": "Creare și gestionare sarcini în conversație",
     "memoryDesc": "Bancă de memorie persistentă între conversații"
   },

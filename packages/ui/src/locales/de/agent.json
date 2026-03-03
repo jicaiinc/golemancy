@@ -80,7 +80,7 @@
     "customSection": "BENUTZERDEFINIERTE WERKZEUGE",
     "bashDesc": "Bash-Befehle ausführen, Dateien lesen und schreiben",
     "browserDesc": "Webbrowser für Automatisierung steuern",
-    "osControlDesc": "Desktop-Automatisierung und Systemsteuerung",
+    "computerUseDesc": "Desktop-Automatisierung und Systemsteuerung",
     "taskDesc": "Aufgaben in der Konversation erstellen und verwalten",
     "memoryDesc": "Persistenter Wissensspeicher über Konversationen hinweg"
   },

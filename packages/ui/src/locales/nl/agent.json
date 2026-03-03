@@ -80,7 +80,7 @@
     "customSection": "AANGEPASTE TOOLS",
     "bashDesc": "Bash-commando's uitvoeren, bestanden lezen en schrijven",
     "browserDesc": "Webbrowser aansturen voor automatisering",
-    "osControlDesc": "Desktopautomatisering en systeembeheer",
+    "computerUseDesc": "Desktopautomatisering en systeembeheer",
     "taskDesc": "Taken aanmaken en beheren binnen het gesprek",
     "memoryDesc": "Permanente geheugenbank over gesprekken heen"
   },

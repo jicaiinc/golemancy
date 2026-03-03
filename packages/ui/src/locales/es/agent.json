@@ -80,7 +80,7 @@
     "customSection": "HERRAMIENTAS PERSONALIZADAS",
     "bashDesc": "Ejecutar comandos bash, leer y escribir archivos",
     "browserDesc": "Controlar navegador web para automatización",
-    "osControlDesc": "Automatización de escritorio y control del sistema",
+    "computerUseDesc": "Automatización de escritorio y control del sistema",
     "taskDesc": "Crear y gestionar tareas dentro de la conversación",
     "memoryDesc": "Banco de memoria persistente entre conversaciones"
   },
