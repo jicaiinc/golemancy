@@ -12,6 +12,7 @@ import {
   MockDashboardService,
   MockGlobalDashboardService,
   MockPermissionsConfigService,
+  MockMemoryService,
 } from './services'
 import { MockSpeechService } from './speech'
 
@@ -31,5 +32,6 @@ export function createMockServices(): ServiceContainer {
     globalDashboard: new MockGlobalDashboardService(),
     permissionsConfig: new MockPermissionsConfigService(),
     speech: new MockSpeechService(),
+    memories: new MockMemoryService(),
   }
 }

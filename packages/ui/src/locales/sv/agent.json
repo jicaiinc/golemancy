@@ -54,7 +54,8 @@
       "modelConfig": "Modellkonfiguration",
       "skills": "Skills",
       "tools": "Verktyg",
-      "subAgents": "Sub-agenter"
+      "subAgents": "Sub-agenter",
+      "memory": "Minne"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Kör bash-kommandon, läs och skriv filer",
     "browserDesc": "Styr webbläsare för automatisering",
     "osControlDesc": "Skrivbordsautomatisering och systemkontroll",
-    "taskDesc": "Skapa och hantera uppgifter i konversationen"
+    "taskDesc": "Skapa och hantera uppgifter i konversationen",
+    "memoryDesc": "Beständig minnesbank mellan konversationer"
   },
   "mcp": {
     "warningTitle": "\u26a0 VARNING",
@@ -114,5 +116,25 @@
     "resetLayout": "Återställ layout",
     "editAgent": "Redigera agent",
     "setMainAgent": "Ange som Main Agent"
+  },
+  "memory": {
+    "sectionTitle": "MINNEN",
+    "pinnedSection": "FÄSTA",
+    "pinnedHint": "alltid laddade",
+    "autoLoadedSection": "AUTOMATISKT LADDADE",
+    "notLoadedSection": "INTE LADDADE",
+    "notLoadedCount_one": "{{count}} minne",
+    "notLoadedCount_other": "{{count}} minnen",
+    "cutoffLine": "gräns för automatisk laddning",
+    "addBtn": "+ Lägg till minne",
+    "addTitle": "LÄGG TILL MINNE",
+    "contentPlaceholder": "Vad ska agenten komma ihåg?",
+    "tagsPlaceholder": "Taggar (kommaseparerade)",
+    "empty": "Inga minnen ännu. Lägg till minnen för att bevara kunskap mellan konversationer.",
+    "statusLine": "{{pinned}} fästa | Automatisk laddning: {{autoLoaded}}/{{limit}} | {{total}} totalt",
+    "priority": "Prioritet",
+    "pinned": "Fäst",
+    "pin": "Fäst",
+    "unpin": "Lossa"
   }
 }

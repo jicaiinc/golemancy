@@ -54,7 +54,8 @@
       "modelConfig": "模型配置",
       "skills": "技能",
       "tools": "工具",
-      "subAgents": "子 Agent"
+      "subAgents": "子 Agent",
+      "memory": "记忆"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "执行 Bash 命令，读写文件",
     "browserDesc": "控制浏览器进行自动化操作",
     "osControlDesc": "桌面自动化和系统控制",
-    "taskDesc": "在对话中创建和管理任务"
+    "taskDesc": "在对话中创建和管理任务",
+    "memoryDesc": "跨对话持久化记忆库"
   },
   "mcp": {
     "warningTitle": "⚠ 警告",
@@ -114,5 +116,25 @@
     "resetLayout": "重置布局",
     "editAgent": "编辑 Agent",
     "setMainAgent": "设为主 Agent"
+  },
+  "memory": {
+    "sectionTitle": "记忆",
+    "pinnedSection": "已固定",
+    "pinnedHint": "始终加载",
+    "autoLoadedSection": "自动加载",
+    "notLoadedSection": "未加载",
+    "notLoadedCount_one": "{{count}} 条记忆",
+    "notLoadedCount_other": "{{count}} 条记忆",
+    "cutoffLine": "自动加载分界线",
+    "addBtn": "+ 添加记忆",
+    "addTitle": "添加记忆",
+    "contentPlaceholder": "Agent 应该记住什么？",
+    "tagsPlaceholder": "标签（逗号分隔）",
+    "empty": "暂无记忆。添加记忆以在对话间持久化知识。",
+    "statusLine": "{{pinned}} 已固定 | 自动加载: {{autoLoaded}}/{{limit}} | 共 {{total}} 条",
+    "priority": "优先级",
+    "pinned": "已固定",
+    "pin": "固定",
+    "unpin": "取消固定"
   }
 }

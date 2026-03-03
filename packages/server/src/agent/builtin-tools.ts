@@ -31,6 +31,7 @@ export const BUILTIN_TOOL_REGISTRY = [
   { id: 'browser', name: 'Browser', description: 'Control web browser for navigation, clicking, typing, and page analysis', defaultEnabled: false, available: true },
   { id: 'os_control', name: 'OS Control', description: 'Desktop automation (coming soon)', defaultEnabled: false, available: false },
   { id: 'task', name: 'Task', description: 'Create and manage tasks within the conversation', defaultEnabled: true, available: true },
+  { id: 'memory', name: 'Memory', description: 'Persistent memory bank across conversations with priority-based auto-loading', defaultEnabled: true, available: true },
 ] as const
 
 /** Default browser tool config when only `browser: true` is set */

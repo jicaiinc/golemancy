@@ -4,6 +4,7 @@ import type {
   IAgentService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, IProjectService,
 } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
+import type { SqliteMemoryStorage } from '../storage/memories'
 import type { SqliteCronJobRunStorage } from '../storage/cron-job-runs'
 import type { FileCronJobStorage } from '../storage/cronjobs'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -25,6 +26,7 @@ export interface ExecutorDeps {
   cronJobRunStorage: SqliteCronJobRunStorage
   cronJobStorage: FileCronJobStorage
   taskStorage: SqliteConversationTaskStorage
+  memoryStorage: SqliteMemoryStorage
   projectStorage: IProjectService
   tokenRecordStorage: TokenRecordStorage
   wsManager?: WebSocketManager
@@ -115,6 +117,7 @@ export class CronJobExecutor {
         conversationId,
         conversationStorage: this.deps.conversationStorage,
         taskStorage: this.deps.taskStorage,
+        memoryStorage: this.deps.memoryStorage,
         tokenRecordStorage: this.deps.tokenRecordStorage,
       })
 

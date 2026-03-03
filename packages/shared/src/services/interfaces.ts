@@ -1,7 +1,7 @@
 import type {
   Project, Agent, Conversation, ConversationTask, CronJob, CronJobRun, Skill,
   GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId,
-  PermissionsConfigId, TranscriptionId,
+  PermissionsConfigId, TranscriptionId, MemoryId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -11,6 +11,7 @@ import type {
   WorkspaceEntry, FilePreviewData,
   CompactRecord,
   TranscriptionRecord, SpeechToTextSettings, SpeechStorageUsage,
+  MemoryEntry, MemoryCreateData, MemoryUpdateData,
 } from '../types'
 
 export interface IProjectService {
@@ -155,6 +156,13 @@ export interface IPermissionsConfigService {
     sourceId: PermissionsConfigId,
     newTitle: string
   ): Promise<PermissionsConfigFile>
+}
+
+export interface IMemoryService {
+  list(projectId: ProjectId, agentId: AgentId): Promise<MemoryEntry[]>
+  create(projectId: ProjectId, agentId: AgentId, data: MemoryCreateData): Promise<MemoryEntry>
+  update(projectId: ProjectId, agentId: AgentId, id: MemoryId, data: MemoryUpdateData): Promise<MemoryEntry>
+  delete(projectId: ProjectId, agentId: AgentId, id: MemoryId): Promise<void>
 }
 
 export interface ISpeechService {

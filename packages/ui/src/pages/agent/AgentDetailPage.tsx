@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import type { Agent, AgentId, AgentStatus, SkillId } from '@golemancy/shared'
-import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
+import type { Agent, AgentId, AgentStatus, SkillId, MemoryEntry, MemoryId } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MEMORY_AUTO_LOAD, DEFAULT_MEMORY_PRIORITY } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { usePermissionConfig } from '../../hooks'
 import {
@@ -43,6 +43,7 @@ export function AgentDetailPage() {
     { id: 'tools', label: t('detail.tabs.tools') },
     { id: 'mcp', label: 'MCP' },
     { id: 'sub-agents', label: t('detail.tabs.subAgents') },
+    { id: 'memory', label: t('detail.tabs.memory') },
   ], [t])
 
   if (!agent) {
@@ -110,6 +111,7 @@ export function AgentDetailPage() {
         {activeTab === 'tools' && <ToolsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'mcp' && <MCPTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'sub-agents' && <SubAgentsTab agent={agent} onUpdate={updateAgent} />}
+        {activeTab === 'memory' && <MemoryTab agent={agent} />}
       </div>
     </div>
   )
@@ -374,6 +376,7 @@ function ToolsTab({ agent, onUpdate }: {
     { id: 'browser', name: 'Browser', description: t('tools.browserDesc'), defaultEnabled: false, available: true },
     { id: 'os_control', name: 'OS Control', description: t('tools.osControlDesc'), defaultEnabled: false, available: false },
     { id: 'task', name: 'Task', description: t('tools.taskDesc'), defaultEnabled: true, available: true },
+    { id: 'memory', name: 'Memory', description: t('tools.memoryDesc'), defaultEnabled: true, available: true },
   ]
 
   async function toggleBuiltinTool(toolId: string) {
@@ -655,6 +658,292 @@ function SubAgentsTab({ agent, onUpdate }: {
         </div>
       ) : (
         <p className="text-[12px] text-text-dim">{t('subAgents.noneAvailable')}</p>
+      )}
+    </div>
+  )
+}
+
+// ========== Priority Stars (hover-fill UX) ==========
+function PriorityStars({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
+  const [hoverValue, setHoverValue] = useState<number | null>(null)
+  const displayValue = hoverValue ?? value
+
+  return (
+    <span className="inline-flex gap-0.5" onMouseLeave={() => setHoverValue(null)}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <button
+          key={i}
+          className={`text-[10px] leading-none ${i <= displayValue ? 'text-accent-amber' : 'text-border-dim'} ${onChange ? 'cursor-pointer' : 'cursor-default'}`}
+          onClick={() => onChange?.(i === value ? i - 1 : i)}
+          onMouseEnter={() => onChange && setHoverValue(i)}
+          disabled={!onChange}
+        >
+          ★
+        </button>
+      ))}
+    </span>
+  )
+}
+
+// ========== Memory Tab ==========
+function MemoryTab({ agent }: { agent: Agent }) {
+  const { t } = useTranslation('agent')
+  const memories = useAppStore(s => s.memories)
+  const memoriesLoading = useAppStore(s => s.memoriesLoading)
+  const loadMemories = useAppStore(s => s.loadMemories)
+  const createMemory = useAppStore(s => s.createMemory)
+  const updateMemory = useAppStore(s => s.updateMemory)
+  const deleteMemory = useAppStore(s => s.deleteMemory)
+
+  const [showAdd, setShowAdd] = useState(false)
+  const [newContent, setNewContent] = useState('')
+  const [newTags, setNewTags] = useState('')
+  const [newPriority, setNewPriority] = useState(DEFAULT_MEMORY_PRIORITY)
+  const [newPinned, setNewPinned] = useState(false)
+  const [adding, setAdding] = useState(false)
+  const [editingId, setEditingId] = useState<MemoryId | null>(null)
+  const [editContent, setEditContent] = useState('')
+  const [editTags, setEditTags] = useState('')
+  const [editPriority, setEditPriority] = useState(DEFAULT_MEMORY_PRIORITY)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<MemoryId | null>(null)
+
+  const memoryConfig = agent.builtinTools?.memory
+  const maxAutoLoad = typeof memoryConfig === 'object' && memoryConfig
+    ? ((memoryConfig as Record<string, unknown>).maxAutoLoad as number | undefined) ?? DEFAULT_MEMORY_AUTO_LOAD
+    : DEFAULT_MEMORY_AUTO_LOAD
+
+  useEffect(() => {
+    loadMemories(agent.id)
+  }, [agent.id])
+
+  const pinned = useMemo(() =>
+    memories
+      .filter(m => m.pinned)
+      .sort((a, b) => b.priority - a.priority || new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+    [memories],
+  )
+
+  const nonPinned = useMemo(() =>
+    memories
+      .filter(m => !m.pinned)
+      .sort((a, b) => b.priority - a.priority || new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+    [memories],
+  )
+
+  const autoLoaded = nonPinned.slice(0, maxAutoLoad)
+  const notLoaded = nonPinned.slice(maxAutoLoad)
+
+  async function handleAdd() {
+    setAdding(true)
+    try {
+      const tags = newTags.split(',').map(s => s.trim()).filter(Boolean)
+      await createMemory(agent.id, {
+        content: newContent.trim(),
+        priority: newPriority,
+        pinned: newPinned,
+        tags,
+      })
+      setNewContent('')
+      setNewTags('')
+      setNewPriority(DEFAULT_MEMORY_PRIORITY)
+      setNewPinned(false)
+      setShowAdd(false)
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  function startEdit(mem: MemoryEntry) {
+    setEditingId(mem.id)
+    setEditContent(mem.content)
+    setEditTags(mem.tags.join(', '))
+    setEditPriority(mem.priority)
+  }
+
+  async function handleEditSave(mem: MemoryEntry) {
+    const tags = editTags.split(',').map(s => s.trim()).filter(Boolean)
+    await updateMemory(agent.id, mem.id, { content: editContent.trim(), tags, priority: editPriority })
+    setEditingId(null)
+  }
+
+  function relativeTime(dateStr: string) {
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return t('common:time.justNow')
+    if (mins < 60) return t('common:time.minsAgo', { count: mins })
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return t('common:time.hoursAgo', { count: hours })
+    const days = Math.floor(hours / 24)
+    return t('common:time.daysAgo', { count: days })
+  }
+
+  function renderCard(m: MemoryEntry, dimmed = false) {
+    const isEditing = editingId === m.id
+    return (
+      <PixelCard key={m.id} className={`!py-2 !px-3 ${dimmed ? 'opacity-85' : ''}`}>
+        {isEditing ? (
+          <div className="flex flex-col gap-2">
+            <PixelTextArea value={editContent} onChange={e => setEditContent(e.target.value)} rows={3} />
+            <PixelInput value={editTags} onChange={e => setEditTags(e.target.value)} placeholder={t('memory.tagsPlaceholder')} />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-text-dim">{t('memory.priority')}:</span>
+              <PriorityStars value={editPriority} onChange={setEditPriority} />
+            </div>
+            <div className="flex gap-2">
+              <PixelButton size="sm" variant="primary" onClick={() => handleEditSave(m)}>{t('common:button.save')}</PixelButton>
+              <PixelButton size="sm" variant="ghost" onClick={() => setEditingId(null)}>{t('common:button.cancel')}</PixelButton>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="text-[12px] text-text-secondary whitespace-pre-wrap line-clamp-1" title={m.content}>
+              {m.content}
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-[10px] text-text-dim">
+              <PriorityStars value={m.priority} />
+              {m.tags.length > 0 && (
+                <span className="font-mono text-[9px] text-accent-cyan truncate">
+                  {m.tags.map(tag => `#${tag}`).join(' ')}
+                </span>
+              )}
+              <span className="shrink-0">{relativeTime(m.updatedAt)}</span>
+              <div className="ml-auto flex items-center gap-0.5 shrink-0">
+                {confirmDeleteId === m.id ? (
+                  <>
+                    <PixelButton size="sm" variant="danger" onClick={() => { setConfirmDeleteId(null); deleteMemory(agent.id, m.id) }}>
+                      {t('common:button.confirm')}
+                    </PixelButton>
+                    <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(null)}>
+                      {t('common:button.cancel')}
+                    </PixelButton>
+                  </>
+                ) : (
+                  <>
+                    <PixelButton size="sm" variant="ghost" onClick={() => updateMemory(agent.id, m.id, { pinned: !m.pinned })}>
+                      {m.pinned ? t('memory.unpin') : t('memory.pin')}
+                    </PixelButton>
+                    <PixelButton size="sm" variant="ghost" onClick={() => startEdit(m)}>
+                      {t('common:button.edit')}
+                    </PixelButton>
+                    <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(m.id)}>
+                      &times;
+                    </PixelButton>
+                  </>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </PixelCard>
+    )
+  }
+
+  if (memoriesLoading) {
+    return <div className="text-text-dim text-[12px]">{t('common:status.loading')}</div>
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="font-pixel text-[8px] text-text-dim">{t('memory.sectionTitle')}</div>
+        <PixelButton size="sm" variant="ghost" onClick={() => setShowAdd(!showAdd)}>
+          {t('memory.addBtn')}
+        </PixelButton>
+      </div>
+
+      {memories.length > 0 && (
+        <div className="text-[10px] text-text-dim mb-4">
+          {t('memory.statusLine', {
+            pinned: pinned.length,
+            autoLoaded: autoLoaded.length,
+            limit: maxAutoLoad,
+            total: memories.length,
+          })}
+        </div>
+      )}
+
+      {showAdd && (
+        <PixelCard className="mb-4">
+          <div className="font-pixel text-[8px] text-text-dim mb-2">{t('memory.addTitle')}</div>
+          <div className="flex flex-col gap-2">
+            <PixelTextArea
+              value={newContent}
+              onChange={e => setNewContent(e.target.value)}
+              placeholder={t('memory.contentPlaceholder')}
+              rows={3}
+            />
+            <PixelInput
+              value={newTags}
+              onChange={e => setNewTags(e.target.value)}
+              placeholder={t('memory.tagsPlaceholder')}
+            />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-text-dim">{t('memory.priority')}:</span>
+                <PriorityStars value={newPriority} onChange={setNewPriority} />
+              </div>
+              <label className="flex items-center gap-1 text-[10px] text-text-dim cursor-pointer">
+                <input type="checkbox" checked={newPinned} onChange={e => setNewPinned(e.target.checked)} />
+                {t('memory.pinned')}
+              </label>
+            </div>
+            <div className="flex gap-2">
+              <PixelButton size="sm" variant="primary" onClick={handleAdd} disabled={adding || !newContent.trim()}>
+                {adding ? t('common:button.saving') : t('common:button.save')}
+              </PixelButton>
+              <PixelButton size="sm" variant="ghost" onClick={() => setShowAdd(false)}>
+                {t('common:button.cancel')}
+              </PixelButton>
+            </div>
+          </div>
+        </PixelCard>
+      )}
+
+      {memories.length === 0 && !showAdd && (
+        <PixelCard variant="outlined" className="text-center py-8">
+          <p className="text-[12px] text-text-dim">{t('memory.empty')}</p>
+        </PixelCard>
+      )}
+
+      {pinned.length > 0 && (
+        <div className="mb-4">
+          <div className="font-pixel text-[8px] text-text-dim mb-2">
+            {t('memory.pinnedSection')} — {t('memory.pinnedHint')}
+          </div>
+          <div className="flex flex-col gap-2">
+            {pinned.map(m => renderCard(m))}
+          </div>
+        </div>
+      )}
+
+      {autoLoaded.length > 0 && (
+        <div className="mb-4">
+          <div className="font-pixel text-[8px] text-text-dim mb-2">
+            {t('memory.autoLoadedSection')} ({autoLoaded.length}/{maxAutoLoad})
+          </div>
+          <div className="flex flex-col gap-2">
+            {autoLoaded.map(m => renderCard(m))}
+          </div>
+        </div>
+      )}
+
+      {notLoaded.length > 0 && (
+        <div className="border-t border-dashed border-border-dim my-4 relative">
+          <span className="absolute left-1/2 -translate-x-1/2 -top-2 bg-deep px-2 text-[9px] text-text-dim">
+            {t('memory.cutoffLine')}
+          </span>
+        </div>
+      )}
+
+      {notLoaded.length > 0 && (
+        <div>
+          <div className="font-pixel text-[8px] text-text-dim mb-2">
+            {t('memory.notLoadedSection')} ({t('memory.notLoadedCount', { count: notLoaded.length })})
+          </div>
+          <div className="flex flex-col gap-2">
+            {notLoaded.map(m => renderCard(m, true))}
+          </div>
+        </div>
       )}
     </div>
   )

@@ -54,7 +54,8 @@
       "modelConfig": "Model Config",
       "skills": "Mga Skill",
       "tools": "Mga Tool",
-      "subAgents": "Mga Sub-Agent"
+      "subAgents": "Mga Sub-Agent",
+      "memory": "Memory"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Mag-execute ng bash commands, magbasa at magsulat ng mga file",
     "browserDesc": "Kontrolin ang web browser para sa automation",
     "osControlDesc": "Desktop automation at system control",
-    "taskDesc": "Gumawa at pamahalaan ang mga task sa usapan"
+    "taskDesc": "Gumawa at pamahalaan ang mga task sa usapan",
+    "memoryDesc": "Permanenteng memory bank sa mga usapan"
   },
   "mcp": {
     "warningTitle": "\u26a0 BABALA",
@@ -114,5 +116,25 @@
     "resetLayout": "I-reset ang Layout",
     "editAgent": "I-edit ang Agent",
     "setMainAgent": "Itakda bilang Main Agent"
+  },
+  "memory": {
+    "sectionTitle": "MGA MEMORY",
+    "pinnedSection": "NAKA-PIN",
+    "pinnedHint": "palaging naka-load",
+    "autoLoadedSection": "AUTO NA NAKA-LOAD",
+    "notLoadedSection": "HINDI NAKA-LOAD",
+    "notLoadedCount_one": "{{count}} memory",
+    "notLoadedCount_other": "{{count}} memory",
+    "cutoffLine": "auto-load cutoff",
+    "addBtn": "+ Magdagdag ng Memory",
+    "addTitle": "MAGDAGDAG NG MEMORY",
+    "contentPlaceholder": "Ano ang dapat tandaan ng agent?",
+    "tagsPlaceholder": "Mga tag (pinaghihiwalay ng comma)",
+    "empty": "Wala pang memory. Magdagdag ng memory para mag-imbak ng kaalaman sa mga usapan.",
+    "statusLine": "{{pinned}} naka-pin | Auto-load: {{autoLoaded}}/{{limit}} | {{total}} lahat",
+    "priority": "Priyoridad",
+    "pinned": "Naka-pin",
+    "pin": "I-pin",
+    "unpin": "I-unpin"
   }
 }

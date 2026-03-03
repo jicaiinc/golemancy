@@ -54,7 +54,8 @@
       "modelConfig": "모델 설정",
       "skills": "스킬",
       "tools": "도구",
-      "subAgents": "서브 Agent"
+      "subAgents": "서브 Agent",
+      "memory": "메모리"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Bash 명령 실행, 파일 읽기/쓰기",
     "browserDesc": "웹 브라우저 제어 및 자동화",
     "osControlDesc": "데스크톱 자동화 및 시스템 제어",
-    "taskDesc": "대화 중 작업 생성 및 관리"
+    "taskDesc": "대화 중 작업 생성 및 관리",
+    "memoryDesc": "대화 간 영구 메모리 뱅크"
   },
   "mcp": {
     "warningTitle": "\u26a0 경고",
@@ -114,5 +116,25 @@
     "resetLayout": "레이아웃 초기화",
     "editAgent": "Agent 편집",
     "setMainAgent": "메인 Agent로 설정"
+  },
+  "memory": {
+    "sectionTitle": "메모리",
+    "pinnedSection": "고정됨",
+    "pinnedHint": "항상 로드",
+    "autoLoadedSection": "자동 로드",
+    "notLoadedSection": "로드되지 않음",
+    "notLoadedCount_one": "{{count}}개 메모리",
+    "notLoadedCount_other": "{{count}}개 메모리",
+    "cutoffLine": "자동 로드 기준선",
+    "addBtn": "+ 메모리 추가",
+    "addTitle": "메모리 추가",
+    "contentPlaceholder": "Agent가 무엇을 기억해야 하나요?",
+    "tagsPlaceholder": "태그 (쉼표로 구분)",
+    "empty": "아직 메모리가 없습니다. 메모리를 추가하여 대화 간 지식을 유지하세요.",
+    "statusLine": "{{pinned}} 고정 | 자동 로드: {{autoLoaded}}/{{limit}} | 총 {{total}}개",
+    "priority": "우선순위",
+    "pinned": "고정됨",
+    "pin": "고정",
+    "unpin": "고정 해제"
   }
 }

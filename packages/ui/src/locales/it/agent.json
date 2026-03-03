@@ -54,7 +54,8 @@
       "modelConfig": "Config. Modello",
       "skills": "Skill",
       "tools": "Strumenti",
-      "subAgents": "Sub-Agent"
+      "subAgents": "Sub-Agent",
+      "memory": "Memoria"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Esegui comandi bash, leggi e scrivi file",
     "browserDesc": "Controlla il browser web per l'automazione",
     "osControlDesc": "Automazione desktop e controllo di sistema",
-    "taskDesc": "Crea e gestisci attività nella conversazione"
+    "taskDesc": "Crea e gestisci attività nella conversazione",
+    "memoryDesc": "Banca di memoria persistente tra le conversazioni"
   },
   "mcp": {
     "warningTitle": "\u26a0 ATTENZIONE",
@@ -114,5 +116,25 @@
     "resetLayout": "Reimposta Layout",
     "editAgent": "Modifica Agente",
     "setMainAgent": "Imposta come Agente Principale"
+  },
+  "memory": {
+    "sectionTitle": "MEMORIE",
+    "pinnedSection": "FISSATE",
+    "pinnedHint": "sempre caricate",
+    "autoLoadedSection": "CARICATE AUTOMATICAMENTE",
+    "notLoadedSection": "NON CARICATE",
+    "notLoadedCount_one": "{{count}} memoria",
+    "notLoadedCount_other": "{{count}} memorie",
+    "cutoffLine": "limite di caricamento automatico",
+    "addBtn": "+ Aggiungi Memoria",
+    "addTitle": "AGGIUNGI MEMORIA",
+    "contentPlaceholder": "Cosa deve ricordare l'agente?",
+    "tagsPlaceholder": "Tag (separati da virgole)",
+    "empty": "Nessuna memoria. Aggiungi memorie per conservare le conoscenze tra le conversazioni.",
+    "statusLine": "{{pinned}} fissate | Caricamento auto: {{autoLoaded}}/{{limit}} | {{total}} totale",
+    "priority": "Priorità",
+    "pinned": "Fissata",
+    "pin": "Fissa",
+    "unpin": "Rimuovi"
   }
 }

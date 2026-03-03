@@ -54,7 +54,8 @@
       "modelConfig": "Modelconfiguratie",
       "skills": "Skills",
       "tools": "Tools",
-      "subAgents": "Sub-Agenten"
+      "subAgents": "Sub-Agenten",
+      "memory": "Geheugen"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Bash-commando's uitvoeren, bestanden lezen en schrijven",
     "browserDesc": "Webbrowser aansturen voor automatisering",
     "osControlDesc": "Desktopautomatisering en systeembeheer",
-    "taskDesc": "Taken aanmaken en beheren binnen het gesprek"
+    "taskDesc": "Taken aanmaken en beheren binnen het gesprek",
+    "memoryDesc": "Permanente geheugenbank over gesprekken heen"
   },
   "mcp": {
     "warningTitle": "\u26a0 WAARSCHUWING",
@@ -114,5 +116,25 @@
     "resetLayout": "Layout Resetten",
     "editAgent": "Agent Bewerken",
     "setMainAgent": "Als Hoofdagent Instellen"
+  },
+  "memory": {
+    "sectionTitle": "HERINNERINGEN",
+    "pinnedSection": "VASTGEZET",
+    "pinnedHint": "altijd geladen",
+    "autoLoadedSection": "AUTOMATISCH GELADEN",
+    "notLoadedSection": "NIET GELADEN",
+    "notLoadedCount_one": "{{count}} herinnering",
+    "notLoadedCount_other": "{{count}} herinneringen",
+    "cutoffLine": "grens automatisch laden",
+    "addBtn": "+ Herinnering Toevoegen",
+    "addTitle": "HERINNERING TOEVOEGEN",
+    "contentPlaceholder": "Wat moet de agent onthouden?",
+    "tagsPlaceholder": "Tags (kommagescheiden)",
+    "empty": "Nog geen herinneringen. Voeg herinneringen toe om kennis te bewaren over gesprekken heen.",
+    "statusLine": "{{pinned}} vastgezet | Automatisch laden: {{autoLoaded}}/{{limit}} | {{total}} totaal",
+    "priority": "Prioriteit",
+    "pinned": "Vastgezet",
+    "pin": "Vastzetten",
+    "unpin": "Loszetten"
   }
 }

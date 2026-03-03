@@ -54,7 +54,8 @@
       "modelConfig": "Modelo",
       "skills": "Skills",
       "tools": "Ferramentas",
-      "subAgents": "Sub-Agentes"
+      "subAgents": "Sub-Agentes",
+      "memory": "Memória"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Executar comandos bash, ler e escrever arquivos",
     "browserDesc": "Controlar navegador web para automação",
     "osControlDesc": "Automação de desktop e controle do sistema",
-    "taskDesc": "Criar e gerenciar tarefas dentro da conversa"
+    "taskDesc": "Criar e gerenciar tarefas dentro da conversa",
+    "memoryDesc": "Banco de memória persistente entre conversas"
   },
   "mcp": {
     "warningTitle": "\u26a0 AVISO",
@@ -114,5 +116,25 @@
     "resetLayout": "Redefinir Layout",
     "editAgent": "Editar Agente",
     "setMainAgent": "Definir como Agente Principal"
+  },
+  "memory": {
+    "sectionTitle": "MEMÓRIAS",
+    "pinnedSection": "FIXADAS",
+    "pinnedHint": "sempre carregadas",
+    "autoLoadedSection": "CARREGAMENTO AUTOMÁTICO",
+    "notLoadedSection": "NÃO CARREGADAS",
+    "notLoadedCount_one": "{{count}} memória",
+    "notLoadedCount_other": "{{count}} memórias",
+    "cutoffLine": "limite de carregamento automático",
+    "addBtn": "+ Adicionar Memória",
+    "addTitle": "ADICIONAR MEMÓRIA",
+    "contentPlaceholder": "O que o agente deve lembrar?",
+    "tagsPlaceholder": "Tags (separadas por vírgulas)",
+    "empty": "Nenhuma memória ainda. Adicione memórias para manter o conhecimento entre conversas.",
+    "statusLine": "{{pinned}} fixadas | Carregamento auto: {{autoLoaded}}/{{limit}} | {{total}} total",
+    "priority": "Prioridade",
+    "pinned": "Fixada",
+    "pin": "Fixar",
+    "unpin": "Desafixar"
   }
 }

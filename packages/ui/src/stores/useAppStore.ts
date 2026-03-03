@@ -7,7 +7,8 @@ import type {
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   ThemeMode, WorkspaceEntry, FilePreviewData,
   TranscriptionRecord, SpeechStorageUsage,
-  ProjectId, AgentId, ConversationId, SkillId, CronJobId, TranscriptionId,
+  MemoryEntry, MemoryCreateData, MemoryUpdateData,
+  ProjectId, AgentId, ConversationId, SkillId, CronJobId, TranscriptionId, MemoryId,
   SkillCreateData, SkillUpdateData,
   AgentStatus,
 } from '@golemancy/shared'
@@ -115,6 +116,11 @@ interface SpeechSlice {
   speechStorageUsage: SpeechStorageUsage | null
 }
 
+interface MemorySlice {
+  memories: MemoryEntry[]
+  memoriesLoading: boolean
+}
+
 // --- Actions ---
 interface ProjectActions {
   loadProjects(): Promise<void>
@@ -220,10 +226,17 @@ interface SpeechActions {
   loadSpeechStorageUsage(): Promise<void>
 }
 
+interface MemoryActions {
+  loadMemories(agentId: AgentId): Promise<void>
+  createMemory(agentId: AgentId, data: MemoryCreateData): Promise<MemoryEntry>
+  updateMemory(agentId: AgentId, id: MemoryId, data: MemoryUpdateData): Promise<void>
+  deleteMemory(agentId: AgentId, id: MemoryId): Promise<void>
+}
+
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice & MemorySlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions & MemoryActions
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -258,6 +271,7 @@ export const useAppStore = create<AppState>()(
           mcpServers: [],
           cronJobs: [],
           cronJobRuns: [],
+          memories: [],
           topologyLayout: {},
           topologyLayoutLoading: false,
           agentsLoading: true,
@@ -318,6 +332,7 @@ export const useAppStore = create<AppState>()(
           mcpServers: [],
           cronJobs: [],
           cronJobRuns: [],
+          memories: [],
           topologyLayout: {},
           skillsLoading: false,
           mcpServersLoading: false,
@@ -367,7 +382,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [], memories: [] } : {}),
         }))
       },
 
@@ -866,6 +881,44 @@ export const useAppStore = create<AppState>()(
       async loadSpeechStorageUsage() {
         const usage = await getServices().speech.getStorageUsage()
         set({ speechStorageUsage: usage })
+      },
+
+      // --- Memory state ---
+      memories: [],
+      memoriesLoading: false,
+
+      async loadMemories(agentId: AgentId) {
+        const projectId = get().currentProjectId
+        if (!projectId) return
+        set({ memoriesLoading: true })
+        try {
+          const memories = await getServices().memories.list(projectId, agentId)
+          set({ memories, memoriesLoading: false })
+        } catch {
+          set({ memoriesLoading: false })
+        }
+      },
+
+      async createMemory(agentId: AgentId, data: MemoryCreateData) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const memory = await getServices().memories.create(projectId, agentId, data)
+        set(s => ({ memories: [...s.memories, memory] }))
+        return memory
+      },
+
+      async updateMemory(agentId: AgentId, id: MemoryId, data: MemoryUpdateData) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const updated = await getServices().memories.update(projectId, agentId, id, data)
+        set(s => ({ memories: s.memories.map(m => m.id === id ? updated : m) }))
+      },
+
+      async deleteMemory(agentId: AgentId, id: MemoryId) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        await getServices().memories.delete(projectId, agentId, id)
+        set(s => ({ memories: s.memories.filter(m => m.id !== id) }))
       },
     }),
     {

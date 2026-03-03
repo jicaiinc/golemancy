@@ -54,7 +54,8 @@
       "modelConfig": "Modèle",
       "skills": "Skills",
       "tools": "Outils",
-      "subAgents": "Sous-Agents"
+      "subAgents": "Sous-Agents",
+      "memory": "Mémoire"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Exécuter des commandes bash, lire et écrire des fichiers",
     "browserDesc": "Contrôler un navigateur web pour l'automatisation",
     "osControlDesc": "Automatisation du bureau et contrôle système",
-    "taskDesc": "Créer et gérer des tâches dans la conversation"
+    "taskDesc": "Créer et gérer des tâches dans la conversation",
+    "memoryDesc": "Banque de mémoire persistante entre les conversations"
   },
   "mcp": {
     "warningTitle": "\u26a0 AVERTISSEMENT",
@@ -114,5 +116,25 @@
     "resetLayout": "Réinitialiser la Disposition",
     "editAgent": "Modifier l'Agent",
     "setMainAgent": "Définir comme Agent Principal"
+  },
+  "memory": {
+    "sectionTitle": "MÉMOIRES",
+    "pinnedSection": "ÉPINGLÉES",
+    "pinnedHint": "toujours chargées",
+    "autoLoadedSection": "CHARGEMENT AUTO",
+    "notLoadedSection": "NON CHARGÉES",
+    "notLoadedCount_one": "{{count}} mémoire",
+    "notLoadedCount_other": "{{count}} mémoires",
+    "cutoffLine": "limite de chargement auto",
+    "addBtn": "+ Ajouter une Mémoire",
+    "addTitle": "AJOUTER UNE MÉMOIRE",
+    "contentPlaceholder": "Que doit retenir l'agent ?",
+    "tagsPlaceholder": "Tags (séparés par des virgules)",
+    "empty": "Aucune mémoire pour le moment. Ajoutez des mémoires pour conserver les connaissances entre les conversations.",
+    "statusLine": "{{pinned}} épinglées | Chargement auto : {{autoLoaded}}/{{limit}} | {{total}} au total",
+    "priority": "Priorité",
+    "pinned": "Épinglée",
+    "pin": "Épingler",
+    "unpin": "Désépingler"
   }
 }

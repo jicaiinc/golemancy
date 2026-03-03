@@ -64,7 +64,8 @@
       "modelConfig": "Konfiguracja modelu",
       "skills": "Umiejętności",
       "tools": "Narzędzia",
-      "subAgents": "Sub-agenci"
+      "subAgents": "Sub-agenci",
+      "memory": "Pamięć"
     }
   },
   "general": {
@@ -90,7 +91,8 @@
     "bashDesc": "Wykonywanie poleceń Bash, odczyt i zapis plików",
     "browserDesc": "Sterowanie przeglądarką w celu automatyzacji",
     "osControlDesc": "Automatyzacja pulpitu i sterowanie systemem",
-    "taskDesc": "Tworzenie i zarządzanie zadaniami w rozmowie"
+    "taskDesc": "Tworzenie i zarządzanie zadaniami w rozmowie",
+    "memoryDesc": "Trwały bank pamięci między rozmowami"
   },
   "mcp": {
     "warningTitle": "\u26a0 OSTRZEŻENIE",
@@ -124,5 +126,27 @@
     "resetLayout": "Resetuj układ",
     "editAgent": "Edytuj agenta",
     "setMainAgent": "Ustaw jako agenta głównego"
+  },
+  "memory": {
+    "sectionTitle": "WSPOMNIENIA",
+    "pinnedSection": "PRZYPIĘTE",
+    "pinnedHint": "zawsze załadowane",
+    "autoLoadedSection": "AUTOMATYCZNIE ZAŁADOWANE",
+    "notLoadedSection": "NIEZAŁADOWANE",
+    "notLoadedCount_one": "{{count}} wspomnienie",
+    "notLoadedCount_few": "{{count}} wspomnienia",
+    "notLoadedCount_many": "{{count}} wspomnień",
+    "notLoadedCount_other": "{{count}} wspomnień",
+    "cutoffLine": "próg automatycznego ładowania",
+    "addBtn": "+ Dodaj wspomnienie",
+    "addTitle": "DODAJ WSPOMNIENIE",
+    "contentPlaceholder": "Co agent powinien zapamiętać?",
+    "tagsPlaceholder": "Tagi (oddzielone przecinkami)",
+    "empty": "Brak wspomnień. Dodaj wspomnienia, aby zachować wiedzę między rozmowami.",
+    "statusLine": "{{pinned}} przypiętych | Automatyczne ładowanie: {{autoLoaded}}/{{limit}} | {{total}} łącznie",
+    "priority": "Priorytet",
+    "pinned": "Przypięte",
+    "pin": "Przypnij",
+    "unpin": "Odepnij"
   }
 }

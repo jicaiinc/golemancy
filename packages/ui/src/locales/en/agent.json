@@ -54,7 +54,8 @@
       "modelConfig": "Model Config",
       "skills": "Skills",
       "tools": "Tools",
-      "subAgents": "Sub-Agents"
+      "subAgents": "Sub-Agents",
+      "memory": "Memory"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Execute bash commands, read and write files",
     "browserDesc": "Control web browser for automation",
     "osControlDesc": "Desktop automation and system control",
-    "taskDesc": "Create and manage tasks within the conversation"
+    "taskDesc": "Create and manage tasks within the conversation",
+    "memoryDesc": "Persistent memory bank across conversations"
   },
   "mcp": {
     "warningTitle": "\u26a0 WARNING",
@@ -114,5 +116,25 @@
     "resetLayout": "Reset Layout",
     "editAgent": "Edit Agent",
     "setMainAgent": "Set as Main Agent"
+  },
+  "memory": {
+    "sectionTitle": "MEMORIES",
+    "pinnedSection": "PINNED",
+    "pinnedHint": "always loaded",
+    "autoLoadedSection": "AUTO-LOADED",
+    "notLoadedSection": "NOT LOADED",
+    "notLoadedCount_one": "{{count}} memory",
+    "notLoadedCount_other": "{{count}} memories",
+    "cutoffLine": "auto-load cutoff",
+    "addBtn": "+ Add Memory",
+    "addTitle": "ADD MEMORY",
+    "contentPlaceholder": "What should the agent remember?",
+    "tagsPlaceholder": "Tags (comma-separated)",
+    "empty": "No memories yet. Add memories to persist knowledge across conversations.",
+    "statusLine": "{{pinned}} pinned | Auto-load: {{autoLoaded}}/{{limit}} | {{total}} total",
+    "priority": "Priority",
+    "pinned": "Pinned",
+    "pin": "Pin",
+    "unpin": "Unpin"
   }
 }
