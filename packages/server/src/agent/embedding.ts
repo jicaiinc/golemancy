@@ -1,5 +1,5 @@
 import { embed, embedMany } from 'ai'
-import type { GlobalSettings, ProjectConfig, EmbeddingSettings, ProjectEmbeddingConfig } from '@golemancy/shared'
+import type { GlobalSettings, ProjectConfig, EmbeddingProviderConfig, EmbeddingProviderType } from '@golemancy/shared'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:embedding' })
@@ -21,30 +21,47 @@ export function getEmbeddingDimensions(model: string): number {
 export interface ResolvedEmbeddingConfig {
   model: string
   apiKey: string
+  baseUrl?: string
+  providerType: EmbeddingProviderType
 }
 
 /**
  * Resolve embedding config from global settings + optional project override.
- * Returns null if embedding is not enabled or API key is missing.
+ * Returns null if embedding is not configured or test has not passed.
  */
 export function resolveEmbeddingConfig(
   settings: GlobalSettings,
   projectConfig?: ProjectConfig,
 ): ResolvedEmbeddingConfig | null {
-  const globalEmbed = settings.embedding
-  if (!globalEmbed?.enabled) return null
-  if (!globalEmbed.testPassed) return null
+  // 1. Project has custom config → use it
+  const pe = projectConfig?.embedding
+  if (pe?.mode === 'custom' && pe.custom) {
+    return resolveProvider(pe.custom)
+  }
+  // 2. Otherwise fallback to global
+  const ge = settings.embedding
+  if (!ge) return null
+  return resolveProvider(ge)
+}
 
-  const model = projectConfig?.embedding?.model || globalEmbed.model || DEFAULT_MODEL
-  const apiKey = projectConfig?.embedding?.apiKey || globalEmbed.apiKey
+function resolveProvider(config: EmbeddingProviderConfig): ResolvedEmbeddingConfig | null {
+  if (config.testStatus !== 'ok') return null
+  const apiKey = config.apiKey
   if (!apiKey) return null
-
-  return { model, apiKey }
+  return {
+    model: config.model || DEFAULT_MODEL,
+    apiKey,
+    baseUrl: config.baseUrl,
+    providerType: config.providerType || 'openai',
+  }
 }
 
 async function createEmbeddingModel(config: ResolvedEmbeddingConfig) {
   const { createOpenAI } = await import('@ai-sdk/openai')
-  const openai = createOpenAI({ apiKey: config.apiKey })
+  const openai = createOpenAI({
+    apiKey: config.apiKey,
+    ...(config.baseUrl ? { baseURL: config.baseUrl } : {}),
+  })
   return openai.embedding(config.model)
 }
 

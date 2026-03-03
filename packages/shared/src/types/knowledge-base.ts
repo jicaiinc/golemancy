@@ -1,4 +1,4 @@
-import type { KBCollectionId, KBDocumentId, Timestamped } from './common'
+import type { KBCollectionId, KBDocumentId, Timestamped, ProviderTestStatus } from './common'
 
 // Enums
 export type KBCollectionTier = 'hot' | 'warm' | 'cold' | 'archive'
@@ -37,15 +37,24 @@ export interface KBSearchResult {
   sourceName: string
 }
 
-// Settings
-export interface EmbeddingSettings {
-  enabled: boolean
-  model: string
+// ── Embedding Settings ──
+
+export type EmbeddingProviderType = 'openai' | 'openai-compatible'
+
+/** Full embedding provider config (shared by global & project custom) */
+export interface EmbeddingProviderConfig {
+  providerType: EmbeddingProviderType
   apiKey?: string
-  testPassed?: boolean
+  baseUrl?: string
+  model: string
+  testStatus?: ProviderTestStatus
 }
 
+/** Global embedding settings — no kill switch, config = available */
+export type EmbeddingSettings = EmbeddingProviderConfig
+
+/** Project-level embedding config — default inherits global, custom is independent */
 export interface ProjectEmbeddingConfig {
-  model?: string
-  apiKey?: string
+  mode: 'default' | 'custom'
+  custom?: EmbeddingProviderConfig
 }

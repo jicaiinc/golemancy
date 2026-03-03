@@ -1,4 +1,4 @@
-import type { PermissionsConfigId } from './common'
+import type { PermissionsConfigId, ProviderTestStatus } from './common'
 import type { EmbeddingSettings, ProjectEmbeddingConfig } from './knowledge-base'
 import type { SpeechToTextSettings } from './speech'
 
@@ -13,8 +13,6 @@ export type ProviderSdkType =
   | 'moonshot'
   | 'alibaba'
   | 'openai-compatible'
-
-export type ProviderTestStatus = 'untested' | 'ok' | 'error'
 
 export interface ProviderEntry {
   name: string

@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import type { AgentId, ProjectConfig, ProjectEmbeddingConfig, ProjectId } from '@golemancy/shared'
+import type { AgentId, ProjectConfig, ProjectEmbeddingConfig, EmbeddingProviderConfig, EmbeddingProviderType, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
-import { resolveEmbeddingConfig } from '../../lib/embedding'
+import { getServices } from '../../services'
 
 const ICONS = [
   { id: 'pickaxe', label: '\u26CF' },
@@ -266,131 +266,260 @@ function GeneralTab({
 }
 
 // ========== Project Embedding Tab ==========
+const OPENAI_EMBED_MODELS = ['text-embedding-3-small', 'text-embedding-3-large']
+
 function ProjectEmbeddingTab({ project }: {
   project: NonNullable<ReturnType<typeof useCurrentProject>>
 }) {
-  const { t } = useTranslation('project')
+  const { t } = useTranslation(['project', 'settings'])
   const settings = useAppStore(s => s.settings)
   const updateProject = useAppStore(s => s.updateProject)
   const hasKBVectorData = useAppStore(s => s.hasKBVectorData)
 
-  const globalEmbedding = settings?.embedding ?? { enabled: false, model: 'text-embedding-3-small' }
-  const projectEmbedding = project.config.embedding ?? {}
-  const providers = settings?.providers ?? {}
-  const openaiKey = providers['openai']?.apiKey ?? ''
+  const globalEmbedding = settings?.embedding
+  const projectEmbedding = project.config.embedding
+  const customDefaults = projectEmbedding?.custom
 
-  // Pre-fill from global defaults; project override takes priority
-  const globalModel = globalEmbedding.model || 'text-embedding-3-small'
-  const globalApiKey = globalEmbedding.apiKey || openaiKey
+  const customRef = useRef<EmbeddingProviderConfig>({
+    providerType: customDefaults?.providerType ?? 'openai',
+    model: customDefaults?.model || 'text-embedding-3-small',
+    apiKey: customDefaults?.apiKey,
+    baseUrl: customDefaults?.baseUrl,
+    testStatus: customDefaults?.testStatus,
+  })
 
-  const [model, setModel] = useState(projectEmbedding.model || globalModel)
-  const [apiKey, setApiKey] = useState(projectEmbedding.apiKey || globalApiKey)
+  const [mode, setMode] = useState<'default' | 'custom'>(projectEmbedding?.mode ?? 'default')
+  const [providerType, setProviderType] = useState<EmbeddingProviderType>(customDefaults?.providerType ?? 'openai')
+  const [model, setModel] = useState(customDefaults?.model || 'text-embedding-3-small')
+  const [apiKey, setApiKey] = useState(customDefaults?.apiKey ?? '')
+  const [baseUrl, setBaseUrl] = useState(customDefaults?.baseUrl ?? '')
   const [showKey, setShowKey] = useState(false)
   const [locked, setLocked] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const [useCustomModel, setUseCustomModel] = useState(
+    customDefaults?.providerType === 'openai-compatible' || (!!customDefaults?.model && !OPENAI_EMBED_MODELS.includes(customDefaults.model)),
+  )
   const [testing, setTesting] = useState(false)
-  const [testResult, setTestResult] = useState<{ ok: boolean; latencyMs?: number; error?: string } | null>(null)
+  const [testError, setTestError] = useState('')
+  const [testLatency, setTestLatency] = useState(0)
+
+  const testStatus = customDefaults?.testStatus ?? 'untested'
+  const isCustomProvider = providerType === 'openai-compatible'
 
   useEffect(() => {
     hasKBVectorData().then(setLocked).catch(() => setLocked(false))
   }, [hasKBVectorData])
 
-  const EMBEDDING_MODELS = ['text-embedding-3-small', 'text-embedding-3-large']
+  // Keep ref in sync
+  useEffect(() => {
+    customRef.current = {
+      providerType,
+      model,
+      apiKey: apiKey.trim() || undefined,
+      baseUrl: baseUrl.trim() || undefined,
+      testStatus: projectEmbedding?.custom?.testStatus,
+    }
+  }, [providerType, model, apiKey, baseUrl, projectEmbedding?.custom?.testStatus])
 
-  // The effective API key: project override → global
-  const effectiveApiKey = apiKey.trim() || globalApiKey
+  // Global summary
+  const globalSummary = globalEmbedding
+    ? `${globalEmbedding.providerType === 'openai-compatible' ? 'Custom' : 'OpenAI'} / ${globalEmbedding.model}`
+    : null
+  const globalConfigured = globalEmbedding?.testStatus === 'ok'
 
-  async function handleSave() {
-    setSaving(true)
-    const embeddingConfig: ProjectEmbeddingConfig = {}
-    if (model !== globalModel) embeddingConfig.model = model
-    if (apiKey.trim() && apiKey.trim() !== globalApiKey) embeddingConfig.apiKey = apiKey.trim()
-    await updateProject(project.id, { config: { ...project.config, embedding: embeddingConfig } })
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  const save = useCallback(
+    async (patch: Partial<EmbeddingProviderConfig>) => {
+      const current = customRef.current
+      const updated: EmbeddingProviderConfig = { ...current, ...patch }
+      customRef.current = updated
+      await updateProject(project.id, {
+        config: { ...project.config, embedding: { mode: 'custom', custom: updated } },
+      })
+    },
+    [updateProject, project],
+  )
+
+  async function handleModeChange(newMode: 'default' | 'custom') {
+    setMode(newMode)
+    if (newMode === 'default') {
+      await updateProject(project.id, {
+        config: { ...project.config, embedding: { mode: 'default' } },
+      })
+    } else {
+      await updateProject(project.id, {
+        config: { ...project.config, embedding: { mode: 'custom', custom: customRef.current } },
+      })
+    }
   }
 
-  async function handleTest() {
+  async function handleProviderTypeChange(type: EmbeddingProviderType) {
+    setProviderType(type)
+    const patch: Partial<EmbeddingProviderConfig> = { providerType: type, testStatus: 'untested' }
+    if (type === 'openai-compatible') {
+      setUseCustomModel(true)
+    } else {
+      setUseCustomModel(false)
+      setBaseUrl('')
+      patch.baseUrl = undefined
+      if (!OPENAI_EMBED_MODELS.includes(model)) {
+        const newModel = OPENAI_EMBED_MODELS[0]
+        setModel(newModel)
+        patch.model = newModel
+      }
+    }
+    await save(patch)
+  }
+
+  async function handleModelSelect(value: string) {
+    if (value === '__custom__') {
+      setUseCustomModel(true)
+    } else {
+      setModel(value)
+      await save({ model: value, testStatus: 'untested' })
+    }
+  }
+
+  async function handleApiKeyBlur() { await save({ apiKey: apiKey.trim() || undefined, testStatus: 'untested' }) }
+  async function handleBaseUrlBlur() { await save({ baseUrl: baseUrl.trim() || undefined, testStatus: 'untested' }) }
+  async function handleCustomModelBlur() { if (model.trim()) await save({ model: model.trim(), testStatus: 'untested' }) }
+
+  const runTest = useCallback(async () => {
     setTesting(true)
-    setTestResult(null)
+    setTestError('')
     try {
-      const { getServices } = await import('../../services')
-      const result = await getServices().settings.testEmbedding(effectiveApiKey, model)
-      setTestResult(result)
+      const result = await getServices().settings.testEmbedding({
+        apiKey: apiKey.trim(),
+        model,
+        baseUrl: baseUrl.trim() || undefined,
+        providerType,
+      })
+      if (result.ok) {
+        setTestLatency(result.latencyMs ?? 0)
+        await save({ testStatus: 'ok' })
+      } else {
+        setTestError(result.error ?? t('settings:embedding.test.unknownError'))
+        await save({ testStatus: 'error' })
+      }
     } catch (err) {
-      setTestResult({ ok: false, error: err instanceof Error ? err.message : String(err) })
+      setTestError(err instanceof Error ? err.message : t('settings:embedding.test.failed'))
+      await save({ testStatus: 'error' })
     } finally {
       setTesting(false)
     }
-  }
+  }, [apiKey, baseUrl, model, providerType, save, t])
 
   return (
     <div className="flex flex-col gap-4">
       <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('settings.embedding.sectionTitle')}</div>
-        <p className="text-[11px] text-text-dim mb-4">{t('settings.embedding.description')}</p>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('project:settings.embedding.sectionTitle')}</div>
+        <p className="text-[11px] text-text-dim mb-4">{t('project:settings.embedding.description')}</p>
 
-        {!resolveEmbeddingConfig(settings, project.config) && (
-          <div className="p-2 bg-accent-amber/10 border-2 border-accent-amber/30 mb-4">
-            <p className="text-[11px] text-accent-amber">{t('settings.embedding.globalDisabled')}</p>
+        {/* Mode radio buttons */}
+        <div className="flex flex-col gap-2 mb-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="embedding-mode"
+              checked={mode === 'default'}
+              onChange={() => handleModeChange('default')}
+              className="accent-accent-blue"
+            />
+            <span className="text-[12px] text-text-primary">{t('project:settings.embedding.useGlobal')}</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name="embedding-mode"
+              checked={mode === 'custom'}
+              onChange={() => handleModeChange('custom')}
+              className="accent-accent-blue"
+            />
+            <span className="text-[12px] text-text-primary">{t('project:settings.embedding.custom')}</span>
+          </label>
+        </div>
+
+        {mode === 'default' ? (
+          <div className="p-3 bg-deep border-2 border-border-dim">
+            {globalConfigured ? (
+              <p className="text-[11px] text-text-secondary">{globalSummary}</p>
+            ) : (
+              <p className="text-[11px] text-accent-amber">{t('project:settings.embedding.globalNotConfigured')}</p>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {/* Provider Type */}
+            <div>
+              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('settings:embedding.provider.typeLabel')}</label>
+              <select
+                value={providerType}
+                onChange={e => handleProviderTypeChange(e.target.value as EmbeddingProviderType)}
+                className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer"
+              >
+                <option value="openai">OpenAI</option>
+                <option value="openai-compatible">{t('settings:embedding.provider.customType')}</option>
+              </select>
+            </div>
+
+            {/* API Key */}
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <PixelInput label={t('settings:embedding.provider.apiKeyLabel')} type={showKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} onBlur={handleApiKeyBlur} placeholder="sk-..." />
+              </div>
+              <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>{showKey ? t('settings:embedding.provider.hide') : t('settings:embedding.provider.show')}</PixelButton>
+            </div>
+
+            {/* Base URL */}
+            <PixelInput
+              label={isCustomProvider ? t('settings:embedding.provider.baseUrlRequired') : t('settings:embedding.provider.baseUrlOptional')}
+              value={baseUrl}
+              onChange={e => setBaseUrl(e.target.value)}
+              onBlur={handleBaseUrlBlur}
+              placeholder={isCustomProvider ? 'https://api.example.com/v1' : t('settings:embedding.provider.baseUrlPlaceholder')}
+            />
+
+            {/* Model */}
+            <div>
+              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('settings:embedding.provider.modelLabel')}</label>
+              {isCustomProvider || useCustomModel ? (
+                <div className="flex items-center gap-2">
+                  <input type="text" value={model} onChange={e => setModel(e.target.value)} onBlur={handleCustomModelBlur} disabled={locked} placeholder="model-id" className="flex-1 h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none disabled:opacity-50" />
+                  {!isCustomProvider && (
+                    <button onClick={() => { setUseCustomModel(false); const p = OPENAI_EMBED_MODELS[0]; setModel(p); save({ model: p, testStatus: 'untested' }) }} className="text-[9px] text-accent-blue hover:text-text-primary cursor-pointer whitespace-nowrap">{t('settings:embedding.provider.presets')}</button>
+                  )}
+                </div>
+              ) : (
+                <select value={OPENAI_EMBED_MODELS.includes(model) ? model : '__custom__'} onChange={e => handleModelSelect(e.target.value)} disabled={locked} className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer disabled:opacity-50">
+                  {OPENAI_EMBED_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
+                  <option value="__custom__">{t('settings:embedding.provider.modelOther')}</option>
+                </select>
+              )}
+              {locked && (
+                <p className="text-[10px] text-accent-amber mt-1">{t('project:settings.embedding.locked')}</p>
+              )}
+            </div>
+
+            {/* Test */}
+            <div className="flex items-center gap-2">
+              <PixelButton size="sm" variant={testStatus === 'ok' ? 'ghost' : 'secondary'} onClick={runTest} disabled={testing}>
+                {testing ? '...' : testStatus === 'ok' ? t('settings:embedding.test.retest') : t('settings:embedding.test.test')}
+              </PixelButton>
+              {testing ? (
+                <span className="text-[9px] text-accent-blue animate-pulse">{t('settings:embedding.test.testing')}</span>
+              ) : testStatus === 'ok' ? (
+                <span className="text-[9px] text-accent-green">{testLatency > 0 ? t('settings:embedding.test.okLatency', { latency: testLatency }) : t('settings:embedding.test.ok')}</span>
+              ) : testStatus === 'error' ? (
+                <span className="text-[9px] text-accent-red">{t('settings:embedding.test.failed')}</span>
+              ) : (
+                <span className="text-[9px] text-text-dim">{t('settings:embedding.test.untested')}</span>
+              )}
+            </div>
+            {!testing && testStatus === 'error' && testError && (
+              <div className="p-1.5 bg-accent-red/10 border border-accent-red/30">
+                <span className="text-[9px] text-accent-red font-mono break-all">{testError}</span>
+              </div>
+            )}
           </div>
         )}
-
-        <div className="flex flex-col gap-3">
-          {/* Model selector */}
-          <div>
-            <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('settings.embedding.modelLabel')}</label>
-            <select
-              value={model}
-              onChange={e => setModel(e.target.value)}
-              disabled={locked}
-              className="w-full h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none disabled:opacity-50"
-            >
-              {EMBEDDING_MODELS.map(m => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
-            {locked && (
-              <p className="text-[10px] text-accent-amber mt-1">{t('settings.embedding.locked')}</p>
-            )}
-          </div>
-
-          {/* API Key */}
-          <div className="flex items-end gap-2">
-            <div className="flex-1">
-              <PixelInput
-                label={t('settings.embedding.apiKeyLabel')}
-                type={showKey ? 'text' : 'password'}
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                placeholder="sk-..."
-              />
-            </div>
-            <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>
-              {showKey ? t('common:button.hide') : t('common:button.show')}
-            </PixelButton>
-          </div>
-
-          {/* Save + Test */}
-          <div className="flex items-center gap-2">
-            <PixelButton size="sm" variant="primary" onClick={handleSave} disabled={saving}>
-              {saving ? t('common:button.saving') : t('common:button.save')}
-            </PixelButton>
-            <PixelButton size="sm" variant="secondary" onClick={handleTest} disabled={testing || !effectiveApiKey}>
-              {testing ? t('common:button.testing') : t('settings.embedding.testBtn')}
-            </PixelButton>
-            {saved && <span className="text-[11px] text-accent-green">{t('settings.savedMsg')}</span>}
-            {testResult && !testing && (
-              <span className={`text-[11px] ${testResult.ok ? 'text-accent-green' : 'text-accent-red'}`}>
-                {testResult.ok
-                  ? t('settings.embedding.testOk', { latency: testResult.latencyMs ?? 0 })
-                  : t('settings.embedding.testFailed')}
-              </span>
-            )}
-          </div>
-        </div>
       </PixelCard>
     </div>
   )

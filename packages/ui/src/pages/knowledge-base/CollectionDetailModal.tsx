@@ -204,20 +204,27 @@ export function CollectionDetailModal({ open, collection, onClose }: CollectionD
               <div>
                 <label className="block text-[10px] text-text-dim mb-1">{t('knowledgeBase:detail.changeTier')}</label>
                 <div className="flex gap-2">
-                  {TIERS.map(t_tier => (
-                    <button
-                      key={t_tier}
-                      type="button"
-                      onClick={() => handleTierChange(t_tier)}
-                      className={`px-3 py-1.5 font-pixel text-[9px] uppercase border-2 cursor-pointer transition-colors ${
-                        collection.tier === t_tier
-                          ? 'bg-accent-blue/20 border-accent-blue text-accent-blue'
-                          : 'bg-elevated border-border-dim text-text-secondary hover:border-border-bright'
-                      }`}
-                    >
-                      {t(`knowledgeBase:tier.${t_tier}`)}
-                    </button>
-                  ))}
+                  {TIERS.map(t_tier => {
+                    const tierNeedsEmbed = t_tier === 'warm' || t_tier === 'cold'
+                    const tierDisabled = collection.tier !== t_tier && tierNeedsEmbed && !embeddingConfigured
+                    return (
+                      <button
+                        key={t_tier}
+                        type="button"
+                        onClick={() => !tierDisabled && handleTierChange(t_tier)}
+                        disabled={tierDisabled}
+                        className={`px-3 py-1.5 font-pixel text-[9px] uppercase border-2 transition-colors ${
+                          collection.tier === t_tier
+                            ? 'bg-accent-blue/20 border-accent-blue text-accent-blue'
+                            : tierDisabled
+                              ? 'bg-elevated border-border-dim text-text-dim opacity-50 cursor-not-allowed'
+                              : 'bg-elevated border-border-dim text-text-secondary hover:border-border-bright cursor-pointer'
+                        }`}
+                      >
+                        {t(`knowledgeBase:tier.${t_tier}`)}
+                      </button>
+                    )
+                  })}
                 </div>
                 {error && <p className="text-[11px] text-accent-red mt-1">{error}</p>}
               </div>

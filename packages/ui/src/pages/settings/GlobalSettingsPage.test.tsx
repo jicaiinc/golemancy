@@ -107,11 +107,10 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getAllByText('OpenAI').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('switches to Embedding tab and shows embedding section', () => {
+  it('switches to Embedding tab and shows provider section', () => {
     renderWithRouter(<GlobalSettingsPage />)
     fireEvent.click(screen.getByText('Embedding'))
-    expect(screen.getByText('EMBEDDING')).toBeInTheDocument()
-    expect(screen.getByText('Enable Embedding')).toBeInTheDocument()
+    expect(screen.getByText('PROVIDER')).toBeInTheDocument()
   })
 
   it('renders About tab with app info', () => {

@@ -38,7 +38,7 @@ const settingsWithEmbedding: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
   },
   theme: 'dark',
-  embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-embed', testPassed: true },
+  embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-embed', testStatus: 'ok' },
 }
 
 const settingsNoEmbedding: GlobalSettings = {
@@ -53,7 +53,7 @@ const settingsTestFailed: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
   },
   theme: 'dark',
-  embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-embed', testPassed: false },
+  embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-embed', testStatus: 'untested' },
 }
 
 const sampleCollection: KBCollection = {
@@ -156,10 +156,10 @@ describe('KnowledgeBasePage', () => {
       expect(screen.getByText(/Embedding must be configured/)).toBeInTheDocument()
     })
 
-    it('hides embedding prompt when project overrides apiKey', () => {
+    it('hides embedding prompt when project has custom embedding', () => {
       const projectWithEmbedding: Project = {
         ...testProject,
-        config: { ...testProject.config, embedding: { apiKey: 'sk-project-key' } },
+        config: { ...testProject.config, embedding: { mode: 'custom', custom: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-project-key', testStatus: 'ok' } } },
       }
       useAppStore.setState({
         settings: settingsWithEmbedding,

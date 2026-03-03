@@ -118,7 +118,12 @@ export interface ISettingsService {
   get(): Promise<GlobalSettings>
   update(data: Partial<GlobalSettings>): Promise<GlobalSettings>
   testProvider(slug: string): Promise<{ ok: boolean; error?: string; latencyMs?: number }>
-  testEmbedding(apiKey: string, model: string): Promise<{ ok: boolean; error?: string; latencyMs?: number }>
+  testEmbedding(config: {
+    apiKey: string
+    model: string
+    baseUrl?: string
+    providerType?: 'openai' | 'openai-compatible'
+  }): Promise<{ ok: boolean; error?: string; latencyMs?: number }>
 }
 
 export interface ICronJobService {

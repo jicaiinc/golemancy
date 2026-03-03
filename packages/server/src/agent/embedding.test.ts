@@ -18,29 +18,29 @@ describe('resolveEmbeddingConfig', () => {
     expect(result).toBeNull()
   })
 
-  it('returns null when not enabled', () => {
+  it('returns null when testStatus is not ok', () => {
     const result = resolveEmbeddingConfig(makeSettings({
-      enabled: false,
+      providerType: 'openai',
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed',
-      testPassed: true,
+      testStatus: 'untested',
     }))
     expect(result).toBeNull()
   })
 
-  it('returns null when testPassed is false', () => {
+  it('returns null when testStatus is error', () => {
     const result = resolveEmbeddingConfig(makeSettings({
-      enabled: true,
+      providerType: 'openai',
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed',
-      testPassed: false,
+      testStatus: 'error',
     }))
     expect(result).toBeNull()
   })
 
-  it('returns null when testPassed is undefined', () => {
+  it('returns null when testStatus is undefined', () => {
     const result = resolveEmbeddingConfig(makeSettings({
-      enabled: true,
+      providerType: 'openai',
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed',
     }))
@@ -49,76 +49,128 @@ describe('resolveEmbeddingConfig', () => {
 
   it('returns null when apiKey is missing', () => {
     const result = resolveEmbeddingConfig(makeSettings({
-      enabled: true,
+      providerType: 'openai',
       model: 'text-embedding-3-small',
-      testPassed: true,
+      testStatus: 'ok',
     }))
     expect(result).toBeNull()
   })
 
-  it('returns config when enabled and testPassed with apiKey', () => {
+  it('returns config when testStatus is ok with apiKey', () => {
     const result = resolveEmbeddingConfig(makeSettings({
-      enabled: true,
+      providerType: 'openai',
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed',
-      testPassed: true,
+      testStatus: 'ok',
     }))
     expect(result).toEqual({
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed',
+      baseUrl: undefined,
+      providerType: 'openai',
     })
   })
 
-  it('uses project override for model', () => {
+  it('passes through baseUrl and providerType', () => {
+    const result = resolveEmbeddingConfig(makeSettings({
+      providerType: 'openai-compatible',
+      model: 'custom-embed',
+      apiKey: 'sk-embed',
+      baseUrl: 'https://my-api.com/v1',
+      testStatus: 'ok',
+    }))
+    expect(result).toEqual({
+      model: 'custom-embed',
+      apiKey: 'sk-embed',
+      baseUrl: 'https://my-api.com/v1',
+      providerType: 'openai-compatible',
+    })
+  })
+
+  it('uses project custom config when mode is custom', () => {
     const projectConfig: ProjectConfig = {
       maxConcurrentAgents: 3,
-      embedding: { model: 'text-embedding-3-large' },
+      embedding: {
+        mode: 'custom',
+        custom: { providerType: 'openai', model: 'text-embedding-3-large', apiKey: 'sk-proj', testStatus: 'ok' },
+      },
     }
     const result = resolveEmbeddingConfig(
       makeSettings({
-        enabled: true,
+        providerType: 'openai',
         model: 'text-embedding-3-small',
         apiKey: 'sk-embed',
-        testPassed: true,
+        testStatus: 'ok',
       }),
       projectConfig,
     )
     expect(result).toEqual({
       model: 'text-embedding-3-large',
-      apiKey: 'sk-embed',
+      apiKey: 'sk-proj',
+      baseUrl: undefined,
+      providerType: 'openai',
     })
   })
 
-  it('uses project override for apiKey', () => {
+  it('uses project custom apiKey', () => {
     const projectConfig: ProjectConfig = {
       maxConcurrentAgents: 3,
-      embedding: { apiKey: 'sk-project-key' },
+      embedding: {
+        mode: 'custom',
+        custom: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-project-key', testStatus: 'ok' },
+      },
     }
     const result = resolveEmbeddingConfig(
       makeSettings({
-        enabled: true,
+        providerType: 'openai',
         model: 'text-embedding-3-small',
         apiKey: 'sk-embed',
-        testPassed: true,
+        testStatus: 'ok',
       }),
       projectConfig,
     )
     expect(result).toEqual({
       model: 'text-embedding-3-small',
       apiKey: 'sk-project-key',
+      baseUrl: undefined,
+      providerType: 'openai',
+    })
+  })
+
+  it('falls back to global when project mode is default', () => {
+    const projectConfig: ProjectConfig = {
+      maxConcurrentAgents: 3,
+      embedding: { mode: 'default' },
+    }
+    const result = resolveEmbeddingConfig(
+      makeSettings({
+        providerType: 'openai',
+        model: 'text-embedding-3-small',
+        apiKey: 'sk-embed',
+        testStatus: 'ok',
+      }),
+      projectConfig,
+    )
+    expect(result).toEqual({
+      model: 'text-embedding-3-small',
+      apiKey: 'sk-embed',
+      baseUrl: undefined,
+      providerType: 'openai',
     })
   })
 
   it('defaults model to text-embedding-3-small when not specified', () => {
     const result = resolveEmbeddingConfig(makeSettings({
-      enabled: true,
+      providerType: 'openai',
       model: '',
       apiKey: 'sk-embed',
-      testPassed: true,
+      testStatus: 'ok',
     }))
     expect(result).toEqual({
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed',
+      baseUrl: undefined,
+      providerType: 'openai',
     })
   })
 })

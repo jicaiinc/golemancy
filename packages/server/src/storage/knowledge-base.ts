@@ -522,6 +522,14 @@ export class KnowledgeBaseStorage {
     oldTier: KBCollectionTier,
     newTier: KBCollectionTier,
   ): Promise<void> {
+    // Pre-flight: embedding config is required for warm/cold tiers
+    if (newTier === 'warm' || newTier === 'cold') {
+      const config = await this.getEmbeddingConfig(projectId)
+      if (!config) {
+        throw new Error('Embedding not configured. Configure an embedding API key in Settings before changing tier to Warm/Cold.')
+      }
+    }
+
     const db = this.getProjectDb(projectId)
     const docs = db.select().from(kbDocuments).where(eq(kbDocuments.collectionId, collectionId)).all()
 

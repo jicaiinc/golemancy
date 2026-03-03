@@ -83,18 +83,31 @@
     "showKey": "Show Key"
   },
   "embedding": {
-    "sectionTitle": "EMBEDDING",
-    "description": "Configure the embedding model used for Knowledge Base vector search (Warm/Cold tiers).",
-    "enableLabel": "Enable Embedding",
-    "modelLabel": "MODEL",
-    "apiKeyLabel": "OPENAI API KEY",
-    "prefillHint": "Pre-filled from OpenAI provider. You can override it.",
-    "saved": "Saved!",
-    "testRequired": "API key has not been tested. Click \"Test\" to verify your key.",
-    "testBtn": "Test",
-    "testOk": "OK ({{latency}}ms)",
-    "testFailed": "Failed",
-    "testTesting": "Testing..."
+    "provider": {
+      "sectionTitle": "PROVIDER",
+      "typeLabel": "TYPE",
+      "customType": "Custom (OpenAI-Compatible)",
+      "apiKeyLabel": "API KEY",
+      "baseUrlRequired": "BASE URL (REQUIRED)",
+      "baseUrlOptional": "BASE URL (OPTIONAL)",
+      "baseUrlPlaceholder": "Leave empty for default",
+      "modelLabel": "MODEL",
+      "modelOther": "Other...",
+      "presets": "Presets",
+      "hide": "Hide",
+      "show": "Show",
+      "prefillHint": "Pre-filled from OpenAI provider. You can override it."
+    },
+    "test": {
+      "testing": "Testing...",
+      "ok": "OK",
+      "okLatency": "OK ({{latency}}ms)",
+      "retest": "Re-test",
+      "test": "Test",
+      "failed": "Failed",
+      "untested": "Untested",
+      "unknownError": "Unknown error"
+    }
   },
   "threshold": {
     "tokens": "tokens"
