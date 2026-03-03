@@ -28,6 +28,8 @@
     "dropPlaceholder": "Drop images here...",
     "attachImage": "Attach image",
     "recordAudio": "Record audio",
+    "sttNotConfigured": "Speech-to-text is not configured yet.",
+    "configureStt": "Configure",
     "transcribing": "Transcribing...",
     "transcriptionFailed": "Transcription failed",
     "startRecordingFailed": "Failed to start recording",

@@ -27,6 +27,8 @@
     "dropPlaceholder": "이미지를 여기에 드롭하세요...",
     "attachImage": "이미지 첨부",
     "recordAudio": "음성 녹음",
+    "sttNotConfigured": "음성 인식이 아직 설정되지 않았습니다.",
+    "configureStt": "설정하기",
     "transcribing": "전사 중...",
     "transcriptionFailed": "전사 실패",
     "startRecordingFailed": "녹음 시작 실패",

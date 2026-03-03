@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, type KeyboardEvent, type DragEvent, type
 import type { FileUIPart } from 'ai'
 import type { TranscriptionId, ProjectId, ConversationId } from '@golemancy/shared'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { PixelButton, PixelSpinner, ImageAttachIcon, CloseSmallIcon, CheckIcon, MicIcon, StopSquareIcon, VoiceWaveform } from '../../components'
 import { useAudioRecorder } from '../../hooks/useAudioRecorder'
 import { useAppStore } from '../../stores'
@@ -46,12 +47,14 @@ async function filesToFileUIParts(files: File[]): Promise<FileUIPart[]> {
 
 export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputProps) {
   const { t } = useTranslation(['chat', 'common'])
+  const navigate = useNavigate()
   const [value, setValue] = useState('')
   const [attachedFiles, setAttachedFiles] = useState<FileUIPart[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
   const [recordingState, setRecordingState] = useState<RecordingState>('idle')
   const [transcriptionError, setTranscriptionError] = useState<string | null>(null)
   const [lastTranscriptionId, setLastTranscriptionId] = useState<TranscriptionId | null>(null)
+  const [showSttSetupHint, setShowSttSetupHint] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -142,6 +145,10 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
 
   // --- Mic recording ---
   const handleMicClick = useCallback(async () => {
+    if (!sttEnabled) {
+      setShowSttSetupHint(true)
+      return
+    }
     try {
       setTranscriptionError(null)
       setRecordingState('recording')
@@ -150,7 +157,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
       setRecordingState('error')
       setTranscriptionError(err instanceof Error ? err.message : t('input.startRecordingFailed'))
     }
-  }, [startRecording, t])
+  }, [sttEnabled, startRecording, t])
 
   const handleStopRecording = useCallback(async () => {
     const blob = await stopRecording()
@@ -303,6 +310,24 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
           </div>
         )}
 
+        {/* STT not configured hint */}
+        {showSttSetupHint && (
+          <div className="flex items-center gap-2 px-3 py-2">
+            <span className="font-mono text-[11px] text-text-secondary flex-1">{t('input.sttNotConfigured')}</span>
+            <PixelButton
+              variant="secondary"
+              size="sm"
+              onClick={() => { setShowSttSetupHint(false); navigate('/settings?tab=speech') }}
+              className="!h-5 !px-2 !text-[9px]"
+            >
+              {t('input.configureStt')}
+            </PixelButton>
+            <PixelButton variant="ghost" size="sm" onClick={() => setShowSttSetupHint(false)} className="!h-5 !px-2 !text-[9px]">
+              {t('common:button.dismiss')}
+            </PixelButton>
+          </div>
+        )}
+
         {/* Textarea — hidden during recording/transcribing */}
         {recordingState === 'idle' && (
           <textarea
@@ -344,11 +369,15 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
 
             <div className="flex items-center gap-1">
               {/* Mic button — right side, hidden during recording/streaming */}
-              {sttEnabled && recordingState === 'idle' && !isStreaming && (
+              {recordingState === 'idle' && !isStreaming && (
                 <button
                   onClick={handleMicClick}
                   disabled={disabled}
-                  className="p-1 text-accent-green hover:text-accent-green/70 transition-colors disabled:opacity-50 cursor-pointer"
+                  className={`p-1 transition-colors disabled:opacity-50 cursor-pointer ${
+                    sttEnabled
+                      ? 'text-accent-green hover:text-accent-green/70'
+                      : 'text-text-dim hover:text-text-secondary'
+                  }`}
                   title={t('input.recordAudio')}
                 >
                   <MicIcon className="w-[14px] h-[14px]" />

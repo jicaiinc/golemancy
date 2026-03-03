@@ -27,6 +27,8 @@
     "dropPlaceholder": "拖放图片到此处...",
     "attachImage": "附加图片",
     "recordAudio": "录制音频",
+    "sttNotConfigured": "语音转文字尚未配置。",
+    "configureStt": "去配置",
     "transcribing": "转录中...",
     "transcriptionFailed": "转录失败",
     "startRecordingFailed": "启动录音失败",

@@ -27,6 +27,8 @@
     "dropPlaceholder": "画像をここにドロップ...",
     "attachImage": "画像を添付",
     "recordAudio": "音声を録音",
+    "sttNotConfigured": "音声認識がまだ設定されていません。",
+    "configureStt": "設定する",
     "transcribing": "文字起こし中...",
     "transcriptionFailed": "文字起こし失敗",
     "startRecordingFailed": "録音の開始に失敗しました",

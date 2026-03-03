@@ -1,5 +1,6 @@
 import { useState, useCallback, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
@@ -46,11 +47,28 @@ function BadgeDot() {
   return <span className="inline-block w-2 h-2 bg-accent-green ml-1.5" />
 }
 
+const VALID_TABS = new Set(['general', 'providers', 'speech', 'about'])
+
 export function GlobalSettingsPage() {
   const { t } = useTranslation('settings')
+  const [searchParams, setSearchParams] = useSearchParams()
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
-  const [activeTab, setActiveTab] = useState('general')
+
+  const tabFromUrl = searchParams.get('tab')
+  const initialTab = tabFromUrl && VALID_TABS.has(tabFromUrl) ? tabFromUrl : 'general'
+  const [activeTab, setActiveTab] = useState(initialTab)
+
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab)
+    // Keep URL in sync — remove param when going back to default tab
+    if (tab === 'general') {
+      searchParams.delete('tab')
+    } else {
+      searchParams.set('tab', tab)
+    }
+    setSearchParams(searchParams, { replace: true })
+  }, [searchParams, setSearchParams])
 
   const updateInfo = useAppStore(s => s.updateInfo)
   const skippedVersion = useAppStore(s => s.skippedVersion)
@@ -72,7 +90,7 @@ export function GlobalSettingsPage() {
         {/* Page heading */}
         <h2 className="font-pixel text-[12px] text-text-primary mb-6">{t('page.title')}</h2>
 
-        <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+        <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
         <div className="mt-4">
           {activeTab === 'general' && <GeneralTab />}

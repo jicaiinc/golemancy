@@ -27,6 +27,8 @@
     "dropPlaceholder": "I-drop ang mga larawan dito...",
     "attachImage": "Mag-attach ng larawan",
     "recordAudio": "Mag-record ng audio",
+    "sttNotConfigured": "Hindi pa na-configure ang speech-to-text.",
+    "configureStt": "I-configure",
     "transcribing": "Tina-transcribe...",
     "transcriptionFailed": "Nabigo ang transcription",
     "startRecordingFailed": "Hindi masimulan ang pag-record",

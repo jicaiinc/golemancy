@@ -27,6 +27,8 @@
     "dropPlaceholder": "Suelte imágenes aquí...",
     "attachImage": "Adjuntar imagen",
     "recordAudio": "Grabar audio",
+    "sttNotConfigured": "El reconocimiento de voz aún no está configurado.",
+    "configureStt": "Configurar",
     "transcribing": "Transcribiendo...",
     "transcriptionFailed": "Error en la transcripción",
     "startRecordingFailed": "Error al iniciar la grabación",

@@ -27,6 +27,8 @@
     "dropPlaceholder": "Släpp bilder här...",
     "attachImage": "Bifoga bild",
     "recordAudio": "Spela in ljud",
+    "sttNotConfigured": "Taligenkänning är inte konfigurerat ännu.",
+    "configureStt": "Konfigurera",
     "transcribing": "Transkriberar...",
     "transcriptionFailed": "Transkribering misslyckades",
     "startRecordingFailed": "Kunde inte starta inspelning",

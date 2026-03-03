@@ -27,6 +27,8 @@
     "dropPlaceholder": "Bilder hier ablegen...",
     "attachImage": "Bild anhängen",
     "recordAudio": "Audio aufnehmen",
+    "sttNotConfigured": "Spracherkennung ist noch nicht konfiguriert.",
+    "configureStt": "Konfigurieren",
     "transcribing": "Transkription...",
     "transcriptionFailed": "Transkription fehlgeschlagen",
     "startRecordingFailed": "Aufnahme konnte nicht gestartet werden",

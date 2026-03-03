@@ -27,6 +27,8 @@
     "dropPlaceholder": "Перетащите изображения сюда...",
     "attachImage": "Прикрепить изображение",
     "recordAudio": "Записать аудио",
+    "sttNotConfigured": "Распознавание речи ещё не настроено.",
+    "configureStt": "Настроить",
     "transcribing": "Транскрибирование...",
     "transcriptionFailed": "Ошибка транскрибирования",
     "startRecordingFailed": "Не удалось начать запись",

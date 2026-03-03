@@ -27,6 +27,8 @@
     "dropPlaceholder": "Upuść obrazy tutaj...",
     "attachImage": "Załącz obraz",
     "recordAudio": "Nagraj dźwięk",
+    "sttNotConfigured": "Rozpoznawanie mowy nie zostało jeszcze skonfigurowane.",
+    "configureStt": "Skonfiguruj",
     "transcribing": "Transkrypcja...",
     "transcriptionFailed": "Transkrypcja nie powiodła się",
     "startRecordingFailed": "Nie udało się rozpocząć nagrywania",

@@ -27,6 +27,8 @@
     "dropPlaceholder": "Přetáhněte obrázky sem...",
     "attachImage": "Přiložit obrázek",
     "recordAudio": "Nahrát zvuk",
+    "sttNotConfigured": "Rozpoznávání řeči zatím není nakonfigurováno.",
+    "configureStt": "Nakonfigurovat",
     "transcribing": "Transkripce...",
     "transcriptionFailed": "Transkripce selhala",
     "startRecordingFailed": "Nepodařilo se zahájit nahrávání",

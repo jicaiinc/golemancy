@@ -27,7 +27,9 @@
     "dropPlaceholder": "G\u00f6rselleri buraya b\u0131rak\u0131n...",
     "attachImage": "G\u00f6rsel ekle",
     "recordAudio": "Ses kaydet",
-    "transcribing": "Yaz\u0131ya d\u00f6k\u00fcl\u00fcyor...",
+    "sttNotConfigured": "Konuşma tanıma henüz yapılandırılmadı.",
+    "configureStt": "Yapılandır",
+    "transcribing": "Yazıya dökülüyor...",
     "transcriptionFailed": "Yaz\u0131ya d\u00f6kme ba\u015far\u0131s\u0131z",
     "startRecordingFailed": "Kay\u0131t ba\u015flat\u0131lamad\u0131",
     "retryFailed": "Tekrar deneme ba\u015far\u0131s\u0131z"

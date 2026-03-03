@@ -27,6 +27,8 @@
     "dropPlaceholder": "Sleep afbeeldingen hierheen...",
     "attachImage": "Afbeelding bijvoegen",
     "recordAudio": "Audio opnemen",
+    "sttNotConfigured": "Spraakherkenning is nog niet geconfigureerd.",
+    "configureStt": "Configureren",
     "transcribing": "Transcriberen...",
     "transcriptionFailed": "Transcriptie mislukt",
     "startRecordingFailed": "Opname starten mislukt",

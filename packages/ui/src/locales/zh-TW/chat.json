@@ -27,6 +27,8 @@
     "dropPlaceholder": "拖放圖片到此處...",
     "attachImage": "附加圖片",
     "recordAudio": "錄製音訊",
+    "sttNotConfigured": "語音轉文字尚未設定。",
+    "configureStt": "去設定",
     "transcribing": "轉錄中...",
     "transcriptionFailed": "轉錄失敗",
     "startRecordingFailed": "啟動錄音失敗",

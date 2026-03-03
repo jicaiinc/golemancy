@@ -27,6 +27,8 @@
     "dropPlaceholder": "Перетягніть зображення сюди...",
     "attachImage": "Прикріпити зображення",
     "recordAudio": "Записати аудіо",
+    "sttNotConfigured": "Розпізнавання мовлення ще не налаштовано.",
+    "configureStt": "Налаштувати",
     "transcribing": "Транскрибування...",
     "transcriptionFailed": "Помилка транскрибування",
     "startRecordingFailed": "Не вдалося почати запис",

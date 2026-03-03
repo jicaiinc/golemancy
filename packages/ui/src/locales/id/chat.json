@@ -27,6 +27,8 @@
     "dropPlaceholder": "Letakkan gambar di sini...",
     "attachImage": "Lampirkan gambar",
     "recordAudio": "Rekam audio",
+    "sttNotConfigured": "Pengenalan suara belum dikonfigurasi.",
+    "configureStt": "Konfigurasi",
     "transcribing": "Mentranskrip...",
     "transcriptionFailed": "Transkripsi gagal",
     "startRecordingFailed": "Gagal memulai rekaman",

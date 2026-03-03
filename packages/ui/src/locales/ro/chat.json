@@ -27,6 +27,8 @@
     "dropPlaceholder": "Plasați imaginile aici...",
     "attachImage": "Atașați imagine",
     "recordAudio": "Înregistrare audio",
+    "sttNotConfigured": "Recunoașterea vocală nu este încă configurată.",
+    "configureStt": "Configurare",
     "transcribing": "Se transcrie...",
     "transcriptionFailed": "Transcrierea a eșuat",
     "startRecordingFailed": "Înregistrarea nu a putut fi pornită",
