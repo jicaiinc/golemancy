@@ -121,8 +121,13 @@ export function OnboardingPage() {
     setSaving(true)
     setStepError('')
     try {
-      if (step === 1) await persistProviderStep()
-      else if (step === 2) await persistSpeechStep()
+      if (step === 1) {
+        await persistProviderStep()
+        // Auto-fill STT API key from OpenAI provider key if not yet set
+        if (!data.sttApiKey && data.apiKey && data.selectedProvider === 'openai') {
+          updateData({ sttApiKey: data.apiKey })
+        }
+      } else if (step === 2) await persistSpeechStep()
       else if (step === 3) await persistProjectStep()
       setDirection(1)
       setStep(s => Math.min(s + 1, TOTAL_STEPS - 1))
