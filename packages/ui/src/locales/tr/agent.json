@@ -54,7 +54,8 @@
       "modelConfig": "Model Yap\u0131land\u0131rmas\u0131",
       "skills": "Beceriler",
       "tools": "Ara\u00e7lar",
-      "subAgents": "Alt Ajanlar"
+      "subAgents": "Alt Ajanlar",
+      "memory": "Bellek"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Bash komutlar\u0131n\u0131 \u00e7al\u0131\u015ft\u0131r, dosya oku ve yaz",
     "browserDesc": "Otomasyon i\u00e7in web taray\u0131c\u0131s\u0131n\u0131 kontrol et",
     "osControlDesc": "Masa\u00fcst\u00fc otomasyonu ve sistem kontrol\u00fc",
-    "taskDesc": "Konu\u015fma i\u00e7inde g\u00f6rev olu\u015ftur ve y\u00f6net"
+    "taskDesc": "Konu\u015fma i\u00e7inde g\u00f6rev olu\u015ftur ve y\u00f6net",
+    "memoryDesc": "Konu\u015fmalar aras\u0131 kal\u0131c\u0131 bellek deposu"
   },
   "mcp": {
     "warningTitle": "\u26a0 UYARI",
@@ -114,5 +116,25 @@
     "resetLayout": "D\u00fczeni S\u0131f\u0131rla",
     "editAgent": "Ajan\u0131 D\u00fczenle",
     "setMainAgent": "Main Agent Olarak Ayarla"
+  },
+  "memory": {
+    "sectionTitle": "BELLEKLER",
+    "pinnedSection": "SAB\u0130TLENM\u0130\u015e",
+    "pinnedHint": "her zaman y\u00fckl\u00fc",
+    "autoLoadedSection": "OTOMAT\u0130K Y\u00dcKLENEN",
+    "notLoadedSection": "Y\u00dcKLENMEM\u0130\u015e",
+    "notLoadedCount_one": "{{count}} bellek",
+    "notLoadedCount_other": "{{count}} bellek",
+    "cutoffLine": "otomatik y\u00fckleme s\u0131n\u0131r\u0131",
+    "addBtn": "+ Bellek Ekle",
+    "addTitle": "BELLEK EKLE",
+    "contentPlaceholder": "Ajan neyi hat\u0131rlamal\u0131?",
+    "tagsPlaceholder": "Etiketler (virg\u00fclle ayr\u0131lm\u0131\u015f)",
+    "empty": "Hen\u00fcz bellek yok. Konu\u015fmalar aras\u0131 bilgi saklamak i\u00e7in bellek ekleyin.",
+    "statusLine": "{{pinned}} sabitlenmi\u015f | Otomatik y\u00fckleme: {{autoLoaded}}/{{limit}} | {{total}} toplam",
+    "priority": "\u00d6ncelik",
+    "pinned": "Sabitlenmi\u015f",
+    "pin": "Sabitle",
+    "unpin": "Sabitlemeyi Kald\u0131r"
   }
 }

@@ -64,7 +64,8 @@
       "modelConfig": "Конфігурація моделі",
       "skills": "Навички",
       "tools": "Інструменти",
-      "subAgents": "Суб-агенти"
+      "subAgents": "Суб-агенти",
+      "memory": "Пам'ять"
     }
   },
   "general": {
@@ -90,7 +91,8 @@
     "bashDesc": "Виконання команд Bash, читання та запис файлів",
     "browserDesc": "Керування браузером для автоматизації",
     "osControlDesc": "Автоматизація робочого столу та керування системою",
-    "taskDesc": "Створення та керування задачами в розмові"
+    "taskDesc": "Створення та керування задачами в розмові",
+    "memoryDesc": "Постійний банк пам'яті між розмовами"
   },
   "mcp": {
     "warningTitle": "\u26a0 ПОПЕРЕДЖЕННЯ",
@@ -124,5 +126,27 @@
     "resetLayout": "Скинути макет",
     "editAgent": "Змінити агента",
     "setMainAgent": "Призначити основним агентом"
+  },
+  "memory": {
+    "sectionTitle": "СПОГАДИ",
+    "pinnedSection": "ЗАКРІПЛЕНІ",
+    "pinnedHint": "завжди завантажені",
+    "autoLoadedSection": "АВТОЗАВАНТАЖЕННЯ",
+    "notLoadedSection": "НЕ ЗАВАНТАЖЕНІ",
+    "notLoadedCount_one": "{{count}} спогад",
+    "notLoadedCount_few": "{{count}} спогади",
+    "notLoadedCount_many": "{{count}} спогадів",
+    "notLoadedCount_other": "{{count}} спогадів",
+    "cutoffLine": "поріг автозавантаження",
+    "addBtn": "+ Додати спогад",
+    "addTitle": "ДОДАТИ СПОГАД",
+    "contentPlaceholder": "Що агент повинен запам'ятати?",
+    "tagsPlaceholder": "Теги (через кому)",
+    "empty": "Спогадів поки немає. Додайте спогади, щоб зберігати знання між розмовами.",
+    "statusLine": "{{pinned}} закріплено | Автозавантаження: {{autoLoaded}}/{{limit}} | {{total}} всього",
+    "priority": "Пріоритет",
+    "pinned": "Закріплено",
+    "pin": "Закріпити",
+    "unpin": "Відкріпити"
   }
 }

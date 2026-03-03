@@ -54,7 +54,8 @@
       "modelConfig": "模型設定",
       "skills": "技能",
       "tools": "工具",
-      "subAgents": "子 Agent"
+      "subAgents": "子 Agent",
+      "memory": "記憶"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "執行 Bash 指令，讀寫檔案",
     "browserDesc": "控制瀏覽器進行自動化操作",
     "osControlDesc": "桌面自動化和系統控制",
-    "taskDesc": "在對話中建立和管理任務"
+    "taskDesc": "在對話中建立和管理任務",
+    "memoryDesc": "跨對話持久化記憶庫"
   },
   "mcp": {
     "warningTitle": "\u26a0 警告",
@@ -114,5 +116,25 @@
     "resetLayout": "重設佈局",
     "editAgent": "編輯 Agent",
     "setMainAgent": "設為主 Agent"
+  },
+  "memory": {
+    "sectionTitle": "記憶",
+    "pinnedSection": "已釘選",
+    "pinnedHint": "始終載入",
+    "autoLoadedSection": "自動載入",
+    "notLoadedSection": "未載入",
+    "notLoadedCount_one": "{{count}} 條記憶",
+    "notLoadedCount_other": "{{count}} 條記憶",
+    "cutoffLine": "自動載入分界線",
+    "addBtn": "+ 新增記憶",
+    "addTitle": "新增記憶",
+    "contentPlaceholder": "Agent 應該記住什麼？",
+    "tagsPlaceholder": "標籤（逗號分隔）",
+    "empty": "尚無記憶。新增記憶以在對話間持久化知識。",
+    "statusLine": "{{pinned}} 已釘選 | 自動載入: {{autoLoaded}}/{{limit}} | 共 {{total}} 條",
+    "priority": "優先順序",
+    "pinned": "已釘選",
+    "pin": "釘選",
+    "unpin": "取消釘選"
   }
 }

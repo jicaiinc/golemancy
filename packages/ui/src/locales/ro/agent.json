@@ -59,7 +59,8 @@
       "modelConfig": "Configurare model",
       "skills": "Skills",
       "tools": "Instrumente",
-      "subAgents": "Sub-agenți"
+      "subAgents": "Sub-agenți",
+      "memory": "Memorie"
     }
   },
   "general": {
@@ -85,7 +86,8 @@
     "bashDesc": "Executare comenzi bash, citire și scriere fișiere",
     "browserDesc": "Control browser web pentru automatizare",
     "osControlDesc": "Automatizare desktop și control sistem",
-    "taskDesc": "Creare și gestionare sarcini în conversație"
+    "taskDesc": "Creare și gestionare sarcini în conversație",
+    "memoryDesc": "Bancă de memorie persistentă între conversații"
   },
   "mcp": {
     "warningTitle": "\u26a0 AVERTISMENT",
@@ -119,5 +121,25 @@
     "resetLayout": "Resetare dispunere",
     "editAgent": "Editare agent",
     "setMainAgent": "Setare ca Main Agent"
+  },
+  "memory": {
+    "sectionTitle": "AMINTIRI",
+    "pinnedSection": "FIXATE",
+    "pinnedHint": "mereu încărcate",
+    "autoLoadedSection": "ÎNCĂRCATE AUTOMAT",
+    "notLoadedSection": "NEÎNCĂRCATE",
+    "notLoadedCount_one": "{{count}} amintire",
+    "notLoadedCount_other": "{{count}} de amintiri",
+    "cutoffLine": "prag de încărcare automată",
+    "addBtn": "+ Adăugare amintire",
+    "addTitle": "ADĂUGARE AMINTIRE",
+    "contentPlaceholder": "Ce ar trebui să rețină agentul?",
+    "tagsPlaceholder": "Etichete (separate prin virgulă)",
+    "empty": "Nicio amintire încă. Adăugați amintiri pentru a păstra cunoștințele între conversații.",
+    "statusLine": "{{pinned}} fixate | Încărcare automată: {{autoLoaded}}/{{limit}} | {{total}} total",
+    "priority": "Prioritate",
+    "pinned": "Fixat",
+    "pin": "Fixează",
+    "unpin": "Detașează"
   }
 }

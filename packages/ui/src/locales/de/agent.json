@@ -54,7 +54,8 @@
       "modelConfig": "Modellkonfiguration",
       "skills": "Skills",
       "tools": "Werkzeuge",
-      "subAgents": "Sub-Agenten"
+      "subAgents": "Sub-Agenten",
+      "memory": "Gedächtnis"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Bash-Befehle ausführen, Dateien lesen und schreiben",
     "browserDesc": "Webbrowser für Automatisierung steuern",
     "osControlDesc": "Desktop-Automatisierung und Systemsteuerung",
-    "taskDesc": "Aufgaben in der Konversation erstellen und verwalten"
+    "taskDesc": "Aufgaben in der Konversation erstellen und verwalten",
+    "memoryDesc": "Persistenter Wissensspeicher über Konversationen hinweg"
   },
   "mcp": {
     "warningTitle": "\u26a0 WARNUNG",
@@ -114,5 +116,25 @@
     "resetLayout": "Layout zurücksetzen",
     "editAgent": "Agent bearbeiten",
     "setMainAgent": "Als Haupt-Agent festlegen"
+  },
+  "memory": {
+    "sectionTitle": "ERINNERUNGEN",
+    "pinnedSection": "ANGEPINNT",
+    "pinnedHint": "immer geladen",
+    "autoLoadedSection": "AUTOMATISCH GELADEN",
+    "notLoadedSection": "NICHT GELADEN",
+    "notLoadedCount_one": "{{count}} Erinnerung",
+    "notLoadedCount_other": "{{count}} Erinnerungen",
+    "cutoffLine": "Auto-Lade-Grenze",
+    "addBtn": "+ Erinnerung hinzufügen",
+    "addTitle": "ERINNERUNG HINZUFÜGEN",
+    "contentPlaceholder": "Was soll sich der Agent merken?",
+    "tagsPlaceholder": "Tags (kommagetrennt)",
+    "empty": "Noch keine Erinnerungen. Fügen Sie Erinnerungen hinzu, um Wissen über Konversationen hinweg zu speichern.",
+    "statusLine": "{{pinned}} angepinnt | Auto-Laden: {{autoLoaded}}/{{limit}} | {{total}} gesamt",
+    "priority": "Priorität",
+    "pinned": "Angepinnt",
+    "pin": "Anpinnen",
+    "unpin": "Lösen"
   }
 }

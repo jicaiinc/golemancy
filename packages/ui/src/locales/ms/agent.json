@@ -54,7 +54,8 @@
       "modelConfig": "Konfigurasi Model",
       "skills": "Skill",
       "tools": "Alatan",
-      "subAgents": "Sub-Agen"
+      "subAgents": "Sub-Agen",
+      "memory": "Memori"
     }
   },
   "general": {
@@ -80,7 +81,8 @@
     "bashDesc": "Jalankan perintah bash, baca dan tulis fail",
     "browserDesc": "Kawal pelayar web untuk automasi",
     "osControlDesc": "Automasi desktop dan kawalan sistem",
-    "taskDesc": "Cipta dan urus tugas dalam perbualan"
+    "taskDesc": "Cipta dan urus tugas dalam perbualan",
+    "memoryDesc": "Storan memori kekal merentas perbualan"
   },
   "mcp": {
     "warningTitle": "\u26a0 AMARAN",
@@ -114,5 +116,25 @@
     "resetLayout": "Set Semula Susun Atur",
     "editAgent": "Sunting Agen",
     "setMainAgent": "Tetapkan sebagai Main Agent"
+  },
+  "memory": {
+    "sectionTitle": "MEMORI",
+    "pinnedSection": "DISEMAT",
+    "pinnedHint": "sentiasa dimuatkan",
+    "autoLoadedSection": "DIMUAT AUTOMATIK",
+    "notLoadedSection": "BELUM DIMUAT",
+    "notLoadedCount_one": "{{count}} memori",
+    "notLoadedCount_other": "{{count}} memori",
+    "cutoffLine": "had muat automatik",
+    "addBtn": "+ Tambah Memori",
+    "addTitle": "TAMBAH MEMORI",
+    "contentPlaceholder": "Apa yang perlu agen ingat?",
+    "tagsPlaceholder": "Tag (dipisah dengan koma)",
+    "empty": "Belum ada memori. Tambah memori untuk menyimpan pengetahuan merentas perbualan.",
+    "statusLine": "{{pinned}} disemat | Muat automatik: {{autoLoaded}}/{{limit}} | {{total}} jumlah",
+    "priority": "Keutamaan",
+    "pinned": "Disemat",
+    "pin": "Semat",
+    "unpin": "Nyahsemat"
   }
 }

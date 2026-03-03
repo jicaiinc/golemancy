@@ -64,7 +64,8 @@
       "modelConfig": "Konfigurace modelu",
       "skills": "Dovednosti",
       "tools": "Nástroje",
-      "subAgents": "Sub-agenti"
+      "subAgents": "Sub-agenti",
+      "memory": "Paměť"
     }
   },
   "general": {
@@ -90,7 +91,8 @@
     "bashDesc": "Provádění příkazů Bash, čtení a zápis souborů",
     "browserDesc": "Ovládání prohlížeče pro automatizaci",
     "osControlDesc": "Automatizace plochy a ovládání systému",
-    "taskDesc": "Vytváření a správa úkolů v konverzaci"
+    "taskDesc": "Vytváření a správa úkolů v konverzaci",
+    "memoryDesc": "Trvalá paměťová banka napříč konverzacemi"
   },
   "mcp": {
     "warningTitle": "\u26a0 VAROVÁNÍ",
@@ -124,5 +126,26 @@
     "resetLayout": "Obnovit rozložení",
     "editAgent": "Upravit agenta",
     "setMainAgent": "Nastavit jako hlavního agenta"
+  },
+  "memory": {
+    "sectionTitle": "VZPOMÍNKY",
+    "pinnedSection": "PŘIPNUTÉ",
+    "pinnedHint": "vždy načtené",
+    "autoLoadedSection": "AUTOMATICKY NAČTENÉ",
+    "notLoadedSection": "NENAČTENÉ",
+    "notLoadedCount_one": "{{count}} vzpomínka",
+    "notLoadedCount_few": "{{count}} vzpomínky",
+    "notLoadedCount_other": "{{count}} vzpomínek",
+    "cutoffLine": "práh automatického načítání",
+    "addBtn": "+ Přidat vzpomínku",
+    "addTitle": "PŘIDAT VZPOMÍNKU",
+    "contentPlaceholder": "Co by si měl agent zapamatovat?",
+    "tagsPlaceholder": "Štítky (oddělené čárkou)",
+    "empty": "Zatím žádné vzpomínky. Přidejte vzpomínky pro uchování znalostí mezi konverzacemi.",
+    "statusLine": "{{pinned}} připnuto | Automatické načítání: {{autoLoaded}}/{{limit}} | {{total}} celkem",
+    "priority": "Priorita",
+    "pinned": "Připnuto",
+    "pin": "Připnout",
+    "unpin": "Odepnout"
   }
 }
