@@ -663,6 +663,28 @@ function SubAgentsTab({ agent, onUpdate }: {
   )
 }
 
+// ========== Priority Stars (hover-fill UX) ==========
+function PriorityStars({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
+  const [hoverValue, setHoverValue] = useState<number | null>(null)
+  const displayValue = hoverValue ?? value
+
+  return (
+    <span className="inline-flex gap-0.5" onMouseLeave={() => setHoverValue(null)}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <button
+          key={i}
+          className={`text-[10px] leading-none ${i <= displayValue ? 'text-accent-amber' : 'text-border-dim'} ${onChange ? 'cursor-pointer' : 'cursor-default'}`}
+          onClick={() => onChange?.(i === value ? i - 1 : i)}
+          onMouseEnter={() => onChange && setHoverValue(i)}
+          disabled={!onChange}
+        >
+          ★
+        </button>
+      ))}
+    </span>
+  )
+}
+
 // ========== Memory Tab ==========
 function MemoryTab({ agent }: { agent: Agent }) {
   const { t } = useTranslation('agent')
@@ -682,6 +704,8 @@ function MemoryTab({ agent }: { agent: Agent }) {
   const [editingId, setEditingId] = useState<MemoryId | null>(null)
   const [editContent, setEditContent] = useState('')
   const [editTags, setEditTags] = useState('')
+  const [editPriority, setEditPriority] = useState(DEFAULT_MEMORY_PRIORITY)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<MemoryId | null>(null)
 
   const memoryConfig = agent.builtinTools?.memory
   const maxAutoLoad = typeof memoryConfig === 'object' && memoryConfig
@@ -733,11 +757,12 @@ function MemoryTab({ agent }: { agent: Agent }) {
     setEditingId(mem.id)
     setEditContent(mem.content)
     setEditTags(mem.tags.join(', '))
+    setEditPriority(mem.priority)
   }
 
   async function handleEditSave(mem: MemoryEntry) {
     const tags = editTags.split(',').map(s => s.trim()).filter(Boolean)
-    await updateMemory(agent.id, mem.id, { content: editContent.trim(), tags })
+    await updateMemory(agent.id, mem.id, { content: editContent.trim(), tags, priority: editPriority })
     setEditingId(null)
   }
 
@@ -752,31 +777,18 @@ function MemoryTab({ agent }: { agent: Agent }) {
     return t('common:time.daysAgo', { count: days })
   }
 
-  function renderStars(value: number, onChange?: (v: number) => void) {
-    return (
-      <span className="inline-flex gap-0.5">
-        {[1, 2, 3, 4, 5].map(i => (
-          <button
-            key={i}
-            className={`text-[10px] leading-none ${i <= value ? 'text-accent-amber' : 'text-border-dim'} ${onChange ? 'cursor-pointer hover:text-accent-amber' : 'cursor-default'}`}
-            onClick={() => onChange?.(i === value ? i - 1 : i)}
-            disabled={!onChange}
-          >
-            ★
-          </button>
-        ))}
-      </span>
-    )
-  }
-
   function renderCard(m: MemoryEntry, dimmed = false) {
     const isEditing = editingId === m.id
     return (
-      <PixelCard key={m.id} className={dimmed ? 'opacity-50' : ''}>
+      <PixelCard key={m.id} className={`!py-2 !px-3 ${dimmed ? 'opacity-85' : ''}`}>
         {isEditing ? (
           <div className="flex flex-col gap-2">
             <PixelTextArea value={editContent} onChange={e => setEditContent(e.target.value)} rows={3} />
             <PixelInput value={editTags} onChange={e => setEditTags(e.target.value)} placeholder={t('memory.tagsPlaceholder')} />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-text-dim">{t('memory.priority')}:</span>
+              <PriorityStars value={editPriority} onChange={setEditPriority} />
+            </div>
             <div className="flex gap-2">
               <PixelButton size="sm" variant="primary" onClick={() => handleEditSave(m)}>{t('common:button.save')}</PixelButton>
               <PixelButton size="sm" variant="ghost" onClick={() => setEditingId(null)}>{t('common:button.cancel')}</PixelButton>
@@ -784,27 +796,40 @@ function MemoryTab({ agent }: { agent: Agent }) {
           </div>
         ) : (
           <>
-            {m.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-1">
-                {m.tags.map(tag => (
-                  <span key={tag} className="font-mono text-[9px] text-accent-cyan">#{tag}</span>
-                ))}
-              </div>
-            )}
-            <p className="text-[12px] text-text-secondary whitespace-pre-wrap">{m.content}</p>
-            <div className="flex items-center gap-3 mt-2 text-[10px] text-text-dim">
-              {renderStars(m.priority, (v) => updateMemory(agent.id, m.id, { priority: v }))}
-              <span>{relativeTime(m.updatedAt)}</span>
-              <div className="ml-auto flex items-center gap-1">
-                <PixelButton size="sm" variant="ghost" onClick={() => updateMemory(agent.id, m.id, { pinned: !m.pinned })}>
-                  {m.pinned ? t('memory.unpin') : t('memory.pin')}
-                </PixelButton>
-                <PixelButton size="sm" variant="ghost" onClick={() => startEdit(m)}>
-                  {t('common:button.edit')}
-                </PixelButton>
-                <PixelButton size="sm" variant="ghost" onClick={() => deleteMemory(agent.id, m.id)}>
-                  &times;
-                </PixelButton>
+            <div className="text-[12px] text-text-secondary whitespace-pre-wrap line-clamp-1" title={m.content}>
+              {m.content}
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-[10px] text-text-dim">
+              <PriorityStars value={m.priority} />
+              {m.tags.length > 0 && (
+                <span className="font-mono text-[9px] text-accent-cyan truncate">
+                  {m.tags.map(tag => `#${tag}`).join(' ')}
+                </span>
+              )}
+              <span className="shrink-0">{relativeTime(m.updatedAt)}</span>
+              <div className="ml-auto flex items-center gap-0.5 shrink-0">
+                {confirmDeleteId === m.id ? (
+                  <>
+                    <PixelButton size="sm" variant="danger" onClick={() => { setConfirmDeleteId(null); deleteMemory(agent.id, m.id) }}>
+                      {t('common:button.confirm')}
+                    </PixelButton>
+                    <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(null)}>
+                      {t('common:button.cancel')}
+                    </PixelButton>
+                  </>
+                ) : (
+                  <>
+                    <PixelButton size="sm" variant="ghost" onClick={() => updateMemory(agent.id, m.id, { pinned: !m.pinned })}>
+                      {m.pinned ? t('memory.unpin') : t('memory.pin')}
+                    </PixelButton>
+                    <PixelButton size="sm" variant="ghost" onClick={() => startEdit(m)}>
+                      {t('common:button.edit')}
+                    </PixelButton>
+                    <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(m.id)}>
+                      &times;
+                    </PixelButton>
+                  </>
+                )}
               </div>
             </div>
           </>
@@ -818,7 +843,7 @@ function MemoryTab({ agent }: { agent: Agent }) {
   }
 
   return (
-    <div className="max-w-[640px]">
+    <div>
       <div className="flex items-center justify-between mb-2">
         <div className="font-pixel text-[8px] text-text-dim">{t('memory.sectionTitle')}</div>
         <PixelButton size="sm" variant="ghost" onClick={() => setShowAdd(!showAdd)}>
@@ -855,7 +880,7 @@ function MemoryTab({ agent }: { agent: Agent }) {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-text-dim">{t('memory.priority')}:</span>
-                {renderStars(newPriority, setNewPriority)}
+                <PriorityStars value={newPriority} onChange={setNewPriority} />
               </div>
               <label className="flex items-center gap-1 text-[10px] text-text-dim cursor-pointer">
                 <input type="checkbox" checked={newPinned} onChange={e => setNewPinned(e.target.checked)} />
