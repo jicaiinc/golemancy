@@ -56,6 +56,7 @@ interface OnboardingData {
   sttApiKey: string
   sttModel: string
   sttLanguage: string
+  sttTestStatus: 'untested' | 'testing' | 'ok' | 'error'
   projectName: string
   projectDescription: string
   projectIcon: string
@@ -72,6 +73,7 @@ const INITIAL_DATA: OnboardingData = {
   sttApiKey: '',
   sttModel: 'gpt-4o-mini-transcribe',
   sttLanguage: '',
+  sttTestStatus: 'untested',
   projectName: '',
   projectDescription: '',
   projectIcon: 'pickaxe',
@@ -109,7 +111,7 @@ export function OnboardingPage() {
     switch (step) {
       case 0: return true // Welcome — always OK
       case 1: return data.providerTestStatus === 'ok' && data.defaultModel != null
-      case 2: return !data.sttEnabled || data.sttApiKey.trim().length > 0
+      case 2: return !data.sttEnabled || data.sttTestStatus === 'ok'
       case 3: return data.projectName.trim().length > 0
       default: return false
     }

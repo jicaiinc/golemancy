@@ -27,6 +27,7 @@ interface SpeechStepProps {
     sttApiKey?: string
     sttModel?: string
     sttLanguage?: string
+    sttTestStatus?: 'untested' | 'testing' | 'ok' | 'error'
   }) => void
   onTestSpeech: (config: SpeechToTextSettings) => Promise<{ ok: boolean; error?: string; latencyMs?: number }>
 }
@@ -49,6 +50,7 @@ export function SpeechStep({
   const runTest = useCallback(async () => {
     setTesting(true)
     setTestError('')
+    onUpdate({ sttTestStatus: 'testing' })
     try {
       const config: SpeechToTextSettings = {
         enabled: true,
@@ -61,17 +63,20 @@ export function SpeechStep({
       if (result.ok) {
         setTestStatus('ok')
         setTestLatency(result.latencyMs ?? 0)
+        onUpdate({ sttTestStatus: 'ok' })
       } else {
         setTestStatus('error')
         setTestError(result.error ?? t('error.unknownError'))
+        onUpdate({ sttTestStatus: 'error' })
       }
     } catch (err) {
       setTestStatus('error')
       setTestError(err instanceof Error ? err.message : t('error.testFailed'))
+      onUpdate({ sttTestStatus: 'error' })
     } finally {
       setTesting(false)
     }
-  }, [sttApiKey, sttModel, sttLanguage, onTestSpeech, t])
+  }, [sttApiKey, sttModel, sttLanguage, onTestSpeech, onUpdate, t])
 
   return (
     <div className="flex flex-col gap-6">
@@ -98,7 +103,7 @@ export function SpeechStep({
                   label={t('speech.labelApiKey')}
                   type={showKey ? 'text' : 'password'}
                   value={sttApiKey}
-                  onChange={e => { onUpdate({ sttApiKey: e.target.value }); setTestStatus('untested') }}
+                  onChange={e => { onUpdate({ sttApiKey: e.target.value, sttTestStatus: 'untested' }); setTestStatus('untested') }}
                   placeholder="sk-..."
                 />
               </div>
@@ -112,7 +117,7 @@ export function SpeechStep({
               <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('speech.labelModel')}</label>
               <select
                 value={sttModel}
-                onChange={e => { onUpdate({ sttModel: e.target.value }); setTestStatus('untested') }}
+                onChange={e => { onUpdate({ sttModel: e.target.value, sttTestStatus: 'untested' }); setTestStatus('untested') }}
                 className="w-full h-9 bg-deep px-3 font-mono text-[12px] text-text-primary border-2 border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer"
               >
                 {OPENAI_STT_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
