@@ -1,4 +1,4 @@
-import { useState, useCallback, type ReactNode } from 'react'
+import { useState, useCallback, useEffect, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
@@ -115,6 +115,8 @@ function ProvidersTab({ settings, onUpdate }: {
   const [customName, setCustomName] = useState('')
   const [customBaseUrl, setCustomBaseUrl] = useState('')
   const [customSdkType, setCustomSdkType] = useState<ProviderSdkType>('openai-compatible')
+  // Track newly added provider key so its card auto-opens in edit mode
+  const [newlyAddedKey, setNewlyAddedKey] = useState<string | null>(null)
 
   // Defensive: providers may be undefined or old array format from v1 data
   const providers = (settings.providers && !Array.isArray(settings.providers)) ? settings.providers : {}
@@ -139,6 +141,7 @@ function ProvidersTab({ settings, onUpdate }: {
       baseUrl: preset.defaultBaseUrl,
     }
     await onUpdate({ providers: updated })
+    setNewlyAddedKey(key)
     setAddMode(false)
   }
 
@@ -160,6 +163,7 @@ function ProvidersTab({ settings, onUpdate }: {
       baseUrl: customBaseUrl.trim() || undefined,
     }
     await onUpdate({ providers: updated })
+    setNewlyAddedKey(finalSlug)
     setAddMode(false)
     setCustomName('')
     setCustomBaseUrl('')
@@ -278,6 +282,8 @@ function ProvidersTab({ settings, onUpdate }: {
             entry={providers[key]}
             onUpdate={entry => handleUpdateProvider(key, entry)}
             onDelete={() => handleDeleteProvider(key)}
+            initialEditing={key === newlyAddedKey}
+            onEditingStart={() => setNewlyAddedKey(null)}
           />
         ))
       )}
@@ -363,15 +369,17 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
 }
 
 // ========== Provider Card ==========
-function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
+function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing = false, onEditingStart }: {
   providerKey: string
   entry: ProviderEntry
   onUpdate: (entry: ProviderEntry) => Promise<void>
   onDelete: () => Promise<void>
+  initialEditing?: boolean
+  onEditingStart?: () => void
 }) {
   const { t } = useTranslation('settings')
   const services = useServices()
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(initialEditing)
   const [apiKey, setApiKey] = useState(entry.apiKey ?? '')
   const [baseUrl, setBaseUrl] = useState(entry.baseUrl ?? '')
   const [name, setName] = useState(entry.name)
@@ -382,6 +390,14 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
   const [testing, setTesting] = useState(false)
   const [testError, setTestError] = useState('')
   const [testLatency, setTestLatency] = useState(0)
+
+  // When initialEditing flips to true (newly added provider), open edit mode
+  useEffect(() => {
+    if (initialEditing) {
+      setEditing(true)
+      onEditingStart?.()
+    }
+  }, [initialEditing]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Defensive: ensure models is always an array
   const safeEntry = { ...entry, models: entry.models ?? [] }
