@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "대시보드",
+    "descriptionFallback": "프로젝트 개요",
+    "loading": "대시보드 로딩 중..."
+  },
+  "tokenUsage": {
+    "title": "TOKEN 사용량"
+  },
+  "chart": {
+    "noData": "Token 데이터가 없습니다",
+    "tooltipIn": "입력: {{tokens}}",
+    "tooltipOut": "출력: {{tokens}}",
+    "legendInput": "입력",
+    "legendOutput": "출력"
+  },
+  "tabs": {
+    "trend": "트렌드",
+    "byAgent": "Agent 별",
+    "byModel": "모델 별",
+    "byProject": "프로젝트 별"
+  },
+  "table": {
+    "colName": "이름",
+    "colTotal": "합계",
+    "colInput": "입력",
+    "colOutput": "출력",
+    "colCalls": "호출",
+    "colRatio": "비율",
+    "titleByAgent": "TOKEN (AGENT 별)",
+    "titleByModel": "TOKEN (모델 별)",
+    "titleByProject": "TOKEN (프로젝트 별)"
+  },
+  "timeRange": {
+    "today": "오늘",
+    "sevenDays": "7일",
+    "thirtyDays": "30일",
+    "allTime": "전체"
+  },
+  "summary": {
+    "totalTokens": "총 Token",
+    "inputTokens": "입력 Token",
+    "outputTokens": "출력 Token",
+    "apiCalls": "API 호출"
+  },
+  "overview": {
+    "agents": "AGENT",
+    "recentChats": "최근 채팅",
+    "viewAll": "전체 보기 \u2192",
+    "noAgents": "Agent 없음",
+    "noRecentChats": "최근 채팅 없음",
+    "chatStats": "{{count}}개 메시지 \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "활동",
+    "tabActive": "실행 중 ({{count}})",
+    "tabScheduled": "예약됨 ({{count}})",
+    "tabRecent": "최근",
+    "badgeChat": "채팅",
+    "badgeCron": "예약",
+    "noActiveRuns": "실행 중인 작업 없음",
+    "noScheduledRuns": "예약된 작업 없음",
+    "noRecentActivity": "최근 활동 없음",
+    "openLink": "열기 \u2192",
+    "tokenCount": "{{tokens}} Token"
+  },
+  "global": {
+    "title": "전체 대시보드",
+    "subtitle": "프로젝트 통합 개요",
+    "topProjects": "상위 프로젝트",
+    "noProjectData": "프로젝트 데이터 없음",
+    "projectStats": "{{tokens}} Token \u00B7 {{calls}}회 호출"
+  }
+}

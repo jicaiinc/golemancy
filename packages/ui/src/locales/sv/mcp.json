@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP Servers",
+    "serverCount_one": "{{count}} server",
+    "serverCount_other": "{{count}} servrar",
+    "newServerBtn": "+ Ny server"
+  },
+  "tabs": {
+    "installed": "Installerade",
+    "marketplace": "Marknadsplats"
+  },
+  "warning": {
+    "restrictedBadge": "BEGRÄNSAD",
+    "restrictedMsg": "Begränsat läge: stdio MCP-servrar är inaktiverade och laddas inte",
+    "riskBadge": "VARNING",
+    "riskMsg": "Tredjeparts MCP-servrar kan komma åt eller ändra filer på din dator.",
+    "applyToMcpHint": "Aktivera \"Tillämpa på MCP\" i Inställningar > Behörigheter för att sandboxa MCP-servrar.",
+    "sandboxUnavailable": "Sandbox-runtime är inte tillgängligt på denna plattform."
+  },
+  "import": {
+    "invalidFormat": "Ogiltigt format: förväntade { mcpServers: { ... } }",
+    "noServers": "Inga servrar hittades i konfigurationsfilen",
+    "importedCount_one": "Importerade {{count}} MCP-server",
+    "importedCount_other": "Importerade {{count}} MCP-servrar",
+    "parseError": "Kunde inte tolka konfigurationsfilen"
+  },
+  "server": {
+    "testing": "Testar...",
+    "testOk_one": "OK ({{count}} verktyg)",
+    "testOk_other": "OK ({{count}} verktyg)",
+    "connectionFailed": "Anslutning misslyckades",
+    "testFailed": "Testet misslyckades",
+    "blockedRestricted": "Blockerad av begränsat läge — stdio-servrar laddas inte vid körning",
+    "usedByAgents_one": "Används av {{count}} agent",
+    "usedByAgents_other": "Används av {{count}} agenter",
+    "deleteErrorInUse_one": "MCP-servern \"{{name}}\" används av {{count}} agent. Ta bort referenser först.",
+    "deleteErrorInUse_other": "MCP-servern \"{{name}}\" används av {{count}} agenter. Ta bort referenser först.",
+    "deleteError": "Kunde inte radera MCP-server",
+    "testBtn": "Testa"
+  },
+  "empty": {
+    "title": "Inga MCP-servrar konfigurerade",
+    "addFirstBtn": "Lägg till din första server"
+  },
+  "loading": "Laddar MCP-servrar...",
+  "comingSoon": "Kommer snart",
+  "form": {
+    "newTitle": "Ny MCP-server",
+    "editTitle": "Redigera MCP-server",
+    "nameLabel": "NAMN",
+    "descriptionLabel": "BESKRIVNING",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "KOMMANDO",
+    "argsLabel": "ARGUMENT (mellanrumsseparerade)",
+    "envLabel": "MILJÖVARIABLER (NYCKEL=VÄRDE per rad)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "RUBRIKER (Nyckel: Värde per rad)"
+  }
+}

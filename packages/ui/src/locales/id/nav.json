@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Dasbor",
+    "chats": "Chat",
+    "automations": "Automasi",
+    "agents": "Agent",
+    "skills": "Skill",
+    "mcpServers": "MCP Server",
+    "tasks": "Tugas Percakapan",
+    "artifacts": "Artefak",
+    "settings": "Pengaturan",
+    "knowledgeBase": "Basis Pengetahuan"
+  },
+  "sidebar": {
+    "navigation": "NAVIGASI",
+    "config": "KONFIGURASI",
+    "collapse": "<< Ciutkan"
+  },
+  "global": {
+    "allProjects": "Semua Proyek",
+    "dashboard": "Dasbor",
+    "settings": "Pengaturan"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Restricted",
+      "sandbox": "Sandbox",
+      "unrestricted": "Unrestricted"
+    },
+    "degraded": "(terdegradasi → {{mode}})",
+    "tasks": "Tugas {{completed}}/{{total}}",
+    "conversationTasks": "TUGAS PERCAKAPAN",
+    "contextUsage": "Konteks: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Konteks: -- / {{max}}",
+    "contextWindow": "JENDELA KONTEKS",
+    "usage": "Penggunaan",
+    "compacting": "Memadatkan",
+    "compactingAuto": "Memadatkan (otomatis)",
+    "compactNow": "Padatkan Sekarang",
+    "byAgent": "PER AGENT",
+    "byModel": "PER MODEL",
+    "tokensInOut": "{{input}} masuk / {{output}} keluar",
+    "tokens": "Token: {{input}} masuk / {{output}} keluar",
+    "tokensEmpty": "Token: --"
+  }
+}

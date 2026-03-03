@@ -211,7 +211,7 @@ describe('FileAgentStorage', () => {
 
       const agent = await storage.getById(projId, id as AgentId)
       expect(agent).not.toBeNull()
-      expect(agent!.builtinTools).toEqual({ bash: true })
+      expect(agent!.builtinTools).toEqual({ bash: true, knowledge_base: true })
     })
 
     it('preserves existing mcpServers and builtinTools', async () => {
@@ -250,7 +250,7 @@ describe('FileAgentStorage', () => {
       const agent = agents.find(a => a.id === id)
       expect(agent).toBeDefined()
       expect(agent!.mcpServers).toEqual([])
-      expect(agent!.builtinTools).toEqual({ bash: true })
+      expect(agent!.builtinTools).toEqual({ bash: true, knowledge_base: true })
     })
   })
 })

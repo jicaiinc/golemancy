@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "儀表板",
+    "chats": "對話",
+    "automations": "自動化",
+    "agents": "Agent",
+    "skills": "技能",
+    "mcpServers": "MCP 伺服器",
+    "tasks": "對話任務",
+    "artifacts": "檔案",
+    "settings": "設定",
+    "knowledgeBase": "知識庫"
+  },
+  "sidebar": {
+    "navigation": "導覽",
+    "config": "設定",
+    "collapse": "<< 收合"
+  },
+  "global": {
+    "allProjects": "所有專案",
+    "dashboard": "儀表板",
+    "settings": "設定"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "受限",
+      "sandbox": "沙盒",
+      "unrestricted": "無限制"
+    },
+    "degraded": "(降級 → {{mode}})",
+    "tasks": "任務 {{completed}}/{{total}}",
+    "conversationTasks": "對話任務",
+    "contextUsage": "上下文：{{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "上下文：-- / {{max}}",
+    "contextWindow": "上下文視窗",
+    "usage": "用量",
+    "compacting": "壓縮中",
+    "compactingAuto": "自動壓縮中",
+    "compactNow": "立即壓縮",
+    "byAgent": "依 AGENT",
+    "byModel": "依模型",
+    "tokensInOut": "{{input}} 輸入 / {{output}} 輸出",
+    "tokens": "Token：{{input}} 輸入 / {{output}} 輸出",
+    "tokensEmpty": "Token：--"
+  }
+}

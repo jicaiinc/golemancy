@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP Server",
+    "serverCount_one": "{{count}} server",
+    "serverCount_other": "{{count}} server",
+    "newServerBtn": "+ Server Baru"
+  },
+  "tabs": {
+    "installed": "Terpasang",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "RESTRICTED",
+    "restrictedMsg": "Mode restricted: MCP server stdio dinonaktifkan dan tidak akan dimuat",
+    "riskBadge": "PERINGATAN",
+    "riskMsg": "MCP server pihak ketiga dapat mengakses atau mengubah file di komputer Anda.",
+    "applyToMcpHint": "Aktifkan \"Apply to MCP\" di Pengaturan > Permissions untuk sandbox MCP server.",
+    "sandboxUnavailable": "Sandbox runtime tidak tersedia di platform ini."
+  },
+  "import": {
+    "invalidFormat": "Format tidak valid: diharapkan { mcpServers: { ... } }",
+    "noServers": "Tidak ada server ditemukan di file konfigurasi",
+    "importedCount_one": "{{count}} MCP server diimpor",
+    "importedCount_other": "{{count}} MCP server diimpor",
+    "parseError": "Gagal mengurai file konfigurasi"
+  },
+  "server": {
+    "testing": "Menguji...",
+    "testOk_one": "OK ({{count}} tool)",
+    "testOk_other": "OK ({{count}} tool)",
+    "connectionFailed": "Koneksi gagal",
+    "testFailed": "Tes gagal",
+    "blockedRestricted": "Diblokir oleh mode restricted — server stdio tidak dimuat saat runtime",
+    "usedByAgents_one": "Digunakan oleh {{count}} agent",
+    "usedByAgents_other": "Digunakan oleh {{count}} agent",
+    "deleteErrorInUse_one": "MCP server \"{{name}}\" digunakan oleh {{count}} agent. Hapus referensi terlebih dahulu.",
+    "deleteErrorInUse_other": "MCP server \"{{name}}\" digunakan oleh {{count}} agent. Hapus referensi terlebih dahulu.",
+    "deleteError": "Gagal menghapus MCP server",
+    "testBtn": "Uji"
+  },
+  "empty": {
+    "title": "Belum ada MCP server yang dikonfigurasi",
+    "addFirstBtn": "Tambahkan Server Pertama Anda"
+  },
+  "loading": "Memuat MCP server...",
+  "comingSoon": "Segera Hadir",
+  "form": {
+    "newTitle": "MCP Server Baru",
+    "editTitle": "Edit MCP Server",
+    "nameLabel": "NAMA",
+    "descriptionLabel": "DESKRIPSI",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "PERINTAH",
+    "argsLabel": "ARGS (dipisahkan spasi)",
+    "envLabel": "ENV (KEY=VALUE per baris)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Key: Value per baris)"
+  }
+}

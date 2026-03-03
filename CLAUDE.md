@@ -16,6 +16,7 @@ Golemancy — AI Agent orchestration platform. Electron desktop app with pixel a
 | X (Twitter) | @golemancyai |
 | Support Email | hi@golemancy.ai |
 | Copyright | Jicai, Inc. |
+| Website Repo | `/Users/cai/developer/github/golemancyweb` (Next.js 官网，可参考其 GitHub API 集成、平台检测、下载逻辑等) |
 
 ## Commands
 
@@ -54,6 +55,9 @@ pnpm test:build
 # Package for distribution
 pnpm pack    # build + electron-builder --dir (local test)
 pnpm dist    # build + electron-builder (distributable)
+
+# Test auto-update UI (set a version lower than latest GitHub release)
+GOLEMANCY_DEV_UPDATE_CHECK=1 pnpm dev
 ```
 
 ## Monorepo Structure
@@ -69,6 +73,23 @@ packages/tools/    @golemancy/tools    — Browser automation tool (Playwright-b
 Strict one-way dependency: `desktop → ui → shared ← server ← tools`
 
 Turborepo orchestrates tasks. pnpm v10 workspaces.
+
+## Guidelines Directory (`__guidelines`)
+
+持久化的核心规范与准则文档。存放经过验证的、可跨会话复用的标准与参考依据。
+
+**目录规则：**
+- 每个主题必须放在独立子文件夹中（禁止根目录直接放 `.md` 文件），文件夹名格式：`{topic}-{YYYYMMDD}`（日期为创建/最后更新日期）
+- **只读**：未经用户明确允许，不得新增、修改或删除 `__guidelines/` 下的任何内容。更新前必须征得用户确认
+- 只收录真正可复用的规范性文档，不放一次性分析、快照数据或会话临时产物
+
+**当前内容：**
+```
+__guidelines/
+  i18n-20260302/           # i18n 翻译基准 + 开发规范
+    i18n-translation-brief.md
+    i18n-guidelines.md
+```
 
 ## Architecture
 
@@ -180,14 +201,24 @@ These are deliberate decisions — do NOT use the alternatives:
 
 Tailwind CSS v4 with CSS-first config in `packages/ui/src/styles/global.css`:
 - Design tokens defined in `@theme {}` block (colors, fonts, shadows)
-- Pixel font: Press Start 2P. Body font: JetBrains Mono
+- Three font roles: `--font-arcade` (logo only, Press Start 2P), `--font-pixel` (titles/badges, Press Start 2P + Fusion Pixel CJK with `size-adjust: 150%`), `--font-mono` (body/code, JetBrains Mono + Noto Sans Mono CJK)
+- CJK font strategy: `:lang()` overrides select per-language variant (SC/TC/JP/KR); `unicode-range` fallback families ("Pixel CJK", "Mono CJK") catch CJK chars in non-CJK language modes
+- Font design doc: `_design/font-system.md`
 - No border-radius anywhere (pixel art style)
 - Shadow system: `shadow-pixel-raised`, `shadow-pixel-sunken`, `shadow-pixel-drop`
 - PostCSS config lives in `apps/desktop/postcss.config.js`
 
 ## Internationalization (i18n)
 
-`react-i18next` + `i18next`，17 个 namespace，764 keys，支持 en/zh。翻译文件：`packages/ui/src/locales/{lang}/{namespace}.json`。详细 key 清单见 `_design/i18n-key-summary.md`。
+`react-i18next` + `i18next`，17 个 namespace，22 种语言。翻译文件：`packages/ui/src/locales/{lang}/{namespace}.json`。详细 key 清单见 `_design/i18n-key-summary.md`。
+
+**英文 (`en`) 是唯一标杆**。新功能只需实现英文翻译，其他语言后续补齐即可。
+
+**校验**：`pnpm check:i18n`（可指定语言如 `pnpm check:i18n ja de`）。检查缺失 key、多余 key、`{{placeholder}}` 一致性。缺失/占位符错误 → exit 1；仅多余 key → warning。
+
+**i18n 规范文档**（处理任何 i18n 相关工作时必须先阅读并遵循）：
+- 翻译基准：`__guidelines/i18n-20260302/i18n-translation-brief.md` — 术语表、翻译原则、namespace 上下文、质量检查清单
+- 开发规范：`__guidelines/i18n-20260302/i18n-guidelines.md` — 边界准则、`t()` 用法、key 命名、错误处理模式
 
 **i18n Notes:**
 - `server/agent/` 下所有文本（tool descriptions, system prompts, tool results, 权限拦截错误）是给 AI 读的，永远不做 i18n

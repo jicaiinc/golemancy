@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "セットアップ",
+    "skipSetup": "スキップ"
+  },
+  "steps": {
+    "welcome": "ようこそ",
+    "provider": "プロバイダー",
+    "speech": "音声",
+    "project": "プロジェクト",
+    "complete": "完了"
+  },
+  "error": {
+    "somethingWentWrong": "エラーが発生しました。もう一度お試しください。",
+    "failedToSkip": "セットアップのスキップに失敗しました。もう一度お試しください。",
+    "connectionTestFailed": "接続テスト失敗",
+    "testFailed": "テスト失敗",
+    "unknownError": "不明なエラー"
+  },
+  "button": {
+    "createProject": "プロジェクトを作成",
+    "getStarted": "始める",
+    "continue": "続ける",
+    "startChatting": "チャットを開始",
+    "goToDashboard": "ダッシュボードへ",
+    "change": "変更",
+    "testConnection": "接続テスト",
+    "testing": "テスト中...",
+    "reTest": "再テスト",
+    "test": "テスト",
+    "hide": "非表示",
+    "show": "表示"
+  },
+  "welcome": {
+    "tagline": "ようこそ",
+    "heading": "AI Golem を操ろう",
+    "description": "デスクトップから自律型 AI Agent をオーケストレーション。"
+  },
+  "provider": {
+    "heading": "AI プロバイダーに接続",
+    "description": "プロバイダーを選択し、API キーを入力して始めましょう。",
+    "customLabel": "カスタム",
+    "customSubtitle": "任意のエンドポイント",
+    "customCardTitle": "カスタムプロバイダー",
+    "labelApiKey": "API キー",
+    "labelBaseUrl": "ベース URL",
+    "labelName": "名前",
+    "labelSdkType": "SDK タイプ",
+    "statusConnected": "接続済み",
+    "statusFailed": "失敗",
+    "statusConnecting": "接続中...",
+    "none": "なし",
+    "defaultModel": {
+      "title": "デフォルトモデル",
+      "descriptionPreset": "新しい Agent のデフォルトモデルを選択してください。",
+      "descriptionCustom": "デフォルトで使用するモデル名を入力してください。",
+      "labelModelName": "モデル名"
+    }
+  },
+  "speech": {
+    "heading": "音声テキスト変換",
+    "description": "音声入力を有効にして、より速くやり取りできます。スキップして後から設定することもできます。",
+    "labelApiKey": "OPENAI API キー",
+    "labelModel": "モデル",
+    "labelLanguage": "言語",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "失敗"
+  },
+  "project": {
+    "heading": "最初のプロジェクトを作成",
+    "description": "プロジェクトで Agent、会話、ワークフローを整理します。",
+    "labelName": "プロジェクト名",
+    "placeholderName": "マイプロジェクト",
+    "labelDescription": "説明",
+    "placeholderDescription": "このプロジェクトは何をしますか？",
+    "labelIcon": "アイコン",
+    "fromTemplate": "テンプレートから作成",
+    "comingSoon": "近日公開"
+  },
+  "complete": {
+    "heading": "準備完了！",
+    "description": "設定の概要です。",
+    "labelProvider": "プロバイダー",
+    "labelDefaultModel": "デフォルトモデル",
+    "labelSpeechToText": "音声テキスト変換",
+    "labelProject": "プロジェクト",
+    "sttEnabled": "有効",
+    "sttSkipped": "スキップ済み",
+    "links": {
+      "settings": "設定",
+      "website": "ウェブサイト"
+    }
+  }
+}

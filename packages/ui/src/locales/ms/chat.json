@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Sembunyikan sejarah chat",
+    "showHistory": "Paparkan sejarah chat",
+    "new": "+ Baharu",
+    "clickToRename": "Klik untuk menamakan semula"
+  },
+  "sidebar": {
+    "newChat": "+ Chat Baharu",
+    "noConversations": "Tiada perbualan"
+  },
+  "window": {
+    "startConversation": "Mulakan perbualan...",
+    "compacting": "Memadatkan",
+    "thinking": "Berfikir",
+    "imageMsgTitle": "Mesej gambar"
+  },
+  "empty": {
+    "readyToChat": "Sedia untuk bersembang",
+    "description": "Mulakan perbualan baharu atau pilih dari bar sisi.",
+    "startChatting": "Mula Bersembang",
+    "noMainAgent": "Tiada Main Agent",
+    "configureText": "Konfigurasikan Main Agent dalam <a>Tetapan Projek</a> untuk mula bersembang."
+  },
+  "input": {
+    "placeholder": "Taip mesej...",
+    "dropPlaceholder": "Lepaskan gambar di sini...",
+    "attachImage": "Lampirkan gambar",
+    "recordAudio": "Rakam audio",
+    "transcribing": "Mentranskripsi...",
+    "transcriptionFailed": "Transkripsi gagal",
+    "startRecordingFailed": "Gagal memulakan rakaman",
+    "retryFailed": "Percubaan semula gagal"
+  },
+  "message": {
+    "reasoning": "Penaakulan",
+    "untitledFile": "Fail tanpa tajuk",
+    "copy": "Salin"
+  },
+  "compact": {
+    "title": "PERBUALAN DIMADATKAN",
+    "summary": "RINGKASAN",
+    "tokensSummary": "{{input}} masuk / {{output}} keluar"
+  },
+  "tool": {
+    "running": "Berjalan...",
+    "awaitingApproval": "Menunggu kelulusan",
+    "approved": "Diluluskan",
+    "done": "Selesai",
+    "denied": "Ditolak",
+    "input": "INPUT",
+    "output": "OUTPUT",
+    "error": "RALAT",
+    "task": "TUGAS",
+    "tools": "ALATAN",
+    "toolCountRunning": "[{{running}}/{{total}} tools]",
+    "toolCountDone": "[{{total}} tools]",
+    "taskCreate": "Cipta Tugas",
+    "taskGet": "Dapatkan Tugas",
+    "taskList": "Senarai Tugas",
+    "taskUpdate": "Kemas Kini Tugas"
+  }
+}

@@ -5,10 +5,30 @@
   "tabs": {
     "general": "General",
     "providers": "Providers",
-    "speech": "Speech"
+    "embedding": "Embedding",
+    "speech": "Speech",
+    "about": "About"
   },
   "about": {
-    "version": "Golemancy v{{version}} — Command Your AI Golems"
+    "slogan": "Command Your AI Golems",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "UPDATES",
+    "checkForUpdates": "Update notifications",
+    "upToDate": "You're up to date — v{{version}}",
+    "available": "UPDATE AVAILABLE",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Download for {{platform}}",
+    "downloadGeneric": "Download",
+    "skip": "Skip this version",
+    "skipped": "v{{version}} available (skipped)"
   },
   "general": {
     "appearance": "APPEARANCE",
@@ -61,6 +81,20 @@
     "baseUrlOptional": "BASE URL (optional)",
     "hideKey": "Hide Key",
     "showKey": "Show Key"
+  },
+  "embedding": {
+    "sectionTitle": "EMBEDDING",
+    "description": "Configure the embedding model used for Knowledge Base vector search (Warm/Cold tiers).",
+    "enableLabel": "Enable Embedding",
+    "modelLabel": "MODEL",
+    "apiKeyLabel": "OPENAI API KEY",
+    "prefillHint": "Pre-filled from OpenAI provider. You can override it.",
+    "saved": "Saved!",
+    "testRequired": "API key has not been tested. Click \"Test\" to verify your key.",
+    "testBtn": "Test",
+    "testOk": "OK ({{latency}}ms)",
+    "testFailed": "Failed",
+    "testTesting": "Testing..."
   },
   "threshold": {
     "tokens": "tokens"

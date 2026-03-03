@@ -90,7 +90,7 @@ export function TaskListPage() {
         <motion.div {...staggerItem}>
           <PixelCard variant="outlined">
             <div className="text-center py-8" data-testid="task-empty-state">
-              <div className="font-pixel text-[20px] text-text-dim mb-4">#</div>
+              <div className="font-arcade text-[20px] text-text-dim mb-4">#</div>
               <p className="font-pixel text-[10px] text-text-secondary">{t('empty.noTasks')}</p>
             </div>
           </PixelCard>

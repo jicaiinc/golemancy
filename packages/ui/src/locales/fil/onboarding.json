@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Setup",
+    "skipSetup": "Laktawan ang Setup"
+  },
+  "steps": {
+    "welcome": "Maligayang Pagdating",
+    "provider": "Provider",
+    "speech": "Pagsasalita",
+    "project": "Project",
+    "complete": "Kumpleto"
+  },
+  "error": {
+    "somethingWentWrong": "May nangyaring mali. Pakisubukan muli.",
+    "failedToSkip": "Nabigo ang pag-skip ng setup. Pakisubukan muli.",
+    "connectionTestFailed": "Nabigo ang connection test",
+    "testFailed": "Nabigo ang test",
+    "unknownError": "Hindi kilalang error"
+  },
+  "button": {
+    "createProject": "Gumawa ng Project",
+    "getStarted": "Magsimula",
+    "continue": "Magpatuloy",
+    "startChatting": "Magsimulang Mag-chat",
+    "goToDashboard": "Pumunta sa Dashboard",
+    "change": "Palitan",
+    "testConnection": "I-test ang Connection",
+    "testing": "Tine-test...",
+    "reTest": "I-test Muli",
+    "test": "I-test",
+    "hide": "Itago",
+    "show": "Ipakita"
+  },
+  "welcome": {
+    "tagline": "Maligayang Pagdating",
+    "heading": "Kontrolin ang Iyong mga AI Golem",
+    "description": "Pamahalaan ang mga autonomous na AI agent mula sa iyong desktop."
+  },
+  "provider": {
+    "heading": "Ikonekta ang isang AI Provider",
+    "description": "Pumili ng provider at ilagay ang iyong API key para magsimula.",
+    "customLabel": "Custom",
+    "customSubtitle": "anumang endpoint",
+    "customCardTitle": "CUSTOM PROVIDER",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "PANGALAN",
+    "labelSdkType": "URI NG SDK",
+    "statusConnected": "Nakakonekta",
+    "statusFailed": "Nabigo",
+    "statusConnecting": "Kumokonekta...",
+    "none": "Wala",
+    "defaultModel": {
+      "title": "DEFAULT MODEL",
+      "descriptionPreset": "Pumili ng model na gagamitin bilang default para sa bagong mga agent.",
+      "descriptionCustom": "Ilagay ang pangalan ng model na gagamitin bilang default.",
+      "labelModelName": "PANGALAN NG MODEL"
+    }
+  },
+  "speech": {
+    "heading": "Speech-to-Text",
+    "description": "I-enable ang voice input para sa mas mabilis na interaksyon. Maaari mong laktawan ito at i-configure mamaya.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODEL",
+    "labelLanguage": "WIKA",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Nabigo"
+  },
+  "project": {
+    "heading": "Gumawa ng Unang Project",
+    "description": "Inoorganisa ng mga project ang iyong mga agent, pag-uusap, at mga workflow.",
+    "labelName": "PANGALAN NG PROJECT",
+    "placeholderName": "Magandang Project Ko",
+    "labelDescription": "PAGLALARAWAN",
+    "placeholderDescription": "Ano ang gagawin ng project na ito?",
+    "labelIcon": "ICON",
+    "fromTemplate": "MULA SA TEMPLATE",
+    "comingSoon": "Paparating Na"
+  },
+  "complete": {
+    "heading": "Handa Ka Na!",
+    "description": "Narito ang buod ng iyong configuration.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "DEFAULT MODEL",
+    "labelSpeechToText": "SPEECH-TO-TEXT",
+    "labelProject": "PROJECT",
+    "sttEnabled": "Naka-enable",
+    "sttSkipped": "Na-skip",
+    "links": {
+      "settings": "Settings",
+      "website": "Website"
+    }
+  }
+}

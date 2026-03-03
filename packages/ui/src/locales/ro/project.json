@@ -1,0 +1,52 @@
+{
+  "label": {
+    "projectName": "NUME PROIECT",
+    "description": "DESCRIERE",
+    "icon": "PICTOGRAMĂ",
+    "projectId": "ID PROIECT"
+  },
+  "list": {
+    "title": "Toate proiectele",
+    "subtitle_one": "{{count}} proiect în spațiul de lucru",
+    "subtitle_few": "{{count}} proiecte în spațiul de lucru",
+    "subtitle_other": "{{count}} de proiecte în spațiul de lucru",
+    "newBtn": "+ Proiect nou",
+    "empty": "Niciun proiect încă",
+    "createFirst": "Creați primul proiect",
+    "openInWindow": "Deschidere în fereastră nouă",
+    "agents_one": "{{count}} agent",
+    "agents_few": "{{count}} agenți",
+    "agents_other": "{{count}} de agenți",
+    "running_one": "{{count}} rulează",
+    "running_few": "{{count}} rulează",
+    "running_other": "{{count}} rulează"
+  },
+  "create": {
+    "modalTitle": "Creare proiect nou",
+    "createBtn": "Creare proiect",
+    "namePlaceholder": "Proiectul meu extraordinar",
+    "descPlaceholder": "Despre ce este acest proiect?"
+  },
+  "settings": {
+    "title": "Setări proiect",
+    "savedMsg": "Salvat!",
+    "clickToCopy": "Faceți clic pentru a copia",
+    "tabs": {
+      "general": "General",
+      "agent": "Agent",
+      "permissions": "Permisiuni"
+    },
+    "agent": {
+      "mainLabel": "AGENT PRINCIPAL",
+      "mainDesc": "Agentul implicit pentru conversații noi în acest proiect.",
+      "noAgents": "Niciun agent în acest proiect. Creați mai întâi un agent.",
+      "goToAgents": "Mergeți la agenți",
+      "none": "Niciunul",
+      "configure": "Configurare agent \u2192"
+    },
+    "general": {
+      "sectionTitle": "INFORMAȚII DE BAZĂ",
+      "saveBtn": "Salvare modificări"
+    }
+  }
+}

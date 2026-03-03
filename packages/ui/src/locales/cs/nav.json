@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Panel",
+    "chats": "Chaty",
+    "automations": "Automatizace",
+    "agents": "Agenti",
+    "skills": "Dovednosti",
+    "mcpServers": "MCP servery",
+    "tasks": "Úkoly konverzace",
+    "artifacts": "Artefakty",
+    "settings": "Nastavení",
+    "knowledgeBase": "Znalostní báze"
+  },
+  "sidebar": {
+    "navigation": "NAVIGACE",
+    "config": "KONFIGURACE",
+    "collapse": "<< Sbalit"
+  },
+  "global": {
+    "allProjects": "Všechny projekty",
+    "dashboard": "Panel",
+    "settings": "Nastavení"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Omezený",
+      "sandbox": "Sandbox",
+      "unrestricted": "Bez omezení"
+    },
+    "degraded": "(degradace → {{mode}})",
+    "tasks": "Úkoly {{completed}}/{{total}}",
+    "conversationTasks": "ÚKOLY KONVERZACE",
+    "contextUsage": "Kontext: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Kontext: -- / {{max}}",
+    "contextWindow": "OKNO KONTEXTU",
+    "usage": "Využití",
+    "compacting": "Komprimace",
+    "compactingAuto": "Komprimace (auto)",
+    "compactNow": "Komprimovat nyní",
+    "byAgent": "PODLE AGENTŮ",
+    "byModel": "PODLE MODELŮ",
+    "tokensInOut": "{{input}} vst / {{output}} výst",
+    "tokens": "Tokeny: {{input}} vst / {{output}} výst",
+    "tokensEmpty": "Tokeny: --"
+  }
+}

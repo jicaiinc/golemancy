@@ -11,7 +11,6 @@ const log = logger.child({ component: 'storage:skills' })
 
 interface SkillMetadata {
   id: SkillId
-  projectId: ProjectId
   createdAt: string
   updatedAt: string
 }
@@ -59,7 +58,7 @@ export class FileSkillStorage implements ISkillService {
       const meta: SkillMetadata = JSON.parse(metaRaw)
       return {
         id: meta.id,
-        projectId: meta.projectId,
+        projectId,
         name,
         description,
         instructions,
@@ -103,7 +102,7 @@ export class FileSkillStorage implements ISkillService {
     const dir = this.skillDir(projectId, id)
     await fs.mkdir(dir, { recursive: true })
 
-    const meta: SkillMetadata = { id, projectId, createdAt: now, updatedAt: now }
+    const meta: SkillMetadata = { id, createdAt: now, updatedAt: now }
     const md = buildSkillMd(data.name, data.description, data.instructions)
 
     await Promise.all([
@@ -122,7 +121,7 @@ export class FileSkillStorage implements ISkillService {
     const now = new Date().toISOString()
     const updated: Skill = { ...existing, ...data, updatedAt: now }
 
-    const meta: SkillMetadata = { id, projectId, createdAt: existing.createdAt, updatedAt: now }
+    const meta: SkillMetadata = { id, createdAt: existing.createdAt, updatedAt: now }
     const md = buildSkillMd(updated.name, updated.description, updated.instructions)
 
     await Promise.all([

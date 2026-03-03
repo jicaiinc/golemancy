@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "自動化",
+    "newBtn": "+ 新規"
+  },
+  "empty": {
+    "noJobs": "自動化がありません",
+    "createFirstBtn": "最初の自動化を作成"
+  },
+  "job": {
+    "runBtn": "実行",
+    "historyBtn": "履歴",
+    "runningStatus": "実行中...",
+    "viewChat": "チャットを表示 →",
+    "next": "次回：{{time}}",
+    "at": "実行時刻：{{time}}",
+    "agentNotFound": "Agent が見つかりません",
+    "overdue": "期限超過",
+    "once": "1 回のみ"
+  },
+  "delete": {
+    "title": "自動化を削除",
+    "confirm": "「{{name}}」を削除しますか？この操作は取り消せません。"
+  },
+  "runsModal": {
+    "titleWithName": "実行履歴 — {{name}}",
+    "title": "実行履歴",
+    "noRuns": "実行履歴がありません",
+    "openChat": "チャットを開く →"
+  },
+  "status": {
+    "success": "成功",
+    "error": "エラー",
+    "running": "実行中"
+  },
+  "form": {
+    "newTitle": "新規自動化",
+    "editTitle": "自動化を編集",
+    "nameLabel": "名前",
+    "namePlaceholder": "毎日のコードレビュー",
+    "typeLabel": "タイプ",
+    "recurring": "繰り返し",
+    "oneTime": "1 回のみ",
+    "cronLabel": "CRON 式",
+    "scheduledAtLabel": "実行時刻（ローカル時間）",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Agent を選択",
+    "instructionLabel": "指示（任意）",
+    "instructionPlaceholder": "トリガー時に Agent に送信する指示",
+    "enabledLabel": "有効",
+    "presets": {
+      "every5min": "5 分ごと",
+      "everyHour": "1 時間ごと",
+      "every12h": "12 時間ごと",
+      "daily9am": "毎日 9 時",
+      "weeklyMon": "毎週月曜"
+    },
+    "invalidExpression": "無効な式"
+  }
+}

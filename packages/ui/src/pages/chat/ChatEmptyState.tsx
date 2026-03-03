@@ -39,7 +39,7 @@ export function ChatEmptyState({ mainAgentId, onNewChat, canNewChat, chatHistory
       <div className="flex-1 flex items-center justify-center">
         {mainAgentId ? (
           <div className="text-center max-w-[400px]">
-            <div className="font-pixel text-[32px] text-text-dim mb-4 select-none">
+            <div className="font-arcade text-[32px] text-text-dim mb-4 select-none">
               {'> _ <'}
             </div>
             <div className="relative inline-block mb-6">
@@ -61,7 +61,7 @@ export function ChatEmptyState({ mainAgentId, onNewChat, canNewChat, chatHistory
           </div>
         ) : (
           <div className="text-center max-w-[400px]">
-            <div className="font-pixel text-[32px] text-text-dim mb-4 select-none">
+            <div className="font-arcade text-[32px] text-text-dim mb-4 select-none">
               {'> _ <'}
             </div>
             <div className="relative inline-block mb-6">

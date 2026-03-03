@@ -92,7 +92,7 @@ export function PixelDropZone({ accept, onDrop, children, className = '', disabl
       />
       {children ?? (
         <div className="flex flex-col items-center justify-center py-6 px-4">
-          <span className="font-pixel text-[16px] text-text-dim mb-2">{isDragOver ? '[+]' : '[~]'}</span>
+          <span className="font-arcade text-[16px] text-text-dim mb-2">{isDragOver ? '[+]' : '[~]'}</span>
           <p className="font-mono text-[11px] text-text-secondary text-center">
             {isDragOver ? t('dropZone.releaseToDrop') : t('dropZone.dragAndDrop')}
           </p>

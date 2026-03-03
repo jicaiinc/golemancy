@@ -1,0 +1,104 @@
+{
+  "loading": "Ładowanie uprawnień...",
+  "section": {
+    "permissionMode": "TRYB UPRAWNIEŃ",
+    "configuration": "KONFIGURACJA"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Ograniczony",
+      "subtitle": "Tylko Bash, bez Sandbox",
+      "description": "Minimalne środowisko wykonawcze. Bez Sandbox, bez obsługi MCP.",
+      "badge": "Ograniczony"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Konfigurowalna izolacja",
+      "description": "Środowisko Sandbox z konfigurowalnymi ograniczeniami systemu plików, sieci i poleceń.",
+      "badge": "Zalecany"
+    },
+    "unrestricted": {
+      "name": "Bez ograniczeń",
+      "subtitle": "Pełny dostęp do systemu",
+      "description": "Bez ograniczeń Sandbox. Wszystkie polecenia wykonywane są z pełnymi uprawnieniami systemowymi.",
+      "badge": "Ryzykowny"
+    }
+  },
+  "config": {
+    "default": "Domyślna",
+    "selectConfig": "Wybierz konfigurację...",
+    "saveAs": "Zapisz jako...",
+    "rename": "Zmień nazwę",
+    "resetToDefault": "Przywróć domyślne",
+    "saved": "Zapisano!",
+    "editingDefault": "Edycja wartości domyślnych. Kliknij «Zapisz», aby utworzyć nazwaną konfigurację."
+  },
+  "modal": {
+    "unrestrictedTitle": "Włączyć tryb bez ograniczeń?",
+    "unrestrictedBody": "Spowoduje to wyłączenie wszelkiej ochrony Sandbox. Agenci AI uzyskają pełny dostęp do systemu, w tym:",
+    "unrestrictedReadWrite": "Odczyt/zapis dowolnych plików na komputerze",
+    "unrestrictedExecute": "Wykonywanie dowolnych poleceń systemowych",
+    "unrestrictedNetwork": "Nieograniczony dostęp do sieci",
+    "unrestrictedSysconfig": "Modyfikacja konfiguracji systemu",
+    "unrestrictedFooter": "Używaj tylko do lokalnego rozwoju w zaufanych środowiskach.",
+    "enableUnrestricted": "Rozumiem, włącz",
+    "sandboxUnavailableTitle": "Tryb Sandbox niedostępny",
+    "sandboxUnavailableBody": "Wymagania wstępne dla Sandbox nie są spełnione. Wykryto następujące problemy:",
+    "sandboxUnavailableFooter": "Włączenie Sandbox mimo to spowoduje degradację do trybu ograniczonego.",
+    "enableAnyway": "Włącz mimo to",
+    "saveAsTitle": "Zapisz jako nową konfigurację",
+    "configNameLabel": "NAZWA KONFIGURACJI",
+    "configNamePlaceholder": "np. Ścisły dev, Python wyłączony",
+    "renameTitle": "Zmień nazwę konfiguracji",
+    "newNameLabel": "NOWA NAZWA",
+    "newNamePlaceholder": "np. Moja konfiguracja",
+    "renaming": "Zmiana nazwy...",
+    "deleteTitle": "Usunąć «{{title}}»?",
+    "deleteBody": "Ta konfiguracja zostanie trwale usunięta. Projekt powróci do ustawień domyślnych."
+  },
+  "filesystem": {
+    "sectionTitle": "UPRAWNIENIA SYSTEMU PLIKÓW",
+    "allowWrite": "ZEZWÓL NA ZAPIS",
+    "allowWriteHelper": "Ścieżki, w których agenci mogą zapisywać pliki. Domyślnie: katalog roboczy projektu.",
+    "allowWritePlaceholder": "np. /Users/name/workspace",
+    "denyRead": "ZABLOKUJ ODCZYT",
+    "denyReadHelper": "Poufne pliki/foldery zablokowane przed odczytem.",
+    "denyReadPlaceholder": "np. ~/.ssh, .env",
+    "denyWrite": "ZABLOKUJ ZAPIS",
+    "denyWriteHelper": "Ścieżki, w których zapis jest zablokowany. Ma priorytet nad «Zezwól na zapis».",
+    "denyWritePlaceholder": "np. /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "OGRANICZENIA SIECIOWE",
+    "enableLabel": "Włącz",
+    "statusEnabled": "Dostępne są tylko skonfigurowane domeny",
+    "statusDisabled": "Cały ruch sieciowy jest dozwolony",
+    "allowedDomains": "DOZWOLONE DOMENY",
+    "allowedDomainsHelper": "Domeny dostępne dla agentów. Dokładna: example.com — Wieloznaczna: *.example.com (2+ części po *.)",
+    "allowedDomainsPlaceholder": "np. api.github.com",
+    "deniedDomains": "ZABLOKOWANE DOMENY",
+    "deniedDomainsHelper": "Domeny do zablokowania. Ten sam format co dozwolone domeny.",
+    "deniedDomainsPlaceholder": "np. malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "OGRANICZENIA POLECEŃ",
+    "deniedCommands": "ZABLOKOWANE POLECENIA",
+    "deniedCommandsHelper": "Polecenia zablokowane przed wykonaniem.",
+    "deniedCommandsPlaceholder": "np. python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Zastosuj do MCP",
+    "warning": "(\u26A0 Wyłączenie może pozwolić zewnętrznym serwerom MCP na dostęp do plików na komputerze lub ich modyfikację)",
+    "description": "Po włączeniu polecenia serwerów MCP będą opakowywane środowiskiem Sandbox (srt). Stosuje te same ograniczenia systemu plików, sieci i poleceń do serwerów MCP."
+  },
+  "windows": {
+    "notice": "\u26A0 INFORMACJA DLA WINDOWS",
+    "message": "Środowisko Sandbox nie jest dostępne w systemie Windows. Obsługiwane jest tylko blokowanie poleceń."
+  },
+  "validation": {
+    "removeProtocol": "Usuń protokół, ścieżkę lub port — tylko domena",
+    "wildcardParts": "Wieloznacznik wymaga 2+ części po *. (np. *.example.com)",
+    "onlyWildcard": "Obsługiwany jest tylko format *.domain.com",
+    "validDomain": "Musi być prawidłowa domena z co najmniej jedną kropką (np. example.com)"
+  }
+}

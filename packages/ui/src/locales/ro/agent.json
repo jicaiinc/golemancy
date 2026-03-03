@@ -1,0 +1,123 @@
+{
+  "label": {
+    "name": "NUME",
+    "agentName": "NUME AGENT",
+    "description": "DESCRIERE",
+    "systemPrompt": "PROMPT DE SISTEM",
+    "provider": "FURNIZOR",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "inactiv",
+    "running": "rulează",
+    "error": "eroare",
+    "paused": "în pauză"
+  },
+  "currentMain": "AGENTUL PRINCIPAL CURENT",
+  "currentMainTooltip": "Agentul principal selectat pentru acest proiect",
+  "noProviders": "Niciun furnizor configurat",
+  "noModels": "Niciun model disponibil",
+  "savedMsg": "Salvat!",
+  "list": {
+    "title": "Agenți",
+    "subtitle_one": "{{count}} agent în acest proiect",
+    "subtitle_few": "{{count}} agenți în acest proiect",
+    "subtitle_other": "{{count}} de agenți în acest proiect",
+    "newBtn": "+ Agent nou",
+    "viewGrid": "Grilă",
+    "viewTopology": "Topologie",
+    "empty": "Niciun agent încă",
+    "createFirst": "Creați primul agent"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_few": "{{count}} skills",
+    "skills_other": "{{count}} de skills",
+    "tools_one": "{{count}} instrument",
+    "tools_few": "{{count}} instrumente",
+    "tools_other": "{{count}} de instrumente",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_few": "{{count}} sub-agenți",
+    "subAgents_other": "{{count}} de sub-agenți",
+    "mcpServers_one": "{{count}} server MCP",
+    "mcpServers_few": "{{count}} servere MCP",
+    "mcpServers_other": "{{count}} de servere MCP"
+  },
+  "create": {
+    "modalTitle": "Creare agent nou",
+    "createBtn": "Creare agent",
+    "namePlaceholder": "ex. Asistent de cercetare",
+    "descPlaceholder": "Ce face acest agent?",
+    "promptPlaceholder": "Ești un asistent util care..."
+  },
+  "detail": {
+    "notFound": "Agentul nu a fost găsit.",
+    "backToAgents": "< Înapoi la agenți",
+    "backBtn": "< Agenți",
+    "tabs": {
+      "general": "General",
+      "modelConfig": "Configurare model",
+      "skills": "Skills",
+      "tools": "Instrumente",
+      "subAgents": "Sub-agenți"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFORMAȚII",
+    "deleteBtn": "Ștergere agent"
+  },
+  "modelConfig": {
+    "sectionTitle": "CONFIGURARE MODEL",
+    "compactLabel": "PRAG DE COMPACTARE"
+  },
+  "skills": {
+    "assigned": "SKILLS ATRIBUITE",
+    "noneAssigned": "Niciun skill atribuit acestui agent.",
+    "addSection": "ADĂUGARE SKILL",
+    "noneInProject": "Niciun skill în acest proiect",
+    "goTo": "Mergeți la Skills",
+    "manage": "Gestionare Skills \u2192"
+  },
+  "tools": {
+    "builtinSection": "INSTRUMENTE INTEGRATE",
+    "comingSoon": "ÎN CURÂND",
+    "customSection": "INSTRUMENTE PERSONALIZATE",
+    "bashDesc": "Executare comenzi bash, citire și scriere fișiere",
+    "browserDesc": "Control browser web pentru automatizare",
+    "osControlDesc": "Automatizare desktop și control sistem",
+    "taskDesc": "Creare și gestionare sarcini în conversație"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 AVERTISMENT",
+    "warningText": "Serverele MCP terțe pot accesa sau modifica fișierele de pe computerul dumneavoastră.",
+    "enableSandboxHint": "Activați \"Aplicare la MCP\" în Setări > Permisiuni pentru a izola serverele MCP în sandbox.",
+    "sandboxUnavailable": "Sandbox runtime nu este disponibil pe această platformă.",
+    "assigned": "SERVERE MCP ATRIBUITE",
+    "noneAssigned": "Niciun server MCP atribuit acestui agent.",
+    "addSection": "ADĂUGARE SERVER MCP",
+    "noneInProject": "Niciun server MCP în acest proiect",
+    "goTo": "Mergeți la Servere MCP",
+    "manage": "Gestionare Servere MCP \u2192",
+    "restricted": "Restricționat"
+  },
+  "subAgents": {
+    "assigned": "SUB-AGENȚI ATRIBUIȚI",
+    "noneAssigned": "Niciun sub-agent atribuit acestui agent.",
+    "addSection": "ADĂUGARE SUB-AGENT",
+    "noneAvailable": "Niciun alt agent disponibil în acest proiect.",
+    "unknown": "Necunoscut",
+    "rolePlaceholder": "Rol..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Moștenit",
+    "capabilities": "CAPABILITĂȚI",
+    "subAgentsLabel": "SUB-AGENȚI",
+    "openDetail": "Deschidere detalii"
+  },
+  "topology": {
+    "resetLayout": "Resetare dispunere",
+    "editAgent": "Editare agent",
+    "setMainAgent": "Setare ca Main Agent"
+  }
+}

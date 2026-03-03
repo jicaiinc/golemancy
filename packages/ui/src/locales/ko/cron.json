@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "자동화",
+    "newBtn": "+ 새로 만들기"
+  },
+  "empty": {
+    "noJobs": "자동화가 없습니다",
+    "createFirstBtn": "첫 번째 자동화 생성"
+  },
+  "job": {
+    "runBtn": "실행",
+    "historyBtn": "기록",
+    "runningStatus": "실행 중...",
+    "viewChat": "채팅 보기 →",
+    "next": "다음: {{time}}",
+    "at": "시간: {{time}}",
+    "agentNotFound": "Agent를 찾을 수 없음",
+    "overdue": "기한 초과",
+    "once": "일회성"
+  },
+  "delete": {
+    "title": "자동화 삭제",
+    "confirm": "\"{{name}}\"을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+  },
+  "runsModal": {
+    "titleWithName": "실행 기록 — {{name}}",
+    "title": "실행 기록",
+    "noRuns": "실행 기록이 없습니다",
+    "openChat": "채팅 열기 →"
+  },
+  "status": {
+    "success": "성공",
+    "error": "오류",
+    "running": "실행 중"
+  },
+  "form": {
+    "newTitle": "새 자동화",
+    "editTitle": "자동화 편집",
+    "nameLabel": "이름",
+    "namePlaceholder": "매일 코드 리뷰",
+    "typeLabel": "유형",
+    "recurring": "반복",
+    "oneTime": "일회성",
+    "cronLabel": "CRON 표현식",
+    "scheduledAtLabel": "실행 시간 (로컬 시간)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Agent 선택",
+    "instructionLabel": "지시사항 (선택사항)",
+    "instructionPlaceholder": "트리거 시 Agent에 보낼 지시사항",
+    "enabledLabel": "활성화",
+    "presets": {
+      "every5min": "5분마다",
+      "everyHour": "매시간",
+      "every12h": "12시간마다",
+      "daily9am": "매일 오전 9시",
+      "weeklyMon": "매주 월요일"
+    },
+    "invalidExpression": "잘못된 표현식"
+  }
+}

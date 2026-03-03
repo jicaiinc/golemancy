@@ -11,7 +11,7 @@ export function TopBar({ center, right }: TopBarProps) {
     <header data-testid="top-bar" className="h-12 shrink-0 flex items-center px-4 bg-deep border-b-2 border-border-dim">
       {/* Left: App branding */}
       <div className="flex items-center gap-3 shrink-0">
-        <span className="font-pixel text-[14px] text-accent-green">Golemancy</span>
+        <span className="font-arcade text-[14px] text-accent-green">Golemancy</span>
       </div>
 
       {/* Center: optional content (e.g. project name) */}

@@ -1,0 +1,104 @@
+{
+  "loading": "載入權限設定...",
+  "section": {
+    "permissionMode": "權限模式",
+    "configuration": "設定"
+  },
+  "modes": {
+    "restricted": {
+      "name": "受限",
+      "subtitle": "僅 Bash，無沙盒",
+      "description": "最小執行環境。無沙盒執行環境，不支援 MCP。",
+      "badge": "有限"
+    },
+    "sandbox": {
+      "name": "沙盒",
+      "subtitle": "可設定隔離",
+      "description": "沙盒執行環境，可設定檔案系統、網路和指令限制。",
+      "badge": "建議"
+    },
+    "unrestricted": {
+      "name": "無限制",
+      "subtitle": "完整系統存取",
+      "description": "無沙盒限制。所有指令以完整系統權限執行。",
+      "badge": "風險"
+    }
+  },
+  "config": {
+    "default": "預設",
+    "selectConfig": "選擇設定...",
+    "saveAs": "另存為...",
+    "rename": "重新命名",
+    "resetToDefault": "恢復預設",
+    "saved": "已儲存！",
+    "editingDefault": "正在編輯預設值。點擊儲存以建立新的命名設定。"
+  },
+  "modal": {
+    "unrestrictedTitle": "啟用無限制模式？",
+    "unrestrictedBody": "這將移除所有沙盒保護。AI Agent 將擁有對系統的完整存取權限，包括：",
+    "unrestrictedReadWrite": "讀寫電腦上的任何檔案",
+    "unrestrictedExecute": "執行任何系統指令",
+    "unrestrictedNetwork": "不受限制地存取網路",
+    "unrestrictedSysconfig": "修改系統設定",
+    "unrestrictedFooter": "僅在受信任的本地開發環境中使用。",
+    "enableUnrestricted": "我已了解，啟用",
+    "sandboxUnavailableTitle": "沙盒模式不可用",
+    "sandboxUnavailableBody": "沙盒執行環境前置條件未滿足，發現以下問題：",
+    "sandboxUnavailableFooter": "強制啟用沙盒模式將導致執行環境降級為受限模式。",
+    "enableAnyway": "仍然啟用",
+    "saveAsTitle": "另存為新設定",
+    "configNameLabel": "設定名稱",
+    "configNamePlaceholder": "例如：嚴格開發、停用 Python",
+    "renameTitle": "重新命名設定",
+    "newNameLabel": "新名稱",
+    "newNamePlaceholder": "例如：我的自訂設定",
+    "renaming": "重新命名中...",
+    "deleteTitle": "刪除「{{title}}」？",
+    "deleteBody": "此設定將被永久刪除。專案將恢復為系統預設設定。"
+  },
+  "filesystem": {
+    "sectionTitle": "檔案系統權限",
+    "allowWrite": "允許寫入",
+    "allowWriteHelper": "Agent 可以寫入檔案的路徑。預設：專案工作區目錄。",
+    "allowWritePlaceholder": "例如：/Users/name/workspace",
+    "denyRead": "禁止讀取",
+    "denyReadHelper": "禁止讀取的敏感檔案/目錄。",
+    "denyReadPlaceholder": "例如：~/.ssh, .env",
+    "denyWrite": "禁止寫入",
+    "denyWriteHelper": "禁止寫入的路徑。優先級高於允許寫入。",
+    "denyWritePlaceholder": "例如：/etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "網路限制",
+    "enableLabel": "啟用",
+    "statusEnabled": "僅可存取已設定的網域",
+    "statusDisabled": "允許所有網路流量",
+    "allowedDomains": "允許的網域",
+    "allowedDomainsHelper": "Agent 可存取的網域。精確：example.com — 萬用字元：*.example.com（*. 後需 2+ 部分）。",
+    "allowedDomainsPlaceholder": "例如：api.github.com",
+    "deniedDomains": "禁止的網域",
+    "deniedDomainsHelper": "要封鎖的網域。格式同允許的網域。",
+    "deniedDomainsPlaceholder": "例如：malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "指令限制",
+    "deniedCommands": "禁止的指令",
+    "deniedCommandsHelper": "禁止執行的指令。",
+    "deniedCommandsPlaceholder": "例如：python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "套用到 MCP",
+    "warning": "(\u26A0 停用此選項可能允許第三方 MCP 伺服器存取或修改你電腦上的檔案)",
+    "description": "啟用後，MCP 伺服器指令將透過沙盒執行環境 (srt) 包裝。這會將相同的檔案系統、網路和指令限制套用到 MCP 伺服器。"
+  },
+  "windows": {
+    "notice": "\u26A0 WINDOWS 提示",
+    "message": "沙盒執行環境在 Windows 上不可用。僅支援指令封鎖。"
+  },
+  "validation": {
+    "removeProtocol": "請移除協定、路徑或連接埠 — 僅輸入網域",
+    "wildcardParts": "萬用字元需要 *. 後有 2+ 部分（例如：*.example.com）",
+    "onlyWildcard": "僅支援 *.domain.com 萬用字元格式",
+    "validDomain": "必須是包含至少一個點的有效網域（例如：example.com）"
+  }
+}

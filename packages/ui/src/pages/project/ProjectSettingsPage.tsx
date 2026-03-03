@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import type { AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
+import type { AgentId, ProjectConfig, ProjectEmbeddingConfig, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
+import { resolveEmbeddingConfig } from '../../lib/embedding'
 
 const ICONS = [
   { id: 'pickaxe', label: '\u26CF' },
@@ -37,6 +38,7 @@ export function ProjectSettingsPage() {
   const settingsTabs = useMemo(() => [
     { id: 'general', label: t('settings.tabs.general') },
     { id: 'agent', label: t('settings.tabs.agent') },
+    { id: 'embedding', label: t('settings.tabs.embedding') },
     { id: 'permissions', label: t('settings.tabs.permissions') },
   ], [t])
 
@@ -108,6 +110,9 @@ export function ProjectSettingsPage() {
             saved={saved}
             onSave={handleSave}
           />
+        )}
+        {activeTab === 'embedding' && (
+          <ProjectEmbeddingTab project={project} />
         )}
         {activeTab === 'permissions' && (
           <PermissionsSettings projectId={projectId! as ProjectId} />
@@ -256,6 +261,137 @@ function GeneralTab({
         </PixelButton>
         {saved && <span className="text-[12px] text-accent-green">{t('settings.savedMsg')}</span>}
       </div>
+    </div>
+  )
+}
+
+// ========== Project Embedding Tab ==========
+function ProjectEmbeddingTab({ project }: {
+  project: NonNullable<ReturnType<typeof useCurrentProject>>
+}) {
+  const { t } = useTranslation('project')
+  const settings = useAppStore(s => s.settings)
+  const updateProject = useAppStore(s => s.updateProject)
+  const hasKBVectorData = useAppStore(s => s.hasKBVectorData)
+
+  const globalEmbedding = settings?.embedding ?? { enabled: false, model: 'text-embedding-3-small' }
+  const projectEmbedding = project.config.embedding ?? {}
+  const providers = settings?.providers ?? {}
+  const openaiKey = providers['openai']?.apiKey ?? ''
+
+  // Pre-fill from global defaults; project override takes priority
+  const globalModel = globalEmbedding.model || 'text-embedding-3-small'
+  const globalApiKey = globalEmbedding.apiKey || openaiKey
+
+  const [model, setModel] = useState(projectEmbedding.model || globalModel)
+  const [apiKey, setApiKey] = useState(projectEmbedding.apiKey || globalApiKey)
+  const [showKey, setShowKey] = useState(false)
+  const [locked, setLocked] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<{ ok: boolean; latencyMs?: number; error?: string } | null>(null)
+
+  useEffect(() => {
+    hasKBVectorData().then(setLocked).catch(() => setLocked(false))
+  }, [hasKBVectorData])
+
+  const EMBEDDING_MODELS = ['text-embedding-3-small', 'text-embedding-3-large']
+
+  // The effective API key: project override → global
+  const effectiveApiKey = apiKey.trim() || globalApiKey
+
+  async function handleSave() {
+    setSaving(true)
+    const embeddingConfig: ProjectEmbeddingConfig = {}
+    if (model !== globalModel) embeddingConfig.model = model
+    if (apiKey.trim() && apiKey.trim() !== globalApiKey) embeddingConfig.apiKey = apiKey.trim()
+    await updateProject(project.id, { config: { ...project.config, embedding: embeddingConfig } })
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  async function handleTest() {
+    setTesting(true)
+    setTestResult(null)
+    try {
+      const { getServices } = await import('../../services')
+      const result = await getServices().settings.testEmbedding(effectiveApiKey, model)
+      setTestResult(result)
+    } catch (err) {
+      setTestResult({ ok: false, error: err instanceof Error ? err.message : String(err) })
+    } finally {
+      setTesting(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('settings.embedding.sectionTitle')}</div>
+        <p className="text-[11px] text-text-dim mb-4">{t('settings.embedding.description')}</p>
+
+        {!resolveEmbeddingConfig(settings, project.config) && (
+          <div className="p-2 bg-accent-amber/10 border-2 border-accent-amber/30 mb-4">
+            <p className="text-[11px] text-accent-amber">{t('settings.embedding.globalDisabled')}</p>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3">
+          {/* Model selector */}
+          <div>
+            <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('settings.embedding.modelLabel')}</label>
+            <select
+              value={model}
+              onChange={e => setModel(e.target.value)}
+              disabled={locked}
+              className="w-full h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none disabled:opacity-50"
+            >
+              {EMBEDDING_MODELS.map(m => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+            {locked && (
+              <p className="text-[10px] text-accent-amber mt-1">{t('settings.embedding.locked')}</p>
+            )}
+          </div>
+
+          {/* API Key */}
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <PixelInput
+                label={t('settings.embedding.apiKeyLabel')}
+                type={showKey ? 'text' : 'password'}
+                value={apiKey}
+                onChange={e => setApiKey(e.target.value)}
+                placeholder="sk-..."
+              />
+            </div>
+            <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>
+              {showKey ? t('common:button.hide') : t('common:button.show')}
+            </PixelButton>
+          </div>
+
+          {/* Save + Test */}
+          <div className="flex items-center gap-2">
+            <PixelButton size="sm" variant="primary" onClick={handleSave} disabled={saving}>
+              {saving ? t('common:button.saving') : t('common:button.save')}
+            </PixelButton>
+            <PixelButton size="sm" variant="secondary" onClick={handleTest} disabled={testing || !effectiveApiKey}>
+              {testing ? t('common:button.testing') : t('settings.embedding.testBtn')}
+            </PixelButton>
+            {saved && <span className="text-[11px] text-accent-green">{t('settings.savedMsg')}</span>}
+            {testResult && !testing && (
+              <span className={`text-[11px] ${testResult.ok ? 'text-accent-green' : 'text-accent-red'}`}>
+                {testResult.ok
+                  ? t('settings.embedding.testOk', { latency: testResult.latencyMs ?? 0 })
+                  : t('settings.embedding.testFailed')}
+              </span>
+            )}
+          </div>
+        </div>
+      </PixelCard>
     </div>
   )
 }

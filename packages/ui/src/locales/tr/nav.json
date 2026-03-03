@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Pano",
+    "chats": "Sohbetler",
+    "automations": "Otomasyonlar",
+    "agents": "Ajanlar",
+    "skills": "Beceriler",
+    "mcpServers": "MCP Sunucuları",
+    "tasks": "Konuşma Görevleri",
+    "artifacts": "Eserler",
+    "settings": "Ayarlar",
+    "knowledgeBase": "Bilgi Tabanı"
+  },
+  "sidebar": {
+    "navigation": "NAVİGASYON",
+    "config": "YAPILANDIRMA",
+    "collapse": "<< Daralt"
+  },
+  "global": {
+    "allProjects": "Tüm Projeler",
+    "dashboard": "Pano",
+    "settings": "Ayarlar"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Restricted",
+      "sandbox": "Sandbox",
+      "unrestricted": "Unrestricted"
+    },
+    "degraded": "(düşürüldü → {{mode}})",
+    "tasks": "Görevler {{completed}}/{{total}}",
+    "conversationTasks": "KONUŞMA GÖREVLERİ",
+    "contextUsage": "Bağlam: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Bağlam: -- / {{max}}",
+    "contextWindow": "BAĞLAM PENCERESİ",
+    "usage": "Kullanım",
+    "compacting": "Sıkıştırılıyor",
+    "compactingAuto": "Sıkıştırılıyor (otomatik)",
+    "compactNow": "Şimdi Sıkıştır",
+    "byAgent": "AJANA GÖRE",
+    "byModel": "MODELE GÖRE",
+    "tokensInOut": "{{input}} giriş / {{output}} çıkış",
+    "tokens": "Token: {{input}} giriş / {{output}} çıkış",
+    "tokensEmpty": "Token: --"
+  }
+}

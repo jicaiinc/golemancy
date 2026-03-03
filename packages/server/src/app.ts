@@ -4,12 +4,13 @@ import { bodyLimit } from 'hono/body-limit'
 import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
-  IMemoryService, ISkillService, ISettingsService, IDashboardService, IGlobalDashboardService, ICronJobService,
+  ISkillService, ISettingsService, IDashboardService, IGlobalDashboardService, ICronJobService,
   IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import type { TokenRecordStorage } from './storage/token-records'
 import type { CompactRecordStorage } from './storage/compact-records'
+import type { KnowledgeBaseStorage } from './storage/knowledge-base'
 import type { SpeechStorage } from './storage/speech'
 import type { WebSocketManager } from './ws/handler'
 import type { ActiveChatRegistry } from './agent/active-chat-registry'
@@ -19,7 +20,7 @@ import { createConversationRoutes } from './routes/conversations'
 import { createChatRoutes } from './routes/chat'
 import { createTaskRoutes } from './routes/tasks'
 import { createWorkspaceRoutes } from './routes/workspace'
-import { createMemoryRoutes } from './routes/memories'
+import { createKnowledgeBaseRoutes } from './routes/knowledge-base'
 import { createSettingsRoutes } from './routes/settings'
 import { createDashboardRoutes } from './routes/dashboard'
 import { createGlobalDashboardRoutes } from './routes/global-dashboard'
@@ -40,7 +41,7 @@ export interface ServerDependencies {
   agentStorage: IAgentService
   conversationStorage: IConversationService
   taskStorage: ITaskService
-  memoryStorage: IMemoryService
+  kbStorage: KnowledgeBaseStorage
   skillStorage: ISkillService
   settingsStorage: ISettingsService
   dashboardService: IDashboardService
@@ -123,7 +124,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   }))
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
   app.route('/api/projects/:projectId/workspace', createWorkspaceRoutes())
-  app.route('/api/projects/:projectId/memories', createMemoryRoutes(deps.memoryStorage))
+  app.route('/api/projects/:projectId/knowledge-base', createKnowledgeBaseRoutes(deps.kbStorage))
   app.route('/api/projects/:projectId/skills', createSkillRoutes({
     skillStorage: deps.skillStorage,
     agentStorage: deps.agentStorage,
@@ -144,6 +145,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     taskStorage: deps.taskStorage as import('./storage/tasks').SqliteConversationTaskStorage,
     tokenRecordStorage: deps.tokenRecordStorage,
     compactRecordStorage: deps.compactRecordStorage,
+    kbStorage: deps.kbStorage,
     activeChatRegistry: deps.activeChatRegistry,
     wsManager: deps.wsManager,
   }))

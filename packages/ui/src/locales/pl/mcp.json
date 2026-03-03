@@ -1,0 +1,70 @@
+{
+  "page": {
+    "title": "Serwery MCP",
+    "serverCount_one": "{{count}} serwer",
+    "serverCount_few": "{{count}} serwery",
+    "serverCount_many": "{{count}} serwerów",
+    "serverCount_other": "{{count}} serwerów",
+    "newServerBtn": "+ Nowy serwer"
+  },
+  "tabs": {
+    "installed": "Zainstalowane",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "OGRANICZONY",
+    "restrictedMsg": "Tryb ograniczony: serwery MCP stdio są wyłączone i nie będą ładowane",
+    "riskBadge": "OSTRZEŻENIE",
+    "riskMsg": "Zewnętrzne serwery MCP mogą uzyskać dostęp do plików na komputerze lub je modyfikować.",
+    "applyToMcpHint": "Włącz «Zastosuj do MCP» w Ustawienia > Uprawnienia, aby izolować serwery MCP.",
+    "sandboxUnavailable": "Środowisko Sandbox nie jest dostępne na tej platformie."
+  },
+  "import": {
+    "invalidFormat": "Nieprawidłowy format: oczekiwane { mcpServers: { ... } }",
+    "noServers": "Nie znaleziono serwerów w pliku konfiguracji",
+    "importedCount_one": "Zaimportowano {{count}} serwer MCP",
+    "importedCount_few": "Zaimportowano {{count}} serwery MCP",
+    "importedCount_many": "Zaimportowano {{count}} serwerów MCP",
+    "importedCount_other": "Zaimportowano {{count}} serwerów MCP",
+    "parseError": "Nie udało się przetworzyć pliku konfiguracji"
+  },
+  "server": {
+    "testing": "Testowanie...",
+    "testOk_one": "OK ({{count}} narzędzie)",
+    "testOk_few": "OK ({{count}} narzędzia)",
+    "testOk_many": "OK ({{count}} narzędzi)",
+    "testOk_other": "OK ({{count}} narzędzi)",
+    "connectionFailed": "Błąd połączenia",
+    "testFailed": "Test nie powiódł się",
+    "blockedRestricted": "Zablokowany przez tryb ograniczony — serwery stdio nie są ładowane w czasie wykonywania",
+    "usedByAgents_one": "Używany przez {{count}} agenta",
+    "usedByAgents_few": "Używany przez {{count}} agentów",
+    "usedByAgents_many": "Używany przez {{count}} agentów",
+    "usedByAgents_other": "Używany przez {{count}} agentów",
+    "deleteErrorInUse_one": "Serwer MCP «{{name}}» jest używany przez {{count}} agenta. Najpierw usuń powiązania.",
+    "deleteErrorInUse_few": "Serwer MCP «{{name}}» jest używany przez {{count}} agentów. Najpierw usuń powiązania.",
+    "deleteErrorInUse_many": "Serwer MCP «{{name}}» jest używany przez {{count}} agentów. Najpierw usuń powiązania.",
+    "deleteErrorInUse_other": "Serwer MCP «{{name}}» jest używany przez {{count}} agentów. Najpierw usuń powiązania.",
+    "deleteError": "Nie udało się usunąć serwera MCP",
+    "testBtn": "Test"
+  },
+  "empty": {
+    "title": "Brak skonfigurowanych serwerów MCP",
+    "addFirstBtn": "Dodaj pierwszy serwer"
+  },
+  "loading": "Ładowanie serwerów MCP...",
+  "comingSoon": "Wkrótce",
+  "form": {
+    "newTitle": "Nowy serwer MCP",
+    "editTitle": "Edycja serwera MCP",
+    "nameLabel": "NAZWA",
+    "descriptionLabel": "OPIS",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "POLECENIE",
+    "argsLabel": "ARGUMENTY (rozdzielone spacjami)",
+    "envLabel": "ZMIENNE ŚRODOWISKOWE (KEY=VALUE na wiersz)",
+    "cwdLabel": "KATALOG ROBOCZY",
+    "urlLabel": "URL",
+    "headersLabel": "NAGŁÓWKI (Key: Value na wiersz)"
+  }
+}

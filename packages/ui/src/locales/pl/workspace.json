@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefakty",
+    "refreshBtn": "Odśwież"
+  },
+  "deleteModal": {
+    "title": "Usuń plik",
+    "confirmPrefix": "Czy na pewno chcesz usunąć",
+    "warning": "Tej operacji nie można cofnąć."
+  },
+  "preview": {
+    "selectFile": "Wybierz plik do podglądu",
+    "loading": "Ładowanie pliku...",
+    "loadingImage": "Ładowanie obrazu...",
+    "imageError": "Nie udało się załadować obrazu: {{error}}",
+    "emptyCsv": "Pusty CSV",
+    "noPreview": "Podgląd niedostępny dla tego typu pliku",
+    "download": "DL",
+    "open": "Otwórz",
+    "meta": {
+      "type": "TYP",
+      "mime": "MIME",
+      "size": "ROZMIAR",
+      "modified": "ZMIENIONY"
+    }
+  },
+  "tree": {
+    "root": "artefakty",
+    "emptyDir": "Pusty katalog"
+  }
+}

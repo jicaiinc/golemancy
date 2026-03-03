@@ -1,0 +1,104 @@
+{
+  "loading": "Загрузка разрешений...",
+  "section": {
+    "permissionMode": "РЕЖИМ РАЗРЕШЕНИЙ",
+    "configuration": "КОНФИГУРАЦИЯ"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Ограниченный",
+      "subtitle": "Только Bash, без Sandbox",
+      "description": "Минимальная среда выполнения. Без Sandbox, без поддержки MCP.",
+      "badge": "Ограничено"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Настраиваемая изоляция",
+      "description": "Среда Sandbox с настраиваемыми ограничениями файловой системы, сети и команд.",
+      "badge": "Рекомендуемый"
+    },
+    "unrestricted": {
+      "name": "Без ограничений",
+      "subtitle": "Полный доступ к системе",
+      "description": "Без ограничений Sandbox. Все команды выполняются с полными системными правами.",
+      "badge": "Рискованно"
+    }
+  },
+  "config": {
+    "default": "По умолчанию",
+    "selectConfig": "Выберите конфигурацию...",
+    "saveAs": "Сохранить как...",
+    "rename": "Переименовать",
+    "resetToDefault": "Сбросить по умолчанию",
+    "saved": "Сохранено!",
+    "editingDefault": "Редактирование значений по умолчанию. Нажмите «Сохранить», чтобы создать именованную конфигурацию."
+  },
+  "modal": {
+    "unrestrictedTitle": "Включить режим без ограничений?",
+    "unrestrictedBody": "Это отключит всю защиту Sandbox. AI агенты получат полный доступ к вашей системе, включая:",
+    "unrestrictedReadWrite": "Чтение/запись любых файлов на вашем компьютере",
+    "unrestrictedExecute": "Выполнение любых системных команд",
+    "unrestrictedNetwork": "Неограниченный доступ к сети",
+    "unrestrictedSysconfig": "Изменение конфигурации системы",
+    "unrestrictedFooter": "Используйте только для локальной разработки в доверенных средах.",
+    "enableUnrestricted": "Понимаю, включить",
+    "sandboxUnavailableTitle": "Режим Sandbox недоступен",
+    "sandboxUnavailableBody": "Предварительные условия для Sandbox не выполнены. Обнаружены следующие проблемы:",
+    "sandboxUnavailableFooter": "Включение Sandbox в любом случае приведёт к деградации до ограниченного режима.",
+    "enableAnyway": "Всё равно включить",
+    "saveAsTitle": "Сохранить как новую конфигурацию",
+    "configNameLabel": "НАЗВАНИЕ КОНФИГУРАЦИИ",
+    "configNamePlaceholder": "напр. Строгая разработка, Python отключён",
+    "renameTitle": "Переименовать конфигурацию",
+    "newNameLabel": "НОВОЕ НАЗВАНИЕ",
+    "newNamePlaceholder": "напр. Моя конфигурация",
+    "renaming": "Переименование...",
+    "deleteTitle": "Удалить «{{title}}»?",
+    "deleteBody": "Эта конфигурация будет удалена навсегда. Проект вернётся к настройкам по умолчанию."
+  },
+  "filesystem": {
+    "sectionTitle": "РАЗРЕШЕНИЯ ФАЙЛОВОЙ СИСТЕМЫ",
+    "allowWrite": "РАЗРЕШИТЬ ЗАПИСЬ",
+    "allowWriteHelper": "Пути, по которым агенты могут записывать файлы. По умолчанию: рабочая директория проекта.",
+    "allowWritePlaceholder": "напр. /Users/name/workspace",
+    "denyRead": "ЗАПРЕТИТЬ ЧТЕНИЕ",
+    "denyReadHelper": "Конфиденциальные файлы/папки, доступ к чтению которых заблокирован.",
+    "denyReadPlaceholder": "напр. ~/.ssh, .env",
+    "denyWrite": "ЗАПРЕТИТЬ ЗАПИСЬ",
+    "denyWriteHelper": "Пути, по которым запись заблокирована. Имеет приоритет над «Разрешить запись».",
+    "denyWritePlaceholder": "напр. /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "СЕТЕВЫЕ ОГРАНИЧЕНИЯ",
+    "enableLabel": "Включить",
+    "statusEnabled": "Доступны только настроенные домены",
+    "statusDisabled": "Весь сетевой трафик разрешён",
+    "allowedDomains": "РАЗРЕШЁННЫЕ ДОМЕНЫ",
+    "allowedDomainsHelper": "Домены, к которым агенты имеют доступ. Точный: example.com — Подстановочный: *.example.com (2+ части после *.)",
+    "allowedDomainsPlaceholder": "напр. api.github.com",
+    "deniedDomains": "ЗАПРЕЩЁННЫЕ ДОМЕНЫ",
+    "deniedDomainsHelper": "Домены для блокировки. Тот же формат, что и для разрешённых доменов.",
+    "deniedDomainsPlaceholder": "напр. malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "ОГРАНИЧЕНИЯ КОМАНД",
+    "deniedCommands": "ЗАПРЕЩЁННЫЕ КОМАНДЫ",
+    "deniedCommandsHelper": "Команды, заблокированные для выполнения.",
+    "deniedCommandsPlaceholder": "напр. python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Применить к MCP",
+    "warning": "(\u26A0 Отключение может позволить сторонним MCP серверам получить доступ к файлам на вашем компьютере или изменить их)",
+    "description": "При включении команды MCP серверов будут обёрнуты средой Sandbox (srt). Это применяет те же ограничения файловой системы, сети и команд к MCP серверам."
+  },
+  "windows": {
+    "notice": "\u26A0 УВЕДОМЛЕНИЕ ДЛЯ WINDOWS",
+    "message": "Среда Sandbox недоступна в Windows. Поддерживается только блокировка команд."
+  },
+  "validation": {
+    "removeProtocol": "Уберите протокол, путь или порт — только домен",
+    "wildcardParts": "Подстановочный знак требует 2+ части после *. (напр. *.example.com)",
+    "onlyWildcard": "Поддерживается только формат *.domain.com",
+    "validDomain": "Должен быть допустимый домен с хотя бы одной точкой (напр. example.com)"
+  }
+}

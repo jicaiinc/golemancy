@@ -1,4 +1,5 @@
 import type { PermissionsConfigId } from './common'
+import type { EmbeddingSettings, ProjectEmbeddingConfig } from './knowledge-base'
 import type { SpeechToTextSettings } from './speech'
 
 export type ProviderSdkType =
@@ -30,7 +31,9 @@ export interface GlobalSettings {
   providers: Record<string, ProviderEntry>
   defaultModel?: AgentModelConfig
   theme: ThemeMode
+  language?: string
   speechToText?: SpeechToTextSettings
+  embedding?: EmbeddingSettings
   onboardingCompleted?: boolean
   onboardingStep?: number
 }
@@ -38,6 +41,7 @@ export interface GlobalSettings {
 export interface ProjectConfig {
   maxConcurrentAgents: number
   permissionsConfigId?: PermissionsConfigId
+  embedding?: ProjectEmbeddingConfig
 }
 
 export interface AgentModelConfig {

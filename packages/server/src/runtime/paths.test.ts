@@ -109,12 +109,6 @@ describe('paths', () => {
       expect(result).toMatch(/runtime\/python-env\/bin$/)
     })
 
-    it('getProjectNodeModulesPath returns node_modules under runtime dir', async () => {
-      const { getProjectNodeModulesPath } = await importPaths()
-      const result = getProjectNodeModulesPath('proj-abc123')
-      expect(result).toMatch(/runtime\/node_modules$/)
-    })
-
     it('rejects invalid project IDs', async () => {
       const { getProjectRuntimeDir } = await importPaths()
       expect(() => getProjectRuntimeDir('../escape')).toThrow()
@@ -142,10 +136,5 @@ describe('paths', () => {
       expect(result).toMatch(/runtime\/cache\/npm$/)
     })
 
-    it('getNpmGlobalPath returns npm-global under global runtime', async () => {
-      const { getNpmGlobalPath } = await importPaths()
-      const result = getNpmGlobalPath()
-      expect(result).toMatch(/runtime\/npm-global$/)
-    })
   })
 })

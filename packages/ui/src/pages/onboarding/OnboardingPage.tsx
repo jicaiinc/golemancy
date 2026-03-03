@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { useTranslation } from 'react-i18next'
+import i18next from 'i18next'
 import type { AgentModelConfig, ProjectId, SpeechToTextSettings } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services/container'
@@ -220,6 +221,12 @@ export function OnboardingPage() {
     return getServices().speech.testProvider(config)
   }, [])
 
+  // --- Language change ---
+  const handleLanguageChange = useCallback(async (lang: string) => {
+    i18next.changeLanguage(lang)
+    await updateSettings({ language: lang })
+  }, [updateSettings])
+
   // --- Resolve display name ---
   function getProviderName(): string {
     if (!data.selectedProvider) return t('provider.none')
@@ -235,7 +242,7 @@ export function OnboardingPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b-2 border-border-dim">
         <div className="flex items-center gap-3">
-          <span className="font-pixel text-[12px] text-accent-green">Golemancy</span>
+          <span className="font-arcade text-[12px] text-accent-green">Golemancy</span>
           <span className="font-pixel text-[9px] text-text-dim">{t('header.setup')}</span>
         </div>
         {step < TOTAL_STEPS - 1 && (
@@ -276,7 +283,7 @@ export function OnboardingPage() {
               exit={{ opacity: 0, x: direction * -40 }}
               transition={{ duration: 0.2 }}
             >
-              {step === 0 && <WelcomeStep onGetStarted={goNext} />}
+              {step === 0 && <WelcomeStep onGetStarted={goNext} onLanguageChange={handleLanguageChange} />}
               {step === 1 && (
                 <ProviderStep
                   selectedProvider={data.selectedProvider}

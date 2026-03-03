@@ -222,7 +222,7 @@ export function MCPServersPage() {
             ) : mcpServers.length === 0 ? (
               <motion.div {...staggerItem}>
                 <PixelCard variant="outlined" className="text-center py-12">
-                  <div className="font-pixel text-[20px] text-text-dim mb-4">~&gt;</div>
+                  <div className="font-arcade text-[20px] text-text-dim mb-4">~&gt;</div>
                   <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('empty.title')}</p>
                   <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
                     {t('empty.addFirstBtn')}

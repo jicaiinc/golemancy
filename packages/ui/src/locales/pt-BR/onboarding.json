@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Configuração",
+    "skipSetup": "Pular Configuração"
+  },
+  "steps": {
+    "welcome": "Boas-vindas",
+    "provider": "Provedor",
+    "speech": "Voz",
+    "project": "Projeto",
+    "complete": "Concluído"
+  },
+  "error": {
+    "somethingWentWrong": "Algo deu errado. Por favor, tente novamente.",
+    "failedToSkip": "Falha ao pular a configuração. Por favor, tente novamente.",
+    "connectionTestFailed": "Falha no teste de conexão",
+    "testFailed": "Teste falhou",
+    "unknownError": "Erro desconhecido"
+  },
+  "button": {
+    "createProject": "Criar Projeto",
+    "getStarted": "Começar",
+    "continue": "Continuar",
+    "startChatting": "Iniciar Conversa",
+    "goToDashboard": "Ir para o Painel",
+    "change": "Alterar",
+    "testConnection": "Testar Conexão",
+    "testing": "Testando...",
+    "reTest": "Re-testar",
+    "test": "Testar",
+    "hide": "Ocultar",
+    "show": "Mostrar"
+  },
+  "welcome": {
+    "tagline": "Bem-vindo",
+    "heading": "Comande Seus AI Golems",
+    "description": "Orquestre agentes de AI autônomos a partir do seu desktop."
+  },
+  "provider": {
+    "heading": "Conectar um Provedor de AI",
+    "description": "Escolha um provedor e insira sua API key para começar.",
+    "customLabel": "Personalizado",
+    "customSubtitle": "qualquer endpoint",
+    "customCardTitle": "PROVEDOR PERSONALIZADO",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NOME",
+    "labelSdkType": "TIPO DE SDK",
+    "statusConnected": "Conectado",
+    "statusFailed": "Falhou",
+    "statusConnecting": "Conectando...",
+    "none": "Nenhum",
+    "defaultModel": {
+      "title": "MODELO PADRÃO",
+      "descriptionPreset": "Escolha um modelo para usar como padrão para novos agentes.",
+      "descriptionCustom": "Insira o nome do modelo a ser usado como padrão.",
+      "labelModelName": "NOME DO MODELO"
+    }
+  },
+  "speech": {
+    "heading": "Voz para Texto",
+    "description": "Ative a entrada de voz para uma interação mais rápida. Você pode pular isso e configurar depois.",
+    "labelApiKey": "API KEY DA OPENAI",
+    "labelModel": "MODELO",
+    "labelLanguage": "IDIOMA",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Falhou"
+  },
+  "project": {
+    "heading": "Crie Seu Primeiro Projeto",
+    "description": "Projetos organizam seus agentes, conversas e fluxos de trabalho.",
+    "labelName": "NOME DO PROJETO",
+    "placeholderName": "Meu Projeto Incrível",
+    "labelDescription": "DESCRIÇÃO",
+    "placeholderDescription": "O que este projeto vai fazer?",
+    "labelIcon": "ÍCONE",
+    "fromTemplate": "A PARTIR DE MODELO",
+    "comingSoon": "Em Breve"
+  },
+  "complete": {
+    "heading": "Tudo Pronto!",
+    "description": "Aqui está um resumo da sua configuração.",
+    "labelProvider": "PROVEDOR",
+    "labelDefaultModel": "MODELO PADRÃO",
+    "labelSpeechToText": "VOZ PARA TEXTO",
+    "labelProject": "PROJETO",
+    "sttEnabled": "Ativado",
+    "sttSkipped": "Pulado",
+    "links": {
+      "settings": "Configurações",
+      "website": "Site"
+    }
+  }
+}

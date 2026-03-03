@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Приховати історію чату",
+    "showHistory": "Показати історію чату",
+    "new": "+ Новий",
+    "clickToRename": "Натисніть для перейменування"
+  },
+  "sidebar": {
+    "newChat": "+ Новий чат",
+    "noConversations": "Немає розмов"
+  },
+  "window": {
+    "startConversation": "Розпочніть розмову...",
+    "compacting": "Стиснення",
+    "thinking": "Мислення",
+    "imageMsgTitle": "Зображення"
+  },
+  "empty": {
+    "readyToChat": "Готовий до спілкування",
+    "description": "Розпочніть нову розмову або оберіть наявну у бічній панелі.",
+    "startChatting": "Почати чат",
+    "noMainAgent": "Основний агент не обраний",
+    "configureText": "Налаштуйте основного агента в <a>Налаштуваннях проєкту</a>, щоб почати спілкування."
+  },
+  "input": {
+    "placeholder": "Введіть повідомлення...",
+    "dropPlaceholder": "Перетягніть зображення сюди...",
+    "attachImage": "Прикріпити зображення",
+    "recordAudio": "Записати аудіо",
+    "transcribing": "Транскрибування...",
+    "transcriptionFailed": "Помилка транскрибування",
+    "startRecordingFailed": "Не вдалося почати запис",
+    "retryFailed": "Повторна спроба не вдалася"
+  },
+  "message": {
+    "reasoning": "Міркування",
+    "untitledFile": "Без назви",
+    "copy": "Копіювати"
+  },
+  "compact": {
+    "title": "РОЗМОВУ СТИСНУТО",
+    "summary": "ПІДСУМОК",
+    "tokensSummary": "{{input}} вх / {{output}} вих"
+  },
+  "tool": {
+    "running": "Виконання...",
+    "awaitingApproval": "Очікування схвалення",
+    "approved": "Схвалено",
+    "done": "Готово",
+    "denied": "Відхилено",
+    "input": "ВХІД",
+    "output": "ВИХІД",
+    "error": "ПОМИЛКА",
+    "task": "ЗАДАЧА",
+    "tools": "ІНСТРУМЕНТИ",
+    "toolCountRunning": "[{{running}}/{{total}} інструментів]",
+    "toolCountDone": "[{{total}} інструментів]",
+    "taskCreate": "Створити задачу",
+    "taskGet": "Отримати задачу",
+    "taskList": "Список задач",
+    "taskUpdate": "Оновити задачу"
+  }
+}

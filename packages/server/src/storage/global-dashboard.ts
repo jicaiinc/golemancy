@@ -48,7 +48,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         const db = this.deps.getProjectDb(project.id)
 
         const convCount = db.all<{ cnt: number }>(
-          sql`SELECT count(*) as cnt FROM conversations WHERE project_id = ${project.id}`,
+          sql`SELECT count(*) as cnt FROM conversations`,
         )
         totalChats += convCount[0]?.cnt ?? 0
 
@@ -56,12 +56,11 @@ export class GlobalDashboardService implements IGlobalDashboardService {
           ? db.all<{ cnt: number }>(
               sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
                   JOIN messages m ON m.conversation_id = c.id
-                  WHERE c.project_id = ${project.id} AND m.created_at >= ${startDate}`,
+                  WHERE m.created_at >= ${startDate}`,
             )
           : db.all<{ cnt: number }>(
               sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
-                  JOIN messages m ON m.conversation_id = c.id
-                  WHERE c.project_id = ${project.id}`,
+                  JOIN messages m ON m.conversation_id = c.id`,
             )
         activeChats += activeCount[0]?.cnt ?? 0
 
@@ -365,7 +364,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         const db = this.deps.getProjectDb(project.id)
         const rows = db.all<{ id: string; cron_job_id: string; agent_id: string; created_at: string }>(
           sql`SELECT id, cron_job_id, agent_id, created_at FROM cron_job_runs
-              WHERE project_id = ${project.id} AND status = 'running'
+              WHERE status = 'running'
               ORDER BY created_at DESC`,
         )
 
@@ -428,7 +427,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         // Recent cron runs — include cron_job_id for navigation
         const cronRows = db.all<{ id: string; cron_job_id: string; agent_id: string; status: string; duration_ms: number | null; updated_at: string }>(
           sql`SELECT id, cron_job_id, agent_id, status, duration_ms, updated_at FROM cron_job_runs
-              WHERE project_id = ${project.id} AND status IN ('success', 'error')
+              WHERE status IN ('success', 'error')
               ORDER BY updated_at DESC LIMIT 5`,
         )
 
@@ -464,7 +463,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
                          AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m2.id)
                      )), 0) as total_tokens
               FROM conversations c
-              WHERE c.project_id = ${project.id} AND c.last_message_at IS NOT NULL
+              WHERE c.last_message_at IS NOT NULL
               ORDER BY c.last_message_at DESC LIMIT 5`,
         )
         for (const row of chatRows) {

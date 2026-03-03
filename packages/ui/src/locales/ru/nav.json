@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Панель",
+    "chats": "Чаты",
+    "automations": "Автоматизации",
+    "agents": "Агенты",
+    "skills": "Навыки",
+    "mcpServers": "MCP серверы",
+    "tasks": "Задачи разговора",
+    "artifacts": "Артефакты",
+    "settings": "Настройки",
+    "knowledgeBase": "База знаний"
+  },
+  "sidebar": {
+    "navigation": "НАВИГАЦИЯ",
+    "config": "КОНФИГУРАЦИЯ",
+    "collapse": "<< Свернуть"
+  },
+  "global": {
+    "allProjects": "Все проекты",
+    "dashboard": "Панель",
+    "settings": "Настройки"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Ограниченный",
+      "sandbox": "Sandbox",
+      "unrestricted": "Без ограничений"
+    },
+    "degraded": "(деградация → {{mode}})",
+    "tasks": "Задачи {{completed}}/{{total}}",
+    "conversationTasks": "ЗАДАЧИ РАЗГОВОРА",
+    "contextUsage": "Контекст: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Контекст: -- / {{max}}",
+    "contextWindow": "ОКНО КОНТЕКСТА",
+    "usage": "Использование",
+    "compacting": "Сжатие",
+    "compactingAuto": "Сжатие (авто)",
+    "compactNow": "Сжать сейчас",
+    "byAgent": "ПО АГЕНТАМ",
+    "byModel": "ПО МОДЕЛЯМ",
+    "tokensInOut": "{{input}} вх / {{output}} вых",
+    "tokens": "Токены: {{input}} вх / {{output}} вых",
+    "tokensEmpty": "Токены: --"
+  }
+}

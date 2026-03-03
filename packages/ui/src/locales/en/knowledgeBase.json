@@ -1,0 +1,69 @@
+{
+  "page": {
+    "title": "Knowledge Base",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "newCollectionBtn": "+ New Collection",
+    "embeddingRequired": "Embedding must be configured before using the Knowledge Base.",
+    "configureEmbedding": "Configure Embedding"
+  },
+  "loading": "Loading knowledge base...",
+  "tier": {
+    "hot": "Hot",
+    "warm": "Warm",
+    "cold": "Cold",
+    "archive": "Archive",
+    "capacity": "Capacity",
+    "empty": "No collections"
+  },
+  "collection": {
+    "docs_one": "{{count}} doc",
+    "docs_other": "{{count}} docs",
+    "chars": "chars"
+  },
+  "newCollection": {
+    "title": "New Collection",
+    "nameLabel": "NAME",
+    "namePlaceholder": "e.g. Brand Guidelines",
+    "descriptionLabel": "DESCRIPTION",
+    "descriptionPlaceholder": "Optional description",
+    "tierLabel": "TIER",
+    "embeddingRequired": "Embedding must be configured to create Warm or Cold collections. Go to Settings > Embedding."
+  },
+  "detail": {
+    "addText": "+ Add Text",
+    "uploadFile": "Upload File",
+    "searchTest": "SEARCH TEST",
+    "searchPlaceholder": "Test a search query...",
+    "searchBtn": "Search",
+    "searchResultCount_one": "{{count}} result",
+    "searchResultCount_other": "{{count}} results",
+    "clearResults": "Clear",
+    "documents": "DOCUMENTS",
+    "noDocs": "No documents in this collection",
+    "settings": "SETTINGS",
+    "changeTier": "Tier",
+    "deleteCollection": "Delete Collection",
+    "confirmDelete": "Delete this collection and all its documents?",
+    "embeddingRequiredForWarmCold": "Embedding must be configured to add documents to Warm/Cold collections."
+  },
+  "ingestText": {
+    "title": "Add Text Document",
+    "titleLabel": "TITLE",
+    "titlePlaceholder": "Optional document title",
+    "contentLabel": "CONTENT",
+    "contentPlaceholder": "Paste or type text content...",
+    "submit": "Add Document"
+  },
+  "uploadFile": {
+    "title": "Upload File",
+    "dropHint": "Drop a file here or click to browse ({{formats}})",
+    "titleLabel": "TITLE (optional)",
+    "titlePlaceholder": "Override document title",
+    "submit": "Upload"
+  },
+  "document": {
+    "untitled": "Untitled",
+    "chunks": "chunks"
+  }
+}

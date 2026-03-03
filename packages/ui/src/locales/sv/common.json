@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Avbryt",
+    "save": "Spara",
+    "saving": "Sparar...",
+    "saved": "Sparat",
+    "delete": "Radera",
+    "deleting": "Raderar...",
+    "edit": "Redigera",
+    "add": "Lägg till",
+    "confirm": "Bekräfta",
+    "retry": "Försök igen",
+    "back": "Tillbaka",
+    "next": "Nästa",
+    "close": "Stäng",
+    "create": "Skapa",
+    "creating": "Skapar...",
+    "refresh": "Uppdatera",
+    "send": "Skicka",
+    "stop": "Stoppa",
+    "dismiss": "Avfärda",
+    "done": "Klar",
+    "copy": "Kopiera"
+  },
+  "status": {
+    "loading": "Laddar...",
+    "error": "Fel",
+    "success": "Klart"
+  },
+  "time": {
+    "justNow": "just nu",
+    "minsAgo_one": "{{count}}m sedan",
+    "minsAgo_other": "{{count}}m sedan",
+    "hoursAgo_one": "{{count}}h sedan",
+    "hoursAgo_other": "{{count}}h sedan",
+    "daysAgo_one": "{{count}}d sedan",
+    "daysAgo_other": "{{count}}d sedan",
+    "now": "nu",
+    "inMins_one": "om {{count}}m",
+    "inMins_other": "om {{count}}m",
+    "inHours_one": "om {{count}}h",
+    "inHours_other": "om {{count}}h",
+    "inDays_one": "om {{count}}d",
+    "inDays_other": "om {{count}}d",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Radera",
+    "deleteMessage": "Denna åtgärd kan inte ångras.",
+    "areYouSure": "Är du säker?"
+  },
+  "empty": {
+    "noData": "Ingen data"
+  },
+  "list": {
+    "noneConfigured": "Inga konfigurerade"
+  },
+  "label": {
+    "name": "Namn",
+    "description": "Beskrivning",
+    "type": "Typ",
+    "enabled": "Aktiverad",
+    "disabled": "Inaktiverad"
+  },
+  "dropZone": {
+    "releaseToDrop": "Släpp för att ladda upp",
+    "dragAndDrop": "Dra och släpp filer här, eller klicka för att ladda upp",
+    "accepts": "Godkänner: {{extensions}}"
+  }
+}

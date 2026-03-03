@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Masquer l'historique",
+    "showHistory": "Afficher l'historique",
+    "new": "+ Nouveau",
+    "clickToRename": "Cliquez pour renommer"
+  },
+  "sidebar": {
+    "newChat": "+ Nouveau Chat",
+    "noConversations": "Aucune conversation"
+  },
+  "window": {
+    "startConversation": "Démarrer la conversation...",
+    "compacting": "Compactage",
+    "thinking": "Réflexion",
+    "imageMsgTitle": "Message image"
+  },
+  "empty": {
+    "readyToChat": "Prêt à discuter",
+    "description": "Démarrez une nouvelle conversation ou sélectionnez-en une dans la barre latérale.",
+    "startChatting": "Commencer à Discuter",
+    "noMainAgent": "Aucun Agent Principal",
+    "configureText": "Configurez un Agent Principal dans les <a>Paramètres du Projet</a> pour commencer à discuter."
+  },
+  "input": {
+    "placeholder": "Saisissez un message...",
+    "dropPlaceholder": "Déposez des images ici...",
+    "attachImage": "Joindre une image",
+    "recordAudio": "Enregistrer l'audio",
+    "transcribing": "Transcription...",
+    "transcriptionFailed": "Échec de la transcription",
+    "startRecordingFailed": "Échec du démarrage de l'enregistrement",
+    "retryFailed": "Échec de la nouvelle tentative"
+  },
+  "message": {
+    "reasoning": "Raisonnement",
+    "untitledFile": "Fichier sans titre",
+    "copy": "Copier"
+  },
+  "compact": {
+    "title": "CONVERSATION COMPACTÉE",
+    "summary": "RÉSUMÉ",
+    "tokensSummary": "{{input}} entrée / {{output}} sortie"
+  },
+  "tool": {
+    "running": "Exécution...",
+    "awaitingApproval": "En attente d'approbation",
+    "approved": "Approuvé",
+    "done": "Terminé",
+    "denied": "Refusé",
+    "input": "ENTRÉE",
+    "output": "SORTIE",
+    "error": "ERREUR",
+    "task": "TÂCHE",
+    "tools": "OUTILS",
+    "toolCountRunning": "[{{running}}/{{total}} outils]",
+    "toolCountDone": "[{{total}} outils]",
+    "taskCreate": "Créer une Tâche",
+    "taskGet": "Obtenir une Tâche",
+    "taskList": "Lister les Tâches",
+    "taskUpdate": "Mettre à jour la Tâche"
+  }
+}

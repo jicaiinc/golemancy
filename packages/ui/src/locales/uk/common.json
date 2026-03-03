@@ -1,0 +1,82 @@
+{
+  "button": {
+    "cancel": "Скасувати",
+    "save": "Зберегти",
+    "saving": "Збереження...",
+    "saved": "Збережено",
+    "delete": "Видалити",
+    "deleting": "Видалення...",
+    "edit": "Змінити",
+    "add": "Додати",
+    "confirm": "Підтвердити",
+    "retry": "Повторити",
+    "back": "Назад",
+    "next": "Далі",
+    "close": "Закрити",
+    "create": "Створити",
+    "creating": "Створення...",
+    "refresh": "Оновити",
+    "send": "Надіслати",
+    "stop": "Зупинити",
+    "dismiss": "Приховати",
+    "done": "Готово",
+    "copy": "Копіювати"
+  },
+  "status": {
+    "loading": "Завантаження...",
+    "error": "Помилка",
+    "success": "Успішно"
+  },
+  "time": {
+    "justNow": "щойно",
+    "minsAgo_one": "{{count}} хв тому",
+    "minsAgo_few": "{{count}} хв тому",
+    "minsAgo_many": "{{count}} хв тому",
+    "minsAgo_other": "{{count}} хв тому",
+    "hoursAgo_one": "{{count}} год тому",
+    "hoursAgo_few": "{{count}} год тому",
+    "hoursAgo_many": "{{count}} год тому",
+    "hoursAgo_other": "{{count}} год тому",
+    "daysAgo_one": "{{count}} д тому",
+    "daysAgo_few": "{{count}} д тому",
+    "daysAgo_many": "{{count}} д тому",
+    "daysAgo_other": "{{count}} д тому",
+    "now": "зараз",
+    "inMins_one": "через {{count}} хв",
+    "inMins_few": "через {{count}} хв",
+    "inMins_many": "через {{count}} хв",
+    "inMins_other": "через {{count}} хв",
+    "inHours_one": "через {{count}} год",
+    "inHours_few": "через {{count}} год",
+    "inHours_many": "через {{count}} год",
+    "inHours_other": "через {{count}} год",
+    "inDays_one": "через {{count}} д",
+    "inDays_few": "через {{count}} д",
+    "inDays_many": "через {{count}} д",
+    "inDays_other": "через {{count}} д",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Видалення",
+    "deleteMessage": "Цю дію неможливо скасувати.",
+    "areYouSure": "Ви впевнені?"
+  },
+  "empty": {
+    "noData": "Немає даних"
+  },
+  "list": {
+    "noneConfigured": "Нічого не налаштовано"
+  },
+  "label": {
+    "name": "Назва",
+    "description": "Опис",
+    "type": "Тип",
+    "enabled": "Увімкнено",
+    "disabled": "Вимкнено"
+  },
+  "dropZone": {
+    "releaseToDrop": "Відпустіть для завантаження",
+    "dragAndDrop": "Перетягніть файли сюди або натисніть для завантаження",
+    "accepts": "Приймаються: {{extensions}}"
+  }
+}

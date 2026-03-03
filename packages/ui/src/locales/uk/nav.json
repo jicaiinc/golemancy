@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Панель",
+    "chats": "Чати",
+    "automations": "Автоматизації",
+    "agents": "Агенти",
+    "skills": "Навички",
+    "mcpServers": "MCP сервери",
+    "tasks": "Задачі розмови",
+    "artifacts": "Артефакти",
+    "settings": "Налаштування",
+    "knowledgeBase": "База знань"
+  },
+  "sidebar": {
+    "navigation": "НАВІГАЦІЯ",
+    "config": "КОНФІГУРАЦІЯ",
+    "collapse": "<< Згорнути"
+  },
+  "global": {
+    "allProjects": "Усі проєкти",
+    "dashboard": "Панель",
+    "settings": "Налаштування"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Обмежений",
+      "sandbox": "Sandbox",
+      "unrestricted": "Без обмежень"
+    },
+    "degraded": "(деградація → {{mode}})",
+    "tasks": "Задачі {{completed}}/{{total}}",
+    "conversationTasks": "ЗАДАЧІ РОЗМОВИ",
+    "contextUsage": "Контекст: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Контекст: -- / {{max}}",
+    "contextWindow": "ВІКНО КОНТЕКСТУ",
+    "usage": "Використання",
+    "compacting": "Стиснення",
+    "compactingAuto": "Стиснення (авто)",
+    "compactNow": "Стиснути зараз",
+    "byAgent": "ЗА АГЕНТАМИ",
+    "byModel": "ЗА МОДЕЛЯМИ",
+    "tokensInOut": "{{input}} вх / {{output}} вих",
+    "tokens": "Токени: {{input}} вх / {{output}} вих",
+    "tokensEmpty": "Токени: --"
+  }
+}

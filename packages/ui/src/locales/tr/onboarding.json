@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Kurulum",
+    "skipSetup": "Kurulumu Atla"
+  },
+  "steps": {
+    "welcome": "Ho\u015f Geldiniz",
+    "provider": "Sa\u011flay\u0131c\u0131",
+    "speech": "Konu\u015fma",
+    "project": "Proje",
+    "complete": "Tamamland\u0131"
+  },
+  "error": {
+    "somethingWentWrong": "Bir \u015feyler ters gitti. L\u00fctfen tekrar deneyin.",
+    "failedToSkip": "Kurulum atlanamad\u0131. L\u00fctfen tekrar deneyin.",
+    "connectionTestFailed": "Ba\u011flant\u0131 testi ba\u015far\u0131s\u0131z",
+    "testFailed": "Test ba\u015far\u0131s\u0131z",
+    "unknownError": "Bilinmeyen hata"
+  },
+  "button": {
+    "createProject": "Proje Olu\u015ftur",
+    "getStarted": "Ba\u015fla",
+    "continue": "Devam Et",
+    "startChatting": "Sohbete Ba\u015fla",
+    "goToDashboard": "Panoya Git",
+    "change": "De\u011fi\u015ftir",
+    "testConnection": "Ba\u011flant\u0131y\u0131 Test Et",
+    "testing": "Test ediliyor...",
+    "reTest": "Tekrar Test",
+    "test": "Test",
+    "hide": "Gizle",
+    "show": "G\u00f6ster"
+  },
+  "welcome": {
+    "tagline": "Ho\u015f Geldiniz",
+    "heading": "AI Golem'lerinizi Y\u00f6netin",
+    "description": "Masa\u00fcst\u00fcn\u00fczden otonom AI ajanlar\u0131n\u0131 y\u00f6netin."
+  },
+  "provider": {
+    "heading": "Bir AI Sa\u011flay\u0131c\u0131 Ba\u011flay\u0131n",
+    "description": "Ba\u015flamak i\u00e7in bir sa\u011flay\u0131c\u0131 se\u00e7in ve API key'inizi girin.",
+    "customLabel": "\u00d6zel",
+    "customSubtitle": "herhangi bir endpoint",
+    "customCardTitle": "\u00d6ZEL SA\u011eLAYICI",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "AD",
+    "labelSdkType": "SDK T\u00dcR\u00dc",
+    "statusConnected": "Ba\u011fl\u0131",
+    "statusFailed": "Ba\u015far\u0131s\u0131z",
+    "statusConnecting": "Ba\u011flan\u0131yor...",
+    "none": "Yok",
+    "defaultModel": {
+      "title": "VARSAYILAN MODEL",
+      "descriptionPreset": "Yeni ajanlar i\u00e7in varsay\u0131lan olarak kullan\u0131lacak modeli se\u00e7in.",
+      "descriptionCustom": "Varsay\u0131lan olarak kullan\u0131lacak model ad\u0131n\u0131 girin.",
+      "labelModelName": "MODEL ADI"
+    }
+  },
+  "speech": {
+    "heading": "Speech-to-Text",
+    "description": "Daha h\u0131zl\u0131 etkile\u015fim i\u00e7in sesli girdi\u015fi etkinle\u015ftirin. Bunu atlayabilir ve daha sonra yap\u0131land\u0131rabilirsiniz.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODEL",
+    "labelLanguage": "D\u0130L",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Ba\u015far\u0131s\u0131z"
+  },
+  "project": {
+    "heading": "\u0130lk Projenizi Olu\u015fturun",
+    "description": "Projeler ajanlar\u0131n\u0131z\u0131, konu\u015fmalar\u0131n\u0131z\u0131 ve i\u015f ak\u0131\u015flar\u0131n\u0131z\u0131 organize eder.",
+    "labelName": "PROJE ADI",
+    "placeholderName": "Harika Projem",
+    "labelDescription": "A\u00c7IKLAMA",
+    "placeholderDescription": "Bu proje ne yapacak?",
+    "labelIcon": "S\u0130MGE",
+    "fromTemplate": "\u015eABLONDAN",
+    "comingSoon": "Yak\u0131nda"
+  },
+  "complete": {
+    "heading": "Her \u015eey Haz\u0131r!",
+    "description": "\u0130\u015fte yap\u0131land\u0131rman\u0131z\u0131n \u00f6zeti.",
+    "labelProvider": "SA\u011eLAYICI",
+    "labelDefaultModel": "VARSAYILAN MODEL",
+    "labelSpeechToText": "SPEECH-TO-TEXT",
+    "labelProject": "PROJE",
+    "sttEnabled": "Etkin",
+    "sttSkipped": "Atland\u0131",
+    "links": {
+      "settings": "Ayarlar",
+      "website": "Web Sitesi"
+    }
+  }
+}

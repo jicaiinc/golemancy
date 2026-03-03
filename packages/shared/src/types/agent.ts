@@ -19,7 +19,7 @@ export interface SubAgentRef {
 }
 
 // Built-in tool configuration
-export type BuiltinToolId = 'bash' | 'browser' | 'os_control' | 'task'
+export type BuiltinToolId = 'bash' | 'browser' | 'os_control' | 'task' | 'knowledge_base'
 
 export interface BuiltinToolConfig {
   [key: string]: boolean | Record<string, unknown>

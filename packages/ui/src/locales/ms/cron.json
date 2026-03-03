@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automasi",
+    "newBtn": "+ Baharu"
+  },
+  "empty": {
+    "noJobs": "Belum ada automasi",
+    "createFirstBtn": "Cipta Automasi Pertama"
+  },
+  "job": {
+    "runBtn": "Jalankan",
+    "historyBtn": "Sejarah",
+    "runningStatus": "Berjalan...",
+    "viewChat": "Lihat Chat \u2192",
+    "next": "Seterusnya: {{time}}",
+    "at": "Pada {{time}}",
+    "agentNotFound": "Agen tidak ditemui",
+    "overdue": "lewat",
+    "once": "sekali"
+  },
+  "delete": {
+    "title": "Padam Automasi",
+    "confirm": "Adakah anda pasti ingin memadam \"{{name}}\"? Tindakan ini tidak boleh dibatalkan."
+  },
+  "runsModal": {
+    "titleWithName": "Sejarah Pelaksanaan \u2014 {{name}}",
+    "title": "Sejarah Pelaksanaan",
+    "noRuns": "Belum ada pelaksanaan",
+    "openChat": "BUKA CHAT \u2192"
+  },
+  "status": {
+    "success": "berjaya",
+    "error": "ralat",
+    "running": "berjalan"
+  },
+  "form": {
+    "newTitle": "Automasi Baharu",
+    "editTitle": "Sunting Automasi",
+    "nameLabel": "NAMA",
+    "namePlaceholder": "Semakan kod harian",
+    "typeLabel": "JENIS",
+    "recurring": "Berulang",
+    "oneTime": "Sekali",
+    "cronLabel": "UNGKAPAN CRON",
+    "scheduledAtLabel": "DIJADUALKAN PADA (waktu tempatan)",
+    "agentLabel": "AGEN",
+    "agentPlaceholder": "Pilih agen",
+    "instructionLabel": "ARAHAN (pilihan)",
+    "instructionPlaceholder": "Arahan untuk dihantar kepada agen apabila dicetuskan",
+    "enabledLabel": "Aktif",
+    "presets": {
+      "every5min": "Setiap 5 min",
+      "everyHour": "Setiap jam",
+      "every12h": "Setiap 12 jam",
+      "daily9am": "Harian 9pg",
+      "weeklyMon": "Mingguan Isn"
+    },
+    "invalidExpression": "Ungkapan tidak sah"
+  }
+}

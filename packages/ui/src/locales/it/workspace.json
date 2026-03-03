@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefatti",
+    "refreshBtn": "Aggiorna"
+  },
+  "deleteModal": {
+    "title": "Elimina File",
+    "confirmPrefix": "Eliminare",
+    "warning": "Questa azione non può essere annullata."
+  },
+  "preview": {
+    "selectFile": "Seleziona un file per l'anteprima",
+    "loading": "Caricamento file...",
+    "loadingImage": "Caricamento immagine...",
+    "imageError": "Impossibile caricare l'immagine: {{error}}",
+    "emptyCsv": "CSV vuoto",
+    "noPreview": "Anteprima non disponibile per questo tipo di file",
+    "download": "DL",
+    "open": "Apri",
+    "meta": {
+      "type": "TIPO",
+      "mime": "MIME",
+      "size": "DIMENSIONE",
+      "modified": "MODIFICATO"
+    }
+  },
+  "tree": {
+    "root": "artefatti",
+    "emptyDir": "Directory vuota"
+  }
+}

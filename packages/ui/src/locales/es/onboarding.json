@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Configuración",
+    "skipSetup": "Omitir Configuración"
+  },
+  "steps": {
+    "welcome": "Bienvenida",
+    "provider": "Proveedor",
+    "speech": "Voz",
+    "project": "Proyecto",
+    "complete": "Completado"
+  },
+  "error": {
+    "somethingWentWrong": "Algo salió mal. Por favor, inténtelo de nuevo.",
+    "failedToSkip": "Error al omitir la configuración. Por favor, inténtelo de nuevo.",
+    "connectionTestFailed": "Error en la prueba de conexión",
+    "testFailed": "Prueba fallida",
+    "unknownError": "Error desconocido"
+  },
+  "button": {
+    "createProject": "Crear Proyecto",
+    "getStarted": "Comenzar",
+    "continue": "Continuar",
+    "startChatting": "Iniciar Chat",
+    "goToDashboard": "Ir al Panel",
+    "change": "Cambiar",
+    "testConnection": "Probar Conexión",
+    "testing": "Probando...",
+    "reTest": "Re-probar",
+    "test": "Probar",
+    "hide": "Ocultar",
+    "show": "Mostrar"
+  },
+  "welcome": {
+    "tagline": "Bienvenido",
+    "heading": "Comande Sus AI Golems",
+    "description": "Orqueste agentes de AI autónomos desde su escritorio."
+  },
+  "provider": {
+    "heading": "Conectar un Proveedor de AI",
+    "description": "Elija un proveedor e ingrese su API key para comenzar.",
+    "customLabel": "Personalizado",
+    "customSubtitle": "cualquier endpoint",
+    "customCardTitle": "PROVEEDOR PERSONALIZADO",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NOMBRE",
+    "labelSdkType": "TIPO DE SDK",
+    "statusConnected": "Conectado",
+    "statusFailed": "Falló",
+    "statusConnecting": "Conectando...",
+    "none": "Ninguno",
+    "defaultModel": {
+      "title": "MODELO PREDETERMINADO",
+      "descriptionPreset": "Elija un modelo para usar de forma predeterminada con nuevos agentes.",
+      "descriptionCustom": "Ingrese el nombre del modelo a usar de forma predeterminada.",
+      "labelModelName": "NOMBRE DEL MODELO"
+    }
+  },
+  "speech": {
+    "heading": "Voz a Texto",
+    "description": "Active la entrada de voz para una interacción más rápida. Puede omitir esto y configurarlo después.",
+    "labelApiKey": "API KEY DE OPENAI",
+    "labelModel": "MODELO",
+    "labelLanguage": "IDIOMA",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Falló"
+  },
+  "project": {
+    "heading": "Cree Su Primer Proyecto",
+    "description": "Los proyectos organizan sus agentes, conversaciones y flujos de trabajo.",
+    "labelName": "NOMBRE DEL PROYECTO",
+    "placeholderName": "Mi Proyecto Increíble",
+    "labelDescription": "DESCRIPCIÓN",
+    "placeholderDescription": "¿Qué hará este proyecto?",
+    "labelIcon": "ÍCONO",
+    "fromTemplate": "DESDE PLANTILLA",
+    "comingSoon": "Próximamente"
+  },
+  "complete": {
+    "heading": "¡Todo Listo!",
+    "description": "Aquí hay un resumen de su configuración.",
+    "labelProvider": "PROVEEDOR",
+    "labelDefaultModel": "MODELO PREDETERMINADO",
+    "labelSpeechToText": "VOZ A TEXTO",
+    "labelProject": "PROYECTO",
+    "sttEnabled": "Activado",
+    "sttSkipped": "Omitido",
+    "links": {
+      "settings": "Configuración",
+      "website": "Sitio web"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Otomasyonlar",
+    "newBtn": "+ Yeni"
+  },
+  "empty": {
+    "noJobs": "Hen\u00fcz otomasyon yok",
+    "createFirstBtn": "\u0130lk Otomasyonu Olu\u015ftur"
+  },
+  "job": {
+    "runBtn": "\u00c7al\u0131\u015ft\u0131r",
+    "historyBtn": "Ge\u00e7mi\u015f",
+    "runningStatus": "\u00c7al\u0131\u015f\u0131yor...",
+    "viewChat": "Sohbeti G\u00f6r \u2192",
+    "next": "Sonraki: {{time}}",
+    "at": "{{time}} zaman\u0131nda",
+    "agentNotFound": "Ajan bulunamad\u0131",
+    "overdue": "gecikmi\u015f",
+    "once": "tek sefer"
+  },
+  "delete": {
+    "title": "Otomasyonu Sil",
+    "confirm": "\"{{name}}\" silinsin mi? Bu i\u015flem geri al\u0131namaz."
+  },
+  "runsModal": {
+    "titleWithName": "\u00c7al\u0131\u015fma Ge\u00e7mi\u015fi \u2014 {{name}}",
+    "title": "\u00c7al\u0131\u015fma Ge\u00e7mi\u015fi",
+    "noRuns": "Hen\u00fcz \u00e7al\u0131\u015fma yok",
+    "openChat": "SOHBET\u0130 A\u00c7 \u2192"
+  },
+  "status": {
+    "success": "ba\u015far\u0131l\u0131",
+    "error": "hata",
+    "running": "\u00e7al\u0131\u015f\u0131yor"
+  },
+  "form": {
+    "newTitle": "Yeni Otomasyon",
+    "editTitle": "Otomasyonu D\u00fczenle",
+    "nameLabel": "AD",
+    "namePlaceholder": "G\u00fcnl\u00fck kod incelemesi",
+    "typeLabel": "T\u00dcR",
+    "recurring": "Tekrarlayan",
+    "oneTime": "Tek Seferlik",
+    "cronLabel": "CRON \u0130FADES\u0130",
+    "scheduledAtLabel": "ZAMANLAMA (yerel saat)",
+    "agentLabel": "AJAN",
+    "agentPlaceholder": "Bir ajan se\u00e7in",
+    "instructionLabel": "TAL\u0130MAT (iste\u011fe ba\u011fl\u0131)",
+    "instructionPlaceholder": "Tetiklendi\u011finde ajana g\u00f6nderilecek talimatlar",
+    "enabledLabel": "Etkin",
+    "presets": {
+      "every5min": "Her 5 dk",
+      "everyHour": "Her saat",
+      "every12h": "Her 12 sa",
+      "daily9am": "G\u00fcnl\u00fck 09:00",
+      "weeklyMon": "Haftal\u0131k Pzt"
+    },
+    "invalidExpression": "Ge\u00e7ersiz ifade"
+  }
+}

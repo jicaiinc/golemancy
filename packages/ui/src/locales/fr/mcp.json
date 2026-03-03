@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Serveurs MCP",
+    "serverCount_one": "{{count}} serveur",
+    "serverCount_other": "{{count}} serveurs",
+    "newServerBtn": "+ Nouveau Serveur"
+  },
+  "tabs": {
+    "installed": "Installés",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "RESTREINT",
+    "restrictedMsg": "Mode restreint : les serveurs MCP stdio sont désactivés et ne seront pas chargés",
+    "riskBadge": "AVERTISSEMENT",
+    "riskMsg": "Les serveurs MCP tiers peuvent accéder ou modifier des fichiers sur votre ordinateur.",
+    "applyToMcpHint": "Activez « Appliquer au MCP » dans Paramètres > Permissions pour exécuter les serveurs MCP en sandbox.",
+    "sandboxUnavailable": "L'environnement sandbox n'est pas disponible sur cette plateforme."
+  },
+  "import": {
+    "invalidFormat": "Format invalide : attendu { mcpServers: { ... } }",
+    "noServers": "Aucun serveur trouvé dans le fichier de configuration",
+    "importedCount_one": "{{count}} serveur MCP importé",
+    "importedCount_other": "{{count}} serveurs MCP importés",
+    "parseError": "Échec de l'analyse du fichier de configuration"
+  },
+  "server": {
+    "testing": "Test en cours...",
+    "testOk_one": "OK ({{count}} outil)",
+    "testOk_other": "OK ({{count}} outils)",
+    "connectionFailed": "Échec de la connexion",
+    "testFailed": "Test échoué",
+    "blockedRestricted": "Bloqué par le mode restreint — les serveurs stdio ne sont pas chargés à l'exécution",
+    "usedByAgents_one": "Utilisé par {{count}} agent",
+    "usedByAgents_other": "Utilisé par {{count}} agents",
+    "deleteErrorInUse_one": "Le serveur MCP « {{name}} » est utilisé par {{count}} agent. Supprimez d'abord les références.",
+    "deleteErrorInUse_other": "Le serveur MCP « {{name}} » est utilisé par {{count}} agents. Supprimez d'abord les références.",
+    "deleteError": "Échec de la suppression du serveur MCP",
+    "testBtn": "Tester"
+  },
+  "empty": {
+    "title": "Aucun serveur MCP configuré",
+    "addFirstBtn": "Ajoutez Votre Premier Serveur"
+  },
+  "loading": "Chargement des serveurs MCP...",
+  "comingSoon": "Bientôt Disponible",
+  "form": {
+    "newTitle": "Nouveau Serveur MCP",
+    "editTitle": "Modifier le Serveur MCP",
+    "nameLabel": "NOM",
+    "descriptionLabel": "DESCRIPTION",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "COMMANDE",
+    "argsLabel": "ARGS (séparés par des espaces)",
+    "envLabel": "ENV (KEY=VALUE par ligne)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Key: Value par ligne)"
+  }
+}

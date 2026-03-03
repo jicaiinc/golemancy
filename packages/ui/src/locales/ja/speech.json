@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "文字起こし履歴"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} 件",
+    "recordCount_other": "{{count}} 件",
+    "used": "{{size}} 使用中",
+    "loading": "ストレージ情報を読み込み中..."
+  },
+  "clearAll": {
+    "confirm_one": "{{count}} 件のレコードをすべて削除しますか？",
+    "confirm_other": "{{count}} 件のレコードをすべて削除しますか？",
+    "confirmWithFree_one": "{{count}} 件のレコードをすべて削除して {{size}} を解放しますか？",
+    "confirmWithFree_other": "{{count}} 件のレコードをすべて削除して {{size}} を解放しますか？"
+  },
+  "loading": "履歴を読み込み中...",
+  "empty": {
+    "hint": "チャットのマイクボタンを使って\n最初の音声録音を作成しましょう",
+    "settingsBtn": "設定へ"
+  },
+  "player": {
+    "play": "再生",
+    "pause": "一時停止",
+    "close": "プレーヤーを閉じる"
+  },
+  "actions": {
+    "copy": "文字起こしテキストをコピー",
+    "retry": "文字起こしを再試行",
+    "delete": "レコードを削除"
+  },
+  "enable": {
+    "enabled": "有効",
+    "disabled": "無効",
+    "sectionTitle": "音声テキスト変換"
+  },
+  "provider": {
+    "sectionTitle": "プロバイダー",
+    "typeLabel": "タイプ",
+    "customType": "カスタム（OpenAI 互換）",
+    "apiKeyLabel": "API キー",
+    "baseUrlRequired": "ベース URL（必須）",
+    "baseUrlOptional": "ベース URL（任意）",
+    "baseUrlPlaceholder": "デフォルトを使用する場合は空欄",
+    "modelLabel": "モデル",
+    "modelOther": "その他...",
+    "presets": "プリセット",
+    "languageLabel": "言語",
+    "hide": "非表示",
+    "show": "表示"
+  },
+  "test": {
+    "testing": "テスト中...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "再テスト",
+    "test": "テスト",
+    "failed": "失敗",
+    "untested": "未テスト",
+    "unknownError": "不明なエラー"
+  },
+  "history": {
+    "sectionTitle": "履歴",
+    "recordsInfo": "{{recordCount}} 件 / {{size}}",
+    "clearAll": "すべてクリア",
+    "confirmClear": "すべてクリアしますか？",
+    "empty": "文字起こしがありません",
+    "today": "今日",
+    "yesterday": "昨日",
+    "transcribing": "文字起こし中...",
+    "openChat": "チャットを開く \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "エラー",
+    "deleteConfirm": "このレコードと音声ファイルを削除しますか？",
+    "retryConfirm": "既存の文字起こしが上書きされます。",
+    "transcriptionFailed": "文字起こし失敗：{{error}}",
+    "retranscribe": "再文字起こし"
+  }
+}

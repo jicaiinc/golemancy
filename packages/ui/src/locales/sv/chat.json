@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Dölj chatthistorik",
+    "showHistory": "Visa chatthistorik",
+    "new": "+ Ny",
+    "clickToRename": "Klicka för att byta namn"
+  },
+  "sidebar": {
+    "newChat": "+ Ny chatt",
+    "noConversations": "Inga konversationer"
+  },
+  "window": {
+    "startConversation": "Starta konversationen...",
+    "compacting": "Komprimerar",
+    "thinking": "Tänker",
+    "imageMsgTitle": "Bildmeddelande"
+  },
+  "empty": {
+    "readyToChat": "Redo att chatta",
+    "description": "Starta en ny konversation eller välj en från sidofältet.",
+    "startChatting": "Börja chatta",
+    "noMainAgent": "Ingen Main Agent",
+    "configureText": "Konfigurera en Main Agent i <a>Projektinställningar</a> för att börja chatta."
+  },
+  "input": {
+    "placeholder": "Skriv ett meddelande...",
+    "dropPlaceholder": "Släpp bilder här...",
+    "attachImage": "Bifoga bild",
+    "recordAudio": "Spela in ljud",
+    "transcribing": "Transkriberar...",
+    "transcriptionFailed": "Transkribering misslyckades",
+    "startRecordingFailed": "Kunde inte starta inspelning",
+    "retryFailed": "Nytt försök misslyckades"
+  },
+  "message": {
+    "reasoning": "Resonemang",
+    "untitledFile": "Namnlös fil",
+    "copy": "Kopiera"
+  },
+  "compact": {
+    "title": "KONVERSATION KOMPRIMERAD",
+    "summary": "SAMMANFATTNING",
+    "tokensSummary": "{{input}} in / {{output}} ut"
+  },
+  "tool": {
+    "running": "Kör...",
+    "awaitingApproval": "Inväntar godkännande",
+    "approved": "Godkänd",
+    "done": "Klar",
+    "denied": "Nekad",
+    "input": "INDATA",
+    "output": "UTDATA",
+    "error": "FEL",
+    "task": "UPPGIFT",
+    "tools": "VERKTYG",
+    "toolCountRunning": "[{{running}}/{{total}} verktyg]",
+    "toolCountDone": "[{{total}} verktyg]",
+    "taskCreate": "Skapa uppgift",
+    "taskGet": "Hämta uppgift",
+    "taskList": "Lista uppgifter",
+    "taskUpdate": "Uppdatera uppgift"
+  }
+}

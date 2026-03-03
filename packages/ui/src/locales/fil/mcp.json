@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Mga MCP Server",
+    "serverCount_one": "{{count}} server",
+    "serverCount_other": "{{count}} server",
+    "newServerBtn": "+ Bagong Server"
+  },
+  "tabs": {
+    "installed": "Naka-install",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "RESTRICTED",
+    "restrictedMsg": "Restricted mode: naka-disable ang mga stdio MCP server at hindi ilo-load",
+    "riskBadge": "BABALA",
+    "riskMsg": "Maaaring ma-access o mabago ng third-party MCP server ang mga file sa iyong computer.",
+    "applyToMcpHint": "I-enable ang \"Apply to MCP\" sa Settings > Permissions para i-sandbox ang mga MCP server.",
+    "sandboxUnavailable": "Hindi available ang Sandbox runtime sa platform na ito."
+  },
+  "import": {
+    "invalidFormat": "Hindi valid ang format: inaasahan ang { mcpServers: { ... } }",
+    "noServers": "Walang nahanap na server sa config file",
+    "importedCount_one": "Na-import ang {{count}} MCP server",
+    "importedCount_other": "Na-import ang {{count}} MCP server",
+    "parseError": "Nabigo ang pag-parse ng config file"
+  },
+  "server": {
+    "testing": "Tine-test...",
+    "testOk_one": "OK ({{count}} tool)",
+    "testOk_other": "OK ({{count}} tool)",
+    "connectionFailed": "Nabigo ang connection",
+    "testFailed": "Nabigo ang test",
+    "blockedRestricted": "Na-block ng restricted mode — hindi nilo-load ang mga stdio server sa runtime",
+    "usedByAgents_one": "Ginagamit ng {{count}} agent",
+    "usedByAgents_other": "Ginagamit ng {{count}} agent",
+    "deleteErrorInUse_one": "Ang MCP server na \"{{name}}\" ay ginagamit ng {{count}} agent. Alisin muna ang mga reference.",
+    "deleteErrorInUse_other": "Ang MCP server na \"{{name}}\" ay ginagamit ng {{count}} agent. Alisin muna ang mga reference.",
+    "deleteError": "Nabigo ang pag-delete ng MCP server",
+    "testBtn": "I-test"
+  },
+  "empty": {
+    "title": "Walang naka-configure na MCP server",
+    "addFirstBtn": "Idagdag ang Unang Server"
+  },
+  "loading": "Nilo-load ang mga MCP server...",
+  "comingSoon": "Paparating Na",
+  "form": {
+    "newTitle": "Bagong MCP Server",
+    "editTitle": "I-edit ang MCP Server",
+    "nameLabel": "PANGALAN",
+    "descriptionLabel": "PAGLALARAWAN",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "COMMAND",
+    "argsLabel": "ARGS (pinaghihiwalay ng espasyo)",
+    "envLabel": "ENV (KEY=VALUE bawat linya)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Key: Value bawat linya)"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefakty",
+    "refreshBtn": "Obnovit"
+  },
+  "deleteModal": {
+    "title": "Smazat soubor",
+    "confirmPrefix": "Opravdu chcete smazat",
+    "warning": "Tuto akci nelze vrátit zpět."
+  },
+  "preview": {
+    "selectFile": "Vyberte soubor pro náhled",
+    "loading": "Načítání souboru...",
+    "loadingImage": "Načítání obrázku...",
+    "imageError": "Nepodařilo se načíst obrázek: {{error}}",
+    "emptyCsv": "Prázdný CSV",
+    "noPreview": "Náhled není pro tento typ souboru dostupný",
+    "download": "DL",
+    "open": "Otevřít",
+    "meta": {
+      "type": "TYP",
+      "mime": "MIME",
+      "size": "VELIKOST",
+      "modified": "ZMĚNĚNO"
+    }
+  },
+  "tree": {
+    "root": "artefakty",
+    "emptyDir": "Prázdný adresář"
+  }
+}

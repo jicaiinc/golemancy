@@ -8,13 +8,15 @@ interface PixelModalProps {
   title: string
   children: ReactNode
   footer?: ReactNode
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 }
 
 const sizeClasses = {
   sm: 'max-w-[480px]',
   md: 'max-w-[640px]',
   lg: 'max-w-[800px]',
+  xl: 'max-w-[80vw]',
+  '2xl': 'max-w-[90vw]',
 }
 
 export function PixelModal({ open, onClose, title, children, footer, size = 'md' }: PixelModalProps) {

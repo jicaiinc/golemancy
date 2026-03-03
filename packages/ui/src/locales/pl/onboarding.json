@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Konfiguracja",
+    "skipSetup": "Pomiń konfigurację"
+  },
+  "steps": {
+    "welcome": "Powitanie",
+    "provider": "Dostawca",
+    "speech": "Mowa",
+    "project": "Projekt",
+    "complete": "Gotowe"
+  },
+  "error": {
+    "somethingWentWrong": "Coś poszło nie tak. Spróbuj ponownie.",
+    "failedToSkip": "Nie udało się pominąć konfiguracji. Spróbuj ponownie.",
+    "connectionTestFailed": "Test połączenia nie powiódł się",
+    "testFailed": "Test nie powiódł się",
+    "unknownError": "Nieznany błąd"
+  },
+  "button": {
+    "createProject": "Utwórz projekt",
+    "getStarted": "Rozpocznij",
+    "continue": "Kontynuuj",
+    "startChatting": "Rozpocznij czat",
+    "goToDashboard": "Przejdź do panelu",
+    "change": "Zmień",
+    "testConnection": "Testuj połączenie",
+    "testing": "Testowanie...",
+    "reTest": "Przetestuj ponownie",
+    "test": "Test",
+    "hide": "Ukryj",
+    "show": "Pokaż"
+  },
+  "welcome": {
+    "tagline": "Witaj",
+    "heading": "Dowódź swoimi AI Golemami",
+    "description": "Orkiestruj autonomicznych agentów AI z poziomu pulpitu."
+  },
+  "provider": {
+    "heading": "Podłącz dostawcę AI",
+    "description": "Wybierz dostawcę i wprowadź klucz API, aby rozpocząć.",
+    "customLabel": "Niestandardowy",
+    "customSubtitle": "dowolny endpoint",
+    "customCardTitle": "NIESTANDARDOWY DOSTAWCA",
+    "labelApiKey": "KLUCZ API",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NAZWA",
+    "labelSdkType": "TYP SDK",
+    "statusConnected": "Połączony",
+    "statusFailed": "Błąd",
+    "statusConnecting": "Łączenie...",
+    "none": "Brak",
+    "defaultModel": {
+      "title": "MODEL DOMYŚLNY",
+      "descriptionPreset": "Wybierz model używany domyślnie dla nowych agentów.",
+      "descriptionCustom": "Wpisz nazwę modelu do domyślnego użycia.",
+      "labelModelName": "NAZWA MODELU"
+    }
+  },
+  "speech": {
+    "heading": "Rozpoznawanie mowy",
+    "description": "Włącz wprowadzanie głosowe dla szybszej interakcji. Możesz pominąć ten krok i skonfigurować później.",
+    "labelApiKey": "KLUCZ OPENAI API",
+    "labelModel": "MODEL",
+    "labelLanguage": "JĘZYK",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Błąd"
+  },
+  "project": {
+    "heading": "Utwórz pierwszy projekt",
+    "description": "Projekty organizują agentów, rozmowy i procesy robocze.",
+    "labelName": "NAZWA PROJEKTU",
+    "placeholderName": "Mój projekt",
+    "labelDescription": "OPIS",
+    "placeholderDescription": "Do czego służy ten projekt?",
+    "labelIcon": "IKONA",
+    "fromTemplate": "Z SZABLONU",
+    "comingSoon": "Wkrótce"
+  },
+  "complete": {
+    "heading": "Wszystko gotowe!",
+    "description": "Oto podsumowanie konfiguracji.",
+    "labelProvider": "DOSTAWCA",
+    "labelDefaultModel": "MODEL DOMYŚLNY",
+    "labelSpeechToText": "ROZPOZNAWANIE MOWY",
+    "labelProject": "PROJEKT",
+    "sttEnabled": "Włączone",
+    "sttSkipped": "Pominięte",
+    "links": {
+      "settings": "Ustawienia",
+      "website": "Strona"
+    }
+  }
+}

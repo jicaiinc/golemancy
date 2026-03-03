@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Pengaturan",
+    "skipSetup": "Lewati Pengaturan"
+  },
+  "steps": {
+    "welcome": "Selamat Datang",
+    "provider": "Provider",
+    "speech": "Ucapan",
+    "project": "Proyek",
+    "complete": "Selesai"
+  },
+  "error": {
+    "somethingWentWrong": "Terjadi kesalahan. Silakan coba lagi.",
+    "failedToSkip": "Gagal melewati pengaturan. Silakan coba lagi.",
+    "connectionTestFailed": "Tes koneksi gagal",
+    "testFailed": "Tes gagal",
+    "unknownError": "Error tidak dikenal"
+  },
+  "button": {
+    "createProject": "Buat Proyek",
+    "getStarted": "Mulai",
+    "continue": "Lanjutkan",
+    "startChatting": "Mulai Mengobrol",
+    "goToDashboard": "Ke Dasbor",
+    "change": "Ubah",
+    "testConnection": "Tes Koneksi",
+    "testing": "Menguji...",
+    "reTest": "Uji Ulang",
+    "test": "Uji",
+    "hide": "Sembunyikan",
+    "show": "Tampilkan"
+  },
+  "welcome": {
+    "tagline": "Selamat Datang",
+    "heading": "Kendalikan AI Golem Anda",
+    "description": "Orkestrasikan agent AI otonom dari desktop Anda."
+  },
+  "provider": {
+    "heading": "Hubungkan Provider AI",
+    "description": "Pilih provider dan masukkan API key Anda untuk memulai.",
+    "customLabel": "Kustom",
+    "customSubtitle": "endpoint apa saja",
+    "customCardTitle": "PROVIDER KUSTOM",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NAMA",
+    "labelSdkType": "TIPE SDK",
+    "statusConnected": "Terhubung",
+    "statusFailed": "Gagal",
+    "statusConnecting": "Menghubungkan...",
+    "none": "Tidak ada",
+    "defaultModel": {
+      "title": "MODEL DEFAULT",
+      "descriptionPreset": "Pilih model untuk digunakan secara default untuk agent baru.",
+      "descriptionCustom": "Masukkan nama model untuk digunakan secara default.",
+      "labelModelName": "NAMA MODEL"
+    }
+  },
+  "speech": {
+    "heading": "Speech-to-Text",
+    "description": "Aktifkan input suara untuk interaksi lebih cepat. Anda dapat melewati ini dan mengonfigurasinya nanti.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODEL",
+    "labelLanguage": "BAHASA",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Gagal"
+  },
+  "project": {
+    "heading": "Buat Proyek Pertama Anda",
+    "description": "Proyek mengorganisir agent, percakapan, dan alur kerja Anda.",
+    "labelName": "NAMA PROYEK",
+    "placeholderName": "Proyek Keren Saya",
+    "labelDescription": "DESKRIPSI",
+    "placeholderDescription": "Proyek ini akan melakukan apa?",
+    "labelIcon": "IKON",
+    "fromTemplate": "DARI TEMPLATE",
+    "comingSoon": "Segera Hadir"
+  },
+  "complete": {
+    "heading": "Semuanya Siap!",
+    "description": "Berikut ringkasan konfigurasi Anda.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "MODEL DEFAULT",
+    "labelSpeechToText": "SPEECH-TO-TEXT",
+    "labelProject": "PROYEK",
+    "sttEnabled": "Diaktifkan",
+    "sttSkipped": "Dilewati",
+    "links": {
+      "settings": "Pengaturan",
+      "website": "Situs Web"
+    }
+  }
+}

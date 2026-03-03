@@ -45,6 +45,7 @@ const SAFE_ENV_KEYS = new Set([
   'LANG', 'LC_ALL', 'LC_CTYPE', 'TERM', 'COLORTERM',
   'TZ', 'TMPDIR', 'XDG_RUNTIME_DIR',
   'NODE_ENV', 'NODE_OPTIONS',
+  'SSL_CERT_FILE',
 ])
 
 function getSafeEnv(): Record<string, string> {

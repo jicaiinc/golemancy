@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "대시보드",
+    "chats": "채팅",
+    "automations": "자동화",
+    "agents": "Agent",
+    "skills": "스킬",
+    "mcpServers": "MCP 서버",
+    "tasks": "대화 작업",
+    "artifacts": "아티팩트",
+    "settings": "설정",
+    "knowledgeBase": "지식 베이스"
+  },
+  "sidebar": {
+    "navigation": "내비게이션",
+    "config": "설정",
+    "collapse": "<< 접기"
+  },
+  "global": {
+    "allProjects": "모든 프로젝트",
+    "dashboard": "대시보드",
+    "settings": "설정"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "제한",
+      "sandbox": "샌드박스",
+      "unrestricted": "무제한"
+    },
+    "degraded": "(저하 → {{mode}})",
+    "tasks": "작업 {{completed}}/{{total}}",
+    "conversationTasks": "대화 작업",
+    "contextUsage": "컨텍스트: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "컨텍스트: -- / {{max}}",
+    "contextWindow": "컨텍스트 윈도우",
+    "usage": "사용량",
+    "compacting": "압축 중",
+    "compactingAuto": "자동 압축 중",
+    "compactNow": "지금 압축",
+    "byAgent": "AGENT 별",
+    "byModel": "모델 별",
+    "tokensInOut": "{{input}} 입력 / {{output}} 출력",
+    "tokens": "Token: {{input}} 입력 / {{output}} 출력",
+    "tokensEmpty": "Token: --"
+  }
+}

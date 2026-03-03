@@ -124,6 +124,16 @@ For bugs and feature requests, [open an issue](https://github.com/jicaiinc/golem
 - [Twitter](https://x.com/golemancyai) — Updates and announcements
 - [Email](mailto:hi@golemancy.ai) — hi@golemancy.ai
 
+## Star History
+
+<a href="https://star-history.com/#jicaiinc/golemancy&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jicaiinc/golemancy&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jicaiinc/golemancy&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jicaiinc/golemancy&type=Date" />
+ </picture>
+</a>
+
 ## License
 
 [Apache License 2.0](LICENSE)

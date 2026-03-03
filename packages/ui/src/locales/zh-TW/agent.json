@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "名稱",
+    "agentName": "AGENT 名稱",
+    "description": "說明",
+    "systemPrompt": "系統提示詞",
+    "provider": "供應商",
+    "model": "模型"
+  },
+  "statusLabel": {
+    "idle": "閒置",
+    "running": "執行中",
+    "error": "錯誤",
+    "paused": "已暫停"
+  },
+  "currentMain": "目前主 AGENT",
+  "currentMainTooltip": "該專案目前選定的主 Agent",
+  "noProviders": "未設定供應商",
+  "noModels": "無可用模型",
+  "savedMsg": "已儲存！",
+  "list": {
+    "title": "Agent",
+    "subtitle_one": "該專案有 {{count}} 個 Agent",
+    "subtitle_other": "該專案有 {{count}} 個 Agent",
+    "newBtn": "+ 新建 Agent",
+    "viewGrid": "網格",
+    "viewTopology": "拓撲",
+    "empty": "尚無 Agent",
+    "createFirst": "建立第一個 Agent"
+  },
+  "count": {
+    "skills_one": "{{count}} 個技能",
+    "skills_other": "{{count}} 個技能",
+    "tools_one": "{{count}} 個工具",
+    "tools_other": "{{count}} 個工具",
+    "subAgents_one": "{{count}} 個子 Agent",
+    "subAgents_other": "{{count}} 個子 Agent",
+    "mcpServers_one": "{{count}} 個 MCP 伺服器",
+    "mcpServers_other": "{{count}} 個 MCP 伺服器"
+  },
+  "create": {
+    "modalTitle": "建立新 Agent",
+    "createBtn": "建立 Agent",
+    "namePlaceholder": "例如：研究助手",
+    "descPlaceholder": "這個 Agent 做什麼？",
+    "promptPlaceholder": "你是一個有用的助手..."
+  },
+  "detail": {
+    "notFound": "Agent 未找到。",
+    "backToAgents": "< 返回 Agent 列表",
+    "backBtn": "< Agent",
+    "tabs": {
+      "general": "基本資訊",
+      "modelConfig": "模型設定",
+      "skills": "技能",
+      "tools": "工具",
+      "subAgents": "子 Agent"
+    }
+  },
+  "general": {
+    "sectionTitle": "基本資訊",
+    "deleteBtn": "刪除 Agent"
+  },
+  "modelConfig": {
+    "sectionTitle": "模型設定",
+    "compactLabel": "壓縮閾值"
+  },
+  "skills": {
+    "assigned": "已指派技能",
+    "noneAssigned": "該 Agent 未指派技能。",
+    "addSection": "新增技能",
+    "noneInProject": "專案中尚無技能",
+    "goTo": "前往技能頁面",
+    "manage": "管理技能 \u2192"
+  },
+  "tools": {
+    "builtinSection": "內建工具",
+    "comingSoon": "即將推出",
+    "customSection": "自訂工具",
+    "bashDesc": "執行 Bash 指令，讀寫檔案",
+    "browserDesc": "控制瀏覽器進行自動化操作",
+    "osControlDesc": "桌面自動化和系統控制",
+    "taskDesc": "在對話中建立和管理任務"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 警告",
+    "warningText": "第三方 MCP 伺服器可能會存取或修改你電腦上的檔案。",
+    "enableSandboxHint": "在設定 > 權限中啟用「套用到 MCP」以對 MCP 伺服器進行沙盒隔離。",
+    "sandboxUnavailable": "沙盒執行環境在此平台不可用。",
+    "assigned": "已指派 MCP 伺服器",
+    "noneAssigned": "該 Agent 未指派 MCP 伺服器。",
+    "addSection": "新增 MCP 伺服器",
+    "noneInProject": "專案中尚無 MCP 伺服器",
+    "goTo": "前往 MCP 伺服器頁面",
+    "manage": "管理 MCP 伺服器 \u2192",
+    "restricted": "受限"
+  },
+  "subAgents": {
+    "assigned": "已指派子 AGENT",
+    "noneAssigned": "該 Agent 未指派子 Agent。",
+    "addSection": "新增子 AGENT",
+    "noneAvailable": "專案中沒有其他可用的 Agent。",
+    "unknown": "未知",
+    "rolePlaceholder": "角色..."
+  },
+  "panel": {
+    "modelLabel": "模型",
+    "inherited": "繼承",
+    "capabilities": "能力",
+    "subAgentsLabel": "子 AGENT",
+    "openDetail": "檢視詳情"
+  },
+  "topology": {
+    "resetLayout": "重設佈局",
+    "editAgent": "編輯 Agent",
+    "setMainAgent": "設為主 Agent"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "label": {
+    "projectName": "НАЗВАНИЕ ПРОЕКТА",
+    "description": "ОПИСАНИЕ",
+    "icon": "ИКОНКА",
+    "projectId": "ID ПРОЕКТА"
+  },
+  "list": {
+    "title": "Все проекты",
+    "subtitle_one": "{{count}} проект в вашем пространстве",
+    "subtitle_few": "{{count}} проекта в вашем пространстве",
+    "subtitle_many": "{{count}} проектов в вашем пространстве",
+    "subtitle_other": "{{count}} проектов в вашем пространстве",
+    "newBtn": "+ Новый проект",
+    "empty": "Проектов пока нет",
+    "createFirst": "Создайте первый проект",
+    "openInWindow": "Открыть в новом окне",
+    "agents_one": "{{count}} агент",
+    "agents_few": "{{count}} агента",
+    "agents_many": "{{count}} агентов",
+    "agents_other": "{{count}} агентов",
+    "running_one": "{{count}} работает",
+    "running_few": "{{count}} работают",
+    "running_many": "{{count}} работают",
+    "running_other": "{{count}} работают"
+  },
+  "create": {
+    "modalTitle": "Создать новый проект",
+    "createBtn": "Создать проект",
+    "namePlaceholder": "Мой проект",
+    "descPlaceholder": "О чём этот проект?"
+  },
+  "settings": {
+    "title": "Настройки проекта",
+    "savedMsg": "Сохранено!",
+    "clickToCopy": "Нажмите для копирования",
+    "tabs": {
+      "general": "Основное",
+      "agent": "Агент",
+      "permissions": "Разрешения"
+    },
+    "agent": {
+      "mainLabel": "ОСНОВНОЙ АГЕНТ",
+      "mainDesc": "Агент по умолчанию для новых разговоров в этом проекте.",
+      "noAgents": "В проекте нет агентов. Сначала создайте агента.",
+      "goToAgents": "Перейти к агентам",
+      "none": "Нет",
+      "configure": "Настроить агента \u2192"
+    },
+    "general": {
+      "sectionTitle": "ОСНОВНАЯ ИНФОРМАЦИЯ",
+      "saveBtn": "Сохранить изменения"
+    }
+  }
+}

@@ -1,17 +1,19 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, ConversationTask, MemoryEntry, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
+  KBCollection, KBDocument, KBSearchResult, KBCollectionTier, KBSourceType,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   ThemeMode, WorkspaceEntry, FilePreviewData,
   TranscriptionRecord, SpeechStorageUsage,
-  ProjectId, AgentId, ConversationId, MemoryId, SkillId, CronJobId, TranscriptionId,
+  ProjectId, AgentId, ConversationId, KBCollectionId, KBDocumentId, SkillId, CronJobId, TranscriptionId,
   SkillCreateData, SkillUpdateData,
   AgentStatus,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
+import i18next from 'i18next'
 import { getServices } from '../services'
 import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
 
@@ -60,9 +62,11 @@ interface WorkspaceSlice {
   workspacePreviewLoading: boolean
 }
 
-interface MemorySlice {
-  memories: MemoryEntry[]
-  memoriesLoading: boolean
+interface KnowledgeBaseSlice {
+  kbCollections: KBCollection[]
+  kbDocuments: KBDocument[]
+  kbCollectionsLoading: boolean
+  kbDocumentsLoading: boolean
 }
 
 interface SkillSlice {
@@ -90,6 +94,9 @@ interface UISlice {
   sidebarCollapsed: boolean
   chatHistoryExpanded: boolean
   themeMode: ThemeMode
+  updateInfo: { version: string; downloadUrl: string } | null
+  skippedVersion: string | null
+  updateNotificationsEnabled: boolean
 }
 
 interface DashboardSlice {
@@ -159,11 +166,17 @@ interface WorkspaceActions {
   deleteWorkspaceFile(filePath: string): Promise<void>
 }
 
-interface MemoryActions {
-  loadMemories(projectId: ProjectId): Promise<void>
-  createMemory(data: Pick<MemoryEntry, 'content' | 'source' | 'tags'>): Promise<MemoryEntry>
-  updateMemory(id: MemoryId, data: Partial<Pick<MemoryEntry, 'content' | 'tags'>>): Promise<void>
-  deleteMemory(id: MemoryId): Promise<void>
+interface KnowledgeBaseActions {
+  loadKBCollections(projectId: ProjectId): Promise<void>
+  createKBCollection(data: { name: string; description?: string; tier: KBCollectionTier }): Promise<KBCollection>
+  updateKBCollection(id: KBCollectionId, data: Partial<{ name: string; description: string; tier: KBCollectionTier }>): Promise<void>
+  deleteKBCollection(id: KBCollectionId): Promise<void>
+  loadKBDocuments(collectionId: KBCollectionId): Promise<void>
+  ingestKBDocument(collectionId: KBCollectionId, data: { title?: string; content: string; sourceType: KBSourceType; sourceName?: string }): Promise<KBDocument>
+  uploadKBDocument(collectionId: KBCollectionId, file: File, metadata?: { title?: string }): Promise<KBDocument>
+  deleteKBDocument(documentId: KBDocumentId): Promise<void>
+  searchKB(query: string, options?: { collectionId?: KBCollectionId; limit?: number }): Promise<KBSearchResult[]>
+  hasKBVectorData(): Promise<boolean>
 }
 
 interface SkillActions {
@@ -200,6 +213,9 @@ interface UIActions {
   toggleSidebar(): void
   toggleChatHistory(): void
   setTheme(mode: ThemeMode): void
+  setUpdateInfo(info: { version: string; downloadUrl: string } | null): void
+  skipVersion(version: string): void
+  setUpdateNotifications(enabled: boolean): void
 }
 
 interface DashboardActions {
@@ -227,8 +243,8 @@ interface SpeechActions {
 
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & MemorySlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & MemoryActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & KnowledgeBaseSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & KnowledgeBaseActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -236,7 +252,7 @@ export const useAppStore = create<AppState>()(
       // --- Project state ---
       projects: [],
       currentProjectId: null,
-      projectsLoading: false,
+      projectsLoading: true,
 
       async loadProjects() {
         set({ projectsLoading: true })
@@ -259,7 +275,8 @@ export const useAppStore = create<AppState>()(
           conversations: [],
           conversationTasks: [],
           workspaceEntries: [],
-          memories: [],
+          kbCollections: [],
+          kbDocuments: [],
           skills: [],
           mcpServers: [],
           cronJobs: [],
@@ -270,7 +287,8 @@ export const useAppStore = create<AppState>()(
           conversationsLoading: true,
           tasksLoading: true,
           workspaceLoading: false,
-          memoriesLoading: true,
+          kbCollectionsLoading: true,
+          kbDocumentsLoading: false,
           skillsLoading: true,
           mcpServersLoading: true,
           cronJobsLoading: true,
@@ -281,11 +299,11 @@ export const useAppStore = create<AppState>()(
         // Workspace is lazy-loaded on page visit, not on project select
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
-        const [agents, conversations, conversationTasks, memories, skills, mcpServers, cronJobs] = await Promise.all([
+        const [agents, conversations, conversationTasks, kbCollections, skills, mcpServers, cronJobs] = await Promise.all([
           safe(svc.agents.list(id)),
           safe(svc.conversations.list(id)),
           safe(svc.tasks.list(id)),
-          safe(svc.memory.list(id)),
+          safe(svc.knowledgeBase.listCollections(id)),
           safe(svc.skills.list(id)),
           safe(svc.mcp.list(id)),
           safe(svc.cronJobs.list(id)),
@@ -298,14 +316,14 @@ export const useAppStore = create<AppState>()(
           agents,
           conversations,
           conversationTasks,
-          memories,
+          kbCollections,
           skills,
           mcpServers,
           cronJobs,
           agentsLoading: false,
           conversationsLoading: false,
           tasksLoading: false,
-          memoriesLoading: false,
+          kbCollectionsLoading: false,
           skillsLoading: false,
           mcpServersLoading: false,
           cronJobsLoading: false,
@@ -324,7 +342,8 @@ export const useAppStore = create<AppState>()(
           workspacePreview: null,
           workspaceLoading: false,
           workspacePreviewLoading: false,
-          memories: [],
+          kbCollections: [],
+          kbDocuments: [],
           skills: [],
           mcpServers: [],
           cronJobs: [],
@@ -378,7 +397,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], memories: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], kbCollections: [], kbDocuments: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [] } : {}),
         }))
       },
 
@@ -553,36 +572,97 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      // --- Memory state ---
-      memories: [],
-      memoriesLoading: false,
+      // --- Knowledge Base state ---
+      kbCollections: [],
+      kbDocuments: [],
+      kbCollectionsLoading: false,
+      kbDocumentsLoading: false,
 
-      async loadMemories(projectId: ProjectId) {
-        set({ memoriesLoading: true })
-        const memories = await getServices().memory.list(projectId)
-        set({ memories, memoriesLoading: false })
+      async loadKBCollections(projectId: ProjectId) {
+        set({ kbCollectionsLoading: true })
+        const kbCollections = await getServices().knowledgeBase.listCollections(projectId)
+        set({ kbCollections, kbCollectionsLoading: false })
       },
 
-      async createMemory(data) {
+      async createKBCollection(data) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
-        const entry = await getServices().memory.create(projectId, data)
-        set(s => ({ memories: [...s.memories, entry] }))
-        return entry
+        const collection = await getServices().knowledgeBase.createCollection(projectId, data)
+        set(s => ({ kbCollections: [...s.kbCollections, collection] }))
+        return collection
       },
 
-      async updateMemory(id, data) {
+      async updateKBCollection(id, data) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
-        const updated = await getServices().memory.update(projectId, id, data)
-        set(s => ({ memories: s.memories.map(m => m.id === id ? updated : m) }))
+        const updated = await getServices().knowledgeBase.updateCollection(projectId, id, data)
+        set(s => ({ kbCollections: s.kbCollections.map(c => c.id === id ? updated : c) }))
       },
 
-      async deleteMemory(id) {
+      async deleteKBCollection(id) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
-        await getServices().memory.delete(projectId, id)
-        set(s => ({ memories: s.memories.filter(m => m.id !== id) }))
+        await getServices().knowledgeBase.deleteCollection(projectId, id)
+        set(s => ({
+          kbCollections: s.kbCollections.filter(c => c.id !== id),
+          kbDocuments: s.kbDocuments.filter(d => d.collectionId !== id),
+        }))
+      },
+
+      async loadKBDocuments(collectionId) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        set({ kbDocumentsLoading: true })
+        const docs = await getServices().knowledgeBase.listDocuments(projectId, collectionId)
+        set(s => ({
+          kbDocuments: [...s.kbDocuments.filter(d => d.collectionId !== collectionId), ...docs],
+          kbDocumentsLoading: false,
+        }))
+      },
+
+      async ingestKBDocument(collectionId, data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const doc = await getServices().knowledgeBase.ingestDocument(projectId, collectionId, data)
+        set(s => ({
+          kbDocuments: [...s.kbDocuments, doc],
+          kbCollections: s.kbCollections.map(c => c.id === collectionId ? { ...c, documentCount: c.documentCount + 1, totalChars: c.totalChars + doc.charCount } : c),
+        }))
+        return doc
+      },
+
+      async uploadKBDocument(collectionId, file, metadata) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const doc = await getServices().knowledgeBase.uploadDocument(projectId, collectionId, file, metadata)
+        set(s => ({
+          kbDocuments: [...s.kbDocuments, doc],
+          kbCollections: s.kbCollections.map(c => c.id === collectionId ? { ...c, documentCount: c.documentCount + 1, totalChars: c.totalChars + doc.charCount } : c),
+        }))
+        return doc
+      },
+
+      async deleteKBDocument(documentId) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const doc = get().kbDocuments.find(d => d.id === documentId)
+        await getServices().knowledgeBase.deleteDocument(projectId, documentId)
+        set(s => ({
+          kbDocuments: s.kbDocuments.filter(d => d.id !== documentId),
+          kbCollections: doc ? s.kbCollections.map(c => c.id === doc.collectionId ? { ...c, documentCount: c.documentCount - 1, totalChars: c.totalChars - doc.charCount } : c) : s.kbCollections,
+        }))
+      },
+
+      async searchKB(query, options) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        return getServices().knowledgeBase.search(projectId, query, options)
+      },
+
+      async hasKBVectorData() {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        return getServices().knowledgeBase.hasVectorData(projectId)
       },
 
       // --- Skill state ---
@@ -739,6 +819,10 @@ export const useAppStore = create<AppState>()(
         set({ settings })
         // Sync persisted theme with loaded settings (if not already overridden)
         applyThemeToDOM(get().themeMode)
+        // Sync language from server-side settings (fallback if localStorage was cleared)
+        if (settings.language) {
+          i18next.changeLanguage(settings.language)
+        }
       },
 
       async updateSettings(data) {
@@ -748,12 +832,18 @@ export const useAppStore = create<AppState>()(
           set({ themeMode: data.theme })
           applyThemeToDOM(data.theme)
         }
+        if (data.language) {
+          i18next.changeLanguage(data.language)
+        }
       },
 
       // --- UI state ---
       sidebarCollapsed: false,
       chatHistoryExpanded: false,
       themeMode: 'dark' as ThemeMode,
+      updateInfo: null,
+      skippedVersion: null,
+      updateNotificationsEnabled: true,
 
       toggleSidebar() {
         set(s => ({ sidebarCollapsed: !s.sidebarCollapsed }))
@@ -766,6 +856,18 @@ export const useAppStore = create<AppState>()(
       setTheme(mode: ThemeMode) {
         set({ themeMode: mode })
         applyThemeToDOM(mode)
+      },
+
+      setUpdateInfo(info) {
+        set({ updateInfo: info })
+      },
+
+      skipVersion(version: string) {
+        set({ skippedVersion: version })
+      },
+
+      setUpdateNotifications(enabled: boolean) {
+        set({ updateNotificationsEnabled: enabled })
       },
 
       // --- Dashboard state ---
@@ -895,6 +997,8 @@ export const useAppStore = create<AppState>()(
         sidebarCollapsed: state.sidebarCollapsed,
         chatHistoryExpanded: state.chatHistoryExpanded,
         themeMode: state.themeMode,
+        skippedVersion: state.skippedVersion,
+        updateNotificationsEnabled: state.updateNotificationsEnabled,
       }),
       onRehydrateStorage: () => {
         return (state?: AppState) => {

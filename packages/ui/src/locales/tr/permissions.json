@@ -1,0 +1,104 @@
+{
+  "loading": "\u0130zinler y\u00fckleniyor...",
+  "section": {
+    "permissionMode": "\u0130Z\u0130N MODU",
+    "configuration": "YAPILANDIRMA"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restricted",
+      "subtitle": "Sadece Bash, sandbox yok",
+      "description": "Minimum \u00e7al\u0131\u015ft\u0131rma ortam\u0131. Sandbox runtime yok, MCP deste\u011fi yok.",
+      "badge": "S\u0131n\u0131rl\u0131"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Yap\u0131land\u0131r\u0131labilir izolasyon",
+      "description": "Yap\u0131land\u0131r\u0131labilir dosya sistemi, a\u011f ve komut k\u0131s\u0131tlamalar\u0131 ile sandbox runtime.",
+      "badge": "\u00d6nerilen"
+    },
+    "unrestricted": {
+      "name": "Unrestricted",
+      "subtitle": "Tam sistem eri\u015fimi",
+      "description": "Sandbox k\u0131s\u0131tlamas\u0131 yok. T\u00fcm komutlar tam sistem izinleriyle \u00e7al\u0131\u015f\u0131r.",
+      "badge": "Riskli"
+    }
+  },
+  "config": {
+    "default": "Varsay\u0131lan",
+    "selectConfig": "Yap\u0131land\u0131rma se\u00e7in...",
+    "saveAs": "Farkl\u0131 Kaydet...",
+    "rename": "Yeniden Adland\u0131r",
+    "resetToDefault": "Varsay\u0131lana S\u0131f\u0131rla",
+    "saved": "Kaydedildi!",
+    "editingDefault": "Varsay\u0131lan de\u011ferleri d\u00fczenliyorsunuz. Yeni adl\u0131 bir yap\u0131land\u0131rma olu\u015fturmak i\u00e7in Kaydet'e t\u0131klay\u0131n."
+  },
+  "modal": {
+    "unrestrictedTitle": "Unrestricted Mod Etkinle\u015ftirilsin mi?",
+    "unrestrictedBody": "Bu, t\u00fcm sandbox korumalar\u0131n\u0131 kald\u0131r\u0131r. AI ajanlar\u0131 sisteminize tam eri\u015fime sahip olacak, \u015funlar dahil:",
+    "unrestrictedReadWrite": "Bilgisayar\u0131n\u0131zdaki herhangi bir dosyay\u0131 okuma/yazma",
+    "unrestrictedExecute": "Herhangi bir sistem komutunu \u00e7al\u0131\u015ft\u0131rma",
+    "unrestrictedNetwork": "A\u011fa k\u0131s\u0131tlamas\u0131z eri\u015fim",
+    "unrestrictedSysconfig": "Sistem yap\u0131land\u0131rmas\u0131n\u0131 de\u011fi\u015ftirme",
+    "unrestrictedFooter": "Bunu yaln\u0131zca g\u00fcvenilir ortamlarda yerel geli\u015ftirme i\u00e7in kullan\u0131n.",
+    "enableUnrestricted": "Anl\u0131yorum, Etkinle\u015ftir",
+    "sandboxUnavailableTitle": "Sandbox Modu Kullan\u0131lam\u0131yor",
+    "sandboxUnavailableBody": "Sandbox runtime \u00f6n ko\u015fullar\u0131 kar\u015f\u0131lanmad\u0131. \u015eu sorunlar bulundu:",
+    "sandboxUnavailableFooter": "Sandbox modunu yine de etkinle\u015ftirmek, runtime'\u0131n restricted moda d\u00fc\u015fmesine neden olacakt\u0131r.",
+    "enableAnyway": "Yine de Etkinle\u015ftir",
+    "saveAsTitle": "Yeni Yap\u0131land\u0131rma Olarak Kaydet",
+    "configNameLabel": "YAPILANDIRMA ADI",
+    "configNamePlaceholder": "\u00f6r., Strict Dev, Python Disabled",
+    "renameTitle": "Yap\u0131land\u0131rmay\u0131 Yeniden Adland\u0131r",
+    "newNameLabel": "YEN\u0130 AD",
+    "newNamePlaceholder": "\u00f6r., \u00d6zel Yap\u0131land\u0131rmam",
+    "renaming": "Yeniden adland\u0131r\u0131l\u0131yor...",
+    "deleteTitle": "\"{{title}}\" silinsin mi?",
+    "deleteBody": "Bu yap\u0131land\u0131rma kal\u0131c\u0131 olarak silinecek. Proje sistem varsay\u0131lanlar\u0131na geri d\u00f6necek."
+  },
+  "filesystem": {
+    "sectionTitle": "DOSYA S\u0130STEM\u0130 \u0130Z\u0130NLER\u0130",
+    "allowWrite": "YAZMAYA \u0130Z\u0130N VER",
+    "allowWriteHelper": "Ajanlar\u0131n dosya yazabilece\u011fi yollar. Varsay\u0131lan: proje \u00e7al\u0131\u015fma alan\u0131 dizini.",
+    "allowWritePlaceholder": "\u00f6r., /Users/name/workspace",
+    "denyRead": "OKUMA REDDET",
+    "denyReadHelper": "Okumadan engellenen hassas dosya/klas\u00f6rler.",
+    "denyReadPlaceholder": "\u00f6r., ~/.ssh, .env",
+    "denyWrite": "YAZMA REDDET",
+    "denyWriteHelper": "Yazman\u0131n engellendi\u011fi yollar. Yazmaya izin ver'\u0131n \u00f6n\u00fcnde gelir.",
+    "denyWritePlaceholder": "\u00f6r., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "A\u011e KISITLAMALARI",
+    "enableLabel": "Etkinle\u015ftir",
+    "statusEnabled": "Yaln\u0131zca yap\u0131land\u0131r\u0131lm\u0131\u015f domainlere eri\u015filebilir",
+    "statusDisabled": "T\u00fcm a\u011f trafi\u011fine izin verilir",
+    "allowedDomains": "\u0130Z\u0130N VER\u0130LEN DOMA\u0130NLER",
+    "allowedDomainsHelper": "Ajanlar\u0131n eri\u015febilece\u011fi domainler. Tam: example.com — Joker: *.example.com (*.'\u0131n sonras\u0131 2+ k\u0131s\u0131m)",
+    "allowedDomainsPlaceholder": "\u00f6r., api.github.com",
+    "deniedDomains": "REDDEDILEN DOMAINLER",
+    "deniedDomainsHelper": "Engellenecek domainler. \u0130zin verilen domainlerle ayn\u0131 format.",
+    "deniedDomainsPlaceholder": "\u00f6r., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "KOMUT KISITLAMALARI",
+    "deniedCommands": "REDDEDILEN KOMUTLAR",
+    "deniedCommandsHelper": "\u00c7al\u0131\u015ft\u0131r\u0131lmas\u0131 engellenen komutlar.",
+    "deniedCommandsPlaceholder": "\u00f6r., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "MCP'ye Uygula",
+    "warning": "(\u26A0 Bunu devre d\u0131\u015f\u0131 b\u0131rakmak, \u00fc\u00e7\u00fcnc\u00fc taraf MCP sunucular\u0131n\u0131n bilgisayar\u0131n\u0131zdaki dosyalara eri\u015fmesine veya de\u011fi\u015ftirmesine izin verebilir)",
+    "description": "Etkinle\u015ftirildi\u011finde MCP sunucu komutlar\u0131 sandbox runtime (srt) ile sar\u0131lacakt\u0131r. Bu, ayn\u0131 dosya sistemi, a\u011f ve komut k\u0131s\u0131tlamalar\u0131n\u0131 MCP sunucular\u0131na uygular."
+  },
+  "windows": {
+    "notice": "\u26A0 WINDOWS B\u0130LD\u0130R\u0130M\u0130",
+    "message": "Sandbox runtime Windows'ta kullan\u0131lam\u0131yor. Yaln\u0131zca komut engelleme desteklenir."
+  },
+  "validation": {
+    "removeProtocol": "Protokol\u00fc, yolu veya portu kald\u0131r\u0131n — yaln\u0131zca domain",
+    "wildcardParts": "Joker *.'dan sonra 2+ k\u0131s\u0131m gerektirir (\u00f6r., *.example.com)",
+    "onlyWildcard": "Yaln\u0131zca *.domain.com joker format\u0131 desteklenir",
+    "validDomain": "En az bir nokta i\u00e7eren ge\u00e7erli bir domain olmal\u0131d\u0131r (\u00f6r., example.com)"
+  }
+}

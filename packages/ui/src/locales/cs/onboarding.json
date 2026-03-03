@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Nastavení",
+    "skipSetup": "Přeskočit nastavení"
+  },
+  "steps": {
+    "welcome": "Vítejte",
+    "provider": "Poskytovatel",
+    "speech": "Řeč",
+    "project": "Projekt",
+    "complete": "Hotovo"
+  },
+  "error": {
+    "somethingWentWrong": "Něco se pokazilo. Zkuste to prosím znovu.",
+    "failedToSkip": "Nepodařilo se přeskočit nastavení. Zkuste to prosím znovu.",
+    "connectionTestFailed": "Test připojení selhal",
+    "testFailed": "Test selhal",
+    "unknownError": "Neznámá chyba"
+  },
+  "button": {
+    "createProject": "Vytvořit projekt",
+    "getStarted": "Začít",
+    "continue": "Pokračovat",
+    "startChatting": "Zahájit chat",
+    "goToDashboard": "Přejít na panel",
+    "change": "Změnit",
+    "testConnection": "Otestovat připojení",
+    "testing": "Testování...",
+    "reTest": "Přetestovat",
+    "test": "Test",
+    "hide": "Skrýt",
+    "show": "Zobrazit"
+  },
+  "welcome": {
+    "tagline": "Vítejte",
+    "heading": "Ovládejte své AI Golemy",
+    "description": "Orchestrujte autonomní AI agenty přímo z vaší plochy."
+  },
+  "provider": {
+    "heading": "Připojit poskytovatele AI",
+    "description": "Vyberte poskytovatele a zadejte API klíč pro začátek.",
+    "customLabel": "Vlastní",
+    "customSubtitle": "jakýkoliv endpoint",
+    "customCardTitle": "VLASTNÍ POSKYTOVATEL",
+    "labelApiKey": "API KLÍČ",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NÁZEV",
+    "labelSdkType": "TYP SDK",
+    "statusConnected": "Připojeno",
+    "statusFailed": "Chyba",
+    "statusConnecting": "Připojování...",
+    "none": "Žádný",
+    "defaultModel": {
+      "title": "VÝCHOZÍ MODEL",
+      "descriptionPreset": "Vyberte model používaný ve výchozím nastavení pro nové agenty.",
+      "descriptionCustom": "Zadejte název modelu pro výchozí použití.",
+      "labelModelName": "NÁZEV MODELU"
+    }
+  },
+  "speech": {
+    "heading": "Rozpoznávání řeči",
+    "description": "Zapněte hlasový vstup pro rychlejší interakci. Tento krok můžete přeskočit a nastavit později.",
+    "labelApiKey": "OPENAI API KLÍČ",
+    "labelModel": "MODEL",
+    "labelLanguage": "JAZYK",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Chyba"
+  },
+  "project": {
+    "heading": "Vytvořte první projekt",
+    "description": "Projekty organizují vaše agenty, konverzace a pracovní postupy.",
+    "labelName": "NÁZEV PROJEKTU",
+    "placeholderName": "Můj projekt",
+    "labelDescription": "POPIS",
+    "placeholderDescription": "K čemu tento projekt slouží?",
+    "labelIcon": "IKONA",
+    "fromTemplate": "ZE ŠABLONY",
+    "comingSoon": "Brzy"
+  },
+  "complete": {
+    "heading": "Vše je připraveno!",
+    "description": "Zde je shrnutí vaší konfigurace.",
+    "labelProvider": "POSKYTOVATEL",
+    "labelDefaultModel": "VÝCHOZÍ MODEL",
+    "labelSpeechToText": "ROZPOZNÁVÁNÍ ŘEČI",
+    "labelProject": "PROJEKT",
+    "sttEnabled": "Zapnuto",
+    "sttSkipped": "Přeskočeno",
+    "links": {
+      "settings": "Nastavení",
+      "website": "Webová stránka"
+    }
+  }
+}

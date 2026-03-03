@@ -3,12 +3,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // ── Mocks ────────────────────────────────────────────────────
 
 vi.mock('./paths', () => ({
+  getBundledCertFilePath: vi.fn(() => null),
   getBundledNodeBinDir: vi.fn(() => null),
   getProjectPythonEnvPath: vi.fn((id: string) => `/data/projects/${id}/runtime/python-env`),
   getProjectPythonEnvBinPath: vi.fn((id: string) => `/data/projects/${id}/runtime/python-env/bin`),
   getPipCachePath: vi.fn(() => '/data/runtime/cache/pip'),
   getNpmCachePath: vi.fn(() => '/data/runtime/cache/npm'),
-  getNpmGlobalPath: vi.fn(() => '/data/runtime/npm-global'),
+}))
+
+vi.mock('../logger', () => ({
+  logger: { child: () => ({ debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }) },
 }))
 
 import { buildRuntimeEnv, buildMCPRuntimeEnv } from './env-builder'
@@ -25,7 +29,6 @@ describe('buildRuntimeEnv', () => {
     expect(result).toHaveProperty('PIP_CACHE_DIR')
     expect(result).toHaveProperty('VIRTUAL_ENV')
     expect(result).toHaveProperty('npm_config_cache')
-    expect(result).toHaveProperty('NPM_CONFIG_PREFIX')
   })
 
   it('prepends venv bin to PATH (highest priority)', () => {
@@ -85,10 +88,6 @@ describe('buildRuntimeEnv', () => {
     expect(result.npm_config_cache).toBe('/data/runtime/cache/npm')
   })
 
-  it('sets NPM_CONFIG_PREFIX to shared global', () => {
-    const result = buildRuntimeEnv('proj-abc123')
-    expect(result.NPM_CONFIG_PREFIX).toBe('/data/runtime/npm-global')
-  })
 })
 
 describe('buildMCPRuntimeEnv', () => {
@@ -104,11 +103,10 @@ describe('buildMCPRuntimeEnv', () => {
     expect(result.PATH).toBe('/bundled/node/bin:/usr/bin')
   })
 
-  it('includes npm cache and prefix when bundled node available', () => {
+  it('includes npm cache when bundled node available', () => {
     vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
     const result = buildMCPRuntimeEnv('/usr/bin')
     expect(result.npm_config_cache).toBe('/data/runtime/cache/npm')
-    expect(result.NPM_CONFIG_PREFIX).toBe('/data/runtime/npm-global')
   })
 
   it('does NOT include Python-related env vars', () => {

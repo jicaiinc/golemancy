@@ -11,7 +11,6 @@ export function migrateDatabase(db: AppDatabase) {
   db.run(sql`
     CREATE TABLE IF NOT EXISTS conversations (
       id            TEXT PRIMARY KEY,
-      project_id    TEXT NOT NULL,
       agent_id      TEXT NOT NULL,
       title         TEXT NOT NULL,
       last_message_at TEXT,
@@ -52,8 +51,7 @@ export function migrateDatabase(db: AppDatabase) {
   `)
 
   // Create indexes
-  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_project ON conversations(project_id)`)
-  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(project_id, agent_id)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(agent_id)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at DESC)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversation_tasks_conv ON conversation_tasks(conversation_id)`)
 
@@ -103,7 +101,6 @@ export function migrateDatabase(db: AppDatabase) {
     CREATE TABLE IF NOT EXISTS cron_job_runs (
       id TEXT PRIMARY KEY,
       cron_job_id TEXT NOT NULL,
-      project_id TEXT NOT NULL,
       agent_id TEXT NOT NULL,
       conversation_id TEXT,
       status TEXT NOT NULL DEFAULT 'running',
@@ -178,7 +175,76 @@ export function migrateDatabase(db: AppDatabase) {
   `)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_compact_records_conv ON compact_records(conversation_id, created_at DESC)`)
 
-  // Set up FTS5
+  // --- Migration v7: drop redundant project_id columns ---
+  const convCols = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+  if (convCols.some(c => c.name === 'project_id')) {
+    log.debug('migrating conversations: dropping project_id column')
+    db.run(sql`DROP INDEX IF EXISTS idx_conversations_project`)
+    db.run(sql`DROP INDEX IF EXISTS idx_conversations_agent`)
+    db.run(sql`ALTER TABLE conversations DROP COLUMN project_id`)
+    db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(agent_id)`)
+  }
+
+  const cronRunCols = db.all<{ name: string }>(sql`PRAGMA table_info(cron_job_runs)`)
+  if (cronRunCols.some(c => c.name === 'project_id')) {
+    log.debug('migrating cron_job_runs: dropping project_id column')
+    db.run(sql`ALTER TABLE cron_job_runs DROP COLUMN project_id`)
+  }
+
+  // --- Migration v8: Knowledge Base tables ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS kb_collections (
+      id          TEXT PRIMARY KEY,
+      name        TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      tier        TEXT NOT NULL DEFAULT 'warm',
+      created_at  TEXT NOT NULL,
+      updated_at  TEXT NOT NULL
+    )
+  `)
+
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS kb_documents (
+      id              TEXT PRIMARY KEY,
+      collection_id   TEXT NOT NULL REFERENCES kb_collections(id) ON DELETE CASCADE,
+      title           TEXT NOT NULL,
+      content         TEXT NOT NULL,
+      source_type     TEXT NOT NULL,
+      source_name     TEXT NOT NULL DEFAULT '',
+      metadata        TEXT,
+      tags            TEXT,
+      char_count      INTEGER NOT NULL DEFAULT 0,
+      chunk_count     INTEGER NOT NULL DEFAULT 0,
+      created_at      TEXT NOT NULL,
+      updated_at      TEXT NOT NULL
+    )
+  `)
+
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS kb_chunks (
+      id           TEXT PRIMARY KEY,
+      document_id  TEXT NOT NULL REFERENCES kb_documents(id) ON DELETE CASCADE,
+      chunk_index  INTEGER NOT NULL,
+      content      TEXT NOT NULL,
+      char_count   INTEGER NOT NULL DEFAULT 0,
+      created_at   TEXT NOT NULL
+    )
+  `)
+
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_kb_docs_collection ON kb_documents(collection_id)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_kb_chunks_doc ON kb_chunks(document_id)`)
+
+  // FTS5 for KB documents (normal mode — stores its own copy, no triggers needed)
+  db.run(sql`
+    CREATE VIRTUAL TABLE IF NOT EXISTS kb_documents_fts USING fts5(
+      document_id UNINDEXED,
+      title,
+      content,
+      tokenize = 'porter unicode61'
+    )
+  `)
+
+  // Set up FTS5 for messages
   setupFTS(db)
   log.info('database migrations complete')
 }

@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automasi",
+    "newBtn": "+ Baru"
+  },
+  "empty": {
+    "noJobs": "Belum ada automasi",
+    "createFirstBtn": "Buat Automasi Pertama"
+  },
+  "job": {
+    "runBtn": "Jalankan",
+    "historyBtn": "Riwayat",
+    "runningStatus": "Berjalan...",
+    "viewChat": "Lihat Chat \u2192",
+    "next": "Berikutnya: {{time}}",
+    "at": "Pada {{time}}",
+    "agentNotFound": "Agent tidak ditemukan",
+    "overdue": "terlambat",
+    "once": "sekali"
+  },
+  "delete": {
+    "title": "Hapus Automasi",
+    "confirm": "Apakah Anda yakin ingin menghapus \"{{name}}\"? Tindakan ini tidak dapat dibatalkan."
+  },
+  "runsModal": {
+    "titleWithName": "Riwayat Eksekusi \u2014 {{name}}",
+    "title": "Riwayat Eksekusi",
+    "noRuns": "Belum ada eksekusi",
+    "openChat": "BUKA CHAT \u2192"
+  },
+  "status": {
+    "success": "berhasil",
+    "error": "error",
+    "running": "berjalan"
+  },
+  "form": {
+    "newTitle": "Automasi Baru",
+    "editTitle": "Edit Automasi",
+    "nameLabel": "NAMA",
+    "namePlaceholder": "Review kode harian",
+    "typeLabel": "TIPE",
+    "recurring": "Berulang",
+    "oneTime": "Sekali",
+    "cronLabel": "EKSPRESI CRON",
+    "scheduledAtLabel": "DIJADWALKAN PADA (waktu lokal)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Pilih agent",
+    "instructionLabel": "INSTRUKSI (opsional)",
+    "instructionPlaceholder": "Instruksi untuk dikirim ke agent saat dipicu",
+    "enabledLabel": "Aktif",
+    "presets": {
+      "every5min": "Setiap 5 mnt",
+      "everyHour": "Setiap jam",
+      "every12h": "Setiap 12 jam",
+      "daily9am": "Harian jam 9",
+      "weeklyMon": "Mingguan Senin"
+    },
+    "invalidExpression": "Ekspresi tidak valid"
+  }
+}

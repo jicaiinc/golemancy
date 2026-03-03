@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "PROJEKTNAME",
+    "description": "BESCHREIBUNG",
+    "icon": "SYMBOL",
+    "projectId": "PROJEKT-ID"
+  },
+  "list": {
+    "title": "Alle Projekte",
+    "subtitle_one": "{{count}} Projekt in Ihrem Arbeitsbereich",
+    "subtitle_other": "{{count}} Projekte in Ihrem Arbeitsbereich",
+    "newBtn": "+ Neues Projekt",
+    "empty": "Noch keine Projekte",
+    "createFirst": "Erstellen Sie Ihr erstes Projekt",
+    "openInWindow": "In neuem Fenster öffnen",
+    "agents_one": "{{count}} Agent",
+    "agents_other": "{{count}} Agenten",
+    "running_one": "{{count}} aktiv",
+    "running_other": "{{count}} aktiv"
+  },
+  "create": {
+    "modalTitle": "Neues Projekt erstellen",
+    "createBtn": "Projekt erstellen",
+    "namePlaceholder": "Mein tolles Projekt",
+    "descPlaceholder": "Worum geht es in diesem Projekt?"
+  },
+  "settings": {
+    "title": "Projekteinstellungen",
+    "savedMsg": "Gespeichert!",
+    "clickToCopy": "Klicken zum Kopieren",
+    "tabs": {
+      "general": "Allgemein",
+      "agent": "Agent",
+      "permissions": "Berechtigungen"
+    },
+    "agent": {
+      "mainLabel": "HAUPT-AGENT",
+      "mainDesc": "Der Standard-Agent für neue Konversationen in diesem Projekt.",
+      "noAgents": "Keine Agenten in diesem Projekt. Erstellen Sie zuerst einen Agenten.",
+      "goToAgents": "Zu Agenten",
+      "none": "Keiner",
+      "configure": "Agent konfigurieren \u2192"
+    },
+    "general": {
+      "sectionTitle": "ALLGEMEINE INFO",
+      "saveBtn": "Änderungen speichern"
+    }
+  }
+}

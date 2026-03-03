@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Itago ang chat history",
+    "showHistory": "Ipakita ang chat history",
+    "new": "+ Bago",
+    "clickToRename": "I-click para palitan ang pangalan"
+  },
+  "sidebar": {
+    "newChat": "+ Bagong Chat",
+    "noConversations": "Walang mga pag-uusap"
+  },
+  "window": {
+    "startConversation": "Simulan ang pag-uusap...",
+    "compacting": "Kino-compact",
+    "thinking": "Nag-iisip",
+    "imageMsgTitle": "Mensaheng may larawan"
+  },
+  "empty": {
+    "readyToChat": "Handa nang makipag-chat",
+    "description": "Magsimula ng bagong pag-uusap o pumili mula sa sidebar.",
+    "startChatting": "Magsimulang Mag-chat",
+    "noMainAgent": "Walang Main Agent",
+    "configureText": "Mag-configure ng Main Agent sa <a>Project Settings</a> para makapagsimulang mag-chat."
+  },
+  "input": {
+    "placeholder": "Mag-type ng mensahe...",
+    "dropPlaceholder": "I-drop ang mga larawan dito...",
+    "attachImage": "Mag-attach ng larawan",
+    "recordAudio": "Mag-record ng audio",
+    "transcribing": "Tina-transcribe...",
+    "transcriptionFailed": "Nabigo ang transcription",
+    "startRecordingFailed": "Hindi masimulan ang pag-record",
+    "retryFailed": "Nabigo ang pag-retry"
+  },
+  "message": {
+    "reasoning": "Pangangatwiran",
+    "untitledFile": "Walang pangalan na file",
+    "copy": "Kopyahin"
+  },
+  "compact": {
+    "title": "PAG-UUSAP NA-COMPACT",
+    "summary": "BUOD",
+    "tokensSummary": "{{input}} in / {{output}} out"
+  },
+  "tool": {
+    "running": "Tumatakbo...",
+    "awaitingApproval": "Naghihintay ng pag-apruba",
+    "approved": "Na-approve",
+    "done": "Tapos",
+    "denied": "Tinanggihan",
+    "input": "INPUT",
+    "output": "OUTPUT",
+    "error": "ERROR",
+    "task": "TASK",
+    "tools": "TOOLS",
+    "toolCountRunning": "[{{running}}/{{total}} tools]",
+    "toolCountDone": "[{{total}} tools]",
+    "taskCreate": "Gumawa ng Task",
+    "taskGet": "Kunin ang Task",
+    "taskList": "Listahan ng Tasks",
+    "taskUpdate": "I-update ang Task"
+  }
+}

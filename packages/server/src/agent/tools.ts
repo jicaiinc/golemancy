@@ -2,11 +2,13 @@ import type { ToolSet } from 'ai'
 import type { Agent, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
+import type { KnowledgeBaseStorage } from '../storage/knowledge-base'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools, type ModeDegradation } from './builtin-tools'
 import { createSubAgentToolSet } from './sub-agent'
 import { createTaskTools } from './task-tools'
+import { createKBTools } from './kb-tools'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
@@ -25,6 +27,7 @@ export interface LoadAgentToolsParams {
   conversationId?: string
   taskStorage?: SqliteConversationTaskStorage
   tokenRecordStorage?: TokenRecordStorage
+  kbStorage?: KnowledgeBaseStorage
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void
 }
 
@@ -49,7 +52,7 @@ export interface AgentToolsResult {
  * recursive nesting controlled purely by agent configuration.
  */
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
-  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, onTokenUsage } = params
+  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, kbStorage, onTokenUsage } = params
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
@@ -124,7 +127,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   if (agent.subAgents?.length > 0) {
     const subAgentResult = createSubAgentToolSet(
       agent, allAgents, settings, projectId, loadAgentTools, mcpStorage, permissionsConfigStorage,
-      conversationId, taskStorage, tokenRecordStorage, onTokenUsage,
+      conversationId, taskStorage, tokenRecordStorage, kbStorage, onTokenUsage,
     )
     Object.assign(tools, subAgentResult.tools)
   }
@@ -138,6 +141,26 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     })
     Object.assign(tools, taskTools)
     log.debug('loaded task built-in tools')
+  }
+
+  // 6. Knowledge Base tools
+  if (agent.builtinTools?.knowledge_base !== false && kbStorage) {
+    const kbTools = createKBTools({
+      projectId: projectId as ProjectId,
+      kbStorage,
+    })
+    Object.assign(tools, kbTools)
+    log.debug('loaded KB built-in tools')
+
+    // Inject Hot layer content into instructions
+    try {
+      const hotContent = await kbStorage.getHotContent(projectId as ProjectId)
+      if (hotContent) {
+        instructions = instructions ? instructions + '\n\n' + hotContent : hotContent
+      }
+    } catch (err) {
+      log.warn({ err, projectId }, 'failed to load hot content for KB injection')
+    }
   }
 
   log.debug(

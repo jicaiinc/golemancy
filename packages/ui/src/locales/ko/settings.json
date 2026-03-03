@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "전체 설정"
+  },
+  "tabs": {
+    "general": "일반",
+    "providers": "프로바이더",
+    "speech": "음성",
+    "about": "정보"
+  },
+  "about": {
+    "slogan": "AI 골렘을 지휘하세요",
+    "links": {
+      "website": "웹사이트",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "업데이트",
+    "checkForUpdates": "업데이트 알림",
+    "upToDate": "최신 버전입니다 — v{{version}}",
+    "available": "업데이트 가능",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "{{platform}} 버전 다운로드",
+    "downloadGeneric": "다운로드",
+    "skip": "이 버전 건너뛰기",
+    "skipped": "v{{version}} 사용 가능 (건너뜀)"
+  },
+  "general": {
+    "appearance": "외관",
+    "light": "라이트",
+    "dark": "다크",
+    "system": "시스템",
+    "language": "언어"
+  },
+  "defaultModel": {
+    "sectionTitle": "기본 모델",
+    "description": "새 프로젝트 및 Agent 생성 시 사용되는 기본 모델.",
+    "providerLabel": "프로바이더",
+    "modelLabel": "모델",
+    "noProvider": "-- 없음 --",
+    "selectProviderFirst": "-- 먼저 프로바이더를 선택하세요 --",
+    "noModels": "사용 가능한 모델 없음",
+    "saved": "저장되었습니다!"
+  },
+  "providers": {
+    "sectionTitle": "프로바이더",
+    "addProvider": "+ 프로바이더 추가",
+    "selectProvider": "프로바이더 선택",
+    "customProvider": "커스텀 프로바이더",
+    "custom": "커스텀",
+    "anyEndpoint": "모든 엔드포인트",
+    "nameLabel": "이름",
+    "baseUrlLabel": "기본 URL",
+    "sdkTypeLabel": "SDK 유형",
+    "empty": "프로바이더가 설정되지 않았습니다. \"+ 프로바이더 추가\"를 클릭하여 시작하세요."
+  },
+  "provider": {
+    "testing": "테스트 중...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "실패",
+    "untested": "미테스트",
+    "noKey": "키 없음",
+    "retest": "재테스트",
+    "test": "테스트",
+    "del": "삭제",
+    "deleteConfirm": "{{name}}을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+    "apiKeyLabel": "API 키:",
+    "notSet": "미설정",
+    "hide": "숨기기",
+    "show": "표시",
+    "urlLabel": "URL:",
+    "modelsCount": "모델 ({{count}})",
+    "addModel": "+ 모델 추가",
+    "apiKeyInputLabel": "API 키",
+    "baseUrlOptional": "기본 URL (선택사항)",
+    "hideKey": "키 숨기기",
+    "showKey": "키 표시"
+  },
+  "threshold": {
+    "tokens": "Token"
+  }
+}

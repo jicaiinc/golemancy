@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "취소",
+    "save": "저장",
+    "saving": "저장 중...",
+    "saved": "저장됨",
+    "delete": "삭제",
+    "deleting": "삭제 중...",
+    "edit": "편집",
+    "add": "추가",
+    "confirm": "확인",
+    "retry": "재시도",
+    "back": "뒤로",
+    "next": "다음",
+    "close": "닫기",
+    "create": "생성",
+    "creating": "생성 중...",
+    "refresh": "새로고침",
+    "send": "보내기",
+    "stop": "중지",
+    "dismiss": "닫기",
+    "done": "완료",
+    "copy": "복사"
+  },
+  "status": {
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공"
+  },
+  "time": {
+    "justNow": "방금",
+    "minsAgo_one": "{{count}}분 전",
+    "minsAgo_other": "{{count}}분 전",
+    "hoursAgo_one": "{{count}}시간 전",
+    "hoursAgo_other": "{{count}}시간 전",
+    "daysAgo_one": "{{count}}일 전",
+    "daysAgo_other": "{{count}}일 전",
+    "now": "지금",
+    "inMins_one": "{{count}}분 후",
+    "inMins_other": "{{count}}분 후",
+    "inHours_one": "{{count}}시간 후",
+    "inHours_other": "{{count}}시간 후",
+    "inDays_one": "{{count}}일 후",
+    "inDays_other": "{{count}}일 후",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "삭제",
+    "deleteMessage": "이 작업은 되돌릴 수 없습니다.",
+    "areYouSure": "정말 진행하시겠습니까?"
+  },
+  "empty": {
+    "noData": "데이터 없음"
+  },
+  "list": {
+    "noneConfigured": "설정되지 않음"
+  },
+  "label": {
+    "name": "이름",
+    "description": "설명",
+    "type": "유형",
+    "enabled": "활성화",
+    "disabled": "비활성화"
+  },
+  "dropZone": {
+    "releaseToDrop": "놓아서 업로드",
+    "dragAndDrop": "파일을 드래그 앤 드롭하거나 클릭하여 업로드",
+    "accepts": "지원 형식: {{extensions}}"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "loading": "Machtigingen laden...",
+  "section": {
+    "permissionMode": "MACHTIGINGSMODUS",
+    "configuration": "CONFIGURATIE"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Beperkt",
+      "subtitle": "Alleen Bash, geen sandbox",
+      "description": "Minimale uitvoeringsomgeving. Geen sandbox-runtime, geen MCP-ondersteuning.",
+      "badge": "Beperkt"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Configureerbare isolatie",
+      "description": "Sandbox-runtime met configureerbare bestands-, netwerk- en opdrachtbeperkingen.",
+      "badge": "Aanbevolen"
+    },
+    "unrestricted": {
+      "name": "Onbeperkt",
+      "subtitle": "Volledige systeemtoegang",
+      "description": "Geen sandbox-beperkingen. Alle opdrachten worden uitgevoerd met volledige systeemmachtigingen.",
+      "badge": "Risicovol"
+    }
+  },
+  "config": {
+    "default": "Standaard",
+    "selectConfig": "Configuratie selecteren...",
+    "saveAs": "Opslaan als...",
+    "rename": "Hernoemen",
+    "resetToDefault": "Standaard herstellen",
+    "saved": "Opgeslagen!",
+    "editingDefault": "Standaardwaarden bewerken. Klik op Opslaan om een nieuwe benoemde configuratie te maken."
+  },
+  "modal": {
+    "unrestrictedTitle": "Onbeperkte modus inschakelen?",
+    "unrestrictedBody": "Dit verwijdert alle sandbox-bescherming. AI-agenten krijgen volledige toegang tot uw systeem, inclusief:",
+    "unrestrictedReadWrite": "Elk bestand op uw computer lezen/schrijven",
+    "unrestrictedExecute": "Elk systeemcommando uitvoeren",
+    "unrestrictedNetwork": "Onbeperkte netwerktoegang",
+    "unrestrictedSysconfig": "Systeemconfiguratie wijzigen",
+    "unrestrictedFooter": "Gebruik dit alleen voor lokale ontwikkeling in vertrouwde omgevingen.",
+    "enableUnrestricted": "Begrepen, Inschakelen",
+    "sandboxUnavailableTitle": "Sandbox-modus niet beschikbaar",
+    "sandboxUnavailableBody": "De vereisten voor de sandbox-runtime zijn niet voldaan. De volgende problemen zijn gevonden:",
+    "sandboxUnavailableFooter": "Het toch inschakelen van de sandbox-modus resulteert in degradatie naar de beperkte modus.",
+    "enableAnyway": "Toch Inschakelen",
+    "saveAsTitle": "Opslaan als nieuwe configuratie",
+    "configNameLabel": "CONFIGURATIENAAM",
+    "configNamePlaceholder": "bijv., Strikte Ontwikkeling, Python Uitgeschakeld",
+    "renameTitle": "Configuratie hernoemen",
+    "newNameLabel": "NIEUWE NAAM",
+    "newNamePlaceholder": "bijv., Mijn Configuratie",
+    "renaming": "Hernoemen...",
+    "deleteTitle": "\"{{title}}\" verwijderen?",
+    "deleteBody": "Deze configuratie wordt permanent verwijderd. Het project keert terug naar systeemstandaarden."
+  },
+  "filesystem": {
+    "sectionTitle": "BESTANDSSYSTEEMMACHTIGINGEN",
+    "allowWrite": "SCHRIJVEN TOESTAAN",
+    "allowWriteHelper": "Paden waar agenten bestanden mogen schrijven. Standaard: projectwerkruimte.",
+    "allowWritePlaceholder": "bijv., /Users/naam/werkruimte",
+    "denyRead": "LEZEN WEIGEREN",
+    "denyReadHelper": "Gevoelige bestanden/mappen die geblokkeerd worden voor lezen.",
+    "denyReadPlaceholder": "bijv., ~/.ssh, .env",
+    "denyWrite": "SCHRIJVEN WEIGEREN",
+    "denyWriteHelper": "Paden waar schrijven geblokkeerd is. Heeft voorrang op schrijven toestaan.",
+    "denyWritePlaceholder": "bijv., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "NETWERKBEPERKINGEN",
+    "enableLabel": "Inschakelen",
+    "statusEnabled": "Alleen geconfigureerde domeinen zijn bereikbaar",
+    "statusDisabled": "Al het netwerkverkeer is toegestaan",
+    "allowedDomains": "TOEGESTANE DOMEINEN",
+    "allowedDomainsHelper": "Domeinen waartoe agenten toegang hebben. Exact: example.com — Wildcard: *.example.com (2+ delen na *.)",
+    "allowedDomainsPlaceholder": "bijv., api.github.com",
+    "deniedDomains": "GEBLOKKEERDE DOMEINEN",
+    "deniedDomainsHelper": "Domeinen die geblokkeerd worden. Zelfde formaat als toegestane domeinen.",
+    "deniedDomainsPlaceholder": "bijv., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "OPDRACHTBEPERKINGEN",
+    "deniedCommands": "GEBLOKKEERDE OPDRACHTEN",
+    "deniedCommandsHelper": "Opdrachten die geblokkeerd worden voor uitvoering.",
+    "deniedCommandsPlaceholder": "bijv., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Toepassen op MCP",
+    "warning": "(\u26A0 Het uitschakelen kan MCP-servers van derden toegang geven tot bestanden op uw computer)",
+    "description": "Indien ingeschakeld worden MCP-serveropdrachten uitgevoerd in de sandbox-runtime (srt). Dit past dezelfde bestands-, netwerk- en opdrachtbeperkingen toe op MCP-servers."
+  },
+  "windows": {
+    "notice": "\u26A0 WINDOWS-MELDING",
+    "message": "Sandbox-runtime is niet beschikbaar op Windows. Alleen opdrachtblokkering wordt ondersteund."
+  },
+  "validation": {
+    "removeProtocol": "Verwijder protocol, pad of poort — alleen het domein",
+    "wildcardParts": "Wildcard vereist 2+ delen na *. (bijv., *.example.com)",
+    "onlyWildcard": "Alleen het wildcard-formaat *.domein.com wordt ondersteund",
+    "validDomain": "Moet een geldig domein zijn met minstens één punt (bijv., example.com)"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "プロジェクト名",
+    "description": "説明",
+    "icon": "アイコン",
+    "projectId": "プロジェクト ID"
+  },
+  "list": {
+    "title": "すべてのプロジェクト",
+    "subtitle_one": "ワークスペースに {{count}} プロジェクト",
+    "subtitle_other": "ワークスペースに {{count}} プロジェクト",
+    "newBtn": "+ 新規プロジェクト",
+    "empty": "プロジェクトがありません",
+    "createFirst": "最初のプロジェクトを作成",
+    "openInWindow": "新しいウィンドウで開く",
+    "agents_one": "{{count}} Agent",
+    "agents_other": "{{count}} Agent",
+    "running_one": "{{count}} 実行中",
+    "running_other": "{{count}} 実行中"
+  },
+  "create": {
+    "modalTitle": "新規プロジェクト作成",
+    "createBtn": "プロジェクトを作成",
+    "namePlaceholder": "マイプロジェクト",
+    "descPlaceholder": "このプロジェクトについて"
+  },
+  "settings": {
+    "title": "プロジェクト設定",
+    "savedMsg": "保存しました！",
+    "clickToCopy": "クリックしてコピー",
+    "tabs": {
+      "general": "基本情報",
+      "agent": "Agent",
+      "permissions": "権限"
+    },
+    "agent": {
+      "mainLabel": "メイン AGENT",
+      "mainDesc": "このプロジェクトの新しい会話で使用するデフォルト Agent。",
+      "noAgents": "プロジェクトに Agent がありません。まず Agent を作成してください。",
+      "goToAgents": "Agent ページへ",
+      "none": "なし",
+      "configure": "Agent を設定 \u2192"
+    },
+    "general": {
+      "sectionTitle": "基本情報",
+      "saveBtn": "変更を保存"
+    }
+  }
+}

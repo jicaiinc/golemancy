@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "スキル",
+    "skillCount_one": "{{count}} スキル",
+    "skillCount_other": "{{count}} スキル",
+    "newSkillBtn": "+ 新規スキル"
+  },
+  "tabs": {
+    "installed": "インストール済み",
+    "marketplace": "マーケットプレイス"
+  },
+  "import": {
+    "noValidFiles": ".md または .zip ファイルが見つかりません。Markdown または ZIP ファイルをドロップしてスキルをインポートしてください。",
+    "importedCount_one": "{{count}} 個のスキルをインポートしました",
+    "importedCount_other": "{{count}} 個のスキルをインポートしました",
+    "importError": "スキルのインポートに失敗しました"
+  },
+  "deleteError": {
+    "inUse_one": "スキル「{{name}}」は {{count}} 個の Agent に割り当てられています。先に割り当てを解除してください。",
+    "inUse_other": "スキル「{{name}}」は {{count}} 個の Agent に割り当てられています。先に割り当てを解除してください。",
+    "generic": "スキルの削除に失敗しました"
+  },
+  "loading": "スキルを読み込み中...",
+  "empty": {
+    "title": "スキルがありません",
+    "createFirstBtn": "最初のスキルを作成"
+  },
+  "comingSoon": "近日公開",
+  "form": {
+    "newTitle": "新規スキル",
+    "editTitle": "スキルを編集",
+    "nameLabel": "名前",
+    "descriptionLabel": "説明",
+    "instructionsLabel": "指示",
+    "instructionsPlaceholder": "Markdown でスキル指示を記述..."
+  }
+}

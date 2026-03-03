@@ -1,6 +1,7 @@
 import { tool, streamText, stepCountIs, type ToolSet } from 'ai'
 import { z } from 'zod'
 import type { Agent, GlobalSettings, ProjectId, IMCPService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
+import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
 import { resolveModel } from './model'
@@ -49,6 +50,7 @@ export function createSubAgentTool(
   conversationId?: string,
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
+  kbStorage?: import('../storage/knowledge-base').KnowledgeBaseStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
 ) {
   return tool({
@@ -70,6 +72,7 @@ export function createSubAgentTool(
         conversationId,
         taskStorage,
         tokenRecordStorage,
+        kbStorage,
         onTokenUsage,
       })
 
@@ -94,7 +97,7 @@ export function createSubAgentTool(
           model: childModel,
           system: systemPrompt,
           tools: hasTools ? childToolsResult.tools : undefined,
-          stopWhen: hasTools ? stepCountIs(10) : undefined,
+          stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           prompt: context ? `${task}\n\nContext: ${context}` : task,
           abortSignal,
           onAbort: async ({ steps }) => {
@@ -234,6 +237,7 @@ export function createSubAgentToolSet(
   conversationId?: string,
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
+  kbStorage?: import('../storage/knowledge-base').KnowledgeBaseStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
@@ -246,7 +250,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, onTokenUsage)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, kbStorage, onTokenUsage)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

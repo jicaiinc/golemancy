@@ -5,10 +5,29 @@
   "tabs": {
     "general": "通用",
     "providers": "供应商",
-    "speech": "语音"
+    "speech": "语音",
+    "about": "关于"
   },
   "about": {
-    "version": "Golemancy v{{version}} — 指挥你的 AI Golem"
+    "slogan": "指挥你的 AI Golem",
+    "links": {
+      "website": "官网",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "更新",
+    "checkForUpdates": "更新通知",
+    "upToDate": "已是最新版本 — v{{version}}",
+    "available": "有新版本",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "下载 {{platform}} 版",
+    "downloadGeneric": "下载",
+    "skip": "跳过此版本",
+    "skipped": "v{{version}} 可用（已跳过）"
   },
   "general": {
     "appearance": "外观",

@@ -528,7 +528,7 @@ export class MCPPool {
       const stderrCapture = new StderrCapture()
       const { Experimental_StdioMCPTransport } = await import('@ai-sdk/mcp/mcp-stdio')
 
-      // Inject bundled Node.js env (PATH, npm cache/prefix) for stdio MCP servers
+      // Inject bundled Node.js env (PATH, npm cache) for stdio MCP servers
       const mcpRuntimeEnv = buildMCPRuntimeEnv()
       const transportEnv = Object.keys(mcpRuntimeEnv).length > 0 || server.env
         ? { ...process.env, ...mcpRuntimeEnv, ...server.env } as Record<string, string>

@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Panou de bord",
+    "descriptionFallback": "Prezentare generală proiect",
+    "loading": "Se încarcă panoul de bord..."
+  },
+  "tokenUsage": {
+    "title": "UTILIZARE TOKENS"
+  },
+  "chart": {
+    "noData": "Nu există date despre tokens",
+    "tooltipIn": "Intrare: {{tokens}}",
+    "tooltipOut": "Ieșire: {{tokens}}",
+    "legendInput": "Intrare",
+    "legendOutput": "Ieșire"
+  },
+  "tabs": {
+    "trend": "Tendință",
+    "byAgent": "Pe agent",
+    "byModel": "Pe model",
+    "byProject": "Pe proiect"
+  },
+  "table": {
+    "colName": "Nume",
+    "colTotal": "Total",
+    "colInput": "Intrare",
+    "colOutput": "Ieșire",
+    "colCalls": "Apeluri",
+    "colRatio": "Raport",
+    "titleByAgent": "TOKENS PE AGENT",
+    "titleByModel": "TOKENS PE MODEL",
+    "titleByProject": "TOKENS PE PROIECT"
+  },
+  "timeRange": {
+    "today": "Astăzi",
+    "sevenDays": "7 zile",
+    "thirtyDays": "30 zile",
+    "allTime": "Tot timpul"
+  },
+  "summary": {
+    "totalTokens": "Total tokens",
+    "inputTokens": "Tokens intrare",
+    "outputTokens": "Tokens ieșire",
+    "apiCalls": "Apeluri API"
+  },
+  "overview": {
+    "agents": "AGENȚI",
+    "recentChats": "CONVERSAȚII RECENTE",
+    "viewAll": "Vedeți tot \u2192",
+    "noAgents": "Niciun agent",
+    "noRecentChats": "Nicio conversație recentă",
+    "chatStats": "{{count}} mesaje \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "ACTIVITATE",
+    "tabActive": "Active ({{count}})",
+    "tabScheduled": "Programate ({{count}})",
+    "tabRecent": "Recente",
+    "badgeChat": "Conversație",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Nicio execuție activă",
+    "noScheduledRuns": "Nicio execuție programată",
+    "noRecentActivity": "Nicio activitate recentă",
+    "openLink": "DESCHIDERE \u2192",
+    "tokenCount": "{{tokens}} tokens"
+  },
+  "global": {
+    "title": "Panou global",
+    "subtitle": "Prezentare generală inter-proiecte",
+    "topProjects": "PROIECTE PRINCIPALE",
+    "noProjectData": "Nu există date despre proiecte",
+    "projectStats": "{{tokens}} tokens \u00B7 {{calls}} apeluri"
+  }
+}

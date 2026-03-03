@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "PROJECTNAAM",
+    "description": "BESCHRIJVING",
+    "icon": "PICTOGRAM",
+    "projectId": "PROJECT-ID"
+  },
+  "list": {
+    "title": "Alle Projecten",
+    "subtitle_one": "{{count}} project in uw werkruimte",
+    "subtitle_other": "{{count}} projecten in uw werkruimte",
+    "newBtn": "+ Nieuw Project",
+    "empty": "Nog geen projecten",
+    "createFirst": "Maak Uw Eerste Project",
+    "openInWindow": "Openen in Nieuw Venster",
+    "agents_one": "{{count}} agent",
+    "agents_other": "{{count}} agenten",
+    "running_one": "{{count}} actief",
+    "running_other": "{{count}} actief"
+  },
+  "create": {
+    "modalTitle": "Nieuw Project Aanmaken",
+    "createBtn": "Project Aanmaken",
+    "namePlaceholder": "Mijn Geweldige Project",
+    "descPlaceholder": "Waar gaat dit project over?"
+  },
+  "settings": {
+    "title": "Projectinstellingen",
+    "savedMsg": "Opgeslagen!",
+    "clickToCopy": "Klik om te kopiëren",
+    "tabs": {
+      "general": "Algemeen",
+      "agent": "Agent",
+      "permissions": "Machtigingen"
+    },
+    "agent": {
+      "mainLabel": "HOOFDAGENT",
+      "mainDesc": "De standaard agent voor nieuwe gesprekken in dit project.",
+      "noAgents": "Geen agenten in dit project. Maak eerst een agent aan.",
+      "goToAgents": "Ga naar Agenten",
+      "none": "Geen",
+      "configure": "Agent Configureren \u2192"
+    },
+    "general": {
+      "sectionTitle": "ALGEMENE INFO",
+      "saveBtn": "Wijzigingen Opslaan"
+    }
+  }
+}

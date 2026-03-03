@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Mga Automation",
+    "newBtn": "+ Bago"
+  },
+  "empty": {
+    "noJobs": "Wala pang automation",
+    "createFirstBtn": "Gumawa ng Unang Automation"
+  },
+  "job": {
+    "runBtn": "Patakbuhin",
+    "historyBtn": "Kasaysayan",
+    "runningStatus": "Tumatakbo...",
+    "viewChat": "Tingnan ang Chat \u2192",
+    "next": "Susunod: {{time}}",
+    "at": "Sa {{time}}",
+    "agentNotFound": "Hindi nahanap ang Agent",
+    "overdue": "overdue",
+    "once": "isang beses"
+  },
+  "delete": {
+    "title": "I-delete ang Automation",
+    "confirm": "Sigurado ka bang gusto mong i-delete ang \"{{name}}\"? Hindi na maibabalik ang aksyon na ito."
+  },
+  "runsModal": {
+    "titleWithName": "Kasaysayan ng Pagtakbo \u2014 {{name}}",
+    "title": "Kasaysayan ng Pagtakbo",
+    "noRuns": "Wala pang takbo",
+    "openChat": "BUKSAN ANG CHAT \u2192"
+  },
+  "status": {
+    "success": "matagumpay",
+    "error": "error",
+    "running": "tumatakbo"
+  },
+  "form": {
+    "newTitle": "Bagong Automation",
+    "editTitle": "I-edit ang Automation",
+    "nameLabel": "PANGALAN",
+    "namePlaceholder": "Araw-araw na code review",
+    "typeLabel": "URI",
+    "recurring": "Paulit-ulit",
+    "oneTime": "Isang Beses",
+    "cronLabel": "CRON EXPRESSION",
+    "scheduledAtLabel": "NAKA-SCHEDULE SA (lokal na oras)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Pumili ng agent",
+    "instructionLabel": "INSTRUKSYON (opsyonal)",
+    "instructionPlaceholder": "Mga instruksyon na ipapadala sa agent kapag na-trigger",
+    "enabledLabel": "Naka-enable",
+    "presets": {
+      "every5min": "Bawat 5 min",
+      "everyHour": "Bawat oras",
+      "every12h": "Bawat 12 oras",
+      "daily9am": "Araw-araw 9am",
+      "weeklyMon": "Lingguhan Lun"
+    },
+    "invalidExpression": "Hindi valid ang expression"
+  }
+}

@@ -7,9 +7,9 @@
     "skills": "技能",
     "mcpServers": "MCP 服务器",
     "tasks": "对话任务",
-    "artifacts": "工件",
-    "memory": "记忆",
-    "settings": "设置"
+    "artifacts": "文件",
+    "settings": "设置",
+    "knowledgeBase": "知识库"
   },
   "sidebar": {
     "navigation": "导航",

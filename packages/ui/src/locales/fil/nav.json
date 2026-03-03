@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Dashboard",
+    "chats": "Mga Chat",
+    "automations": "Mga Automation",
+    "agents": "Mga Agent",
+    "skills": "Mga Skill",
+    "mcpServers": "MCP Servers",
+    "tasks": "Mga Conversation Task",
+    "artifacts": "Mga Artifact",
+    "settings": "Settings",
+    "knowledgeBase": "Knowledge Base"
+  },
+  "sidebar": {
+    "navigation": "NABIGASYON",
+    "config": "CONFIG",
+    "collapse": "<< I-collapse"
+  },
+  "global": {
+    "allProjects": "Lahat ng Projects",
+    "dashboard": "Dashboard",
+    "settings": "Settings"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Restricted",
+      "sandbox": "Sandbox",
+      "unrestricted": "Unrestricted"
+    },
+    "degraded": "(bumaba → {{mode}})",
+    "tasks": "Mga Task {{completed}}/{{total}}",
+    "conversationTasks": "MGA CONVERSATION TASK",
+    "contextUsage": "Context: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Context: -- / {{max}}",
+    "contextWindow": "CONTEXT WINDOW",
+    "usage": "Paggamit",
+    "compacting": "Kino-compact",
+    "compactingAuto": "Kino-compact (auto)",
+    "compactNow": "I-compact Ngayon",
+    "byAgent": "AYON SA AGENT",
+    "byModel": "AYON SA MODEL",
+    "tokensInOut": "{{input}} in / {{output}} out",
+    "tokens": "Token: {{input}} in / {{output}} out",
+    "tokensEmpty": "Token: --"
+  }
+}

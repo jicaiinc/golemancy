@@ -21,11 +21,12 @@ export class FileCronJobStorage implements ICronJobService {
   async list(projectId: ProjectId): Promise<CronJob[]> {
     const jobs = await listJsonFiles<CronJob>(this.cronJobsDir(projectId))
     log.debug({ projectId, count: jobs.length }, 'listed cron jobs')
-    return jobs
+    return jobs.map(j => ({ ...j, projectId }))
   }
 
   async getById(projectId: ProjectId, id: CronJobId): Promise<CronJob | null> {
-    return readJson<CronJob>(this.cronJobPath(projectId, id))
+    const job = await readJson<CronJob>(this.cronJobPath(projectId, id))
+    return job ? { ...job, projectId } : null
   }
 
   async create(
@@ -44,7 +45,9 @@ export class FileCronJobStorage implements ICronJobService {
       updatedAt: now,
     }
 
-    await writeJson(this.cronJobPath(projectId, id), job)
+    // Write without projectId — ownership is determined by directory
+    const { projectId: _, ...toWrite } = job
+    await writeJson(this.cronJobPath(projectId, id), toWrite)
     return job
   }
 
@@ -64,7 +67,9 @@ export class FileCronJobStorage implements ICronJobService {
       projectId,
       updatedAt: new Date().toISOString(),
     }
-    await writeJson(this.cronJobPath(projectId, id), updated)
+    // Write without projectId — ownership is determined by directory
+    const { projectId: _, ...toWrite } = updated
+    await writeJson(this.cronJobPath(projectId, id), toWrite)
     return updated
   }
 
@@ -81,9 +86,10 @@ export class FileCronJobStorage implements ICronJobService {
       const allJobs: CronJob[] = []
       for (const entry of entries) {
         if (!entry.isDirectory()) continue
+        const projectId = entry.name as ProjectId
         const cronDir = path.join(projectsDir, entry.name, 'cronjobs')
         const jobs = await listJsonFiles<CronJob>(cronDir)
-        allJobs.push(...jobs.filter(j => j.enabled))
+        allJobs.push(...jobs.filter(j => j.enabled).map(j => ({ ...j, projectId })))
       }
       return allJobs
     } catch (e) {
@@ -100,6 +106,8 @@ export class FileCronJobStorage implements ICronJobService {
     const existing = await this.getById(projectId, id)
     if (!existing) return
     const updated = { ...existing, ...meta, updatedAt: new Date().toISOString() }
-    await writeJson(this.cronJobPath(projectId, id), updated)
+    // Write without projectId — ownership is determined by directory
+    const { projectId: _, ...toWrite } = updated
+    await writeJson(this.cronJobPath(projectId, id), toWrite)
   }
 }

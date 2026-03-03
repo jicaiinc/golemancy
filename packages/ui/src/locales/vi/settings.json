@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "C\u00e0i \u0110\u1eb7t Chung"
+  },
+  "tabs": {
+    "general": "Chung",
+    "providers": "Provider",
+    "speech": "Gi\u1ecdng n\u00f3i",
+    "about": "Gi\u1edbi thi\u1ec7u"
+  },
+  "about": {
+    "slogan": "Ch\u1ec9 huy c\u00e1c AI Golem c\u1ee7a b\u1ea1n",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "\u00a9 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "C\u1eacP NH\u1eacT",
+    "checkForUpdates": "Th\u00f4ng b\u00e1o c\u1eadp nh\u1eadt",
+    "upToDate": "B\u1ea1n \u0111ang d\u00f9ng phi\u00ean b\u1ea3n m\u1edbi nh\u1ea5t \u2014 v{{version}}",
+    "available": "C\u00d3 B\u1ea2N C\u1eacP NH\u1eacT",
+    "newVersion": "v{{current}} \u2192 v{{latest}}",
+    "download": "T\u1ea3i xu\u1ed1ng cho {{platform}}",
+    "downloadGeneric": "T\u1ea3i xu\u1ed1ng",
+    "skip": "B\u1ecf qua phi\u00ean b\u1ea3n n\u00e0y",
+    "skipped": "v{{version}} kh\u1ea3 d\u1ee5ng (\u0111\u00e3 b\u1ecf qua)"
+  },
+  "general": {
+    "appearance": "GIAO DI\u1ec6N",
+    "light": "S\u00e1ng",
+    "dark": "T\u1ed1i",
+    "system": "H\u1ec7 th\u1ed1ng",
+    "language": "NG\u00d4N NG\u1eee"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODEL M\u1eb6C \u0110\u1eccNH",
+    "description": "\u0110\u01b0\u1ee3c s\u1eed d\u1ee5ng khi t\u1ea1o d\u1ef1 \u00e1n v\u00e0 agent m\u1edbi.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Kh\u00f4ng c\u00f3 --",
+    "selectProviderFirst": "-- Ch\u1ecdn provider tr\u01b0\u1edbc --",
+    "noModels": "Kh\u00f4ng c\u00f3 model kh\u1ea3 d\u1ee5ng",
+    "saved": "\u0110\u00e3 l\u01b0u!"
+  },
+  "providers": {
+    "sectionTitle": "PROVIDER",
+    "addProvider": "+ Th\u00eam Provider",
+    "selectProvider": "CH\u1eccN PROVIDER",
+    "customProvider": "PROVIDER T\u00d9Y CH\u1ec8NH",
+    "custom": "T\u00f9y ch\u1ec9nh",
+    "anyEndpoint": "endpoint b\u1ea5t k\u1ef3",
+    "nameLabel": "T\u00caN",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "LO\u1ea0I SDK",
+    "empty": "Ch\u01b0a c\u00f3 provider n\u00e0o \u0111\u01b0\u1ee3c c\u1ea5u h\u00ecnh. Nh\u1ea5p \"+ Th\u00eam Provider\" \u0111\u1ec3 b\u1eaft \u0111\u1ea7u."
+  },
+  "provider": {
+    "testing": "\u0110ang ki\u1ec3m tra...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Th\u1ea5t b\u1ea1i",
+    "untested": "Ch\u01b0a ki\u1ec3m tra",
+    "noKey": "Kh\u00f4ng C\u00f3 Key",
+    "retest": "Ki\u1ec3m Tra L\u1ea1i",
+    "test": "Ki\u1ec3m Tra",
+    "del": "X\u00f3a",
+    "deleteConfirm": "X\u00f3a {{name}}? Thao t\u00e1c n\u00e0y kh\u00f4ng th\u1ec3 ho\u00e0n t\u00e1c.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "ch\u01b0a thi\u1ebft l\u1eadp",
+    "hide": "\u1ea8n",
+    "show": "Hi\u1ec3n",
+    "urlLabel": "URL:",
+    "modelsCount": "Model ({{count}})",
+    "addModel": "+ Th\u00eam Model",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (t\u00f9y ch\u1ecdn)",
+    "hideKey": "\u1ea8n Key",
+    "showKey": "Hi\u1ec3n Key"
+  },
+  "threshold": {
+    "tokens": "token"
+  }
+}

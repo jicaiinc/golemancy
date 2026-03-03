@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "AD",
+    "agentName": "AJAN ADI",
+    "description": "A\u00c7IKLAMA",
+    "systemPrompt": "S\u0130STEM PROMPTU",
+    "provider": "SA\u011eLAYICI",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "bo\u015fta",
+    "running": "\u00e7al\u0131\u015f\u0131yor",
+    "error": "hata",
+    "paused": "duraklat\u0131ld\u0131"
+  },
+  "currentMain": "MEVCUT MAIN",
+  "currentMainTooltip": "Bu proje i\u00e7in se\u00e7ilen mevcut main ajan",
+  "noProviders": "Yap\u0131land\u0131r\u0131lm\u0131\u015f provider yok",
+  "noModels": "Kullan\u0131labilir model yok",
+  "savedMsg": "Kaydedildi!",
+  "list": {
+    "title": "Ajanlar",
+    "subtitle_one": "Bu projede {{count}} ajan",
+    "subtitle_other": "Bu projede {{count}} ajan",
+    "newBtn": "+ Yeni Ajan",
+    "viewGrid": "Grid",
+    "viewTopology": "Topoloji",
+    "empty": "Hen\u00fcz ajan yok",
+    "createFirst": "\u0130lk Ajan\u0131n\u0131z\u0131 Olu\u015fturun"
+  },
+  "count": {
+    "skills_one": "{{count}} beceri",
+    "skills_other": "{{count}} beceri",
+    "tools_one": "{{count}} ara\u00e7",
+    "tools_other": "{{count}} ara\u00e7",
+    "subAgents_one": "{{count}} alt ajan",
+    "subAgents_other": "{{count}} alt ajan",
+    "mcpServers_one": "{{count}} MCP sunucusu",
+    "mcpServers_other": "{{count}} MCP sunucusu"
+  },
+  "create": {
+    "modalTitle": "Yeni Ajan Olu\u015ftur",
+    "createBtn": "Ajan Olu\u015ftur",
+    "namePlaceholder": "\u00f6r. Ara\u015ft\u0131rma Asistan\u0131",
+    "descPlaceholder": "Bu ajan ne yapar?",
+    "promptPlaceholder": "Sen yard\u0131mc\u0131 bir asistans\u0131n..."
+  },
+  "detail": {
+    "notFound": "Ajan bulunamad\u0131.",
+    "backToAgents": "< Ajanlara D\u00f6n",
+    "backBtn": "< Ajanlar",
+    "tabs": {
+      "general": "Genel",
+      "modelConfig": "Model Yap\u0131land\u0131rmas\u0131",
+      "skills": "Beceriler",
+      "tools": "Ara\u00e7lar",
+      "subAgents": "Alt Ajanlar"
+    }
+  },
+  "general": {
+    "sectionTitle": "B\u0130LG\u0130",
+    "deleteBtn": "Ajan\u0131 Sil"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODEL YAPILANDIRMASI",
+    "compactLabel": "COMPACT E\u015e\u0130\u011e\u0130"
+  },
+  "skills": {
+    "assigned": "ATANMI\u015e BECER\u0130LER",
+    "noneAssigned": "Bu ajana atanm\u0131\u015f beceri yok.",
+    "addSection": "BECER\u0130 EKLE",
+    "noneInProject": "Bu projede beceri yok",
+    "goTo": "Becerilere Git",
+    "manage": "Becerileri Y\u00f6net \u2192"
+  },
+  "tools": {
+    "builtinSection": "YERLE\u015e\u0130K ARA\u00c7LAR",
+    "comingSoon": "YAKINDA",
+    "customSection": "\u00d6ZEL ARA\u00c7LAR",
+    "bashDesc": "Bash komutlar\u0131n\u0131 \u00e7al\u0131\u015ft\u0131r, dosya oku ve yaz",
+    "browserDesc": "Otomasyon i\u00e7in web taray\u0131c\u0131s\u0131n\u0131 kontrol et",
+    "osControlDesc": "Masa\u00fcst\u00fc otomasyonu ve sistem kontrol\u00fc",
+    "taskDesc": "Konu\u015fma i\u00e7inde g\u00f6rev olu\u015ftur ve y\u00f6net"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 UYARI",
+    "warningText": "\u00dc\u00e7\u00fcnc\u00fc taraf MCP sunucular\u0131 bilgisayar\u0131n\u0131zdaki dosyalara eri\u015febilir veya de\u011fi\u015ftirebilir.",
+    "enableSandboxHint": "MCP sunucular\u0131n\u0131 sandbox'a almak i\u00e7in Ayarlar > Permissions'ta \"Apply to MCP\"yi etkinle\u015ftirin.",
+    "sandboxUnavailable": "Sandbox runtime bu platformda kullan\u0131lam\u0131yor.",
+    "assigned": "ATANMI\u015e MCP SUNUCULARI",
+    "noneAssigned": "Bu ajana atanm\u0131\u015f MCP sunucusu yok.",
+    "addSection": "MCP SUNUCUSU EKLE",
+    "noneInProject": "Bu projede MCP sunucusu yok",
+    "goTo": "MCP Sunucular\u0131na Git",
+    "manage": "MCP Sunucular\u0131n\u0131 Y\u00f6net \u2192",
+    "restricted": "Restricted"
+  },
+  "subAgents": {
+    "assigned": "ATANMI\u015e ALT AJANLAR",
+    "noneAssigned": "Bu ajana atanm\u0131\u015f alt ajan yok.",
+    "addSection": "ALT AJAN EKLE",
+    "noneAvailable": "Bu projede ba\u015fka ajan yok.",
+    "unknown": "Bilinmiyor",
+    "rolePlaceholder": "Rol..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Miras",
+    "capabilities": "YETENEKLER",
+    "subAgentsLabel": "ALT AJANLAR",
+    "openDetail": "Detay\u0131 A\u00e7"
+  },
+  "topology": {
+    "resetLayout": "D\u00fczeni S\u0131f\u0131rla",
+    "editAgent": "Ajan\u0131 D\u00fczenle",
+    "setMainAgent": "Main Agent Olarak Ayarla"
+  }
+}

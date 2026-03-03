@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automações",
+    "newBtn": "+ Nova"
+  },
+  "empty": {
+    "noJobs": "Nenhuma automação ainda",
+    "createFirstBtn": "Criar Primeira Automação"
+  },
+  "job": {
+    "runBtn": "Executar",
+    "historyBtn": "Histórico",
+    "runningStatus": "Executando...",
+    "viewChat": "Ver Chat →",
+    "next": "Próxima: {{time}}",
+    "at": "Às {{time}}",
+    "agentNotFound": "Agente não encontrado",
+    "overdue": "atrasada",
+    "once": "uma vez"
+  },
+  "delete": {
+    "title": "Excluir Automação",
+    "confirm": "Tem certeza de que deseja excluir \"{{name}}\"? Esta ação não pode ser desfeita."
+  },
+  "runsModal": {
+    "titleWithName": "Histórico de Execuções — {{name}}",
+    "title": "Histórico de Execuções",
+    "noRuns": "Nenhuma execução ainda",
+    "openChat": "ABRIR CHAT →"
+  },
+  "status": {
+    "success": "sucesso",
+    "error": "erro",
+    "running": "executando"
+  },
+  "form": {
+    "newTitle": "Nova Automação",
+    "editTitle": "Editar Automação",
+    "nameLabel": "NOME",
+    "namePlaceholder": "Revisão diária de código",
+    "typeLabel": "TIPO",
+    "recurring": "Recorrente",
+    "oneTime": "Uma vez",
+    "cronLabel": "EXPRESSÃO CRON",
+    "scheduledAtLabel": "AGENDADO PARA (hora local)",
+    "agentLabel": "AGENTE",
+    "agentPlaceholder": "Selecionar um agente",
+    "instructionLabel": "INSTRUÇÃO (opcional)",
+    "instructionPlaceholder": "Instruções para enviar ao agente quando acionado",
+    "enabledLabel": "Ativado",
+    "presets": {
+      "every5min": "A cada 5 min",
+      "everyHour": "A cada hora",
+      "every12h": "A cada 12h",
+      "daily9am": "Diário 9h",
+      "weeklyMon": "Semanal Seg"
+    },
+    "invalidExpression": "Expressão inválida"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "loading": "Memuatkan kebenaran...",
+  "section": {
+    "permissionMode": "MOD KEBENARAN",
+    "configuration": "KONFIGURASI"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restricted",
+      "subtitle": "Bash sahaja, tanpa sandbox",
+      "description": "Persekitaran pelaksanaan minimum. Tanpa sandbox runtime, tanpa sokongan MCP.",
+      "badge": "Terhad"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Pengasingan boleh dikonfigurasi",
+      "description": "Sandbox runtime dengan sekatan sistem fail, rangkaian, dan perintah yang boleh dikonfigurasi.",
+      "badge": "Disyorkan"
+    },
+    "unrestricted": {
+      "name": "Unrestricted",
+      "subtitle": "Akses sistem penuh",
+      "description": "Tanpa sekatan sandbox. Semua perintah dijalankan dengan kebenaran sistem penuh.",
+      "badge": "Berisiko"
+    }
+  },
+  "config": {
+    "default": "Lalai",
+    "selectConfig": "Pilih konfigurasi...",
+    "saveAs": "Simpan Sebagai...",
+    "rename": "Namakan Semula",
+    "resetToDefault": "Set Semula ke Lalai",
+    "saved": "Disimpan!",
+    "editingDefault": "Menyunting nilai lalai. Klik Simpan untuk mencipta konfigurasi baharu bernama."
+  },
+  "modal": {
+    "unrestrictedTitle": "Aktifkan Mod Unrestricted?",
+    "unrestrictedBody": "Ini membuang semua perlindungan sandbox. Agen AI akan mempunyai akses penuh ke sistem anda, termasuk:",
+    "unrestrictedReadWrite": "Membaca/menulis sebarang fail di komputer anda",
+    "unrestrictedExecute": "Melaksanakan sebarang perintah sistem",
+    "unrestrictedNetwork": "Mengakses rangkaian tanpa sekatan",
+    "unrestrictedSysconfig": "Mengubah konfigurasi sistem",
+    "unrestrictedFooter": "Hanya gunakan ini untuk pembangunan tempatan dalam persekitaran yang dipercayai.",
+    "enableUnrestricted": "Saya Faham, Aktifkan",
+    "sandboxUnavailableTitle": "Mod Sandbox Tidak Tersedia",
+    "sandboxUnavailableBody": "Prasyarat sandbox runtime tidak dipenuhi. Isu berikut ditemui:",
+    "sandboxUnavailableFooter": "Mengaktifkan mod sandbox tetap akan menyebabkan degradasi runtime ke mod restricted.",
+    "enableAnyway": "Aktifkan Juga",
+    "saveAsTitle": "Simpan Sebagai Konfigurasi Baharu",
+    "configNameLabel": "NAMA KONFIGURASI",
+    "configNamePlaceholder": "cth., Strict Dev, Python Disabled",
+    "renameTitle": "Namakan Semula Konfigurasi",
+    "newNameLabel": "NAMA BAHARU",
+    "newNamePlaceholder": "cth., Konfigurasi Tersuai Saya",
+    "renaming": "Menamakan semula...",
+    "deleteTitle": "Padam \"{{title}}\"?",
+    "deleteBody": "Konfigurasi ini akan dipadam secara kekal. Projek akan kembali ke tetapan lalai sistem."
+  },
+  "filesystem": {
+    "sectionTitle": "KEBENARAN SISTEM FAIL",
+    "allowWrite": "BENARKAN TULIS",
+    "allowWriteHelper": "Laluan di mana agen boleh menulis fail. Lalai: direktori ruang kerja projek.",
+    "allowWritePlaceholder": "cth., /Users/name/workspace",
+    "denyRead": "TOLAK BACA",
+    "denyReadHelper": "Fail/folder sensitif yang disekat dari pembacaan.",
+    "denyReadPlaceholder": "cth., ~/.ssh, .env",
+    "denyWrite": "TOLAK TULIS",
+    "denyWriteHelper": "Laluan di mana penulisan disekat. Mengambil keutamaan ke atas benarkan tulis.",
+    "denyWritePlaceholder": "cth., /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "SEKATAN RANGKAIAN",
+    "enableLabel": "Aktifkan",
+    "statusEnabled": "Hanya domain yang dikonfigurasi boleh diakses",
+    "statusDisabled": "Semua trafik rangkaian dibenarkan",
+    "allowedDomains": "DOMAIN DIBENARKAN",
+    "allowedDomainsHelper": "Domain yang boleh diakses agen. Tepat: example.com — Wildcard: *.example.com (2+ bahagian selepas *.)",
+    "allowedDomainsPlaceholder": "cth., api.github.com",
+    "deniedDomains": "DOMAIN DITOLAK",
+    "deniedDomainsHelper": "Domain untuk disekat. Format sama seperti domain yang dibenarkan.",
+    "deniedDomainsPlaceholder": "cth., malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "SEKATAN PERINTAH",
+    "deniedCommands": "PERINTAH DITOLAK",
+    "deniedCommandsHelper": "Perintah yang disekat dari pelaksanaan.",
+    "deniedCommandsPlaceholder": "cth., python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Gunakan pada MCP",
+    "warning": "(\u26A0 Menyahaktifkan ini mungkin membenarkan pelayan MCP pihak ketiga mengakses atau mengubah fail di komputer anda)",
+    "description": "Apabila diaktifkan, perintah pelayan MCP akan dibungkus dengan sandbox runtime (srt). Ini menerapkan sekatan sistem fail, rangkaian, dan perintah yang sama pada pelayan MCP."
+  },
+  "windows": {
+    "notice": "\u26A0 NOTIS WINDOWS",
+    "message": "Sandbox runtime tidak tersedia di Windows. Hanya sekatan perintah yang disokong."
+  },
+  "validation": {
+    "removeProtocol": "Buang protokol, laluan, atau port — domain sahaja",
+    "wildcardParts": "Wildcard memerlukan 2+ bahagian selepas *. (cth., *.example.com)",
+    "onlyWildcard": "Hanya format wildcard *.domain.com disokong",
+    "validDomain": "Mestilah domain sah dengan sekurang-kurangnya satu titik (cth., example.com)"
+  }
+}

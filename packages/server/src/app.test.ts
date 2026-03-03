@@ -2,21 +2,25 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createApp, type ServerDependencies } from './app'
 import type { Hono } from 'hono'
 
-// Mock AI SDK modules used by chat route
-vi.mock('ai', () => ({
-  streamText: vi.fn(),
-  convertToModelMessages: vi.fn().mockResolvedValue([]),
-  stepCountIs: vi.fn().mockReturnValue(undefined),
-  createUIMessageStream: vi.fn().mockImplementation(({ execute }: any) => {
-    // Execute the callback to trigger merges, then return a mock stream
-    const writer = { write: vi.fn(), merge: vi.fn() }
-    execute({ writer })
-    return new ReadableStream()
-  }),
-  createUIMessageStreamResponse: vi.fn().mockImplementation(() =>
-    new Response('', { status: 200, headers: { 'Content-Type': 'text/event-stream' } }),
-  ),
-}))
+// Mock AI SDK modules used by chat route + KB tools
+vi.mock('ai', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('ai')>()
+  return {
+    ...actual,
+    streamText: vi.fn(),
+    convertToModelMessages: vi.fn().mockResolvedValue([]),
+    stepCountIs: vi.fn().mockReturnValue(undefined),
+    createUIMessageStream: vi.fn().mockImplementation(({ execute }: any) => {
+      // Execute the callback to trigger merges, then return a mock stream
+      const writer = { write: vi.fn(), merge: vi.fn() }
+      execute({ writer })
+      return new ReadableStream()
+    }),
+    createUIMessageStreamResponse: vi.fn().mockImplementation(() =>
+      new Response('', { status: 200, headers: { 'Content-Type': 'text/event-stream' } }),
+    ),
+  }
+})
 
 vi.mock('./agent/model', () => ({
   resolveModel: vi.fn().mockResolvedValue({ modelId: 'test-model' }),
@@ -71,17 +75,26 @@ function createMockDeps() {
       ]),
       getById: vi.fn().mockResolvedValue(null),
     },
-    memoryStorage: {
-      list: vi.fn().mockResolvedValue([
-        { id: 'mem-1', content: 'Remember this' },
+    kbStorage: {
+      listCollections: vi.fn().mockResolvedValue([
+        { id: 'col-1', name: 'Test Collection', tier: 'hot', documentCount: 1, totalChars: 100 },
       ]),
-      create: vi.fn().mockImplementation((_pid: any, data: any) =>
-        Promise.resolve({ id: 'mem-new', projectId: _pid, ...data }),
+      createCollection: vi.fn().mockImplementation((_pid: any, data: any) =>
+        Promise.resolve({ id: 'col-new', ...data, documentCount: 0, totalChars: 0 }),
       ),
-      update: vi.fn().mockImplementation((_pid: any, id: any, data: any) =>
+      updateCollection: vi.fn().mockImplementation((_pid: any, id: any, data: any) =>
         Promise.resolve({ id, ...data }),
       ),
-      delete: vi.fn().mockResolvedValue(undefined),
+      deleteCollection: vi.fn().mockResolvedValue(undefined),
+      listDocuments: vi.fn().mockResolvedValue([]),
+      ingestDocument: vi.fn().mockImplementation((_pid: any, _cid: any, data: any) =>
+        Promise.resolve({ id: 'doc-new', ...data, charCount: data.content?.length ?? 0 }),
+      ),
+      getDocument: vi.fn().mockResolvedValue(null),
+      deleteDocument: vi.fn().mockResolvedValue(undefined),
+      search: vi.fn().mockResolvedValue([]),
+      getHotContent: vi.fn().mockResolvedValue(''),
+      hasVectorData: vi.fn().mockResolvedValue(false),
     },
     settingsStorage: {
       get: vi.fn().mockResolvedValue({
@@ -379,39 +392,39 @@ describe('HTTP API routes', () => {
     })
   })
 
-  // ---- Memories ----
+  // ---- Knowledge Base ----
 
-  describe('memories routes', () => {
-    it('GET list returns memories', async () => {
-      const res = await app.request('/api/projects/proj-1/memories')
+  describe('knowledge-base routes', () => {
+    it('GET / lists collections', async () => {
+      const res = await app.request('/api/projects/proj-1/knowledge-base')
       expect(res.status).toBe(200)
       const body = await res.json()
       expect(body).toHaveLength(1)
-      expect(deps.memoryStorage.list).toHaveBeenCalledWith('proj-1')
+      expect(deps.kbStorage.listCollections).toHaveBeenCalledWith('proj-1')
     })
 
-    it('POST creates memory with 201', async () => {
-      const res = await app.request(jsonRequest('/api/projects/proj-1/memories', {
+    it('POST / creates collection with 201', async () => {
+      const res = await app.request(jsonRequest('/api/projects/proj-1/knowledge-base', {
         method: 'POST',
-        body: JSON.stringify({ content: 'New memory', source: 'agent-1', tags: ['test'] }),
+        body: JSON.stringify({ name: 'New Collection', tier: 'warm' }),
       }))
       expect(res.status).toBe(201)
-      expect(deps.memoryStorage.create).toHaveBeenCalledWith('proj-1', { content: 'New memory', source: 'agent-1', tags: ['test'] })
+      expect(deps.kbStorage.createCollection).toHaveBeenCalledWith('proj-1', { name: 'New Collection', tier: 'warm' })
     })
 
-    it('PATCH /:id updates memory', async () => {
-      const res = await app.request(jsonRequest('/api/projects/proj-1/memories/mem-1', {
+    it('PATCH /:collectionId updates collection', async () => {
+      const res = await app.request(jsonRequest('/api/projects/proj-1/knowledge-base/col-1', {
         method: 'PATCH',
-        body: JSON.stringify({ content: 'Updated' }),
+        body: JSON.stringify({ name: 'Updated' }),
       }))
       expect(res.status).toBe(200)
-      expect(deps.memoryStorage.update).toHaveBeenCalledWith('proj-1', 'mem-1', { content: 'Updated' })
+      expect(deps.kbStorage.updateCollection).toHaveBeenCalledWith('proj-1', 'col-1', { name: 'Updated' })
     })
 
-    it('DELETE /:id deletes memory', async () => {
-      const res = await app.request('/api/projects/proj-1/memories/mem-1', { method: 'DELETE' })
+    it('DELETE /:collectionId deletes collection', async () => {
+      const res = await app.request('/api/projects/proj-1/knowledge-base/col-1', { method: 'DELETE' })
       expect(res.status).toBe(200)
-      expect(deps.memoryStorage.delete).toHaveBeenCalledWith('proj-1', 'mem-1')
+      expect(deps.kbStorage.deleteCollection).toHaveBeenCalledWith('proj-1', 'col-1')
     })
   })
 

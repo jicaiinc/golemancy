@@ -102,8 +102,8 @@ function createTestServices(): ServiceContainer {
     },
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
-    memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
+    knowledgeBase: { listCollections: vi.fn(), createCollection: vi.fn(), updateCollection: vi.fn(), deleteCollection: vi.fn(), listDocuments: vi.fn(), ingestDocument: vi.fn(), uploadDocument: vi.fn(), getDocument: vi.fn(), deleteDocument: vi.fn(), search: vi.fn(), hasVectorData: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn(), testEmbedding: vi.fn() },
     dashboard: { getSummary: vi.fn(), getAgentStats: vi.fn(), getRecentChats: vi.fn(), getTokenTrend: vi.fn(), getTokenByModel: vi.fn(), getTokenByAgent: vi.fn(), getRuntimeStatus: vi.fn() },
     globalDashboard: {
       getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),

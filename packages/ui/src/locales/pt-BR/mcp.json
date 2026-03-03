@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Servidores MCP",
+    "serverCount_one": "{{count}} servidor",
+    "serverCount_other": "{{count}} servidores",
+    "newServerBtn": "+ Novo Servidor"
+  },
+  "tabs": {
+    "installed": "Instalados",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "RESTRITO",
+    "restrictedMsg": "Modo restrito: servidores MCP stdio estão desativados e não serão carregados",
+    "riskBadge": "AVISO",
+    "riskMsg": "Servidores MCP de terceiros podem acessar ou modificar arquivos no seu computador.",
+    "applyToMcpHint": "Ative \"Aplicar ao MCP\" em Configurações > Permissões para executar servidores MCP em sandbox.",
+    "sandboxUnavailable": "O ambiente sandbox não está disponível nesta plataforma."
+  },
+  "import": {
+    "invalidFormat": "Formato inválido: esperado { mcpServers: { ... } }",
+    "noServers": "Nenhum servidor encontrado no arquivo de configuração",
+    "importedCount_one": "{{count}} servidor MCP importado",
+    "importedCount_other": "{{count}} servidores MCP importados",
+    "parseError": "Falha ao analisar o arquivo de configuração"
+  },
+  "server": {
+    "testing": "Testando...",
+    "testOk_one": "OK ({{count}} ferramenta)",
+    "testOk_other": "OK ({{count}} ferramentas)",
+    "connectionFailed": "Falha na conexão",
+    "testFailed": "Teste falhou",
+    "blockedRestricted": "Bloqueado pelo modo restrito — servidores stdio não são carregados em tempo de execução",
+    "usedByAgents_one": "Usado por {{count}} agente",
+    "usedByAgents_other": "Usado por {{count}} agentes",
+    "deleteErrorInUse_one": "O servidor MCP \"{{name}}\" é usado por {{count}} agente. Remova as referências primeiro.",
+    "deleteErrorInUse_other": "O servidor MCP \"{{name}}\" é usado por {{count}} agentes. Remova as referências primeiro.",
+    "deleteError": "Falha ao excluir o servidor MCP",
+    "testBtn": "Testar"
+  },
+  "empty": {
+    "title": "Nenhum servidor MCP configurado",
+    "addFirstBtn": "Adicione Seu Primeiro Servidor"
+  },
+  "loading": "Carregando servidores MCP...",
+  "comingSoon": "Em Breve",
+  "form": {
+    "newTitle": "Novo Servidor MCP",
+    "editTitle": "Editar Servidor MCP",
+    "nameLabel": "NOME",
+    "descriptionLabel": "DESCRIÇÃO",
+    "transportLabel": "TRANSPORTE",
+    "commandLabel": "COMANDO",
+    "argsLabel": "ARGS (separados por espaços)",
+    "envLabel": "ENV (KEY=VALUE por linha)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Key: Value por linha)"
+  }
+}

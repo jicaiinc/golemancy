@@ -47,7 +47,7 @@ export class DashboardService implements IDashboardService {
 
       // Count conversations
       const convCount = db.all<{ cnt: number }>(
-        sql`SELECT count(*) as cnt FROM conversations WHERE project_id = ${projectId}`,
+        sql`SELECT count(*) as cnt FROM conversations`,
       )
       totalChats = convCount[0]?.cnt ?? 0
 
@@ -56,12 +56,11 @@ export class DashboardService implements IDashboardService {
         ? db.all<{ cnt: number }>(
             sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
                 JOIN messages m ON m.conversation_id = c.id
-                WHERE c.project_id = ${projectId} AND m.created_at >= ${startDate}`,
+                WHERE m.created_at >= ${startDate}`,
           )
         : db.all<{ cnt: number }>(
             sql`SELECT count(DISTINCT c.id) as cnt FROM conversations c
-                JOIN messages m ON m.conversation_id = c.id
-                WHERE c.project_id = ${projectId}`,
+                JOIN messages m ON m.conversation_id = c.id`,
           )
       activeChats = activeCount[0]?.cnt ?? 0
 
@@ -137,7 +136,7 @@ export class DashboardService implements IDashboardService {
       // Count conversations for this agent
       const convRows = db.all<{ cnt: number }>(
         sql`SELECT count(*) as cnt FROM conversations
-            WHERE project_id = ${projectId} AND agent_id = ${agent.id}`,
+            WHERE agent_id = ${agent.id}`,
       )
       const conversationCount = convRows[0]?.cnt ?? 0
 
@@ -148,7 +147,7 @@ export class DashboardService implements IDashboardService {
                 UNION ALL
                 SELECT (m.input_tokens + m.output_tokens) as total FROM messages m
                 JOIN conversations c ON c.id = m.conversation_id
-                WHERE c.project_id = ${projectId} AND c.agent_id = ${agent.id} AND m.input_tokens > 0 AND m.created_at >= ${startDate}
+                WHERE c.agent_id = ${agent.id} AND m.input_tokens > 0 AND m.created_at >= ${startDate}
                   AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
               )`
         : sql`SELECT COALESCE(SUM(total), 0) as total FROM (
@@ -156,7 +155,7 @@ export class DashboardService implements IDashboardService {
                 UNION ALL
                 SELECT (m.input_tokens + m.output_tokens) as total FROM messages m
                 JOIN conversations c ON c.id = m.conversation_id
-                WHERE c.project_id = ${projectId} AND c.agent_id = ${agent.id} AND m.input_tokens > 0
+                WHERE c.agent_id = ${agent.id} AND m.input_tokens > 0
                   AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
               )`
       const tokenRows = db.all<{ total: number }>(tokenQuery)
@@ -170,7 +169,7 @@ export class DashboardService implements IDashboardService {
               SUM(CASE WHEN status = 'deleted' THEN 1 ELSE 0 END) as failed
             FROM conversation_tasks ct
             JOIN conversations c ON c.id = ct.conversation_id
-            WHERE c.project_id = ${projectId} AND c.agent_id = ${agent.id}`,
+            WHERE c.agent_id = ${agent.id}`,
       )
       const taskCount = taskRows[0]?.total ?? 0
       const completedTasks = taskRows[0]?.completed ?? 0
@@ -181,7 +180,7 @@ export class DashboardService implements IDashboardService {
         sql`SELECT MAX(m.created_at) as last
             FROM messages m
             JOIN conversations c ON c.id = m.conversation_id
-            WHERE c.project_id = ${projectId} AND c.agent_id = ${agent.id}`,
+            WHERE c.agent_id = ${agent.id}`,
       )
       const lastActiveAt = lastActiveRows[0]?.last ?? null
 
@@ -238,7 +237,6 @@ export class DashboardService implements IDashboardService {
                    ), 0) as total_tokens
             FROM conversations c
             LEFT JOIN messages m ON m.conversation_id = c.id
-            WHERE c.project_id = ${projectId}
             GROUP BY c.id
             ORDER BY c.last_message_at DESC
             LIMIT ${limit}`,
@@ -460,7 +458,7 @@ export class DashboardService implements IDashboardService {
         const db = this.deps.getProjectDb(projectId)
         const rows = db.all<{ id: string; cron_job_id: string; agent_id: string; created_at: string }>(
           sql`SELECT id, cron_job_id, agent_id, created_at FROM cron_job_runs
-              WHERE project_id = ${projectId} AND status = 'running'
+              WHERE status = 'running'
               ORDER BY created_at DESC`,
         )
 
@@ -521,7 +519,7 @@ export class DashboardService implements IDashboardService {
       // Recent cron runs (success/error) — include cron_job_id for navigation
       const cronRows = db.all<{ id: string; cron_job_id: string; agent_id: string; status: string; duration_ms: number | null; updated_at: string }>(
         sql`SELECT id, cron_job_id, agent_id, status, duration_ms, updated_at FROM cron_job_runs
-            WHERE project_id = ${projectId} AND status IN ('success', 'error')
+            WHERE status IN ('success', 'error')
             ORDER BY updated_at DESC LIMIT 10`,
       )
 
@@ -557,7 +555,7 @@ export class DashboardService implements IDashboardService {
                        AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m2.id)
                    )), 0) as total_tokens
             FROM conversations c
-            WHERE c.project_id = ${projectId} AND c.last_message_at IS NOT NULL
+            WHERE c.last_message_at IS NOT NULL
             ORDER BY c.last_message_at DESC LIMIT 10`,
       )
       for (const row of chatRows) {

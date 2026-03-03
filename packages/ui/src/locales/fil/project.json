@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "PANGALAN NG PROJECT",
+    "description": "PAGLALARAWAN",
+    "icon": "ICON",
+    "projectId": "PROJECT ID"
+  },
+  "list": {
+    "title": "Lahat ng Projects",
+    "subtitle_one": "{{count}} project sa iyong workspace",
+    "subtitle_other": "{{count}} project sa iyong workspace",
+    "newBtn": "+ Bagong Project",
+    "empty": "Wala pang project",
+    "createFirst": "Gumawa ng Unang Project",
+    "openInWindow": "Buksan sa Bagong Window",
+    "agents_one": "{{count}} agent",
+    "agents_other": "{{count}} agent",
+    "running_one": "{{count}} tumatakbo",
+    "running_other": "{{count}} tumatakbo"
+  },
+  "create": {
+    "modalTitle": "Gumawa ng Bagong Project",
+    "createBtn": "Gumawa ng Project",
+    "namePlaceholder": "Magandang Project Ko",
+    "descPlaceholder": "Tungkol saan ang project na ito?"
+  },
+  "settings": {
+    "title": "Project Settings",
+    "savedMsg": "Na-save!",
+    "clickToCopy": "I-click para kopyahin",
+    "tabs": {
+      "general": "Pangkalahatan",
+      "agent": "Agent",
+      "permissions": "Mga Pahintulot"
+    },
+    "agent": {
+      "mainLabel": "MAIN AGENT",
+      "mainDesc": "Ang default na agent para sa mga bagong pag-uusap sa project na ito.",
+      "noAgents": "Walang agent sa project na ito. Gumawa muna ng agent.",
+      "goToAgents": "Pumunta sa Mga Agent",
+      "none": "Wala",
+      "configure": "I-configure ang Agent \u2192"
+    },
+    "general": {
+      "sectionTitle": "PANGUNAHING IMPORMASYON",
+      "saveBtn": "I-save ang mga Pagbabago"
+    }
+  }
+}

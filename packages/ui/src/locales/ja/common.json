@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "キャンセル",
+    "save": "保存",
+    "saving": "保存中...",
+    "saved": "保存しました",
+    "delete": "削除",
+    "deleting": "削除中...",
+    "edit": "編集",
+    "add": "追加",
+    "confirm": "確認",
+    "retry": "再試行",
+    "back": "戻る",
+    "next": "次へ",
+    "close": "閉じる",
+    "create": "作成",
+    "creating": "作成中...",
+    "refresh": "更新",
+    "send": "送信",
+    "stop": "停止",
+    "dismiss": "閉じる",
+    "done": "完了",
+    "copy": "コピー"
+  },
+  "status": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功"
+  },
+  "time": {
+    "justNow": "たった今",
+    "minsAgo_one": "{{count}}分前",
+    "minsAgo_other": "{{count}}分前",
+    "hoursAgo_one": "{{count}}時間前",
+    "hoursAgo_other": "{{count}}時間前",
+    "daysAgo_one": "{{count}}日前",
+    "daysAgo_other": "{{count}}日前",
+    "now": "現在",
+    "inMins_one": "{{count}}分後",
+    "inMins_other": "{{count}}分後",
+    "inHours_one": "{{count}}時間後",
+    "inHours_other": "{{count}}時間後",
+    "inDays_one": "{{count}}日後",
+    "inDays_other": "{{count}}日後",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "削除",
+    "deleteMessage": "この操作は取り消せません。",
+    "areYouSure": "よろしいですか？"
+  },
+  "empty": {
+    "noData": "データなし"
+  },
+  "list": {
+    "noneConfigured": "未設定"
+  },
+  "label": {
+    "name": "名前",
+    "description": "説明",
+    "type": "タイプ",
+    "enabled": "有効",
+    "disabled": "無効"
+  },
+  "dropZone": {
+    "releaseToDrop": "ドロップしてアップロード",
+    "dragAndDrop": "ファイルをドラッグ＆ドロップ、またはクリックしてアップロード",
+    "accepts": "対応形式：{{extensions}}"
+  }
+}

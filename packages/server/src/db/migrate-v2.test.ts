@@ -19,7 +19,7 @@ describe('migration v2: message parts backfill', () => {
     // Create old-format tables (with tool_calls, token_usage, no parts)
     db.run(sql`
       CREATE TABLE conversations (
-        id TEXT PRIMARY KEY, project_id TEXT NOT NULL, agent_id TEXT NOT NULL,
+        id TEXT PRIMARY KEY, agent_id TEXT NOT NULL,
         title TEXT NOT NULL, last_message_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
       )
     `)
@@ -31,8 +31,8 @@ describe('migration v2: message parts backfill', () => {
     `)
 
     // Insert old-format data
-    db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-      VALUES ('conv-1', 'proj-1', 'agent-1', 'Old Chat', '2024-01-01', '2024-01-01')`)
+    db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+      VALUES ('conv-1', 'agent-1', 'Old Chat', '2024-01-01', '2024-01-01')`)
     db.run(sql`INSERT INTO messages (id, conversation_id, role, content, tool_calls, created_at)
       VALUES ('msg-old-1', 'conv-1', 'user', 'Old message text', NULL, '2024-01-01')`)
     db.run(sql`INSERT INTO messages (id, conversation_id, role, content, tool_calls, created_at)
@@ -70,8 +70,8 @@ describe('migration v2: message parts backfill', () => {
     migrateDatabase(db)
 
     // Insert a message using new schema
-    db.run(sql`INSERT INTO conversations (id, project_id, agent_id, title, created_at, updated_at)
-      VALUES ('conv-1', 'proj-1', 'agent-1', 'Chat', '2024-01-01', '2024-01-01')`)
+    db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
+      VALUES ('conv-1', 'agent-1', 'Chat', '2024-01-01', '2024-01-01')`)
     db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
       VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"Hello"}]', 'Hello', '2024-01-01')`)
 

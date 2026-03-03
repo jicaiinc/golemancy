@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Skill",
+    "skillCount_one": "{{count}} skill",
+    "skillCount_other": "{{count}} skill",
+    "newSkillBtn": "+ Skill M\u1edbi"
+  },
+  "tabs": {
+    "installed": "\u0110\u00e3 c\u00e0i",
+    "marketplace": "Marketplace"
+  },
+  "import": {
+    "noValidFiles": "Kh\u00f4ng t\u00ecm th\u1ea5y file .md ho\u1eb7c .zip. K\u00e9o th\u1ea3 file markdown ho\u1eb7c zip \u0111\u1ec3 nh\u1eadp skill.",
+    "importedCount_one": "\u0110\u00e3 nh\u1eadp {{count}} skill",
+    "importedCount_other": "\u0110\u00e3 nh\u1eadp {{count}} skill",
+    "importError": "Kh\u00f4ng th\u1ec3 nh\u1eadp skill"
+  },
+  "deleteError": {
+    "inUse_one": "Skill \"{{name}}\" \u0111ang \u0111\u01b0\u1ee3c g\u00e1n cho {{count}} agent. H\u00e3y h\u1ee7y g\u00e1n tr\u01b0\u1edbc.",
+    "inUse_other": "Skill \"{{name}}\" \u0111ang \u0111\u01b0\u1ee3c g\u00e1n cho {{count}} agent. H\u00e3y h\u1ee7y g\u00e1n tr\u01b0\u1edbc.",
+    "generic": "Kh\u00f4ng th\u1ec3 x\u00f3a skill"
+  },
+  "loading": "\u0110ang t\u1ea3i skill...",
+  "empty": {
+    "title": "Ch\u01b0a c\u00f3 skill",
+    "createFirstBtn": "T\u1ea1o Skill \u0110\u1ea7u Ti\u00ean"
+  },
+  "comingSoon": "S\u1eafp Ra M\u1eaft",
+  "form": {
+    "newTitle": "Skill M\u1edbi",
+    "editTitle": "S\u1eeda Skill",
+    "nameLabel": "T\u00caN",
+    "descriptionLabel": "M\u00d4 T\u1ea2",
+    "instructionsLabel": "H\u01af\u1edaNG D\u1eaaN",
+    "instructionsPlaceholder": "Vi\u1ebft h\u01b0\u1edbng d\u1eabn skill b\u1eb1ng markdown..."
+  }
+}

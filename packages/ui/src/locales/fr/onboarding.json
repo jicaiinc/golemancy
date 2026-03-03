@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Configuration",
+    "skipSetup": "Passer la Configuration"
+  },
+  "steps": {
+    "welcome": "Bienvenue",
+    "provider": "Fournisseur",
+    "speech": "Voix",
+    "project": "Projet",
+    "complete": "Terminé"
+  },
+  "error": {
+    "somethingWentWrong": "Une erreur est survenue. Veuillez réessayer.",
+    "failedToSkip": "Échec du passage de la configuration. Veuillez réessayer.",
+    "connectionTestFailed": "Échec du test de connexion",
+    "testFailed": "Test échoué",
+    "unknownError": "Erreur inconnue"
+  },
+  "button": {
+    "createProject": "Créer le Projet",
+    "getStarted": "Commencer",
+    "continue": "Continuer",
+    "startChatting": "Commencer à Discuter",
+    "goToDashboard": "Aller au Tableau de Bord",
+    "change": "Modifier",
+    "testConnection": "Tester la Connexion",
+    "testing": "Test en cours...",
+    "reTest": "Re-tester",
+    "test": "Tester",
+    "hide": "Masquer",
+    "show": "Afficher"
+  },
+  "welcome": {
+    "tagline": "Bienvenue",
+    "heading": "Commandez Vos AI Golems",
+    "description": "Orchestrez des agents AI autonomes depuis votre bureau."
+  },
+  "provider": {
+    "heading": "Connecter un Fournisseur AI",
+    "description": "Choisissez un fournisseur et saisissez votre API key pour commencer.",
+    "customLabel": "Personnalisé",
+    "customSubtitle": "tout endpoint",
+    "customCardTitle": "FOURNISSEUR PERSONNALISÉ",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NOM",
+    "labelSdkType": "TYPE DE SDK",
+    "statusConnected": "Connecté",
+    "statusFailed": "Échoué",
+    "statusConnecting": "Connexion...",
+    "none": "Aucun",
+    "defaultModel": {
+      "title": "MODÈLE PAR DÉFAUT",
+      "descriptionPreset": "Choisissez un modèle à utiliser par défaut pour les nouveaux agents.",
+      "descriptionCustom": "Saisissez le nom du modèle à utiliser par défaut.",
+      "labelModelName": "NOM DU MODÈLE"
+    }
+  },
+  "speech": {
+    "heading": "Reconnaissance Vocale",
+    "description": "Activez l'entrée vocale pour une interaction plus rapide. Vous pouvez passer cette étape et la configurer plus tard.",
+    "labelApiKey": "API KEY OPENAI",
+    "labelModel": "MODÈLE",
+    "labelLanguage": "LANGUE",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Échoué"
+  },
+  "project": {
+    "heading": "Créez Votre Premier Projet",
+    "description": "Les projets organisent vos agents, conversations et flux de travail.",
+    "labelName": "NOM DU PROJET",
+    "placeholderName": "Mon Super Projet",
+    "labelDescription": "DESCRIPTION",
+    "placeholderDescription": "Que fera ce projet ?",
+    "labelIcon": "ICÔNE",
+    "fromTemplate": "À PARTIR D'UN MODÈLE",
+    "comingSoon": "Bientôt Disponible"
+  },
+  "complete": {
+    "heading": "Tout est Prêt !",
+    "description": "Voici un résumé de votre configuration.",
+    "labelProvider": "FOURNISSEUR",
+    "labelDefaultModel": "MODÈLE PAR DÉFAUT",
+    "labelSpeechToText": "RECONNAISSANCE VOCALE",
+    "labelProject": "PROJET",
+    "sttEnabled": "Activé",
+    "sttSkipped": "Ignoré",
+    "links": {
+      "settings": "Paramètres",
+      "website": "Site web"
+    }
+  }
+}

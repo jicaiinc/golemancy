@@ -1,0 +1,82 @@
+{
+  "button": {
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "saved": "Сохранено",
+    "delete": "Удалить",
+    "deleting": "Удаление...",
+    "edit": "Изменить",
+    "add": "Добавить",
+    "confirm": "Подтвердить",
+    "retry": "Повторить",
+    "back": "Назад",
+    "next": "Далее",
+    "close": "Закрыть",
+    "create": "Создать",
+    "creating": "Создание...",
+    "refresh": "Обновить",
+    "send": "Отправить",
+    "stop": "Остановить",
+    "dismiss": "Скрыть",
+    "done": "Готово",
+    "copy": "Копировать"
+  },
+  "status": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно"
+  },
+  "time": {
+    "justNow": "только что",
+    "minsAgo_one": "{{count}} мин назад",
+    "minsAgo_few": "{{count}} мин назад",
+    "minsAgo_many": "{{count}} мин назад",
+    "minsAgo_other": "{{count}} мин назад",
+    "hoursAgo_one": "{{count}} ч назад",
+    "hoursAgo_few": "{{count}} ч назад",
+    "hoursAgo_many": "{{count}} ч назад",
+    "hoursAgo_other": "{{count}} ч назад",
+    "daysAgo_one": "{{count}} д назад",
+    "daysAgo_few": "{{count}} д назад",
+    "daysAgo_many": "{{count}} д назад",
+    "daysAgo_other": "{{count}} д назад",
+    "now": "сейчас",
+    "inMins_one": "через {{count}} мин",
+    "inMins_few": "через {{count}} мин",
+    "inMins_many": "через {{count}} мин",
+    "inMins_other": "через {{count}} мин",
+    "inHours_one": "через {{count}} ч",
+    "inHours_few": "через {{count}} ч",
+    "inHours_many": "через {{count}} ч",
+    "inHours_other": "через {{count}} ч",
+    "inDays_one": "через {{count}} д",
+    "inDays_few": "через {{count}} д",
+    "inDays_many": "через {{count}} д",
+    "inDays_other": "через {{count}} д",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Удаление",
+    "deleteMessage": "Это действие нельзя отменить.",
+    "areYouSure": "Вы уверены?"
+  },
+  "empty": {
+    "noData": "Нет данных"
+  },
+  "list": {
+    "noneConfigured": "Ничего не настроено"
+  },
+  "label": {
+    "name": "Название",
+    "description": "Описание",
+    "type": "Тип",
+    "enabled": "Включено",
+    "disabled": "Отключено"
+  },
+  "dropZone": {
+    "releaseToDrop": "Отпустите для загрузки",
+    "dragAndDrop": "Перетащите файлы сюда или нажмите для загрузки",
+    "accepts": "Принимаются: {{extensions}}"
+  }
+}

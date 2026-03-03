@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Bảng điều khiển",
+    "chats": "Chat",
+    "automations": "Tự động hóa",
+    "agents": "Agent",
+    "skills": "Skill",
+    "mcpServers": "MCP Server",
+    "tasks": "Nhiệm Vụ Hội Thoại",
+    "artifacts": "Sản phẩm",
+    "settings": "Cài đặt",
+    "knowledgeBase": "Cơ sở tri thức"
+  },
+  "sidebar": {
+    "navigation": "ĐIỀU HƯỚNG",
+    "config": "CẤU HÌNH",
+    "collapse": "<< Thu gọn"
+  },
+  "global": {
+    "allProjects": "Tất Cả Dự Án",
+    "dashboard": "Bảng Điều Khiển",
+    "settings": "Cài Đặt"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Restricted",
+      "sandbox": "Sandbox",
+      "unrestricted": "Unrestricted"
+    },
+    "degraded": "(giảm cấp → {{mode}})",
+    "tasks": "Nhiệm vụ {{completed}}/{{total}}",
+    "conversationTasks": "NHIỆM VỤ HỘI THOẠI",
+    "contextUsage": "Ngữ cảnh: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Ngữ cảnh: -- / {{max}}",
+    "contextWindow": "CỬa SỔ NGỮ CẢNH",
+    "usage": "Sử dụng",
+    "compacting": "Đang nén",
+    "compactingAuto": "Đang nén (tự động)",
+    "compactNow": "Nén Ngay",
+    "byAgent": "THEO AGENT",
+    "byModel": "THEO MODEL",
+    "tokensInOut": "{{input}} vào / {{output}} ra",
+    "tokens": "Token: {{input}} vào / {{output}} ra",
+    "tokensEmpty": "Token: --"
+  }
+}

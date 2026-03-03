@@ -1,6 +1,6 @@
 {
   "page": {
-    "title": "工件",
+    "title": "文件",
     "refreshBtn": "刷新"
   },
   "deleteModal": {
@@ -25,7 +25,7 @@
     }
   },
   "tree": {
-    "root": "工件",
+    "root": "文件",
     "emptyDir": "空目录"
   }
 }

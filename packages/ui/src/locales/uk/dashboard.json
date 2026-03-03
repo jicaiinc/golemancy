@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Панель",
+    "descriptionFallback": "Огляд проєкту",
+    "loading": "Завантаження панелі..."
+  },
+  "tokenUsage": {
+    "title": "ВИКОРИСТАННЯ ТОКЕНІВ"
+  },
+  "chart": {
+    "noData": "Немає даних про токени",
+    "tooltipIn": "Вх: {{tokens}}",
+    "tooltipOut": "Вих: {{tokens}}",
+    "legendInput": "Вхідні",
+    "legendOutput": "Вихідні"
+  },
+  "tabs": {
+    "trend": "Тренд",
+    "byAgent": "За агентами",
+    "byModel": "За моделями",
+    "byProject": "За проєктами"
+  },
+  "table": {
+    "colName": "Назва",
+    "colTotal": "Усього",
+    "colInput": "Вхідні",
+    "colOutput": "Вихідні",
+    "colCalls": "Виклики",
+    "colRatio": "Співвідношення",
+    "titleByAgent": "ТОКЕНИ ЗА АГЕНТАМИ",
+    "titleByModel": "ТОКЕНИ ЗА МОДЕЛЯМИ",
+    "titleByProject": "ТОКЕНИ ЗА ПРОЄКТАМИ"
+  },
+  "timeRange": {
+    "today": "Сьогодні",
+    "sevenDays": "7 днів",
+    "thirtyDays": "30 днів",
+    "allTime": "За весь час"
+  },
+  "summary": {
+    "totalTokens": "Усього токенів",
+    "inputTokens": "Вхідні токени",
+    "outputTokens": "Вихідні токени",
+    "apiCalls": "API виклики"
+  },
+  "overview": {
+    "agents": "АГЕНТИ",
+    "recentChats": "НЕЩОДАВНІ ЧАТИ",
+    "viewAll": "Усі \u2192",
+    "noAgents": "Немає агентів",
+    "noRecentChats": "Немає нещодавніх чатів",
+    "chatStats": "{{count}} повід \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "АКТИВНІСТЬ",
+    "tabActive": "Активні ({{count}})",
+    "tabScheduled": "Заплановані ({{count}})",
+    "tabRecent": "Нещодавні",
+    "badgeChat": "Чат",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Немає активних запусків",
+    "noScheduledRuns": "Немає запланованих запусків",
+    "noRecentActivity": "Немає нещодавньої активності",
+    "openLink": "ВІДКРИТИ \u2192",
+    "tokenCount": "{{tokens}} токенів"
+  },
+  "global": {
+    "title": "Глобальна панель",
+    "subtitle": "Огляд усіх проєктів",
+    "topProjects": "НАЙАКТИВНІШІ ПРОЄКТИ",
+    "noProjectData": "Немає даних про проєкти",
+    "projectStats": "{{tokens}} токенів \u00B7 {{calls}} викликів"
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "PANGALAN",
+    "agentName": "PANGALAN NG AGENT",
+    "description": "PAGLALARAWAN",
+    "systemPrompt": "SYSTEM PROMPT",
+    "provider": "PROVIDER",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "walang ginagawa",
+    "running": "tumatakbo",
+    "error": "error",
+    "paused": "naka-pause"
+  },
+  "currentMain": "KASALUKUYANG MAIN",
+  "currentMainTooltip": "Kasalukuyang napiling main agent para sa project na ito",
+  "noProviders": "Walang naka-configure na provider",
+  "noModels": "Walang available na model",
+  "savedMsg": "Na-save!",
+  "list": {
+    "title": "Mga Agent",
+    "subtitle_one": "{{count}} agent sa project na ito",
+    "subtitle_other": "{{count}} agent sa project na ito",
+    "newBtn": "+ Bagong Agent",
+    "viewGrid": "Grid",
+    "viewTopology": "Topology",
+    "empty": "Wala pang agent",
+    "createFirst": "Gumawa ng Unang Agent"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skill",
+    "tools_one": "{{count}} tool",
+    "tools_other": "{{count}} tool",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_other": "{{count}} sub-agent",
+    "mcpServers_one": "{{count}} MCP server",
+    "mcpServers_other": "{{count}} MCP server"
+  },
+  "create": {
+    "modalTitle": "Gumawa ng Bagong Agent",
+    "createBtn": "Gumawa ng Agent",
+    "namePlaceholder": "hal. Research Assistant",
+    "descPlaceholder": "Ano ang ginagawa ng agent na ito?",
+    "promptPlaceholder": "Ikaw ay isang matulunging assistant na..."
+  },
+  "detail": {
+    "notFound": "Hindi nahanap ang Agent.",
+    "backToAgents": "< Bumalik sa Mga Agent",
+    "backBtn": "< Mga Agent",
+    "tabs": {
+      "general": "Pangkalahatan",
+      "modelConfig": "Model Config",
+      "skills": "Mga Skill",
+      "tools": "Mga Tool",
+      "subAgents": "Mga Sub-Agent"
+    }
+  },
+  "general": {
+    "sectionTitle": "IMPORMASYON",
+    "deleteBtn": "I-delete ang Agent"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODEL CONFIG",
+    "compactLabel": "COMPACT THRESHOLD"
+  },
+  "skills": {
+    "assigned": "MGA NAKA-ASSIGN NA SKILL",
+    "noneAssigned": "Walang skill na naka-assign sa agent na ito.",
+    "addSection": "MAGDAGDAG NG SKILL",
+    "noneInProject": "Walang skill sa project na ito",
+    "goTo": "Pumunta sa Mga Skill",
+    "manage": "Pamahalaan ang Mga Skill \u2192"
+  },
+  "tools": {
+    "builtinSection": "MGA BUILT-IN NA TOOL",
+    "comingSoon": "PAPARATING NA",
+    "customSection": "MGA CUSTOM NA TOOL",
+    "bashDesc": "Mag-execute ng bash commands, magbasa at magsulat ng mga file",
+    "browserDesc": "Kontrolin ang web browser para sa automation",
+    "osControlDesc": "Desktop automation at system control",
+    "taskDesc": "Gumawa at pamahalaan ang mga task sa usapan"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 BABALA",
+    "warningText": "Maaaring ma-access o mabago ng third-party MCP server ang mga file sa iyong computer.",
+    "enableSandboxHint": "I-enable ang \"Apply to MCP\" sa Settings > Permissions para i-sandbox ang mga MCP server.",
+    "sandboxUnavailable": "Hindi available ang Sandbox runtime sa platform na ito.",
+    "assigned": "MGA NAKA-ASSIGN NA MCP SERVER",
+    "noneAssigned": "Walang MCP server na naka-assign sa agent na ito.",
+    "addSection": "MAGDAGDAG NG MCP SERVER",
+    "noneInProject": "Walang MCP server sa project na ito",
+    "goTo": "Pumunta sa MCP Servers",
+    "manage": "Pamahalaan ang MCP Servers \u2192",
+    "restricted": "Restricted"
+  },
+  "subAgents": {
+    "assigned": "MGA NAKA-ASSIGN NA SUB-AGENT",
+    "noneAssigned": "Walang sub-agent na naka-assign sa agent na ito.",
+    "addSection": "MAGDAGDAG NG SUB-AGENT",
+    "noneAvailable": "Walang ibang agent na available sa project na ito.",
+    "unknown": "Hindi kilala",
+    "rolePlaceholder": "Papel..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Minana",
+    "capabilities": "MGA KAKAYAHAN",
+    "subAgentsLabel": "MGA SUB-AGENT",
+    "openDetail": "Buksan ang Detalye"
+  },
+  "topology": {
+    "resetLayout": "I-reset ang Layout",
+    "editAgent": "I-edit ang Agent",
+    "setMainAgent": "Itakda bilang Main Agent"
+  }
+}

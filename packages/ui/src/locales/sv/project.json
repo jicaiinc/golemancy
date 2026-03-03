@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "PROJEKTNAMN",
+    "description": "BESKRIVNING",
+    "icon": "IKON",
+    "projectId": "PROJEKT-ID"
+  },
+  "list": {
+    "title": "Alla projekt",
+    "subtitle_one": "{{count}} projekt i din arbetsyta",
+    "subtitle_other": "{{count}} projekt i din arbetsyta",
+    "newBtn": "+ Nytt projekt",
+    "empty": "Inga projekt ännu",
+    "createFirst": "Skapa ditt första projekt",
+    "openInWindow": "Öppna i nytt fönster",
+    "agents_one": "{{count}} agent",
+    "agents_other": "{{count}} agenter",
+    "running_one": "{{count}} kör",
+    "running_other": "{{count}} kör"
+  },
+  "create": {
+    "modalTitle": "Skapa nytt projekt",
+    "createBtn": "Skapa projekt",
+    "namePlaceholder": "Mitt fantastiska projekt",
+    "descPlaceholder": "Vad handlar detta projekt om?"
+  },
+  "settings": {
+    "title": "Projektinställningar",
+    "savedMsg": "Sparat!",
+    "clickToCopy": "Klicka för att kopiera",
+    "tabs": {
+      "general": "Allmänt",
+      "agent": "Agent",
+      "permissions": "Behörigheter"
+    },
+    "agent": {
+      "mainLabel": "HUVUDAGENT",
+      "mainDesc": "Standardagenten för nya konversationer i detta projekt.",
+      "noAgents": "Inga agenter i detta projekt. Skapa en agent först.",
+      "goToAgents": "Gå till agenter",
+      "none": "Ingen",
+      "configure": "Konfigurera agent \u2192"
+    },
+    "general": {
+      "sectionTitle": "GRUNDLÄGGANDE INFO",
+      "saveBtn": "Spara ändringar"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Transkriptionshistorik"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} post",
+    "recordCount_other": "{{count}} poster",
+    "used": "{{size}} använt",
+    "loading": "Laddar lagringsinformation..."
+  },
+  "clearAll": {
+    "confirm_one": "Radera {{count}} post?",
+    "confirm_other": "Radera alla {{count}} poster?",
+    "confirmWithFree_one": "Radera {{count}} post och frigör {{size}}?",
+    "confirmWithFree_other": "Radera alla {{count}} poster och frigör {{size}}?"
+  },
+  "loading": "Laddar historik...",
+  "empty": {
+    "hint": "Använd mikrofonknappen i chatten\nför att skapa din första röstinspelning",
+    "settingsBtn": "Gå till inställningar"
+  },
+  "player": {
+    "play": "Spela",
+    "pause": "Pausa",
+    "close": "Stäng spelare"
+  },
+  "actions": {
+    "copy": "Kopiera transkriberad text",
+    "retry": "Försök transkribering igen",
+    "delete": "Radera post"
+  },
+  "enable": {
+    "enabled": "Aktiverad",
+    "disabled": "Inaktiverad",
+    "sectionTitle": "TAL-TILL-TEXT"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "TYP",
+    "customType": "Anpassad (OpenAI-kompatibel)",
+    "apiKeyLabel": "API-NYCKEL",
+    "baseUrlRequired": "BASE URL (OBLIGATORISK)",
+    "baseUrlOptional": "BASE URL (VALFRITT)",
+    "baseUrlPlaceholder": "Lämna tomt för standard",
+    "modelLabel": "MODELL",
+    "modelOther": "Annan...",
+    "presets": "Förinställningar",
+    "languageLabel": "SPRÅK",
+    "hide": "Dölj",
+    "show": "Visa"
+  },
+  "test": {
+    "testing": "Testar...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Testa igen",
+    "test": "Testa",
+    "failed": "Misslyckades",
+    "untested": "Otestad",
+    "unknownError": "Okänt fel"
+  },
+  "history": {
+    "sectionTitle": "HISTORIK",
+    "recordsInfo": "{{recordCount}} poster / {{size}}",
+    "clearAll": "Rensa alla",
+    "confirmClear": "Rensa alla?",
+    "empty": "Inga transkriptioner ännu",
+    "today": "Idag",
+    "yesterday": "Igår",
+    "transcribing": "Transkriberar...",
+    "openChat": "Öppna chatt \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "FEL",
+    "deleteConfirm": "Radera denna post och dess ljudfil?",
+    "retryConfirm": "Detta skriver över den befintliga transkriptionen.",
+    "transcriptionFailed": "Transkribering misslyckades: {{error}}",
+    "retranscribe": "Transkribera igen"
+  }
+}

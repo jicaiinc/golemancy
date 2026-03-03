@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 import { Hono } from 'hono'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
-  IMemoryService, ISkillService, ISettingsService,
+  ISkillService, ISettingsService,
   IDashboardService, ICronJobService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { createApp, type ServerDependencies } from '../app'
@@ -13,7 +13,7 @@ export interface MockStorage extends ServerDependencies {
   agentStorage: MockedService<IAgentService>
   conversationStorage: MockedService<IConversationService>
   taskStorage: MockedService<ITaskService>
-  memoryStorage: MockedService<IMemoryService>
+  kbStorage: any
   skillStorage: MockedService<ISkillService>
   settingsStorage: MockedService<ISettingsService>
   dashboardService: MockedService<IDashboardService>
@@ -63,12 +63,20 @@ export function createMockStorage(): MockStorage {
       list: vi.fn().mockResolvedValue([]),
       getById: vi.fn().mockResolvedValue(null),
     },
-    memoryStorage: {
-      list: vi.fn().mockResolvedValue([]),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn().mockResolvedValue(undefined),
-    },
+    kbStorage: {
+      listCollections: vi.fn().mockResolvedValue([]),
+      getCollection: vi.fn().mockResolvedValue(null),
+      createCollection: vi.fn(),
+      updateCollection: vi.fn(),
+      deleteCollection: vi.fn().mockResolvedValue(undefined),
+      listDocuments: vi.fn().mockResolvedValue([]),
+      getDocument: vi.fn().mockResolvedValue(null),
+      ingestDocument: vi.fn(),
+      deleteDocument: vi.fn().mockResolvedValue(undefined),
+      search: vi.fn().mockResolvedValue([]),
+      getHotContent: vi.fn().mockResolvedValue(''),
+      hasVectorData: vi.fn().mockResolvedValue(false),
+    } as any,
     skillStorage: {
       list: vi.fn().mockResolvedValue([]),
       getById: vi.fn().mockResolvedValue(null),
@@ -84,6 +92,7 @@ export function createMockStorage(): MockStorage {
       }),
       update: vi.fn(),
       testProvider: vi.fn(),
+      testEmbedding: vi.fn(),
     },
     dashboardService: {
       getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),

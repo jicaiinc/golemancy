@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Ustawienia globalne"
+  },
+  "tabs": {
+    "general": "Ogólne",
+    "providers": "Dostawcy",
+    "speech": "Mowa",
+    "about": "O programie"
+  },
+  "about": {
+    "slogan": "Dowódź swoimi AI Golemami",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "AKTUALIZACJE",
+    "checkForUpdates": "Powiadomienia o aktualizacjach",
+    "upToDate": "Masz najnowszą wersję — v{{version}}",
+    "available": "AKTUALIZACJA DOSTĘPNA",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Pobierz dla {{platform}}",
+    "downloadGeneric": "Pobierz",
+    "skip": "Pomiń tę wersję",
+    "skipped": "v{{version}} dostępna (pominięta)"
+  },
+  "general": {
+    "appearance": "WYGLĄD",
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "Systemowy",
+    "language": "JĘZYK"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODEL DOMYŚLNY",
+    "description": "Używany przy tworzeniu nowych projektów i agentów.",
+    "providerLabel": "DOSTAWCA",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Brak --",
+    "selectProviderFirst": "-- Najpierw wybierz dostawcę --",
+    "noModels": "Brak dostępnych modeli",
+    "saved": "Zapisano!"
+  },
+  "providers": {
+    "sectionTitle": "DOSTAWCY",
+    "addProvider": "+ Dodaj dostawcę",
+    "selectProvider": "WYBIERZ DOSTAWCĘ",
+    "customProvider": "NIESTANDARDOWY DOSTAWCA",
+    "custom": "Niestandardowy",
+    "anyEndpoint": "dowolny endpoint",
+    "nameLabel": "NAZWA",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TYP SDK",
+    "empty": "Brak skonfigurowanych dostawców. Kliknij «+ Dodaj dostawcę», aby rozpocząć."
+  },
+  "provider": {
+    "testing": "Testowanie...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Błąd",
+    "untested": "Nieprzetestowany",
+    "noKey": "Brak klucza",
+    "retest": "Przetestuj ponownie",
+    "test": "Test",
+    "del": "Usuń",
+    "deleteConfirm": "Usunąć {{name}}? Tej operacji nie można cofnąć.",
+    "apiKeyLabel": "Klucz API:",
+    "notSet": "nie ustawiony",
+    "hide": "Ukryj",
+    "show": "Pokaż",
+    "urlLabel": "URL:",
+    "modelsCount": "Modele ({{count}})",
+    "addModel": "+ Dodaj model",
+    "apiKeyInputLabel": "KLUCZ API",
+    "baseUrlOptional": "BASE URL (opcjonalnie)",
+    "hideKey": "Ukryj klucz",
+    "showKey": "Pokaż klucz"
+  },
+  "threshold": {
+    "tokens": "tokenów"
+  }
+}

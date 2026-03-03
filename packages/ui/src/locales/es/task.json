@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Tareas de Conversación",
+    "taskCount_one": "{{count}} tarea en total",
+    "taskCount_other": "{{count}} tareas en total"
+  },
+  "loading": "Cargando tareas...",
+  "empty": {
+    "noTasks": "No se encontraron tareas"
+  },
+  "openChat": "ABRIR CHAT →",
+  "detail": {
+    "description": "DESCRIPCIÓN",
+    "blockedBy": "BLOQUEADA POR",
+    "metadata": "METADATOS"
+  },
+  "status": {
+    "pending": "pendiente",
+    "in_progress": "en progreso",
+    "completed": "completada",
+    "deleted": "eliminada"
+  }
+}

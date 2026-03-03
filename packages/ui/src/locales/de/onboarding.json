@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Einrichtung",
+    "skipSetup": "Einrichtung überspringen"
+  },
+  "steps": {
+    "welcome": "Willkommen",
+    "provider": "Provider",
+    "speech": "Sprache",
+    "project": "Projekt",
+    "complete": "Fertig"
+  },
+  "error": {
+    "somethingWentWrong": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "failedToSkip": "Einrichtung konnte nicht übersprungen werden. Bitte versuchen Sie es erneut.",
+    "connectionTestFailed": "Verbindungstest fehlgeschlagen",
+    "testFailed": "Test fehlgeschlagen",
+    "unknownError": "Unbekannter Fehler"
+  },
+  "button": {
+    "createProject": "Projekt erstellen",
+    "getStarted": "Loslegen",
+    "continue": "Weiter",
+    "startChatting": "Chat starten",
+    "goToDashboard": "Zum Dashboard",
+    "change": "Ändern",
+    "testConnection": "Verbindung testen",
+    "testing": "Test läuft...",
+    "reTest": "Erneut testen",
+    "test": "Test",
+    "hide": "Ausblenden",
+    "show": "Anzeigen"
+  },
+  "welcome": {
+    "tagline": "Willkommen",
+    "heading": "Steuern Sie Ihre AI Golems",
+    "description": "Orchestrieren Sie autonome AI-Agenten von Ihrem Desktop aus."
+  },
+  "provider": {
+    "heading": "AI-Provider verbinden",
+    "description": "Wählen Sie einen Provider und geben Sie Ihren API-Key ein, um loszulegen.",
+    "customLabel": "Benutzerdefiniert",
+    "customSubtitle": "beliebiger Endpunkt",
+    "customCardTitle": "BENUTZERDEFINIERTER PROVIDER",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NAME",
+    "labelSdkType": "SDK-TYP",
+    "statusConnected": "Verbunden",
+    "statusFailed": "Fehlgeschlagen",
+    "statusConnecting": "Verbindung...",
+    "none": "Keiner",
+    "defaultModel": {
+      "title": "STANDARDMODELL",
+      "descriptionPreset": "Wählen Sie ein Modell, das standardmäßig für neue Agenten verwendet wird.",
+      "descriptionCustom": "Geben Sie den Modellnamen ein, der standardmäßig verwendet wird.",
+      "labelModelName": "MODELLNAME"
+    }
+  },
+  "speech": {
+    "heading": "Speech-to-Text",
+    "description": "Aktivieren Sie die Spracheingabe für schnellere Interaktion. Sie können dies überspringen und später konfigurieren.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODELL",
+    "labelLanguage": "SPRACHE",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Fehlgeschlagen"
+  },
+  "project": {
+    "heading": "Erstellen Sie Ihr erstes Projekt",
+    "description": "Projekte organisieren Ihre Agenten, Konversationen und Workflows.",
+    "labelName": "PROJEKTNAME",
+    "placeholderName": "Mein tolles Projekt",
+    "labelDescription": "BESCHREIBUNG",
+    "placeholderDescription": "Was wird dieses Projekt tun?",
+    "labelIcon": "SYMBOL",
+    "fromTemplate": "AUS VORLAGE",
+    "comingSoon": "Demnächst"
+  },
+  "complete": {
+    "heading": "Alles eingerichtet!",
+    "description": "Hier ist eine Zusammenfassung Ihrer Konfiguration.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "STANDARDMODELL",
+    "labelSpeechToText": "SPEECH-TO-TEXT",
+    "labelProject": "PROJEKT",
+    "sttEnabled": "Aktiviert",
+    "sttSkipped": "Übersprungen",
+    "links": {
+      "settings": "Einstellungen",
+      "website": "Website"
+    }
+  }
+}

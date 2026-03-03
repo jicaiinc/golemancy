@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "NOME",
+    "agentName": "NOME AGENTE",
+    "description": "DESCRIZIONE",
+    "systemPrompt": "PROMPT DI SISTEMA",
+    "provider": "PROVIDER",
+    "model": "MODELLO"
+  },
+  "statusLabel": {
+    "idle": "inattivo",
+    "running": "in esecuzione",
+    "error": "errore",
+    "paused": "in pausa"
+  },
+  "currentMain": "PRINCIPALE ATTUALE",
+  "currentMainTooltip": "Agente principale attualmente selezionato per questo progetto",
+  "noProviders": "Nessun provider configurato",
+  "noModels": "Nessun modello disponibile",
+  "savedMsg": "Salvato!",
+  "list": {
+    "title": "Agenti",
+    "subtitle_one": "{{count}} agente in questo progetto",
+    "subtitle_other": "{{count}} agenti in questo progetto",
+    "newBtn": "+ Nuovo Agente",
+    "viewGrid": "Griglia",
+    "viewTopology": "Topologia",
+    "empty": "Nessun agente",
+    "createFirst": "Crea il Tuo Primo Agente"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skill",
+    "tools_one": "{{count}} strumento",
+    "tools_other": "{{count}} strumenti",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_other": "{{count}} sub-agent",
+    "mcpServers_one": "{{count}} server MCP",
+    "mcpServers_other": "{{count}} server MCP"
+  },
+  "create": {
+    "modalTitle": "Crea Nuovo Agente",
+    "createBtn": "Crea Agente",
+    "namePlaceholder": "es. Assistente di Ricerca",
+    "descPlaceholder": "Cosa fa questo agente?",
+    "promptPlaceholder": "Sei un assistente utile che..."
+  },
+  "detail": {
+    "notFound": "Agente non trovato.",
+    "backToAgents": "< Torna agli Agenti",
+    "backBtn": "< Agenti",
+    "tabs": {
+      "general": "Generale",
+      "modelConfig": "Config. Modello",
+      "skills": "Skill",
+      "tools": "Strumenti",
+      "subAgents": "Sub-Agent"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Elimina Agente"
+  },
+  "modelConfig": {
+    "sectionTitle": "CONFIG. MODELLO",
+    "compactLabel": "SOGLIA DI COMPATTAZIONE"
+  },
+  "skills": {
+    "assigned": "SKILL ASSEGNATE",
+    "noneAssigned": "Nessuna skill assegnata a questo agente.",
+    "addSection": "AGGIUNGI SKILL",
+    "noneInProject": "Nessuna skill in questo progetto",
+    "goTo": "Vai alle Skill",
+    "manage": "Gestisci Skill \u2192"
+  },
+  "tools": {
+    "builtinSection": "STRUMENTI INTEGRATI",
+    "comingSoon": "PROSSIMAMENTE",
+    "customSection": "STRUMENTI PERSONALIZZATI",
+    "bashDesc": "Esegui comandi bash, leggi e scrivi file",
+    "browserDesc": "Controlla il browser web per l'automazione",
+    "osControlDesc": "Automazione desktop e controllo di sistema",
+    "taskDesc": "Crea e gestisci attività nella conversazione"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 ATTENZIONE",
+    "warningText": "I server MCP di terze parti possono accedere o modificare file sul computer.",
+    "enableSandboxHint": "Attiva \"Applica a MCP\" in Impostazioni > Permessi per sandboxare i server MCP.",
+    "sandboxUnavailable": "Il runtime Sandbox non è disponibile su questa piattaforma.",
+    "assigned": "SERVER MCP ASSEGNATI",
+    "noneAssigned": "Nessun server MCP assegnato a questo agente.",
+    "addSection": "AGGIUNGI SERVER MCP",
+    "noneInProject": "Nessun server MCP in questo progetto",
+    "goTo": "Vai ai Server MCP",
+    "manage": "Gestisci Server MCP \u2192",
+    "restricted": "Limitato"
+  },
+  "subAgents": {
+    "assigned": "SUB-AGENT ASSEGNATI",
+    "noneAssigned": "Nessun sub-agent assegnato a questo agente.",
+    "addSection": "AGGIUNGI SUB-AGENT",
+    "noneAvailable": "Nessun altro agente disponibile in questo progetto.",
+    "unknown": "Sconosciuto",
+    "rolePlaceholder": "Ruolo..."
+  },
+  "panel": {
+    "modelLabel": "MODELLO",
+    "inherited": "Ereditato",
+    "capabilities": "CAPACITÀ",
+    "subAgentsLabel": "SUB-AGENT",
+    "openDetail": "Apri Dettaglio"
+  },
+  "topology": {
+    "resetLayout": "Reimposta Layout",
+    "editAgent": "Modifica Agente",
+    "setMainAgent": "Imposta come Agente Principale"
+  }
+}

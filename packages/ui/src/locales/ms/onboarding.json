@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Persediaan",
+    "skipSetup": "Langkau Persediaan"
+  },
+  "steps": {
+    "welcome": "Selamat Datang",
+    "provider": "Provider",
+    "speech": "Pertuturan",
+    "project": "Projek",
+    "complete": "Selesai"
+  },
+  "error": {
+    "somethingWentWrong": "Sesuatu telah berlaku. Sila cuba lagi.",
+    "failedToSkip": "Gagal melangkau persediaan. Sila cuba lagi.",
+    "connectionTestFailed": "Ujian sambungan gagal",
+    "testFailed": "Ujian gagal",
+    "unknownError": "Ralat tidak diketahui"
+  },
+  "button": {
+    "createProject": "Cipta Projek",
+    "getStarted": "Mula",
+    "continue": "Teruskan",
+    "startChatting": "Mula Bersembang",
+    "goToDashboard": "Ke Papan Pemuka",
+    "change": "Tukar",
+    "testConnection": "Uji Sambungan",
+    "testing": "Menguji...",
+    "reTest": "Uji Semula",
+    "test": "Uji",
+    "hide": "Sembunyikan",
+    "show": "Tunjukkan"
+  },
+  "welcome": {
+    "tagline": "Selamat Datang",
+    "heading": "Kawal AI Golem Anda",
+    "description": "Orkestrasikan agen AI autonomi dari desktop anda."
+  },
+  "provider": {
+    "heading": "Sambungkan Provider AI",
+    "description": "Pilih provider dan masukkan API key anda untuk bermula.",
+    "customLabel": "Tersuai",
+    "customSubtitle": "sebarang endpoint",
+    "customCardTitle": "PROVIDER TERSUAI",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NAMA",
+    "labelSdkType": "JENIS SDK",
+    "statusConnected": "Disambungkan",
+    "statusFailed": "Gagal",
+    "statusConnecting": "Menyambung...",
+    "none": "Tiada",
+    "defaultModel": {
+      "title": "MODEL LALAI",
+      "descriptionPreset": "Pilih model untuk digunakan secara lalai bagi agen baharu.",
+      "descriptionCustom": "Masukkan nama model untuk digunakan secara lalai.",
+      "labelModelName": "NAMA MODEL"
+    }
+  },
+  "speech": {
+    "heading": "Speech-to-Text",
+    "description": "Aktifkan input suara untuk interaksi lebih pantas. Anda boleh langkau ini dan konfigurasikannya kemudian.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODEL",
+    "labelLanguage": "BAHASA",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Gagal"
+  },
+  "project": {
+    "heading": "Cipta Projek Pertama Anda",
+    "description": "Projek mengorganisasikan agen, perbualan, dan aliran kerja anda.",
+    "labelName": "NAMA PROJEK",
+    "placeholderName": "Projek Hebat Saya",
+    "labelDescription": "PENERANGAN",
+    "placeholderDescription": "Apakah projek ini akan lakukan?",
+    "labelIcon": "IKON",
+    "fromTemplate": "DARI TEMPLAT",
+    "comingSoon": "Akan Datang"
+  },
+  "complete": {
+    "heading": "Semuanya Sedia!",
+    "description": "Berikut ringkasan konfigurasi anda.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "MODEL LALAI",
+    "labelSpeechToText": "SPEECH-TO-TEXT",
+    "labelProject": "PROJEK",
+    "sttEnabled": "Diaktifkan",
+    "sttSkipped": "Dilangkau",
+    "links": {
+      "settings": "Tetapan",
+      "website": "Laman Web"
+    }
+  }
+}

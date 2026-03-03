@@ -1,0 +1,82 @@
+{
+  "button": {
+    "cancel": "Zrušit",
+    "save": "Uložit",
+    "saving": "Ukládání...",
+    "saved": "Uloženo",
+    "delete": "Smazat",
+    "deleting": "Mazání...",
+    "edit": "Upravit",
+    "add": "Přidat",
+    "confirm": "Potvrdit",
+    "retry": "Opakovat",
+    "back": "Zpět",
+    "next": "Další",
+    "close": "Zavřít",
+    "create": "Vytvořit",
+    "creating": "Vytváření...",
+    "refresh": "Obnovit",
+    "send": "Odeslat",
+    "stop": "Zastavit",
+    "dismiss": "Skrýt",
+    "done": "Hotovo",
+    "copy": "Kopírovat"
+  },
+  "status": {
+    "loading": "Načítání...",
+    "error": "Chyba",
+    "success": "Úspěch"
+  },
+  "time": {
+    "justNow": "právě teď",
+    "minsAgo_one": "před {{count}} min",
+    "minsAgo_few": "před {{count}} min",
+    "minsAgo_many": "před {{count}} min",
+    "minsAgo_other": "před {{count}} min",
+    "hoursAgo_one": "před {{count}} hod",
+    "hoursAgo_few": "před {{count}} hod",
+    "hoursAgo_many": "před {{count}} hod",
+    "hoursAgo_other": "před {{count}} hod",
+    "daysAgo_one": "před {{count}} d",
+    "daysAgo_few": "před {{count}} d",
+    "daysAgo_many": "před {{count}} d",
+    "daysAgo_other": "před {{count}} d",
+    "now": "nyní",
+    "inMins_one": "za {{count}} min",
+    "inMins_few": "za {{count}} min",
+    "inMins_many": "za {{count}} min",
+    "inMins_other": "za {{count}} min",
+    "inHours_one": "za {{count}} hod",
+    "inHours_few": "za {{count}} hod",
+    "inHours_many": "za {{count}} hod",
+    "inHours_other": "za {{count}} hod",
+    "inDays_one": "za {{count}} d",
+    "inDays_few": "za {{count}} d",
+    "inDays_many": "za {{count}} d",
+    "inDays_other": "za {{count}} d",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Smazání",
+    "deleteMessage": "Tuto akci nelze vrátit zpět.",
+    "areYouSure": "Jste si jistí?"
+  },
+  "empty": {
+    "noData": "Žádná data"
+  },
+  "list": {
+    "noneConfigured": "Nic není nakonfigurováno"
+  },
+  "label": {
+    "name": "Název",
+    "description": "Popis",
+    "type": "Typ",
+    "enabled": "Zapnuto",
+    "disabled": "Vypnuto"
+  },
+  "dropZone": {
+    "releaseToDrop": "Pusťte pro nahrání",
+    "dragAndDrop": "Přetáhněte soubory sem nebo klikněte pro nahrání",
+    "accepts": "Akceptované: {{extensions}}"
+  }
+}

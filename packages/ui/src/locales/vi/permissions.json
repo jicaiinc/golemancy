@@ -1,0 +1,104 @@
+{
+  "loading": "\u0110ang t\u1ea3i quy\u1ec1n...",
+  "section": {
+    "permissionMode": "CH\u1ebe\u0110\u1ed8 QUY\u1ec0N",
+    "configuration": "C\u1ea4U H\u00ccNH"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restricted",
+      "subtitle": "Ch\u1ec9 Bash, kh\u00f4ng c\u00f3 sandbox",
+      "description": "M\u00f4i tr\u01b0\u1eddng th\u1ef1c thi t\u1ed1i thi\u1ec3u. Kh\u00f4ng c\u00f3 sandbox runtime, kh\u00f4ng h\u1ed7 tr\u1ee3 MCP.",
+      "badge": "H\u1ea1n ch\u1ebf"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "C\u00f4 l\u1eadp c\u00f3 th\u1ec3 c\u1ea5u h\u00ecnh",
+      "description": "Sandbox runtime v\u1edbi c\u00e1c h\u1ea1n ch\u1ebf filesystem, m\u1ea1ng v\u00e0 l\u1ec7nh c\u00f3 th\u1ec3 c\u1ea5u h\u00ecnh.",
+      "badge": "\u0110\u1ec1 xu\u1ea5t"
+    },
+    "unrestricted": {
+      "name": "Unrestricted",
+      "subtitle": "Truy c\u1eadp h\u1ec7 th\u1ed1ng \u0111\u1ea7y \u0111\u1ee7",
+      "description": "Kh\u00f4ng c\u00f3 h\u1ea1n ch\u1ebf sandbox. T\u1ea5t c\u1ea3 l\u1ec7nh ch\u1ea1y v\u1edbi quy\u1ec1n h\u1ec7 th\u1ed1ng \u0111\u1ea7y \u0111\u1ee7.",
+      "badge": "R\u1ee7i ro"
+    }
+  },
+  "config": {
+    "default": "M\u1eb7c \u0111\u1ecbnh",
+    "selectConfig": "Ch\u1ecdn c\u1ea5u h\u00ecnh...",
+    "saveAs": "L\u01b0u Nh\u01b0...",
+    "rename": "\u0110\u1ed5i T\u00ean",
+    "resetToDefault": "\u0110\u1eb7t L\u1ea1i V\u1ec1 M\u1eb7c \u0110\u1ecbnh",
+    "saved": "\u0110\u00e3 l\u01b0u!",
+    "editingDefault": "\u0110ang ch\u1ec9nh s\u1eeda gi\u00e1 tr\u1ecb m\u1eb7c \u0111\u1ecbnh. Nh\u1ea5p L\u01b0u \u0111\u1ec3 t\u1ea1o c\u1ea5u h\u00ecnh m\u1edbi c\u00f3 t\u00ean."
+  },
+  "modal": {
+    "unrestrictedTitle": "B\u1eadt Ch\u1ebf \u0110\u1ed9 Unrestricted?",
+    "unrestrictedBody": "Thao t\u00e1c n\u00e0y lo\u1ea1i b\u1ecf m\u1ecdi b\u1ea3o v\u1ec7 sandbox. AI agent s\u1ebd c\u00f3 to\u00e0n quy\u1ec1n truy c\u1eadp h\u1ec7 th\u1ed1ng c\u1ee7a b\u1ea1n, bao g\u1ed3m:",
+    "unrestrictedReadWrite": "\u0110\u1ecdc/ghi b\u1ea5t k\u1ef3 file n\u00e0o tr\u00ean m\u00e1y t\u00ednh c\u1ee7a b\u1ea1n",
+    "unrestrictedExecute": "Th\u1ef1c thi b\u1ea5t k\u1ef3 l\u1ec7nh h\u1ec7 th\u1ed1ng n\u00e0o",
+    "unrestrictedNetwork": "Truy c\u1eadp m\u1ea1ng kh\u00f4ng gi\u1edbi h\u1ea1n",
+    "unrestrictedSysconfig": "Thay \u0111\u1ed5i c\u1ea5u h\u00ecnh h\u1ec7 th\u1ed1ng",
+    "unrestrictedFooter": "Ch\u1ec9 s\u1eed d\u1ee5ng cho ph\u00e1t tri\u1ec3n c\u1ee5c b\u1ed9 trong m\u00f4i tr\u01b0\u1eddng \u0111\u00e1ng tin c\u1eady.",
+    "enableUnrestricted": "T\u00f4i Hi\u1ec3u, B\u1eadt",
+    "sandboxUnavailableTitle": "Ch\u1ebf \u0110\u1ed9 Sandbox Kh\u00f4ng Kh\u1ea3 D\u1ee5ng",
+    "sandboxUnavailableBody": "C\u00e1c \u0111i\u1ec1u ki\u1ec7n ti\u00ean quy\u1ebft sandbox runtime ch\u01b0a \u0111\u01b0\u1ee3c \u0111\u00e1p \u1ee9ng. C\u00e1c v\u1ea5n \u0111\u1ec1 sau \u0111\u01b0\u1ee3c t\u00ecm th\u1ea5y:",
+    "sandboxUnavailableFooter": "B\u1eadt ch\u1ebf \u0111\u1ed9 sandbox v\u1eabn s\u1ebd g\u00e2y ra gi\u1ea3m c\u1ea5p runtime xu\u1ed1ng ch\u1ebf \u0111\u1ed9 restricted.",
+    "enableAnyway": "V\u1eabn B\u1eadt",
+    "saveAsTitle": "L\u01b0u Nh\u01b0 C\u1ea5u H\u00ecnh M\u1edbi",
+    "configNameLabel": "T\u00caN C\u1ea4U H\u00ccNH",
+    "configNamePlaceholder": "v\u00ed d\u1ee5: Strict Dev, Python Disabled",
+    "renameTitle": "\u0110\u1ed5i T\u00ean C\u1ea5u H\u00ecnh",
+    "newNameLabel": "T\u00caN M\u1edaI",
+    "newNamePlaceholder": "v\u00ed d\u1ee5: C\u1ea5u H\u00ecnh T\u00f9y Ch\u1ec9nh",
+    "renaming": "\u0110ang \u0111\u1ed5i t\u00ean...",
+    "deleteTitle": "X\u00f3a \"{{title}}\"?",
+    "deleteBody": "C\u1ea5u h\u00ecnh n\u00e0y s\u1ebd b\u1ecb x\u00f3a v\u0129nh vi\u1ec5n. D\u1ef1 \u00e1n s\u1ebd tr\u1edf v\u1ec1 c\u00e0i \u0111\u1eb7t m\u1eb7c \u0111\u1ecbnh c\u1ee7a h\u1ec7 th\u1ed1ng."
+  },
+  "filesystem": {
+    "sectionTitle": "QUY\u1ec0N H\u1ec6 TH\u1ed0NG FILE",
+    "allowWrite": "CHO PH\u00c9P GHI",
+    "allowWriteHelper": "\u0110\u01b0\u1eddng d\u1eabn m\u00e0 agent c\u00f3 th\u1ec3 ghi file. M\u1eb7c \u0111\u1ecbnh: th\u01b0 m\u1ee5c workspace d\u1ef1 \u00e1n.",
+    "allowWritePlaceholder": "v\u00ed d\u1ee5: /Users/name/workspace",
+    "denyRead": "T\u1eea CH\u1ed0I \u0110\u1eccC",
+    "denyReadHelper": "File/th\u01b0 m\u1ee5c nh\u1ea1y c\u1ea3m b\u1ecb ch\u1eb7n \u0111\u1ecdc.",
+    "denyReadPlaceholder": "v\u00ed d\u1ee5: ~/.ssh, .env",
+    "denyWrite": "T\u1eea CH\u1ed0I GHI",
+    "denyWriteHelper": "\u0110\u01b0\u1eddng d\u1eabn b\u1ecb ch\u1eb7n ghi. \u01afu ti\u00ean h\u01a1n cho ph\u00e9p ghi.",
+    "denyWritePlaceholder": "v\u00ed d\u1ee5: /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "H\u1ea0N CH\u1ebe M\u1ea0NG",
+    "enableLabel": "B\u1eadt",
+    "statusEnabled": "Ch\u1ec9 c\u00e1c domain \u0111\u00e3 c\u1ea5u h\u00ecnh m\u1edbi c\u00f3 th\u1ec3 truy c\u1eadp",
+    "statusDisabled": "T\u1ea5t c\u1ea3 l\u01b0u l\u01b0\u1ee3ng m\u1ea1ng \u0111\u01b0\u1ee3c cho ph\u00e9p",
+    "allowedDomains": "DOMAIN \u0110\u01af\u1ee2C PH\u00c9P",
+    "allowedDomainsHelper": "C\u00e1c domain m\u00e0 agent c\u00f3 th\u1ec3 truy c\u1eadp. Ch\u00ednh x\u00e1c: example.com — Wildcard: *.example.com (2+ ph\u1ea7n sau *.)",
+    "allowedDomainsPlaceholder": "v\u00ed d\u1ee5: api.github.com",
+    "deniedDomains": "DOMAIN B\u1eca CH\u1eb6N",
+    "deniedDomainsHelper": "C\u00e1c domain b\u1ecb ch\u1eb7n. \u0110\u1ecbnh d\u1ea1ng gi\u1ed1ng nh\u01b0 domain \u0111\u01b0\u1ee3c ph\u00e9p.",
+    "deniedDomainsPlaceholder": "v\u00ed d\u1ee5: malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "H\u1ea0N CH\u1ebe L\u1ec6NH",
+    "deniedCommands": "L\u1ec6NH B\u1eca CH\u1eb6N",
+    "deniedCommandsHelper": "C\u00e1c l\u1ec7nh b\u1ecb ch\u1eb7n th\u1ef1c thi.",
+    "deniedCommandsPlaceholder": "v\u00ed d\u1ee5: python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "\u00c1p d\u1ee5ng cho MCP",
+    "warning": "(\u26A0 T\u1eaft t\u00ednh n\u0103ng n\u00e0y c\u00f3 th\u1ec3 cho ph\u00e9p MCP server b\u00ean th\u1ee9 ba truy c\u1eadp ho\u1eb7c ch\u1ec9nh s\u1eeda file tr\u00ean m\u00e1y t\u00ednh c\u1ee7a b\u1ea1n)",
+    "description": "Khi \u0111\u01b0\u1ee3c b\u1eadt, c\u00e1c l\u1ec7nh MCP server s\u1ebd \u0111\u01b0\u1ee3c b\u1ecdc b\u1edfi sandbox runtime (srt). \u0110i\u1ec1u n\u00e0y \u00e1p d\u1ee5ng c\u00e1c h\u1ea1n ch\u1ebf filesystem, m\u1ea1ng v\u00e0 l\u1ec7nh t\u01b0\u01a1ng t\u1ef1 cho MCP server."
+  },
+  "windows": {
+    "notice": "\u26A0 TH\u00d4NG B\u00c1O WINDOWS",
+    "message": "Sandbox runtime kh\u00f4ng kh\u1ea3 d\u1ee5ng tr\u00ean Windows. Ch\u1ec9 h\u1ed7 tr\u1ee3 ch\u1eb7n l\u1ec7nh."
+  },
+  "validation": {
+    "removeProtocol": "X\u00f3a giao th\u1ee9c, \u0111\u01b0\u1eddng d\u1eabn, ho\u1eb7c c\u1ed5ng — ch\u1ec9 nh\u1eadp domain",
+    "wildcardParts": "Wildcard c\u1ea7n 2+ ph\u1ea7n sau *. (v\u00ed d\u1ee5: *.example.com)",
+    "onlyWildcard": "Ch\u1ec9 h\u1ed7 tr\u1ee3 \u0111\u1ecbnh d\u1ea1ng wildcard *.domain.com",
+    "validDomain": "Ph\u1ea3i l\u00e0 domain h\u1ee3p l\u1ec7 v\u1edbi \u00edt nh\u1ea5t m\u1ed9t d\u1ea5u ch\u1ea5m (v\u00ed d\u1ee5: example.com)"
+  }
+}

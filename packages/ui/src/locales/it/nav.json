@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Dashboard",
+    "chats": "Chat",
+    "automations": "Automazioni",
+    "agents": "Agenti",
+    "skills": "Skill",
+    "mcpServers": "Server MCP",
+    "tasks": "Attività Conversazione",
+    "artifacts": "Artefatti",
+    "settings": "Impostazioni",
+    "knowledgeBase": "Base di conoscenza"
+  },
+  "sidebar": {
+    "navigation": "NAVIGAZIONE",
+    "config": "CONFIGURAZIONE",
+    "collapse": "<< Comprimi"
+  },
+  "global": {
+    "allProjects": "Tutti i Progetti",
+    "dashboard": "Dashboard",
+    "settings": "Impostazioni"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Limitato",
+      "sandbox": "Sandbox",
+      "unrestricted": "Senza limiti"
+    },
+    "degraded": "(degradato → {{mode}})",
+    "tasks": "Attività {{completed}}/{{total}}",
+    "conversationTasks": "ATTIVITÀ CONVERSAZIONE",
+    "contextUsage": "Contesto: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Contesto: -- / {{max}}",
+    "contextWindow": "FINESTRA DI CONTESTO",
+    "usage": "Utilizzo",
+    "compacting": "Compattazione",
+    "compactingAuto": "Compattazione (auto)",
+    "compactNow": "Compatta Ora",
+    "byAgent": "PER AGENTE",
+    "byModel": "PER MODELLO",
+    "tokensInOut": "{{input}} in / {{output}} out",
+    "tokens": "Token: {{input}} in / {{output}} out",
+    "tokensEmpty": "Token: --"
+  }
+}

@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import * as sqliteVec from 'sqlite-vec'
 import type { ProjectId } from '@golemancy/shared'
 import { createDatabase, type AppDatabase } from './client'
 import { migrateDatabase } from './migrate'
@@ -21,6 +22,10 @@ export class ProjectDbManager {
 
     log.debug({ projectId, dbPath }, 'opening project database')
     const db = createDatabase(dbPath)
+
+    // Load sqlite-vec extension for vector search
+    sqliteVec.load(db.$client)
+
     migrateDatabase(db)
 
     this.cache.set(projectId, db)
@@ -30,9 +35,7 @@ export class ProjectDbManager {
   closeAll() {
     for (const [projectId, db] of this.cache) {
       try {
-        // Access the underlying better-sqlite3 instance to close it
-        // drizzle wraps it but doesn't expose a close method directly
-        ;(db as any)._.session.client.close()
+        db.$client.close()
         log.debug({ projectId }, 'closed project database')
       } catch {
         log.warn({ projectId }, 'failed to close project database')

@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "아티팩트",
+    "refreshBtn": "새로고침"
+  },
+  "deleteModal": {
+    "title": "파일 삭제",
+    "confirmPrefix": "정말 삭제하시겠습니까",
+    "warning": "이 작업은 되돌릴 수 없습니다."
+  },
+  "preview": {
+    "selectFile": "미리 볼 파일을 선택하세요",
+    "loading": "파일 로딩 중...",
+    "loadingImage": "이미지 로딩 중...",
+    "imageError": "이미지 로드 실패: {{error}}",
+    "emptyCsv": "빈 CSV",
+    "noPreview": "이 파일 유형은 인라인 미리보기를 지원하지 않습니다",
+    "download": "DL",
+    "open": "열기",
+    "meta": {
+      "type": "유형",
+      "mime": "MIME",
+      "size": "크기",
+      "modified": "수정일"
+    }
+  },
+  "tree": {
+    "root": "아티팩트",
+    "emptyDir": "빈 디렉토리"
+  }
+}

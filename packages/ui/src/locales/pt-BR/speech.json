@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Histórico de Transcrições"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} registro",
+    "recordCount_other": "{{count}} registros",
+    "used": "{{size}} usado",
+    "loading": "Carregando info de armazenamento..."
+  },
+  "clearAll": {
+    "confirm_one": "Excluir {{count}} registro?",
+    "confirm_other": "Excluir todos os {{count}} registros?",
+    "confirmWithFree_one": "Excluir {{count}} registro e liberar {{size}}?",
+    "confirmWithFree_other": "Excluir todos os {{count}} registros e liberar {{size}}?"
+  },
+  "loading": "Carregando histórico...",
+  "empty": {
+    "hint": "Use o botão de microfone no chat\npara criar sua primeira gravação de voz",
+    "settingsBtn": "Ir para Configurações"
+  },
+  "player": {
+    "play": "Reproduzir",
+    "pause": "Pausar",
+    "close": "Fechar reprodutor"
+  },
+  "actions": {
+    "copy": "Copiar texto transcrito",
+    "retry": "Tentar transcrição novamente",
+    "delete": "Excluir registro"
+  },
+  "enable": {
+    "enabled": "Ativado",
+    "disabled": "Desativado",
+    "sectionTitle": "VOZ PARA TEXTO"
+  },
+  "provider": {
+    "sectionTitle": "PROVEDOR",
+    "typeLabel": "TIPO",
+    "customType": "Personalizado (Compatível com OpenAI)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (OBRIGATÓRIO)",
+    "baseUrlOptional": "BASE URL (OPCIONAL)",
+    "baseUrlPlaceholder": "Deixe vazio para padrão",
+    "modelLabel": "MODELO",
+    "modelOther": "Outro...",
+    "presets": "Presets",
+    "languageLabel": "IDIOMA",
+    "hide": "Ocultar",
+    "show": "Mostrar"
+  },
+  "test": {
+    "testing": "Testando...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Re-testar",
+    "test": "Testar",
+    "failed": "Falhou",
+    "untested": "Não testado",
+    "unknownError": "Erro desconhecido"
+  },
+  "history": {
+    "sectionTitle": "HISTÓRICO",
+    "recordsInfo": "{{recordCount}} registros / {{size}}",
+    "clearAll": "Limpar Tudo",
+    "confirmClear": "Limpar tudo?",
+    "empty": "Nenhuma transcrição ainda",
+    "today": "Hoje",
+    "yesterday": "Ontem",
+    "transcribing": "Transcrevendo...",
+    "openChat": "Abrir chat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "Excluir este registro e seu arquivo de áudio?",
+    "retryConfirm": "Isso substituirá a transcrição existente.",
+    "transcriptionFailed": "Falha na transcrição: {{error}}",
+    "retranscribe": "Re-transcrever"
+  }
+}

@@ -22,11 +22,12 @@ function createTestServices(): ServiceContainer {
     conversations: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), sendMessage: vi.fn(), saveMessage: vi.fn(), getMessages: vi.fn(), searchMessages: vi.fn(), delete: vi.fn() },
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
-    memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
+    knowledgeBase: { listCollections: vi.fn(), createCollection: vi.fn(), updateCollection: vi.fn(), deleteCollection: vi.fn(), listDocuments: vi.fn(), ingestDocument: vi.fn(), uploadDocument: vi.fn(), getDocument: vi.fn(), deleteDocument: vi.fn(), search: vi.fn(), hasVectorData: vi.fn() },
     settings: {
       get: vi.fn().mockResolvedValue(mockSettings),
       update: vi.fn().mockImplementation((data) => Promise.resolve({ ...mockSettings, ...data })),
       testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }),
+      testEmbedding: vi.fn().mockResolvedValue({ ok: true, latencyMs: 100 }),
     },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
@@ -106,13 +107,18 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getAllByText('OpenAI').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('renders about footer with version key', () => {
+  it('switches to Embedding tab and shows embedding section', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText(/Golemancy v.+ — Command Your AI Golems/)).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Embedding'))
+    expect(screen.getByText('EMBEDDING')).toBeInTheDocument()
+    expect(screen.getByText('Enable Embedding')).toBeInTheDocument()
   })
 
-  it('renders Golemancy branding in footer', () => {
+  it('renders About tab with app info', () => {
     renderWithRouter(<GlobalSettingsPage />)
-    expect(screen.getByText(/Golemancy v.+ — Command Your AI Golems/)).toBeInTheDocument()
+    fireEvent.click(screen.getByText('About'))
+    expect(screen.getByText('Command Your AI Golems')).toBeInTheDocument()
+    expect(screen.getByText('UPDATES')).toBeInTheDocument()
+    expect(screen.getByText(/You're up to date/)).toBeInTheDocument()
   })
 })

@@ -7,11 +7,9 @@ export {
   getProjectRuntimeDir,
   getProjectPythonEnvPath,
   getProjectPythonEnvBinPath,
-  getProjectNodeModulesPath,
   getGlobalRuntimeDir,
   getPipCachePath,
   getNpmCachePath,
-  getNpmGlobalPath,
 } from './paths'
 export {
   initProjectPythonEnv,

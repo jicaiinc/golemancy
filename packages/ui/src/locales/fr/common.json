@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "saved": "Enregistré",
+    "delete": "Supprimer",
+    "deleting": "Suppression...",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "confirm": "Confirmer",
+    "retry": "Réessayer",
+    "back": "Retour",
+    "next": "Suivant",
+    "close": "Fermer",
+    "create": "Créer",
+    "creating": "Création...",
+    "refresh": "Actualiser",
+    "send": "Envoyer",
+    "stop": "Arrêter",
+    "dismiss": "Ignorer",
+    "done": "Terminé",
+    "copy": "Copier"
+  },
+  "status": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "time": {
+    "justNow": "à l'instant",
+    "minsAgo_one": "il y a {{count}}m",
+    "minsAgo_other": "il y a {{count}}m",
+    "hoursAgo_one": "il y a {{count}}h",
+    "hoursAgo_other": "il y a {{count}}h",
+    "daysAgo_one": "il y a {{count}}j",
+    "daysAgo_other": "il y a {{count}}j",
+    "now": "maintenant",
+    "inMins_one": "dans {{count}}m",
+    "inMins_other": "dans {{count}}m",
+    "inHours_one": "dans {{count}}h",
+    "inHours_other": "dans {{count}}h",
+    "inDays_one": "dans {{count}}j",
+    "inDays_other": "dans {{count}}j",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Supprimer",
+    "deleteMessage": "Cette action est irréversible.",
+    "areYouSure": "Êtes-vous sûr ?"
+  },
+  "empty": {
+    "noData": "Aucune donnée"
+  },
+  "list": {
+    "noneConfigured": "Aucun configuré"
+  },
+  "label": {
+    "name": "Nom",
+    "description": "Description",
+    "type": "Type",
+    "enabled": "Activé",
+    "disabled": "Désactivé"
+  },
+  "dropZone": {
+    "releaseToDrop": "Relâchez pour déposer",
+    "dragAndDrop": "Glissez-déposez des fichiers ici, ou cliquez pour importer",
+    "accepts": "Accepte : {{extensions}}"
+  }
+}

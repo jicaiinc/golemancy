@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Configurações Globais"
+  },
+  "tabs": {
+    "general": "Geral",
+    "providers": "Provedores",
+    "speech": "Voz",
+    "about": "Sobre"
+  },
+  "about": {
+    "slogan": "Comande seus AI Golems",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "ATUALIZAÇÕES",
+    "checkForUpdates": "Notificações de atualização",
+    "upToDate": "Você está atualizado — v{{version}}",
+    "available": "ATUALIZAÇÃO DISPONÍVEL",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Baixar para {{platform}}",
+    "downloadGeneric": "Baixar",
+    "skip": "Pular esta versão",
+    "skipped": "v{{version}} disponível (pulada)"
+  },
+  "general": {
+    "appearance": "APARÊNCIA",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema",
+    "language": "IDIOMA"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODELO PADRÃO",
+    "description": "Usado ao criar novos projetos e agentes.",
+    "providerLabel": "PROVEDOR",
+    "modelLabel": "MODELO",
+    "noProvider": "-- Nenhum --",
+    "selectProviderFirst": "-- Selecione o provedor primeiro --",
+    "noModels": "Nenhum modelo disponível",
+    "saved": "Salvo!"
+  },
+  "providers": {
+    "sectionTitle": "PROVEDORES",
+    "addProvider": "+ Adicionar Provedor",
+    "selectProvider": "SELECIONAR PROVEDOR",
+    "customProvider": "PROVEDOR PERSONALIZADO",
+    "custom": "Personalizado",
+    "anyEndpoint": "qualquer endpoint",
+    "nameLabel": "NOME",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TIPO DE SDK",
+    "empty": "Nenhum provedor configurado. Clique em \"+ Adicionar Provedor\" para começar."
+  },
+  "provider": {
+    "testing": "Testando...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Falhou",
+    "untested": "Não testado",
+    "noKey": "Sem Key",
+    "retest": "Re-testar",
+    "test": "Testar",
+    "del": "Excl",
+    "deleteConfirm": "Excluir {{name}}? Esta ação não pode ser desfeita.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "não configurada",
+    "hide": "Ocultar",
+    "show": "Mostrar",
+    "urlLabel": "URL:",
+    "modelsCount": "Modelos ({{count}})",
+    "addModel": "+ Adicionar Modelo",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opcional)",
+    "hideKey": "Ocultar Key",
+    "showKey": "Mostrar Key"
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

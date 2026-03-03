@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Globale Instellingen"
+  },
+  "tabs": {
+    "general": "Algemeen",
+    "providers": "Providers",
+    "speech": "Spraak",
+    "about": "Over"
+  },
+  "about": {
+    "slogan": "Bestuur je AI Golems",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "UPDATES",
+    "checkForUpdates": "Updatemeldingen",
+    "upToDate": "Je bent up-to-date — v{{version}}",
+    "available": "UPDATE BESCHIKBAAR",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Downloaden voor {{platform}}",
+    "downloadGeneric": "Downloaden",
+    "skip": "Deze versie overslaan",
+    "skipped": "v{{version}} beschikbaar (overgeslagen)"
+  },
+  "general": {
+    "appearance": "UITERLIJK",
+    "light": "Licht",
+    "dark": "Donker",
+    "system": "Systeem",
+    "language": "TAAL"
+  },
+  "defaultModel": {
+    "sectionTitle": "STANDAARDMODEL",
+    "description": "Wordt gebruikt bij het aanmaken van nieuwe projecten en agenten.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Geen --",
+    "selectProviderFirst": "-- Selecteer eerst een provider --",
+    "noModels": "Geen modellen beschikbaar",
+    "saved": "Opgeslagen!"
+  },
+  "providers": {
+    "sectionTitle": "PROVIDERS",
+    "addProvider": "+ Provider Toevoegen",
+    "selectProvider": "PROVIDER SELECTEREN",
+    "customProvider": "AANGEPASTE PROVIDER",
+    "custom": "Aangepast",
+    "anyEndpoint": "elk eindpunt",
+    "nameLabel": "NAAM",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "SDK-TYPE",
+    "empty": "Geen providers geconfigureerd. Klik op \"+ Provider Toevoegen\" om te beginnen."
+  },
+  "provider": {
+    "testing": "Testen...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Mislukt",
+    "untested": "Niet getest",
+    "noKey": "Geen Key",
+    "retest": "Opnieuw testen",
+    "test": "Test",
+    "del": "Verw.",
+    "deleteConfirm": "{{name}} verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "niet ingesteld",
+    "hide": "Verbergen",
+    "show": "Tonen",
+    "urlLabel": "URL:",
+    "modelsCount": "Modellen ({{count}})",
+    "addModel": "+ Model Toevoegen",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (optioneel)",
+    "hideKey": "Key Verbergen",
+    "showKey": "Key Tonen"
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

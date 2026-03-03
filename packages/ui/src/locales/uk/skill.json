@@ -1,0 +1,43 @@
+{
+  "page": {
+    "title": "Навички",
+    "skillCount_one": "{{count}} навичка",
+    "skillCount_few": "{{count}} навички",
+    "skillCount_many": "{{count}} навичок",
+    "skillCount_other": "{{count}} навичок",
+    "newSkillBtn": "+ Нова навичка"
+  },
+  "tabs": {
+    "installed": "Встановлені",
+    "marketplace": "Маркетплейс"
+  },
+  "import": {
+    "noValidFiles": "Файли .md або .zip не знайдено. Перетягніть файли markdown або zip для імпорту навичок.",
+    "importedCount_one": "Імпортовано {{count}} навичку",
+    "importedCount_few": "Імпортовано {{count}} навички",
+    "importedCount_many": "Імпортовано {{count}} навичок",
+    "importedCount_other": "Імпортовано {{count}} навичок",
+    "importError": "Не вдалося імпортувати навички"
+  },
+  "deleteError": {
+    "inUse_one": "Навичка «{{name}}» призначена {{count}} агенту. Спочатку зніміть призначення.",
+    "inUse_few": "Навичка «{{name}}» призначена {{count}} агентам. Спочатку зніміть призначення.",
+    "inUse_many": "Навичка «{{name}}» призначена {{count}} агентам. Спочатку зніміть призначення.",
+    "inUse_other": "Навичка «{{name}}» призначена {{count}} агентам. Спочатку зніміть призначення.",
+    "generic": "Не вдалося видалити навичку"
+  },
+  "loading": "Завантаження навичок...",
+  "empty": {
+    "title": "Навичок поки немає",
+    "createFirstBtn": "Створіть першу навичку"
+  },
+  "comingSoon": "Незабаром",
+  "form": {
+    "newTitle": "Нова навичка",
+    "editTitle": "Редагування навички",
+    "nameLabel": "НАЗВА",
+    "descriptionLabel": "ОПИС",
+    "instructionsLabel": "ІНСТРУКЦІЇ",
+    "instructionsPlaceholder": "Напишіть інструкції навички у форматі markdown..."
+  }
+}

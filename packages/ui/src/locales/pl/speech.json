@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Historia transkrypcji"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} rekord",
+    "recordCount_few": "{{count}} rekordy",
+    "recordCount_many": "{{count}} rekordów",
+    "recordCount_other": "{{count}} rekordów",
+    "used": "{{size}} wykorzystane",
+    "loading": "Ładowanie informacji o przestrzeni..."
+  },
+  "clearAll": {
+    "confirm_one": "Usunąć {{count}} rekord?",
+    "confirm_few": "Usunąć wszystkie {{count}} rekordy?",
+    "confirm_many": "Usunąć wszystkie {{count}} rekordów?",
+    "confirm_other": "Usunąć wszystkie {{count}} rekordów?",
+    "confirmWithFree_one": "Usunąć {{count}} rekord i zwolnić {{size}}?",
+    "confirmWithFree_few": "Usunąć wszystkie {{count}} rekordy i zwolnić {{size}}?",
+    "confirmWithFree_many": "Usunąć wszystkie {{count}} rekordów i zwolnić {{size}}?",
+    "confirmWithFree_other": "Usunąć wszystkie {{count}} rekordów i zwolnić {{size}}?"
+  },
+  "loading": "Ładowanie historii...",
+  "empty": {
+    "hint": "Użyj przycisku mikrofonu w czacie,\naby utworzyć pierwsze nagranie głosowe",
+    "settingsBtn": "Przejdź do ustawień"
+  },
+  "player": {
+    "play": "Odtwórz",
+    "pause": "Pauza",
+    "close": "Zamknij odtwarzacz"
+  },
+  "actions": {
+    "copy": "Kopiuj transkrypcję",
+    "retry": "Ponów transkrypcję",
+    "delete": "Usuń rekord"
+  },
+  "enable": {
+    "enabled": "Włączone",
+    "disabled": "Wyłączone",
+    "sectionTitle": "ROZPOZNAWANIE MOWY"
+  },
+  "provider": {
+    "sectionTitle": "DOSTAWCA",
+    "typeLabel": "TYP",
+    "customType": "Niestandardowy (kompatybilny z OpenAI)",
+    "apiKeyLabel": "KLUCZ API",
+    "baseUrlRequired": "BASE URL (WYMAGANY)",
+    "baseUrlOptional": "BASE URL (OPCJONALNY)",
+    "baseUrlPlaceholder": "Zostaw puste dla domyślnego",
+    "modelLabel": "MODEL",
+    "modelOther": "Inny...",
+    "presets": "Szablony",
+    "languageLabel": "JĘZYK",
+    "hide": "Ukryj",
+    "show": "Pokaż"
+  },
+  "test": {
+    "testing": "Testowanie...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Przetestuj ponownie",
+    "test": "Test",
+    "failed": "Błąd",
+    "untested": "Nieprzetestowany",
+    "unknownError": "Nieznany błąd"
+  },
+  "history": {
+    "sectionTitle": "HISTORIA",
+    "recordsInfo": "{{recordCount}} rekordów / {{size}}",
+    "clearAll": "Wyczyść wszystko",
+    "confirmClear": "Wyczyścić wszystko?",
+    "empty": "Brak transkrypcji",
+    "today": "Dziś",
+    "yesterday": "Wczoraj",
+    "transcribing": "Transkrypcja...",
+    "openChat": "Otwórz czat \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "BŁ",
+    "deleteConfirm": "Usunąć ten rekord i jego plik audio?",
+    "retryConfirm": "Istniejąca transkrypcja zostanie nadpisana.",
+    "transcriptionFailed": "Transkrypcja nie powiodła się: {{error}}",
+    "retranscribe": "Ponów transkrypcję"
+  }
+}

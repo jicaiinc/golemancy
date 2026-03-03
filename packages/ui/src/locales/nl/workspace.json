@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefacten",
+    "refreshBtn": "Vernieuwen"
+  },
+  "deleteModal": {
+    "title": "Bestand Verwijderen",
+    "confirmPrefix": "Weet u zeker dat u wilt verwijderen",
+    "warning": "Deze actie kan niet ongedaan worden gemaakt."
+  },
+  "preview": {
+    "selectFile": "Selecteer een bestand voor voorbeeld",
+    "loading": "Bestand laden...",
+    "loadingImage": "Afbeelding laden...",
+    "imageError": "Kan afbeelding niet laden: {{error}}",
+    "emptyCsv": "Leeg CSV",
+    "noPreview": "Geen voorbeeld beschikbaar voor dit bestandstype",
+    "download": "DL",
+    "open": "Openen",
+    "meta": {
+      "type": "TYPE",
+      "mime": "MIME",
+      "size": "GROOTTE",
+      "modified": "GEWIJZIGD"
+    }
+  },
+  "tree": {
+    "root": "artefacten",
+    "emptyDir": "Lege map"
+  }
+}

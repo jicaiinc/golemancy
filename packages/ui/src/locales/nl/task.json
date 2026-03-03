@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Gesprekstaken",
+    "taskCount_one": "{{count}} taak totaal",
+    "taskCount_other": "{{count}} taken totaal"
+  },
+  "loading": "Taken laden...",
+  "empty": {
+    "noTasks": "Geen taken gevonden"
+  },
+  "openChat": "CHAT OPENEN →",
+  "detail": {
+    "description": "BESCHRIJVING",
+    "blockedBy": "GEBLOKKEERD DOOR",
+    "metadata": "METADATA"
+  },
+  "status": {
+    "pending": "wachtend",
+    "in_progress": "bezig",
+    "completed": "voltooid",
+    "deleted": "verwijderd"
+  }
+}

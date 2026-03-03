@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "Panou de bord",
+    "chats": "Conversații",
+    "automations": "Automatizări",
+    "agents": "Agenți",
+    "skills": "Skills",
+    "mcpServers": "Servere MCP",
+    "tasks": "Sarcini conversație",
+    "artifacts": "Artefacte",
+    "settings": "Setări",
+    "knowledgeBase": "Bază de cunoștințe"
+  },
+  "sidebar": {
+    "navigation": "NAVIGARE",
+    "config": "CONFIGURARE",
+    "collapse": "<< Restrângere"
+  },
+  "global": {
+    "allProjects": "Toate proiectele",
+    "dashboard": "Panou de bord",
+    "settings": "Setări"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "Restricționat",
+      "sandbox": "Sandbox",
+      "unrestricted": "Nerestricționat"
+    },
+    "degraded": "(degradat → {{mode}})",
+    "tasks": "Sarcini {{completed}}/{{total}}",
+    "conversationTasks": "SARCINI CONVERSAȚIE",
+    "contextUsage": "Context: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Context: -- / {{max}}",
+    "contextWindow": "FEREASTRA DE CONTEXT",
+    "usage": "Utilizare",
+    "compacting": "Se compactează",
+    "compactingAuto": "Se compactează (auto)",
+    "compactNow": "Compactare acum",
+    "byAgent": "PE AGENT",
+    "byModel": "PE MODEL",
+    "tokensInOut": "{{input}} intrare / {{output}} ieșire",
+    "tokens": "Tokens: {{input}} intrare / {{output}} ieșire",
+    "tokensEmpty": "Tokens: --"
+  }
+}

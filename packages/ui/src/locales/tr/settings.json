@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Genel Ayarlar"
+  },
+  "tabs": {
+    "general": "Genel",
+    "providers": "Sa\u011flay\u0131c\u0131lar",
+    "speech": "Konu\u015fma",
+    "about": "Hakk\u0131nda"
+  },
+  "about": {
+    "slogan": "AI Golemlerini Y\u00f6net",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "\u00a9 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "G\u00dcNCELLEMELER",
+    "checkForUpdates": "G\u00fcncelleme bildirimleri",
+    "upToDate": "G\u00fcncelsiniz \u2014 v{{version}}",
+    "available": "G\u00dcNCELLEME MEVCUT",
+    "newVersion": "v{{current}} \u2192 v{{latest}}",
+    "download": "{{platform}} i\u00e7in indir",
+    "downloadGeneric": "\u0130ndir",
+    "skip": "Bu s\u00fcr\u00fcm\u00fc atla",
+    "skipped": "v{{version}} mevcut (atland\u0131)"
+  },
+  "general": {
+    "appearance": "G\u00d6R\u00dcN\u00dcM",
+    "light": "A\u00e7\u0131k",
+    "dark": "Koyu",
+    "system": "Sistem",
+    "language": "D\u0130L"
+  },
+  "defaultModel": {
+    "sectionTitle": "VARSAYILAN MODEL",
+    "description": "Yeni proje ve ajan olu\u015ftururken kullan\u0131l\u0131r.",
+    "providerLabel": "SA\u011eLAYICI",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Yok --",
+    "selectProviderFirst": "-- \u00d6nce sa\u011flay\u0131c\u0131 se\u00e7in --",
+    "noModels": "Kullan\u0131labilir model yok",
+    "saved": "Kaydedildi!"
+  },
+  "providers": {
+    "sectionTitle": "SA\u011eLAYICILAR",
+    "addProvider": "+ Sa\u011flay\u0131c\u0131 Ekle",
+    "selectProvider": "SA\u011eLAYICI SE\u00c7\u0130N",
+    "customProvider": "\u00d6ZEL SA\u011eLAYICI",
+    "custom": "\u00d6zel",
+    "anyEndpoint": "herhangi bir endpoint",
+    "nameLabel": "AD",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "SDK T\u00dcR\u00dc",
+    "empty": "Yap\u0131land\u0131r\u0131lm\u0131\u015f sa\u011flay\u0131c\u0131 yok. Ba\u015flamak i\u00e7in \"+ Sa\u011flay\u0131c\u0131 Ekle\"ye t\u0131klay\u0131n."
+  },
+  "provider": {
+    "testing": "Test ediliyor...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Ba\u015far\u0131s\u0131z",
+    "untested": "Test edilmedi",
+    "noKey": "Key Yok",
+    "retest": "Tekrar Test",
+    "test": "Test",
+    "del": "Sil",
+    "deleteConfirm": "{{name}} silinsin mi? Bu i\u015flem geri al\u0131namaz.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "ayarlanmad\u0131",
+    "hide": "Gizle",
+    "show": "G\u00f6ster",
+    "urlLabel": "URL:",
+    "modelsCount": "Model ({{count}})",
+    "addModel": "+ Model Ekle",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (iste\u011fe ba\u011fl\u0131)",
+    "hideKey": "Key'i Gizle",
+    "showKey": "Key'i G\u00f6ster"
+  },
+  "threshold": {
+    "tokens": "token"
+  }
+}

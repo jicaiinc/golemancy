@@ -59,6 +59,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
   const [toolWarnings, setToolWarnings] = useState<string[]>([])
   const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set())
+  const [maxStepsInfo, setMaxStepsInfo] = useState<{ steps: number; maxSteps: number } | null>(null)
   const [compactRecords, setCompactRecords] = useState<CompactRecord[]>(conversation.compactRecords ?? [])
   const [compacting, setCompacting] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
@@ -129,6 +130,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   useEffect(() => {
     if (!chat) return
     setToolWarnings([]);
+    setMaxStepsInfo(null);
     (chat as any).onData = (part: { type: string; data?: Record<string, unknown>; transient?: boolean }) => {
       if (part.type === 'data-warning' && part.transient && part.data?.message) {
         const msg = String(part.data!.message)
@@ -144,6 +146,12 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
         if (onContextUpdate && part.data.contextTokens != null) {
           onContextUpdate(part.data.contextTokens as number)
         }
+      }
+      if (part.type === 'data-max_steps_reached' && part.data) {
+        setMaxStepsInfo({
+          steps: part.data.steps as number,
+          maxSteps: part.data.maxSteps as number,
+        })
       }
       if (part.type === 'data-compact' && part.data) {
         if (part.data.status === 'started') {
@@ -194,6 +202,7 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
   // --- Send handler ---
   const handleSend = useCallback(async (content: string, files?: FileUIPart[]) => {
     if (!currentProjectId || !chat) return
+    setMaxStepsInfo(null)
 
     // Auto-title: if first message and user hasn't manually renamed
     const isFirstMessage = messages.length === 0
@@ -349,6 +358,13 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
           {warning}
         </PixelNotificationBanner>
       ))}
+
+      {/* Max steps reached warning */}
+      {maxStepsInfo && (
+        <PixelNotificationBanner severity="warning" onDismiss={() => setMaxStepsInfo(null)}>
+          {t('window.maxStepsReached', { steps: maxStepsInfo.steps, maxSteps: maxStepsInfo.maxSteps })}
+        </PixelNotificationBanner>
+      )}
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-4 py-3">

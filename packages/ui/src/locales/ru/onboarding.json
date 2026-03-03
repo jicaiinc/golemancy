@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Настройка",
+    "skipSetup": "Пропустить настройку"
+  },
+  "steps": {
+    "welcome": "Добро пожаловать",
+    "provider": "Провайдер",
+    "speech": "Речь",
+    "project": "Проект",
+    "complete": "Готово"
+  },
+  "error": {
+    "somethingWentWrong": "Что-то пошло не так. Попробуйте ещё раз.",
+    "failedToSkip": "Не удалось пропустить настройку. Попробуйте ещё раз.",
+    "connectionTestFailed": "Проверка подключения не удалась",
+    "testFailed": "Тест не пройден",
+    "unknownError": "Неизвестная ошибка"
+  },
+  "button": {
+    "createProject": "Создать проект",
+    "getStarted": "Начать",
+    "continue": "Продолжить",
+    "startChatting": "Начать чат",
+    "goToDashboard": "Перейти на панель",
+    "change": "Изменить",
+    "testConnection": "Проверить подключение",
+    "testing": "Тестирование...",
+    "reTest": "Перепроверить",
+    "test": "Тест",
+    "hide": "Скрыть",
+    "show": "Показать"
+  },
+  "welcome": {
+    "tagline": "Добро пожаловать",
+    "heading": "Управляйте своими AI Golem'ами",
+    "description": "Оркестрируйте автономных AI агентов прямо с рабочего стола."
+  },
+  "provider": {
+    "heading": "Подключить AI провайдера",
+    "description": "Выберите провайдера и введите API ключ, чтобы начать.",
+    "customLabel": "Пользовательский",
+    "customSubtitle": "любой endpoint",
+    "customCardTitle": "ПОЛЬЗОВАТЕЛЬСКИЙ ПРОВАЙДЕР",
+    "labelApiKey": "API КЛЮЧ",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "НАЗВАНИЕ",
+    "labelSdkType": "ТИП SDK",
+    "statusConnected": "Подключено",
+    "statusFailed": "Ошибка",
+    "statusConnecting": "Подключение...",
+    "none": "Нет",
+    "defaultModel": {
+      "title": "МОДЕЛЬ ПО УМОЛЧАНИЮ",
+      "descriptionPreset": "Выберите модель, которая будет использоваться по умолчанию для новых агентов.",
+      "descriptionCustom": "Введите название модели для использования по умолчанию.",
+      "labelModelName": "НАЗВАНИЕ МОДЕЛИ"
+    }
+  },
+  "speech": {
+    "heading": "Распознавание речи",
+    "description": "Включите голосовой ввод для более быстрого взаимодействия. Вы можете пропустить этот шаг и настроить позже.",
+    "labelApiKey": "OPENAI API КЛЮЧ",
+    "labelModel": "МОДЕЛЬ",
+    "labelLanguage": "ЯЗЫК",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Ошибка"
+  },
+  "project": {
+    "heading": "Создайте первый проект",
+    "description": "Проекты организуют ваших агентов, разговоры и рабочие процессы.",
+    "labelName": "НАЗВАНИЕ ПРОЕКТА",
+    "placeholderName": "Мой проект",
+    "labelDescription": "ОПИСАНИЕ",
+    "placeholderDescription": "Для чего этот проект?",
+    "labelIcon": "ИКОНКА",
+    "fromTemplate": "ИЗ ШАБЛОНА",
+    "comingSoon": "Скоро"
+  },
+  "complete": {
+    "heading": "Всё готово!",
+    "description": "Вот сводка вашей конфигурации.",
+    "labelProvider": "ПРОВАЙДЕР",
+    "labelDefaultModel": "МОДЕЛЬ ПО УМОЛЧАНИЮ",
+    "labelSpeechToText": "РАСПОЗНАВАНИЕ РЕЧИ",
+    "labelProject": "ПРОЕКТ",
+    "sttEnabled": "Включено",
+    "sttSkipped": "Пропущено",
+    "links": {
+      "settings": "Настройки",
+      "website": "Сайт"
+    }
+  }
+}

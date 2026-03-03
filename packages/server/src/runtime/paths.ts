@@ -1,3 +1,5 @@
+import { execFileSync } from 'node:child_process'
+import { accessSync } from 'node:fs'
 import path from 'node:path'
 import { getDataDir, getProjectPath } from '../utils/paths'
 
@@ -67,6 +69,44 @@ export function getBundledNodeBinDir(): string | null {
   return null
 }
 
+/**
+ * Path to the CA certificate bundle shipped with bundled Python.
+ *
+ * python-build-standalone uses a statically compiled OpenSSL that cannot find
+ * the host OS certificate store. Without this, any HTTPS request from the
+ * bundled Python (pip install, requests, urllib, etc.) fails with SSL errors.
+ *
+ * Detection: asks the bundled Python where pip's vendored certifi keeps its
+ * cacert.pem. Result is cached — subprocess runs at most once per server lifetime.
+ *
+ * @returns Absolute path to cacert.pem, or null if bundled Python unavailable
+ */
+let _cachedCertPath: string | null | undefined  // undefined = not yet resolved
+
+export function getBundledCertFilePath(): string | null {
+  if (_cachedCertPath !== undefined) return _cachedCertPath
+
+  const pythonPath = getBundledPythonPath()
+  if (!pythonPath) {
+    _cachedCertPath = null
+    return null
+  }
+
+  try {
+    const result = execFileSync(pythonPath, [
+      '-c', 'import pip._vendor.certifi; print(pip._vendor.certifi.where())',
+    ], { encoding: 'utf-8', timeout: 10_000 }).trim()
+
+    // Verify the file actually exists
+    accessSync(result)
+    _cachedCertPath = result
+    return result
+  } catch {
+    _cachedCertPath = null
+    return null
+  }
+}
+
 // ── Per-Project Runtime Paths (read-write, ~/.golemancy/projects/{id}/) ──
 
 /**
@@ -92,13 +132,6 @@ export function getProjectPythonEnvBinPath(projectId: string): string {
   return path.join(getProjectPythonEnvPath(projectId), dir)
 }
 
-/**
- * Per-project node_modules: ~/.golemancy/projects/{projectId}/runtime/node_modules/
- */
-export function getProjectNodeModulesPath(projectId: string): string {
-  return path.join(getProjectRuntimeDir(projectId), 'node_modules')
-}
-
 // ── Global Shared Paths (read-write, ~/.golemancy/runtime/) ──
 
 /**
@@ -122,10 +155,3 @@ export function getNpmCachePath(): string {
   return path.join(getGlobalRuntimeDir(), 'cache', 'npm')
 }
 
-/**
- * Shared npm global prefix: ~/.golemancy/runtime/npm-global/
- * npx installs go here. Binaries in {prefix}/bin/.
- */
-export function getNpmGlobalPath(): string {
-  return path.join(getGlobalRuntimeDir(), 'npm-global')
-}

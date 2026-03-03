@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Artefacts",
+    "refreshBtn": "Actualiser"
+  },
+  "deleteModal": {
+    "title": "Supprimer le Fichier",
+    "confirmPrefix": "Êtes-vous sûr de vouloir supprimer",
+    "warning": "Cette action est irréversible."
+  },
+  "preview": {
+    "selectFile": "Sélectionnez un fichier pour l'aperçu",
+    "loading": "Chargement du fichier...",
+    "loadingImage": "Chargement de l'image...",
+    "imageError": "Échec du chargement de l'image : {{error}}",
+    "emptyCsv": "CSV vide",
+    "noPreview": "Aperçu non disponible pour ce type de fichier",
+    "download": "DL",
+    "open": "Ouvrir",
+    "meta": {
+      "type": "TYPE",
+      "mime": "MIME",
+      "size": "TAILLE",
+      "modified": "MODIFIÉ"
+    }
+  },
+  "tree": {
+    "root": "artefacts",
+    "emptyDir": "Répertoire vide"
+  }
+}

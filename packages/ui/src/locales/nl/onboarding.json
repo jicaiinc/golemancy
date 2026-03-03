@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "Instellen",
+    "skipSetup": "Instelling Overslaan"
+  },
+  "steps": {
+    "welcome": "Welkom",
+    "provider": "Provider",
+    "speech": "Spraak",
+    "project": "Project",
+    "complete": "Voltooid"
+  },
+  "error": {
+    "somethingWentWrong": "Er is iets misgegaan. Probeer het opnieuw.",
+    "failedToSkip": "Kan de instelling niet overslaan. Probeer het opnieuw.",
+    "connectionTestFailed": "Verbindingstest mislukt",
+    "testFailed": "Test mislukt",
+    "unknownError": "Onbekende fout"
+  },
+  "button": {
+    "createProject": "Project Aanmaken",
+    "getStarted": "Aan de Slag",
+    "continue": "Doorgaan",
+    "startChatting": "Begin met Chatten",
+    "goToDashboard": "Naar Dashboard",
+    "change": "Wijzigen",
+    "testConnection": "Verbinding Testen",
+    "testing": "Testen...",
+    "reTest": "Opnieuw Testen",
+    "test": "Test",
+    "hide": "Verbergen",
+    "show": "Tonen"
+  },
+  "welcome": {
+    "tagline": "Welkom",
+    "heading": "Bestuur Uw AI Golems",
+    "description": "Orkestreer autonome AI-agenten vanaf uw bureaublad."
+  },
+  "provider": {
+    "heading": "Verbind een AI-Provider",
+    "description": "Kies een provider en voer uw API-key in om te beginnen.",
+    "customLabel": "Aangepast",
+    "customSubtitle": "elk eindpunt",
+    "customCardTitle": "AANGEPASTE PROVIDER",
+    "labelApiKey": "API KEY",
+    "labelBaseUrl": "BASE URL",
+    "labelName": "NAAM",
+    "labelSdkType": "SDK-TYPE",
+    "statusConnected": "Verbonden",
+    "statusFailed": "Mislukt",
+    "statusConnecting": "Verbinden...",
+    "none": "Geen",
+    "defaultModel": {
+      "title": "STANDAARDMODEL",
+      "descriptionPreset": "Kies een model dat standaard wordt gebruikt voor nieuwe agenten.",
+      "descriptionCustom": "Voer de modelnaam in die standaard wordt gebruikt.",
+      "labelModelName": "MODELNAAM"
+    }
+  },
+  "speech": {
+    "heading": "Spraak-naar-Tekst",
+    "description": "Schakel spraakinvoer in voor snellere interactie. U kunt dit overslaan en later configureren.",
+    "labelApiKey": "OPENAI API KEY",
+    "labelModel": "MODEL",
+    "labelLanguage": "TAAL",
+    "statusOk": "OK",
+    "statusOkLatency": "OK ({{ms}}ms)",
+    "statusFailed": "Mislukt"
+  },
+  "project": {
+    "heading": "Maak Uw Eerste Project",
+    "description": "Projecten organiseren uw agenten, gesprekken en workflows.",
+    "labelName": "PROJECTNAAM",
+    "placeholderName": "Mijn Geweldige Project",
+    "labelDescription": "BESCHRIJVING",
+    "placeholderDescription": "Wat gaat dit project doen?",
+    "labelIcon": "PICTOGRAM",
+    "fromTemplate": "VAN SJABLOON",
+    "comingSoon": "Binnenkort"
+  },
+  "complete": {
+    "heading": "Alles Ingesteld!",
+    "description": "Hier is een samenvatting van uw configuratie.",
+    "labelProvider": "PROVIDER",
+    "labelDefaultModel": "STANDAARDMODEL",
+    "labelSpeechToText": "SPRAAK-NAAR-TEKST",
+    "labelProject": "PROJECT",
+    "sttEnabled": "Ingeschakeld",
+    "sttSkipped": "Overgeslagen",
+    "links": {
+      "settings": "Instellingen",
+      "website": "Website"
+    }
+  }
+}

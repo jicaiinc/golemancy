@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Skills",
+    "skillCount_one": "{{count}} skill",
+    "skillCount_other": "{{count}} skills",
+    "newSkillBtn": "+ Ny skill"
+  },
+  "tabs": {
+    "installed": "Installerade",
+    "marketplace": "Marknadsplats"
+  },
+  "import": {
+    "noValidFiles": "Inga .md- eller .zip-filer hittades. Dra markdown- eller zip-filer för att importera skills.",
+    "importedCount_one": "Importerade {{count}} skill",
+    "importedCount_other": "Importerade {{count}} skills",
+    "importError": "Kunde inte importera skills"
+  },
+  "deleteError": {
+    "inUse_one": "Skill \"{{name}}\" är tilldelad {{count}} agent. Ta bort tilldelning först.",
+    "inUse_other": "Skill \"{{name}}\" är tilldelad {{count}} agenter. Ta bort tilldelning först.",
+    "generic": "Kunde inte radera skill"
+  },
+  "loading": "Laddar skills...",
+  "empty": {
+    "title": "Inga skills ännu",
+    "createFirstBtn": "Skapa din första skill"
+  },
+  "comingSoon": "Kommer snart",
+  "form": {
+    "newTitle": "Ny skill",
+    "editTitle": "Redigera skill",
+    "nameLabel": "NAMN",
+    "descriptionLabel": "BESKRIVNING",
+    "instructionsLabel": "INSTRUKTIONER",
+    "instructionsPlaceholder": "Skriv skill-instruktioner i markdown..."
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "B\u1ea3ng \u0110i\u1ec1u Khi\u1ec3n",
+    "descriptionFallback": "T\u1ed5ng quan d\u1ef1 \u00e1n",
+    "loading": "\u0110ang t\u1ea3i b\u1ea3ng \u0111i\u1ec1u khi\u1ec3n..."
+  },
+  "tokenUsage": {
+    "title": "S\u1eed D\u1ee4NG TOKEN"
+  },
+  "chart": {
+    "noData": "Kh\u00f4ng c\u00f3 d\u1eef li\u1ec7u token",
+    "tooltipIn": "V\u00e0o: {{tokens}}",
+    "tooltipOut": "Ra: {{tokens}}",
+    "legendInput": "Input",
+    "legendOutput": "Output"
+  },
+  "tabs": {
+    "trend": "Xu h\u01b0\u1edbng",
+    "byAgent": "Theo Agent",
+    "byModel": "Theo Model",
+    "byProject": "Theo D\u1ef1 \u00c1n"
+  },
+  "table": {
+    "colName": "T\u00ean",
+    "colTotal": "T\u1ed5ng",
+    "colInput": "Input",
+    "colOutput": "Output",
+    "colCalls": "L\u1ea7n g\u1ecdi",
+    "colRatio": "T\u1ec9 l\u1ec7",
+    "titleByAgent": "TOKEN THEO AGENT",
+    "titleByModel": "TOKEN THEO MODEL",
+    "titleByProject": "TOKEN THEO D\u1ef0 \u00c1N"
+  },
+  "timeRange": {
+    "today": "H\u00f4m nay",
+    "sevenDays": "7 Ng\u00e0y",
+    "thirtyDays": "30 Ng\u00e0y",
+    "allTime": "T\u1ea5t C\u1ea3"
+  },
+  "summary": {
+    "totalTokens": "T\u1ed5ng Token",
+    "inputTokens": "Token Input",
+    "outputTokens": "Token Output",
+    "apiCalls": "L\u1ea7n G\u1ecdi API"
+  },
+  "overview": {
+    "agents": "AGENT",
+    "recentChats": "CHAT G\u1ea6N \u0110\u00c2Y",
+    "viewAll": "Xem T\u1ea5t C\u1ea3 \u2192",
+    "noAgents": "Kh\u00f4ng c\u00f3 agent",
+    "noRecentChats": "Kh\u00f4ng c\u00f3 chat g\u1ea7n \u0111\u00e2y",
+    "chatStats": "{{count}} tin nh\u1eafn \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "HO\u1ea0T \u0110\u1ed8NG",
+    "tabActive": "Ho\u1ea1t \u0111\u1ed9ng ({{count}})",
+    "tabScheduled": "L\u00ean l\u1ecbch ({{count}})",
+    "tabRecent": "G\u1ea7n \u0111\u00e2y",
+    "badgeChat": "Chat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Kh\u00f4ng c\u00f3 ho\u1ea1t \u0111\u1ed9ng n\u00e0o",
+    "noScheduledRuns": "Kh\u00f4ng c\u00f3 l\u1ecbch n\u00e0o",
+    "noRecentActivity": "Kh\u00f4ng c\u00f3 ho\u1ea1t \u0111\u1ed9ng g\u1ea7n \u0111\u00e2y",
+    "openLink": "M\u1ede \u2192",
+    "tokenCount": "{{tokens}} token"
+  },
+  "global": {
+    "title": "B\u1ea3ng \u0110i\u1ec1u Khi\u1ec3n Chung",
+    "subtitle": "T\u1ed5ng quan li\u00ean d\u1ef1 \u00e1n",
+    "topProjects": "D\u1ef0 \u00c1N H\u00c0NG \u0110\u1ea6U",
+    "noProjectData": "Kh\u00f4ng c\u00f3 d\u1eef li\u1ec7u d\u1ef1 \u00e1n",
+    "projectStats": "{{tokens}} token \u00B7 {{calls}} l\u1ea7n g\u1ecdi"
+  }
+}

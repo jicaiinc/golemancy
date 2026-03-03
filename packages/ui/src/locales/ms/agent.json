@@ -1,0 +1,118 @@
+{
+  "label": {
+    "name": "NAMA",
+    "agentName": "NAMA AGEN",
+    "description": "PENERANGAN",
+    "systemPrompt": "SYSTEM PROMPT",
+    "provider": "PROVIDER",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "menganggur",
+    "running": "berjalan",
+    "error": "ralat",
+    "paused": "dijeda"
+  },
+  "currentMain": "MAIN SEMASA",
+  "currentMainTooltip": "Agen main yang dipilih semasa untuk projek ini",
+  "noProviders": "Tiada provider dikonfigurasi",
+  "noModels": "Tiada model tersedia",
+  "savedMsg": "Disimpan!",
+  "list": {
+    "title": "Agen",
+    "subtitle_one": "{{count}} agen dalam projek ini",
+    "subtitle_other": "{{count}} agen dalam projek ini",
+    "newBtn": "+ Agen Baharu",
+    "viewGrid": "Grid",
+    "viewTopology": "Topologi",
+    "empty": "Belum ada agen",
+    "createFirst": "Cipta Agen Pertama Anda"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skill",
+    "tools_one": "{{count}} alat",
+    "tools_other": "{{count}} alat",
+    "subAgents_one": "{{count}} sub-agen",
+    "subAgents_other": "{{count}} sub-agen",
+    "mcpServers_one": "{{count}} pelayan MCP",
+    "mcpServers_other": "{{count}} pelayan MCP"
+  },
+  "create": {
+    "modalTitle": "Cipta Agen Baharu",
+    "createBtn": "Cipta Agen",
+    "namePlaceholder": "cth. Pembantu Penyelidikan",
+    "descPlaceholder": "Apa yang dilakukan agen ini?",
+    "promptPlaceholder": "Anda adalah pembantu yang berguna yang..."
+  },
+  "detail": {
+    "notFound": "Agen tidak ditemui.",
+    "backToAgents": "< Kembali ke Agen",
+    "backBtn": "< Agen",
+    "tabs": {
+      "general": "Umum",
+      "modelConfig": "Konfigurasi Model",
+      "skills": "Skill",
+      "tools": "Alatan",
+      "subAgents": "Sub-Agen"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Padam Agen"
+  },
+  "modelConfig": {
+    "sectionTitle": "KONFIGURASI MODEL",
+    "compactLabel": "AMBANG COMPACT"
+  },
+  "skills": {
+    "assigned": "SKILL YANG DITETAPKAN",
+    "noneAssigned": "Tiada skill ditetapkan kepada agen ini.",
+    "addSection": "TAMBAH SKILL",
+    "noneInProject": "Tiada skill dalam projek ini",
+    "goTo": "Pergi ke Skill",
+    "manage": "Urus Skill \u2192"
+  },
+  "tools": {
+    "builtinSection": "ALATAN TERBINA DALAM",
+    "comingSoon": "AKAN DATANG",
+    "customSection": "ALATAN TERSUAI",
+    "bashDesc": "Jalankan perintah bash, baca dan tulis fail",
+    "browserDesc": "Kawal pelayar web untuk automasi",
+    "osControlDesc": "Automasi desktop dan kawalan sistem",
+    "taskDesc": "Cipta dan urus tugas dalam perbualan"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 AMARAN",
+    "warningText": "Pelayan MCP pihak ketiga mungkin mengakses atau mengubah fail di komputer anda.",
+    "enableSandboxHint": "Aktifkan \"Apply to MCP\" dalam Tetapan > Permissions untuk sandbox pelayan MCP.",
+    "sandboxUnavailable": "Sandbox runtime tidak tersedia di platform ini.",
+    "assigned": "PELAYAN MCP YANG DITETAPKAN",
+    "noneAssigned": "Tiada pelayan MCP ditetapkan kepada agen ini.",
+    "addSection": "TAMBAH PELAYAN MCP",
+    "noneInProject": "Tiada pelayan MCP dalam projek ini",
+    "goTo": "Pergi ke Pelayan MCP",
+    "manage": "Urus Pelayan MCP \u2192",
+    "restricted": "Restricted"
+  },
+  "subAgents": {
+    "assigned": "SUB-AGEN YANG DITETAPKAN",
+    "noneAssigned": "Tiada sub-agen ditetapkan kepada agen ini.",
+    "addSection": "TAMBAH SUB-AGEN",
+    "noneAvailable": "Tiada agen lain tersedia dalam projek ini.",
+    "unknown": "Tidak diketahui",
+    "rolePlaceholder": "Peranan..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Diwarisi",
+    "capabilities": "KEUPAYAAN",
+    "subAgentsLabel": "SUB-AGEN",
+    "openDetail": "Buka Butiran"
+  },
+  "topology": {
+    "resetLayout": "Set Semula Susun Atur",
+    "editAgent": "Sunting Agen",
+    "setMainAgent": "Tetapkan sebagai Main Agent"
+  }
+}

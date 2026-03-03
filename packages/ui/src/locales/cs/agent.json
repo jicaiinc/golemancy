@@ -1,0 +1,128 @@
+{
+  "label": {
+    "name": "NÁZEV",
+    "agentName": "NÁZEV AGENTA",
+    "description": "POPIS",
+    "systemPrompt": "SYSTÉMOVÝ PROMPT",
+    "provider": "POSKYTOVATEL",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "nečinný",
+    "running": "běží",
+    "error": "chyba",
+    "paused": "pozastaven"
+  },
+  "currentMain": "AKTUÁLNÍ HLAVNÍ",
+  "currentMainTooltip": "Aktuálně vybraný hlavní agent tohoto projektu",
+  "noProviders": "Žádní poskytovatelé nejsou nakonfigurováni",
+  "noModels": "Žádné dostupné modely",
+  "savedMsg": "Uloženo!",
+  "list": {
+    "title": "Agenti",
+    "subtitle_one": "{{count}} agent v tomto projektu",
+    "subtitle_few": "{{count}} agenti v tomto projektu",
+    "subtitle_many": "{{count}} agentů v tomto projektu",
+    "subtitle_other": "{{count}} agentů v tomto projektu",
+    "newBtn": "+ Nový agent",
+    "viewGrid": "Mřížka",
+    "viewTopology": "Topologie",
+    "empty": "Zatím žádní agenti",
+    "createFirst": "Vytvořte prvního agenta"
+  },
+  "count": {
+    "skills_one": "{{count}} dovednost",
+    "skills_few": "{{count}} dovednosti",
+    "skills_many": "{{count}} dovedností",
+    "skills_other": "{{count}} dovedností",
+    "tools_one": "{{count}} nástroj",
+    "tools_few": "{{count}} nástroje",
+    "tools_many": "{{count}} nástrojů",
+    "tools_other": "{{count}} nástrojů",
+    "subAgents_one": "{{count}} sub-agent",
+    "subAgents_few": "{{count}} sub-agenti",
+    "subAgents_many": "{{count}} sub-agentů",
+    "subAgents_other": "{{count}} sub-agentů",
+    "mcpServers_one": "{{count}} MCP server",
+    "mcpServers_few": "{{count}} MCP servery",
+    "mcpServers_many": "{{count}} MCP serverů",
+    "mcpServers_other": "{{count}} MCP serverů"
+  },
+  "create": {
+    "modalTitle": "Vytvořit nového agenta",
+    "createBtn": "Vytvořit agenta",
+    "namePlaceholder": "např. Výzkumný asistent",
+    "descPlaceholder": "Co tento agent dělá?",
+    "promptPlaceholder": "Jste užitečný asistent, který..."
+  },
+  "detail": {
+    "notFound": "Agent nenalezen.",
+    "backToAgents": "< Zpět na agenty",
+    "backBtn": "< Agenti",
+    "tabs": {
+      "general": "Obecné",
+      "modelConfig": "Konfigurace modelu",
+      "skills": "Dovednosti",
+      "tools": "Nástroje",
+      "subAgents": "Sub-agenti"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFORMACE",
+    "deleteBtn": "Smazat agenta"
+  },
+  "modelConfig": {
+    "sectionTitle": "KONFIGURACE MODELU",
+    "compactLabel": "PRÁH KOMPRIMACE"
+  },
+  "skills": {
+    "assigned": "PŘIŘAZENÉ DOVEDNOSTI",
+    "noneAssigned": "Tomuto agentovi nejsou přiřazeny žádné dovednosti.",
+    "addSection": "PŘIDAT DOVEDNOST",
+    "noneInProject": "V projektu nejsou žádné dovednosti",
+    "goTo": "Přejít na dovednosti",
+    "manage": "Správa dovedností \u2192"
+  },
+  "tools": {
+    "builtinSection": "VESTAVĚNÉ NÁSTROJE",
+    "comingSoon": "BRZY",
+    "customSection": "VLASTNÍ NÁSTROJE",
+    "bashDesc": "Provádění příkazů Bash, čtení a zápis souborů",
+    "browserDesc": "Ovládání prohlížeče pro automatizaci",
+    "osControlDesc": "Automatizace plochy a ovládání systému",
+    "taskDesc": "Vytváření a správa úkolů v konverzaci"
+  },
+  "mcp": {
+    "warningTitle": "\u26a0 VAROVÁNÍ",
+    "warningText": "MCP servery třetích stran mohou přistupovat k souborům na vašem počítači nebo je měnit.",
+    "enableSandboxHint": "Zapněte «Použít na MCP» v Nastavení > Oprávnění pro izolaci MCP serverů.",
+    "sandboxUnavailable": "Prostředí Sandbox není na této platformě dostupné.",
+    "assigned": "PŘIŘAZENÉ MCP SERVERY",
+    "noneAssigned": "Tomuto agentovi nejsou přiřazeny žádné MCP servery.",
+    "addSection": "PŘIDAT MCP SERVER",
+    "noneInProject": "V projektu nejsou žádné MCP servery",
+    "goTo": "Přejít na MCP servery",
+    "manage": "Správa MCP serverů \u2192",
+    "restricted": "Omezený"
+  },
+  "subAgents": {
+    "assigned": "PŘIŘAZENÍ SUB-AGENTI",
+    "noneAssigned": "Tomuto agentovi nejsou přiřazeni žádní sub-agenti.",
+    "addSection": "PŘIDAT SUB-AGENTA",
+    "noneAvailable": "V tomto projektu nejsou žádní další dostupní agenti.",
+    "unknown": "Neznámý",
+    "rolePlaceholder": "Role..."
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Zděděný",
+    "capabilities": "SCHOPNOSTI",
+    "subAgentsLabel": "SUB-AGENTI",
+    "openDetail": "Otevřít detail"
+  },
+  "topology": {
+    "resetLayout": "Obnovit rozložení",
+    "editAgent": "Upravit agenta",
+    "setMainAgent": "Nastavit jako hlavního agenta"
+  }
+}

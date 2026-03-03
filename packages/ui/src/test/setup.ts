@@ -49,7 +49,7 @@ import cronEn from '../locales/en/cron.json'
 import dashboardEn from '../locales/en/dashboard.json'
 import errorEn from '../locales/en/error.json'
 import mcpEn from '../locales/en/mcp.json'
-import memoryEn from '../locales/en/memory.json'
+import knowledgeBaseEn from '../locales/en/knowledgeBase.json'
 import navEn from '../locales/en/nav.json'
 import onboardingEn from '../locales/en/onboarding.json'
 import permissionsEn from '../locales/en/permissions.json'
@@ -68,7 +68,7 @@ const translationResources: Record<string, Record<string, unknown>> = {
   dashboard: dashboardEn,
   error: errorEn,
   mcp: mcpEn,
-  memory: memoryEn,
+  knowledgeBase: knowledgeBaseEn,
   nav: navEn,
   onboarding: onboardingEn,
   permissions: permissionsEn,
@@ -138,6 +138,7 @@ vi.mock('i18next', () => {
     t: (key: string) => key.split('.').pop() ?? key,
     use: () => instance,
     init: () => instance,
+    on: vi.fn(),
     language: 'en',
     changeLanguage: vi.fn(),
   }

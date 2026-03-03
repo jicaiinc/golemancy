@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Attività Conversazione",
+    "taskCount_one": "{{count}} attività totale",
+    "taskCount_other": "{{count}} attività totali"
+  },
+  "loading": "Caricamento attività...",
+  "empty": {
+    "noTasks": "Nessuna attività trovata"
+  },
+  "openChat": "APRI CHAT →",
+  "detail": {
+    "description": "DESCRIZIONE",
+    "blockedBy": "BLOCCATO DA",
+    "metadata": "METADATI"
+  },
+  "status": {
+    "pending": "in attesa",
+    "in_progress": "in corso",
+    "completed": "completato",
+    "deleted": "eliminato"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "page": {
+    "title": "Transcriptiegeschiedenis"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} record",
+    "recordCount_other": "{{count}} records",
+    "used": "{{size}} gebruikt",
+    "loading": "Opslaginfo laden..."
+  },
+  "clearAll": {
+    "confirm_one": "{{count}} record verwijderen?",
+    "confirm_other": "Alle {{count}} records verwijderen?",
+    "confirmWithFree_one": "{{count}} record verwijderen en {{size}} vrijmaken?",
+    "confirmWithFree_other": "Alle {{count}} records verwijderen en {{size}} vrijmaken?"
+  },
+  "loading": "Geschiedenis laden...",
+  "empty": {
+    "hint": "Gebruik de microfoonknop in de chat\nom uw eerste spraakopname te maken",
+    "settingsBtn": "Ga naar Instellingen"
+  },
+  "player": {
+    "play": "Afspelen",
+    "pause": "Pauzeren",
+    "close": "Speler sluiten"
+  },
+  "actions": {
+    "copy": "Getranscribeerde tekst kopiëren",
+    "retry": "Transcriptie opnieuw proberen",
+    "delete": "Record verwijderen"
+  },
+  "enable": {
+    "enabled": "Ingeschakeld",
+    "disabled": "Uitgeschakeld",
+    "sectionTitle": "SPRAAK-NAAR-TEKST"
+  },
+  "provider": {
+    "sectionTitle": "PROVIDER",
+    "typeLabel": "TYPE",
+    "customType": "Aangepast (OpenAI-compatibel)",
+    "apiKeyLabel": "API KEY",
+    "baseUrlRequired": "BASE URL (VEREIST)",
+    "baseUrlOptional": "BASE URL (OPTIONEEL)",
+    "baseUrlPlaceholder": "Laat leeg voor standaard",
+    "modelLabel": "MODEL",
+    "modelOther": "Overig...",
+    "presets": "Voorinstellingen",
+    "languageLabel": "TAAL",
+    "hide": "Verbergen",
+    "show": "Tonen"
+  },
+  "test": {
+    "testing": "Testen...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Opnieuw testen",
+    "test": "Test",
+    "failed": "Mislukt",
+    "untested": "Niet getest",
+    "unknownError": "Onbekende fout"
+  },
+  "history": {
+    "sectionTitle": "GESCHIEDENIS",
+    "recordsInfo": "{{recordCount}} records / {{size}}",
+    "clearAll": "Alles Wissen",
+    "confirmClear": "Alles wissen?",
+    "empty": "Nog geen transcripties",
+    "today": "Vandaag",
+    "yesterday": "Gisteren",
+    "transcribing": "Transcriberen...",
+    "openChat": "Chat openen \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ERR",
+    "deleteConfirm": "Dit record en het audiobestand verwijderen?",
+    "retryConfirm": "Dit overschrijft de bestaande transcriptie.",
+    "transcriptionFailed": "Transcriptie mislukt: {{error}}",
+    "retranscribe": "Opnieuw transcriberen"
+  }
+}

@@ -38,19 +38,19 @@ export class FileAgentStorage implements IAgentService {
       ...agent,
       skillIds: agent.skillIds ?? raw.skills?.map((s: { id: string }) => s.id) ?? [],
       mcpServers,
-      builtinTools: agent.builtinTools ?? { bash: true },
+      builtinTools: agent.builtinTools ?? { bash: true, knowledge_base: true },
     }
   }
 
   async list(projectId: ProjectId): Promise<Agent[]> {
     const agents = await listJsonFiles<Agent>(this.agentsDir(projectId))
     log.debug({ projectId, count: agents.length }, 'listed agents')
-    return agents.map(a => this.normalize(a))
+    return agents.map(a => this.normalize({ ...a, projectId }))
   }
 
   async getById(projectId: ProjectId, id: AgentId): Promise<Agent | null> {
     const agent = await readJson<Agent>(this.agentPath(projectId, id))
-    return agent ? this.normalize(agent) : null
+    return agent ? this.normalize({ ...agent, projectId }) : null
   }
 
   async create(
@@ -70,12 +70,14 @@ export class FileAgentStorage implements IAgentService {
       tools: [],
       subAgents: [],
       mcpServers: [],
-      builtinTools: { bash: true },
+      builtinTools: { bash: true, knowledge_base: true },
       createdAt: now,
       updatedAt: now,
     }
 
-    await writeJson(this.agentPath(projectId, id), agent)
+    // Write without projectId — ownership is determined by directory
+    const { projectId: _, ...toWrite } = agent
+    await writeJson(this.agentPath(projectId, id), toWrite)
     return agent
   }
 
@@ -91,7 +93,9 @@ export class FileAgentStorage implements IAgentService {
       projectId,
       updatedAt: new Date().toISOString(),
     }
-    await writeJson(this.agentPath(projectId, id), updated)
+    // Write without projectId — ownership is determined by directory
+    const { projectId: _, ...toWrite } = updated
+    await writeJson(this.agentPath(projectId, id), toWrite)
     return updated
   }
 

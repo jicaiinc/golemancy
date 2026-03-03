@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Історія транскрибування"
+  },
+  "storage": {
+    "recordCount_one": "{{count}} запис",
+    "recordCount_few": "{{count}} записи",
+    "recordCount_many": "{{count}} записів",
+    "recordCount_other": "{{count}} записів",
+    "used": "{{size}} використано",
+    "loading": "Завантаження інформації про сховище..."
+  },
+  "clearAll": {
+    "confirm_one": "Видалити {{count}} запис?",
+    "confirm_few": "Видалити всі {{count}} записи?",
+    "confirm_many": "Видалити всі {{count}} записів?",
+    "confirm_other": "Видалити всі {{count}} записів?",
+    "confirmWithFree_one": "Видалити {{count}} запис і звільнити {{size}}?",
+    "confirmWithFree_few": "Видалити всі {{count}} записи і звільнити {{size}}?",
+    "confirmWithFree_many": "Видалити всі {{count}} записів і звільнити {{size}}?",
+    "confirmWithFree_other": "Видалити всі {{count}} записів і звільнити {{size}}?"
+  },
+  "loading": "Завантаження історії...",
+  "empty": {
+    "hint": "Натисніть кнопку мікрофона в чаті,\nщоб створити перший голосовий запис",
+    "settingsBtn": "Перейти до налаштувань"
+  },
+  "player": {
+    "play": "Відтворити",
+    "pause": "Пауза",
+    "close": "Закрити плеєр"
+  },
+  "actions": {
+    "copy": "Копіювати текст транскрибування",
+    "retry": "Повторити транскрибування",
+    "delete": "Видалити запис"
+  },
+  "enable": {
+    "enabled": "Увімкнено",
+    "disabled": "Вимкнено",
+    "sectionTitle": "РОЗПІЗНАВАННЯ МОВЛЕННЯ"
+  },
+  "provider": {
+    "sectionTitle": "ПРОВАЙДЕР",
+    "typeLabel": "ТИП",
+    "customType": "Користувацький (OpenAI-сумісний)",
+    "apiKeyLabel": "API КЛЮЧ",
+    "baseUrlRequired": "BASE URL (ОБОВ'ЯЗКОВО)",
+    "baseUrlOptional": "BASE URL (НЕОБОВ'ЯЗКОВО)",
+    "baseUrlPlaceholder": "Залиште порожнім для значення за замовчуванням",
+    "modelLabel": "МОДЕЛЬ",
+    "modelOther": "Інша...",
+    "presets": "Шаблони",
+    "languageLabel": "МОВА",
+    "hide": "Приховати",
+    "show": "Показати"
+  },
+  "test": {
+    "testing": "Тестування...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "retest": "Переперевірити",
+    "test": "Тест",
+    "failed": "Помилка",
+    "untested": "Не перевірено",
+    "unknownError": "Невідома помилка"
+  },
+  "history": {
+    "sectionTitle": "ІСТОРІЯ",
+    "recordsInfo": "{{recordCount}} записів / {{size}}",
+    "clearAll": "Очистити все",
+    "confirmClear": "Очистити все?",
+    "empty": "Транскрибувань поки немає",
+    "today": "Сьогодні",
+    "yesterday": "Вчора",
+    "transcribing": "Транскрибування...",
+    "openChat": "Відкрити чат \u2192"
+  },
+  "record": {
+    "statusOk": "OK",
+    "statusErr": "ПОМ",
+    "deleteConfirm": "Видалити цей запис та його аудіофайл?",
+    "retryConfirm": "Наявне транскрибування буде перезаписано.",
+    "transcriptionFailed": "Помилка транскрибування: {{error}}",
+    "retranscribe": "Перетранскрибувати"
+  }
+}

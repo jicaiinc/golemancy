@@ -2,7 +2,7 @@ import { type ReactNode } from 'react'
 
 interface Tab {
   id: string
-  label: string
+  label: ReactNode
   icon?: ReactNode
 }
 

@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "Automatizace",
+    "newBtn": "+ Nová"
+  },
+  "empty": {
+    "noJobs": "Zatím žádné automatizace",
+    "createFirstBtn": "Vytvořte první automatizaci"
+  },
+  "job": {
+    "runBtn": "Spustit",
+    "historyBtn": "Historie",
+    "runningStatus": "Provádění...",
+    "viewChat": "Otevřít chat →",
+    "next": "Další: {{time}}",
+    "at": "V {{time}}",
+    "agentNotFound": "Agent nenalezen",
+    "overdue": "po termínu",
+    "once": "jednorázově"
+  },
+  "delete": {
+    "title": "Smazat automatizaci",
+    "confirm": "Opravdu chcete smazat «{{name}}»? Tuto akci nelze vrátit zpět."
+  },
+  "runsModal": {
+    "titleWithName": "Historie spuštění — {{name}}",
+    "title": "Historie spuštění",
+    "noRuns": "Zatím žádné spuštění",
+    "openChat": "OTEVŘÍT CHAT →"
+  },
+  "status": {
+    "success": "úspěch",
+    "error": "chyba",
+    "running": "provádění"
+  },
+  "form": {
+    "newTitle": "Nová automatizace",
+    "editTitle": "Úprava automatizace",
+    "nameLabel": "NÁZEV",
+    "namePlaceholder": "Denní revize kódu",
+    "typeLabel": "TYP",
+    "recurring": "Opakovaná",
+    "oneTime": "Jednorázová",
+    "cronLabel": "VÝRAZ CRON",
+    "scheduledAtLabel": "NAPLÁNOVÁNO NA (místní čas)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Vyberte agenta",
+    "instructionLabel": "INSTRUKCE (volitelné)",
+    "instructionPlaceholder": "Instrukce odeslané agentovi při spuštění",
+    "enabledLabel": "Zapnuto",
+    "presets": {
+      "every5min": "Každých 5 min",
+      "everyHour": "Každou hodinu",
+      "every12h": "Každých 12 hod",
+      "daily9am": "Denně v 9:00",
+      "weeklyMon": "Týdně Po"
+    },
+    "invalidExpression": "Neplatný výraz"
+  }
+}

@@ -68,8 +68,8 @@ function createTestServices(): ServiceContainer {
     conversations: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), sendMessage: vi.fn(), saveMessage: vi.fn(), getMessages: vi.fn(), searchMessages: vi.fn(), delete: vi.fn() },
     tasks: { list: vi.fn(), getById: vi.fn() },
     workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
-    memory: { list: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
+    knowledgeBase: { listCollections: vi.fn(), createCollection: vi.fn(), updateCollection: vi.fn(), deleteCollection: vi.fn(), listDocuments: vi.fn(), ingestDocument: vi.fn(), uploadDocument: vi.fn(), getDocument: vi.fn(), deleteDocument: vi.fn(), search: vi.fn(), hasVectorData: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn(), testEmbedding: vi.fn() },
     cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
     mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
@@ -255,6 +255,72 @@ describe('AgentDetailPage', () => {
     fireEvent.click(screen.getByText('Skills'))
     await waitFor(() => {
       expect(screen.getByText('No skills assigned to this agent.')).toBeInTheDocument()
+    })
+  })
+
+  // ── KB tool embedding integration ──
+
+  describe('Tools tab — KB embedding state', () => {
+    it('KB tool shows unavailable when embedding not configured (testPassed false)', async () => {
+      useAppStore.setState({
+        settings: {
+          ...baseSettings,
+          embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: false },
+        },
+      })
+      renderAtRoute()
+      fireEvent.click(screen.getByText('Tools'))
+      await waitFor(() => {
+        expect(screen.getByText('Knowledge Base')).toBeInTheDocument()
+        expect(screen.getByText('CONFIGURE EMBEDDING')).toBeInTheDocument()
+      })
+    })
+
+    it('KB tool shows warning hint when enabled but embedding not configured', async () => {
+      useAppStore.setState({
+        settings: {
+          ...baseSettings,
+          embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: false },
+        },
+        agents: [makeAgent({ builtinTools: { knowledge_base: true } })],
+      })
+      renderAtRoute()
+      fireEvent.click(screen.getByText('Tools'))
+      await waitFor(() => {
+        expect(screen.getByText(/Knowledge Base is enabled but embedding is not configured/)).toBeInTheDocument()
+      })
+    })
+
+    it('KB tool does not show warning when embedding not configured and KB not enabled', async () => {
+      useAppStore.setState({
+        settings: {
+          ...baseSettings,
+          embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: false },
+        },
+        agents: [makeAgent({ builtinTools: { knowledge_base: false } })],
+      })
+      renderAtRoute()
+      fireEvent.click(screen.getByText('Tools'))
+      await waitFor(() => {
+        expect(screen.getByText('Knowledge Base')).toBeInTheDocument()
+        expect(screen.queryByText(/Knowledge Base is enabled but embedding is not configured/)).not.toBeInTheDocument()
+      })
+    })
+
+    it('KB tool is available when embedding configured with testPassed', async () => {
+      useAppStore.setState({
+        settings: {
+          ...baseSettings,
+          embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: true },
+        },
+      })
+      renderAtRoute()
+      fireEvent.click(screen.getByText('Tools'))
+      await waitFor(() => {
+        expect(screen.getByText('Knowledge Base')).toBeInTheDocument()
+        expect(screen.queryByText('CONFIGURE EMBEDDING')).not.toBeInTheDocument()
+        expect(screen.queryByText(/Knowledge Base is enabled but embedding is not configured/)).not.toBeInTheDocument()
+      })
     })
   })
 })

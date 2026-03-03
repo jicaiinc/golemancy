@@ -1,0 +1,63 @@
+{
+  "header": {
+    "hideHistory": "Ascundeți istoricul",
+    "showHistory": "Afișați istoricul",
+    "new": "+ Nou",
+    "clickToRename": "Faceți clic pentru a redenumi"
+  },
+  "sidebar": {
+    "newChat": "+ Conversație nouă",
+    "noConversations": "Nu există conversații"
+  },
+  "window": {
+    "startConversation": "Începeți conversația...",
+    "compacting": "Se compactează",
+    "thinking": "Se gândește",
+    "imageMsgTitle": "Mesaj imagine"
+  },
+  "empty": {
+    "readyToChat": "Gata de conversație",
+    "description": "Începeți o conversație nouă sau selectați una din bara laterală.",
+    "startChatting": "Începeți conversația",
+    "noMainAgent": "Niciun Main Agent",
+    "configureText": "Configurați un Main Agent în <a>Setările proiectului</a> pentru a începe conversația."
+  },
+  "input": {
+    "placeholder": "Scrieți un mesaj...",
+    "dropPlaceholder": "Plasați imaginile aici...",
+    "attachImage": "Atașați imagine",
+    "recordAudio": "Înregistrare audio",
+    "transcribing": "Se transcrie...",
+    "transcriptionFailed": "Transcrierea a eșuat",
+    "startRecordingFailed": "Înregistrarea nu a putut fi pornită",
+    "retryFailed": "Reîncercarea a eșuat"
+  },
+  "message": {
+    "reasoning": "Raționament",
+    "untitledFile": "Fișier fără titlu",
+    "copy": "Copiere"
+  },
+  "compact": {
+    "title": "CONVERSAȚIE COMPACTATĂ",
+    "summary": "REZUMAT",
+    "tokensSummary": "{{input}} intrare / {{output}} ieșire"
+  },
+  "tool": {
+    "running": "Se execută...",
+    "awaitingApproval": "Se așteaptă aprobare",
+    "approved": "Aprobat",
+    "done": "Gata",
+    "denied": "Refuzat",
+    "input": "INTRARE",
+    "output": "IEȘIRE",
+    "error": "EROARE",
+    "task": "SARCINĂ",
+    "tools": "INSTRUMENTE",
+    "toolCountRunning": "[{{running}}/{{total}} instrumente]",
+    "toolCountDone": "[{{total}} instrumente]",
+    "taskCreate": "Creare sarcină",
+    "taskGet": "Obținere sarcină",
+    "taskList": "Listare sarcini",
+    "taskUpdate": "Actualizare sarcină"
+  }
+}

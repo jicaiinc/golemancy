@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP サーバー",
+    "serverCount_one": "{{count}} サーバー",
+    "serverCount_other": "{{count}} サーバー",
+    "newServerBtn": "+ 新規サーバー"
+  },
+  "tabs": {
+    "installed": "インストール済み",
+    "marketplace": "マーケットプレイス"
+  },
+  "warning": {
+    "restrictedBadge": "制限付き",
+    "restrictedMsg": "制限付きモード：stdio MCP サーバーは無効化され、読み込まれません",
+    "riskBadge": "警告",
+    "riskMsg": "サードパーティ MCP サーバーがコンピューター上のファイルにアクセスまたは変更する可能性があります。",
+    "applyToMcpHint": "設定 > 権限で「MCP に適用」を有効にして MCP サーバーをサンドボックス化してください。",
+    "sandboxUnavailable": "このプラットフォームではサンドボックスランタイムを利用できません。"
+  },
+  "import": {
+    "invalidFormat": "無効な形式：{ mcpServers: { ... } } が必要です",
+    "noServers": "設定ファイルにサーバーが見つかりません",
+    "importedCount_one": "{{count}} 個の MCP サーバーをインポートしました",
+    "importedCount_other": "{{count}} 個の MCP サーバーをインポートしました",
+    "parseError": "設定ファイルの解析に失敗しました"
+  },
+  "server": {
+    "testing": "テスト中...",
+    "testOk_one": "OK ({{count}} ツール)",
+    "testOk_other": "OK ({{count}} ツール)",
+    "connectionFailed": "接続失敗",
+    "testFailed": "テスト失敗",
+    "blockedRestricted": "制限付きモードによりブロック — stdio サーバーはランタイムで読み込まれません",
+    "usedByAgents_one": "{{count}} 個の Agent で使用中",
+    "usedByAgents_other": "{{count}} 個の Agent で使用中",
+    "deleteErrorInUse_one": "MCP サーバー「{{name}}」は {{count}} 個の Agent で使用されています。先に参照を削除してください。",
+    "deleteErrorInUse_other": "MCP サーバー「{{name}}」は {{count}} 個の Agent で使用されています。先に参照を削除してください。",
+    "deleteError": "MCP サーバーの削除に失敗しました",
+    "testBtn": "テスト"
+  },
+  "empty": {
+    "title": "MCP サーバーがありません",
+    "addFirstBtn": "最初のサーバーを追加"
+  },
+  "loading": "MCP サーバーを読み込み中...",
+  "comingSoon": "近日公開",
+  "form": {
+    "newTitle": "新規 MCP サーバー",
+    "editTitle": "MCP サーバーを編集",
+    "nameLabel": "名前",
+    "descriptionLabel": "説明",
+    "transportLabel": "トランスポート",
+    "commandLabel": "コマンド",
+    "argsLabel": "引数（スペース区切り）",
+    "envLabel": "環境変数（1 行ごとに KEY=VALUE）",
+    "cwdLabel": "作業ディレクトリ",
+    "urlLabel": "URL",
+    "headersLabel": "ヘッダー（1 行ごとに Key: Value）"
+  }
+}

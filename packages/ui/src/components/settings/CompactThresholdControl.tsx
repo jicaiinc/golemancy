@@ -70,14 +70,14 @@ export function CompactThresholdControl({ value, onChange, children }: CompactTh
           style={{ '--fill-percent': `${fillPercent}%` } as React.CSSProperties}
         />
         <div className="relative h-3.5 mt-0.5">
-          <span className="absolute left-0 text-[8px] font-pixel text-text-dim">0</span>
+          <span className="absolute left-0 text-[8px] font-arcade text-text-dim">0</span>
           <span
-            className="absolute text-[8px] font-pixel text-accent-green -translate-x-1/2"
+            className="absolute text-[8px] font-arcade text-accent-green -translate-x-1/2"
             style={{ left: `${defaultPercent}%` }}
           >
             800K
           </span>
-          <span className="absolute right-0 text-[8px] font-pixel text-text-dim">2M</span>
+          <span className="absolute right-0 text-[8px] font-arcade text-text-dim">2M</span>
         </div>
       </div>
       {/* Editable value + unit + extra actions */}

@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Panel",
+    "descriptionFallback": "Przegląd projektu",
+    "loading": "Ładowanie panelu..."
+  },
+  "tokenUsage": {
+    "title": "UŻYCIE TOKENÓW"
+  },
+  "chart": {
+    "noData": "Brak danych o tokenach",
+    "tooltipIn": "Wej: {{tokens}}",
+    "tooltipOut": "Wyj: {{tokens}}",
+    "legendInput": "Wejściowe",
+    "legendOutput": "Wyjściowe"
+  },
+  "tabs": {
+    "trend": "Trend",
+    "byAgent": "Wg agentów",
+    "byModel": "Wg modeli",
+    "byProject": "Wg projektów"
+  },
+  "table": {
+    "colName": "Nazwa",
+    "colTotal": "Łącznie",
+    "colInput": "Wejściowe",
+    "colOutput": "Wyjściowe",
+    "colCalls": "Wywołania",
+    "colRatio": "Stosunek",
+    "titleByAgent": "TOKENY WG AGENTÓW",
+    "titleByModel": "TOKENY WG MODELI",
+    "titleByProject": "TOKENY WG PROJEKTÓW"
+  },
+  "timeRange": {
+    "today": "Dziś",
+    "sevenDays": "7 dni",
+    "thirtyDays": "30 dni",
+    "allTime": "Cały czas"
+  },
+  "summary": {
+    "totalTokens": "Łącznie tokenów",
+    "inputTokens": "Tokeny wejściowe",
+    "outputTokens": "Tokeny wyjściowe",
+    "apiCalls": "Wywołania API"
+  },
+  "overview": {
+    "agents": "AGENCI",
+    "recentChats": "OSTATNIE CZATY",
+    "viewAll": "Wszystkie \u2192",
+    "noAgents": "Brak agentów",
+    "noRecentChats": "Brak ostatnich czatów",
+    "chatStats": "{{count}} wiad \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "AKTYWNOŚĆ",
+    "tabActive": "Aktywne ({{count}})",
+    "tabScheduled": "Zaplanowane ({{count}})",
+    "tabRecent": "Ostatnie",
+    "badgeChat": "Czat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Brak aktywnych uruchomień",
+    "noScheduledRuns": "Brak zaplanowanych uruchomień",
+    "noRecentActivity": "Brak ostatniej aktywności",
+    "openLink": "OTWÓRZ \u2192",
+    "tokenCount": "{{tokens}} tokenów"
+  },
+  "global": {
+    "title": "Panel globalny",
+    "subtitle": "Przegląd wszystkich projektów",
+    "topProjects": "NAJLEPSZE PROJEKTY",
+    "noProjectData": "Brak danych o projektach",
+    "projectStats": "{{tokens}} tokenów \u00B7 {{calls}} wywołań"
+  }
+}

@@ -8,10 +8,11 @@ import type {
   AgentId, ProjectId, ConversationId, MessageId, CompactRecord, Message,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
 } from '@golemancy/shared'
-import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { CompactRecordStorage } from '../storage/compact-records'
+import type { KnowledgeBaseStorage } from '../storage/knowledge-base'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import type { WebSocketManager } from '../ws/handler'
 import { resolveModel } from '../agent/model'
@@ -40,6 +41,7 @@ export interface ChatRouteDeps {
   taskStorage: SqliteConversationTaskStorage
   tokenRecordStorage: TokenRecordStorage
   compactRecordStorage: CompactRecordStorage
+  kbStorage?: KnowledgeBaseStorage
   activeChatRegistry?: ActiveChatRegistry
   wsManager?: WebSocketManager
 }
@@ -189,6 +191,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       conversationId,
       taskStorage: deps.taskStorage,
       tokenRecordStorage: deps.tokenRecordStorage,
+      kbStorage: deps.kbStorage,
       onTokenUsage: (usage) => {
         streamWriter?.write({
           type: 'data-usage' as `data-${string}`,
@@ -328,15 +331,17 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
         // --- Chat stream ---
         let stepIndex = 0
+        let lastFinishReason: string | undefined
         const result = streamText({
           model,
           system: systemPrompt,
           messages: modelMessages,
           tools: hasTools ? allTools : undefined,
-          stopWhen: hasTools ? stepCountIs(10) : undefined,
+          stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           abortSignal: c.req.raw.signal,
           onStepFinish: ({ usage, finishReason, toolCalls }) => {
             stepIndex++
+            lastFinishReason = finishReason
             const toolNames = toolCalls?.map(tc => tc.toolName) ?? []
             log.debug({
               conversationId, step: stepIndex, finishReason,
@@ -446,6 +451,15 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                 type: 'data-usage' as `data-${string}`,
                 data: { contextTokens, inputTokens: billingInput, outputTokens: billingOutput },
               })
+
+              // Notify client when agent was cut off by max steps limit
+              if (stepIndex >= DEFAULT_MAX_STEPS && lastFinishReason === 'tool-calls') {
+                log.info({ conversationId, stepIndex, maxSteps: DEFAULT_MAX_STEPS }, 'agent hit max steps limit')
+                writer.write({
+                  type: 'data-max_steps_reached' as `data-${string}`,
+                  data: { steps: stepIndex, maxSteps: DEFAULT_MAX_STEPS },
+                })
+              }
 
             } catch (err) {
               log.error({ err, conversationId }, 'failed to save assistant message')

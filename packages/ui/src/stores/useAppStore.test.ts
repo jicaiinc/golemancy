@@ -68,11 +68,18 @@ function createTestServices(): ServiceContainer {
       deleteFile: vi.fn().mockResolvedValue(undefined),
       getFileUrl: vi.fn().mockReturnValue(''),
     },
-    memory: {
-      list: vi.fn().mockResolvedValue([]),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
+    knowledgeBase: {
+      listCollections: vi.fn().mockResolvedValue([]),
+      createCollection: vi.fn(),
+      updateCollection: vi.fn(),
+      deleteCollection: vi.fn(),
+      listDocuments: vi.fn().mockResolvedValue([]),
+      ingestDocument: vi.fn(),
+      uploadDocument: vi.fn(),
+      getDocument: vi.fn(),
+      deleteDocument: vi.fn(),
+      search: vi.fn().mockResolvedValue([]),
+      hasVectorData: vi.fn().mockResolvedValue(false),
     },
     settings: {
       get: vi.fn().mockResolvedValue({
@@ -84,7 +91,7 @@ function createTestServices(): ServiceContainer {
       update: vi.fn().mockImplementation((data) =>
         Promise.resolve({ ...data }),
       ),
-      testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }),
+      testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 150 }), testEmbedding: vi.fn(),
     },
     cronJobs: {
       list: vi.fn().mockResolvedValue([]),

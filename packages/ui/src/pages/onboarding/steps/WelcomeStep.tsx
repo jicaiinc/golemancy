@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { PixelButton } from '../../../components'
+import { PixelDropdown } from '../../../components/base/PixelDropdown'
+import { LANGUAGES } from '../../../i18n/languages'
 import logoSrc from '../../../assets/logo.png'
 
 // NOTE: Feature grid (8 cards with SVG icons matching golemancy.ai) is available
@@ -8,10 +10,16 @@ import logoSrc from '../../../assets/logo.png'
 
 interface WelcomeStepProps {
   onGetStarted: () => void
+  onLanguageChange: (lang: string) => void
 }
 
-export function WelcomeStep({ onGetStarted }: WelcomeStepProps) {
-  const { t } = useTranslation('onboarding')
+export function WelcomeStep({ onGetStarted, onLanguageChange }: WelcomeStepProps) {
+  const { t, i18n } = useTranslation('onboarding')
+
+  const languageOptions = LANGUAGES.map(lang => ({
+    ...lang,
+    selected: i18n.language === lang.value,
+  }))
 
   return (
     <div className="flex flex-col items-center justify-center gap-5 text-center min-h-[50vh]">
@@ -25,7 +33,19 @@ export function WelcomeStep({ onGetStarted }: WelcomeStepProps) {
       <p className="font-mono text-[13px] text-text-secondary">
         {t('welcome.description')}
       </p>
-      <div className="mt-4">
+      <PixelDropdown
+        trigger={
+          <PixelButton variant="ghost" className="min-w-[160px] text-left justify-between">
+            <span className="font-mono text-[12px]">
+              {languageOptions.find(o => o.value === i18n.language)?.label ?? 'English'}
+            </span>
+            <span className="ml-2 text-text-dim">{'\u25BC'}</span>
+          </PixelButton>
+        }
+        items={languageOptions}
+        onSelect={onLanguageChange}
+      />
+      <div className="mt-2">
         <PixelButton variant="primary" size="lg" onClick={onGetStarted}>
           {t('button.getStarted')}
         </PixelButton>

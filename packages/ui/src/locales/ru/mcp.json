@@ -1,0 +1,70 @@
+{
+  "page": {
+    "title": "MCP серверы",
+    "serverCount_one": "{{count}} сервер",
+    "serverCount_few": "{{count}} сервера",
+    "serverCount_many": "{{count}} серверов",
+    "serverCount_other": "{{count}} серверов",
+    "newServerBtn": "+ Новый сервер"
+  },
+  "tabs": {
+    "installed": "Установленные",
+    "marketplace": "Маркетплейс"
+  },
+  "warning": {
+    "restrictedBadge": "ОГРАНИЧЕНО",
+    "restrictedMsg": "Ограниченный режим: stdio MCP серверы отключены и не будут загружены",
+    "riskBadge": "ПРЕДУПРЕЖДЕНИЕ",
+    "riskMsg": "Сторонние MCP серверы могут получить доступ к файлам на вашем компьютере или изменить их.",
+    "applyToMcpHint": "Включите «Применить к MCP» в Настройки > Разрешения для изоляции MCP серверов.",
+    "sandboxUnavailable": "Среда Sandbox недоступна на этой платформе."
+  },
+  "import": {
+    "invalidFormat": "Неверный формат: ожидается { mcpServers: { ... } }",
+    "noServers": "Серверы не найдены в файле конфигурации",
+    "importedCount_one": "Импортирован {{count}} MCP сервер",
+    "importedCount_few": "Импортировано {{count}} MCP сервера",
+    "importedCount_many": "Импортировано {{count}} MCP серверов",
+    "importedCount_other": "Импортировано {{count}} MCP серверов",
+    "parseError": "Не удалось обработать файл конфигурации"
+  },
+  "server": {
+    "testing": "Тестирование...",
+    "testOk_one": "OK ({{count}} инструмент)",
+    "testOk_few": "OK ({{count}} инструмента)",
+    "testOk_many": "OK ({{count}} инструментов)",
+    "testOk_other": "OK ({{count}} инструментов)",
+    "connectionFailed": "Ошибка подключения",
+    "testFailed": "Тест не пройден",
+    "blockedRestricted": "Заблокировано ограниченным режимом — stdio серверы не загружаются во время выполнения",
+    "usedByAgents_one": "Используется {{count}} агентом",
+    "usedByAgents_few": "Используется {{count}} агентами",
+    "usedByAgents_many": "Используется {{count}} агентами",
+    "usedByAgents_other": "Используется {{count}} агентами",
+    "deleteErrorInUse_one": "MCP сервер «{{name}}» используется {{count}} агентом. Сначала удалите ссылки.",
+    "deleteErrorInUse_few": "MCP сервер «{{name}}» используется {{count}} агентами. Сначала удалите ссылки.",
+    "deleteErrorInUse_many": "MCP сервер «{{name}}» используется {{count}} агентами. Сначала удалите ссылки.",
+    "deleteErrorInUse_other": "MCP сервер «{{name}}» используется {{count}} агентами. Сначала удалите ссылки.",
+    "deleteError": "Не удалось удалить MCP сервер",
+    "testBtn": "Тест"
+  },
+  "empty": {
+    "title": "MCP серверы не настроены",
+    "addFirstBtn": "Добавьте первый сервер"
+  },
+  "loading": "Загрузка MCP серверов...",
+  "comingSoon": "Скоро",
+  "form": {
+    "newTitle": "Новый MCP сервер",
+    "editTitle": "Редактирование MCP сервера",
+    "nameLabel": "НАЗВАНИЕ",
+    "descriptionLabel": "ОПИСАНИЕ",
+    "transportLabel": "ТРАНСПОРТ",
+    "commandLabel": "КОМАНДА",
+    "argsLabel": "АРГУМЕНТЫ (через пробел)",
+    "envLabel": "ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ (KEY=VALUE на строку)",
+    "cwdLabel": "РАБОЧАЯ ДИРЕКТОРИЯ",
+    "urlLabel": "URL",
+    "headersLabel": "ЗАГОЛОВКИ (Key: Value на строку)"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Gesprächsaufgaben",
+    "taskCount_one": "{{count}} Aufgabe gesamt",
+    "taskCount_other": "{{count}} Aufgaben gesamt"
+  },
+  "loading": "Aufgaben laden...",
+  "empty": {
+    "noTasks": "Keine Aufgaben gefunden"
+  },
+  "openChat": "CHAT ÖFFNEN →",
+  "detail": {
+    "description": "BESCHREIBUNG",
+    "blockedBy": "BLOCKIERT DURCH",
+    "metadata": "METADATEN"
+  },
+  "status": {
+    "pending": "Ausstehend",
+    "in_progress": "In Bearbeitung",
+    "completed": "Abgeschlossen",
+    "deleted": "Gelöscht"
+  }
+}

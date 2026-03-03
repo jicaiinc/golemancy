@@ -1,0 +1,49 @@
+{
+  "label": {
+    "projectName": "NAMA PROJEK",
+    "description": "PENERANGAN",
+    "icon": "IKON",
+    "projectId": "ID PROJEK"
+  },
+  "list": {
+    "title": "Semua Projek",
+    "subtitle_one": "{{count}} projek dalam ruang kerja anda",
+    "subtitle_other": "{{count}} projek dalam ruang kerja anda",
+    "newBtn": "+ Projek Baharu",
+    "empty": "Belum ada projek",
+    "createFirst": "Cipta Projek Pertama Anda",
+    "openInWindow": "Buka dalam Tetingkap Baharu",
+    "agents_one": "{{count}} agen",
+    "agents_other": "{{count}} agen",
+    "running_one": "{{count}} berjalan",
+    "running_other": "{{count}} berjalan"
+  },
+  "create": {
+    "modalTitle": "Cipta Projek Baharu",
+    "createBtn": "Cipta Projek",
+    "namePlaceholder": "Projek Hebat Saya",
+    "descPlaceholder": "Apakah projek ini?"
+  },
+  "settings": {
+    "title": "Tetapan Projek",
+    "savedMsg": "Disimpan!",
+    "clickToCopy": "Klik untuk menyalin",
+    "tabs": {
+      "general": "Umum",
+      "agent": "Agen",
+      "permissions": "Kebenaran"
+    },
+    "agent": {
+      "mainLabel": "MAIN AGENT",
+      "mainDesc": "Agen lalai untuk perbualan baharu dalam projek ini.",
+      "noAgents": "Tiada agen dalam projek ini. Cipta agen terlebih dahulu.",
+      "goToAgents": "Pergi ke Agen",
+      "none": "Tiada",
+      "configure": "Konfigurasikan Agen \u2192"
+    },
+    "general": {
+      "sectionTitle": "INFO ASAS",
+      "saveBtn": "Simpan Perubahan"
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "loading": "Se încarcă permisiunile...",
+  "section": {
+    "permissionMode": "MOD PERMISIUNI",
+    "configuration": "CONFIGURARE"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restricționat",
+      "subtitle": "Doar Bash, fără sandbox",
+      "description": "Mediu de execuție minim. Fără sandbox runtime, fără suport MCP.",
+      "badge": "Limitat"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Izolare configurabilă",
+      "description": "Sandbox runtime cu restricții configurabile pentru sistem de fișiere, rețea și comenzi.",
+      "badge": "Recomandat"
+    },
+    "unrestricted": {
+      "name": "Nerestricționat",
+      "subtitle": "Acces complet la sistem",
+      "description": "Fără restricții sandbox. Toate comenzile rulează cu permisiuni complete de sistem.",
+      "badge": "Riscant"
+    }
+  },
+  "config": {
+    "default": "Implicit",
+    "selectConfig": "Selectați configurarea...",
+    "saveAs": "Salvare ca...",
+    "rename": "Redenumire",
+    "resetToDefault": "Resetare la implicit",
+    "saved": "Salvat!",
+    "editingDefault": "Editați valorile implicite. Faceți clic pe Salvare pentru a crea o configurare nouă cu nume."
+  },
+  "modal": {
+    "unrestrictedTitle": "Activare mod nerestricționat?",
+    "unrestrictedBody": "Aceasta elimină toată protecția sandbox. Agenții AI vor avea acces complet la sistemul dumneavoastră, inclusiv:",
+    "unrestrictedReadWrite": "Citire/scriere orice fișier de pe computer",
+    "unrestrictedExecute": "Executare orice comandă de sistem",
+    "unrestrictedNetwork": "Acces la rețea fără restricții",
+    "unrestrictedSysconfig": "Modificare configurare sistem",
+    "unrestrictedFooter": "Utilizați doar pentru dezvoltare locală în medii de încredere.",
+    "enableUnrestricted": "Am înțeles, activare",
+    "sandboxUnavailableTitle": "Modul Sandbox indisponibil",
+    "sandboxUnavailableBody": "Condițiile preliminare pentru sandbox runtime nu sunt îndeplinite. Au fost găsite următoarele probleme:",
+    "sandboxUnavailableFooter": "Activarea modului sandbox oricum va cauza degradarea la modul restricționat.",
+    "enableAnyway": "Activare oricum",
+    "saveAsTitle": "Salvare ca configurare nouă",
+    "configNameLabel": "NUME CONFIGURARE",
+    "configNamePlaceholder": "ex. Dev strict, Python dezactivat",
+    "renameTitle": "Redenumire configurare",
+    "newNameLabel": "NUME NOU",
+    "newNamePlaceholder": "ex. Configurarea mea personalizată",
+    "renaming": "Se redenumește...",
+    "deleteTitle": "Ștergere \"{{title}}\"?",
+    "deleteBody": "Această configurare va fi ștearsă permanent. Proiectul va reveni la setările implicite ale sistemului."
+  },
+  "filesystem": {
+    "sectionTitle": "PERMISIUNI SISTEM DE FIȘIERE",
+    "allowWrite": "PERMISIUNE SCRIERE",
+    "allowWriteHelper": "Căi unde agenții pot scrie fișiere. Implicit: directorul de lucru al proiectului.",
+    "allowWritePlaceholder": "ex. /Users/name/workspace",
+    "denyRead": "INTERZICERE CITIRE",
+    "denyReadHelper": "Fișiere/directoare sensibile blocate de la citire.",
+    "denyReadPlaceholder": "ex. ~/.ssh, .env",
+    "denyWrite": "INTERZICERE SCRIERE",
+    "denyWriteHelper": "Căi unde scrierea este blocată. Are prioritate față de permisiunea de scriere.",
+    "denyWritePlaceholder": "ex. /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "RESTRICȚII REȚEA",
+    "enableLabel": "Activare",
+    "statusEnabled": "Doar domeniile configurate sunt accesibile",
+    "statusDisabled": "Tot traficul de rețea este permis",
+    "allowedDomains": "DOMENII PERMISE",
+    "allowedDomainsHelper": "Domenii pe care agenții le pot accesa. Exact: example.com — Wildcard: *.example.com (2+ părți după *.)",
+    "allowedDomainsPlaceholder": "ex. api.github.com",
+    "deniedDomains": "DOMENII INTERZISE",
+    "deniedDomainsHelper": "Domenii de blocat. Același format ca domeniile permise.",
+    "deniedDomainsPlaceholder": "ex. malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "RESTRICȚII COMENZI",
+    "deniedCommands": "COMENZI INTERZISE",
+    "deniedCommandsHelper": "Comenzi blocate de la execuție.",
+    "deniedCommandsPlaceholder": "ex. python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Aplicare la MCP",
+    "warning": "(\u26A0 Dezactivarea acestei opțiuni poate permite serverelor MCP terțe să acceseze sau să modifice fișierele de pe computerul dumneavoastră)",
+    "description": "Când este activat, comenzile serverelor MCP vor fi executate prin sandbox runtime (srt). Aceleași restricții de sistem de fișiere, rețea și comenzi se aplică serverelor MCP."
+  },
+  "windows": {
+    "notice": "\u26A0 NOTIFICARE WINDOWS",
+    "message": "Sandbox runtime nu este disponibil pe Windows. Doar blocarea comenzilor este suportată."
+  },
+  "validation": {
+    "removeProtocol": "Eliminați protocolul, calea sau portul — doar domeniul",
+    "wildcardParts": "Wildcard necesită 2+ părți după *. (ex. *.example.com)",
+    "onlyWildcard": "Doar formatul wildcard *.domain.com este suportat",
+    "validDomain": "Trebuie să fie un domeniu valid cu cel puțin un punct (ex. example.com)"
+  }
+}

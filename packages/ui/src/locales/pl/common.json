@@ -1,0 +1,82 @@
+{
+  "button": {
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "saving": "Zapisywanie...",
+    "saved": "Zapisano",
+    "delete": "Usuń",
+    "deleting": "Usuwanie...",
+    "edit": "Edytuj",
+    "add": "Dodaj",
+    "confirm": "Potwierdź",
+    "retry": "Ponów",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "close": "Zamknij",
+    "create": "Utwórz",
+    "creating": "Tworzenie...",
+    "refresh": "Odśwież",
+    "send": "Wyślij",
+    "stop": "Zatrzymaj",
+    "dismiss": "Ukryj",
+    "done": "Gotowe",
+    "copy": "Kopiuj"
+  },
+  "status": {
+    "loading": "Ładowanie...",
+    "error": "Błąd",
+    "success": "Sukces"
+  },
+  "time": {
+    "justNow": "przed chwilą",
+    "minsAgo_one": "{{count}} min temu",
+    "minsAgo_few": "{{count}} min temu",
+    "minsAgo_many": "{{count}} min temu",
+    "minsAgo_other": "{{count}} min temu",
+    "hoursAgo_one": "{{count}} godz temu",
+    "hoursAgo_few": "{{count}} godz temu",
+    "hoursAgo_many": "{{count}} godz temu",
+    "hoursAgo_other": "{{count}} godz temu",
+    "daysAgo_one": "{{count}} d temu",
+    "daysAgo_few": "{{count}} d temu",
+    "daysAgo_many": "{{count}} d temu",
+    "daysAgo_other": "{{count}} d temu",
+    "now": "teraz",
+    "inMins_one": "za {{count}} min",
+    "inMins_few": "za {{count}} min",
+    "inMins_many": "za {{count}} min",
+    "inMins_other": "za {{count}} min",
+    "inHours_one": "za {{count}} godz",
+    "inHours_few": "za {{count}} godz",
+    "inHours_many": "za {{count}} godz",
+    "inHours_other": "za {{count}} godz",
+    "inDays_one": "za {{count}} d",
+    "inDays_few": "za {{count}} d",
+    "inDays_many": "za {{count}} d",
+    "inDays_other": "za {{count}} d",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Usuwanie",
+    "deleteMessage": "Tej operacji nie można cofnąć.",
+    "areYouSure": "Na pewno?"
+  },
+  "empty": {
+    "noData": "Brak danych"
+  },
+  "list": {
+    "noneConfigured": "Nic nie skonfigurowano"
+  },
+  "label": {
+    "name": "Nazwa",
+    "description": "Opis",
+    "type": "Typ",
+    "enabled": "Włączone",
+    "disabled": "Wyłączone"
+  },
+  "dropZone": {
+    "releaseToDrop": "Puść, aby przesłać",
+    "dragAndDrop": "Przeciągnij i upuść pliki tutaj lub kliknij, aby przesłać",
+    "accepts": "Akceptowane: {{extensions}}"
+  }
+}

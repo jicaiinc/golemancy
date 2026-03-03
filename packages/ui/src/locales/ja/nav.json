@@ -1,0 +1,46 @@
+{
+  "item": {
+    "dashboard": "ダッシュボード",
+    "chats": "チャット",
+    "automations": "自動化",
+    "agents": "Agent",
+    "skills": "スキル",
+    "mcpServers": "MCP サーバー",
+    "tasks": "会話タスク",
+    "artifacts": "アーティファクト",
+    "settings": "設定",
+    "knowledgeBase": "ナレッジベース"
+  },
+  "sidebar": {
+    "navigation": "ナビゲーション",
+    "config": "設定",
+    "collapse": "<< 折りたたむ"
+  },
+  "global": {
+    "allProjects": "すべてのプロジェクト",
+    "dashboard": "ダッシュボード",
+    "settings": "設定"
+  },
+  "statusBar": {
+    "mode": {
+      "restricted": "制限付き",
+      "sandbox": "サンドボックス",
+      "unrestricted": "無制限"
+    },
+    "degraded": "(劣化 → {{mode}})",
+    "tasks": "タスク {{completed}}/{{total}}",
+    "conversationTasks": "会話タスク",
+    "contextUsage": "コンテキスト：{{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "コンテキスト：-- / {{max}}",
+    "contextWindow": "コンテキストウィンドウ",
+    "usage": "使用量",
+    "compacting": "圧縮中",
+    "compactingAuto": "自動圧縮中",
+    "compactNow": "今すぐ圧縮",
+    "byAgent": "AGENT 別",
+    "byModel": "モデル別",
+    "tokensInOut": "{{input}} 入力 / {{output}} 出力",
+    "tokens": "Token：{{input}} 入力 / {{output}} 出力",
+    "tokensEmpty": "Token：--"
+  }
+}

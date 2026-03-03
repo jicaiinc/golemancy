@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Configuración Global"
+  },
+  "tabs": {
+    "general": "General",
+    "providers": "Proveedores",
+    "speech": "Voz",
+    "about": "Acerca de"
+  },
+  "about": {
+    "slogan": "Comanda tus AI Golems",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "ACTUALIZACIONES",
+    "checkForUpdates": "Notificaciones de actualización",
+    "upToDate": "Estás al día — v{{version}}",
+    "available": "ACTUALIZACIÓN DISPONIBLE",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Descargar para {{platform}}",
+    "downloadGeneric": "Descargar",
+    "skip": "Omitir esta versión",
+    "skipped": "v{{version}} disponible (omitida)"
+  },
+  "general": {
+    "appearance": "APARIENCIA",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "language": "IDIOMA"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODELO PREDETERMINADO",
+    "description": "Se usa al crear nuevos proyectos y agentes.",
+    "providerLabel": "PROVEEDOR",
+    "modelLabel": "MODELO",
+    "noProvider": "-- Ninguno --",
+    "selectProviderFirst": "-- Seleccione proveedor primero --",
+    "noModels": "No hay modelos disponibles",
+    "saved": "¡Guardado!"
+  },
+  "providers": {
+    "sectionTitle": "PROVEEDORES",
+    "addProvider": "+ Agregar Proveedor",
+    "selectProvider": "SELECCIONAR PROVEEDOR",
+    "customProvider": "PROVEEDOR PERSONALIZADO",
+    "custom": "Personalizado",
+    "anyEndpoint": "cualquier endpoint",
+    "nameLabel": "NOMBRE",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TIPO DE SDK",
+    "empty": "No hay proveedores configurados. Haga clic en \"+ Agregar Proveedor\" para comenzar."
+  },
+  "provider": {
+    "testing": "Probando...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Falló",
+    "untested": "Sin probar",
+    "noKey": "Sin Key",
+    "retest": "Re-probar",
+    "test": "Probar",
+    "del": "Elim",
+    "deleteConfirm": "¿Eliminar {{name}}? Esta acción no se puede deshacer.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "no configurada",
+    "hide": "Ocultar",
+    "show": "Mostrar",
+    "urlLabel": "URL:",
+    "modelsCount": "Modelos ({{count}})",
+    "addModel": "+ Agregar Modelo",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opcional)",
+    "hideKey": "Ocultar Key",
+    "showKey": "Mostrar Key"
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "header": {
+    "setup": "設定",
+    "skipSetup": "跳過設定"
+  },
+  "steps": {
+    "welcome": "歡迎",
+    "provider": "供應商",
+    "speech": "語音",
+    "project": "專案",
+    "complete": "完成"
+  },
+  "error": {
+    "somethingWentWrong": "發生錯誤，請重試。",
+    "failedToSkip": "跳過設定失敗，請重試。",
+    "connectionTestFailed": "連線測試失敗",
+    "testFailed": "測試失敗",
+    "unknownError": "未知錯誤"
+  },
+  "button": {
+    "createProject": "建立專案",
+    "getStarted": "開始使用",
+    "continue": "繼續",
+    "startChatting": "開始聊天",
+    "goToDashboard": "前往儀表板",
+    "change": "變更",
+    "testConnection": "測試連線",
+    "testing": "測試中...",
+    "reTest": "重新測試",
+    "test": "測試",
+    "hide": "隱藏",
+    "show": "顯示"
+  },
+  "welcome": {
+    "tagline": "歡迎",
+    "heading": "指揮你的 AI Golem",
+    "description": "從桌面端編排自主 AI Agent。"
+  },
+  "provider": {
+    "heading": "連接 AI 供應商",
+    "description": "選擇一個供應商並輸入 API 金鑰以開始使用。",
+    "customLabel": "自訂",
+    "customSubtitle": "任意端點",
+    "customCardTitle": "自訂供應商",
+    "labelApiKey": "API 金鑰",
+    "labelBaseUrl": "基礎 URL",
+    "labelName": "名稱",
+    "labelSdkType": "SDK 類型",
+    "statusConnected": "已連線",
+    "statusFailed": "失敗",
+    "statusConnecting": "連線中...",
+    "none": "無",
+    "defaultModel": {
+      "title": "預設模型",
+      "descriptionPreset": "選擇新 Agent 預設使用的模型。",
+      "descriptionCustom": "輸入預設使用的模型名稱。",
+      "labelModelName": "模型名稱"
+    }
+  },
+  "speech": {
+    "heading": "語音轉文字",
+    "description": "啟用語音輸入以加快互動速度。你可以跳過此步驟，稍後再設定。",
+    "labelApiKey": "OPENAI API 金鑰",
+    "labelModel": "模型",
+    "labelLanguage": "語言",
+    "statusOk": "正常",
+    "statusOkLatency": "正常 ({{ms}}ms)",
+    "statusFailed": "失敗"
+  },
+  "project": {
+    "heading": "建立第一個專案",
+    "description": "專案用於組織你的 Agent、對話和工作流程。",
+    "labelName": "專案名稱",
+    "placeholderName": "我的超棒專案",
+    "labelDescription": "說明",
+    "placeholderDescription": "這個專案是做什麼的？",
+    "labelIcon": "圖示",
+    "fromTemplate": "從範本建立",
+    "comingSoon": "即將推出"
+  },
+  "complete": {
+    "heading": "設定完成！",
+    "description": "以下是你的設定摘要。",
+    "labelProvider": "供應商",
+    "labelDefaultModel": "預設模型",
+    "labelSpeechToText": "語音轉文字",
+    "labelProject": "專案",
+    "sttEnabled": "已啟用",
+    "sttSkipped": "已跳過",
+    "links": {
+      "settings": "設定",
+      "website": "官網"
+    }
+  }
+}
