@@ -168,6 +168,7 @@ describe('loadAgentTools', () => {
     const mockBuiltinCleanup = vi.fn().mockResolvedValue(undefined)
     vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
       tools: { execute: {} as never },
+      actualMode: 'restricted',
       cleanup: mockBuiltinCleanup,
     })
 
@@ -227,6 +228,7 @@ describe('loadAgentTools', () => {
     })
     vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
       tools: { execute: {} as never },
+      actualMode: 'restricted',
       cleanup: vi.fn(),
     })
 
@@ -254,7 +256,9 @@ describe('loadAgentTools', () => {
     expect(result.tools).toHaveProperty('mcp_tool')
     expect(result.tools).toHaveProperty('execute')
     expect(result.tools).toHaveProperty('delegate_to_agent-child')
-    expect(result.instructions).toBe('skill instructions')
+    // Instructions include skill instructions + bash environment instructions
+    expect(result.instructions).toContain('skill instructions')
+    expect(result.instructions).toContain('## Bash Environment')
 
     // Skills and bash are fully decoupled — no skill data passed to builtin
     expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {
@@ -274,6 +278,7 @@ describe('loadAgentTools', () => {
     })
     vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
       tools: { bash: {} as never },
+      actualMode: 'restricted',
       cleanup: cleanup2,
     })
 

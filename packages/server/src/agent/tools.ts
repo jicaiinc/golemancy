@@ -8,8 +8,10 @@ import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools, type ModeDegradation } from './builtin-tools'
 import { createSubAgentToolSet } from './sub-agent'
-import { createTaskTools } from './builtin-tools/task-tools'
-import { createMemoryTools, buildMemoryInstructions } from './builtin-tools/memory-tools'
+import { createTaskTools, buildTaskInstructions } from './builtin-tools/task-tools'
+import { createMemoryTools, buildMemoryBaseInstructions, buildMemoryContextInstructions } from './builtin-tools/memory-tools'
+import { buildBashInstructions } from './builtin-tools/bash-tools'
+import { buildBrowserInstructions } from './builtin-tools/browser-tools'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
@@ -122,6 +124,18 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
           `Permission mode degraded: ${builtinResult.degradation.requestedMode} → ${builtinResult.degradation.actualMode} (${builtinResult.degradation.reason})`,
         )
       }
+
+      // Bash instructions — inform agent about sandbox mode and filesystem layout
+      if (agent.builtinTools?.bash !== false) {
+        const bashInstr = buildBashInstructions(builtinResult.actualMode, !!projectId)
+        instructions = instructions ? instructions + '\n\n' + bashInstr : bashInstr
+      }
+
+      // Browser instructions — brief guidance on browser capabilities
+      if (agent.builtinTools?.browser) {
+        const browserInstr = buildBrowserInstructions()
+        instructions = instructions ? instructions + '\n\n' + browserInstr : browserInstr
+      }
     }
   }
 
@@ -142,6 +156,11 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
       taskStorage,
     })
     Object.assign(tools, taskTools)
+
+    // Task instructions — usage guidelines for task management
+    const taskInstr = buildTaskInstructions()
+    instructions = instructions ? instructions + '\n\n' + taskInstr : taskInstr
+
     log.debug('loaded task built-in tools')
   }
 
@@ -160,7 +179,11 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     })
     Object.assign(tools, memoryTools)
 
-    // Auto-load memories into instructions
+    // Base memory guidelines — always injected so agent knows it can save memories
+    const memoryBaseInstr = buildMemoryBaseInstructions()
+    instructions = instructions ? instructions + '\n\n' + memoryBaseInstr : memoryBaseInstr
+
+    // Memory context (status + loaded memories) — only when memories exist
     try {
       const { pinned, autoLoaded, totalCount } = await memoryStorage.loadForContext(
         projectId as ProjectId,
@@ -168,13 +191,13 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         maxAutoLoad,
       )
       if (totalCount > 0 || pinned.length > 0) {
-        const memoryInstructions = buildMemoryInstructions({
+        const memoryContextInstr = buildMemoryContextInstructions({
           pinned: pinned.map(m => ({ id: m.id, content: m.content, priority: m.priority, tags: m.tags })),
           autoLoaded: autoLoaded.map(m => ({ id: m.id, content: m.content, priority: m.priority, tags: m.tags })),
           totalCount,
           maxAutoLoad,
         })
-        instructions = instructions ? instructions + '\n\n' + memoryInstructions : memoryInstructions
+        instructions = instructions + '\n\n' + memoryContextInstr
       }
     } catch (err) {
       log.warn({ err, agentId: agent.id }, 'failed to load agent memories')

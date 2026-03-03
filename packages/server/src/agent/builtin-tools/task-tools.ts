@@ -12,6 +12,38 @@ export interface TaskToolsContext {
   taskStorage: SqliteConversationTaskStorage
 }
 
+/**
+ * Build the task instructions block for injection into the agent's system prompt.
+ */
+export function buildTaskInstructions(): string {
+  const lines: string[] = []
+  lines.push('## Task Management')
+  lines.push('')
+  lines.push('You have 4 task tools: TaskCreate, TaskGet, TaskList, TaskUpdate.')
+  lines.push('Tasks are scoped to the current conversation — they are not visible in other conversations.')
+  lines.push('')
+  lines.push('### When to use tasks')
+  lines.push('- Use tasks for multi-step work that benefits from progress tracking')
+  lines.push('- Skip tasks for simple, single-step requests — just do the work directly')
+  lines.push('')
+  lines.push('### Status workflow')
+  lines.push('`pending` → `in_progress` → `completed`. Set status to `deleted` to discard a task.')
+  lines.push('- Mark a task `in_progress` before you start working on it')
+  lines.push('- Mark it `completed` only after you have fully finished the work')
+  lines.push('- After completing a task, call TaskList to find the next available task')
+  lines.push('')
+  lines.push('### Dependencies')
+  lines.push('- Use `addBlockedBy` to declare that a task cannot start until its dependencies are done')
+  lines.push('- Use `addBlocks` to declare that other tasks depend on this one')
+  lines.push('- TaskList automatically filters out completed/deleted tasks from `blockedBy`')
+  lines.push('')
+  lines.push('### Tips')
+  lines.push('- `activeForm` is shown in the UI spinner while a task is in progress (e.g., "Running tests")')
+  lines.push('- Keep `subject` concise and in imperative form (e.g., "Fix login bug")')
+  lines.push('- Use `description` for detailed requirements and acceptance criteria')
+  return lines.join('\n')
+}
+
 export function createTaskTools(ctx: TaskToolsContext): ToolSet {
   const { projectId, conversationId, taskStorage } = ctx
 

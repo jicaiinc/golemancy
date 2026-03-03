@@ -2,6 +2,7 @@ import nodeFs from 'node:fs/promises'
 import { createBashTool } from 'bash-tool'
 import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash'
 import type {
+  PermissionMode,
   PermissionsConfigId,
   ProjectId,
   ResolvedPermissionsConfig,
@@ -179,6 +180,56 @@ async function ensureWorkspaceDir(projectId: string): Promise<string> {
   }
 
   return workspaceDir
+}
+
+// ── Instructions ─────────────────────────────────────────
+
+/**
+ * Build the bash instructions block for injection into the agent's system prompt.
+ * Content varies based on the actual permission mode and project context.
+ */
+export function buildBashInstructions(mode: PermissionMode, hasProject: boolean): string {
+  const lines: string[] = []
+  lines.push('## Bash Environment')
+  lines.push('')
+
+  switch (mode) {
+    case 'restricted':
+      if (hasProject) {
+        lines.push('You are running in **restricted** mode with a virtual filesystem:')
+        lines.push('- `/workspace` — your working directory (read-write, persistent)')
+        lines.push('- `/project` — project configuration and skills (read-only)')
+        lines.push('')
+        lines.push('All file operations and command execution happen within this sandbox.')
+        lines.push('Write files and install packages in `/workspace`.')
+        lines.push('Python is available in the sandbox. Use `pip install` to add packages as needed.')
+      } else {
+        lines.push('You are running in **restricted** mode with a virtual sandbox.')
+        lines.push('File operations are confined to the sandbox environment.')
+        lines.push('Python is available in the sandbox. Use `pip install` to add packages as needed.')
+      }
+      break
+
+    case 'sandbox':
+      lines.push('You are running in **sandbox** mode with OS-level isolation.')
+      if (hasProject) {
+        lines.push('Your working directory is the project workspace.')
+        lines.push('Filesystem and network access are governed by the project\'s permissions config.')
+      }
+      lines.push('Python may be available if installed on the host system.')
+      break
+
+    case 'unrestricted':
+      lines.push('You are running in **unrestricted** mode with full system access.')
+      if (hasProject) {
+        lines.push('Your working directory is the project workspace.')
+      }
+      lines.push('Exercise caution — avoid destructive operations on system files or directories outside the workspace.')
+      lines.push('Python may be available if installed on the host system.')
+      break
+  }
+
+  return lines.join('\n')
 }
 
 // ── Public API ─────────────────────────────────────────────

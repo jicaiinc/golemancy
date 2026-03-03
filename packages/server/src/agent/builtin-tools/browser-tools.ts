@@ -15,6 +15,23 @@ export interface BrowserToolsResult {
   cleanup: () => Promise<void>
 }
 
+/**
+ * Build the browser instructions block for injection into the agent's system prompt.
+ *
+ * TODO: Add guidance that reading full page content is an expensive operation
+ * (large token cost). Agent should prefer targeted selectors or screenshots
+ * over full page reads when possible.
+ */
+export function buildBrowserInstructions(): string {
+  return [
+    '## Browser',
+    '',
+    'You can control a browser to interact with web pages.',
+    'Available actions: navigate to URLs, click elements, type text, take screenshots, and read page content.',
+    'Use screenshots to verify visual state when needed.',
+  ].join('\n')
+}
+
 export function loadBrowserTools(config: boolean | Record<string, unknown>): BrowserToolsResult | null {
   try {
     const browserConfig: BrowserToolsConfig =

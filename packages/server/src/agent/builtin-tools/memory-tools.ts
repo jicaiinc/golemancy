@@ -128,45 +128,21 @@ export function createMemoryTools(ctx: MemoryToolsContext): ToolSet {
 }
 
 /**
- * Build the memory instructions block for injection into the agent's system prompt.
+ * Build base memory guidelines — always injected when memory tools are enabled,
+ * even when the agent has no memories yet. This ensures the agent knows it can
+ * save memories from the very first conversation.
  */
-export function buildMemoryInstructions(data: {
-  pinned: Array<{ id: string; content: string; priority: number; tags: string[] }>
-  autoLoaded: Array<{ id: string; content: string; priority: number; tags: string[] }>
-  totalCount: number
-  maxAutoLoad: number
-}): string {
-  const { pinned, autoLoaded, totalCount, maxAutoLoad } = data
-  const notLoaded = totalCount - pinned.length - autoLoaded.length
-
+export function buildMemoryBaseInstructions(): string {
   const lines: string[] = []
   lines.push('## Your Memory Bank')
   lines.push('')
-  lines.push('### Status')
-  lines.push(`- Total memories: ${totalCount}`)
-  lines.push(`- Pinned: ${pinned.length} (always loaded, bypass auto-load limit)`)
-  lines.push(`- Auto-load limit: ${maxAutoLoad}`)
-  lines.push(`- Auto-loaded: ${autoLoaded.length}/${maxAutoLoad} (sorted by priority DESC, then recency)`)
-  lines.push(`- Not in context: ${notLoaded} (all memories are always available via MemorySearch)`)
-
-  if (pinned.length > 0) {
-    lines.push('')
-    lines.push('### Pinned Memories (always loaded)')
-    for (const m of pinned) {
-      const tagStr = m.tags.length > 0 ? ` ${m.tags.map(t => `#${t}`).join(' ')}` : ''
-      lines.push(`[${m.id}] (pinned, priority:${m.priority})${tagStr}: ${m.content}`)
-    }
-  }
-
-  if (autoLoaded.length > 0) {
-    lines.push('')
-    lines.push(`### Auto-loaded Memories (top ${autoLoaded.length} by priority + recency)`)
-    for (const m of autoLoaded) {
-      const tagStr = m.tags.length > 0 ? ` ${m.tags.map(t => `#${t}`).join(' ')}` : ''
-      lines.push(`[${m.id}] (priority:${m.priority})${tagStr}: ${m.content}`)
-    }
-  }
-
+  lines.push('You have 4 tools: MemorySave, MemorySearch, MemoryUpdate, MemoryDelete.')
+  lines.push('Priority scale: 0 (Archive) → 3 (Normal, default) → 5 (Critical).')
+  lines.push('Higher priority memories are auto-loaded into your context window at the start of each conversation.')
+  lines.push('All memories are always available via MemorySearch regardless of priority — priority only affects which ones appear in context automatically.')
+  lines.push('Use tags to categorize memories for easier retrieval.')
+  lines.push('When a memory becomes outdated, update it rather than creating a new one.')
+  lines.push('Pinned memories are controlled by the user — do not ask to unpin them.')
   lines.push('')
   lines.push('### Memory Guidelines')
   lines.push('')
@@ -187,15 +163,47 @@ export function buildMemoryInstructions(data: {
   lines.push('**When the user asks you to "remember" or "forget":**')
   lines.push('- "Remember" → Use MemorySave immediately, no need to verify importance')
   lines.push('- "Forget" → Find the relevant memory with MemorySearch, then MemoryDelete')
-  lines.push('')
-  lines.push('### Memory Tools')
-  lines.push('You have 4 tools: MemorySave, MemorySearch, MemoryUpdate, MemoryDelete.')
-  lines.push('Priority scale: 0 (Archive) → 3 (Normal, default) → 5 (Critical).')
-  lines.push('Higher priority memories are auto-loaded into your context window at the start of each conversation.')
-  lines.push('All memories are always available via MemorySearch regardless of priority — priority only affects which ones appear in context automatically.')
-  lines.push('Use tags to categorize memories for easier retrieval.')
-  lines.push('When a memory becomes outdated, update it rather than creating a new one.')
-  lines.push('Pinned memories are controlled by the user — do not ask to unpin them.')
+  return lines.join('\n')
+}
+
+/**
+ * Build the memory context block — status and loaded memories.
+ * Only injected when the agent has existing memories.
+ */
+export function buildMemoryContextInstructions(data: {
+  pinned: Array<{ id: string; content: string; priority: number; tags: string[] }>
+  autoLoaded: Array<{ id: string; content: string; priority: number; tags: string[] }>
+  totalCount: number
+  maxAutoLoad: number
+}): string {
+  const { pinned, autoLoaded, totalCount, maxAutoLoad } = data
+  const notLoaded = totalCount - pinned.length - autoLoaded.length
+
+  const lines: string[] = []
+  lines.push('### Memory Status')
+  lines.push(`- Total memories: ${totalCount}`)
+  lines.push(`- Pinned: ${pinned.length} (always loaded, bypass auto-load limit)`)
+  lines.push(`- Auto-load limit: ${maxAutoLoad}`)
+  lines.push(`- Auto-loaded: ${autoLoaded.length}/${maxAutoLoad} (sorted by priority DESC, then recency)`)
+  lines.push(`- Not in context: ${notLoaded} (use MemorySearch to access)`)
+
+  if (pinned.length > 0) {
+    lines.push('')
+    lines.push('### Pinned Memories (always loaded)')
+    for (const m of pinned) {
+      const tagStr = m.tags.length > 0 ? ` ${m.tags.map(t => `#${t}`).join(' ')}` : ''
+      lines.push(`[${m.id}] (pinned, priority:${m.priority})${tagStr}: ${m.content}`)
+    }
+  }
+
+  if (autoLoaded.length > 0) {
+    lines.push('')
+    lines.push(`### Auto-loaded Memories (top ${autoLoaded.length} by priority + recency)`)
+    for (const m of autoLoaded) {
+      const tagStr = m.tags.length > 0 ? ` ${m.tags.map(t => `#${t}`).join(' ')}` : ''
+      lines.push(`[${m.id}] (priority:${m.priority})${tagStr}: ${m.content}`)
+    }
+  }
 
   return lines.join('\n')
 }
