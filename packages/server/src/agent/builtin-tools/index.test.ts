@@ -16,7 +16,7 @@ vi.mock('@golemancy/tools/browser', () => ({
   createBrowserTools: vi.fn(),
 }))
 
-vi.mock('../utils/paths', () => ({
+vi.mock('../../utils/paths', () => ({
   getProjectPath: vi.fn((id: string) => `/mock-data/projects/${id}`),
 }))
 
@@ -24,18 +24,18 @@ vi.mock('node:fs/promises', () => ({
   default: { mkdir: vi.fn().mockResolvedValue(undefined) },
 }))
 
-vi.mock('./sandbox-pool', () => ({
+vi.mock('../sandbox-pool', () => ({
   sandboxPool: {
     getHandle: vi.fn().mockRejectedValue(new Error('sandbox runtime not available')),
   },
 }))
 
-vi.mock('./resolve-permissions', () => ({
+vi.mock('../resolve-permissions', () => ({
   resolvePermissionsConfig: vi.fn().mockResolvedValue(null),
 }))
 
-import { loadBuiltinTools, BUILTIN_TOOL_REGISTRY } from './builtin-tools'
-import { resolvePermissionsConfig } from './resolve-permissions'
+import { loadBuiltinTools, BUILTIN_TOOL_REGISTRY } from '.'
+import { resolvePermissionsConfig } from '../resolve-permissions'
 import { createBashTool } from 'bash-tool'
 import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash'
 import nodeFs from 'node:fs/promises'
@@ -58,11 +58,11 @@ describe('BUILTIN_TOOL_REGISTRY', () => {
     expect(browser!.defaultEnabled).toBe(false)
   })
 
-  it('has os_control as not available', () => {
-    const osCtrl = BUILTIN_TOOL_REGISTRY.find(t => t.id === 'os_control')
-    expect(osCtrl).toBeDefined()
-    expect(osCtrl!.available).toBe(false)
-    expect(osCtrl!.defaultEnabled).toBe(false)
+  it('has computer_use as not available', () => {
+    const computerUse = BUILTIN_TOOL_REGISTRY.find(t => t.id === 'computer_use')
+    expect(computerUse).toBeDefined()
+    expect(computerUse!.available).toBe(false)
+    expect(computerUse!.defaultEnabled).toBe(false)
   })
 })
 

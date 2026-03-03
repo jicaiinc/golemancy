@@ -374,7 +374,7 @@ function ToolsTab({ agent, onUpdate }: {
   const builtinToolDefs = [
     { id: 'bash', name: 'Bash', description: t('tools.bashDesc'), defaultEnabled: true, available: true },
     { id: 'browser', name: 'Browser', description: t('tools.browserDesc'), defaultEnabled: false, available: true },
-    { id: 'os_control', name: 'OS Control', description: t('tools.osControlDesc'), defaultEnabled: false, available: false },
+    { id: 'computer_use', name: 'Computer Use', description: t('tools.osControlDesc'), defaultEnabled: false, available: false },
     { id: 'task', name: 'Task', description: t('tools.taskDesc'), defaultEnabled: true, available: true },
     { id: 'memory', name: 'Memory', description: t('tools.memoryDesc'), defaultEnabled: true, available: true },
   ]

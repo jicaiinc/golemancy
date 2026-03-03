@@ -2,8 +2,8 @@ import { tool, type ToolSet } from 'ai'
 import { z } from 'zod'
 import type { ProjectId, AgentId, MemoryId } from '@golemancy/shared'
 import { DEFAULT_MEMORY_PRIORITY } from '@golemancy/shared'
-import type { SqliteMemoryStorage } from '../storage/memories'
-import { logger } from '../logger'
+import type { SqliteMemoryStorage } from '../../storage/memories'
+import { logger } from '../../logger'
 
 const log = logger.child({ component: 'agent:memory-tools' })
 

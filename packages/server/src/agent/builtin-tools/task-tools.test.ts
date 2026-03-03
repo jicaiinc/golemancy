@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { createTestDb } from '../test/helpers'
-import type { AppDatabase } from '../db/client'
+import { createTestDb } from '../../test/helpers'
+import type { AppDatabase } from '../../db/client'
 import type { ProjectId, ConversationId } from '@golemancy/shared'
-import * as schema from '../db/schema'
-import { SqliteConversationTaskStorage } from '../storage/tasks'
+import * as schema from '../../db/schema'
+import { SqliteConversationTaskStorage } from '../../storage/tasks'
 import { createTaskTools } from './task-tools'
 
 describe('createTaskTools', () => {

@@ -19,7 +19,7 @@ vi.mock('node:child_process', async (importOriginal) => {
 })
 
 // Silent logger
-vi.mock('../logger', () => ({
+vi.mock('../../logger', () => ({
   logger: {
     child: () => ({
       warn: vi.fn(),
@@ -37,16 +37,16 @@ import { spawn } from 'node:child_process'
 import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash'
 
 // unrestricted mode — real NativeSandbox
-import { NativeSandbox } from './native-sandbox'
+import { NativeSandbox } from '../native-sandbox'
 
 // sandbox mode — real AnthropicSandbox with mock handle
-import { AnthropicSandbox } from './anthropic-sandbox'
-import type { SandboxManagerHandle } from './anthropic-sandbox'
+import { AnthropicSandbox } from '../anthropic-sandbox'
+import type { SandboxManagerHandle } from '../anthropic-sandbox'
 import type { SandboxConfig } from '@golemancy/shared'
 
 // error types for assertions
-import { PathAccessError } from './validate-path'
-import { CommandBlockedError } from './check-command-blacklist'
+import { PathAccessError } from '../validate-path'
+import { CommandBlockedError } from '../check-command-blacklist'
 
 // ── Tests ────────────────────────────────────────────────────
 
@@ -226,11 +226,9 @@ describe('builtin-tools integration', () => {
 
     describe('project mount isolation', () => {
       it('modifications to /project are overlay-only — original files unchanged', async () => {
-        // Overwrite the README through the overlay
         await bash.writeFile('/project/README.md', 'OVERWRITTEN')
         const overlayContent = await bash.readFile('/project/README.md')
         expect(overlayContent).toBe('OVERWRITTEN')
-        // Real disk is untouched
         const onDisk = await nodeFs.readFile(path.join(projectDir, 'README.md'), 'utf-8')
         expect(onDisk).toBe('# Test Project')
       })
@@ -262,8 +260,6 @@ describe('builtin-tools integration', () => {
     afterEach(async () => {
       await nodeFs.rm(workspaceDir, { recursive: true, force: true })
     })
-
-    // ── writeFiles ───────────────────────────────────────────
 
     describe('writeFiles', () => {
       it('writes a single file to workspace', async () => {
@@ -309,8 +305,6 @@ describe('builtin-tools integration', () => {
       })
     })
 
-    // ── readFile ─────────────────────────────────────────────
-
     describe('readFile', () => {
       it('reads file written via writeFiles', async () => {
         await sandbox.writeFiles([{ path: 'test.txt', content: 'read me' }])
@@ -333,8 +327,6 @@ describe('builtin-tools integration', () => {
       })
     })
 
-    // ── executeCommand ───────────────────────────────────────
-
     describe('executeCommand', () => {
       it('executes echo and captures stdout', async () => {
         const result = await sandbox.executeCommand('echo "hello"')
@@ -344,7 +336,6 @@ describe('builtin-tools integration', () => {
 
       it('reports workspaceDir as cwd', async () => {
         const result = await sandbox.executeCommand('pwd')
-        // On macOS, /var → /private/var symlink — resolve both for comparison
         const resolvedWorkspace = await nodeFs.realpath(workspaceDir)
         expect(result.stdout.trim()).toBe(resolvedWorkspace)
       })
@@ -419,7 +410,6 @@ describe('builtin-tools integration', () => {
       })
     }
 
-    /** Create a fake spawn that emits success */
     function fakeSpawn() {
       const EventEmitter = require('node:events')
       const child = new EventEmitter()
@@ -436,10 +426,7 @@ describe('builtin-tools integration', () => {
     }
 
     beforeEach(() => {
-      // Override spawn with fake for sandbox mode (cwd /workspace doesn't exist on real system)
       vi.mocked(spawn).mockImplementation(fakeSpawn as any)
-
-      // Mock fs.realpath for validatePathAsync symlink resolution
       vi.spyOn(nodeFs, 'realpath').mockImplementation(async (p: string) => p as any)
 
       mockHandle = makeHandle()
@@ -451,13 +438,9 @@ describe('builtin-tools integration', () => {
     })
 
     afterEach(() => {
-      // Restore realpath spy to real implementation
       vi.mocked(nodeFs.realpath as any).mockRestore()
-      // Restore spawn to real passthrough for other modes
       vi.mocked(spawn).mockImplementation(_realSpawn.fn)
     })
-
-    // ── writeFiles — Path Validation ─────────────────────────
 
     describe('writeFiles', () => {
       it('succeeds for ./src/new.ts (inside /workspace)', async () => {
@@ -539,7 +522,6 @@ describe('builtin-tools integration', () => {
           { path: './a.txt', content: 'aaa' },
           { path: './b.txt', content: 'bbb' },
         ])
-        // Each file triggers a separate wrapWithSandbox call
         expect(mockHandle.wrapWithSandbox).toHaveBeenCalledTimes(2)
       })
 
@@ -557,8 +539,6 @@ describe('builtin-tools integration', () => {
         expect(mockHandle.wrapWithSandbox).toHaveBeenCalled()
       })
     })
-
-    // ── readFile — Path Validation ───────────────────────────
 
     describe('readFile', () => {
       it('succeeds for ./src/index.ts (inside workspace)', async () => {
@@ -593,8 +573,6 @@ describe('builtin-tools integration', () => {
         await expect(sandbox.readFile('~/.gnupg/pubring.kbx')).rejects.toThrow(PathAccessError)
       })
     })
-
-    // ── executeCommand — Command Blacklist ───────────────────
 
     describe('executeCommand', () => {
       it('allows safe command: ls -la', async () => {
@@ -702,19 +680,15 @@ describe('builtin-tools integration', () => {
       })
     })
 
-    // ── Timeout & Output Truncation ─────────────────────────
-
     describe('timeout and output truncation', () => {
       it('uses custom timeoutMs from constructor', async () => {
         const shortTimeout = makeAnthropicSandbox({}, undefined)
-        // Just verify the constructor accepts custom options
         const s = new AnthropicSandbox({
           config: DEFAULT_CONFIG,
           workspaceRoot: WORKSPACE,
           sandboxManager: mockHandle,
           timeoutMs: 5_000,
         })
-        // The timeout is internal — test it by running a fast command (no timeout)
         await s.executeCommand('echo fast')
         expect(mockHandle.wrapWithSandbox).toHaveBeenCalledWith('echo fast')
       })
@@ -726,7 +700,6 @@ describe('builtin-tools integration', () => {
           sandboxManager: mockHandle,
           runtimeEnv: { CUSTOM_VAR: 'test-value' },
         })
-        // Verify no error — runtimeEnv is passed internally to spawn env
         await s.executeCommand('echo test')
         expect(mockHandle.wrapWithSandbox).toHaveBeenCalled()
       })

@@ -1,8 +1,8 @@
 import { tool, type ToolSet } from 'ai'
 import { z } from 'zod'
 import type { ProjectId, ConversationId, TaskId } from '@golemancy/shared'
-import type { SqliteConversationTaskStorage } from '../storage/tasks'
-import { logger } from '../logger'
+import type { SqliteConversationTaskStorage } from '../../storage/tasks'
+import { logger } from '../../logger'
 
 const log = logger.child({ component: 'agent:task-tools' })
 
