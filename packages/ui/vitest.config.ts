@@ -16,6 +16,17 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}'],
     exclude: ['node_modules', 'dist'],
     css: false,
+
+    // Memory isolation: each worker is a separate process, memory is released
+    // when the process exits. Prevents jsdom + i18n setup from accumulating.
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        maxForks: 4,   // 34 test files, 10 cores, 16 GB RAM — 4 concurrent jsdom workers is safe
+        minForks: 1,
+      },
+    },
+
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
