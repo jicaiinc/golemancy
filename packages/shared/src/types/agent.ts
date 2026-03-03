@@ -39,6 +39,7 @@ export interface SubAgentStreamState {
   toolCalls: SubAgentToolCallState[]
   status: 'running' | 'done'
   usage?: { inputTokens: number; outputTokens: number; totalTokens: number }
+  sessionId?: string
 }
 
 export interface Agent extends Timestamped {

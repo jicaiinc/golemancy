@@ -1,5 +1,5 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
+import type { Agent, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IConversationService, IPermissionsConfigService } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { KnowledgeBaseStorage } from '../storage/knowledge-base'
@@ -25,6 +25,7 @@ export interface LoadAgentToolsParams {
   permissionsConfigId?: PermissionsConfigId
   permissionsConfigStorage: IPermissionsConfigService
   conversationId?: string
+  conversationStorage?: IConversationService
   taskStorage?: SqliteConversationTaskStorage
   tokenRecordStorage?: TokenRecordStorage
   kbStorage?: KnowledgeBaseStorage
@@ -52,7 +53,7 @@ export interface AgentToolsResult {
  * recursive nesting controlled purely by agent configuration.
  */
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
-  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId, taskStorage, tokenRecordStorage, kbStorage, onTokenUsage } = params
+  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId,conversationStorage, taskStorage, tokenRecordStorage, kbStorage, onTokenUsage } = params
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
@@ -127,7 +128,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   if (agent.subAgents?.length > 0) {
     const subAgentResult = createSubAgentToolSet(
       agent, allAgents, settings, projectId, loadAgentTools, mcpStorage, permissionsConfigStorage,
-      conversationId, taskStorage, tokenRecordStorage, kbStorage, onTokenUsage,
+      conversationId,conversationStorage, taskStorage, tokenRecordStorage, kbStorage, onTokenUsage,
     )
     Object.assign(tools, subAgentResult.tools)
   }
