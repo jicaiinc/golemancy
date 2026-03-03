@@ -191,6 +191,21 @@ export function migrateDatabase(db: AppDatabase) {
     db.run(sql`ALTER TABLE cron_job_runs DROP COLUMN project_id`)
   }
 
+  // --- Migration v8: agent_memories table ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS agent_memories (
+      id         TEXT PRIMARY KEY,
+      agent_id   TEXT NOT NULL,
+      content    TEXT NOT NULL,
+      pinned     INTEGER NOT NULL DEFAULT 0,
+      priority   INTEGER NOT NULL DEFAULT 3,
+      tags       TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_agent_memories_agent ON agent_memories(agent_id, pinned DESC, priority DESC, updated_at DESC)`)
+
   // Set up FTS5
   setupFTS(db)
   log.info('database migrations complete')

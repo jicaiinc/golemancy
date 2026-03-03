@@ -1,12 +1,15 @@
 import type { ToolSet } from 'ai'
-import type { Agent, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IConversationService, IPermissionsConfigService } from '@golemancy/shared'
+import type { Agent, AgentId, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IConversationService, IPermissionsConfigService } from '@golemancy/shared'
+import { DEFAULT_MEMORY_AUTO_LOAD } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
+import type { SqliteMemoryStorage } from '../storage/memories'
 import type { TokenRecordStorage } from '../storage/token-records'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools, type ModeDegradation } from './builtin-tools'
 import { createSubAgentToolSet } from './sub-agent'
 import { createTaskTools } from './task-tools'
+import { createMemoryTools, buildMemoryInstructions } from './memory-tools'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
@@ -25,6 +28,7 @@ export interface LoadAgentToolsParams {
   conversationId?: string
   conversationStorage?: IConversationService
   taskStorage?: SqliteConversationTaskStorage
+  memoryStorage?: SqliteMemoryStorage
   tokenRecordStorage?: TokenRecordStorage
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void
 }
@@ -50,7 +54,7 @@ export interface AgentToolsResult {
  * recursive nesting controlled purely by agent configuration.
  */
 export async function loadAgentTools(params: LoadAgentToolsParams): Promise<AgentToolsResult> {
-  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage } = params
+  const { agent, projectId, settings, allAgents, mcpStorage, permissionsConfigId, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, memoryStorage, tokenRecordStorage, onTokenUsage } = params
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
@@ -139,6 +143,44 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     })
     Object.assign(tools, taskTools)
     log.debug('loaded task built-in tools')
+  }
+
+  // 6. Memory tools — agent-scoped persistent memory with auto-loading
+  if (agent.builtinTools?.memory !== false && memoryStorage) {
+    const memoryConfig = agent.builtinTools?.memory
+    const maxAutoLoad = (typeof memoryConfig === 'object' && memoryConfig !== null && 'maxAutoLoad' in memoryConfig)
+      ? (memoryConfig as { maxAutoLoad: number }).maxAutoLoad
+      : DEFAULT_MEMORY_AUTO_LOAD
+
+    const memoryTools = createMemoryTools({
+      projectId: projectId as ProjectId,
+      agentId: agent.id as AgentId,
+      memoryStorage,
+      maxAutoLoad,
+    })
+    Object.assign(tools, memoryTools)
+
+    // Auto-load memories into instructions
+    try {
+      const { pinned, autoLoaded, totalCount } = await memoryStorage.loadForContext(
+        projectId as ProjectId,
+        agent.id as AgentId,
+        maxAutoLoad,
+      )
+      if (totalCount > 0 || pinned.length > 0) {
+        const memoryInstructions = buildMemoryInstructions({
+          pinned: pinned.map(m => ({ id: m.id, content: m.content, priority: m.priority, tags: m.tags })),
+          autoLoaded: autoLoaded.map(m => ({ id: m.id, content: m.content, priority: m.priority, tags: m.tags })),
+          totalCount,
+          maxAutoLoad,
+        })
+        instructions = instructions ? instructions + '\n\n' + memoryInstructions : memoryInstructions
+      }
+    } catch (err) {
+      log.warn({ err, agentId: agent.id }, 'failed to load agent memories')
+    }
+
+    log.debug({ agentId: agent.id, agentName: agent.name }, 'loaded memory built-in tools')
   }
 
   log.debug(

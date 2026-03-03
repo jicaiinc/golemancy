@@ -1,16 +1,17 @@
 import type {
   Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
+  MemoryEntry, MemoryCreateData, MemoryUpdateData,
   WorkspaceEntry, FilePreviewData,
   ConversationTokenUsageResult, CompactRecord,
   IProjectService, IAgentService, IConversationService,
   ITaskService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-  IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService,
+  IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService, IMemoryService,
 } from '@golemancy/shared'
 import { fetchJson } from './base'
 
@@ -382,5 +383,26 @@ export class HttpPermissionsConfigService implements IPermissionsConfigService {
     return fetchJson<PermissionsConfigFile>(`${this.baseUrl}/api/projects/${projectId}/permissions-config/${sourceId}/duplicate`, {
       method: 'POST', body: JSON.stringify({ title: newTitle }),
     })
+  }
+}
+
+export class HttpMemoryService implements IMemoryService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId, agentId: AgentId) {
+    return fetchJson<MemoryEntry[]>(`${this.baseUrl}/api/projects/${projectId}/agents/${agentId}/memories`)
+  }
+  create(projectId: ProjectId, agentId: AgentId, data: MemoryCreateData) {
+    return fetchJson<MemoryEntry>(`${this.baseUrl}/api/projects/${projectId}/agents/${agentId}/memories`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(projectId: ProjectId, agentId: AgentId, id: MemoryId, data: MemoryUpdateData) {
+    return fetchJson<MemoryEntry>(`${this.baseUrl}/api/projects/${projectId}/agents/${agentId}/memories/${id}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(projectId: ProjectId, agentId: AgentId, id: MemoryId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/agents/${agentId}/memories/${id}`, { method: 'DELETE' })
   }
 }

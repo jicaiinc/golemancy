@@ -124,6 +124,14 @@ export function createMockStorage(): MockStorage {
       list: vi.fn().mockResolvedValue([]),
       save: vi.fn(),
     } as any,
+    memoryStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+      loadForContext: vi.fn().mockResolvedValue({ pinned: [], autoLoaded: [], totalCount: 0 }),
+      search: vi.fn().mockResolvedValue([]),
+    } as any,
   }
 }
 

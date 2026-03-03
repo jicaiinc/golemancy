@@ -68,6 +68,17 @@ export const compactRecords = sqliteTable('compact_records', {
   createdAt: text('created_at').notNull(),
 })
 
+export const agentMemories = sqliteTable('agent_memories', {
+  id: text('id').primaryKey(),
+  agentId: text('agent_id').notNull(),
+  content: text('content').notNull(),
+  pinned: integer('pinned').notNull().default(0),
+  priority: integer('priority').notNull().default(3),
+  tags: text('tags', { mode: 'json' }).notNull().default('[]'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
 export const cronJobRuns = sqliteTable('cron_job_runs', {
   id: text('id').primaryKey(),
   cronJobId: text('cron_job_id').notNull(),

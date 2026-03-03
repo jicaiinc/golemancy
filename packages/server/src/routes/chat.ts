@@ -10,6 +10,7 @@ import type {
 } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
+import type { SqliteMemoryStorage } from '../storage/memories'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { CompactRecordStorage } from '../storage/compact-records'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
@@ -38,6 +39,7 @@ export interface ChatRouteDeps {
   mcpStorage: IMCPService
   permissionsConfigStorage: IPermissionsConfigService
   taskStorage: SqliteConversationTaskStorage
+  memoryStorage: SqliteMemoryStorage
   tokenRecordStorage: TokenRecordStorage
   compactRecordStorage: CompactRecordStorage
   activeChatRegistry?: ActiveChatRegistry
@@ -189,6 +191,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       conversationId,
       conversationStorage: deps.conversationStorage,
       taskStorage: deps.taskStorage,
+      memoryStorage: deps.memoryStorage,
       tokenRecordStorage: deps.tokenRecordStorage,
       onTokenUsage: (usage) => {
         streamWriter?.write({

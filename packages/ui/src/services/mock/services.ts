@@ -1,11 +1,12 @@
 import type {
   Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId,
+  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
   SkillCreateData, SkillUpdateData,
+  MemoryEntry, MemoryCreateData, MemoryUpdateData,
   WorkspaceEntry, FilePreviewData,
   CompactRecord,
 } from '@golemancy/shared'
@@ -13,7 +14,7 @@ import { DEFAULT_PERMISSIONS_CONFIG, getFileCategory, getMimeType } from '@golem
 import type {
   IProjectService, IAgentService, IConversationService,
   ITaskService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-  IGlobalDashboardService, IPermissionsConfigService, IWorkspaceService,
+  IGlobalDashboardService, IPermissionsConfigService, IWorkspaceService, IMemoryService,
 } from '../interfaces'
 import type { ConversationTokenUsageResult } from '@golemancy/shared'
 import {
@@ -733,5 +734,59 @@ export class MockGlobalDashboardService implements IGlobalDashboardService {
   async getRuntimeStatus(): Promise<RuntimeStatus> {
     await delay()
     return { ...SEED_DASHBOARD_RUNTIME_STATUS }
+  }
+}
+
+// --- MemoryService ---
+export class MockMemoryService implements IMemoryService {
+  private data = new Map<string, MemoryEntry>()
+
+  async list(_projectId: ProjectId, agentId: AgentId): Promise<MemoryEntry[]> {
+    await delay()
+    return [...this.data.values()]
+      .filter(m => m.agentId === agentId)
+      .sort((a, b) => {
+        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
+        if (a.priority !== b.priority) return b.priority - a.priority
+        return b.updatedAt.localeCompare(a.updatedAt)
+      })
+  }
+
+  async create(_projectId: ProjectId, agentId: AgentId, data: MemoryCreateData): Promise<MemoryEntry> {
+    await delay()
+    const now = new Date().toISOString()
+    const entry: MemoryEntry = {
+      id: genId('mem') as MemoryId,
+      agentId,
+      content: data.content,
+      pinned: data.pinned ?? false,
+      priority: data.priority ?? 3,
+      tags: data.tags ?? [],
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(entry.id, entry)
+    return entry
+  }
+
+  async update(_projectId: ProjectId, _agentId: AgentId, id: MemoryId, data: MemoryUpdateData): Promise<MemoryEntry> {
+    await delay()
+    const existing = this.data.get(id)
+    if (!existing) throw new Error(`Memory ${id} not found`)
+    const updated: MemoryEntry = {
+      ...existing,
+      ...(data.content !== undefined ? { content: data.content } : {}),
+      ...(data.pinned !== undefined ? { pinned: data.pinned } : {}),
+      ...(data.priority !== undefined ? { priority: Math.max(0, Math.min(5, data.priority)) } : {}),
+      ...(data.tags !== undefined ? { tags: data.tags } : {}),
+      updatedAt: new Date().toISOString(),
+    }
+    this.data.set(id, updated)
+    return updated
+  }
+
+  async delete(_projectId: ProjectId, _agentId: AgentId, id: MemoryId): Promise<void> {
+    await delay()
+    this.data.delete(id)
   }
 }

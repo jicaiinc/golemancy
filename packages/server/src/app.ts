@@ -10,6 +10,7 @@ import type {
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import type { TokenRecordStorage } from './storage/token-records'
 import type { CompactRecordStorage } from './storage/compact-records'
+import type { SqliteMemoryStorage } from './storage/memories'
 import type { SpeechStorage } from './storage/speech'
 import type { WebSocketManager } from './ws/handler'
 import type { ActiveChatRegistry } from './agent/active-chat-registry'
@@ -30,6 +31,7 @@ import { createPermissionsConfigRoutes } from './routes/permissions-config'
 import { createRuntimeRoutes } from './routes/runtime'
 import { createSandboxRoutes } from './routes/sandbox'
 import { createUploadRoutes } from './routes/uploads'
+import { createMemoryRoutes } from './routes/memories'
 import { createSpeechRoutes } from './routes/speech'
 import { logger } from './logger'
 import { ConfigurationError } from './agent/errors'
@@ -49,6 +51,7 @@ export interface ServerDependencies {
   permissionsConfigStorage: IPermissionsConfigService
   tokenRecordStorage: TokenRecordStorage
   compactRecordStorage: CompactRecordStorage
+  memoryStorage: SqliteMemoryStorage
   speechStorage?: SpeechStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
@@ -112,6 +115,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     agentStorage: deps.agentStorage,
     projectStorage: deps.projectStorage,
   }))
+  app.route('/api/projects/:projectId/agents/:agentId/memories', createMemoryRoutes(deps.memoryStorage))
   app.route('/api/projects/:projectId/conversations', createConversationRoutes({
     conversationStorage: deps.conversationStorage,
     tokenRecordStorage: deps.tokenRecordStorage,
@@ -139,6 +143,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     mcpStorage: deps.mcpStorage,
     permissionsConfigStorage: deps.permissionsConfigStorage,
     taskStorage: deps.taskStorage as import('./storage/tasks').SqliteConversationTaskStorage,
+    memoryStorage: deps.memoryStorage,
     tokenRecordStorage: deps.tokenRecordStorage,
     compactRecordStorage: deps.compactRecordStorage,
     activeChatRegistry: deps.activeChatRegistry,

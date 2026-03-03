@@ -12,6 +12,7 @@ import { FileProjectStorage } from './storage/projects'
 import { FileAgentStorage } from './storage/agents'
 import { SqliteConversationStorage } from './storage/conversations'
 import { SqliteConversationTaskStorage } from './storage/tasks'
+import { SqliteMemoryStorage } from './storage/memories'
 import { FileSkillStorage } from './storage/skills'
 import { FileCronJobStorage } from './storage/cronjobs'
 import { FileMCPStorage } from './storage/mcp'
@@ -56,6 +57,7 @@ async function main() {
   const projectStorage = new FileProjectStorage()
   const agentStorage = new FileAgentStorage()
   const cronJobRunStorage = new SqliteCronJobRunStorage(dbManager.getProjectDb)
+  const memoryStorage = new SqliteMemoryStorage(dbManager.getProjectDb)
   const tokenRecordStorage = new TokenRecordStorage(dbManager.getProjectDb)
   const compactRecordStorage = new CompactRecordStorage(dbManager.getProjectDb)
   const wsManager = new WebSocketManager()
@@ -82,6 +84,7 @@ async function main() {
     permissionsConfigStorage: new FilePermissionsConfigStorage(),
     dashboardService: new DashboardService(dashboardDeps),
     globalDashboardService: new GlobalDashboardService(dashboardDeps),
+    memoryStorage,
     tokenRecordStorage,
     compactRecordStorage,
     speechStorage,
@@ -177,6 +180,7 @@ async function main() {
       cronJobRunStorage,
       cronJobStorage: deps.cronJobStorage as FileCronJobStorage,
       taskStorage: deps.taskStorage as SqliteConversationTaskStorage,
+      memoryStorage,
       projectStorage,
       tokenRecordStorage,
       wsManager,
