@@ -361,10 +361,10 @@ export class HttpSettingsService implements ISettingsService {
       { method: 'POST' },
     )
   }
-  testEmbedding(apiKey: string, model: string) {
+  testEmbedding(config: { apiKey: string; model: string; baseUrl?: string; providerType?: 'openai' | 'openai-compatible' }) {
     return fetchJson<{ ok: boolean; error?: string; latencyMs?: number }>(
       `${this.baseUrl}/api/settings/embedding/test`,
-      { method: 'POST', body: JSON.stringify({ apiKey, model }) },
+      { method: 'POST', body: JSON.stringify(config) },
     )
   }
 }

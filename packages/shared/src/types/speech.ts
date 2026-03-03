@@ -1,5 +1,4 @@
-import type { TranscriptionId, ProjectId, ConversationId } from './common'
-import type { ProviderTestStatus } from './settings'
+import type { TranscriptionId, ProjectId, ConversationId, ProviderTestStatus } from './common'
 
 // --- STT Provider Config (stored in GlobalSettings.speechToText) ---
 

@@ -20,6 +20,7 @@ export class FileSettingsStorage implements ISettingsService {
     const raw = await readJson<Record<string, unknown>>(this.settingsPath)
     log.debug('loaded settings')
     const merged = { ...DEFAULT_SETTINGS, ...raw }
+    let needsWrite = false
 
     // Migrate v1 providers array → v2 Record
     if (Array.isArray(merged.providers)) {
@@ -35,9 +36,25 @@ export class FileSettingsStorage implements ISettingsService {
         }
       }
       merged.providers = record
-      // Write migrated data back
-      await writeJson(this.settingsPath, merged)
+      needsWrite = true
       log.info('migrated v1 providers array to v2 Record format')
+    }
+
+    // Migrate old embedding format { enabled, model, apiKey, testPassed } → new { providerType, model, apiKey, testStatus }
+    const embRaw = merged.embedding as Record<string, unknown> | undefined
+    if (embRaw && 'enabled' in embRaw) {
+      ;(merged as Record<string, unknown>).embedding = {
+        providerType: 'openai' as const,
+        model: (embRaw.model as string) || 'text-embedding-3-small',
+        apiKey: embRaw.apiKey as string | undefined,
+        testStatus: (embRaw.enabled && embRaw.testPassed) ? ('ok' as const) : ('untested' as const),
+      }
+      needsWrite = true
+      log.info('migrated old embedding format to provider config format')
+    }
+
+    if (needsWrite) {
+      await writeJson(this.settingsPath, merged)
     }
 
     return merged as GlobalSettings
@@ -57,7 +74,7 @@ export class FileSettingsStorage implements ISettingsService {
     throw new Error('testProvider should be called via the HTTP route, not storage directly')
   }
 
-  async testEmbedding(_apiKey: string, _model: string): Promise<{ ok: boolean; error?: string; latencyMs?: number }> {
+  async testEmbedding(_config: { apiKey: string; model: string; baseUrl?: string; providerType?: 'openai' | 'openai-compatible' }): Promise<{ ok: boolean; error?: string; latencyMs?: number }> {
     throw new Error('testEmbedding should be called via the HTTP route, not storage directly')
   }
 }

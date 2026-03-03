@@ -32,3 +32,6 @@ export interface Timestamped {
   createdAt: string
   updatedAt: string
 }
+
+// Shared test status (used by both providers and embedding)
+export type ProviderTestStatus = 'untested' | 'ok' | 'error'

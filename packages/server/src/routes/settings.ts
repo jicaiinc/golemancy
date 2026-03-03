@@ -117,8 +117,10 @@ export function createSettingsRoutes(storage: ISettingsService) {
   })
 
   app.post('/embedding/test', async (c) => {
-    const { apiKey, model } = await c.req.json<{ apiKey?: string; model?: string }>()
-    log.info({ model }, 'testing embedding')
+    const { apiKey, model, baseUrl, providerType } = await c.req.json<{
+      apiKey?: string; model?: string; baseUrl?: string; providerType?: string
+    }>()
+    log.info({ model, providerType }, 'testing embedding')
 
     if (!apiKey) {
       return c.json({ ok: false, error: 'NO_API_KEY' }, 400)
@@ -126,7 +128,10 @@ export function createSettingsRoutes(storage: ISettingsService) {
 
     try {
       const { createOpenAI } = await import('@ai-sdk/openai')
-      const openai = createOpenAI({ apiKey })
+      const openai = createOpenAI({
+        apiKey,
+        ...(baseUrl ? { baseURL: baseUrl } : {}),
+      })
       const embeddingModel = openai.embedding(model || 'text-embedding-3-small')
 
       const start = Date.now()

@@ -265,7 +265,7 @@ describe('AgentDetailPage', () => {
       useAppStore.setState({
         settings: {
           ...baseSettings,
-          embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: false },
+          embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-test', testStatus: 'untested' },
         },
       })
       renderAtRoute()
@@ -280,7 +280,7 @@ describe('AgentDetailPage', () => {
       useAppStore.setState({
         settings: {
           ...baseSettings,
-          embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: false },
+          embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-test', testStatus: 'untested' },
         },
         agents: [makeAgent({ builtinTools: { knowledge_base: true } })],
       })
@@ -295,7 +295,7 @@ describe('AgentDetailPage', () => {
       useAppStore.setState({
         settings: {
           ...baseSettings,
-          embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: false },
+          embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-test', testStatus: 'untested' },
         },
         agents: [makeAgent({ builtinTools: { knowledge_base: false } })],
       })
@@ -311,7 +311,7 @@ describe('AgentDetailPage', () => {
       useAppStore.setState({
         settings: {
           ...baseSettings,
-          embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: true },
+          embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-test', testStatus: 'ok' },
         },
       })
       renderAtRoute()

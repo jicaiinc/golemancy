@@ -48,14 +48,11 @@
     },
     "embedding": {
       "sectionTitle": "EMBEDDING",
-      "description": "Override the global embedding model and API key for this project.",
-      "globalDisabled": "Embedding is disabled globally. Enable it in Global Settings first.",
-      "modelLabel": "MODEL",
-      "locked": "Model locked — vector data exists. Delete Warm/Cold collections to unlock.",
-      "apiKeyLabel": "OPENAI API KEY",
-      "testBtn": "Test",
-      "testOk": "OK ({{latency}}ms)",
-      "testFailed": "Failed"
+      "description": "Choose the embedding provider for this project's knowledge base.",
+      "useGlobal": "Use global default",
+      "custom": "Custom configuration",
+      "globalNotConfigured": "Global embedding not configured. Set up in Global Settings or switch to Custom.",
+      "locked": "Model locked — vector data exists. Delete Warm/Cold collections to unlock."
     }
   }
 }

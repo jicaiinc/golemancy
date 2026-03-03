@@ -213,22 +213,22 @@ describe('ProjectSettingsPage', () => {
     expect(screen.getByText('Embedding')).toBeInTheDocument()
   })
 
-  it('shows global disabled warning when testPassed is false', () => {
+  it('shows global not-configured hint when in default mode and global not configured', () => {
     useAppStore.setState({
-      settings: { ...baseSettings, embedding: { enabled: true, model: 'text-embedding-3-small', testPassed: false } },
+      settings: { ...baseSettings, embedding: { providerType: 'openai', model: 'text-embedding-3-small', testStatus: 'untested' } },
     })
     renderAtRoute()
     fireEvent.click(screen.getByText('Embedding'))
-    expect(screen.getByText('Embedding is disabled globally. Enable it in Global Settings first.')).toBeInTheDocument()
+    expect(screen.getByText(/Global embedding not configured/)).toBeInTheDocument()
   })
 
-  it('hides warning when embedding enabled and testPassed', () => {
+  it('shows global summary when global embedding is configured', () => {
     useAppStore.setState({
-      settings: { ...baseSettings, embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-test', testPassed: true } },
+      settings: { ...baseSettings, embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-test', testStatus: 'ok' } },
     })
     renderAtRoute()
     fireEvent.click(screen.getByText('Embedding'))
-    expect(screen.queryByText('Embedding is disabled globally. Enable it in Global Settings first.')).not.toBeInTheDocument()
+    expect(screen.getByText('OpenAI / text-embedding-3-small')).toBeInTheDocument()
   })
 
   // ── Permissions Tab ──

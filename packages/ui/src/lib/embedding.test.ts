@@ -7,7 +7,7 @@ const baseSettings: GlobalSettings = {
     openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
   },
   theme: 'dark',
-  embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-embed-global', testPassed: true },
+  embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-embed-global', testStatus: 'ok' },
 }
 
 describe('resolveEmbeddingConfig', () => {
@@ -24,26 +24,26 @@ describe('resolveEmbeddingConfig', () => {
     expect(resolveEmbeddingConfig(settings)).toBeNull()
   })
 
-  it('returns null when embedding is disabled', () => {
+  it('returns null when testStatus is not ok', () => {
     const settings: GlobalSettings = {
       ...baseSettings,
-      embedding: { enabled: false, model: 'text-embedding-3-small', apiKey: 'sk-key' },
+      embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-key', testStatus: 'untested' },
     }
     expect(resolveEmbeddingConfig(settings)).toBeNull()
   })
 
-  it('returns null when testPassed is false', () => {
+  it('returns null when testStatus is error', () => {
     const settings: GlobalSettings = {
       ...baseSettings,
-      embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-key', testPassed: false },
+      embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-key', testStatus: 'error' },
     }
     expect(resolveEmbeddingConfig(settings)).toBeNull()
   })
 
-  it('returns null when testPassed is undefined', () => {
+  it('returns null when testStatus is undefined', () => {
     const settings: GlobalSettings = {
       ...baseSettings,
-      embedding: { enabled: true, model: 'text-embedding-3-small', apiKey: 'sk-key' },
+      embedding: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-key' },
     }
     expect(resolveEmbeddingConfig(settings)).toBeNull()
   })
@@ -51,7 +51,7 @@ describe('resolveEmbeddingConfig', () => {
   it('returns null when apiKey is missing', () => {
     const settings: GlobalSettings = {
       ...baseSettings,
-      embedding: { enabled: true, model: 'text-embedding-3-small', testPassed: true },
+      embedding: { providerType: 'openai', model: 'text-embedding-3-small', testStatus: 'ok' },
     }
     expect(resolveEmbeddingConfig(settings)).toBeNull()
   })
@@ -60,63 +60,93 @@ describe('resolveEmbeddingConfig', () => {
     expect(resolveEmbeddingConfig(baseSettings)).toEqual({
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed-global',
+      baseUrl: undefined,
+      providerType: 'openai',
     })
   })
 
   it('uses default model when global model is empty', () => {
     const settings: GlobalSettings = {
       ...baseSettings,
-      embedding: { enabled: true, model: '', apiKey: 'sk-key', testPassed: true },
+      embedding: { providerType: 'openai', model: '', apiKey: 'sk-key', testStatus: 'ok' },
     }
     expect(resolveEmbeddingConfig(settings)).toEqual({
       model: 'text-embedding-3-small',
       apiKey: 'sk-key',
+      baseUrl: undefined,
+      providerType: 'openai',
+    })
+  })
+
+  it('passes through baseUrl and providerType', () => {
+    const settings: GlobalSettings = {
+      ...baseSettings,
+      embedding: { providerType: 'openai-compatible', model: 'custom-embed', apiKey: 'sk-key', baseUrl: 'https://my-api.com/v1', testStatus: 'ok' },
+    }
+    expect(resolveEmbeddingConfig(settings)).toEqual({
+      model: 'custom-embed',
+      apiKey: 'sk-key',
+      baseUrl: 'https://my-api.com/v1',
+      providerType: 'openai-compatible',
     })
   })
 
   // ── Project config overrides ──
 
-  it('project model overrides global model', () => {
+  it('project mode=custom uses project config instead of global', () => {
     const projectConfig: ProjectConfig = {
       maxConcurrentAgents: 3,
-      embedding: { model: 'text-embedding-3-large' },
-    }
-    expect(resolveEmbeddingConfig(baseSettings, projectConfig)).toEqual({
-      model: 'text-embedding-3-large',
-      apiKey: 'sk-embed-global',
-    })
-  })
-
-  it('project apiKey overrides global apiKey', () => {
-    const projectConfig: ProjectConfig = {
-      maxConcurrentAgents: 3,
-      embedding: { apiKey: 'sk-project-key' },
-    }
-    expect(resolveEmbeddingConfig(baseSettings, projectConfig)).toEqual({
-      model: 'text-embedding-3-small',
-      apiKey: 'sk-project-key',
-    })
-  })
-
-  it('project config can override both model and apiKey', () => {
-    const projectConfig: ProjectConfig = {
-      maxConcurrentAgents: 3,
-      embedding: { model: 'text-embedding-3-large', apiKey: 'sk-project-key' },
+      embedding: {
+        mode: 'custom',
+        custom: { providerType: 'openai', model: 'text-embedding-3-large', apiKey: 'sk-project-key', testStatus: 'ok' },
+      },
     }
     expect(resolveEmbeddingConfig(baseSettings, projectConfig)).toEqual({
       model: 'text-embedding-3-large',
       apiKey: 'sk-project-key',
+      baseUrl: undefined,
+      providerType: 'openai',
     })
   })
 
-  it('falls back to global when project embedding is empty object', () => {
+  it('project mode=custom with untested testStatus returns null', () => {
     const projectConfig: ProjectConfig = {
       maxConcurrentAgents: 3,
-      embedding: {},
+      embedding: {
+        mode: 'custom',
+        custom: { providerType: 'openai', model: 'text-embedding-3-small', apiKey: 'sk-proj', testStatus: 'untested' },
+      },
+    }
+    expect(resolveEmbeddingConfig(baseSettings, projectConfig)).toBeNull()
+  })
+
+  it('project mode=custom works even when global is not configured', () => {
+    const settingsNoGlobal: GlobalSettings = { providers: {}, theme: 'dark' }
+    const projectConfig: ProjectConfig = {
+      maxConcurrentAgents: 3,
+      embedding: {
+        mode: 'custom',
+        custom: { providerType: 'openai-compatible', model: 'my-model', apiKey: 'sk-proj', baseUrl: 'https://api.example.com', testStatus: 'ok' },
+      },
+    }
+    expect(resolveEmbeddingConfig(settingsNoGlobal, projectConfig)).toEqual({
+      model: 'my-model',
+      apiKey: 'sk-proj',
+      baseUrl: 'https://api.example.com',
+      providerType: 'openai-compatible',
+    })
+  })
+
+  it('project mode=default falls back to global', () => {
+    const projectConfig: ProjectConfig = {
+      maxConcurrentAgents: 3,
+      embedding: { mode: 'default' },
     }
     expect(resolveEmbeddingConfig(baseSettings, projectConfig)).toEqual({
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed-global',
+      baseUrl: undefined,
+      providerType: 'openai',
     })
   })
 
@@ -127,6 +157,8 @@ describe('resolveEmbeddingConfig', () => {
     expect(resolveEmbeddingConfig(baseSettings, projectConfig)).toEqual({
       model: 'text-embedding-3-small',
       apiKey: 'sk-embed-global',
+      baseUrl: undefined,
+      providerType: 'openai',
     })
   })
 })
