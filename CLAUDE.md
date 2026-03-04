@@ -130,11 +130,12 @@ Auth token is generated per-session (`crypto.randomUUID()`), passed as Bearer he
 - `app.ts` — Hono app factory (CORS, auth, error handling). Routes inject storage dependencies.
 - `db/` — SQLite schema (drizzle-orm), FTS5 for message search, migrations. **Per-project databases** via `ProjectDbManager` (lazy-loads on first access).
 - `storage/` — Service implementations (file-based for config data, SQLite for messages/logs)
-- `routes/` — RESTful endpoints: projects, agents, conversations, chat (SSE streaming), tasks, artifacts, skills, mcp, cron-jobs, settings, dashboard, topology, permissions-config, runtime, sandbox
+- `routes/` — RESTful endpoints: projects, agents, conversations, chat (SSE streaming), tasks, skills, mcp, cron-jobs, settings, dashboard, global-dashboard, topology, permissions-config, runtime, sandbox, workspace, uploads, memories, teams, speech
 - `agent/` — AI runtime engine:
   - `runtime.ts` / `process.ts` — Agent execution with Vercel AI SDK `streamText`
   - `sub-agent.ts` — Recursive sub-agent orchestration (unlimited nesting)
-  - `builtin-tools.ts` / `tools.ts` — Tool system (Bash, browser, OS control)
+  - `builtin-tools.ts` / `tools.ts` — Tool system (Bash, browser, OS control, memory, task)
+  - `builtin-tools/memory-tools.ts` — Agent memory CRUD tools (save, search, update, delete)
   - `mcp.ts` / `mcp-pool.ts` — MCP server connections with idle scanning pool
   - `sandbox-pool.ts` / `native-sandbox.ts` / `anthropic-sandbox.ts` — Two sandbox implementations
   - `skills.ts` — Prompt injection from skill templates
@@ -142,11 +143,11 @@ Auth token is generated per-session (`crypto.randomUUID()`), passed as Bearer he
 - `runtime/` — Node.js and Python runtime management (env builder, path resolution)
 - `ws/` — WebSocket real-time events (Channel pub/sub)
 
-**Storage split**: SQLite for high-frequency queryable data (messages, task logs); file system for human-readable config (projects, agents, settings JSON). Each project gets its own SQLite database file.
+**Storage split**: SQLite for high-frequency queryable data (messages, task logs, memories); file system for human-readable config (projects, agents, teams, skills, settings JSON). Each project gets its own SQLite database file.
 
 ### State (Zustand v5)
 
-Single store at `packages/ui/src/stores/useAppStore.ts` with 12 slices: project, agent, conversation, task, artifact, skill, mcp, cronJob, settings, ui, dashboard, topology.
+Single store at `packages/ui/src/stores/useAppStore.ts` with 15 slices: project, agent, conversation, task, workspace, skill, mcp, cronJob, settings, ui, dashboard, topology, speech, memory, team.
 
 Zustand v5 requires double-parenthesis pattern: `create<T>()(...)`.
 
@@ -154,7 +155,7 @@ Store persists theme + sidebar state to localStorage (`golemancy-prefs`). Uses A
 
 ### Service Layer (DI)
 
-- Interfaces: `packages/shared/src/services/interfaces.ts` — 11 services: IProjectService, IAgentService, IConversationService, ITaskService, IArtifactService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService, IPermissionsConfigService
+- Interfaces: `packages/shared/src/services/interfaces.ts` — 15 services: IProjectService, IAgentService, IConversationService, ITaskService, IWorkspaceService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService, IGlobalDashboardService, IPermissionsConfigService, IMemoryService, ISpeechService, ITeamService
 - Container: `packages/ui/src/services/container.ts` — module-level singleton via `getServices()`/`configureServices()`
 - Mock implementations: `packages/ui/src/services/mock/` (seed data centralized in `data.ts` — never scatter)
 - HTTP implementations: `packages/ui/src/services/http/services.ts` (real backend integration)
@@ -167,7 +168,34 @@ HashRouter at `packages/ui/src/app/routes.tsx`. Project-scoped routes nested und
 
 ### Abstraction Model
 
-Two core abstractions: **Project** (top container) and **Agent** (core unit within project). All agents belong to a project. Each project has a **Main Agent** configured in Project Settings — users chat with it by default when creating a new conversation. Skills, Tools, MCP, Sub-Agents all live inside Agent config. Projects also have **Cron Jobs** for scheduled agent execution. No global Agent/Skill libraries.
+Four core abstractions: **Project** (top container), **Agent** (core unit), **Team** (agent topology), and **Memory** (agent-scoped persistent knowledge). All agents belong to a project. Each project has a **Main Agent** (`defaultAgentId`) and optionally a **Default Team** (`defaultTeamId`). Skills, Tools, MCP configs live inside Agent config; agent hierarchy is defined through Team. Projects also have **Cron Jobs** for scheduled agent execution. No global Agent/Skill libraries.
+
+### Agent Composition Model
+
+Agent capabilities are assembled from multiple sources at runtime (`loadAgentTools` in `agent/tools.ts`):
+
+- **Skills** — `agent.skillIds: SkillId[]` references project-scoped Skills. Runtime creates a `skill` selector tool; selected skill instructions are injected into context.
+- **MCP** — `agent.mcpServers: string[]` references project MCP servers by name. Runtime connects to servers and loads their tools.
+- **Built-in Tools** — `agent.builtinTools: { bash?, browser?, computer_use?, task?, memory? }` toggle-based. Permission mode (restricted/sandbox/unrestricted) controls execution.
+- **Memory** — Enabled via `builtinTools.memory`. Agent-scoped (not team, not conversation), persists in SQLite. Pinned memories always load; non-pinned load top-N by priority + recency. Agent gets CRUD tools (save/search/update/delete) + auto-loaded context.
+- **Sub-Agents (via Team)** — Agent itself has NO sub-agent fields. When a conversation has `teamId`, runtime filters `TeamMember[]` for direct children (`parentAgentId === agent.id`) and creates `delegate_to_{agentId}` tools. Child tools are lazy-loaded on invocation, enabling infinite recursive nesting.
+
+**System prompt construction**: `agent.systemPrompt` + skill instructions + memory context + team instruction → concatenated as final system prompt.
+
+### Team & Agent Topology
+
+Team defines an agent organizational structure within a project — a single-parent tree:
+
+```typescript
+TeamMember { agentId: AgentId, role: string, parentAgentId?: AgentId }
+```
+
+- `parentAgentId === undefined` → leader (root of the tree)
+- Each non-leader member has exactly one parent — no multi-parent (DAG) support by design
+- `Team.instruction` is injected into the leader's system prompt as `## Team Context`
+- Agents are decoupled from Teams: the same Agent can participate in multiple Teams with different roles/parents
+- **Conversation** can be scoped to a Team via `conversation.teamId` — this activates sub-agent delegation for the handling agent
+- **CronJob** also supports `teamId` for scheduled team-based execution
 
 ### Config Hierarchy
 
@@ -179,7 +207,7 @@ Three permission modes for agent tool execution: `restricted` (no execution), `s
 
 ### Type System
 
-Branded ID types in `packages/shared/src/types/common.ts` (`ProjectId`, `AgentId`, etc.) prevent mixing IDs at compile time. 10 branded types total — never pass a raw string where a branded ID is expected.
+Branded ID types in `packages/shared/src/types/common.ts` (`ProjectId`, `AgentId`, `TeamId`, `MemoryId`, etc.) prevent mixing IDs at compile time. 12 branded types total — never pass a raw string where a branded ID is expected.
 
 ## Critical Library Choices
 
