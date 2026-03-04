@@ -8,6 +8,7 @@ import { staggerContainer, staggerItem } from '../../lib/motion'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { ProjectCreateModal } from './ProjectCreateModal'
 import { relativeTime } from '../../lib/time'
+import { getCloneName } from '../../lib/clone-name'
 
 const iconMap: Record<string, string> = {
   pickaxe: '⛏',
@@ -93,7 +94,7 @@ export function ProjectListPage() {
                       title={t('list.clone')}
                       onClick={(e) => {
                         e.stopPropagation()
-                        cloneProject(project.id, `${project.name} (copy)`)
+                        cloneProject(project.id, getCloneName(project.name, projects.map(p => p.name)))
                       }}
                     >
                       <CopyIcon className="w-[14px] h-[14px]" />

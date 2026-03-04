@@ -6,6 +6,7 @@ import { useAppStore } from '../../stores'
 import { PixelButton, PixelCard, PixelSpinner, CopyIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { TeamCreateModal } from './TeamCreateModal'
+import { getCloneName } from '../../lib/clone-name'
 
 export function TeamListPage() {
   const { t } = useTranslation('team')
@@ -76,7 +77,7 @@ export function TeamListPage() {
                         title={t('list.clone')}
                         onClick={(e) => {
                           e.stopPropagation()
-                          cloneTeam(team.id, `${team.name} (copy)`)
+                          cloneTeam(team.id, getCloneName(team.name, teams.map(t => t.name)))
                         }}
                       >
                         <CopyIcon className="w-[14px] h-[14px]" />

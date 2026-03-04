@@ -7,6 +7,7 @@ import { useAppStore } from '../../stores'
 import { PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelSpinner, CopyIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { AgentCreateModal } from './AgentCreateModal'
+import { getCloneName } from '../../lib/clone-name'
 
 const statusBarColor: Record<AgentStatus, string> = {
   idle: 'bg-text-secondary',
@@ -105,7 +106,7 @@ export function AgentListPage() {
                         title={t('list.clone')}
                         onClick={(e) => {
                           e.stopPropagation()
-                          cloneAgent(agent.id, `${agent.name} (copy)`)
+                          cloneAgent(agent.id, getCloneName(agent.name, agents.map(a => a.name)))
                         }}
                       >
                         <CopyIcon className="w-[14px] h-[14px]" />
