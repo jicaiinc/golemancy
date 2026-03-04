@@ -13,11 +13,18 @@ ctx = (data.get('context_window') or {}).get('remaining_percentage')
 cost = (data.get('cost') or {}).get('total_cost_usd')
 cwd = (data.get('workspace') or {}).get('current_dir') or data.get('cwd', '—')
 
+# Env flags
+team_mode = os.environ.get('CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS') == '1'
+sub_model_raw = os.environ.get('CLAUDE_CODE_SUBAGENT_MODEL', '')
+# Shorten model name: claude-opus-4-6 -> opus-4-6
+sub_model = sub_model_raw.replace('claude-', '') if sub_model_raw else ''
+
 cyan = '\033[36m'
 yellow = '\033[33m'
 green = '\033[32m'
 blue = '\033[34m'
 magenta = '\033[35m'
+red = '\033[31m'
 dim = '\033[2m'
 reset = '\033[0m'
 
@@ -25,6 +32,13 @@ parts = []
 parts.append(f'{green}{user}@{host}{reset}')
 parts.append(f'{dim}v{version}{reset}')
 parts.append(f'{cyan}{model}{reset}')
+
+# Show flags inline
+if team_mode:
+    parts.append(f'{red}team{reset}')
+if sub_model:
+    parts.append(f'{red}sub:{sub_model}{reset}')
+
 if ctx is not None:
     parts.append(f'{magenta}ctx:{ctx}%{reset}')
 if cost is not None:
