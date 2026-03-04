@@ -35,6 +35,7 @@ import settingsZh from '../locales/zh/settings.json'
 import skillZh from '../locales/zh/skill.json'
 import speechZh from '../locales/zh/speech.json'
 import taskZh from '../locales/zh/task.json'
+import teamZh from '../locales/zh/team.json'
 import workspaceZh from '../locales/zh/workspace.json'
 
 import agentZhTW from '../locales/zh-TW/agent.json'
@@ -52,6 +53,7 @@ import settingsZhTW from '../locales/zh-TW/settings.json'
 import skillZhTW from '../locales/zh-TW/skill.json'
 import speechZhTW from '../locales/zh-TW/speech.json'
 import taskZhTW from '../locales/zh-TW/task.json'
+import teamZhTW from '../locales/zh-TW/team.json'
 import workspaceZhTW from '../locales/zh-TW/workspace.json'
 
 import agentEs from '../locales/es/agent.json'
@@ -69,6 +71,7 @@ import settingsEs from '../locales/es/settings.json'
 import skillEs from '../locales/es/skill.json'
 import speechEs from '../locales/es/speech.json'
 import taskEs from '../locales/es/task.json'
+import teamEs from '../locales/es/team.json'
 import workspaceEs from '../locales/es/workspace.json'
 
 import agentFr from '../locales/fr/agent.json'
@@ -86,6 +89,7 @@ import settingsFr from '../locales/fr/settings.json'
 import skillFr from '../locales/fr/skill.json'
 import speechFr from '../locales/fr/speech.json'
 import taskFr from '../locales/fr/task.json'
+import teamFr from '../locales/fr/team.json'
 import workspaceFr from '../locales/fr/workspace.json'
 
 import agentPtBR from '../locales/pt-BR/agent.json'
@@ -103,6 +107,7 @@ import settingsPtBR from '../locales/pt-BR/settings.json'
 import skillPtBR from '../locales/pt-BR/skill.json'
 import speechPtBR from '../locales/pt-BR/speech.json'
 import taskPtBR from '../locales/pt-BR/task.json'
+import teamPtBR from '../locales/pt-BR/team.json'
 import workspacePtBR from '../locales/pt-BR/workspace.json'
 
 import agentJa from '../locales/ja/agent.json'
@@ -120,6 +125,7 @@ import settingsJa from '../locales/ja/settings.json'
 import skillJa from '../locales/ja/skill.json'
 import speechJa from '../locales/ja/speech.json'
 import taskJa from '../locales/ja/task.json'
+import teamJa from '../locales/ja/team.json'
 import workspaceJa from '../locales/ja/workspace.json'
 
 import agentKo from '../locales/ko/agent.json'
@@ -137,6 +143,7 @@ import settingsKo from '../locales/ko/settings.json'
 import skillKo from '../locales/ko/skill.json'
 import speechKo from '../locales/ko/speech.json'
 import taskKo from '../locales/ko/task.json'
+import teamKo from '../locales/ko/team.json'
 import workspaceKo from '../locales/ko/workspace.json'
 
 import agentDe from '../locales/de/agent.json'
@@ -154,6 +161,7 @@ import settingsDe from '../locales/de/settings.json'
 import skillDe from '../locales/de/skill.json'
 import speechDe from '../locales/de/speech.json'
 import taskDe from '../locales/de/task.json'
+import teamDe from '../locales/de/team.json'
 import workspaceDe from '../locales/de/workspace.json'
 
 import agentIt from '../locales/it/agent.json'
@@ -171,6 +179,7 @@ import settingsIt from '../locales/it/settings.json'
 import skillIt from '../locales/it/skill.json'
 import speechIt from '../locales/it/speech.json'
 import taskIt from '../locales/it/task.json'
+import teamIt from '../locales/it/team.json'
 import workspaceIt from '../locales/it/workspace.json'
 
 import agentNl from '../locales/nl/agent.json'
@@ -188,6 +197,7 @@ import settingsNl from '../locales/nl/settings.json'
 import skillNl from '../locales/nl/skill.json'
 import speechNl from '../locales/nl/speech.json'
 import taskNl from '../locales/nl/task.json'
+import teamNl from '../locales/nl/team.json'
 import workspaceNl from '../locales/nl/workspace.json'
 
 import agentRu from '../locales/ru/agent.json'
@@ -205,6 +215,7 @@ import settingsRu from '../locales/ru/settings.json'
 import skillRu from '../locales/ru/skill.json'
 import speechRu from '../locales/ru/speech.json'
 import taskRu from '../locales/ru/task.json'
+import teamRu from '../locales/ru/team.json'
 import workspaceRu from '../locales/ru/workspace.json'
 
 import agentUk from '../locales/uk/agent.json'
@@ -222,6 +233,7 @@ import settingsUk from '../locales/uk/settings.json'
 import skillUk from '../locales/uk/skill.json'
 import speechUk from '../locales/uk/speech.json'
 import taskUk from '../locales/uk/task.json'
+import teamUk from '../locales/uk/team.json'
 import workspaceUk from '../locales/uk/workspace.json'
 
 import agentPl from '../locales/pl/agent.json'
@@ -239,6 +251,7 @@ import settingsPl from '../locales/pl/settings.json'
 import skillPl from '../locales/pl/skill.json'
 import speechPl from '../locales/pl/speech.json'
 import taskPl from '../locales/pl/task.json'
+import teamPl from '../locales/pl/team.json'
 import workspacePl from '../locales/pl/workspace.json'
 
 import agentCs from '../locales/cs/agent.json'
@@ -256,6 +269,7 @@ import settingsCs from '../locales/cs/settings.json'
 import skillCs from '../locales/cs/skill.json'
 import speechCs from '../locales/cs/speech.json'
 import taskCs from '../locales/cs/task.json'
+import teamCs from '../locales/cs/team.json'
 import workspaceCs from '../locales/cs/workspace.json'
 
 import agentRo from '../locales/ro/agent.json'
@@ -273,6 +287,7 @@ import settingsRo from '../locales/ro/settings.json'
 import skillRo from '../locales/ro/skill.json'
 import speechRo from '../locales/ro/speech.json'
 import taskRo from '../locales/ro/task.json'
+import teamRo from '../locales/ro/team.json'
 import workspaceRo from '../locales/ro/workspace.json'
 
 import agentSv from '../locales/sv/agent.json'
@@ -290,6 +305,7 @@ import settingsSv from '../locales/sv/settings.json'
 import skillSv from '../locales/sv/skill.json'
 import speechSv from '../locales/sv/speech.json'
 import taskSv from '../locales/sv/task.json'
+import teamSv from '../locales/sv/team.json'
 import workspaceSv from '../locales/sv/workspace.json'
 
 import agentId from '../locales/id/agent.json'
@@ -307,6 +323,7 @@ import settingsId from '../locales/id/settings.json'
 import skillId from '../locales/id/skill.json'
 import speechId from '../locales/id/speech.json'
 import taskId from '../locales/id/task.json'
+import teamId from '../locales/id/team.json'
 import workspaceId from '../locales/id/workspace.json'
 
 import agentMs from '../locales/ms/agent.json'
@@ -324,6 +341,7 @@ import settingsMs from '../locales/ms/settings.json'
 import skillMs from '../locales/ms/skill.json'
 import speechMs from '../locales/ms/speech.json'
 import taskMs from '../locales/ms/task.json'
+import teamMs from '../locales/ms/team.json'
 import workspaceMs from '../locales/ms/workspace.json'
 
 import agentVi from '../locales/vi/agent.json'
@@ -341,6 +359,7 @@ import settingsVi from '../locales/vi/settings.json'
 import skillVi from '../locales/vi/skill.json'
 import speechVi from '../locales/vi/speech.json'
 import taskVi from '../locales/vi/task.json'
+import teamVi from '../locales/vi/team.json'
 import workspaceVi from '../locales/vi/workspace.json'
 
 import agentTr from '../locales/tr/agent.json'
@@ -358,6 +377,7 @@ import settingsTr from '../locales/tr/settings.json'
 import skillTr from '../locales/tr/skill.json'
 import speechTr from '../locales/tr/speech.json'
 import taskTr from '../locales/tr/task.json'
+import teamTr from '../locales/tr/team.json'
 import workspaceTr from '../locales/tr/workspace.json'
 
 import agentFil from '../locales/fil/agent.json'
@@ -375,6 +395,7 @@ import settingsFil from '../locales/fil/settings.json'
 import skillFil from '../locales/fil/skill.json'
 import speechFil from '../locales/fil/speech.json'
 import taskFil from '../locales/fil/task.json'
+import teamFil from '../locales/fil/team.json'
 import workspaceFil from '../locales/fil/workspace.json'
 
 i18next
@@ -421,6 +442,7 @@ i18next
         skill: skillZh,
         speech: speechZh,
         task: taskZh,
+        team: teamZh,
         workspace: workspaceZh,
       },
       'zh-TW': {
@@ -439,6 +461,7 @@ i18next
         skill: skillZhTW,
         speech: speechZhTW,
         task: taskZhTW,
+        team: teamZhTW,
         workspace: workspaceZhTW,
       },
       es: {
@@ -457,6 +480,7 @@ i18next
         skill: skillEs,
         speech: speechEs,
         task: taskEs,
+        team: teamEs,
         workspace: workspaceEs,
       },
       fr: {
@@ -475,6 +499,7 @@ i18next
         skill: skillFr,
         speech: speechFr,
         task: taskFr,
+        team: teamFr,
         workspace: workspaceFr,
       },
       'pt-BR': {
@@ -493,6 +518,7 @@ i18next
         skill: skillPtBR,
         speech: speechPtBR,
         task: taskPtBR,
+        team: teamPtBR,
         workspace: workspacePtBR,
       },
       ja: {
@@ -511,6 +537,7 @@ i18next
         skill: skillJa,
         speech: speechJa,
         task: taskJa,
+        team: teamJa,
         workspace: workspaceJa,
       },
       ko: {
@@ -529,6 +556,7 @@ i18next
         skill: skillKo,
         speech: speechKo,
         task: taskKo,
+        team: teamKo,
         workspace: workspaceKo,
       },
       de: {
@@ -547,6 +575,7 @@ i18next
         skill: skillDe,
         speech: speechDe,
         task: taskDe,
+        team: teamDe,
         workspace: workspaceDe,
       },
       it: {
@@ -565,6 +594,7 @@ i18next
         skill: skillIt,
         speech: speechIt,
         task: taskIt,
+        team: teamIt,
         workspace: workspaceIt,
       },
       nl: {
@@ -583,6 +613,7 @@ i18next
         skill: skillNl,
         speech: speechNl,
         task: taskNl,
+        team: teamNl,
         workspace: workspaceNl,
       },
       ru: {
@@ -601,6 +632,7 @@ i18next
         skill: skillRu,
         speech: speechRu,
         task: taskRu,
+        team: teamRu,
         workspace: workspaceRu,
       },
       uk: {
@@ -619,6 +651,7 @@ i18next
         skill: skillUk,
         speech: speechUk,
         task: taskUk,
+        team: teamUk,
         workspace: workspaceUk,
       },
       pl: {
@@ -637,6 +670,7 @@ i18next
         skill: skillPl,
         speech: speechPl,
         task: taskPl,
+        team: teamPl,
         workspace: workspacePl,
       },
       cs: {
@@ -655,6 +689,7 @@ i18next
         skill: skillCs,
         speech: speechCs,
         task: taskCs,
+        team: teamCs,
         workspace: workspaceCs,
       },
       ro: {
@@ -673,6 +708,7 @@ i18next
         skill: skillRo,
         speech: speechRo,
         task: taskRo,
+        team: teamRo,
         workspace: workspaceRo,
       },
       sv: {
@@ -691,6 +727,7 @@ i18next
         skill: skillSv,
         speech: speechSv,
         task: taskSv,
+        team: teamSv,
         workspace: workspaceSv,
       },
       id: {
@@ -709,6 +746,7 @@ i18next
         skill: skillId,
         speech: speechId,
         task: taskId,
+        team: teamId,
         workspace: workspaceId,
       },
       ms: {
@@ -727,6 +765,7 @@ i18next
         skill: skillMs,
         speech: speechMs,
         task: taskMs,
+        team: teamMs,
         workspace: workspaceMs,
       },
       vi: {
@@ -745,6 +784,7 @@ i18next
         skill: skillVi,
         speech: speechVi,
         task: taskVi,
+        team: teamVi,
         workspace: workspaceVi,
       },
       tr: {
@@ -763,6 +803,7 @@ i18next
         skill: skillTr,
         speech: speechTr,
         task: taskTr,
+        team: teamTr,
         workspace: workspaceTr,
       },
       fil: {
@@ -781,6 +822,7 @@ i18next
         skill: skillFil,
         speech: speechFil,
         task: taskFil,
+        team: teamFil,
         workspace: workspaceFil,
       },
     },
