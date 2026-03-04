@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Команды",
+    "subtitle_one": "{{count}} команда в этом проекте",
+    "subtitle_other": "{{count}} команд в этом проекте",
+    "newBtn": "+ Новая команда",
+    "empty": "Пока нет команд",
+    "createFirst": "Создайте первую команду",
+    "leader": "Лидер",
+    "members_one": "{{count}} участник",
+    "members_other": "{{count}} участников"
+  },
+  "create": {
+    "modalTitle": "Создать новую команду",
+    "createBtn": "Создать команду",
+    "nameLabel": "НАЗВАНИЕ",
+    "namePlaceholder": "напр. Исследовательская группа",
+    "descLabel": "ОПИСАНИЕ",
+    "descPlaceholder": "Чем занимается эта команда?"
+  },
+  "detail": {
+    "notFound": "Команда не найдена.",
+    "backBtn": "< Команды",
+    "savedMsg": "Сохранено!"
+  },
+  "topology": {
+    "removeMember": "Удалить из команды",
+    "resetLayout": "Сбросить макет",
+    "openDetail": "Открыть детали агента",
+    "deleteTeam": "Удалить команду",
+    "deleteTeamConfirm": "Вы уверены, что хотите удалить эту команду?",
+    "instruction": "Инструкция команды",
+    "instructionPlaceholder": "Инструкции, внедряемые в контекст агента-лидера...",
+    "leader": "ЛИДЕР",
+    "skills": "Навыки",
+    "noSkills": "Нет навыков",
+    "tools": "Инструменты",
+    "noTools": "Нет инструментов",
+    "mcpServers": "MCP-серверы",
+    "noMcpServers": "Нет MCP-серверов",
+    "memory": "Память",
+    "memoryCount_one": "{{count}} воспоминание",
+    "memoryCount_other": "{{count}} воспоминаний",
+    "memoryEnabled": "Включена",
+    "memoryDisabled": "Отключена",
+    "noAgentsAvailable": "Нет доступных агентов",
+    "addFirstAgent": "Добавить агента",
+    "emptyTeam": "В этой команде пока нет участников",
+    "emptyDragHint": "Перетащите агента из боковой панели, чтобы начать формирование команды",
+    "emptyOpenSidebar": "Откройте боковую панель для добавления агентов",
+    "clickNodeHint": "Нажмите на узел для просмотра деталей",
+    "settingsBtn": "Настройки",
+    "description": "Описание",
+    "descriptionPlaceholder": "Чем занимается эта команда?",
+    "sidebar": {
+      "agents": "Агенты",
+      "detail": "Детали агента",
+      "settings": "Настройки команды",
+      "inTeam": "В команде"
+    }
+  }
+}

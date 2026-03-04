@@ -30,20 +30,16 @@
     "clickToCopy": "클릭하여 복사",
     "tabs": {
       "general": "기본 정보",
-      "agent": "Agent",
       "permissions": "권한"
-    },
-    "agent": {
-      "mainLabel": "메인 AGENT",
-      "mainDesc": "이 프로젝트의 새 대화에서 사용할 기본 Agent.",
-      "noAgents": "프로젝트에 Agent가 없습니다. 먼저 Agent를 생성하세요.",
-      "goToAgents": "Agent 페이지로 이동",
-      "none": "없음",
-      "configure": "Agent 설정 \u2192"
     },
     "general": {
       "sectionTitle": "기본 정보",
-      "saveBtn": "변경 사항 저장"
+      "saveBtn": "변경 사항 저장",
+      "defaultLabel": "기본 AGENT / 팀",
+      "defaultDesc": "새 대화에 사용되는 기본 Agent 또는 팀.",
+      "defaultNone": "없음",
+      "defaultTeamsGroup": "팀",
+      "defaultAgentsGroup": "Agent"
     }
   }
 }

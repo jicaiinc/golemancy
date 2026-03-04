@@ -3,7 +3,9 @@
     "hideHistory": "Ocultar historial de chat",
     "showHistory": "Mostrar historial de chat",
     "new": "+ Nuevo",
-    "clickToRename": "Clic para renombrar"
+    "clickToRename": "Clic para renombrar",
+    "teams": "Equipos",
+    "agents": "Agents"
   },
   "sidebar": {
     "newChat": "+ Nuevo Chat",
@@ -13,7 +15,8 @@
     "startConversation": "Iniciar la conversación...",
     "compacting": "Compactando",
     "thinking": "Pensando",
-    "imageMsgTitle": "Mensaje con imagen"
+    "imageMsgTitle": "Mensaje con imagen",
+    "maxStepsReached": "El Agent alcanzó el límite máximo de pasos ({{steps}}/{{maxSteps}}). Envía un mensaje para continuar."
   },
   "empty": {
     "readyToChat": "Listo para chatear",

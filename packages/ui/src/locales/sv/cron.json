@@ -55,6 +55,8 @@
       "daily9am": "Dagligen kl 9",
       "weeklyMon": "Varje måndag"
     },
-    "invalidExpression": "Ogiltigt uttryck"
+    "invalidExpression": "Ogiltigt uttryck",
+    "teamLabel": "TEAM (valfritt)",
+    "noTeam": "Inget team"
   }
 }

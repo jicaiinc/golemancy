@@ -3,7 +3,9 @@
     "hideHistory": "チャット履歴を非表示",
     "showHistory": "チャット履歴を表示",
     "new": "+ 新規",
-    "clickToRename": "クリックして名前を変更"
+    "clickToRename": "クリックして名前を変更",
+    "teams": "チーム",
+    "agents": "Agent"
   },
   "sidebar": {
     "newChat": "+ 新しいチャット",
@@ -13,7 +15,8 @@
     "startConversation": "会話を始めましょう...",
     "compacting": "圧縮中",
     "thinking": "思考中",
-    "imageMsgTitle": "画像メッセージ"
+    "imageMsgTitle": "画像メッセージ",
+    "maxStepsReached": "Agent が最大ステップ数に達しました（{{steps}}/{{maxSteps}}）。メッセージを送信して続行してください。"
   },
   "empty": {
     "readyToChat": "チャット準備完了",

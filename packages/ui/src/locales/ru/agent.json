@@ -102,7 +102,6 @@
     "modelLabel": "МОДЕЛЬ",
     "inherited": "Наследуемая",
     "capabilities": "ВОЗМОЖНОСТИ",
-    "subAgentsLabel": "СУБ-АГЕНТЫ",
     "openDetail": "Открыть подробности"
   },
   "memory": {

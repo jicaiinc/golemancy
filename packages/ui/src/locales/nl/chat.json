@@ -3,7 +3,9 @@
     "hideHistory": "Chatgeschiedenis verbergen",
     "showHistory": "Chatgeschiedenis tonen",
     "new": "+ Nieuw",
-    "clickToRename": "Klik om te hernoemen"
+    "clickToRename": "Klik om te hernoemen",
+    "teams": "Teams",
+    "agents": "Agents"
   },
   "sidebar": {
     "newChat": "+ Nieuw Gesprek",
@@ -13,7 +15,8 @@
     "startConversation": "Start het gesprek...",
     "compacting": "Comprimeren",
     "thinking": "Nadenken",
-    "imageMsgTitle": "Afbeeldingsbericht"
+    "imageMsgTitle": "Afbeeldingsbericht",
+    "maxStepsReached": "Agent heeft de maximale staplimiet bereikt ({{steps}}/{{maxSteps}}). Stuur een bericht om door te gaan."
   },
   "empty": {
     "readyToChat": "Klaar om te chatten",

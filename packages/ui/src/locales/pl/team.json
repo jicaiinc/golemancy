@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Zespoły",
+    "subtitle_one": "{{count}} zespół w tym projekcie",
+    "subtitle_other": "{{count}} zespołów w tym projekcie",
+    "newBtn": "+ Nowy zespół",
+    "empty": "Brak zespołów",
+    "createFirst": "Utwórz swój pierwszy zespół",
+    "leader": "Lider",
+    "members_one": "{{count}} członek",
+    "members_other": "{{count}} członków"
+  },
+  "create": {
+    "modalTitle": "Utwórz nowy zespół",
+    "createBtn": "Utwórz zespół",
+    "nameLabel": "NAZWA",
+    "namePlaceholder": "np. Zespół badawczy",
+    "descLabel": "OPIS",
+    "descPlaceholder": "Czym zajmuje się ten zespół?"
+  },
+  "detail": {
+    "notFound": "Zespół nie znaleziony.",
+    "backBtn": "< Zespoły",
+    "savedMsg": "Zapisano!"
+  },
+  "topology": {
+    "removeMember": "Usuń z zespołu",
+    "resetLayout": "Resetuj układ",
+    "openDetail": "Otwórz szczegóły Agenta",
+    "deleteTeam": "Usuń zespół",
+    "deleteTeamConfirm": "Czy na pewno chcesz usunąć ten zespół?",
+    "instruction": "Instrukcja zespołu",
+    "instructionPlaceholder": "Instrukcje wstrzykiwane do kontekstu Agenta-lidera...",
+    "leader": "LIDER",
+    "skills": "Umiejętności",
+    "noSkills": "Brak umiejętności",
+    "tools": "Narzędzia",
+    "noTools": "Brak narzędzi",
+    "mcpServers": "Serwery MCP",
+    "noMcpServers": "Brak serwerów MCP",
+    "memory": "Pamięć",
+    "memoryCount_one": "{{count}} wspomnienie",
+    "memoryCount_other": "{{count}} wspomnień",
+    "memoryEnabled": "Włączona",
+    "memoryDisabled": "Wyłączona",
+    "noAgentsAvailable": "Brak dostępnych Agentów",
+    "addFirstAgent": "Dodaj Agenta",
+    "emptyTeam": "Ten zespół nie ma jeszcze członków",
+    "emptyDragHint": "Przeciągnij Agenta z panelu bocznego, aby zbudować zespół",
+    "emptyOpenSidebar": "Otwórz panel boczny, aby dodać Agentów",
+    "clickNodeHint": "Kliknij węzeł, aby zobaczyć szczegóły",
+    "settingsBtn": "Ustawienia",
+    "description": "Opis",
+    "descriptionPlaceholder": "Czym zajmuje się ten zespół?",
+    "sidebar": {
+      "agents": "Agenci",
+      "detail": "Szczegóły Agenta",
+      "settings": "Ustawienia zespołu",
+      "inTeam": "W zespole"
+    }
+  }
+}

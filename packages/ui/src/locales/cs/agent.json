@@ -102,7 +102,6 @@
     "modelLabel": "MODEL",
     "inherited": "Zděděný",
     "capabilities": "SCHOPNOSTI",
-    "subAgentsLabel": "SUB-AGENTI",
     "openDetail": "Otevřít detail"
   },
   "memory": {

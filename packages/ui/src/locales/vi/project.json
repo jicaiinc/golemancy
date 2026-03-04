@@ -1,49 +1,45 @@
 {
   "label": {
-    "projectName": "T\u00caN D\u1ef0 \u00c1N",
-    "description": "M\u00d4 T\u1ea2",
-    "icon": "BI\u1ec2U T\u01af\u1ee2NG",
-    "projectId": "ID D\u1ef0 \u00c1N"
+    "projectName": "TÊN DỰ ÁN",
+    "description": "MÔ TẢ",
+    "icon": "BIỂU TƯỢNG",
+    "projectId": "ID DỰ ÁN"
   },
   "list": {
-    "title": "T\u1ea5t C\u1ea3 D\u1ef1 \u00c1n",
-    "subtitle_one": "{{count}} d\u1ef1 \u00e1n trong workspace c\u1ee7a b\u1ea1n",
-    "subtitle_other": "{{count}} d\u1ef1 \u00e1n trong workspace c\u1ee7a b\u1ea1n",
-    "newBtn": "+ D\u1ef1 \u00c1n M\u1edbi",
-    "empty": "Ch\u01b0a c\u00f3 d\u1ef1 \u00e1n",
-    "createFirst": "T\u1ea1o D\u1ef1 \u00c1n \u0110\u1ea7u Ti\u00ean",
-    "openInWindow": "M\u1edf trong C\u1eeda S\u1ed5 M\u1edbi",
+    "title": "Tất Cả Dự Án",
+    "subtitle_one": "{{count}} dự án trong workspace của bạn",
+    "subtitle_other": "{{count}} dự án trong workspace của bạn",
+    "newBtn": "+ Dự Án Mới",
+    "empty": "Chưa có dự án",
+    "createFirst": "Tạo Dự Án Đầu Tiên",
+    "openInWindow": "Mở trong Cửa Sổ Mới",
     "agents_one": "{{count}} agent",
     "agents_other": "{{count}} agent",
-    "running_one": "{{count}} \u0111ang ch\u1ea1y",
-    "running_other": "{{count}} \u0111ang ch\u1ea1y"
+    "running_one": "{{count}} đang chạy",
+    "running_other": "{{count}} đang chạy"
   },
   "create": {
-    "modalTitle": "T\u1ea1o D\u1ef1 \u00c1n M\u1edbi",
-    "createBtn": "T\u1ea1o D\u1ef1 \u00c1n",
-    "namePlaceholder": "D\u1ef1 \u00c1n Tuy\u1ec7t V\u1eddi",
-    "descPlaceholder": "D\u1ef1 \u00e1n n\u00e0y v\u1ec1 g\u00ec?"
+    "modalTitle": "Tạo Dự Án Mới",
+    "createBtn": "Tạo Dự Án",
+    "namePlaceholder": "Dự Án Tuyệt Vời",
+    "descPlaceholder": "Dự án này về gì?"
   },
   "settings": {
-    "title": "C\u00e0i \u0110\u1eb7t D\u1ef1 \u00c1n",
-    "savedMsg": "\u0110\u00e3 l\u01b0u!",
-    "clickToCopy": "Nh\u1ea5p \u0111\u1ec3 sao ch\u00e9p",
+    "title": "Cài Đặt Dự Án",
+    "savedMsg": "Đã lưu!",
+    "clickToCopy": "Nhấp để sao chép",
     "tabs": {
       "general": "Chung",
-      "agent": "Agent",
-      "permissions": "Quy\u1ec1n"
-    },
-    "agent": {
-      "mainLabel": "MAIN AGENT",
-      "mainDesc": "Agent m\u1eb7c \u0111\u1ecbnh cho c\u00e1c cu\u1ed9c tr\u00f2 chuy\u1ec7n m\u1edbi trong d\u1ef1 \u00e1n n\u00e0y.",
-      "noAgents": "Ch\u01b0a c\u00f3 agent trong d\u1ef1 \u00e1n n\u00e0y. H\u00e3y t\u1ea1o agent tr\u01b0\u1edbc.",
-      "goToAgents": "\u0110i \u0111\u1ebfn Agent",
-      "none": "Kh\u00f4ng c\u00f3",
-      "configure": "C\u1ea5u h\u00ecnh Agent \u2192"
+      "permissions": "Quyền"
     },
     "general": {
-      "sectionTitle": "TH\u00d4NG TIN C\u01a0 B\u1ea2N",
-      "saveBtn": "L\u01b0u Thay \u0110\u1ed5i"
+      "sectionTitle": "THÔNG TIN CƠ BẢN",
+      "saveBtn": "Lưu Thay Đổi",
+      "defaultLabel": "AGENT / ĐỘI MẶC ĐỊNH",
+      "defaultDesc": "Agent hoặc đội mặc định cho các cuộc trò chuyện mới.",
+      "defaultNone": "Không",
+      "defaultTeamsGroup": "Đội",
+      "defaultAgentsGroup": "Agent"
     }
   }
 }

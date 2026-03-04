@@ -8,7 +8,8 @@
     "mcpServers": "MCP 서버",
     "tasks": "대화 작업",
     "artifacts": "아티팩트",
-    "settings": "설정"
+    "settings": "설정",
+    "teams": "팀"
   },
   "sidebar": {
     "navigation": "내비게이션",

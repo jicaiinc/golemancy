@@ -33,20 +33,16 @@
     "clickToCopy": "Faceți clic pentru a copia",
     "tabs": {
       "general": "General",
-      "agent": "Agent",
       "permissions": "Permisiuni"
-    },
-    "agent": {
-      "mainLabel": "AGENT PRINCIPAL",
-      "mainDesc": "Agentul implicit pentru conversații noi în acest proiect.",
-      "noAgents": "Niciun agent în acest proiect. Creați mai întâi un agent.",
-      "goToAgents": "Mergeți la agenți",
-      "none": "Niciunul",
-      "configure": "Configurare agent \u2192"
     },
     "general": {
       "sectionTitle": "INFORMAȚII DE BAZĂ",
-      "saveBtn": "Salvare modificări"
+      "saveBtn": "Salvare modificări",
+      "defaultLabel": "AGENT / ECHIPĂ IMPLICITĂ",
+      "defaultDesc": "Agentul sau echipa implicită pentru conversațiile noi.",
+      "defaultNone": "Niciunul",
+      "defaultTeamsGroup": "Echipe",
+      "defaultAgentsGroup": "Agenți"
     }
   }
 }

@@ -55,6 +55,8 @@
       "daily9am": "Ogni giorno 9:00",
       "weeklyMon": "Ogni lunedì"
     },
-    "invalidExpression": "Espressione non valida"
+    "invalidExpression": "Espressione non valida",
+    "teamLabel": "TEAM (opzionale)",
+    "noTeam": "Nessun team"
   }
 }

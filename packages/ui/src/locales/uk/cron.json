@@ -55,6 +55,8 @@
       "daily9am": "Щодня о 9:00",
       "weeklyMon": "Щотижня Пн"
     },
-    "invalidExpression": "Неприпустимий вираз"
+    "invalidExpression": "Неприпустимий вираз",
+    "teamLabel": "КОМАНДА (необов'язково)",
+    "noTeam": "Без команди"
   }
 }

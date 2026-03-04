@@ -8,7 +8,8 @@
     "mcpServers": "Pelayan MCP",
     "tasks": "Tugas Perbualan",
     "artifacts": "Artifak",
-    "settings": "Tetapan"
+    "settings": "Tetapan",
+    "teams": "Pasukan"
   },
   "sidebar": {
     "navigation": "NAVIGASI",
@@ -26,7 +27,7 @@
       "sandbox": "Sandbox",
       "unrestricted": "Unrestricted"
     },
-    "degraded": "(terdegradasi \u2192 {{mode}})",
+    "degraded": "(terdegradasi → {{mode}})",
     "tasks": "Tugas {{completed}}/{{total}}",
     "conversationTasks": "TUGAS PERBUALAN",
     "contextUsage": "Konteks: {{used}} / {{max}} ({{percent}}%)",

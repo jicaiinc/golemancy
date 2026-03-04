@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Team",
+    "subtitle_one": "{{count}} team i detta projekt",
+    "subtitle_other": "{{count}} team i detta projekt",
+    "newBtn": "+ Nytt Team",
+    "empty": "Inga team ännu",
+    "createFirst": "Skapa ditt första team",
+    "leader": "Ledare",
+    "members_one": "{{count}} medlem",
+    "members_other": "{{count}} medlemmar"
+  },
+  "create": {
+    "modalTitle": "Skapa nytt team",
+    "createBtn": "Skapa team",
+    "nameLabel": "NAMN",
+    "namePlaceholder": "t.ex. Forskningsteam",
+    "descLabel": "BESKRIVNING",
+    "descPlaceholder": "Vad gör detta team?"
+  },
+  "detail": {
+    "notFound": "Team hittades inte.",
+    "backBtn": "< Team",
+    "savedMsg": "Sparat!"
+  },
+  "topology": {
+    "removeMember": "Ta bort från team",
+    "resetLayout": "Återställ layout",
+    "openDetail": "Öppna agentdetalj",
+    "deleteTeam": "Ta bort team",
+    "deleteTeamConfirm": "Är du säker på att du vill ta bort detta team?",
+    "instruction": "Teaminstruktion",
+    "instructionPlaceholder": "Instruktioner som injiceras i ledar-agentens kontext...",
+    "leader": "LEDARE",
+    "skills": "Färdigheter",
+    "noSkills": "Inga färdigheter",
+    "tools": "Verktyg",
+    "noTools": "Inga verktyg",
+    "mcpServers": "MCP-servrar",
+    "noMcpServers": "Inga MCP-servrar",
+    "memory": "Minne",
+    "memoryCount_one": "{{count}} minne",
+    "memoryCount_other": "{{count}} minnen",
+    "memoryEnabled": "Aktiverat",
+    "memoryDisabled": "Inaktiverat",
+    "noAgentsAvailable": "Inga agenter tillgängliga",
+    "addFirstAgent": "Lägg till agent",
+    "emptyTeam": "Detta team har inga medlemmar ännu",
+    "emptyDragHint": "Dra en agent från sidofältet för att bygga ditt team",
+    "emptyOpenSidebar": "Öppna sidofältet för att lägga till agenter",
+    "clickNodeHint": "Klicka på en nod för detaljer",
+    "settingsBtn": "Inställningar",
+    "description": "Beskrivning",
+    "descriptionPlaceholder": "Vad gör detta team?",
+    "sidebar": {
+      "agents": "Agenter",
+      "detail": "Agentdetalj",
+      "settings": "Teaminställningar",
+      "inTeam": "I team"
+    }
+  }
+}

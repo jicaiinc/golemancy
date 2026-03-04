@@ -55,6 +55,8 @@
       "daily9am": "Täglich 9 Uhr",
       "weeklyMon": "Wöchentlich Mo"
     },
-    "invalidExpression": "Ungültiger Ausdruck"
+    "invalidExpression": "Ungültiger Ausdruck",
+    "teamLabel": "TEAM (optional)",
+    "noTeam": "Kein Team"
   }
 }

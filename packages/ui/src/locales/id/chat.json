@@ -3,7 +3,9 @@
     "hideHistory": "Sembunyikan riwayat chat",
     "showHistory": "Tampilkan riwayat chat",
     "new": "+ Baru",
-    "clickToRename": "Klik untuk mengganti nama"
+    "clickToRename": "Klik untuk mengganti nama",
+    "teams": "Tim",
+    "agents": "Agen"
   },
   "sidebar": {
     "newChat": "+ Chat Baru",
@@ -13,7 +15,8 @@
     "startConversation": "Mulai percakapan...",
     "compacting": "Memadatkan",
     "thinking": "Berpikir",
-    "imageMsgTitle": "Pesan gambar"
+    "imageMsgTitle": "Pesan gambar",
+    "maxStepsReached": "Agen mencapai batas langkah maksimum ({{steps}}/{{maxSteps}}). Kirim pesan untuk melanjutkan."
   },
   "empty": {
     "readyToChat": "Siap untuk mengobrol",

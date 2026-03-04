@@ -30,20 +30,16 @@
     "clickToCopy": "Klik untuk menyalin",
     "tabs": {
       "general": "Umum",
-      "agent": "Agent",
       "permissions": "Permissions"
-    },
-    "agent": {
-      "mainLabel": "MAIN AGENT",
-      "mainDesc": "Agent default untuk percakapan baru di proyek ini.",
-      "noAgents": "Belum ada agent di proyek ini. Buat agent terlebih dahulu.",
-      "goToAgents": "Ke Halaman Agent",
-      "none": "Tidak ada",
-      "configure": "Konfigurasi Agent \u2192"
     },
     "general": {
       "sectionTitle": "INFO DASAR",
-      "saveBtn": "Simpan Perubahan"
+      "saveBtn": "Simpan Perubahan",
+      "defaultLabel": "AGEN / TIM DEFAULT",
+      "defaultDesc": "Agen atau tim default untuk percakapan baru.",
+      "defaultNone": "Tidak ada",
+      "defaultTeamsGroup": "Tim",
+      "defaultAgentsGroup": "Agen"
     }
   }
 }

@@ -94,7 +94,6 @@
     "modelLabel": "モデル",
     "inherited": "継承",
     "capabilities": "機能",
-    "subAgentsLabel": "サブ AGENT",
     "openDetail": "詳細を表示"
   },
   "memory": {

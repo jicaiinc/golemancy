@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Takımlar",
+    "subtitle_one": "Bu projede {{count}} takım",
+    "subtitle_other": "Bu projede {{count}} takım",
+    "newBtn": "+ Yeni Takım",
+    "empty": "Henüz takım yok",
+    "createFirst": "İlk takımınızı oluşturun",
+    "leader": "Lider",
+    "members_one": "{{count}} üye",
+    "members_other": "{{count}} üye"
+  },
+  "create": {
+    "modalTitle": "Yeni takım oluştur",
+    "createBtn": "Takım oluştur",
+    "nameLabel": "AD",
+    "namePlaceholder": "örn. Araştırma Takımı",
+    "descLabel": "AÇIKLAMA",
+    "descPlaceholder": "Bu takım ne yapar?"
+  },
+  "detail": {
+    "notFound": "Takım bulunamadı.",
+    "backBtn": "< Takımlar",
+    "savedMsg": "Kaydedildi!"
+  },
+  "topology": {
+    "removeMember": "Takımdan çıkar",
+    "resetLayout": "Düzeni sıfırla",
+    "openDetail": "Ajan detayını aç",
+    "deleteTeam": "Takımı sil",
+    "deleteTeamConfirm": "Bu takımı silmek istediğinizden emin misiniz?",
+    "instruction": "Takım talimatı",
+    "instructionPlaceholder": "Lider Ajanın bağlamına enjekte edilen talimatlar...",
+    "leader": "LİDER",
+    "skills": "Beceriler",
+    "noSkills": "Beceri yok",
+    "tools": "Araçlar",
+    "noTools": "Araç yok",
+    "mcpServers": "MCP Sunucuları",
+    "noMcpServers": "MCP sunucusu yok",
+    "memory": "Bellek",
+    "memoryCount_one": "{{count}} anı",
+    "memoryCount_other": "{{count}} anı",
+    "memoryEnabled": "Etkin",
+    "memoryDisabled": "Devre dışı",
+    "noAgentsAvailable": "Kullanılabilir Ajan yok",
+    "addFirstAgent": "Ajan ekle",
+    "emptyTeam": "Bu takımın henüz üyesi yok",
+    "emptyDragHint": "Takımınızı oluşturmak için kenar çubuğundan bir Ajan sürükleyin",
+    "emptyOpenSidebar": "Ajan eklemek için kenar çubuğunu açın",
+    "clickNodeHint": "Detaylar için bir düğüme tıklayın",
+    "settingsBtn": "Ayarlar",
+    "description": "Açıklama",
+    "descriptionPlaceholder": "Bu takım ne yapar?",
+    "sidebar": {
+      "agents": "Ajanlar",
+      "detail": "Ajan Detayı",
+      "settings": "Takım Ayarları",
+      "inTeam": "Takımda"
+    }
+  }
+}

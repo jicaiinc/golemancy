@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Команди",
+    "subtitle_one": "{{count}} команда в цьому проєкті",
+    "subtitle_other": "{{count}} команд у цьому проєкті",
+    "newBtn": "+ Нова команда",
+    "empty": "Команд поки немає",
+    "createFirst": "Створіть свою першу команду",
+    "leader": "Лідер",
+    "members_one": "{{count}} учасник",
+    "members_other": "{{count}} учасників"
+  },
+  "create": {
+    "modalTitle": "Створити нову команду",
+    "createBtn": "Створити команду",
+    "nameLabel": "НАЗВА",
+    "namePlaceholder": "напр. Дослідницька група",
+    "descLabel": "ОПИС",
+    "descPlaceholder": "Чим займається ця команда?"
+  },
+  "detail": {
+    "notFound": "Команду не знайдено.",
+    "backBtn": "< Команди",
+    "savedMsg": "Збережено!"
+  },
+  "topology": {
+    "removeMember": "Видалити з команди",
+    "resetLayout": "Скинути макет",
+    "openDetail": "Відкрити деталі агента",
+    "deleteTeam": "Видалити команду",
+    "deleteTeamConfirm": "Ви впевнені, що хочете видалити цю команду?",
+    "instruction": "Інструкція команди",
+    "instructionPlaceholder": "Інструкції, що вставляються в контекст агента-лідера...",
+    "leader": "ЛІДЕР",
+    "skills": "Навички",
+    "noSkills": "Немає навичок",
+    "tools": "Інструменти",
+    "noTools": "Немає інструментів",
+    "mcpServers": "MCP-сервери",
+    "noMcpServers": "Немає MCP-серверів",
+    "memory": "Пам'ять",
+    "memoryCount_one": "{{count}} спогад",
+    "memoryCount_other": "{{count}} спогадів",
+    "memoryEnabled": "Увімкнена",
+    "memoryDisabled": "Вимкнена",
+    "noAgentsAvailable": "Немає доступних агентів",
+    "addFirstAgent": "Додати агента",
+    "emptyTeam": "У цій команді поки немає учасників",
+    "emptyDragHint": "Перетягніть агента з бічної панелі, щоб почати формування команди",
+    "emptyOpenSidebar": "Відкрийте бічну панель для додавання агентів",
+    "clickNodeHint": "Натисніть на вузол для перегляду деталей",
+    "settingsBtn": "Налаштування",
+    "description": "Опис",
+    "descriptionPlaceholder": "Чим займається ця команда?",
+    "sidebar": {
+      "agents": "Агенти",
+      "detail": "Деталі агента",
+      "settings": "Налаштування команди",
+      "inTeam": "У команді"
+    }
+  }
+}

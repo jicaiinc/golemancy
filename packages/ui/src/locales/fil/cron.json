@@ -11,7 +11,7 @@
     "runBtn": "Patakbuhin",
     "historyBtn": "Kasaysayan",
     "runningStatus": "Tumatakbo...",
-    "viewChat": "Tingnan ang Chat \u2192",
+    "viewChat": "Tingnan ang Chat →",
     "next": "Susunod: {{time}}",
     "at": "Sa {{time}}",
     "agentNotFound": "Hindi nahanap ang Agent",
@@ -23,10 +23,10 @@
     "confirm": "Sigurado ka bang gusto mong i-delete ang \"{{name}}\"? Hindi na maibabalik ang aksyon na ito."
   },
   "runsModal": {
-    "titleWithName": "Kasaysayan ng Pagtakbo \u2014 {{name}}",
+    "titleWithName": "Kasaysayan ng Pagtakbo — {{name}}",
     "title": "Kasaysayan ng Pagtakbo",
     "noRuns": "Wala pang takbo",
-    "openChat": "BUKSAN ANG CHAT \u2192"
+    "openChat": "BUKSAN ANG CHAT →"
   },
   "status": {
     "success": "matagumpay",
@@ -55,6 +55,8 @@
       "daily9am": "Araw-araw 9am",
       "weeklyMon": "Lingguhan Lun"
     },
-    "invalidExpression": "Hindi valid ang expression"
+    "invalidExpression": "Hindi valid ang expression",
+    "teamLabel": "KOPONAN (opsyonal)",
+    "noTeam": "Walang koponan"
   }
 }

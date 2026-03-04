@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Team",
+    "subtitle_one": "{{count}} team in questo progetto",
+    "subtitle_other": "{{count}} team in questo progetto",
+    "newBtn": "+ Nuovo Team",
+    "empty": "Nessun team ancora",
+    "createFirst": "Crea il tuo primo team",
+    "leader": "Leader",
+    "members_one": "{{count}} membro",
+    "members_other": "{{count}} membri"
+  },
+  "create": {
+    "modalTitle": "Crea nuovo team",
+    "createBtn": "Crea team",
+    "nameLabel": "NOME",
+    "namePlaceholder": "es. Team di ricerca",
+    "descLabel": "DESCRIZIONE",
+    "descPlaceholder": "Cosa fa questo team?"
+  },
+  "detail": {
+    "notFound": "Team non trovato.",
+    "backBtn": "< Team",
+    "savedMsg": "Salvato!"
+  },
+  "topology": {
+    "removeMember": "Rimuovi dal team",
+    "resetLayout": "Reimposta layout",
+    "openDetail": "Apri dettaglio Agent",
+    "deleteTeam": "Elimina team",
+    "deleteTeamConfirm": "Sei sicuro di voler eliminare questo team?",
+    "instruction": "Istruzione del team",
+    "instructionPlaceholder": "Istruzioni iniettate nel contesto dell'Agent leader...",
+    "leader": "LEADER",
+    "skills": "Skill",
+    "noSkills": "Nessuno skill",
+    "tools": "Strumenti",
+    "noTools": "Nessuno strumento",
+    "mcpServers": "Server MCP",
+    "noMcpServers": "Nessun server MCP",
+    "memory": "Memoria",
+    "memoryCount_one": "{{count}} memoria",
+    "memoryCount_other": "{{count}} memorie",
+    "memoryEnabled": "Abilitata",
+    "memoryDisabled": "Disabilitata",
+    "noAgentsAvailable": "Nessun Agent disponibile",
+    "addFirstAgent": "Aggiungi Agent",
+    "emptyTeam": "Questo team non ha ancora membri",
+    "emptyDragHint": "Trascina un Agent dalla barra laterale per costruire il tuo team",
+    "emptyOpenSidebar": "Apri la barra laterale per aggiungere Agent",
+    "clickNodeHint": "Clicca su un nodo per i dettagli",
+    "settingsBtn": "Impostazioni",
+    "description": "Descrizione",
+    "descriptionPlaceholder": "Cosa fa questo team?",
+    "sidebar": {
+      "agents": "Agent",
+      "detail": "Dettaglio Agent",
+      "settings": "Impostazioni team",
+      "inTeam": "Nel team"
+    }
+  }
+}

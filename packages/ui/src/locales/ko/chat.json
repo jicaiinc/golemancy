@@ -3,7 +3,9 @@
     "hideHistory": "채팅 기록 숨기기",
     "showHistory": "채팅 기록 표시",
     "new": "+ 새로 만들기",
-    "clickToRename": "클릭하여 이름 변경"
+    "clickToRename": "클릭하여 이름 변경",
+    "teams": "팀",
+    "agents": "Agent"
   },
   "sidebar": {
     "newChat": "+ 새 채팅",
@@ -13,7 +15,8 @@
     "startConversation": "대화를 시작하세요...",
     "compacting": "압축 중",
     "thinking": "생각 중",
-    "imageMsgTitle": "이미지 메시지"
+    "imageMsgTitle": "이미지 메시지",
+    "maxStepsReached": "Agent가 최대 단계 수에 도달했습니다 ({{steps}}/{{maxSteps}}). 메시지를 보내 계속하세요."
   },
   "empty": {
     "readyToChat": "채팅 준비 완료",

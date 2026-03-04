@@ -3,7 +3,9 @@
     "hideHistory": "Ascundeți istoricul",
     "showHistory": "Afișați istoricul",
     "new": "+ Nou",
-    "clickToRename": "Faceți clic pentru a redenumi"
+    "clickToRename": "Faceți clic pentru a redenumi",
+    "teams": "Echipe",
+    "agents": "Agenți"
   },
   "sidebar": {
     "newChat": "+ Conversație nouă",
@@ -13,7 +15,8 @@
     "startConversation": "Începeți conversația...",
     "compacting": "Se compactează",
     "thinking": "Se gândește",
-    "imageMsgTitle": "Mesaj imagine"
+    "imageMsgTitle": "Mesaj imagine",
+    "maxStepsReached": "Agentul a atins limita maximă de pași ({{steps}}/{{maxSteps}}). Trimite un mesaj pentru a continua."
   },
   "empty": {
     "readyToChat": "Gata de conversație",

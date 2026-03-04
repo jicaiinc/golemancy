@@ -3,7 +3,9 @@
     "hideHistory": "Chatverlauf ausblenden",
     "showHistory": "Chatverlauf anzeigen",
     "new": "+ Neu",
-    "clickToRename": "Klicken zum Umbenennen"
+    "clickToRename": "Klicken zum Umbenennen",
+    "teams": "Teams",
+    "agents": "Agents"
   },
   "sidebar": {
     "newChat": "+ Neuer Chat",
@@ -13,7 +15,8 @@
     "startConversation": "Konversation starten...",
     "compacting": "Komprimierung",
     "thinking": "Denkt nach",
-    "imageMsgTitle": "Bildnachricht"
+    "imageMsgTitle": "Bildnachricht",
+    "maxStepsReached": "Agent hat die maximale Schrittanzahl erreicht ({{steps}}/{{maxSteps}}). Sende eine Nachricht, um fortzufahren."
   },
   "empty": {
     "readyToChat": "Bereit zum Chatten",

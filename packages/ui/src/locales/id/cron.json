@@ -11,7 +11,7 @@
     "runBtn": "Jalankan",
     "historyBtn": "Riwayat",
     "runningStatus": "Berjalan...",
-    "viewChat": "Lihat Chat \u2192",
+    "viewChat": "Lihat Chat →",
     "next": "Berikutnya: {{time}}",
     "at": "Pada {{time}}",
     "agentNotFound": "Agent tidak ditemukan",
@@ -23,10 +23,10 @@
     "confirm": "Apakah Anda yakin ingin menghapus \"{{name}}\"? Tindakan ini tidak dapat dibatalkan."
   },
   "runsModal": {
-    "titleWithName": "Riwayat Eksekusi \u2014 {{name}}",
+    "titleWithName": "Riwayat Eksekusi — {{name}}",
     "title": "Riwayat Eksekusi",
     "noRuns": "Belum ada eksekusi",
-    "openChat": "BUKA CHAT \u2192"
+    "openChat": "BUKA CHAT →"
   },
   "status": {
     "success": "berhasil",
@@ -55,6 +55,8 @@
       "daily9am": "Harian jam 9",
       "weeklyMon": "Mingguan Senin"
     },
-    "invalidExpression": "Ekspresi tidak valid"
+    "invalidExpression": "Ekspresi tidak valid",
+    "teamLabel": "TIM (opsional)",
+    "noTeam": "Tanpa tim"
   }
 }

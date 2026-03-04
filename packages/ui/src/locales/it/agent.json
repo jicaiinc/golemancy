@@ -94,7 +94,6 @@
     "modelLabel": "MODELLO",
     "inherited": "Ereditato",
     "capabilities": "CAPACITÀ",
-    "subAgentsLabel": "SUB-AGENT",
     "openDetail": "Apri Dettaglio"
   },
   "memory": {

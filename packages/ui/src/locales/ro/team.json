@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Echipe",
+    "subtitle_one": "{{count}} echipă în acest proiect",
+    "subtitle_other": "{{count}} echipe în acest proiect",
+    "newBtn": "+ Echipă nouă",
+    "empty": "Nicio echipă încă",
+    "createFirst": "Creează prima ta echipă",
+    "leader": "Lider",
+    "members_one": "{{count}} membru",
+    "members_other": "{{count}} membri"
+  },
+  "create": {
+    "modalTitle": "Creează echipă nouă",
+    "createBtn": "Creează echipă",
+    "nameLabel": "NUME",
+    "namePlaceholder": "ex. Echipa de cercetare",
+    "descLabel": "DESCRIERE",
+    "descPlaceholder": "Ce face această echipă?"
+  },
+  "detail": {
+    "notFound": "Echipa nu a fost găsită.",
+    "backBtn": "< Echipe",
+    "savedMsg": "Salvat!"
+  },
+  "topology": {
+    "removeMember": "Elimină din echipă",
+    "resetLayout": "Resetare aspect",
+    "openDetail": "Deschide detalii Agent",
+    "deleteTeam": "Șterge echipa",
+    "deleteTeamConfirm": "Ești sigur că vrei să ștergi această echipă?",
+    "instruction": "Instrucțiune echipă",
+    "instructionPlaceholder": "Instrucțiuni injectate în contextul Agentului lider...",
+    "leader": "LIDER",
+    "skills": "Abilități",
+    "noSkills": "Fără abilități",
+    "tools": "Instrumente",
+    "noTools": "Fără instrumente",
+    "mcpServers": "Servere MCP",
+    "noMcpServers": "Fără servere MCP",
+    "memory": "Memorie",
+    "memoryCount_one": "{{count}} amintire",
+    "memoryCount_other": "{{count}} amintiri",
+    "memoryEnabled": "Activată",
+    "memoryDisabled": "Dezactivată",
+    "noAgentsAvailable": "Niciun Agent disponibil",
+    "addFirstAgent": "Adaugă Agent",
+    "emptyTeam": "Această echipă nu are încă membri",
+    "emptyDragHint": "Trage un Agent din bara laterală pentru a construi echipa",
+    "emptyOpenSidebar": "Deschide bara laterală pentru a adăuga Agenți",
+    "clickNodeHint": "Apasă pe un nod pentru detalii",
+    "settingsBtn": "Setări",
+    "description": "Descriere",
+    "descriptionPlaceholder": "Ce face această echipă?",
+    "sidebar": {
+      "agents": "Agenți",
+      "detail": "Detalii Agent",
+      "settings": "Setări echipă",
+      "inTeam": "În echipă"
+    }
+  }
+}

@@ -3,7 +3,9 @@
     "hideHistory": "Itago ang chat history",
     "showHistory": "Ipakita ang chat history",
     "new": "+ Bago",
-    "clickToRename": "I-click para palitan ang pangalan"
+    "clickToRename": "I-click para palitan ang pangalan",
+    "teams": "Mga Koponan",
+    "agents": "Mga Agent"
   },
   "sidebar": {
     "newChat": "+ Bagong Chat",
@@ -13,7 +15,8 @@
     "startConversation": "Simulan ang pag-uusap...",
     "compacting": "Kino-compact",
     "thinking": "Nag-iisip",
-    "imageMsgTitle": "Mensaheng may larawan"
+    "imageMsgTitle": "Mensaheng may larawan",
+    "maxStepsReached": "Naabot ng Agent ang maximum na bilang ng hakbang ({{steps}}/{{maxSteps}}). Magpadala ng mensahe para magpatuloy."
   },
   "empty": {
     "readyToChat": "Handa nang makipag-chat",

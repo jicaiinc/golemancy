@@ -3,7 +3,9 @@
     "hideHistory": "Скрыть историю чата",
     "showHistory": "Показать историю чата",
     "new": "+ Новый",
-    "clickToRename": "Нажмите для переименования"
+    "clickToRename": "Нажмите для переименования",
+    "teams": "Команды",
+    "agents": "Агенты"
   },
   "sidebar": {
     "newChat": "+ Новый чат",
@@ -13,7 +15,8 @@
     "startConversation": "Начните разговор...",
     "compacting": "Сжатие",
     "thinking": "Размышление",
-    "imageMsgTitle": "Изображение"
+    "imageMsgTitle": "Изображение",
+    "maxStepsReached": "Агент достиг максимального количества шагов ({{steps}}/{{maxSteps}}). Отправьте сообщение, чтобы продолжить."
   },
   "empty": {
     "readyToChat": "Готов к общению",

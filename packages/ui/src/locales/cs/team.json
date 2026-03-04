@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Týmy",
+    "subtitle_one": "{{count}} tým v tomto projektu",
+    "subtitle_other": "{{count}} týmů v tomto projektu",
+    "newBtn": "+ Nový tým",
+    "empty": "Zatím žádné týmy",
+    "createFirst": "Vytvořte svůj první tým",
+    "leader": "Vedoucí",
+    "members_one": "{{count}} člen",
+    "members_other": "{{count}} členů"
+  },
+  "create": {
+    "modalTitle": "Vytvořit nový tým",
+    "createBtn": "Vytvořit tým",
+    "nameLabel": "NÁZEV",
+    "namePlaceholder": "např. Výzkumný tým",
+    "descLabel": "POPIS",
+    "descPlaceholder": "Co tento tým dělá?"
+  },
+  "detail": {
+    "notFound": "Tým nenalezen.",
+    "backBtn": "< Týmy",
+    "savedMsg": "Uloženo!"
+  },
+  "topology": {
+    "removeMember": "Odebrat z týmu",
+    "resetLayout": "Obnovit rozložení",
+    "openDetail": "Otevřít detail Agenta",
+    "deleteTeam": "Smazat tým",
+    "deleteTeamConfirm": "Opravdu chcete smazat tento tým?",
+    "instruction": "Instrukce týmu",
+    "instructionPlaceholder": "Instrukce vložené do kontextu vedoucího Agenta...",
+    "leader": "VEDOUCÍ",
+    "skills": "Dovednosti",
+    "noSkills": "Žádné dovednosti",
+    "tools": "Nástroje",
+    "noTools": "Žádné nástroje",
+    "mcpServers": "MCP servery",
+    "noMcpServers": "Žádné MCP servery",
+    "memory": "Paměť",
+    "memoryCount_one": "{{count}} vzpomínka",
+    "memoryCount_other": "{{count}} vzpomínek",
+    "memoryEnabled": "Povolena",
+    "memoryDisabled": "Zakázána",
+    "noAgentsAvailable": "Žádní dostupní Agenti",
+    "addFirstAgent": "Přidat Agenta",
+    "emptyTeam": "Tento tým zatím nemá členy",
+    "emptyDragHint": "Přetáhněte Agenta z postranního panelu pro sestavení týmu",
+    "emptyOpenSidebar": "Otevřete postranní panel pro přidání Agentů",
+    "clickNodeHint": "Klikněte na uzel pro zobrazení detailů",
+    "settingsBtn": "Nastavení",
+    "description": "Popis",
+    "descriptionPlaceholder": "Co tento tým dělá?",
+    "sidebar": {
+      "agents": "Agenti",
+      "detail": "Detail Agenta",
+      "settings": "Nastavení týmu",
+      "inTeam": "V týmu"
+    }
+  }
+}

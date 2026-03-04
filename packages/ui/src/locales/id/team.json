@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Tim",
+    "subtitle_one": "{{count}} tim dalam proyek ini",
+    "subtitle_other": "{{count}} tim dalam proyek ini",
+    "newBtn": "+ Tim Baru",
+    "empty": "Belum ada tim",
+    "createFirst": "Buat Tim Pertamamu",
+    "leader": "Pemimpin",
+    "members_one": "{{count}} anggota",
+    "members_other": "{{count}} anggota"
+  },
+  "create": {
+    "modalTitle": "Buat Tim Baru",
+    "createBtn": "Buat Tim",
+    "nameLabel": "NAMA",
+    "namePlaceholder": "cth. Tim Riset",
+    "descLabel": "DESKRIPSI",
+    "descPlaceholder": "Apa yang dilakukan tim ini?"
+  },
+  "detail": {
+    "notFound": "Tim tidak ditemukan.",
+    "backBtn": "< Tim",
+    "savedMsg": "Tersimpan!"
+  },
+  "topology": {
+    "removeMember": "Hapus dari Tim",
+    "resetLayout": "Reset Tata Letak",
+    "openDetail": "Buka Detail Agen",
+    "deleteTeam": "Hapus Tim",
+    "deleteTeamConfirm": "Apakah kamu yakin ingin menghapus tim ini?",
+    "instruction": "Instruksi Tim",
+    "instructionPlaceholder": "Instruksi yang dimasukkan ke konteks Agen pemimpin...",
+    "leader": "PEMIMPIN",
+    "skills": "Skill",
+    "noSkills": "Tidak ada skill",
+    "tools": "Alat",
+    "noTools": "Tidak ada alat",
+    "mcpServers": "Server MCP",
+    "noMcpServers": "Tidak ada server MCP",
+    "memory": "Memori",
+    "memoryCount_one": "{{count}} memori",
+    "memoryCount_other": "{{count}} memori",
+    "memoryEnabled": "Aktif",
+    "memoryDisabled": "Nonaktif",
+    "noAgentsAvailable": "Tidak ada Agen tersedia",
+    "addFirstAgent": "Tambah Agen",
+    "emptyTeam": "Tim ini belum memiliki anggota",
+    "emptyDragHint": "Seret Agen dari sidebar untuk mulai membangun tim",
+    "emptyOpenSidebar": "Buka sidebar untuk menambah Agen",
+    "clickNodeHint": "Klik node untuk detail",
+    "settingsBtn": "Pengaturan",
+    "description": "Deskripsi",
+    "descriptionPlaceholder": "Apa yang dilakukan tim ini?",
+    "sidebar": {
+      "agents": "Agen",
+      "detail": "Detail Agen",
+      "settings": "Pengaturan Tim",
+      "inTeam": "Dalam Tim"
+    }
+  }
+}

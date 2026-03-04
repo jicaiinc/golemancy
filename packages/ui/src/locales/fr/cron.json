@@ -55,6 +55,8 @@
       "daily9am": "Quotidien 9h",
       "weeklyMon": "Hebdo Lun"
     },
-    "invalidExpression": "Expression invalide"
+    "invalidExpression": "Expression invalide",
+    "teamLabel": "ÉQUIPE (optionnel)",
+    "noTeam": "Pas d'équipe"
   }
 }

@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Đội",
+    "subtitle_one": "{{count}} đội trong dự án này",
+    "subtitle_other": "{{count}} đội trong dự án này",
+    "newBtn": "+ Đội mới",
+    "empty": "Chưa có đội nào",
+    "createFirst": "Tạo đội đầu tiên",
+    "leader": "Trưởng nhóm",
+    "members_one": "{{count}} thành viên",
+    "members_other": "{{count}} thành viên"
+  },
+  "create": {
+    "modalTitle": "Tạo đội mới",
+    "createBtn": "Tạo đội",
+    "nameLabel": "TÊN",
+    "namePlaceholder": "vd. Đội nghiên cứu",
+    "descLabel": "MÔ TẢ",
+    "descPlaceholder": "Đội này làm gì?"
+  },
+  "detail": {
+    "notFound": "Không tìm thấy đội.",
+    "backBtn": "< Đội",
+    "savedMsg": "Đã lưu!"
+  },
+  "topology": {
+    "removeMember": "Xóa khỏi đội",
+    "resetLayout": "Đặt lại bố cục",
+    "openDetail": "Mở chi tiết Agent",
+    "deleteTeam": "Xóa đội",
+    "deleteTeamConfirm": "Bạn có chắc muốn xóa đội này?",
+    "instruction": "Hướng dẫn đội",
+    "instructionPlaceholder": "Hướng dẫn được chèn vào ngữ cảnh của Agent trưởng nhóm...",
+    "leader": "TRƯỞNG NHÓM",
+    "skills": "Kỹ năng",
+    "noSkills": "Không có kỹ năng",
+    "tools": "Công cụ",
+    "noTools": "Không có công cụ",
+    "mcpServers": "Máy chủ MCP",
+    "noMcpServers": "Không có máy chủ MCP",
+    "memory": "Bộ nhớ",
+    "memoryCount_one": "{{count}} ký ức",
+    "memoryCount_other": "{{count}} ký ức",
+    "memoryEnabled": "Đã bật",
+    "memoryDisabled": "Đã tắt",
+    "noAgentsAvailable": "Không có Agent khả dụng",
+    "addFirstAgent": "Thêm Agent",
+    "emptyTeam": "Đội này chưa có thành viên",
+    "emptyDragHint": "Kéo Agent từ thanh bên để xây dựng đội",
+    "emptyOpenSidebar": "Mở thanh bên để thêm Agent",
+    "clickNodeHint": "Nhấp vào nút để xem chi tiết",
+    "settingsBtn": "Cài đặt",
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Đội này làm gì?",
+    "sidebar": {
+      "agents": "Agent",
+      "detail": "Chi tiết Agent",
+      "settings": "Cài đặt đội",
+      "inTeam": "Trong đội"
+    }
+  }
+}

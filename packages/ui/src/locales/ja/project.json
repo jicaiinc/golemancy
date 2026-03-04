@@ -30,20 +30,16 @@
     "clickToCopy": "クリックしてコピー",
     "tabs": {
       "general": "基本情報",
-      "agent": "Agent",
       "permissions": "権限"
-    },
-    "agent": {
-      "mainLabel": "メイン AGENT",
-      "mainDesc": "このプロジェクトの新しい会話で使用するデフォルト Agent。",
-      "noAgents": "プロジェクトに Agent がありません。まず Agent を作成してください。",
-      "goToAgents": "Agent ページへ",
-      "none": "なし",
-      "configure": "Agent を設定 \u2192"
     },
     "general": {
       "sectionTitle": "基本情報",
-      "saveBtn": "変更を保存"
+      "saveBtn": "変更を保存",
+      "defaultLabel": "デフォルト AGENT / チーム",
+      "defaultDesc": "新しい会話で使用するデフォルトの Agent またはチーム。",
+      "defaultNone": "なし",
+      "defaultTeamsGroup": "チーム",
+      "defaultAgentsGroup": "Agent"
     }
   }
 }

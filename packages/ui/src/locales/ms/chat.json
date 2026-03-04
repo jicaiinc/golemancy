@@ -3,7 +3,9 @@
     "hideHistory": "Sembunyikan sejarah chat",
     "showHistory": "Paparkan sejarah chat",
     "new": "+ Baharu",
-    "clickToRename": "Klik untuk menamakan semula"
+    "clickToRename": "Klik untuk menamakan semula",
+    "teams": "Pasukan",
+    "agents": "Ejen"
   },
   "sidebar": {
     "newChat": "+ Chat Baharu",
@@ -13,7 +15,8 @@
     "startConversation": "Mulakan perbualan...",
     "compacting": "Memadatkan",
     "thinking": "Berfikir",
-    "imageMsgTitle": "Mesej gambar"
+    "imageMsgTitle": "Mesej gambar",
+    "maxStepsReached": "Ejen telah mencapai had langkah maksimum ({{steps}}/{{maxSteps}}). Hantar mesej untuk meneruskan."
   },
   "empty": {
     "readyToChat": "Sedia untuk bersembang",

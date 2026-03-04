@@ -3,7 +3,9 @@
     "hideHistory": "Dölj chatthistorik",
     "showHistory": "Visa chatthistorik",
     "new": "+ Ny",
-    "clickToRename": "Klicka för att byta namn"
+    "clickToRename": "Klicka för att byta namn",
+    "teams": "Team",
+    "agents": "Agenter"
   },
   "sidebar": {
     "newChat": "+ Ny chatt",
@@ -13,7 +15,8 @@
     "startConversation": "Starta konversationen...",
     "compacting": "Komprimerar",
     "thinking": "Tänker",
-    "imageMsgTitle": "Bildmeddelande"
+    "imageMsgTitle": "Bildmeddelande",
+    "maxStepsReached": "Agenten nådde det maximala antalet steg ({{steps}}/{{maxSteps}}). Skicka ett meddelande för att fortsätta."
   },
   "empty": {
     "readyToChat": "Redo att chatta",

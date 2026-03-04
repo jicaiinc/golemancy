@@ -1,24 +1,25 @@
 {
   "item": {
-    "dashboard": "B\u1ea3ng \u0111i\u1ec1u khi\u1ec3n",
+    "dashboard": "Bảng điều khiển",
     "chats": "Chat",
-    "automations": "T\u1ef1 \u0111\u1ed9ng h\u00f3a",
+    "automations": "Tự động hóa",
     "agents": "Agent",
     "skills": "Skill",
     "mcpServers": "MCP Server",
-    "tasks": "Nhi\u1ec7m V\u1ee5 H\u1ed9i Tho\u1ea1i",
-    "artifacts": "S\u1ea3n ph\u1ea9m",
-    "settings": "C\u00e0i \u0111\u1eb7t"
+    "tasks": "Nhiệm Vụ Hội Thoại",
+    "artifacts": "Sản phẩm",
+    "settings": "Cài đặt",
+    "teams": "Đội"
   },
   "sidebar": {
-    "navigation": "\u0110I\u1ec0U H\u01af\u1edaNG",
-    "config": "C\u1ea4U H\u00ccNH",
-    "collapse": "<< Thu g\u1ecdn"
+    "navigation": "ĐIỀU HƯỚNG",
+    "config": "CẤU HÌNH",
+    "collapse": "<< Thu gọn"
   },
   "global": {
-    "allProjects": "T\u1ea5t C\u1ea3 D\u1ef1 \u00c1n",
-    "dashboard": "B\u1ea3ng \u0110i\u1ec1u Khi\u1ec3n",
-    "settings": "C\u00e0i \u0110\u1eb7t"
+    "allProjects": "Tất Cả Dự Án",
+    "dashboard": "Bảng Điều Khiển",
+    "settings": "Cài Đặt"
   },
   "statusBar": {
     "mode": {
@@ -26,20 +27,20 @@
       "sandbox": "Sandbox",
       "unrestricted": "Unrestricted"
     },
-    "degraded": "(gi\u1ea3m c\u1ea5p \u2192 {{mode}})",
-    "tasks": "Nhi\u1ec7m v\u1ee5 {{completed}}/{{total}}",
-    "conversationTasks": "NHI\u1ec6M V\u1ee4 H\u1ed8I THO\u1ea0I",
-    "contextUsage": "Ng\u1eef c\u1ea3nh: {{used}} / {{max}} ({{percent}}%)",
-    "contextEmpty": "Ng\u1eef c\u1ea3nh: -- / {{max}}",
-    "contextWindow": "C\u1eeca S\u1ed4 NG\u1eee C\u1ea2NH",
-    "usage": "S\u1eed d\u1ee5ng",
-    "compacting": "\u0110ang n\u00e9n",
-    "compactingAuto": "\u0110ang n\u00e9n (t\u1ef1 \u0111\u1ed9ng)",
-    "compactNow": "N\u00e9n Ngay",
+    "degraded": "(giảm cấp → {{mode}})",
+    "tasks": "Nhiệm vụ {{completed}}/{{total}}",
+    "conversationTasks": "NHIỆM VỤ HỘI THOẠI",
+    "contextUsage": "Ngữ cảnh: {{used}} / {{max}} ({{percent}}%)",
+    "contextEmpty": "Ngữ cảnh: -- / {{max}}",
+    "contextWindow": "CỬa SỔ NGỮ CẢNH",
+    "usage": "Sử dụng",
+    "compacting": "Đang nén",
+    "compactingAuto": "Đang nén (tự động)",
+    "compactNow": "Nén Ngay",
     "byAgent": "THEO AGENT",
     "byModel": "THEO MODEL",
-    "tokensInOut": "{{input}} v\u00e0o / {{output}} ra",
-    "tokens": "Token: {{input}} v\u00e0o / {{output}} ra",
+    "tokensInOut": "{{input}} vào / {{output}} ra",
+    "tokens": "Token: {{input}} vào / {{output}} ra",
     "tokensEmpty": "Token: --"
   }
 }

@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Teams",
+    "subtitle_one": "{{count}} Team in diesem Projekt",
+    "subtitle_other": "{{count}} Teams in diesem Projekt",
+    "newBtn": "+ Neues Team",
+    "empty": "Noch keine Teams",
+    "createFirst": "Erstes Team erstellen",
+    "leader": "Leiter",
+    "members_one": "{{count}} Mitglied",
+    "members_other": "{{count}} Mitglieder"
+  },
+  "create": {
+    "modalTitle": "Neues Team erstellen",
+    "createBtn": "Team erstellen",
+    "nameLabel": "NAME",
+    "namePlaceholder": "z.B. Forschungsteam",
+    "descLabel": "BESCHREIBUNG",
+    "descPlaceholder": "Was macht dieses Team?"
+  },
+  "detail": {
+    "notFound": "Team nicht gefunden.",
+    "backBtn": "< Teams",
+    "savedMsg": "Gespeichert!"
+  },
+  "topology": {
+    "removeMember": "Aus Team entfernen",
+    "resetLayout": "Layout zurücksetzen",
+    "openDetail": "Agent-Details öffnen",
+    "deleteTeam": "Team löschen",
+    "deleteTeamConfirm": "Möchten Sie dieses Team wirklich löschen?",
+    "instruction": "Team-Anweisung",
+    "instructionPlaceholder": "Anweisungen, die in den Kontext des Leiter-Agent eingefügt werden...",
+    "leader": "LEITER",
+    "skills": "Skills",
+    "noSkills": "Keine Skills",
+    "tools": "Tools",
+    "noTools": "Keine Tools",
+    "mcpServers": "MCP-Server",
+    "noMcpServers": "Keine MCP-Server",
+    "memory": "Gedächtnis",
+    "memoryCount_one": "{{count}} Erinnerung",
+    "memoryCount_other": "{{count}} Erinnerungen",
+    "memoryEnabled": "Aktiviert",
+    "memoryDisabled": "Deaktiviert",
+    "noAgentsAvailable": "Keine Agents verfügbar",
+    "addFirstAgent": "Agent hinzufügen",
+    "emptyTeam": "Dieses Team hat noch keine Mitglieder",
+    "emptyDragHint": "Agent aus der Seitenleiste ziehen, um das Team aufzubauen",
+    "emptyOpenSidebar": "Seitenleiste öffnen, um Agents hinzuzufügen",
+    "clickNodeHint": "Knoten anklicken für Details",
+    "settingsBtn": "Einstellungen",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Was macht dieses Team?",
+    "sidebar": {
+      "agents": "Agents",
+      "detail": "Agent-Detail",
+      "settings": "Team-Einstellungen",
+      "inTeam": "Im Team"
+    }
+  }
+}

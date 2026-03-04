@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Mga Koponan",
+    "subtitle_one": "{{count}} koponan sa proyektong ito",
+    "subtitle_other": "{{count}} koponan sa proyektong ito",
+    "newBtn": "+ Bagong Koponan",
+    "empty": "Wala pang koponan",
+    "createFirst": "Lumikha ng Iyong Unang Koponan",
+    "leader": "Pinuno",
+    "members_one": "{{count}} miyembro",
+    "members_other": "{{count}} miyembro"
+  },
+  "create": {
+    "modalTitle": "Lumikha ng Bagong Koponan",
+    "createBtn": "Lumikha ng Koponan",
+    "nameLabel": "PANGALAN",
+    "namePlaceholder": "hal. Koponan ng Pananaliksik",
+    "descLabel": "PAGLALARAWAN",
+    "descPlaceholder": "Ano ang ginagawa ng koponan na ito?"
+  },
+  "detail": {
+    "notFound": "Hindi nahanap ang koponan.",
+    "backBtn": "< Mga Koponan",
+    "savedMsg": "Na-save!"
+  },
+  "topology": {
+    "removeMember": "Alisin sa Koponan",
+    "resetLayout": "I-reset ang Layout",
+    "openDetail": "Buksan ang Detalye ng Agent",
+    "deleteTeam": "Burahin ang Koponan",
+    "deleteTeamConfirm": "Sigurado ka bang gusto mong burahin ang koponan na ito?",
+    "instruction": "Tagubilin ng Koponan",
+    "instructionPlaceholder": "Mga tagubilin na ini-inject sa konteksto ng pinuno na Agent...",
+    "leader": "PINUNO",
+    "skills": "Mga Kasanayan",
+    "noSkills": "Walang kasanayan",
+    "tools": "Mga Kasangkapan",
+    "noTools": "Walang kasangkapan",
+    "mcpServers": "Mga MCP Server",
+    "noMcpServers": "Walang MCP server",
+    "memory": "Memorya",
+    "memoryCount_one": "{{count}} alaala",
+    "memoryCount_other": "{{count}} alaala",
+    "memoryEnabled": "Naka-enable",
+    "memoryDisabled": "Naka-disable",
+    "noAgentsAvailable": "Walang available na Agent",
+    "addFirstAgent": "Magdagdag ng Agent",
+    "emptyTeam": "Wala pang miyembro ang koponan na ito",
+    "emptyDragHint": "Mag-drag ng Agent mula sa sidebar para simulan ang pagbuo ng koponan",
+    "emptyOpenSidebar": "Buksan ang sidebar para magdagdag ng mga Agent",
+    "clickNodeHint": "I-click ang node para sa mga detalye",
+    "settingsBtn": "Mga Setting",
+    "description": "Paglalarawan",
+    "descriptionPlaceholder": "Ano ang ginagawa ng koponan na ito?",
+    "sidebar": {
+      "agents": "Mga Agent",
+      "detail": "Detalye ng Agent",
+      "settings": "Mga Setting ng Koponan",
+      "inTeam": "Nasa Koponan"
+    }
+  }
+}

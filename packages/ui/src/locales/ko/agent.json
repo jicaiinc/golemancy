@@ -94,7 +94,6 @@
     "modelLabel": "모델",
     "inherited": "상속",
     "capabilities": "기능",
-    "subAgentsLabel": "서브 AGENT",
     "openDetail": "상세 보기"
   },
   "memory": {

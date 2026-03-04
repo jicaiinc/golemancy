@@ -36,20 +36,16 @@
     "clickToCopy": "Kliknij, aby skopiować",
     "tabs": {
       "general": "Ogólne",
-      "agent": "Agent",
       "permissions": "Uprawnienia"
-    },
-    "agent": {
-      "mainLabel": "AGENT GŁÓWNY",
-      "mainDesc": "Domyślny agent dla nowych rozmów w tym projekcie.",
-      "noAgents": "Brak agentów w projekcie. Najpierw utwórz agenta.",
-      "goToAgents": "Przejdź do agentów",
-      "none": "Brak",
-      "configure": "Konfiguruj agenta \u2192"
     },
     "general": {
       "sectionTitle": "INFORMACJE PODSTAWOWE",
-      "saveBtn": "Zapisz zmiany"
+      "saveBtn": "Zapisz zmiany",
+      "defaultLabel": "DOMYŚLNY AGENT / ZESPÓŁ",
+      "defaultDesc": "Domyślny Agent lub zespół dla nowych rozmów.",
+      "defaultNone": "Brak",
+      "defaultTeamsGroup": "Zespoły",
+      "defaultAgentsGroup": "Agenci"
     }
   }
 }

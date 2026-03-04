@@ -11,7 +11,7 @@
     "runBtn": "Jalankan",
     "historyBtn": "Sejarah",
     "runningStatus": "Berjalan...",
-    "viewChat": "Lihat Chat \u2192",
+    "viewChat": "Lihat Chat →",
     "next": "Seterusnya: {{time}}",
     "at": "Pada {{time}}",
     "agentNotFound": "Agen tidak ditemui",
@@ -23,10 +23,10 @@
     "confirm": "Adakah anda pasti ingin memadam \"{{name}}\"? Tindakan ini tidak boleh dibatalkan."
   },
   "runsModal": {
-    "titleWithName": "Sejarah Pelaksanaan \u2014 {{name}}",
+    "titleWithName": "Sejarah Pelaksanaan — {{name}}",
     "title": "Sejarah Pelaksanaan",
     "noRuns": "Belum ada pelaksanaan",
-    "openChat": "BUKA CHAT \u2192"
+    "openChat": "BUKA CHAT →"
   },
   "status": {
     "success": "berjaya",
@@ -55,6 +55,8 @@
       "daily9am": "Harian 9pg",
       "weeklyMon": "Mingguan Isn"
     },
-    "invalidExpression": "Ungkapan tidak sah"
+    "invalidExpression": "Ungkapan tidak sah",
+    "teamLabel": "PASUKAN (pilihan)",
+    "noTeam": "Tiada pasukan"
   }
 }

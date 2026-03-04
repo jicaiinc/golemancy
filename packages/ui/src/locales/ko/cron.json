@@ -55,6 +55,8 @@
       "daily9am": "매일 오전 9시",
       "weeklyMon": "매주 월요일"
     },
-    "invalidExpression": "잘못된 표현식"
+    "invalidExpression": "잘못된 표현식",
+    "teamLabel": "팀 (선택사항)",
+    "noTeam": "팀 없음"
   }
 }

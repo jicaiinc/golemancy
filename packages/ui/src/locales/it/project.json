@@ -30,20 +30,16 @@
     "clickToCopy": "Clicca per copiare",
     "tabs": {
       "general": "Generale",
-      "agent": "Agente",
       "permissions": "Permessi"
-    },
-    "agent": {
-      "mainLabel": "AGENTE PRINCIPALE",
-      "mainDesc": "L'agente predefinito per le nuove conversazioni in questo progetto.",
-      "noAgents": "Nessun agente in questo progetto. Crea prima un agente.",
-      "goToAgents": "Vai agli Agenti",
-      "none": "Nessuno",
-      "configure": "Configura Agente \u2192"
     },
     "general": {
       "sectionTitle": "INFO GENERALI",
-      "saveBtn": "Salva Modifiche"
+      "saveBtn": "Salva Modifiche",
+      "defaultLabel": "AGENT / TEAM PREDEFINITO",
+      "defaultDesc": "L'Agent o il team predefinito per le nuove conversazioni.",
+      "defaultNone": "Nessuno",
+      "defaultTeamsGroup": "Team",
+      "defaultAgentsGroup": "Agent"
     }
   }
 }

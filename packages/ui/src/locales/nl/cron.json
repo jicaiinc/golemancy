@@ -55,6 +55,8 @@
       "daily9am": "Dagelijks 9u",
       "weeklyMon": "Wekelijks ma"
     },
-    "invalidExpression": "Ongeldige expressie"
+    "invalidExpression": "Ongeldige expressie",
+    "teamLabel": "TEAM (optioneel)",
+    "noTeam": "Geen team"
   }
 }

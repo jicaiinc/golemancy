@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Pasukan",
+    "subtitle_one": "{{count}} pasukan dalam projek ini",
+    "subtitle_other": "{{count}} pasukan dalam projek ini",
+    "newBtn": "+ Pasukan Baharu",
+    "empty": "Belum ada pasukan",
+    "createFirst": "Cipta Pasukan Pertama Anda",
+    "leader": "Ketua",
+    "members_one": "{{count}} ahli",
+    "members_other": "{{count}} ahli"
+  },
+  "create": {
+    "modalTitle": "Cipta Pasukan Baharu",
+    "createBtn": "Cipta Pasukan",
+    "nameLabel": "NAMA",
+    "namePlaceholder": "cth. Pasukan Penyelidikan",
+    "descLabel": "PENERANGAN",
+    "descPlaceholder": "Apa yang dilakukan pasukan ini?"
+  },
+  "detail": {
+    "notFound": "Pasukan tidak dijumpai.",
+    "backBtn": "< Pasukan",
+    "savedMsg": "Disimpan!"
+  },
+  "topology": {
+    "removeMember": "Alih Keluar dari Pasukan",
+    "resetLayout": "Tetapkan Semula Susun Atur",
+    "openDetail": "Buka Butiran Ejen",
+    "deleteTeam": "Padam Pasukan",
+    "deleteTeamConfirm": "Adakah anda pasti mahu memadamkan pasukan ini?",
+    "instruction": "Arahan Pasukan",
+    "instructionPlaceholder": "Arahan yang disuntik ke dalam konteks Ejen ketua...",
+    "leader": "KETUA",
+    "skills": "Kemahiran",
+    "noSkills": "Tiada kemahiran",
+    "tools": "Alatan",
+    "noTools": "Tiada alatan",
+    "mcpServers": "Pelayan MCP",
+    "noMcpServers": "Tiada pelayan MCP",
+    "memory": "Memori",
+    "memoryCount_one": "{{count}} memori",
+    "memoryCount_other": "{{count}} memori",
+    "memoryEnabled": "Diaktifkan",
+    "memoryDisabled": "Dinyahaktifkan",
+    "noAgentsAvailable": "Tiada Ejen tersedia",
+    "addFirstAgent": "Tambah Ejen",
+    "emptyTeam": "Pasukan ini belum mempunyai ahli",
+    "emptyDragHint": "Seret Ejen dari bar sisi untuk membina pasukan anda",
+    "emptyOpenSidebar": "Buka bar sisi untuk menambah Ejen",
+    "clickNodeHint": "Klik nod untuk butiran",
+    "settingsBtn": "Tetapan",
+    "description": "Penerangan",
+    "descriptionPlaceholder": "Apa yang dilakukan pasukan ini?",
+    "sidebar": {
+      "agents": "Ejen",
+      "detail": "Butiran Ejen",
+      "settings": "Tetapan Pasukan",
+      "inTeam": "Dalam Pasukan"
+    }
+  }
+}

@@ -94,7 +94,6 @@
     "modelLabel": "MODEL",
     "inherited": "Miras",
     "capabilities": "YETENEKLER",
-    "subAgentsLabel": "ALT AJANLAR",
     "openDetail": "Detayı Aç"
   },
   "memory": {

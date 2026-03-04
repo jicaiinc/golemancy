@@ -55,6 +55,8 @@
       "daily9am": "Denně v 9:00",
       "weeklyMon": "Týdně Po"
     },
-    "invalidExpression": "Neplatný výraz"
+    "invalidExpression": "Neplatný výraz",
+    "teamLabel": "TÝM (volitelné)",
+    "noTeam": "Žádný tým"
   }
 }

@@ -36,20 +36,16 @@
     "clickToCopy": "Klikněte pro kopírování",
     "tabs": {
       "general": "Obecné",
-      "agent": "Agent",
       "permissions": "Oprávnění"
-    },
-    "agent": {
-      "mainLabel": "HLAVNÍ AGENT",
-      "mainDesc": "Výchozí agent pro nové konverzace v tomto projektu.",
-      "noAgents": "V projektu nejsou žádní agenti. Nejprve vytvořte agenta.",
-      "goToAgents": "Přejít na agenty",
-      "none": "Žádný",
-      "configure": "Konfigurovat agenta \u2192"
     },
     "general": {
       "sectionTitle": "ZÁKLADNÍ INFORMACE",
-      "saveBtn": "Uložit změny"
+      "saveBtn": "Uložit změny",
+      "defaultLabel": "VÝCHOZÍ AGENT / TÝM",
+      "defaultDesc": "Výchozí Agent nebo tým pro nové konverzace.",
+      "defaultNone": "Žádný",
+      "defaultTeamsGroup": "Týmy",
+      "defaultAgentsGroup": "Agenti"
     }
   }
 }

@@ -94,7 +94,6 @@
     "modelLabel": "MODEL",
     "inherited": "Diwarisi",
     "capabilities": "KEMAMPUAN",
-    "subAgentsLabel": "SUB-AGENT",
     "openDetail": "Buka Detail"
   },
   "memory": {

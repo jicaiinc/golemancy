@@ -30,20 +30,16 @@
     "clickToCopy": "I-click para kopyahin",
     "tabs": {
       "general": "Pangkalahatan",
-      "agent": "Agent",
       "permissions": "Mga Pahintulot"
-    },
-    "agent": {
-      "mainLabel": "MAIN AGENT",
-      "mainDesc": "Ang default na agent para sa mga bagong pag-uusap sa project na ito.",
-      "noAgents": "Walang agent sa project na ito. Gumawa muna ng agent.",
-      "goToAgents": "Pumunta sa Mga Agent",
-      "none": "Wala",
-      "configure": "I-configure ang Agent \u2192"
     },
     "general": {
       "sectionTitle": "PANGUNAHING IMPORMASYON",
-      "saveBtn": "I-save ang mga Pagbabago"
+      "saveBtn": "I-save ang mga Pagbabago",
+      "defaultLabel": "DEFAULT NA AGENT / KOPONAN",
+      "defaultDesc": "Ang default na Agent o koponan para sa mga bagong pag-uusap.",
+      "defaultNone": "Wala",
+      "defaultTeamsGroup": "Mga Koponan",
+      "defaultAgentsGroup": "Mga Agent"
     }
   }
 }

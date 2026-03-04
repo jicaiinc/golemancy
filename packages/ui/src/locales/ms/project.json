@@ -30,20 +30,16 @@
     "clickToCopy": "Klik untuk menyalin",
     "tabs": {
       "general": "Umum",
-      "agent": "Agen",
       "permissions": "Kebenaran"
-    },
-    "agent": {
-      "mainLabel": "MAIN AGENT",
-      "mainDesc": "Agen lalai untuk perbualan baharu dalam projek ini.",
-      "noAgents": "Tiada agen dalam projek ini. Cipta agen terlebih dahulu.",
-      "goToAgents": "Pergi ke Agen",
-      "none": "Tiada",
-      "configure": "Konfigurasikan Agen \u2192"
     },
     "general": {
       "sectionTitle": "INFO ASAS",
-      "saveBtn": "Simpan Perubahan"
+      "saveBtn": "Simpan Perubahan",
+      "defaultLabel": "EJEN / PASUKAN LALAI",
+      "defaultDesc": "Ejen atau pasukan lalai untuk perbualan baharu.",
+      "defaultNone": "Tiada",
+      "defaultTeamsGroup": "Pasukan",
+      "defaultAgentsGroup": "Ejen"
     }
   }
 }

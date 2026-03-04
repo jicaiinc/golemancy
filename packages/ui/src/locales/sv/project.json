@@ -30,20 +30,16 @@
     "clickToCopy": "Klicka för att kopiera",
     "tabs": {
       "general": "Allmänt",
-      "agent": "Agent",
       "permissions": "Behörigheter"
-    },
-    "agent": {
-      "mainLabel": "HUVUDAGENT",
-      "mainDesc": "Standardagenten för nya konversationer i detta projekt.",
-      "noAgents": "Inga agenter i detta projekt. Skapa en agent först.",
-      "goToAgents": "Gå till agenter",
-      "none": "Ingen",
-      "configure": "Konfigurera agent \u2192"
     },
     "general": {
       "sectionTitle": "GRUNDLÄGGANDE INFO",
-      "saveBtn": "Spara ändringar"
+      "saveBtn": "Spara ändringar",
+      "defaultLabel": "STANDARD-AGENT / TEAM",
+      "defaultDesc": "Standardagent eller team för nya konversationer.",
+      "defaultNone": "Inget",
+      "defaultTeamsGroup": "Team",
+      "defaultAgentsGroup": "Agenter"
     }
   }
 }

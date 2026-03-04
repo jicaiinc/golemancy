@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Teams",
+    "subtitle_one": "{{count}} team in dit project",
+    "subtitle_other": "{{count}} teams in dit project",
+    "newBtn": "+ Nieuw Team",
+    "empty": "Nog geen teams",
+    "createFirst": "Maak je eerste team",
+    "leader": "Leider",
+    "members_one": "{{count}} lid",
+    "members_other": "{{count}} leden"
+  },
+  "create": {
+    "modalTitle": "Nieuw team aanmaken",
+    "createBtn": "Team aanmaken",
+    "nameLabel": "NAAM",
+    "namePlaceholder": "bijv. Onderzoeksteam",
+    "descLabel": "BESCHRIJVING",
+    "descPlaceholder": "Wat doet dit team?"
+  },
+  "detail": {
+    "notFound": "Team niet gevonden.",
+    "backBtn": "< Teams",
+    "savedMsg": "Opgeslagen!"
+  },
+  "topology": {
+    "removeMember": "Uit team verwijderen",
+    "resetLayout": "Layout resetten",
+    "openDetail": "Agent-detail openen",
+    "deleteTeam": "Team verwijderen",
+    "deleteTeamConfirm": "Weet je zeker dat je dit team wilt verwijderen?",
+    "instruction": "Teaminstructie",
+    "instructionPlaceholder": "Instructies die in de context van de leider-Agent worden geïnjecteerd...",
+    "leader": "LEIDER",
+    "skills": "Skills",
+    "noSkills": "Geen skills",
+    "tools": "Tools",
+    "noTools": "Geen tools",
+    "mcpServers": "MCP-servers",
+    "noMcpServers": "Geen MCP-servers",
+    "memory": "Geheugen",
+    "memoryCount_one": "{{count}} herinnering",
+    "memoryCount_other": "{{count}} herinneringen",
+    "memoryEnabled": "Ingeschakeld",
+    "memoryDisabled": "Uitgeschakeld",
+    "noAgentsAvailable": "Geen Agents beschikbaar",
+    "addFirstAgent": "Agent toevoegen",
+    "emptyTeam": "Dit team heeft nog geen leden",
+    "emptyDragHint": "Sleep een Agent vanuit de zijbalk om je team op te bouwen",
+    "emptyOpenSidebar": "Open de zijbalk om Agents toe te voegen",
+    "clickNodeHint": "Klik op een knooppunt voor details",
+    "settingsBtn": "Instellingen",
+    "description": "Beschrijving",
+    "descriptionPlaceholder": "Wat doet dit team?",
+    "sidebar": {
+      "agents": "Agents",
+      "detail": "Agent-detail",
+      "settings": "Teaminstellingen",
+      "inTeam": "In team"
+    }
+  }
+}

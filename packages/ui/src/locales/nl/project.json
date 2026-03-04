@@ -30,20 +30,16 @@
     "clickToCopy": "Klik om te kopiëren",
     "tabs": {
       "general": "Algemeen",
-      "agent": "Agent",
       "permissions": "Machtigingen"
-    },
-    "agent": {
-      "mainLabel": "HOOFDAGENT",
-      "mainDesc": "De standaard agent voor nieuwe gesprekken in dit project.",
-      "noAgents": "Geen agenten in dit project. Maak eerst een agent aan.",
-      "goToAgents": "Ga naar Agenten",
-      "none": "Geen",
-      "configure": "Agent Configureren \u2192"
     },
     "general": {
       "sectionTitle": "ALGEMENE INFO",
-      "saveBtn": "Wijzigingen Opslaan"
+      "saveBtn": "Wijzigingen Opslaan",
+      "defaultLabel": "STANDAARD AGENT / TEAM",
+      "defaultDesc": "De standaard Agent of het team voor nieuwe gesprekken.",
+      "defaultNone": "Geen",
+      "defaultTeamsGroup": "Teams",
+      "defaultAgentsGroup": "Agents"
     }
   }
 }

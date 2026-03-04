@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Équipes",
+    "subtitle_one": "{{count}} équipe dans ce projet",
+    "subtitle_other": "{{count}} équipes dans ce projet",
+    "newBtn": "+ Nouvelle équipe",
+    "empty": "Pas encore d'équipes",
+    "createFirst": "Créez votre première équipe",
+    "leader": "Leader",
+    "members_one": "{{count}} membre",
+    "members_other": "{{count}} membres"
+  },
+  "create": {
+    "modalTitle": "Créer une nouvelle équipe",
+    "createBtn": "Créer l'équipe",
+    "nameLabel": "NOM",
+    "namePlaceholder": "ex. Équipe de recherche",
+    "descLabel": "DESCRIPTION",
+    "descPlaceholder": "Que fait cette équipe ?"
+  },
+  "detail": {
+    "notFound": "Équipe introuvable.",
+    "backBtn": "< Équipes",
+    "savedMsg": "Enregistré !"
+  },
+  "topology": {
+    "removeMember": "Retirer de l'équipe",
+    "resetLayout": "Réinitialiser la disposition",
+    "openDetail": "Ouvrir le détail de l'Agent",
+    "deleteTeam": "Supprimer l'équipe",
+    "deleteTeamConfirm": "Êtes-vous sûr de vouloir supprimer cette équipe ?",
+    "instruction": "Instruction d'équipe",
+    "instructionPlaceholder": "Instructions injectées dans le contexte de l'Agent leader...",
+    "leader": "LEADER",
+    "skills": "Skills",
+    "noSkills": "Aucun skill",
+    "tools": "Outils",
+    "noTools": "Aucun outil",
+    "mcpServers": "Serveurs MCP",
+    "noMcpServers": "Aucun serveur MCP",
+    "memory": "Mémoire",
+    "memoryCount_one": "{{count}} mémoire",
+    "memoryCount_other": "{{count}} mémoires",
+    "memoryEnabled": "Activée",
+    "memoryDisabled": "Désactivée",
+    "noAgentsAvailable": "Aucun Agent disponible",
+    "addFirstAgent": "Ajouter un Agent",
+    "emptyTeam": "Cette équipe n'a pas encore de membres",
+    "emptyDragHint": "Glissez un Agent depuis la barre latérale pour construire votre équipe",
+    "emptyOpenSidebar": "Ouvrir la barre latérale pour ajouter des Agents",
+    "clickNodeHint": "Cliquez sur un nœud pour voir les détails",
+    "settingsBtn": "Paramètres",
+    "description": "Description",
+    "descriptionPlaceholder": "Que fait cette équipe ?",
+    "sidebar": {
+      "agents": "Agents",
+      "detail": "Détail de l'Agent",
+      "settings": "Paramètres de l'équipe",
+      "inTeam": "Dans l'équipe"
+    }
+  }
+}

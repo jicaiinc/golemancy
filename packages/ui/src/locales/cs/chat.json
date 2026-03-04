@@ -3,7 +3,9 @@
     "hideHistory": "Skrýt historii chatu",
     "showHistory": "Zobrazit historii chatu",
     "new": "+ Nový",
-    "clickToRename": "Klikněte pro přejmenování"
+    "clickToRename": "Klikněte pro přejmenování",
+    "teams": "Týmy",
+    "agents": "Agenti"
   },
   "sidebar": {
     "newChat": "+ Nový chat",
@@ -13,7 +15,8 @@
     "startConversation": "Zahájit konverzaci...",
     "compacting": "Komprimace",
     "thinking": "Přemýšlení",
-    "imageMsgTitle": "Obrázek"
+    "imageMsgTitle": "Obrázek",
+    "maxStepsReached": "Agent dosáhl maximálního limitu kroků ({{steps}}/{{maxSteps}}). Odešlete zprávu pro pokračování."
   },
   "empty": {
     "readyToChat": "Připraveno k chatu",

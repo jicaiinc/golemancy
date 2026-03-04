@@ -102,7 +102,6 @@
     "modelLabel": "MODEL",
     "inherited": "Odziedziczony",
     "capabilities": "MOŻLIWOŚCI",
-    "subAgentsLabel": "SUB-AGENCI",
     "openDetail": "Otwórz szczegóły"
   },
   "memory": {

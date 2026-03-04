@@ -94,7 +94,6 @@
     "modelLabel": "MODEL",
     "inherited": "Minana",
     "capabilities": "MGA KAKAYAHAN",
-    "subAgentsLabel": "MGA SUB-AGENT",
     "openDetail": "Buksan ang Detalye"
   },
   "memory": {

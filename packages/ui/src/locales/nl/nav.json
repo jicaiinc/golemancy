@@ -8,7 +8,8 @@
     "mcpServers": "MCP-Servers",
     "tasks": "Gesprekstaken",
     "artifacts": "Artefacten",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "teams": "Teams"
   },
   "sidebar": {
     "navigation": "NAVIGATIE",

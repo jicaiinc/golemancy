@@ -30,20 +30,16 @@
     "clickToCopy": "Klicken zum Kopieren",
     "tabs": {
       "general": "Allgemein",
-      "agent": "Agent",
       "permissions": "Berechtigungen"
-    },
-    "agent": {
-      "mainLabel": "HAUPT-AGENT",
-      "mainDesc": "Der Standard-Agent für neue Konversationen in diesem Projekt.",
-      "noAgents": "Keine Agenten in diesem Projekt. Erstellen Sie zuerst einen Agenten.",
-      "goToAgents": "Zu Agenten",
-      "none": "Keiner",
-      "configure": "Agent konfigurieren \u2192"
     },
     "general": {
       "sectionTitle": "ALLGEMEINE INFO",
-      "saveBtn": "Änderungen speichern"
+      "saveBtn": "Änderungen speichern",
+      "defaultLabel": "STANDARD-AGENT / TEAM",
+      "defaultDesc": "Der Standard-Agent oder das Team für neue Unterhaltungen.",
+      "defaultNone": "Keines",
+      "defaultTeamsGroup": "Teams",
+      "defaultAgentsGroup": "Agents"
     }
   }
 }

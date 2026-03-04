@@ -1,65 +1,68 @@
 {
   "header": {
-    "hideHistory": "\u1ea8n l\u1ecbch s\u1eed chat",
-    "showHistory": "Hi\u1ec3n l\u1ecbch s\u1eed chat",
-    "new": "+ M\u1edbi",
-    "clickToRename": "Nh\u1ea5p \u0111\u1ec3 \u0111\u1ed5i t\u00ean"
+    "hideHistory": "Ẩn lịch sử chat",
+    "showHistory": "Hiển lịch sử chat",
+    "new": "+ Mới",
+    "clickToRename": "Nhấp để đổi tên",
+    "teams": "Đội",
+    "agents": "Agent"
   },
   "sidebar": {
-    "newChat": "+ Chat M\u1edbi",
-    "noConversations": "Ch\u01b0a c\u00f3 cu\u1ed9c tr\u00f2 chuy\u1ec7n"
+    "newChat": "+ Chat Mới",
+    "noConversations": "Chưa có cuộc trò chuyện"
   },
   "window": {
-    "startConversation": "B\u1eaft \u0111\u1ea7u cu\u1ed9c tr\u00f2 chuy\u1ec7n...",
-    "compacting": "\u0110ang n\u00e9n",
-    "thinking": "\u0110ang suy ngh\u0129",
-    "imageMsgTitle": "Tin nh\u1eafn h\u00ecnh \u1ea3nh"
+    "startConversation": "Bắt đầu cuộc trò chuyện...",
+    "compacting": "Đang nén",
+    "thinking": "Đang suy nghĩ",
+    "imageMsgTitle": "Tin nhắn hình ảnh",
+    "maxStepsReached": "Agent đã đạt giới hạn bước tối đa ({{steps}}/{{maxSteps}}). Gửi tin nhắn để tiếp tục."
   },
   "empty": {
-    "readyToChat": "S\u1eb5n s\u00e0ng tr\u00f2 chuy\u1ec7n",
-    "description": "B\u1eaft \u0111\u1ea7u cu\u1ed9c tr\u00f2 chuy\u1ec7n m\u1edbi ho\u1eb7c ch\u1ecdn t\u1eeb thanh b\u00ean.",
-    "startChatting": "B\u1eaft \u0110\u1ea7u Chat",
-    "noMainAgent": "Ch\u01b0a C\u00f3 Main Agent",
-    "configureText": "C\u1ea5u h\u00ecnh Main Agent trong <a>C\u00e0i \u0111\u1eb7t D\u1ef1 \u00e1n</a> \u0111\u1ec3 b\u1eaft \u0111\u1ea7u chat."
+    "readyToChat": "Sẵn sàng trò chuyện",
+    "description": "Bắt đầu cuộc trò chuyện mới hoặc chọn từ thanh bên.",
+    "startChatting": "Bắt Đầu Chat",
+    "noMainAgent": "Chưa Có Main Agent",
+    "configureText": "Cấu hình Main Agent trong <a>Cài đặt Dự án</a> để bắt đầu chat."
   },
   "input": {
-    "placeholder": "Nh\u1eadp tin nh\u1eafn...",
-    "dropPlaceholder": "Th\u1ea3 h\u00ecnh \u1ea3nh v\u00e0o \u0111\u00e2y...",
-    "attachImage": "\u0110\u00ednh k\u00e8m h\u00ecnh \u1ea3nh",
+    "placeholder": "Nhập tin nhắn...",
+    "dropPlaceholder": "Thả hình ảnh vào đây...",
+    "attachImage": "Đính kèm hình ảnh",
     "recordAudio": "Ghi âm",
     "sttNotConfigured": "Nhận dạng giọng nói chưa được cấu hình.",
     "configureStt": "Cấu hình",
     "transcribing": "Đang phiên dịch...",
-    "transcriptionFailed": "Phi\u00ean d\u1ecbch th\u1ea5t b\u1ea1i",
-    "startRecordingFailed": "Kh\u00f4ng th\u1ec3 b\u1eaft \u0111\u1ea7u ghi \u00e2m",
-    "retryFailed": "Th\u1eed l\u1ea1i th\u1ea5t b\u1ea1i"
+    "transcriptionFailed": "Phiên dịch thất bại",
+    "startRecordingFailed": "Không thể bắt đầu ghi âm",
+    "retryFailed": "Thử lại thất bại"
   },
   "message": {
-    "reasoning": "L\u1eadp lu\u1eadn",
-    "untitledFile": "File ch\u01b0a \u0111\u1eb7t t\u00ean",
-    "copy": "Sao ch\u00e9p"
+    "reasoning": "Lập luận",
+    "untitledFile": "File chưa đặt tên",
+    "copy": "Sao chép"
   },
   "compact": {
-    "title": "CU\u1ed8C TR\u00d2 CHUY\u1ec6N \u0110\u00c3 N\u00c9N",
-    "summary": "T\u00d3M T\u1eaeT",
-    "tokensSummary": "{{input}} v\u00e0o / {{output}} ra"
+    "title": "CUỘC TRÒ CHUYỆN ĐÃ NÉN",
+    "summary": "TÓM TẮT",
+    "tokensSummary": "{{input}} vào / {{output}} ra"
   },
   "tool": {
-    "running": "\u0110ang ch\u1ea1y...",
-    "awaitingApproval": "Ch\u1edd ph\u00ea duy\u1ec7t",
-    "approved": "\u0110\u00e3 duy\u1ec7t",
+    "running": "Đang chạy...",
+    "awaitingApproval": "Chờ phê duyệt",
+    "approved": "Đã duyệt",
     "done": "Xong",
-    "denied": "T\u1eeb ch\u1ed1i",
-    "input": "\u0110\u1ea6U V\u00c0O",
-    "output": "\u0110\u1ea6U RA",
-    "error": "L\u1ed6I",
-    "task": "NHI\u1ec6M V\u1ee4",
-    "tools": "C\u00d4NG C\u1ee4",
+    "denied": "Từ chối",
+    "input": "ĐẦU VÀO",
+    "output": "ĐẦU RA",
+    "error": "LỖI",
+    "task": "NHIỆM VỤ",
+    "tools": "CÔNG CỤ",
     "toolCountRunning": "[{{running}}/{{total}} tools]",
     "toolCountDone": "[{{total}} tools]",
-    "taskCreate": "T\u1ea1o Nhi\u1ec7m V\u1ee5",
-    "taskGet": "L\u1ea5y Nhi\u1ec7m V\u1ee5",
-    "taskList": "Danh S\u00e1ch Nhi\u1ec7m V\u1ee5",
-    "taskUpdate": "C\u1eadp Nh\u1eadt Nhi\u1ec7m V\u1ee5"
+    "taskCreate": "Tạo Nhiệm Vụ",
+    "taskGet": "Lấy Nhiệm Vụ",
+    "taskList": "Danh Sách Nhiệm Vụ",
+    "taskUpdate": "Cập Nhật Nhiệm Vụ"
   }
 }

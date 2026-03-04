@@ -94,7 +94,6 @@
     "modelLabel": "MODEL",
     "inherited": "Kế thừa",
     "capabilities": "KHẢ NĂNG",
-    "subAgentsLabel": "SUB-AGENT",
     "openDetail": "Mở Chi Tiết"
   },
   "memory": {

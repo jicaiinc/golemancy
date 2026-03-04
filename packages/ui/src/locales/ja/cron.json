@@ -55,6 +55,8 @@
       "daily9am": "毎日 9 時",
       "weeklyMon": "毎週月曜"
     },
-    "invalidExpression": "無効な式"
+    "invalidExpression": "無効な式",
+    "teamLabel": "チーム（任意）",
+    "noTeam": "チームなし"
   }
 }

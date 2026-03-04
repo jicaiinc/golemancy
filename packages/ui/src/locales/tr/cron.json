@@ -4,57 +4,59 @@
     "newBtn": "+ Yeni"
   },
   "empty": {
-    "noJobs": "Hen\u00fcz otomasyon yok",
-    "createFirstBtn": "\u0130lk Otomasyonu Olu\u015ftur"
+    "noJobs": "Henüz otomasyon yok",
+    "createFirstBtn": "İlk Otomasyonu Oluştur"
   },
   "job": {
-    "runBtn": "\u00c7al\u0131\u015ft\u0131r",
-    "historyBtn": "Ge\u00e7mi\u015f",
-    "runningStatus": "\u00c7al\u0131\u015f\u0131yor...",
-    "viewChat": "Sohbeti G\u00f6r \u2192",
+    "runBtn": "Çalıştır",
+    "historyBtn": "Geçmiş",
+    "runningStatus": "Çalışıyor...",
+    "viewChat": "Sohbeti Gör →",
     "next": "Sonraki: {{time}}",
-    "at": "{{time}} zaman\u0131nda",
-    "agentNotFound": "Ajan bulunamad\u0131",
-    "overdue": "gecikmi\u015f",
+    "at": "{{time}} zamanında",
+    "agentNotFound": "Ajan bulunamadı",
+    "overdue": "gecikmiş",
     "once": "tek sefer"
   },
   "delete": {
     "title": "Otomasyonu Sil",
-    "confirm": "\"{{name}}\" silinsin mi? Bu i\u015flem geri al\u0131namaz."
+    "confirm": "\"{{name}}\" silinsin mi? Bu işlem geri alınamaz."
   },
   "runsModal": {
-    "titleWithName": "\u00c7al\u0131\u015fma Ge\u00e7mi\u015fi \u2014 {{name}}",
-    "title": "\u00c7al\u0131\u015fma Ge\u00e7mi\u015fi",
-    "noRuns": "Hen\u00fcz \u00e7al\u0131\u015fma yok",
-    "openChat": "SOHBET\u0130 A\u00c7 \u2192"
+    "titleWithName": "Çalışma Geçmişi — {{name}}",
+    "title": "Çalışma Geçmişi",
+    "noRuns": "Henüz çalışma yok",
+    "openChat": "SOHBETİ AÇ →"
   },
   "status": {
-    "success": "ba\u015far\u0131l\u0131",
+    "success": "başarılı",
     "error": "hata",
-    "running": "\u00e7al\u0131\u015f\u0131yor"
+    "running": "çalışıyor"
   },
   "form": {
     "newTitle": "Yeni Otomasyon",
-    "editTitle": "Otomasyonu D\u00fczenle",
+    "editTitle": "Otomasyonu Düzenle",
     "nameLabel": "AD",
-    "namePlaceholder": "G\u00fcnl\u00fck kod incelemesi",
-    "typeLabel": "T\u00dcR",
+    "namePlaceholder": "Günlük kod incelemesi",
+    "typeLabel": "TÜR",
     "recurring": "Tekrarlayan",
     "oneTime": "Tek Seferlik",
-    "cronLabel": "CRON \u0130FADES\u0130",
+    "cronLabel": "CRON İFADESİ",
     "scheduledAtLabel": "ZAMANLAMA (yerel saat)",
     "agentLabel": "AJAN",
-    "agentPlaceholder": "Bir ajan se\u00e7in",
-    "instructionLabel": "TAL\u0130MAT (iste\u011fe ba\u011fl\u0131)",
-    "instructionPlaceholder": "Tetiklendi\u011finde ajana g\u00f6nderilecek talimatlar",
+    "agentPlaceholder": "Bir ajan seçin",
+    "instructionLabel": "TALİMAT (isteğe bağlı)",
+    "instructionPlaceholder": "Tetiklendiğinde ajana gönderilecek talimatlar",
     "enabledLabel": "Etkin",
     "presets": {
       "every5min": "Her 5 dk",
       "everyHour": "Her saat",
       "every12h": "Her 12 sa",
-      "daily9am": "G\u00fcnl\u00fck 09:00",
-      "weeklyMon": "Haftal\u0131k Pzt"
+      "daily9am": "Günlük 09:00",
+      "weeklyMon": "Haftalık Pzt"
     },
-    "invalidExpression": "Ge\u00e7ersiz ifade"
+    "invalidExpression": "Geçersiz ifade",
+    "teamLabel": "TAKIM (isteğe bağlı)",
+    "noTeam": "Takım yok"
   }
 }

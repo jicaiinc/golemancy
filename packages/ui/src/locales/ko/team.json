@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "팀",
+    "subtitle_one": "이 프로젝트에 {{count}}개 팀",
+    "subtitle_other": "이 프로젝트에 {{count}}개 팀",
+    "newBtn": "+ 새 팀",
+    "empty": "아직 팀이 없습니다",
+    "createFirst": "첫 번째 팀 만들기",
+    "leader": "리더",
+    "members_one": "{{count}}명",
+    "members_other": "{{count}}명"
+  },
+  "create": {
+    "modalTitle": "새 팀 만들기",
+    "createBtn": "팀 만들기",
+    "nameLabel": "이름",
+    "namePlaceholder": "예: 연구팀",
+    "descLabel": "설명",
+    "descPlaceholder": "이 팀은 무엇을 하나요?"
+  },
+  "detail": {
+    "notFound": "팀을 찾을 수 없습니다.",
+    "backBtn": "< 팀",
+    "savedMsg": "저장됨!"
+  },
+  "topology": {
+    "removeMember": "팀에서 제거",
+    "resetLayout": "레이아웃 초기화",
+    "openDetail": "Agent 상세보기",
+    "deleteTeam": "팀 삭제",
+    "deleteTeamConfirm": "이 팀을 삭제하시겠습니까?",
+    "instruction": "팀 지시사항",
+    "instructionPlaceholder": "리더 Agent 컨텍스트에 주입되는 지시사항...",
+    "leader": "리더",
+    "skills": "스킬",
+    "noSkills": "스킬 없음",
+    "tools": "도구",
+    "noTools": "도구 없음",
+    "mcpServers": "MCP 서버",
+    "noMcpServers": "MCP 서버 없음",
+    "memory": "메모리",
+    "memoryCount_one": "{{count}}개 메모리",
+    "memoryCount_other": "{{count}}개 메모리",
+    "memoryEnabled": "활성화됨",
+    "memoryDisabled": "비활성화됨",
+    "noAgentsAvailable": "사용 가능한 Agent 없음",
+    "addFirstAgent": "Agent 추가",
+    "emptyTeam": "이 팀에는 아직 멤버가 없습니다",
+    "emptyDragHint": "사이드바에서 Agent를 드래그하여 팀 구성 시작",
+    "emptyOpenSidebar": "사이드바를 열어 Agent 추가",
+    "clickNodeHint": "노드를 클릭하여 상세보기",
+    "settingsBtn": "설정",
+    "description": "설명",
+    "descriptionPlaceholder": "이 팀은 무엇을 하나요?",
+    "sidebar": {
+      "agents": "Agent",
+      "detail": "Agent 상세",
+      "settings": "팀 설정",
+      "inTeam": "팀 소속"
+    }
+  }
+}

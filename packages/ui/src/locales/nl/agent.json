@@ -94,7 +94,6 @@
     "modelLabel": "MODEL",
     "inherited": "Overgenomen",
     "capabilities": "MOGELIJKHEDEN",
-    "subAgentsLabel": "SUB-AGENTEN",
     "openDetail": "Detail Openen"
   },
   "memory": {
