@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "團隊",
+    "subtitle_one": "該專案有 {{count}} 個團隊",
+    "subtitle_other": "該專案有 {{count}} 個團隊",
+    "newBtn": "+ 新建團隊",
+    "empty": "尚無團隊",
+    "createFirst": "建立第一個團隊",
+    "leader": "領隊",
+    "members_one": "{{count}} 個成員",
+    "members_other": "{{count}} 個成員"
+  },
+  "create": {
+    "modalTitle": "建立新團隊",
+    "createBtn": "建立團隊",
+    "nameLabel": "名稱",
+    "namePlaceholder": "例如：研究團隊",
+    "descLabel": "說明",
+    "descPlaceholder": "這個團隊做什麼？"
+  },
+  "detail": {
+    "notFound": "團隊未找到。",
+    "backBtn": "< 團隊",
+    "savedMsg": "已儲存！"
+  },
+  "topology": {
+    "removeMember": "移出團隊",
+    "resetLayout": "重設版面",
+    "openDetail": "檢視 Agent 詳情",
+    "deleteTeam": "刪除團隊",
+    "deleteTeamConfirm": "確定要刪除這個團隊嗎？",
+    "instruction": "團隊指令",
+    "instructionPlaceholder": "注入到領隊 Agent 上下文中的指令...",
+    "leader": "領隊",
+    "skills": "技能",
+    "noSkills": "無技能",
+    "tools": "工具",
+    "noTools": "無工具",
+    "mcpServers": "MCP 伺服器",
+    "noMcpServers": "無 MCP 伺服器",
+    "memory": "記憶",
+    "memoryCount_one": "{{count}} 條記憶",
+    "memoryCount_other": "{{count}} 條記憶",
+    "memoryEnabled": "已啟用",
+    "memoryDisabled": "未啟用",
+    "noAgentsAvailable": "無可用 Agent",
+    "addFirstAgent": "新增 Agent",
+    "emptyTeam": "該團隊尚無成員",
+    "emptyDragHint": "從側邊欄拖曳 Agent 以開始組建團隊",
+    "emptyOpenSidebar": "開啟側邊欄新增 Agent",
+    "clickNodeHint": "點擊節點檢視詳情",
+    "settingsBtn": "設定",
+    "description": "說明",
+    "descriptionPlaceholder": "這個團隊做什麼？",
+    "sidebar": {
+      "agents": "Agent",
+      "detail": "Agent 詳情",
+      "settings": "團隊設定",
+      "inTeam": "已在團隊中"
+    }
+  }
+}

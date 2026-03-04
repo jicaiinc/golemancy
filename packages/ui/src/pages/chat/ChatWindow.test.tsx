@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { AgentId, ConversationId, MessageId, ProjectId, Conversation, Agent } from '@golemancy/shared'
 import type { UIMessage } from 'ai'
@@ -93,7 +94,7 @@ function makeUIMessage(overrides?: Partial<UIMessage>): UIMessage {
 
 function createTestServices(): ServiceContainer {
   return {
-    projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), getTopologyLayout: vi.fn().mockResolvedValue({}), saveTopologyLayout: vi.fn() },
+    projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     agents: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
     conversations: {
       list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(),
@@ -112,6 +113,7 @@ function createTestServices(): ServiceContainer {
       getTokenTrend: vi.fn().mockResolvedValue([]),
       getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
     },
+    teams: { list: vi.fn().mockResolvedValue([]), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), getLayout: vi.fn().mockResolvedValue({}), saveLayout: vi.fn() },
   } as unknown as ServiceContainer
 }
 
@@ -151,14 +153,14 @@ describe('ChatWindow', () => {
   })
 
   it('renders conversation title and agent name', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     expect(screen.getByText('Test Chat')).toBeInTheDocument()
     expect(screen.getByText('@Writer')).toBeInTheDocument()
   })
 
   it('shows empty state when no messages', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     expect(screen.getByText('Start the conversation...')).toBeInTheDocument()
   })
@@ -169,20 +171,20 @@ describe('ChatWindow', () => {
       makeUIMessage({ id: 'msg-2', role: 'assistant', parts: [{ type: 'text', text: 'Hi! How can I help?' }] }),
     ]
 
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     expect(screen.getByText('Hello there')).toBeInTheDocument()
     expect(screen.getByText('Hi! How can I help?')).toBeInTheDocument()
   })
 
   it('renders the Delete button', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     expect(screen.getByText('Delete')).toBeInTheDocument()
   })
 
   it('renders the Send button (disabled when input is empty)', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     const sendButton = screen.getByText('Send')
     expect(sendButton).toBeInTheDocument()
@@ -190,7 +192,7 @@ describe('ChatWindow', () => {
   })
 
   it('renders ChatInput with placeholder', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     expect(screen.getByPlaceholderText('Type a message...')).toBeInTheDocument()
   })
@@ -201,7 +203,7 @@ describe('ChatWindow', () => {
     ;(services.conversations.sendMessage as any).mockResolvedValue(undefined)
     ;(services.conversations.getById as any).mockResolvedValue(updatedConv)
 
-    render(<ChatWindow conversation={conv} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={conv} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     const input = screen.getByPlaceholderText('Type a message...')
     fireEvent.change(input, { target: { value: 'Test message' } })
@@ -219,7 +221,7 @@ describe('ChatWindow', () => {
       getServerPort: () => 3001,
     }
 
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     const input = screen.getByPlaceholderText('Type a message...')
     fireEvent.change(input, { target: { value: 'Server message' } })
@@ -231,7 +233,7 @@ describe('ChatWindow', () => {
   })
 
   it('renders without agent name when agent is undefined', () => {
-    render(<ChatWindow conversation={makeConversation()} agent={undefined} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={undefined} {...defaultSidebarProps} /></MemoryRouter>)
 
     expect(screen.getByText('Test Chat')).toBeInTheDocument()
     expect(screen.queryByText(/@/)).not.toBeInTheDocument()
@@ -240,7 +242,7 @@ describe('ChatWindow', () => {
   it('calls getOrCreateChat with correct config', async () => {
     const { getOrCreateChat } = await import('../../lib/chat-instances')
 
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     expect(getOrCreateChat).toHaveBeenCalledWith({
       conversationId: 'conv-1',
@@ -259,7 +261,7 @@ describe('ChatWindow', () => {
       selectConversation: mockSelect,
     })
 
-    render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+    render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
     // First click shows confirmation
     fireEvent.click(screen.getByText('Delete'))
@@ -280,14 +282,14 @@ describe('ChatWindow', () => {
     it('shows parsed error message from server JSON response', () => {
       // AI SDK v6 throws raw response body as error.message
       useChatError = new Error('{"error":"API key for provider \\"openai\\" is not set.","code":"API_KEY_MISSING"}')
-      render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+      render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
       expect(screen.getByText('API key for provider "openai" is not set.')).toBeInTheDocument()
     })
 
     it('shows friendly message for Internal Server Error', () => {
       useChatError = new Error('{"error":"Internal Server Error"}')
-      render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+      render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
       // i18next mock returns last key segment: 'error:fallback.generic' → 'generic'
       expect(screen.getByText('generic')).toBeInTheDocument()
@@ -295,7 +297,7 @@ describe('ChatWindow', () => {
 
     it('calls clearError when dismiss button is clicked on error banner', () => {
       useChatError = new Error('Something went wrong')
-      render(<ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />)
+      render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
       fireEvent.click(screen.getByTitle('Dismiss'))
       expect(mockClearError).toHaveBeenCalledOnce()

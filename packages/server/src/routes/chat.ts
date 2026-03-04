@@ -44,7 +44,7 @@ export interface ChatRouteDeps {
   compactRecordStorage: CompactRecordStorage
   activeChatRegistry?: ActiveChatRegistry
   wsManager?: WebSocketManager
-  teamStorage?: ITeamService
+  teamStorage: ITeamService
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -117,7 +117,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     // Resolve team members for sub-agent orchestration
     let teamMembers: TeamMember[] | undefined
     let teamInstruction: string | undefined
-    if (teamId && deps.teamStorage) {
+    if (teamId) {
       const team = await deps.teamStorage.getById(projectId as ProjectId, teamId as TeamId)
       if (team) {
         teamMembers = team.members

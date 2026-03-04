@@ -3,7 +3,9 @@
     "hideHistory": "隱藏聊天記錄",
     "showHistory": "顯示聊天記錄",
     "new": "+ 新建",
-    "clickToRename": "點擊重新命名"
+    "clickToRename": "點擊重新命名",
+    "teams": "團隊",
+    "agents": "Agent"
   },
   "sidebar": {
     "newChat": "+ 新對話",
@@ -13,7 +15,8 @@
     "startConversation": "開始對話...",
     "compacting": "壓縮中",
     "thinking": "思考中",
-    "imageMsgTitle": "圖片訊息"
+    "imageMsgTitle": "圖片訊息",
+    "maxStepsReached": "Agent 已達到最大步數限制（{{steps}}/{{maxSteps}}）。傳送訊息以繼續。"
   },
   "empty": {
     "readyToChat": "準備就緒",

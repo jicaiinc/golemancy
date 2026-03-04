@@ -30,20 +30,16 @@
     "clickToCopy": "点击复制",
     "tabs": {
       "general": "基本信息",
-      "agent": "Agent",
       "permissions": "权限"
-    },
-    "agent": {
-      "mainLabel": "主 AGENT",
-      "mainDesc": "该项目新对话的默认 Agent。",
-      "noAgents": "项目中暂无 Agent，请先创建一个。",
-      "goToAgents": "前往 Agent 页面",
-      "none": "无",
-      "configure": "配置 Agent →"
     },
     "general": {
       "sectionTitle": "基本信息",
-      "saveBtn": "保存更改"
+      "saveBtn": "保存更改",
+      "defaultLabel": "默认 AGENT / 团队",
+      "defaultDesc": "新对话使用的默认 Agent 或团队。",
+      "defaultNone": "无",
+      "defaultTeamsGroup": "团队",
+      "defaultAgentsGroup": "Agent"
     }
   }
 }

@@ -52,7 +52,7 @@ export interface ServerDependencies {
   tokenRecordStorage: TokenRecordStorage
   compactRecordStorage: CompactRecordStorage
   memoryStorage: SqliteMemoryStorage
-  teamStorage?: ITeamService
+  teamStorage: ITeamService
   speechStorage?: SpeechStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
@@ -136,12 +136,10 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     projectStorage: deps.projectStorage,
     permissionsConfigStorage: deps.permissionsConfigStorage,
   }))
-  if (deps.teamStorage) {
-    app.route('/api/projects/:projectId/teams', createTeamRoutes({
-      teamStorage: deps.teamStorage,
-      projectStorage: deps.projectStorage,
-    }))
-  }
+  app.route('/api/projects/:projectId/teams', createTeamRoutes({
+    teamStorage: deps.teamStorage,
+    projectStorage: deps.projectStorage,
+  }))
 
   app.route('/api/chat', createChatRoutes({
     agentStorage: deps.agentStorage,

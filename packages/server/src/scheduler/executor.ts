@@ -28,7 +28,7 @@ export interface ExecutorDeps {
   taskStorage: SqliteConversationTaskStorage
   memoryStorage: SqliteMemoryStorage
   projectStorage: IProjectService
-  teamStorage?: ITeamService
+  teamStorage: ITeamService
   tokenRecordStorage: TokenRecordStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
@@ -82,7 +82,7 @@ export class CronJobExecutor {
       // 4b. Resolve team if configured
       let teamMembers: TeamMember[] | undefined
       let teamInstruction: string | undefined
-      if (cronJob.teamId && this.deps.teamStorage) {
+      if (cronJob.teamId) {
         const team = await this.deps.teamStorage.getById(projectId, cronJob.teamId as TeamId)
         if (team) {
           teamMembers = team.members

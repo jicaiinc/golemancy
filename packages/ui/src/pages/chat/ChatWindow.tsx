@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, CompactRecord, Conversation, Team, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
+import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
 import { PixelButton, PixelSpinner, PixelNotificationBanner, SidebarToggleIcon } from '../../components'
 import { parseErrorMessage } from '../../lib/parse-error'
 import { staggerContainer, staggerItem } from '../../lib/motion'
@@ -251,6 +252,8 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
 
 
   // --- Derived display state ---
+  const teamForConv = conversation.teamId ? teams.find(t => t.id === conversation.teamId) : undefined
+  const displayLabel = teamForConv ? `@${teamForConv.name}` : agent ? `@${agent.name}` : null
   const isBusy = status === 'submitted' || status === 'streaming'
   const prevBusyRef = useRef(isBusy)
   useEffect(() => {
@@ -308,23 +311,23 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
             messages.length === 0 && (agents.length > 1 || teams.length > 0) ? (
               <select
                 className="text-[11px] text-accent-blue font-mono bg-deep border-2 border-border-dim px-1 py-0.5 outline-none cursor-pointer shrink-0"
-                value={conversation.teamId ? `team:${conversation.teamId}` : conversation.agentId}
+                value={conversation.teamId ? encodeTeamValue(conversation.teamId) : conversation.agentId}
                 onChange={e => {
-                  const val = e.target.value
-                  if (val.startsWith('team:')) {
-                    const teamId = val.slice(5) as TeamId
-                    const team = teams.find(t => t.id === teamId)
+                  const parsed = decodeSelectValue(e.target.value)
+                  if (!parsed) return
+                  if ('teamId' in parsed) {
+                    const team = teams.find(t => t.id === parsed.teamId)
                     const leader = team?.members.find(m => !m.parentAgentId)
-                    if (leader) onSwitchAgent(leader.agentId, teamId)
+                    if (leader) onSwitchAgent(leader.agentId, parsed.teamId)
                   } else {
-                    onSwitchAgent(val as AgentId)
+                    onSwitchAgent(parsed.agentId)
                   }
                 }}
               >
                 {teams.length > 0 && (
                   <optgroup label={t('header.teams')}>
                     {teams.map(tm => (
-                      <option key={tm.id} value={`team:${tm.id}`}>{tm.name}</option>
+                      <option key={tm.id} value={encodeTeamValue(tm.id)}>{tm.name}</option>
                     ))}
                   </optgroup>
                 )}
@@ -336,9 +339,7 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
               </select>
             ) : (
               <span className="text-[11px] text-accent-blue font-mono shrink-0">
-                {conversation.teamId
-                  ? (() => { const tm = teams.find(t => t.id === conversation.teamId); return tm ? `@${tm.name}` : agent ? `@${agent.name}` : null })()
-                  : agent ? `@${agent.name}` : null}
+                {displayLabel}
               </span>
             )
           )}

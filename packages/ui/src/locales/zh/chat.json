@@ -3,7 +3,9 @@
     "hideHistory": "隐藏聊天记录",
     "showHistory": "显示聊天记录",
     "new": "+ 新建",
-    "clickToRename": "点击重命名"
+    "clickToRename": "点击重命名",
+    "teams": "团队",
+    "agents": "Agent"
   },
   "sidebar": {
     "newChat": "+ 新对话",
@@ -13,7 +15,8 @@
     "startConversation": "开始对话...",
     "compacting": "压缩中",
     "thinking": "思考中",
-    "imageMsgTitle": "图片消息"
+    "imageMsgTitle": "图片消息",
+    "maxStepsReached": "Agent 已达到最大步数限制（{{steps}}/{{maxSteps}}）。发送消息以继续。"
   },
   "empty": {
     "readyToChat": "准备就绪",

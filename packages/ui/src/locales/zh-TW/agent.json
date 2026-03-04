@@ -94,7 +94,6 @@
     "modelLabel": "模型",
     "inherited": "繼承",
     "capabilities": "能力",
-    "subAgentsLabel": "子 AGENT",
     "openDetail": "檢視詳情"
   },
   "memory": {

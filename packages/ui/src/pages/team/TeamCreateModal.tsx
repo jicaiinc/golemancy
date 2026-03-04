@@ -57,7 +57,7 @@ export function TeamCreateModal({ open, onClose }: Props) {
     >
       <div className="flex flex-col gap-4">
         <PixelInput
-          label="NAME"
+          label={t('create.nameLabel')}
           placeholder={t('create.namePlaceholder')}
           value={name}
           onChange={e => setName(e.target.value)}
@@ -65,7 +65,7 @@ export function TeamCreateModal({ open, onClose }: Props) {
         />
 
         <PixelInput
-          label="DESCRIPTION"
+          label={t('create.descLabel')}
           placeholder={t('create.descPlaceholder')}
           value={description}
           onChange={e => setDescription(e.target.value)}

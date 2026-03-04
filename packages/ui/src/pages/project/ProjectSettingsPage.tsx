@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, ProjectConfig, ProjectId, Team, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
+import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
 
 const ICONS = [
@@ -53,14 +54,13 @@ export function ProjectSettingsPage() {
 
   async function handleDefaultChange(value: string) {
     if (!project) return
-    if (!value) {
+    const parsed = decodeSelectValue(value)
+    if (!parsed) {
       await updateProject(project.id, { defaultAgentId: undefined, defaultTeamId: undefined })
-    } else if (value.startsWith('team:')) {
-      const teamId = value.slice(5) as TeamId
-      await updateProject(project.id, { defaultAgentId: undefined, defaultTeamId: teamId })
+    } else if ('teamId' in parsed) {
+      await updateProject(project.id, { defaultAgentId: undefined, defaultTeamId: parsed.teamId })
     } else {
-      const agentId = value as AgentId
-      await updateProject(project.id, { defaultAgentId: agentId, defaultTeamId: undefined })
+      await updateProject(project.id, { defaultAgentId: parsed.agentId, defaultTeamId: undefined })
     }
   }
 
@@ -189,7 +189,7 @@ function GeneralTab({
         <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('settings.general.defaultLabel')}</div>
         <p className="text-[12px] text-text-dim mb-3">{t('settings.general.defaultDesc')}</p>
         <select
-          value={project.defaultTeamId ? `team:${project.defaultTeamId}` : project.defaultAgentId ?? ''}
+          value={project.defaultTeamId ? encodeTeamValue(project.defaultTeamId) : project.defaultAgentId ?? ''}
           onChange={e => onDefaultChange(e.target.value)}
           className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
         >
@@ -197,7 +197,7 @@ function GeneralTab({
           {teams.length > 0 && (
             <optgroup label={t('settings.general.defaultTeamsGroup')}>
               {teams.map(tm => (
-                <option key={tm.id} value={`team:${tm.id}`}>{tm.name}</option>
+                <option key={tm.id} value={encodeTeamValue(tm.id)}>{tm.name}</option>
               ))}
             </optgroup>
           )}

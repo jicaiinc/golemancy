@@ -45,6 +45,8 @@
     "scheduledAtLabel": "執行時間（本地時間）",
     "agentLabel": "AGENT",
     "agentPlaceholder": "選擇一個 Agent",
+    "teamLabel": "團隊（選填）",
+    "noTeam": "不使用團隊",
     "instructionLabel": "指令（選填）",
     "instructionPlaceholder": "觸發時傳送給 Agent 的指令",
     "enabledLabel": "啟用",

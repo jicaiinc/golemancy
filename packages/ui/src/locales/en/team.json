@@ -13,7 +13,9 @@
   "create": {
     "modalTitle": "Create New Team",
     "createBtn": "Create Team",
+    "nameLabel": "NAME",
     "namePlaceholder": "e.g. Research Team",
+    "descLabel": "DESCRIPTION",
     "descPlaceholder": "What does this team do?"
   },
   "detail": {
@@ -37,6 +39,8 @@
     "mcpServers": "MCP Servers",
     "noMcpServers": "No MCP servers",
     "memory": "Memory",
+    "memoryCount_one": "{{count}} memory",
+    "memoryCount_other": "{{count}} memories",
     "memoryEnabled": "Enabled",
     "memoryDisabled": "Disabled",
     "noAgentsAvailable": "No agents available",

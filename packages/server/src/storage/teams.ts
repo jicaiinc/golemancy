@@ -28,8 +28,14 @@ export class FileTeamStorage implements ITeamService {
 
   async list(projectId: ProjectId): Promise<Team[]> {
     const all = await listJsonFiles<Team>(this.teamsDir(projectId))
-    // Filter to valid team objects only (ignore stale layout files from old format)
-    const teams = all.filter(t => t.id && typeof t.id === 'string' && t.id.startsWith('team-'))
+    const teams: Team[] = []
+    for (const t of all) {
+      if (t.id && typeof t.id === 'string' && t.id.startsWith('team-')) {
+        teams.push(t)
+      } else {
+        log.warn({ projectId, id: (t as any).id }, 'skipping non-team file in teams directory')
+      }
+    }
     log.debug({ projectId, count: teams.length }, 'listed teams')
     return teams.map(t => this.normalize({ ...t, projectId }))
   }

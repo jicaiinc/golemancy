@@ -30,20 +30,16 @@
     "clickToCopy": "點擊複製",
     "tabs": {
       "general": "基本資訊",
-      "agent": "Agent",
       "permissions": "權限"
-    },
-    "agent": {
-      "mainLabel": "主 AGENT",
-      "mainDesc": "該專案新對話的預設 Agent。",
-      "noAgents": "專案中尚無 Agent，請先建立一個。",
-      "goToAgents": "前往 Agent 頁面",
-      "none": "無",
-      "configure": "設定 Agent \u2192"
     },
     "general": {
       "sectionTitle": "基本資訊",
-      "saveBtn": "儲存變更"
+      "saveBtn": "儲存變更",
+      "defaultLabel": "預設 AGENT / 團隊",
+      "defaultDesc": "新對話使用的預設 Agent 或團隊。",
+      "defaultNone": "無",
+      "defaultTeamsGroup": "團隊",
+      "defaultAgentsGroup": "Agent"
     }
   }
 }

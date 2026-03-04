@@ -262,7 +262,7 @@ function DetailPanel({
               className="font-mono text-[9px] text-accent-amber hover:underline cursor-pointer"
               onClick={() => navigate(`/projects/${projectId}/agents/${agent.id}`, { state: { tab: 'memory' } })}
             >
-              {memoryCount !== null ? `${memoryCount} memories` : t('topology.memoryEnabled')}
+              {memoryCount !== null ? t('topology.memoryCount', { count: memoryCount }) : t('topology.memoryEnabled')}
               {' \u2192'}
             </button>
           ) : (
