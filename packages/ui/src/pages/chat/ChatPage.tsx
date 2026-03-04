@@ -216,6 +216,7 @@ export function ChatPage() {
       {chatHistoryExpanded && (
         <ChatSidebar
           agents={agents}
+          teams={teams}
           conversations={conversations}
           selectedConversationId={currentConversationId}
           onSelectConversation={handleSelectConversation}

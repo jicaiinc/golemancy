@@ -334,9 +334,11 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
                   ))}
                 </optgroup>
               </select>
-            ) : agent && (
+            ) : (
               <span className="text-[11px] text-accent-blue font-mono shrink-0">
-                @{agent.name}
+                {conversation.teamId
+                  ? (() => { const tm = teams.find(t => t.id === conversation.teamId); return tm ? `@${tm.name}` : agent ? `@${agent.name}` : null })()
+                  : agent ? `@${agent.name}` : null}
               </span>
             )
           )}

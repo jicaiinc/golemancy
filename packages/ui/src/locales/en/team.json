@@ -28,7 +28,7 @@
   },
   "general": {
     "sectionTitle": "INFO",
-    "instructionLabel": "TEAM INSTRUCTION",
+    "instructionLabel": "TEAM INSTRUCTION (optional)",
     "instructionPlaceholder": "Instructions injected into the leader agent's context..."
   },
   "members": {

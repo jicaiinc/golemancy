@@ -141,9 +141,8 @@ describe('ProjectSettingsPage', () => {
     expect(screen.getByText('Project Settings')).toBeInTheDocument()
   })
 
-  it('renders all 3 tab labels', () => {
+  it('renders all tab labels', () => {
     renderAtRoute()
-    expect(screen.getByText('Agent')).toBeInTheDocument()
     expect(screen.getByText('General')).toBeInTheDocument()
     expect(screen.getByText('Permissions')).toBeInTheDocument()
   })
@@ -172,23 +171,14 @@ describe('ProjectSettingsPage', () => {
     })
   })
 
-  // ── Agent Tab ──
+  // ── Default Agent / Team ──
 
-  it('shows Main Agent section with agent selector', () => {
+  it('shows default agent/team selector in General tab', () => {
     renderAtRoute()
-    fireEvent.click(screen.getByText('Agent'))
-    expect(screen.getByText('MAIN AGENT')).toBeInTheDocument()
-    expect(screen.getByText('Main Agent')).toBeInTheDocument()
+    expect(screen.getByText('DEFAULT AGENT / TEAM')).toBeInTheDocument()
   })
 
-  it('shows "No agents" when agents list is empty', () => {
-    useAppStore.setState({ agents: [] })
-    renderAtRoute()
-    fireEvent.click(screen.getByText('Agent'))
-    expect(screen.getByText(/No agents in this project/)).toBeInTheDocument()
-  })
-
-  it('calls updateProject when main agent is changed', async () => {
+  it('calls updateProject with mutual exclusion when default is changed', async () => {
     const agentId = 'agent-ps1' as AgentId
     const projectWithMain: Project = { ...testProject, defaultAgentId: agentId }
     useAppStore.setState({ projects: [projectWithMain], currentProjectId: PROJECT_ID })
@@ -196,13 +186,13 @@ describe('ProjectSettingsPage', () => {
     useAppStore.setState({ updateProject: mockUpdate })
 
     renderAtRoute()
-    fireEvent.click(screen.getByText('Agent'))
-    // The select should have the agent selected
-    const select = screen.getAllByRole('combobox')[0]
-    fireEvent.change(select, { target: { value: '' } })
+    // Find the default picker select (second combobox after icon)
+    const selects = screen.getAllByRole('combobox')
+    const defaultSelect = selects[selects.length - 1]
+    fireEvent.change(defaultSelect, { target: { value: '' } })
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, { defaultAgentId: undefined })
+      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, { defaultAgentId: undefined, defaultTeamId: undefined })
     })
   })
 

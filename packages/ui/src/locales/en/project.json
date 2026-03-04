@@ -30,22 +30,16 @@
     "clickToCopy": "Click to copy",
     "tabs": {
       "general": "General",
-      "agent": "Agent",
       "permissions": "Permissions"
-    },
-    "agent": {
-      "mainLabel": "MAIN AGENT",
-      "mainDesc": "The default agent for new conversations in this project.",
-      "noAgents": "No agents in this project. Create an agent first.",
-      "goToAgents": "Go to Agents",
-      "none": "None",
-      "configure": "Configure Agent \u2192",
-      "defaultTeamLabel": "DEFAULT TEAM",
-      "defaultTeamDesc": "When set, new conversations will use this team's leader agent with team context."
     },
     "general": {
       "sectionTitle": "BASIC INFO",
-      "saveBtn": "Save Changes"
+      "saveBtn": "Save Changes",
+      "defaultLabel": "DEFAULT AGENT / TEAM",
+      "defaultDesc": "The default agent or team used when starting new conversations.",
+      "defaultNone": "None",
+      "defaultTeamsGroup": "Teams",
+      "defaultAgentsGroup": "Agents"
     }
   }
 }

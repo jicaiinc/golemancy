@@ -83,9 +83,14 @@ export class FileProjectStorage implements IProjectService {
     const existing = await this.getById(id)
     if (!existing) throw new Error(`Project ${id} not found`)
 
+    // Convert null → undefined so optional fields can be properly cleared
+    const cleaned = Object.fromEntries(
+      Object.entries(data).map(([k, v]) => [k, v === null ? undefined : v])
+    )
+
     const updated: Project = {
       ...existing,
-      ...data,
+      ...cleaned,
       updatedAt: new Date().toISOString(),
     }
     await writeJson(this.projectJsonPath(id), updated)

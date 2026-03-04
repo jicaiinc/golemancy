@@ -1,11 +1,12 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
-import type { Agent, Conversation, ConversationId } from '@golemancy/shared'
+import type { Agent, Conversation, ConversationId, Team } from '@golemancy/shared'
 import { useTranslation } from 'react-i18next'
 import { PixelButton } from '../../components'
 import { relativeTime } from '../../lib/time'
 
 interface ChatSidebarProps {
   agents: Agent[]
+  teams: Team[]
   conversations: Conversation[]
   selectedConversationId: ConversationId | null
   onSelectConversation: (id: ConversationId) => void
@@ -16,6 +17,7 @@ interface ChatSidebarProps {
 
 export function ChatSidebar({
   agents,
+  teams,
   conversations,
   selectedConversationId,
   onSelectConversation,
@@ -93,7 +95,9 @@ export function ChatSidebar({
         ) : (
           sorted.map(conv => {
             const isActive = conv.id === selectedConversationId
+            const team = conv.teamId ? teams.find(tm => tm.id === conv.teamId) : undefined
             const agent = agents.find(a => a.id === conv.agentId)
+            const displayName = team?.name ?? agent?.name ?? '???'
             return (
               <button
                 key={conv.id}
@@ -129,7 +133,7 @@ export function ChatSidebar({
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[10px] text-accent-blue font-mono">
-                    {agent?.name ?? '???'}
+                    {displayName}
                   </span>
                   <span className="text-[10px] text-text-dim">
                     {relativeTime(conv.lastMessageAt)}

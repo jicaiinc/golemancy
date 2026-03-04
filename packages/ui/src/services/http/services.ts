@@ -30,8 +30,10 @@ export class HttpProjectService implements IProjectService {
     })
   }
   update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>) {
+    // Convert undefined → null so JSON.stringify preserves "clear" intent
+    const body = JSON.stringify(data, (_k, v) => v === undefined ? null : v)
     return fetchJson<Project>(`${this.baseUrl}/api/projects/${id}`, {
-      method: 'PATCH', body: JSON.stringify(data),
+      method: 'PATCH', body,
     })
   }
   async delete(id: ProjectId) {

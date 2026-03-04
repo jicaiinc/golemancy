@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import type { AgentId, ProjectConfig, ProjectId, TeamId } from '@golemancy/shared'
+import type { Agent, AgentId, ProjectConfig, ProjectId, Team, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
@@ -24,7 +24,6 @@ export function ProjectSettingsPage() {
   const updateProject = useAppStore(s => s.updateProject)
   const agents = useAppStore(s => s.agents)
   const teams = useAppStore(s => s.teams)
-  const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState('general')
   const [name, setName] = useState('')
@@ -37,7 +36,6 @@ export function ProjectSettingsPage() {
 
   const settingsTabs = useMemo(() => [
     { id: 'general', label: t('settings.tabs.general') },
-    { id: 'agent', label: t('settings.tabs.agent') },
     { id: 'permissions', label: t('settings.tabs.permissions') },
   ], [t])
 
@@ -53,16 +51,17 @@ export function ProjectSettingsPage() {
 
   if (!project) return null
 
-  const mainAgent = agents.find(a => a.id === project.defaultAgentId)
-
-  async function handleMainAgentChange(agentId: AgentId | undefined) {
+  async function handleDefaultChange(value: string) {
     if (!project) return
-    await updateProject(project.id, { defaultAgentId: agentId })
-  }
-
-  async function handleDefaultTeamChange(teamId: TeamId | undefined) {
-    if (!project) return
-    await updateProject(project.id, { defaultTeamId: teamId })
+    if (!value) {
+      await updateProject(project.id, { defaultAgentId: undefined, defaultTeamId: undefined })
+    } else if (value.startsWith('team:')) {
+      const teamId = value.slice(5) as TeamId
+      await updateProject(project.id, { defaultAgentId: undefined, defaultTeamId: teamId })
+    } else {
+      const agentId = value as AgentId
+      await updateProject(project.id, { defaultAgentId: agentId, defaultTeamId: undefined })
+    }
   }
 
   async function handleSave() {
@@ -91,18 +90,6 @@ export function ProjectSettingsPage() {
       <PixelTabs tabs={settingsTabs} activeTab={activeTab} onTabChange={setActiveTab} testIdPrefix="project-settings" />
 
       <div className="mt-4">
-        {activeTab === 'agent' && (
-          <AgentTab
-            projectId={projectId!}
-            project={project}
-            agents={agents}
-            teams={teams}
-            mainAgent={mainAgent}
-            onMainAgentChange={handleMainAgentChange}
-            onDefaultTeamChange={handleDefaultTeamChange}
-            navigate={navigate}
-          />
-        )}
         {activeTab === 'general' && (
           <GeneralTab
             project={project}
@@ -115,108 +102,15 @@ export function ProjectSettingsPage() {
             saving={saving}
             saved={saved}
             onSave={handleSave}
+            agents={agents}
+            teams={teams}
+            onDefaultChange={handleDefaultChange}
           />
         )}
         {activeTab === 'permissions' && (
           <PermissionsSettings projectId={projectId! as ProjectId} />
         )}
       </div>
-    </div>
-  )
-}
-
-// ========== Agent Tab ==========
-function AgentTab({
-  projectId,
-  project,
-  agents,
-  teams,
-  mainAgent,
-  onMainAgentChange,
-  onDefaultTeamChange,
-  navigate,
-}: {
-  projectId: string
-  project: NonNullable<ReturnType<typeof useCurrentProject>>
-  agents: ReturnType<typeof useAppStore.getState>['agents']
-  teams: ReturnType<typeof useAppStore.getState>['teams']
-  mainAgent: ReturnType<typeof useAppStore.getState>['agents'][number] | undefined
-  onMainAgentChange: (agentId: AgentId | undefined) => void
-  onDefaultTeamChange: (teamId: TeamId | undefined) => void
-  navigate: ReturnType<typeof useNavigate>
-}) {
-  const { t } = useTranslation('project')
-  return (
-    <div className="flex flex-col gap-4">
-      {/* Default Agent */}
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('settings.agent.mainLabel')}</div>
-        <p className="text-[12px] text-text-dim mb-3">
-          {t('settings.agent.mainDesc')}
-        </p>
-
-        {agents.length === 0 ? (
-          <PixelCard variant="outlined" className="text-center py-4">
-            <p className="text-[12px] text-text-dim mb-3">
-              {t('settings.agent.noAgents')}
-            </p>
-            <PixelButton
-              variant="primary"
-              size="sm"
-              onClick={() => navigate(`/projects/${projectId}/agents`)}
-            >
-              {t('settings.agent.goToAgents')}
-            </PixelButton>
-          </PixelCard>
-        ) : (
-          <>
-            <select
-              value={project.defaultAgentId ?? ''}
-              onChange={e => onMainAgentChange(
-                e.target.value ? e.target.value as AgentId : undefined
-              )}
-              className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-            >
-              <option value="">{t('settings.agent.none')}</option>
-              {agents.map(a => (
-                <option key={a.id} value={a.id}>{a.name}</option>
-              ))}
-            </select>
-
-            {mainAgent && (
-              <PixelButton
-                variant="secondary"
-                size="sm"
-                className="mt-3"
-                onClick={() => navigate(`/projects/${projectId}/agents/${mainAgent.id}`)}
-              >
-                {t('settings.agent.configure')}
-              </PixelButton>
-            )}
-          </>
-        )}
-      </PixelCard>
-
-      {/* Default Team */}
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('settings.agent.defaultTeamLabel')}</div>
-        <p className="text-[12px] text-text-dim mb-3">
-          {t('settings.agent.defaultTeamDesc')}
-        </p>
-
-        <select
-          value={project.defaultTeamId ?? ''}
-          onChange={e => onDefaultTeamChange(
-            e.target.value ? e.target.value as TeamId : undefined
-          )}
-          className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-        >
-          <option value="">{t('settings.agent.none')}</option>
-          {teams.map(tm => (
-            <option key={tm.id} value={tm.id}>{tm.name}</option>
-          ))}
-        </select>
-      </PixelCard>
     </div>
   )
 }
@@ -233,6 +127,9 @@ function GeneralTab({
   saving,
   saved,
   onSave,
+  agents,
+  teams,
+  onDefaultChange,
 }: {
   project: NonNullable<ReturnType<typeof useCurrentProject>>
   name: string
@@ -244,6 +141,9 @@ function GeneralTab({
   saving: boolean
   saved: boolean
   onSave: () => void
+  agents: Agent[]
+  teams: Team[]
+  onDefaultChange: (value: string) => void
 }) {
   const { t } = useTranslation('project')
   return (
@@ -282,6 +182,31 @@ function GeneralTab({
             </div>
           </div>
         </div>
+      </PixelCard>
+
+      {/* Default Agent / Team */}
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('settings.general.defaultLabel')}</div>
+        <p className="text-[12px] text-text-dim mb-3">{t('settings.general.defaultDesc')}</p>
+        <select
+          value={project.defaultTeamId ? `team:${project.defaultTeamId}` : project.defaultAgentId ?? ''}
+          onChange={e => onDefaultChange(e.target.value)}
+          className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+        >
+          <option value="">{t('settings.general.defaultNone')}</option>
+          {teams.length > 0 && (
+            <optgroup label={t('settings.general.defaultTeamsGroup')}>
+              {teams.map(tm => (
+                <option key={tm.id} value={`team:${tm.id}`}>{tm.name}</option>
+              ))}
+            </optgroup>
+          )}
+          <optgroup label={t('settings.general.defaultAgentsGroup')}>
+            {agents.map(a => (
+              <option key={a.id} value={a.id}>{a.name}</option>
+            ))}
+          </optgroup>
+        </select>
       </PixelCard>
 
       <div className="flex items-center gap-3">
