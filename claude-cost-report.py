@@ -202,7 +202,7 @@ def parse_session(filepath: str):
     except Exception as e:
         return None
 
-def generate_html(sessions, by_project, by_date, by_model, total_cost):
+def generate_html(sessions, by_project, by_date, by_model, total_cost, today_stats, week_stats, today_str, week_ago):
     """Generate the HTML report."""
 
     # Sort by_project by cost descending
@@ -397,6 +397,24 @@ tr:hover {{
 .section {{
     margin-bottom: 32px;
 }}
+.period-row {{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}}
+.period-card {{
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 20px;
+}}
+.period-card h2 {{
+    margin-bottom: 12px;
+}}
+.period-card .cards {{
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 0;
+}}
 </style>
 </head>
 <body>
@@ -404,6 +422,52 @@ tr:hover {{
 <h1>Claude Code Cost Report</h1>
 <p class="subtitle">Generated {datetime.now().strftime('%Y-%m-%d %H:%M')} · {len(sessions)} sessions scanned</p>
 
+<div class="period-row">
+    <div class="period-card">
+        <h2>Today ({today_str})</h2>
+        <div class="cards">
+            <div class="card">
+                <div class="label">Cost</div>
+                <div class="value cost">{fmt_cost(today_stats['cost'])}</div>
+            </div>
+            <div class="card">
+                <div class="label">Sessions</div>
+                <div class="value sessions">{today_stats['sessions']:,}</div>
+            </div>
+            <div class="card">
+                <div class="label">Input Tokens</div>
+                <div class="value tokens">{fmt_tokens(today_stats['input_tokens'])}</div>
+            </div>
+            <div class="card">
+                <div class="label">Output Tokens</div>
+                <div class="value tokens">{fmt_tokens(today_stats['output_tokens'])}</div>
+            </div>
+        </div>
+    </div>
+    <div class="period-card">
+        <h2>Last 7 Days ({week_ago} ~ {today_str})</h2>
+        <div class="cards">
+            <div class="card">
+                <div class="label">Cost</div>
+                <div class="value cost">{fmt_cost(week_stats['cost'])}</div>
+            </div>
+            <div class="card">
+                <div class="label">Sessions</div>
+                <div class="value sessions">{week_stats['sessions']:,}</div>
+            </div>
+            <div class="card">
+                <div class="label">Input Tokens</div>
+                <div class="value tokens">{fmt_tokens(week_stats['input_tokens'])}</div>
+            </div>
+            <div class="card">
+                <div class="label">Output Tokens</div>
+                <div class="value tokens">{fmt_tokens(week_stats['output_tokens'])}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2>All Time</h2>
 <div class="cards">
     <div class="card">
         <div class="label">Total Cost (Estimated)</div>
@@ -427,7 +491,7 @@ tr:hover {{
     </div>
     <div class="card">
         <div class="label">Date Range</div>
-        <div class="value" style="font-size:16px">{min(by_date.keys()) if by_date else '—'}<br>{max(by_date.keys()) if by_date else '—'}</div>
+        <div class="value" style="font-size:16px">{min(by_date.keys()) if by_date else '—'} ~ {max(by_date.keys()) if by_date else '—'}</div>
     </div>
 </div>
 
@@ -601,8 +665,30 @@ def main():
     total_cost = sum(s['cost'] for s in sessions)
     print(f"\nTotal estimated cost: ${total_cost:,.2f}")
 
+    # Today and 7-day stats
+    from datetime import timedelta, timezone
+    now = datetime.now(timezone.utc)
+    today_str = now.strftime('%Y-%m-%d')
+    week_ago = (now - timedelta(days=7)).strftime('%Y-%m-%d')
+
+    def aggregate_period(sessions_list, start_date, end_date=None):
+        stats = {'sessions': 0, 'input_tokens': 0, 'output_tokens': 0, 'cost': 0.0}
+        for s in sessions_list:
+            if s['date'] >= start_date and (end_date is None or s['date'] <= end_date):
+                stats['sessions'] += 1
+                stats['input_tokens'] += s['input_tokens'] + s['cache_5m_tokens'] + s['cache_1h_tokens'] + s['cache_read_tokens']
+                stats['output_tokens'] += s['output_tokens']
+                stats['cost'] += s['cost']
+        return stats
+
+    today_stats = aggregate_period(sessions, today_str)
+    week_stats = aggregate_period(sessions, week_ago)
+
+    print(f"Today: {today_stats['sessions']} sessions, ${today_stats['cost']:,.2f}")
+    print(f"7-Day: {week_stats['sessions']} sessions, ${week_stats['cost']:,.2f}")
+
     # Generate HTML
-    html = generate_html(sessions, dict(by_project), dict(by_date), dict(by_model), total_cost)
+    html = generate_html(sessions, dict(by_project), dict(by_date), dict(by_model), total_cost, today_stats, week_stats, today_str, week_ago)
 
     output_path = '/tmp/claude-cost-report.html'
     with open(output_path, 'w') as f:
