@@ -14,7 +14,10 @@ import webbrowser
 import tempfile
 from pathlib import Path
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+
+# Beijing time (UTC+8)
+BJT = timezone(timedelta(hours=8))
 
 # Pricing per 1M tokens (USD) — https://platform.claude.com/docs/en/about-claude/pricing
 # As of 2026-03. Cache: write(5min)=1.25x input, write(1h)=2x input, read=0.1x input
@@ -170,7 +173,7 @@ def parse_session(filepath: str):
 
         # Extract date from timestamp
         try:
-            dt = datetime.fromisoformat(result['first_ts'].replace('Z', '+00:00'))
+            dt = datetime.fromisoformat(result['first_ts'].replace('Z', '+00:00')).astimezone(BJT)
             date_str = dt.strftime('%Y-%m-%d')
         except Exception:
             date_str = 'unknown'
@@ -202,7 +205,7 @@ def parse_session(filepath: str):
     except Exception as e:
         return None
 
-def generate_html(sessions, by_project, by_date, by_model, total_cost, today_stats, week_stats, today_str, week_ago):
+def generate_html(sessions, by_project, by_date, by_model, total_cost, period_stats, period_labels):
     """Generate the HTML report."""
 
     # Sort by_project by cost descending
@@ -399,22 +402,44 @@ tr:hover {{
 }}
 .period-row {{
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
     margin-bottom: 32px;
 }}
 .period-card {{
     background: var(--card);
     border: 1px solid var(--border);
-    padding: 20px;
+    padding: 16px;
 }}
-.period-card h2 {{
-    margin-bottom: 12px;
+.period-card h3 {{
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }}
-.period-card .cards {{
-    grid-template-columns: repeat(2, 1fr);
-    margin-bottom: 0;
+.period-card .metric {{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
 }}
+.period-card .metric:last-child {{
+    border-bottom: none;
+}}
+.period-card .metric .label {{
+    color: var(--text-dim);
+    font-size: 11px;
+}}
+.period-card .metric .val {{
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}}
+.period-card .metric .val.cost {{ color: var(--green); }}
+.period-card .metric .val.sessions {{ color: var(--accent); }}
+.period-card .metric .val.tokens {{ color: var(--purple); }}
 </style>
 </head>
 <body>
@@ -423,48 +448,14 @@ tr:hover {{
 <p class="subtitle">Generated {datetime.now().strftime('%Y-%m-%d %H:%M')} · {len(sessions)} sessions scanned</p>
 
 <div class="period-row">
-    <div class="period-card">
-        <h2>Today ({today_str})</h2>
-        <div class="cards">
-            <div class="card">
-                <div class="label">Cost</div>
-                <div class="value cost">{fmt_cost(today_stats['cost'])}</div>
-            </div>
-            <div class="card">
-                <div class="label">Sessions</div>
-                <div class="value sessions">{today_stats['sessions']:,}</div>
-            </div>
-            <div class="card">
-                <div class="label">Input Tokens</div>
-                <div class="value tokens">{fmt_tokens(today_stats['input_tokens'])}</div>
-            </div>
-            <div class="card">
-                <div class="label">Output Tokens</div>
-                <div class="value tokens">{fmt_tokens(today_stats['output_tokens'])}</div>
-            </div>
-        </div>
+{"".join(f'''    <div class="period-card">
+        <h3>{label}</h3>
+        <div class="metric"><span class="label">Cost</span><span class="val cost">{fmt_cost(stats['cost'])}</span></div>
+        <div class="metric"><span class="label">Sessions</span><span class="val sessions">{stats['sessions']:,}</span></div>
+        <div class="metric"><span class="label">Input</span><span class="val tokens">{fmt_tokens(stats['input_tokens'])}</span></div>
+        <div class="metric"><span class="label">Output</span><span class="val tokens">{fmt_tokens(stats['output_tokens'])}</span></div>
     </div>
-    <div class="period-card">
-        <h2>Last 7 Days ({week_ago} ~ {today_str})</h2>
-        <div class="cards">
-            <div class="card">
-                <div class="label">Cost</div>
-                <div class="value cost">{fmt_cost(week_stats['cost'])}</div>
-            </div>
-            <div class="card">
-                <div class="label">Sessions</div>
-                <div class="value sessions">{week_stats['sessions']:,}</div>
-            </div>
-            <div class="card">
-                <div class="label">Input Tokens</div>
-                <div class="value tokens">{fmt_tokens(week_stats['input_tokens'])}</div>
-            </div>
-            <div class="card">
-                <div class="label">Output Tokens</div>
-                <div class="value tokens">{fmt_tokens(week_stats['output_tokens'])}</div>
-            </div>
-        </div>
-    </div>
+''' for label, stats in zip(period_labels, period_stats))}
 </div>
 
 <h2>All Time</h2>
@@ -665,11 +656,12 @@ def main():
     total_cost = sum(s['cost'] for s in sessions)
     print(f"\nTotal estimated cost: ${total_cost:,.2f}")
 
-    # Today and 7-day stats
-    from datetime import timedelta, timezone
-    now = datetime.now(timezone.utc)
+    # Period stats: today, yesterday, 7-day, 30-day (Beijing time)
+    now = datetime.now(BJT)
     today_str = now.strftime('%Y-%m-%d')
+    yesterday_str = (now - timedelta(days=1)).strftime('%Y-%m-%d')
     week_ago = (now - timedelta(days=7)).strftime('%Y-%m-%d')
+    month_ago = (now - timedelta(days=30)).strftime('%Y-%m-%d')
 
     def aggregate_period(sessions_list, start_date, end_date=None):
         stats = {'sessions': 0, 'input_tokens': 0, 'output_tokens': 0, 'cost': 0.0}
@@ -682,13 +674,23 @@ def main():
         return stats
 
     today_stats = aggregate_period(sessions, today_str)
+    yesterday_stats = aggregate_period(sessions, yesterday_str, yesterday_str)
     week_stats = aggregate_period(sessions, week_ago)
+    month_stats = aggregate_period(sessions, month_ago)
 
-    print(f"Today: {today_stats['sessions']} sessions, ${today_stats['cost']:,.2f}")
-    print(f"7-Day: {week_stats['sessions']} sessions, ${week_stats['cost']:,.2f}")
+    period_stats = [today_stats, yesterday_stats, week_stats, month_stats]
+    period_labels = [
+        f"Today ({today_str})",
+        f"Yesterday ({yesterday_str})",
+        f"Last 7 Days",
+        f"Last 30 Days",
+    ]
+
+    for label, stats in zip(period_labels, period_stats):
+        print(f"{label}: {stats['sessions']} sessions, ${stats['cost']:,.2f}")
 
     # Generate HTML
-    html = generate_html(sessions, dict(by_project), dict(by_date), dict(by_model), total_cost, today_stats, week_stats, today_str, week_ago)
+    html = generate_html(sessions, dict(by_project), dict(by_date), dict(by_model), total_cost, period_stats, period_labels)
 
     output_path = '/tmp/claude-cost-report.html'
     with open(output_path, 'w') as f:
