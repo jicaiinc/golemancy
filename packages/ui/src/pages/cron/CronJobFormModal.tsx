@@ -4,6 +4,7 @@ import cronstrue from 'cronstrue'
 import type { AgentId, CronJob, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelInput, PixelTextArea, PixelButton, PixelToggle } from '../../components'
+import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
 
 function tryParseCron(expr: string, invalidLabel: string): string {
   try {
@@ -44,12 +45,15 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
   const [name, setName] = useState('')
   const [cronExpression, setCronExpression] = useState('0 * * * *')
   const [agentId, setAgentId] = useState<AgentId | ''>('')
+  const [teamId, setTeamId] = useState<TeamId | ''>('')
   const [instruction, setInstruction] = useState('')
   const [enabled, setEnabled] = useState(true)
   const [scheduleType, setScheduleType] = useState<'cron' | 'once'>('cron')
-  const [teamId, setTeamId] = useState<TeamId | ''>('')
   const [scheduledAtLocal, setScheduledAtLocal] = useState('') // datetime-local format: YYYY-MM-DDTHH:mm
   const [saving, setSaving] = useState(false)
+
+  // Combined select value: agent or team (mutually exclusive, like Chat)
+  const selectValue = teamId ? encodeTeamValue(teamId) : (agentId as string)
 
   const isEdit = !!editJob
 
@@ -218,41 +222,46 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
         <div className="flex flex-col gap-1">
           <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('cron:form.agentLabel')}</label>
           <select
-            value={agentId}
-            onChange={e => setAgentId(e.target.value as AgentId)}
+            value={selectValue}
+            onChange={e => {
+              const parsed = decodeSelectValue(e.target.value)
+              if (!parsed) {
+                setAgentId('')
+                setTeamId('')
+              } else if ('teamId' in parsed) {
+                setTeamId(parsed.teamId)
+                // Auto-set agent to team leader
+                const team = teams.find(tm => tm.id === parsed.teamId)
+                const leader = team?.members.find(m => !m.parentAgentId)
+                if (leader) setAgentId(leader.agentId)
+              } else {
+                setAgentId(parsed.agentId)
+                setTeamId('')
+              }
+            }}
             className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
           >
             <option value="">{t('cron:form.agentPlaceholder')}</option>
-            {agents.map(a => (
-              <option key={a.id} value={a.id}>{a.name}</option>
-            ))}
+            {teams.length > 0 ? (
+              <>
+                <optgroup label={t('cron:form.teamsGroup')}>
+                  {teams.map(tm => (
+                    <option key={tm.id} value={encodeTeamValue(tm.id)}>{tm.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label={t('cron:form.agentsGroup')}>
+                  {agents.map(a => (
+                    <option key={a.id} value={a.id}>@{a.name}</option>
+                  ))}
+                </optgroup>
+              </>
+            ) : (
+              agents.map(a => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))
+            )}
           </select>
         </div>
-
-        {teams.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('cron:form.teamLabel')}</label>
-            <select
-              value={teamId}
-              onChange={e => {
-                const val = e.target.value as TeamId | ''
-                setTeamId(val)
-                // Auto-set agent to team leader
-                if (val) {
-                  const team = teams.find(tm => tm.id === val)
-                  const leader = team?.members.find(m => !m.parentAgentId)
-                  if (leader) setAgentId(leader.agentId)
-                }
-              }}
-              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
-            >
-              <option value="">{t('cron:form.noTeam')}</option>
-              {teams.map(tm => (
-                <option key={tm.id} value={tm.id}>{tm.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
 
         <PixelTextArea
           label={t('cron:form.instructionLabel')}

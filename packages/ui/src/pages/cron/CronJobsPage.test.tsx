@@ -154,8 +154,8 @@ describe('CronJobsPage', () => {
   it('shows agent name badge for each job', () => {
     useAppStore.setState({ cronJobs: mockCronJobs as any })
     renderWithRouter(<CronJobsPage />)
-    expect(screen.getByText('Writer')).toBeInTheDocument()
-    expect(screen.getByText('Researcher')).toBeInTheDocument()
+    expect(screen.getByText('@Writer')).toBeInTheDocument()
+    expect(screen.getByText('@Researcher')).toBeInTheDocument()
   })
 
   it('shows "Agent not found" when agent is missing', () => {

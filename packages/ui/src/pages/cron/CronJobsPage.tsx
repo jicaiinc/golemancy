@@ -37,6 +37,7 @@ export function CronJobsPage() {
   const { projectId } = useParams()
   const navigate = useNavigate()
   const agents = useAppStore(s => s.agents)
+  const teams = useAppStore(s => s.teams)
   const cronJobs = useAppStore(s => s.cronJobs)
   const cronJobsLoading = useAppStore(s => s.cronJobsLoading)
   const updateCronJob = useAppStore(s => s.updateCronJob)
@@ -134,6 +135,7 @@ export function CronJobsPage() {
         >
           {cronJobs.map(job => {
             const agent = agents.find(a => a.id === job.agentId)
+            const team = job.teamId ? teams.find(tm => tm.id === job.teamId) : undefined
             return (
               <motion.div key={job.id} {...staggerItem}>
                 <PixelCard variant="interactive" data-testid="cron-card">
@@ -181,9 +183,11 @@ export function CronJobsPage() {
                       )}
                     </div>
 
-                    {/* Agent badge */}
-                    {agent ? (
-                      <PixelBadge variant="info">{agent.name}</PixelBadge>
+                    {/* Agent/Team badge */}
+                    {team ? (
+                      <PixelBadge variant="info">{team.name}</PixelBadge>
+                    ) : agent ? (
+                      <PixelBadge variant="info">@{agent.name}</PixelBadge>
                     ) : (
                       <PixelBadge variant="error">{t('job.agentNotFound')}</PixelBadge>
                     )}
