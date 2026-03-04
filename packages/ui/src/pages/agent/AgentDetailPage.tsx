@@ -126,6 +126,7 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
   const [systemPrompt, setSystemPrompt] = useState(agent.systemPrompt)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   useEffect(() => {
     setName(agent.name)
@@ -162,7 +163,15 @@ function GeneralAgentTab({ agent, onUpdate, onDelete }: {
         </PixelButton>
         {saved && <span className="text-[12px] text-accent-green">{t('savedMsg')}</span>}
         <div className="ml-auto">
-          <PixelButton variant="danger" onClick={onDelete}>{t('general.deleteBtn')}</PixelButton>
+          {showDeleteConfirm ? (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-accent-red">{t('general.deleteConfirm')}</span>
+              <PixelButton variant="danger" size="sm" onClick={onDelete}>{t('common:button.confirm')}</PixelButton>
+              <PixelButton variant="ghost" size="sm" onClick={() => setShowDeleteConfirm(false)}>{t('common:button.cancel')}</PixelButton>
+            </div>
+          ) : (
+            <PixelButton variant="danger" onClick={() => setShowDeleteConfirm(true)}>{t('general.deleteBtn')}</PixelButton>
+          )}
         </div>
       </div>
     </div>

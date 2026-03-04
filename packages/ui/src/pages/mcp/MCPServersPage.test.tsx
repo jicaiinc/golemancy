@@ -216,6 +216,9 @@ describe('MCPServersPage', () => {
     const deleteButtons = screen.getAllByText('\u00d7')
     fireEvent.click(deleteButtons[0])
 
+    // Confirm the deletion
+    fireEvent.click(screen.getByText('Confirm'))
+
     await waitFor(() => {
       expect(screen.getByText(/is used by 2 agent/)).toBeInTheDocument()
     })

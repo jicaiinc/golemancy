@@ -196,14 +196,18 @@ describe('AgentDetailPage', () => {
     })
   })
 
-  it('Delete Agent button calls deleteAgent', async () => {
+  it('Delete Agent button calls deleteAgent after confirmation', async () => {
     const mockDelete = vi.fn().mockResolvedValue(undefined)
     useAppStore.setState({ deleteAgent: mockDelete })
     renderAtRoute()
 
-    const deleteButton = screen.getByText('Delete Agent')
-    fireEvent.click(deleteButton)
+    // First click shows confirmation
+    fireEvent.click(screen.getByText('Delete Agent'))
+    expect(mockDelete).not.toHaveBeenCalled()
+    expect(screen.getByText('Are you sure you want to delete this agent?')).toBeInTheDocument()
 
+    // Confirm click actually deletes
+    fireEvent.click(screen.getByText('Confirm'))
     await waitFor(() => {
       expect(mockDelete).toHaveBeenCalledWith(AGENT_ID)
     })

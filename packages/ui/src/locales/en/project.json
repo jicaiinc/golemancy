@@ -36,6 +36,8 @@
     "general": {
       "sectionTitle": "BASIC INFO",
       "saveBtn": "Save Changes",
+      "deleteBtn": "Delete Project",
+      "deleteConfirm": "Are you sure you want to delete this project?",
       "defaultLabel": "DEFAULT AGENT / TEAM",
       "defaultDesc": "The default agent or team used when starting new conversations.",
       "defaultNone": "None",

@@ -37,6 +37,7 @@ export function MCPServersPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [editServer, setEditServer] = useState<MCPServerConfig | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [confirmDeleteName, setConfirmDeleteName] = useState<string | null>(null)
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [testResults, setTestResults] = useState<Record<string, { status: 'testing' | 'ok' | 'error'; message?: string }>>({})
 
@@ -103,6 +104,7 @@ export function MCPServersPage() {
       return
     }
     setDeleteError(null)
+    setConfirmDeleteName(null)
     try {
       await deleteMCPServer(server.name)
     } catch (err) {
@@ -284,7 +286,14 @@ export function MCPServersPage() {
                             </PixelButton>
                             <PixelToggle checked={server.enabled} onChange={() => handleToggleEnabled(server)} />
                             <PixelButton size="sm" variant="ghost" onClick={() => setEditServer(server)}>{t('common:button.edit')}</PixelButton>
-                            <PixelButton size="sm" variant="ghost" onClick={() => handleDelete(server)}>&times;</PixelButton>
+                            {confirmDeleteName === server.name ? (
+                              <>
+                                <PixelButton size="sm" variant="danger" onClick={() => handleDelete(server)}>{t('common:button.confirm')}</PixelButton>
+                                <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteName(null)}>{t('common:button.cancel')}</PixelButton>
+                              </>
+                            ) : (
+                              <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteName(server.name)}>&times;</PixelButton>
+                            )}
                           </div>
                         </div>
                       </PixelCard>

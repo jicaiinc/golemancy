@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { useParams } from 'react-router'
+import { useParams, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, ProjectConfig, ProjectId, Team, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -23,8 +23,10 @@ export function ProjectSettingsPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const project = useCurrentProject()
   const updateProject = useAppStore(s => s.updateProject)
+  const deleteProject = useAppStore(s => s.deleteProject)
   const agents = useAppStore(s => s.agents)
   const teams = useAppStore(s => s.teams)
+  const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState('general')
   const [name, setName] = useState('')
@@ -102,6 +104,7 @@ export function ProjectSettingsPage() {
             saving={saving}
             saved={saved}
             onSave={handleSave}
+            onDelete={async () => { await deleteProject(project.id); navigate('/') }}
             agents={agents}
             teams={teams}
             onDefaultChange={handleDefaultChange}
@@ -127,6 +130,7 @@ function GeneralTab({
   saving,
   saved,
   onSave,
+  onDelete,
   agents,
   teams,
   onDefaultChange,
@@ -141,11 +145,13 @@ function GeneralTab({
   saving: boolean
   saved: boolean
   onSave: () => void
+  onDelete: () => Promise<void>
   agents: Agent[]
   teams: Team[]
   onDefaultChange: (value: string) => void
 }) {
   const { t } = useTranslation('project')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   return (
     <div className="flex flex-col gap-4">
       <PixelCard>
@@ -214,6 +220,17 @@ function GeneralTab({
           {saving ? t('common:button.saving') : t('settings.general.saveBtn')}
         </PixelButton>
         {saved && <span className="text-[12px] text-accent-green">{t('settings.savedMsg')}</span>}
+        <div className="ml-auto">
+          {showDeleteConfirm ? (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-accent-red">{t('settings.general.deleteConfirm')}</span>
+              <PixelButton variant="danger" size="sm" onClick={onDelete}>{t('common:button.confirm')}</PixelButton>
+              <PixelButton variant="ghost" size="sm" onClick={() => setShowDeleteConfirm(false)}>{t('common:button.cancel')}</PixelButton>
+            </div>
+          ) : (
+            <PixelButton variant="danger" onClick={() => setShowDeleteConfirm(true)}>{t('settings.general.deleteBtn')}</PixelButton>
+          )}
+        </div>
       </div>
     </div>
   )

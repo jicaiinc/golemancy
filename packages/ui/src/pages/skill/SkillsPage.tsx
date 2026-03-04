@@ -29,6 +29,7 @@ export function SkillsPage() {
   const [showCreate, setShowCreate] = useState(false)
   const [editSkill, setEditSkill] = useState<Skill | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<SkillId | null>(null)
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   if (!project) return null
@@ -44,6 +45,7 @@ export function SkillsPage() {
       return
     }
     setDeleteError(null)
+    setConfirmDeleteId(null)
     try {
       await deleteSkill(skill.id)
     } catch (err) {
@@ -166,7 +168,14 @@ export function SkillsPage() {
                         </div>
                         <div className="flex gap-1 shrink-0">
                           <PixelButton size="sm" variant="ghost" onClick={() => setEditSkill(skill)}>{t('common:button.edit')}</PixelButton>
-                          <PixelButton size="sm" variant="ghost" onClick={() => handleDelete(skill)}>&times;</PixelButton>
+                          {confirmDeleteId === skill.id ? (
+                            <>
+                              <PixelButton size="sm" variant="danger" onClick={() => handleDelete(skill)}>{t('common:button.confirm')}</PixelButton>
+                              <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(null)}>{t('common:button.cancel')}</PixelButton>
+                            </>
+                          ) : (
+                            <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(skill.id)}>&times;</PixelButton>
+                          )}
                         </div>
                       </div>
                     </PixelCard>

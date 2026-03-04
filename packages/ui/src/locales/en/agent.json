@@ -54,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "INFO",
-    "deleteBtn": "Delete Agent"
+    "deleteBtn": "Delete Agent",
+    "deleteConfirm": "Are you sure you want to delete this agent?"
   },
   "modelConfig": {
     "sectionTitle": "MODEL CONFIG",
