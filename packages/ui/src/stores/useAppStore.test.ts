@@ -131,6 +131,14 @@ function createTestServices(): ServiceContainer {
       duplicate: vi.fn(),
     },
     speech: {} as any,
+    memories: {} as any,
+    teams: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
   }
 }
 
@@ -555,13 +563,13 @@ describe('useAppStore', () => {
     })
   })
 
-  describe('deleteAgent cascades mainAgentId', () => {
-    it('clears mainAgentId when deleting the main agent', async () => {
-      // Set up: project with mainAgentId = agent-1
+  describe('deleteAgent cascades defaultAgentId', () => {
+    it('clears defaultAgentId when deleting the main agent', async () => {
+      // Set up: project with defaultAgentId = agent-1
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
         projects: [
-          { id: 'proj-1' as ProjectId, name: 'Test', mainAgentId: 'agent-1' as AgentId } as any,
+          { id: 'proj-1' as ProjectId, name: 'Test', defaultAgentId: 'agent-1' as AgentId } as any,
         ],
         agents: [
           { id: 'agent-1' as AgentId, name: 'Agent A' } as any,
@@ -569,22 +577,22 @@ describe('useAppStore', () => {
       })
       ;(mockServices.agents.delete as any).mockResolvedValue(undefined)
       ;(mockServices.projects.update as any).mockImplementation((id: string, data: any) =>
-        Promise.resolve({ id, ...data, mainAgentId: undefined }),
+        Promise.resolve({ id, ...data, defaultAgentId: undefined }),
       )
 
       await useAppStore.getState().deleteAgent('agent-1' as AgentId)
 
       // Agent should be removed
       expect(useAppStore.getState().agents).toHaveLength(0)
-      // updateProject should have been called to clear mainAgentId
-      expect(mockServices.projects.update).toHaveBeenCalledWith('proj-1', { mainAgentId: undefined })
+      // updateProject should have been called to clear defaultAgentId
+      expect(mockServices.projects.update).toHaveBeenCalledWith('proj-1', { defaultAgentId: undefined })
     })
 
-    it('does not clear mainAgentId when deleting a non-main agent', async () => {
+    it('does not clear defaultAgentId when deleting a non-main agent', async () => {
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
         projects: [
-          { id: 'proj-1' as ProjectId, name: 'Test', mainAgentId: 'agent-1' as AgentId } as any,
+          { id: 'proj-1' as ProjectId, name: 'Test', defaultAgentId: 'agent-1' as AgentId } as any,
         ],
         agents: [
           { id: 'agent-1' as AgentId, name: 'Agent A' } as any,

@@ -1,7 +1,7 @@
 import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
 import type {
-  CronJob, CronJobRun, ProjectId,
-  IAgentService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, IProjectService,
+  CronJob, CronJobRun, ProjectId, TeamId, TeamMember,
+  IAgentService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, IProjectService, ITeamService,
 } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
@@ -28,6 +28,7 @@ export interface ExecutorDeps {
   taskStorage: SqliteConversationTaskStorage
   memoryStorage: SqliteMemoryStorage
   projectStorage: IProjectService
+  teamStorage?: ITeamService
   tokenRecordStorage: TokenRecordStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
@@ -78,12 +79,24 @@ export class CronJobExecutor {
       // 4. Resolve model
       const model = await resolveModel(settings, agent.modelConfig)
 
+      // 4b. Resolve team if configured
+      let teamMembers: TeamMember[] | undefined
+      let teamInstruction: string | undefined
+      if (cronJob.teamId && this.deps.teamStorage) {
+        const team = await this.deps.teamStorage.getById(projectId, cronJob.teamId as TeamId)
+        if (team) {
+          teamMembers = team.members
+          teamInstruction = team.instruction
+        }
+      }
+
       // 5. Create conversation
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
       const conv = await this.deps.conversationStorage.create(
         projectId,
         cronJob.agentId,
         `[Cron] ${cronJob.name} — ${timestamp}`,
+        cronJob.teamId as TeamId | undefined,
       )
       const conversationId = conv.id
 
@@ -102,7 +115,7 @@ export class CronJobExecutor {
 
       // 7. Load tools
       const project = await this.deps.projectStorage.getById(projectId)
-      const allAgents = agent.subAgents?.length > 0
+      const allAgents = (teamMembers && teamMembers.length > 0)
         ? await this.deps.agentStorage.list(projectId)
         : []
 
@@ -119,6 +132,8 @@ export class CronJobExecutor {
         taskStorage: this.deps.taskStorage,
         memoryStorage: this.deps.memoryStorage,
         tokenRecordStorage: this.deps.tokenRecordStorage,
+        teamMembers,
+        teamInstruction,
       })
 
       const allTools = agentToolsResult.tools

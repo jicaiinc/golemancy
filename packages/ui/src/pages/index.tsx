@@ -4,6 +4,9 @@ export { ProjectListPage, ProjectSettingsPage } from './project'
 // Agent management pages
 export { AgentListPage, AgentDetailPage } from './agent'
 
+// Team management pages
+export { TeamListPage, TeamDetailPage } from './team'
+
 // Skills
 export { SkillsPage } from './skill'
 

@@ -3,7 +3,9 @@
     "hideHistory": "Hide chat history",
     "showHistory": "Show chat history",
     "new": "+ New",
-    "clickToRename": "Click to rename"
+    "clickToRename": "Click to rename",
+    "teams": "Teams",
+    "agents": "Agents"
   },
   "sidebar": {
     "newChat": "+ New Chat",

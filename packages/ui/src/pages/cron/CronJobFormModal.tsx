@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import cronstrue from 'cronstrue'
-import type { AgentId, CronJob } from '@golemancy/shared'
+import type { AgentId, CronJob, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelInput, PixelTextArea, PixelButton, PixelToggle } from '../../components'
 
@@ -37,6 +37,7 @@ interface CronJobFormModalProps {
 export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalProps) {
   const { t } = useTranslation(['cron', 'common'])
   const agents = useAppStore(s => s.agents)
+  const teams = useAppStore(s => s.teams)
   const createCronJob = useAppStore(s => s.createCronJob)
   const updateCronJob = useAppStore(s => s.updateCronJob)
 
@@ -46,6 +47,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
   const [instruction, setInstruction] = useState('')
   const [enabled, setEnabled] = useState(true)
   const [scheduleType, setScheduleType] = useState<'cron' | 'once'>('cron')
+  const [teamId, setTeamId] = useState<TeamId | ''>('')
   const [scheduledAtLocal, setScheduledAtLocal] = useState('') // datetime-local format: YYYY-MM-DDTHH:mm
   const [saving, setSaving] = useState(false)
 
@@ -64,6 +66,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
       setName(editJob.name)
       setCronExpression(editJob.cronExpression)
       setAgentId(editJob.agentId)
+      setTeamId(editJob.teamId ?? '')
       setInstruction(editJob.instruction ?? '')
       setEnabled(editJob.enabled)
       setScheduleType(editJob.scheduleType ?? 'cron')
@@ -72,6 +75,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
       setName('')
       setCronExpression('0 * * * *')
       setAgentId(agents.length > 0 ? agents[0].id : '')
+      setTeamId('')
       setInstruction('')
       setEnabled(true)
       setScheduleType('cron')
@@ -88,11 +92,13 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     setSaving(true)
     try {
       const scheduledAtIso = scheduleType === 'once' ? localDatetimeToIso(scheduledAtLocal) : undefined
+      const resolvedTeamId = teamId || undefined
       if (isEdit && editJob) {
         await updateCronJob(editJob.id, {
           name: name.trim(),
           cronExpression: cronExpression.trim(),
           agentId: agentId as AgentId,
+          teamId: resolvedTeamId as TeamId | undefined,
           instruction: instruction.trim() || undefined,
           enabled,
           scheduleType,
@@ -103,6 +109,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
           name: name.trim(),
           cronExpression: scheduleType === 'cron' ? cronExpression.trim() : '',
           agentId: agentId as AgentId,
+          teamId: resolvedTeamId as TeamId | undefined,
           instruction: instruction.trim() || undefined,
           enabled,
           scheduleType,
@@ -221,6 +228,31 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
             ))}
           </select>
         </div>
+
+        {teams.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('cron:form.teamLabel')}</label>
+            <select
+              value={teamId}
+              onChange={e => {
+                const val = e.target.value as TeamId | ''
+                setTeamId(val)
+                // Auto-set agent to team leader
+                if (val) {
+                  const team = teams.find(tm => tm.id === val)
+                  const leader = team?.members.find(m => !m.parentAgentId)
+                  if (leader) setAgentId(leader.agentId)
+                }
+              }}
+              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+            >
+              <option value="">{t('cron:form.noTeam')}</option>
+              {teams.map(tm => (
+                <option key={tm.id} value={tm.id}>{tm.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <PixelTextArea
           label={t('cron:form.instructionLabel')}

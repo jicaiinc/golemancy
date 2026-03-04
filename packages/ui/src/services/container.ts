@@ -13,6 +13,7 @@ import type {
   IPermissionsConfigService,
   ISpeechService,
   IMemoryService,
+  ITeamService,
 } from './interfaces'
 
 export interface ServiceContainer {
@@ -30,6 +31,7 @@ export interface ServiceContainer {
   permissionsConfig: IPermissionsConfigService
   speech: ISpeechService
   memories: IMemoryService
+  teams: ITeamService
 }
 
 let services: ServiceContainer | null = null

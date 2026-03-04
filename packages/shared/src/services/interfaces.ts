@@ -1,6 +1,6 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, CronJob, CronJobRun, Skill,
-  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId,
+  Project, Agent, Conversation, ConversationTask, CronJob, CronJobRun, Skill, Team,
+  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId, TeamId,
   PermissionsConfigId, TranscriptionId, MemoryId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
@@ -18,7 +18,7 @@ export interface IProjectService {
   list(): Promise<Project[]>
   getById(id: ProjectId): Promise<Project | null>
   create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>): Promise<Project>
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
   getTopologyLayout(projectId: ProjectId): Promise<Record<string, { x: number; y: number }>>
   saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void>
@@ -41,7 +41,7 @@ export interface ConversationTokenUsageResult {
 export interface IConversationService {
   list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]>
   getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null>
-  create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation>
+  create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation>
   sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void>
   saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; contextTokens?: number; provider?: string; model?: string; metadata?: Record<string, unknown> }): Promise<void>
   getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>>
@@ -101,8 +101,8 @@ export interface ISettingsService {
 export interface ICronJobService {
   list(projectId: ProjectId): Promise<CronJob[]>
   getById(projectId: ProjectId, id: CronJobId): Promise<CronJob | null>
-  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
-  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<CronJob>
+  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'> & { teamId?: TeamId }): Promise<CronJob>
+  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'> & { teamId?: TeamId }>): Promise<CronJob>
   delete(projectId: ProjectId, id: CronJobId): Promise<void>
   trigger?(projectId: ProjectId, id: CronJobId): Promise<void>
   listRuns?(projectId: ProjectId, cronJobId?: CronJobId, limit?: number): Promise<CronJobRun[]>
@@ -196,4 +196,12 @@ export interface ISpeechService {
 
   /** Get total storage used by audio files. */
   getStorageUsage(): Promise<SpeechStorageUsage>
+}
+
+export interface ITeamService {
+  list(projectId: ProjectId): Promise<Team[]>
+  getById(projectId: ProjectId, id: TeamId): Promise<Team | null>
+  create(projectId: ProjectId, data: Pick<Team, 'name' | 'description' | 'instruction' | 'members'>): Promise<Team>
+  update(projectId: ProjectId, id: TeamId, data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>): Promise<Team>
+  delete(projectId: ProjectId, id: TeamId): Promise<void>
 }

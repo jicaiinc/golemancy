@@ -1,7 +1,7 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, Team,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId,
+  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -11,7 +11,7 @@ import type {
   ConversationTokenUsageResult, CompactRecord,
   IProjectService, IAgentService, IConversationService,
   ITaskService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-  IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService, IMemoryService,
+  IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService, IMemoryService, ITeamService,
 } from '@golemancy/shared'
 import { fetchJson } from './base'
 
@@ -29,7 +29,7 @@ export class HttpProjectService implements IProjectService {
       method: 'POST', body: JSON.stringify(data),
     })
   }
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>) {
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>) {
     return fetchJson<Project>(`${this.baseUrl}/api/projects/${id}`, {
       method: 'PATCH', body: JSON.stringify(data),
     })
@@ -85,9 +85,9 @@ export class HttpConversationService implements IConversationService {
   getById(projectId: ProjectId, id: ConversationId) {
     return fetchJson<Conversation | null>(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`)
   }
-  create(projectId: ProjectId, agentId: AgentId, title: string) {
+  create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId) {
     return fetchJson<Conversation>(`${this.baseUrl}/api/projects/${projectId}/conversations`, {
-      method: 'POST', body: JSON.stringify({ agentId, title }),
+      method: 'POST', body: JSON.stringify({ agentId, title, ...(teamId ? { teamId } : {}) }),
     })
   }
   update(projectId: ProjectId, id: ConversationId, data: { title?: string }) {
@@ -404,5 +404,29 @@ export class HttpMemoryService implements IMemoryService {
   }
   async delete(projectId: ProjectId, agentId: AgentId, id: MemoryId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/agents/${agentId}/memories/${id}`, { method: 'DELETE' })
+  }
+}
+
+export class HttpTeamService implements ITeamService {
+  constructor(private baseUrl: string) {}
+
+  list(projectId: ProjectId) {
+    return fetchJson<Team[]>(`${this.baseUrl}/api/projects/${projectId}/teams`)
+  }
+  getById(projectId: ProjectId, id: TeamId) {
+    return fetchJson<Team | null>(`${this.baseUrl}/api/projects/${projectId}/teams/${id}`)
+  }
+  create(projectId: ProjectId, data: Pick<Team, 'name' | 'description' | 'instruction' | 'members'>) {
+    return fetchJson<Team>(`${this.baseUrl}/api/projects/${projectId}/teams`, {
+      method: 'POST', body: JSON.stringify(data),
+    })
+  }
+  update(projectId: ProjectId, id: TeamId, data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>) {
+    return fetchJson<Team>(`${this.baseUrl}/api/projects/${projectId}/teams/${id}`, {
+      method: 'PATCH', body: JSON.stringify(data),
+    })
+  }
+  async delete(projectId: ProjectId, id: TeamId) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/teams/${id}`, { method: 'DELETE' })
   }
 }

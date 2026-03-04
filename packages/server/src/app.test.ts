@@ -310,7 +310,7 @@ describe('HTTP API routes', () => {
         body: JSON.stringify({ agentId: 'agent-1', title: 'New Chat' }),
       }))
       expect(res.status).toBe(201)
-      expect(deps.conversationStorage.create).toHaveBeenCalledWith('proj-1', 'agent-1', 'New Chat')
+      expect(deps.conversationStorage.create).toHaveBeenCalledWith('proj-1', 'agent-1', 'New Chat', undefined)
     })
 
     it('DELETE deletes conversation', async () => {
@@ -602,7 +602,7 @@ describe('HTTP API routes', () => {
         description: 'Test agent', status: 'idle',
         systemPrompt: 'You are helpful.',
         modelConfig: { provider: 'google', model: 'gemini-2.5-flash' },
-        skills: [], tools: [], subAgents: [],
+        skills: [], tools: [],
         createdAt: '2024-01-01', updatedAt: '2024-01-01',
       }
       ;(deps.agentStorage.getById as any).mockResolvedValueOnce(mockAgent)
@@ -639,7 +639,7 @@ describe('HTTP API routes', () => {
         description: 'Test agent', status: 'idle',
         systemPrompt: 'You are a writer.',
         modelConfig: { provider: 'google' },
-        skills: [], tools: [], subAgents: [],
+        skills: [], tools: [],
         createdAt: '2024-01-01', updatedAt: '2024-01-01',
       }
       ;(deps.agentStorage.getById as any).mockResolvedValueOnce(mockAgent)

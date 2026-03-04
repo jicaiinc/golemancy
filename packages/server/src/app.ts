@@ -5,7 +5,7 @@ import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   ISkillService, ISettingsService, IDashboardService, IGlobalDashboardService, ICronJobService,
-  IMCPService, IPermissionsConfigService,
+  IMCPService, IPermissionsConfigService, ITeamService,
 } from '@golemancy/shared'
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import type { TokenRecordStorage } from './storage/token-records'
@@ -32,6 +32,7 @@ import { createRuntimeRoutes } from './routes/runtime'
 import { createSandboxRoutes } from './routes/sandbox'
 import { createUploadRoutes } from './routes/uploads'
 import { createMemoryRoutes } from './routes/memories'
+import { createTeamRoutes } from './routes/teams'
 import { createSpeechRoutes } from './routes/speech'
 import { logger } from './logger'
 import { ConfigurationError } from './agent/errors'
@@ -52,6 +53,7 @@ export interface ServerDependencies {
   tokenRecordStorage: TokenRecordStorage
   compactRecordStorage: CompactRecordStorage
   memoryStorage: SqliteMemoryStorage
+  teamStorage?: ITeamService
   speechStorage?: SpeechStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
@@ -135,6 +137,13 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     projectStorage: deps.projectStorage,
     permissionsConfigStorage: deps.permissionsConfigStorage,
   }))
+  if (deps.teamStorage) {
+    app.route('/api/projects/:projectId/teams', createTeamRoutes({
+      teamStorage: deps.teamStorage,
+      projectStorage: deps.projectStorage,
+    }))
+  }
+
   app.route('/api/chat', createChatRoutes({
     agentStorage: deps.agentStorage,
     projectStorage: deps.projectStorage,
@@ -148,6 +157,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     compactRecordStorage: deps.compactRecordStorage,
     activeChatRegistry: deps.activeChatRegistry,
     wsManager: deps.wsManager,
+    teamStorage: deps.teamStorage,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes({

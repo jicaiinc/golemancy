@@ -1,0 +1,67 @@
+import { Hono } from 'hono'
+import type { ITeamService, IProjectService, ProjectId, TeamId } from '@golemancy/shared'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'routes:teams' })
+
+export interface TeamRouteDeps {
+  teamStorage: ITeamService
+  projectStorage: IProjectService
+}
+
+export function createTeamRoutes(deps: TeamRouteDeps) {
+  const { teamStorage: storage, projectStorage } = deps
+  const app = new Hono()
+
+  app.get('/', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    log.debug({ projectId }, 'listing teams')
+    const teams = await storage.list(projectId)
+    return c.json(teams)
+  })
+
+  app.get('/:teamId', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const teamId = c.req.param('teamId') as TeamId
+    log.debug({ projectId, teamId }, 'getting team')
+    const team = await storage.getById(projectId, teamId)
+    if (!team) return c.json({ error: 'NOT_FOUND' }, 404)
+    return c.json(team)
+  })
+
+  app.post('/', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const data = await c.req.json()
+    log.debug({ projectId }, 'creating team')
+    const team = await storage.create(projectId, data)
+    log.debug({ projectId, teamId: team.id }, 'created team')
+    return c.json(team, 201)
+  })
+
+  app.patch('/:teamId', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const teamId = c.req.param('teamId') as TeamId
+    const data = await c.req.json()
+    log.debug({ projectId, teamId }, 'updating team')
+    const team = await storage.update(projectId, teamId, data)
+    return c.json(team)
+  })
+
+  app.delete('/:teamId', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const teamId = c.req.param('teamId') as TeamId
+    log.debug({ projectId, teamId }, 'deleting team')
+
+    // Cascade: clear defaultTeamId if it points to the deleted team
+    const project = await projectStorage.getById(projectId)
+    if (project && project.defaultTeamId === teamId) {
+      log.debug({ projectId, teamId }, 'clearing defaultTeamId (cascade)')
+      await projectStorage.update(projectId, { defaultTeamId: undefined })
+    }
+
+    await storage.delete(projectId, teamId)
+    return c.json({ ok: true })
+  })
+
+  return app
+}

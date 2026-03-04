@@ -62,9 +62,9 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
 
   app.post('/', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
-    const { agentId, title } = await c.req.json()
+    const { agentId, title, teamId } = await c.req.json()
     log.debug({ projectId, agentId }, 'creating conversation')
-    const conv = await storage.create(projectId, agentId, title)
+    const conv = await storage.create(projectId, agentId, title, teamId)
     log.debug({ projectId, conversationId: conv.id }, 'created conversation')
     return c.json(conv, 201)
   })

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router'
+import { useParams, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, AgentStatus, SkillId, MemoryEntry, MemoryId } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MEMORY_AUTO_LOAD, DEFAULT_MEMORY_PRIORITY } from '@golemancy/shared'
@@ -28,10 +28,6 @@ export function AgentDetailPage() {
   const updateAgent = useAppStore(s => s.updateAgent)
   const deleteAgent = useAppStore(s => s.deleteAgent)
   const navigate = useNavigate()
-  const location = useLocation()
-
-  // Preserve the view mode we came from
-  const fromView = (location.state as { fromView?: 'grid' | 'topology' })?.fromView
 
   const agent = agents.find(a => a.id === agentId)
   const [activeTab, setActiveTab] = useState('general')
@@ -42,7 +38,6 @@ export function AgentDetailPage() {
     { id: 'skills', label: t('detail.tabs.skills') },
     { id: 'tools', label: t('detail.tabs.tools') },
     { id: 'mcp', label: 'MCP' },
-    { id: 'sub-agents', label: t('detail.tabs.subAgents') },
     { id: 'memory', label: t('detail.tabs.memory') },
   ], [t])
 
@@ -53,7 +48,7 @@ export function AgentDetailPage() {
         <PixelButton
           variant="ghost"
           className="mt-2"
-          onClick={() => navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined)}
+          onClick={() => navigate(`/projects/${projectId}/agents`)}
         >
           {t('detail.backToAgents')}
         </PixelButton>
@@ -68,7 +63,7 @@ export function AgentDetailPage() {
         <PixelButton
           variant="ghost"
           size="sm"
-          onClick={() => navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined)}
+          onClick={() => navigate(`/projects/${projectId}/agents`)}
         >
           {t('detail.backBtn')}
         </PixelButton>
@@ -93,7 +88,6 @@ export function AgentDetailPage() {
             <span>{t('count.skills', { count: (agent.skillIds ?? []).length })}</span>
             <span>{t('count.tools', { count: agent.tools.length })}</span>
             <span>{t('count.mcpServers', { count: (agent.mcpServers ?? []).length })}</span>
-            <span>{t('count.subAgents', { count: agent.subAgents.length })}</span>
             {agent.modelConfig.model && (
               <span className="font-mono text-accent-blue">{agent.modelConfig.model}</span>
             )}
@@ -105,12 +99,11 @@ export function AgentDetailPage() {
       <PixelTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="mt-4">
-        {activeTab === 'general' && <GeneralAgentTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`, fromView ? { state: { fromView } } : undefined) }} />}
+        {activeTab === 'general' && <GeneralAgentTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`) }} />}
         {activeTab === 'model-config' && <ModelConfigTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'skills' && <SkillsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'tools' && <ToolsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'mcp' && <MCPTab agent={agent} onUpdate={updateAgent} />}
-        {activeTab === 'sub-agents' && <SubAgentsTab agent={agent} onUpdate={updateAgent} />}
         {activeTab === 'memory' && <MemoryTab agent={agent} />}
       </div>
     </div>
@@ -572,92 +565,6 @@ function MCPTab({ agent, onUpdate }: {
             {t('mcp.manage')}
           </PixelButton>
         </div>
-      )}
-    </div>
-  )
-}
-
-// ========== Sub-Agents Tab ==========
-function SubAgentsTab({ agent, onUpdate }: {
-  agent: Agent
-  onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
-}) {
-  const { t } = useTranslation('agent')
-  const agents = useAppStore(s => s.agents)
-  const available = agents.filter(a => a.id !== agent.id && !agent.subAgents.some(s => s.agentId === a.id))
-
-  async function addSubAgent(targetId: AgentId) {
-    await onUpdate(agent.id, {
-      subAgents: [...agent.subAgents, { agentId: targetId, role: 'assistant' }],
-    })
-  }
-
-  async function removeSubAgent(targetId: AgentId) {
-    await onUpdate(agent.id, {
-      subAgents: agent.subAgents.filter(s => s.agentId !== targetId),
-    })
-  }
-
-  async function updateRole(targetId: AgentId, role: string) {
-    await onUpdate(agent.id, {
-      subAgents: agent.subAgents.map(s => s.agentId === targetId ? { ...s, role } : s),
-    })
-  }
-
-  return (
-    <div className="max-w-[640px]">
-      {/* Assigned sub-agents */}
-      <div className="font-pixel text-[8px] text-text-dim mb-2">{t('subAgents.assigned')}</div>
-      {agent.subAgents.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          {agent.subAgents.map(sub => {
-            const subAgent = agents.find(a => a.id === sub.agentId)
-            return (
-              <PixelCard key={sub.agentId} className="flex items-center gap-3">
-                <PixelAvatar size="sm" initials={subAgent?.name ?? '??'} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-text-primary">{subAgent?.name ?? t('subAgents.unknown')}</div>
-                  <input
-                    className="bg-transparent text-[11px] text-accent-purple outline-none border-b border-transparent focus:border-accent-purple w-full"
-                    value={sub.role}
-                    onChange={e => updateRole(sub.agentId, e.target.value)}
-                    placeholder={t('subAgents.rolePlaceholder')}
-                  />
-                </div>
-                <PixelButton size="sm" variant="ghost" onClick={() => removeSubAgent(sub.agentId)}>
-                  &times;
-                </PixelButton>
-              </PixelCard>
-            )
-          })}
-        </div>
-      ) : (
-        <p className="text-[12px] text-text-dim mb-2">{t('subAgents.noneAssigned')}</p>
-      )}
-
-      {/* Divider */}
-      <div className="border-t border-border-dim my-4" />
-
-      {/* Add sub-agent picker */}
-      {available.length > 0 ? (
-        <div>
-          <div className="font-pixel text-[8px] text-text-dim mb-2">{t('subAgents.addSection')}</div>
-          <div className="flex flex-col gap-1">
-            {available.map(a => (
-              <button
-                key={a.id}
-                className="flex items-center gap-3 p-2 text-left hover:bg-elevated/50 cursor-pointer transition-colors"
-                onClick={() => addSubAgent(a.id)}
-              >
-                <PixelAvatar size="xs" initials={a.name} />
-                <span className="text-[12px] text-text-secondary">{a.name}</span>
-                <span className="text-[11px] text-text-dim">{a.description}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <p className="text-[12px] text-text-dim">{t('subAgents.noneAvailable')}</p>
       )}
     </div>
   )

@@ -206,6 +206,13 @@ export function migrateDatabase(db: AppDatabase) {
   `)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_agent_memories_agent ON agent_memories(agent_id, pinned DESC, priority DESC, updated_at DESC)`)
 
+  // --- Migration v9: team_id column on conversations ---
+  const convColsV9 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+  if (!convColsV9.some(c => c.name === 'team_id')) {
+    log.debug('migrating conversations: adding team_id column')
+    db.run(sql`ALTER TABLE conversations ADD COLUMN team_id TEXT`)
+  }
+
   // Set up FTS5
   setupFTS(db)
   log.info('database migrations complete')

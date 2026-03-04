@@ -33,8 +33,6 @@
     "skills_other": "{{count}} skills",
     "tools_one": "{{count}} tool",
     "tools_other": "{{count}} tools",
-    "subAgents_one": "{{count}} sub-agent",
-    "subAgents_other": "{{count}} sub-agents",
     "mcpServers_one": "{{count}} MCP server",
     "mcpServers_other": "{{count}} MCP servers"
   },
@@ -54,7 +52,6 @@
       "modelConfig": "Model Config",
       "skills": "Skills",
       "tools": "Tools",
-      "subAgents": "Sub-Agents",
       "memory": "Memory"
     }
   },
@@ -97,19 +94,10 @@
     "manage": "Manage MCP Servers \u2192",
     "restricted": "Restricted"
   },
-  "subAgents": {
-    "assigned": "ASSIGNED SUB-AGENTS",
-    "noneAssigned": "No sub-agents assigned to this agent.",
-    "addSection": "ADD SUB-AGENT",
-    "noneAvailable": "No other agents available in this project.",
-    "unknown": "Unknown",
-    "rolePlaceholder": "Role..."
-  },
   "panel": {
     "modelLabel": "MODEL",
     "inherited": "Inherited",
     "capabilities": "CAPABILITIES",
-    "subAgentsLabel": "SUB-AGENTS",
     "openDetail": "Open Detail"
   },
   "topology": {

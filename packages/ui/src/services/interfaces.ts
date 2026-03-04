@@ -13,4 +13,5 @@ export type {
   IPermissionsConfigService,
   ISpeechService,
   IMemoryService,
+  ITeamService,
 } from '@golemancy/shared'

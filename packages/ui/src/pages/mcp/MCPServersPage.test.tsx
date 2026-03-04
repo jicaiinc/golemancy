@@ -28,7 +28,7 @@ const mockAgents = [
     modelConfig: { provider: 'openai' },
     skillIds: [],
     tools: [],
-    subAgents: [],
+
     mcpServers: ['filesystem'],
     builtinTools: { bash: true },
     createdAt: '2025-01-01T00:00:00Z',
@@ -44,7 +44,7 @@ const mockAgents = [
     modelConfig: { provider: 'openai' },
     skillIds: [],
     tools: [],
-    subAgents: [],
+
     mcpServers: ['filesystem', 'web-search'],
     builtinTools: { bash: true },
     createdAt: '2025-01-01T00:00:00Z',
@@ -119,6 +119,8 @@ function createTestServices(): ServiceContainer {
       duplicate: vi.fn(),
     },
     speech: {} as any,
+    memories: {} as any,
+    teams: {} as any,
   }
 }
 

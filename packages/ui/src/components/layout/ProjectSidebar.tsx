@@ -15,6 +15,7 @@ const navItems: NavItem[] = [
   { key: 'item.chats', path: '/chat', icon: '>_', testId: 'chat' },
   { key: 'item.automations', path: '/cron', icon: '::', testId: 'cron' },
   { key: 'item.agents', path: '/agents', icon: '{}', testId: 'agents' },
+  { key: 'item.teams', path: '/teams', icon: '&&', testId: 'teams' },
   { key: 'item.skills', path: '/skills', icon: '<>', testId: 'skills' },
   { key: 'item.mcpServers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
   { key: 'item.tasks', path: '/tasks', icon: '#', testId: 'tasks' },

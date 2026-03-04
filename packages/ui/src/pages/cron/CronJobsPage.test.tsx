@@ -99,6 +99,8 @@ function createTestServices(): ServiceContainer {
       duplicate: vi.fn(),
     },
     speech: {} as any,
+    memories: {} as any,
+    teams: {} as any,
   }
 }
 

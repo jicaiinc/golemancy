@@ -9,6 +9,16 @@ import { logger } from '../logger'
 const log = logger.child({ component: 'storage:projects' })
 
 export class FileProjectStorage implements IProjectService {
+  /** Migrate mainAgentId → defaultAgentId for existing project data */
+  private normalize(project: Project): Project {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const raw = project as any
+    return {
+      ...project,
+      defaultAgentId: project.defaultAgentId ?? raw.mainAgentId,
+    }
+  }
+
   private get projectsDir() {
     return path.join(getDataDir(), 'projects')
   }
@@ -25,7 +35,7 @@ export class FileProjectStorage implements IProjectService {
       const projects = await Promise.all(
         dirs.map(d => readJson<Project>(path.join(this.projectsDir, d.name, 'project.json')))
       )
-      return projects.filter((p): p is Project => p !== null)
+      return projects.filter((p): p is Project => p !== null).map(p => this.normalize(p))
     } catch (e) {
       if (isNodeError(e) && e.code === 'ENOENT') return []
       throw e
@@ -33,7 +43,8 @@ export class FileProjectStorage implements IProjectService {
   }
 
   async getById(id: ProjectId): Promise<Project | null> {
-    return readJson<Project>(this.projectJsonPath(id))
+    const project = await readJson<Project>(this.projectJsonPath(id))
+    return project ? this.normalize(project) : null
   }
 
   async create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project> {
@@ -59,6 +70,7 @@ export class FileProjectStorage implements IProjectService {
     await fs.mkdir(path.join(projectDir, 'skills'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'cronjobs'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'permissions-config'), { recursive: true })
+    await fs.mkdir(path.join(projectDir, 'teams'), { recursive: true })
     await writeJson(this.projectJsonPath(id), project)
 
     return project
@@ -66,7 +78,7 @@ export class FileProjectStorage implements IProjectService {
 
   async update(
     id: ProjectId,
-    data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>,
+    data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>,
   ): Promise<Project> {
     const existing = await this.getById(id)
     if (!existing) throw new Error(`Project ${id} not found`)

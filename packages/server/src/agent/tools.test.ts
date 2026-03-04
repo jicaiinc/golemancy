@@ -32,7 +32,7 @@ import { loadAgentTools } from './tools'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
-import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, IPermissionsConfigService, MCPServerConfig } from '@golemancy/shared'
+import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, IPermissionsConfigService, MCPServerConfig, TeamMember } from '@golemancy/shared'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
   return {
@@ -45,7 +45,6 @@ function makeAgent(overrides: Partial<Agent> = {}): Agent {
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: [],
     tools: [],
-    subAgents: [],
     mcpServers: [],
     builtinTools: { bash: true },
     createdAt: '2025-01-01T00:00:00Z',
@@ -91,10 +90,10 @@ beforeEach(() => {
 
 describe('loadAgentTools', () => {
   it('returns empty tools and instructions for a bare agent', async () => {
-    const agent = makeAgent({ skillIds: [], mcpServers: [], subAgents: [], builtinTools: undefined as never })
+    const agent = makeAgent({ skillIds: [], mcpServers: [], builtinTools: undefined as never })
     // builtinTools is truthy so loadBuiltinTools will be called but returns null
     const result = await loadAgentTools({
-      agent: makeAgent({ skillIds: [], mcpServers: [], subAgents: [] }),
+      agent: makeAgent({ skillIds: [], mcpServers: [] }),
       projectId: 'proj-1',
       settings: defaultSettings,
       allAgents: [],
@@ -196,9 +195,7 @@ describe('loadAgentTools', () => {
 
   it('creates sub-agent delegate tools without preloading', async () => {
     const child = makeAgent({ id: 'agent-child' as AgentId, name: 'Researcher', description: 'Finds info' })
-    const parent = makeAgent({
-      subAgents: [{ agentId: 'agent-child' as AgentId, role: 'research' }],
-    })
+    const parent = makeAgent()
 
     const result = await loadAgentTools({
       agent: parent,
@@ -207,6 +204,7 @@ describe('loadAgentTools', () => {
       allAgents: [parent, child],
       mcpStorage: makeMockMcpStorage(),
       permissionsConfigStorage: makeMockPermissionsConfigStorage(),
+      teamMembers: [{ agentId: 'agent-child' as AgentId, role: 'research', parentAgentId: parent.id }],
     })
 
     // Sub-agent tool should be created as a lightweight shell
@@ -238,7 +236,6 @@ describe('loadAgentTools', () => {
       skillIds: ['s1'],
       mcpServers: ['test'],
       builtinTools: { bash: true },
-      subAgents: [{ agentId: 'agent-child' as AgentId, role: 'help' }],
     })
 
     const mockPermsStorage = makeMockPermissionsConfigStorage()
@@ -249,6 +246,7 @@ describe('loadAgentTools', () => {
       allAgents: [agent, child],
       mcpStorage: makeMockMcpStorage(mcpConfigs),
       permissionsConfigStorage: mockPermsStorage,
+      teamMembers: [{ agentId: 'agent-child' as AgentId, role: 'help', parentAgentId: agent.id }],
     })
 
     expect(Object.keys(result.tools)).toHaveLength(4)

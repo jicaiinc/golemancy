@@ -75,7 +75,6 @@ function createMockDeps(overrides: Partial<ExecutorDeps> = {}): ExecutorDeps {
         name: 'Test Agent',
         systemPrompt: 'You are a test agent',
         modelConfig: { provider: 'anthropic', model: 'claude-sonnet-4-20250514' },
-        subAgents: [],
         status: 'idle',
       }),
       list: vi.fn().mockResolvedValue([]),
@@ -204,6 +203,7 @@ describe('CronJobExecutor', () => {
         projId,
         agentId,
         expect.stringContaining('[Cron] Test Cron Job'),
+        undefined,
       )
     })
 

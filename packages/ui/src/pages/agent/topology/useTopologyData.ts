@@ -14,7 +14,6 @@ export function useTopologyData(highlightedNodeId?: AgentId | null) {
   const { projectId } = useParams<{ projectId: string }>()
   const agents = useAppStore(s => s.agents)
   const projects = useAppStore(s => s.projects)
-  const updateAgent = useAppStore(s => s.updateAgent)
   const loadTopologyLayout = useAppStore(s => s.loadTopologyLayout)
   const saveTopologyLayout = useAppStore(s => s.saveTopologyLayout)
   const currentProject = projects.find(p => p.id === projectId)
@@ -55,30 +54,15 @@ export function useTopologyData(highlightedNodeId?: AgentId | null) {
         model: agent.modelConfig.model ?? '',
         skillCount: (agent.skillIds ?? []).length,
         toolCount: agent.tools.length,
-        subAgentCount: agent.subAgents.length,
-        isMainAgent: currentProject?.mainAgentId === agent.id,
+        isMainAgent: currentProject?.defaultAgentId === agent.id,
         isHighlighted: highlightedNodeId === agent.id,
       },
     }))
-  }, [agents, currentProject?.mainAgentId, highlightedNodeId])
+  }, [agents, currentProject?.defaultAgentId, highlightedNodeId])
 
-  // Derive edges from subAgents refs
+  // Edges will be driven by Teams in the future; for now, empty
   const rawEdges: Edge<AgentEdgeData>[] = useMemo(() => {
-    const edges: Edge<AgentEdgeData>[] = []
-    for (const agent of agents) {
-      for (const sub of agent.subAgents) {
-        if (agents.some(a => a.id === sub.agentId)) {
-          edges.push({
-            id: `${agent.id}->${sub.agentId}`,
-            source: agent.id,
-            target: sub.agentId,
-            type: 'agentEdge',
-            data: { role: sub.role },
-          })
-        }
-      }
-    }
-    return edges
+    return []
   }, [agents])
 
   // Apply dagre for nodes without persisted positions
@@ -153,31 +137,15 @@ export function useTopologyData(highlightedNodeId?: AgentId | null) {
     }, 500)
   }, [projectId, setNodes, saveTopologyLayout])
 
-  // --- Connect → create SubAgentRef ---
-  const onConnect: OnConnect = useCallback(async (connection) => {
-    if (!connection.source || !connection.target) return
-    const sourceAgent = agents.find(a => a.id === connection.source)
-    if (!sourceAgent) return
-    if (sourceAgent.subAgents.some(s => s.agentId === connection.target)) return
+  // --- Connect → no-op (sub-agents moved to Teams) ---
+  const onConnect: OnConnect = useCallback((_connection) => {
+    // Sub-agent connections will be managed via Teams in the future
+  }, [])
 
-    const role = window.prompt('Enter role for this sub-agent:')
-    if (!role) return
-
-    await updateAgent(sourceAgent.id, {
-      subAgents: [...sourceAgent.subAgents, { agentId: connection.target as AgentId, role }],
-    })
-  }, [agents, updateAgent])
-
-  // --- Edge delete → remove SubAgentRef ---
-  const onEdgeDelete = useCallback(async (deletedEdges: Edge[]) => {
-    for (const edge of deletedEdges) {
-      const sourceAgent = agents.find(a => a.id === edge.source)
-      if (!sourceAgent) continue
-      await updateAgent(sourceAgent.id, {
-        subAgents: sourceAgent.subAgents.filter(s => s.agentId !== edge.target),
-      })
-    }
-  }, [agents, updateAgent])
+  // --- Edge delete → no-op (sub-agents moved to Teams) ---
+  const onEdgeDelete = useCallback((_deletedEdges: Edge[]) => {
+    // Sub-agent connections will be managed via Teams in the future
+  }, [])
 
   // --- Reset layout ---
   const resetLayout = useCallback(async () => {

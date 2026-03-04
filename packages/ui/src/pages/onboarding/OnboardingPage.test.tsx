@@ -51,7 +51,7 @@ function createTestServices(): ServiceContainer {
           description: '',
           icon: 'pickaxe',
           config: { maxConcurrentAgents: 3 },
-          mainAgentId: 'agent-1' as AgentId,
+          defaultAgentId: 'agent-1' as AgentId,
           agentCount: 1,
           activeAgentCount: 0,
           createdAt: new Date().toISOString(),
@@ -74,7 +74,7 @@ function createTestServices(): ServiceContainer {
           status: 'idle',
           skillIds: [],
           tools: [],
-          subAgents: [],
+
           mcpServers: [],
           builtinTools: { bash: true },
           createdAt: new Date().toISOString(),
@@ -123,6 +123,8 @@ function createTestServices(): ServiceContainer {
     speech: {
       testProvider: vi.fn().mockResolvedValue({ ok: true, latencyMs: 50 }),
     } as any,
+    memories: {} as any,
+    teams: {} as any,
   }
 }
 

@@ -12,6 +12,7 @@ export type CronJobId = Brand<string, 'CronJobId'>
 export type PermissionsConfigId = Brand<string, 'PermissionsConfigId'>
 export type TranscriptionId = Brand<string, 'TranscriptionId'>
 export type MemoryId = Brand<string, 'MemoryId'>
+export type TeamId = Brand<string, 'TeamId'>
 
 // Pagination
 export interface PaginationParams {

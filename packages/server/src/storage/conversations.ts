@@ -1,5 +1,5 @@
 import type {
-  Conversation, ConversationId, ProjectId, AgentId, Message, MessageId,
+  Conversation, ConversationId, ProjectId, AgentId, TeamId, Message, MessageId,
   PaginationParams, PaginatedResult,
   IConversationService,
 } from '@golemancy/shared'
@@ -45,7 +45,7 @@ export class SqliteConversationStorage implements IConversationService {
     return this.rowToConversation(rows[0], projectId, messages)
   }
 
-  async create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation> {
+  async create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation> {
     const db = this.getProjectDb(projectId)
     const id = generateId('conv')
     log.debug({ projectId, agentId, conversationId: id }, 'creating conversation')
@@ -54,6 +54,7 @@ export class SqliteConversationStorage implements IConversationService {
     await db.insert(schema.conversations).values({
       id,
       agentId,
+      teamId: teamId ?? null,
       title,
       lastMessageAt: now,
       createdAt: now,
@@ -64,6 +65,7 @@ export class SqliteConversationStorage implements IConversationService {
       id,
       projectId,
       agentId,
+      ...(teamId ? { teamId } : {}),
       title,
       messages: [],
       lastMessageAt: now,
@@ -288,6 +290,7 @@ export class SqliteConversationStorage implements IConversationService {
       id: row.id as ConversationId,
       projectId,
       agentId: row.agentId as AgentId,
+      ...(row.teamId ? { teamId: row.teamId as TeamId } : {}),
       title: row.title,
       messages,
       lastMessageAt: row.lastMessageAt ?? row.createdAt,

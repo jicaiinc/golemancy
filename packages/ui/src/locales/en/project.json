@@ -39,7 +39,9 @@
       "noAgents": "No agents in this project. Create an agent first.",
       "goToAgents": "Go to Agents",
       "none": "None",
-      "configure": "Configure Agent \u2192"
+      "configure": "Configure Agent \u2192",
+      "defaultTeamLabel": "DEFAULT TEAM",
+      "defaultTeamDesc": "When set, new conversations will use this team's leader agent with team context."
     },
     "general": {
       "sectionTitle": "BASIC INFO",

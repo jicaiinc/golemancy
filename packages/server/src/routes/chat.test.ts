@@ -71,7 +71,6 @@ function makeAgent(overrides: Partial<Agent> = {}): Agent {
     modelConfig: { provider: 'openai' },
     skillIds: [],
     tools: [],
-    subAgents: [],
     mcpServers: [],
     builtinTools: { bash: true },
     createdAt: '2026-01-01T00:00:00Z',

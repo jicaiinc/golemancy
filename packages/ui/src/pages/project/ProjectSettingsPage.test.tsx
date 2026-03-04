@@ -63,7 +63,7 @@ function makeAgent(overrides?: Partial<Agent>): Agent {
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: [],
     tools: [],
-    subAgents: [],
+
     mcpServers: [],
     builtinTools: {},
     createdAt: now,
@@ -101,6 +101,8 @@ function createTestServices(): ServiceContainer {
       duplicate: vi.fn(),
     },
     speech: {} as any,
+    memories: {} as any,
+    teams: {} as any,
   }
 }
 
@@ -188,7 +190,7 @@ describe('ProjectSettingsPage', () => {
 
   it('calls updateProject when main agent is changed', async () => {
     const agentId = 'agent-ps1' as AgentId
-    const projectWithMain: Project = { ...testProject, mainAgentId: agentId }
+    const projectWithMain: Project = { ...testProject, defaultAgentId: agentId }
     useAppStore.setState({ projects: [projectWithMain], currentProjectId: PROJECT_ID })
     const mockUpdate = vi.fn().mockResolvedValue(undefined)
     useAppStore.setState({ updateProject: mockUpdate })
@@ -200,7 +202,7 @@ describe('ProjectSettingsPage', () => {
     fireEvent.change(select, { target: { value: '' } })
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, { mainAgentId: undefined })
+      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, { defaultAgentId: undefined })
     })
   })
 

@@ -24,7 +24,6 @@ function makeAgent(overrides: Partial<Agent> = {}): Agent {
     modelConfig: {},
     skillIds: [],
     tools: [],
-    subAgents: [],
     mcpServers: [],
     builtinTools: {},
     createdAt: new Date().toISOString(),

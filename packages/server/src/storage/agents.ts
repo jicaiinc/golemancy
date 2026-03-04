@@ -68,7 +68,6 @@ export class FileAgentStorage implements IAgentService {
       status: 'idle',
       skillIds: [],
       tools: [],
-      subAgents: [],
       mcpServers: [],
       builtinTools: { bash: true },
       createdAt: now,

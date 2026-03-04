@@ -17,7 +17,6 @@ function makeAgent(overrides: Partial<Agent> = {}): Agent {
     modelConfig: { provider: 'openai' },
     skillIds: [],
     tools: [],
-    subAgents: [],
     mcpServers: [],
     builtinTools: { bash: true },
     createdAt: '2026-01-01T00:00:00Z',
@@ -111,19 +110,19 @@ describe('Agents routes', () => {
   })
 
   describe('DELETE /api/projects/:projectId/agents/:id', () => {
-    it('deletes agent and clears mainAgentId if it matches', async () => {
-      vi.mocked(mocks.projectStorage.getById).mockResolvedValue(makeProject({ mainAgentId: agentId }))
-      vi.mocked(mocks.projectStorage.update).mockResolvedValue(makeProject({ mainAgentId: undefined }))
+    it('deletes agent and clears defaultAgentId if it matches', async () => {
+      vi.mocked(mocks.projectStorage.getById).mockResolvedValue(makeProject({ defaultAgentId: agentId }))
+      vi.mocked(mocks.projectStorage.update).mockResolvedValue(makeProject({ defaultAgentId: undefined }))
 
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}/agents/${agentId}`)
       expect(res.status).toBe(200)
       expect((await res.json()).ok).toBe(true)
-      expect(mocks.projectStorage.update).toHaveBeenCalledWith(projId, { mainAgentId: undefined })
+      expect(mocks.projectStorage.update).toHaveBeenCalledWith(projId, { defaultAgentId: undefined })
       expect(mocks.agentStorage.delete).toHaveBeenCalledWith(projId, agentId)
     })
 
-    it('deletes agent without clearing mainAgentId if different', async () => {
-      vi.mocked(mocks.projectStorage.getById).mockResolvedValue(makeProject({ mainAgentId: 'agent-other' as AgentId }))
+    it('deletes agent without clearing defaultAgentId if different', async () => {
+      vi.mocked(mocks.projectStorage.getById).mockResolvedValue(makeProject({ defaultAgentId: 'agent-other' as AgentId }))
 
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}/agents/${agentId}`)
       expect(res.status).toBe(200)

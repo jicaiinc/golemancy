@@ -80,7 +80,6 @@ describe('FileAgentStorage', () => {
       expect(agent.status).toBe('idle')
       expect(agent.skillIds).toEqual([])
       expect(agent.tools).toEqual([])
-      expect(agent.subAgents).toEqual([])
     })
   })
 
@@ -183,7 +182,7 @@ describe('FileAgentStorage', () => {
       const raw = {
         id, projectId: projId, name: 'Legacy', description: '', status: 'idle',
         systemPrompt: '', modelConfig: { provider: 'openai' },
-        skillIds: [], tools: [], subAgents: [],
+        skillIds: [], tools: [],
         builtinTools: { bash: true },
         createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
         // Note: no mcpServers field
@@ -201,7 +200,7 @@ describe('FileAgentStorage', () => {
       const raw = {
         id, projectId: projId, name: 'Legacy', description: '', status: 'idle',
         systemPrompt: '', modelConfig: { provider: 'openai' },
-        skillIds: [], tools: [], subAgents: [],
+        skillIds: [], tools: [],
         mcpServers: [],
         // Note: no builtinTools field
         createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
@@ -219,7 +218,7 @@ describe('FileAgentStorage', () => {
       const raw = {
         id, projectId: projId, name: 'Modern', description: '', status: 'idle',
         systemPrompt: '', modelConfig: { provider: 'openai' },
-        skillIds: [], tools: [], subAgents: [],
+        skillIds: [], tools: [],
         mcpServers: [{ name: 'my-mcp', transportType: 'stdio', command: '/usr/bin/mcp', enabled: true }],
         builtinTools: { bash: false },
         createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
@@ -239,7 +238,7 @@ describe('FileAgentStorage', () => {
       const raw = {
         id, projectId: projId, name: 'OldAgent', description: '', status: 'idle',
         systemPrompt: '', modelConfig: { provider: 'openai' },
-        skillIds: [], tools: [], subAgents: [],
+        skillIds: [], tools: [],
         // Both fields missing
         createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
       }

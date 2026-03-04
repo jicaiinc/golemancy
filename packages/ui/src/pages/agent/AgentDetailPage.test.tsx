@@ -52,7 +52,7 @@ function makeAgent(overrides?: Partial<Agent>): Agent {
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: [],
     tools: [],
-    subAgents: [],
+
     mcpServers: [],
     builtinTools: {},
     createdAt: now,
@@ -90,6 +90,8 @@ function createTestServices(): ServiceContainer {
       duplicate: vi.fn(),
     },
     speech: {} as any,
+    memories: {} as any,
+    teams: {} as any,
   }
 }
 
@@ -143,23 +145,21 @@ describe('AgentDetailPage', () => {
     expect(screen.getByText('Skills')).toBeInTheDocument()
     expect(screen.getByText('Tools')).toBeInTheDocument()
     expect(screen.getByText('MCP')).toBeInTheDocument()
-    expect(screen.getByText('Sub-Agents')).toBeInTheDocument()
+    expect(screen.getByText('Memory')).toBeInTheDocument()
   })
 
-  it('shows stats (skills, tools, MCP servers, sub-agents counts)', () => {
+  it('shows stats (skills, tools, MCP servers counts)', () => {
     useAppStore.setState({
       agents: [makeAgent({
         skillIds: ['s1' as any, 's2' as any],
         tools: [{ id: 't1', name: 'tool1', description: 'desc', parameters: {} }] as any,
         mcpServers: ['mcp1'],
-        subAgents: [{ agentId: 'agent-2' as AgentId, role: 'helper' }],
       })],
     })
     renderAtRoute()
     expect(screen.getByText('2 skills')).toBeInTheDocument()
     expect(screen.getByText('1 tool')).toBeInTheDocument()
     expect(screen.getByText('1 MCP server')).toBeInTheDocument()
-    expect(screen.getByText('1 sub-agent')).toBeInTheDocument()
   })
 
   it('renders General tab with Info section', () => {
@@ -229,15 +229,7 @@ describe('AgentDetailPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Bash')).toBeInTheDocument()
       expect(screen.getByText('Browser')).toBeInTheDocument()
-      expect(screen.getByText('OS Control')).toBeInTheDocument()
-    })
-  })
-
-  it('switches to Sub-Agents tab and shows empty state', async () => {
-    renderAtRoute()
-    fireEvent.click(screen.getByText('Sub-Agents'))
-    await waitFor(() => {
-      expect(screen.getByText('No sub-agents assigned to this agent.')).toBeInTheDocument()
+      expect(screen.getByText('Computer Use')).toBeInTheDocument()
     })
   })
 

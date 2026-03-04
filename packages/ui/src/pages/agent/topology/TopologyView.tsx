@@ -163,7 +163,7 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
             className="block w-full text-left px-3 py-2 text-[12px] font-mono text-mc-gold hover:bg-elevated transition-colors cursor-pointer"
             onClick={async () => {
               if (projectId) {
-                await updateProject(projectId as ProjectId, { mainAgentId: contextMenu.agentId })
+                await updateProject(projectId as ProjectId, { defaultAgentId: contextMenu.agentId })
               }
               closeContextMenu()
             }}

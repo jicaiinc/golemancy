@@ -3,7 +3,7 @@ import { useChat } from '@ai-sdk/react'
 import type { UIMessage, FileUIPart } from 'ai'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
-import type { Agent, AgentId, CompactRecord, Conversation } from '@golemancy/shared'
+import type { Agent, AgentId, CompactRecord, Conversation, Team, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
 import { PixelButton, PixelSpinner, PixelNotificationBanner, SidebarToggleIcon } from '../../components'
@@ -34,11 +34,12 @@ interface ChatWindowProps {
   conversation: Conversation
   agent: Agent | undefined
   agents: Agent[]
+  teams: Team[]
   chatHistoryExpanded: boolean
   onToggleChatHistory: () => void
   onNewChat: () => void
   canNewChat: boolean
-  onSwitchAgent: (agentId: AgentId) => void
+  onSwitchAgent: (agentId: AgentId, teamId?: TeamId) => void
   onUsageUpdate?: (usage: { inputTokens: number; outputTokens: number }) => void
   onContextUpdate?: (contextTokens: number) => void
   onCompactingChange?: (compacting: boolean) => void
@@ -46,7 +47,7 @@ interface ChatWindowProps {
   externalCompacting?: boolean
 }
 
-export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate, onContextUpdate, onCompactingChange, onBusyChange, externalCompacting }: ChatWindowProps) {
+export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate, onContextUpdate, onCompactingChange, onBusyChange, externalCompacting }: ChatWindowProps) {
   const { t } = useTranslation(['chat', 'common'])
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
@@ -304,15 +305,34 @@ export function ChatWindow({ conversation, agent, agents, chatHistoryExpanded, o
             </h2>
           )}
           {!editingTitle && (
-            messages.length === 0 && agents.length > 1 ? (
+            messages.length === 0 && (agents.length > 1 || teams.length > 0) ? (
               <select
                 className="text-[11px] text-accent-blue font-mono bg-deep border-2 border-border-dim px-1 py-0.5 outline-none cursor-pointer shrink-0"
-                value={conversation.agentId}
-                onChange={e => onSwitchAgent(e.target.value as AgentId)}
+                value={conversation.teamId ? `team:${conversation.teamId}` : conversation.agentId}
+                onChange={e => {
+                  const val = e.target.value
+                  if (val.startsWith('team:')) {
+                    const teamId = val.slice(5) as TeamId
+                    const team = teams.find(t => t.id === teamId)
+                    const leader = team?.members.find(m => !m.parentAgentId)
+                    if (leader) onSwitchAgent(leader.agentId, teamId)
+                  } else {
+                    onSwitchAgent(val as AgentId)
+                  }
+                }}
               >
-                {agents.map(a => (
-                  <option key={a.id} value={a.id}>@{a.name}</option>
-                ))}
+                {teams.length > 0 && (
+                  <optgroup label={t('header.teams')}>
+                    {teams.map(tm => (
+                      <option key={tm.id} value={`team:${tm.id}`}>{tm.name}</option>
+                    ))}
+                  </optgroup>
+                )}
+                <optgroup label={t('header.agents')}>
+                  {agents.map(a => (
+                    <option key={a.id} value={a.id}>@{a.name}</option>
+                  ))}
+                </optgroup>
               </select>
             ) : agent && (
               <span className="text-[11px] text-accent-blue font-mono shrink-0">

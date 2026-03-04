@@ -45,6 +45,8 @@
     "scheduledAtLabel": "SCHEDULED AT (local time)",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Select an agent",
+    "teamLabel": "TEAM (optional)",
+    "noTeam": "No team",
     "instructionLabel": "INSTRUCTION (optional)",
     "instructionPlaceholder": "Instructions to send to the agent when triggered",
     "enabledLabel": "Enabled",

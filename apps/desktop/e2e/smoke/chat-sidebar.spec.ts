@@ -17,7 +17,7 @@ test.describe('Chat Sidebar', () => {
     agentId = await helper.createAgent('Chat Sidebar Agent')
 
     // Set main agent so "New Chat" is enabled
-    await helper.apiPatch(`/api/projects/${projectId}`, { mainAgentId: agentId })
+    await helper.apiPatch(`/api/projects/${projectId}`, { defaultAgentId: agentId })
 
     // Create test conversations via API
     await helper.createConversationViaApi(projectId, agentId, 'First Conversation')

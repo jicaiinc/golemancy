@@ -11,7 +11,6 @@ export interface AgentNodeData extends Record<string, unknown> {
   model: string
   skillCount: number
   toolCount: number
-  subAgentCount: number
   isMainAgent: boolean
   isHighlighted?: boolean
 }
@@ -118,11 +117,6 @@ export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => 
           {data.toolCount > 0 && (
             <span className="text-text-secondary">
               {t('count.tools', { count: data.toolCount })}
-            </span>
-          )}
-          {data.subAgentCount > 0 && (
-            <span className="text-accent-purple">
-              {t('count.subAgents', { count: data.subAgentCount })}
             </span>
           )}
         </div>

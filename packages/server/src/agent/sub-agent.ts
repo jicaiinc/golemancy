@@ -1,6 +1,6 @@
 import { tool, streamText, stepCountIs, convertToModelMessages, type ToolSet, type UIMessage } from 'ai'
 import { z } from 'zod'
-import type { Agent, GlobalSettings, ProjectId, AgentId, ConversationId, IMCPService, IConversationService, IPermissionsConfigService, SubAgentStreamState } from '@golemancy/shared'
+import type { Agent, GlobalSettings, ProjectId, AgentId, ConversationId, IMCPService, IConversationService, IPermissionsConfigService, SubAgentStreamState, TeamMember } from '@golemancy/shared'
 import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -80,6 +80,7 @@ export function createSubAgentTool(
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
+  allTeamMembers?: TeamMember[],
 ) {
   return tool({
     description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}. Returns a sessionId in the result — pass it back in subsequent calls to maintain conversation context.`,
@@ -145,6 +146,7 @@ export function createSubAgentTool(
         taskStorage,
         tokenRecordStorage,
         onTokenUsage,
+        teamMembers: allTeamMembers,
       })
 
       try {
@@ -359,18 +361,21 @@ export function createSubAgentToolSet(
   taskStorage?: SqliteConversationTaskStorage,
   tokenRecordStorage?: TokenRecordStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
+  directChildren?: TeamMember[],
+  allTeamMembers?: TeamMember[],
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
 
-  for (const subRef of agent.subAgents) {
-    const childAgent = allAgents.find(a => a.id === subRef.agentId)
+  const children = directChildren ?? []
+  for (const child of children) {
+    const childAgent = allAgents.find(a => a.id === child.agentId)
     if (!childAgent) {
-      log.warn({ agentId: subRef.agentId }, 'sub-agent not found, skipping')
+      log.warn({ agentId: child.agentId }, 'sub-agent not found, skipping')
       continue
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage, allTeamMembers)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

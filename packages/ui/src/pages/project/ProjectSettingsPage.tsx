@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import type { AgentId, ProjectConfig, ProjectId } from '@golemancy/shared'
+import type { AgentId, ProjectConfig, ProjectId, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
@@ -23,6 +23,7 @@ export function ProjectSettingsPage() {
   const project = useCurrentProject()
   const updateProject = useAppStore(s => s.updateProject)
   const agents = useAppStore(s => s.agents)
+  const teams = useAppStore(s => s.teams)
   const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState('general')
@@ -52,11 +53,16 @@ export function ProjectSettingsPage() {
 
   if (!project) return null
 
-  const mainAgent = agents.find(a => a.id === project.mainAgentId)
+  const mainAgent = agents.find(a => a.id === project.defaultAgentId)
 
   async function handleMainAgentChange(agentId: AgentId | undefined) {
     if (!project) return
-    await updateProject(project.id, { mainAgentId: agentId })
+    await updateProject(project.id, { defaultAgentId: agentId })
+  }
+
+  async function handleDefaultTeamChange(teamId: TeamId | undefined) {
+    if (!project) return
+    await updateProject(project.id, { defaultTeamId: teamId })
   }
 
   async function handleSave() {
@@ -90,8 +96,10 @@ export function ProjectSettingsPage() {
             projectId={projectId!}
             project={project}
             agents={agents}
+            teams={teams}
             mainAgent={mainAgent}
             onMainAgentChange={handleMainAgentChange}
+            onDefaultTeamChange={handleDefaultTeamChange}
             navigate={navigate}
           />
         )}
@@ -122,20 +130,25 @@ function AgentTab({
   projectId,
   project,
   agents,
+  teams,
   mainAgent,
   onMainAgentChange,
+  onDefaultTeamChange,
   navigate,
 }: {
   projectId: string
   project: NonNullable<ReturnType<typeof useCurrentProject>>
   agents: ReturnType<typeof useAppStore.getState>['agents']
+  teams: ReturnType<typeof useAppStore.getState>['teams']
   mainAgent: ReturnType<typeof useAppStore.getState>['agents'][number] | undefined
   onMainAgentChange: (agentId: AgentId | undefined) => void
+  onDefaultTeamChange: (teamId: TeamId | undefined) => void
   navigate: ReturnType<typeof useNavigate>
 }) {
   const { t } = useTranslation('project')
   return (
     <div className="flex flex-col gap-4">
+      {/* Default Agent */}
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('settings.agent.mainLabel')}</div>
         <p className="text-[12px] text-text-dim mb-3">
@@ -158,7 +171,7 @@ function AgentTab({
         ) : (
           <>
             <select
-              value={project.mainAgentId ?? ''}
+              value={project.defaultAgentId ?? ''}
               onChange={e => onMainAgentChange(
                 e.target.value ? e.target.value as AgentId : undefined
               )}
@@ -182,6 +195,27 @@ function AgentTab({
             )}
           </>
         )}
+      </PixelCard>
+
+      {/* Default Team */}
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('settings.agent.defaultTeamLabel')}</div>
+        <p className="text-[12px] text-text-dim mb-3">
+          {t('settings.agent.defaultTeamDesc')}
+        </p>
+
+        <select
+          value={project.defaultTeamId ?? ''}
+          onChange={e => onDefaultTeamChange(
+            e.target.value ? e.target.value as TeamId : undefined
+          )}
+          className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+        >
+          <option value="">{t('settings.agent.none')}</option>
+          {teams.map(tm => (
+            <option key={tm.id} value={tm.id}>{tm.name}</option>
+          ))}
+        </select>
       </PixelCard>
     </div>
   )

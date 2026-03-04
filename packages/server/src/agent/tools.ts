@@ -1,5 +1,5 @@
 import type { ToolSet } from 'ai'
-import type { Agent, AgentId, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IConversationService, IPermissionsConfigService } from '@golemancy/shared'
+import type { Agent, AgentId, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IConversationService, IPermissionsConfigService, TeamMember } from '@golemancy/shared'
 import { DEFAULT_MEMORY_AUTO_LOAD } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
@@ -33,6 +33,8 @@ export interface LoadAgentToolsParams {
   memoryStorage?: SqliteMemoryStorage
   tokenRecordStorage?: TokenRecordStorage
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void
+  teamMembers?: TeamMember[]
+  teamInstruction?: string
 }
 
 export interface AgentToolsResult {
@@ -139,11 +141,14 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     }
   }
 
-  // 4. Sub-agents (lightweight shells, zero resource cost until invoked)
-  if (agent.subAgents?.length > 0) {
+  // 4. Sub-agents — derived from Team members (direct children of current agent)
+  const directChildren = params.teamMembers
+    ?.filter(m => m.parentAgentId === agent.id)
+  if (directChildren && directChildren.length > 0) {
     const subAgentResult = createSubAgentToolSet(
       agent, allAgents, settings, projectId, loadAgentTools, mcpStorage, permissionsConfigStorage,
       conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage,
+      directChildren, params.teamMembers,
     )
     Object.assign(tools, subAgentResult.tools)
   }
@@ -204,6 +209,12 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     }
 
     log.debug({ agentId: agent.id, agentName: agent.name }, 'loaded memory built-in tools')
+  }
+
+  // 7. Team instruction — injected into leader agent context
+  if (params.teamInstruction) {
+    const teamInstr = `## Team Context\n${params.teamInstruction}`
+    instructions = instructions ? instructions + '\n\n' + teamInstr : teamInstr
   }
 
   log.debug(

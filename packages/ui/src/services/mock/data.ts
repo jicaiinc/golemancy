@@ -1,11 +1,11 @@
 import type {
   Project, Agent, Conversation, Message, ConversationTask, GlobalSettings,
-  CronJob, Skill, MCPServerConfig, PermissionsConfigFile,
+  CronJob, Skill, MCPServerConfig, PermissionsConfigFile, Team,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus,
   TranscriptionRecord,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, ToolId,
-  CronJobId, PermissionsConfigId, TranscriptionId,
+  CronJobId, PermissionsConfigId, TranscriptionId, TeamId,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT, DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
 
@@ -21,7 +21,7 @@ export const SEED_PROJECTS: Project[] = [
     description: 'Content creation and distribution pipeline',
     icon: 'pickaxe',
     config: { maxConcurrentAgents: 3 },
-    mainAgentId: 'agent-1' as AgentId,
+    defaultAgentId: 'agent-1' as AgentId,
     agentCount: 3,
     activeAgentCount: 1,
     lastActivityAt: hourAgo,
@@ -56,7 +56,6 @@ export const SEED_AGENTS: Agent[] = [
     tools: [
       { id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: { type: 'object', properties: { query: { type: 'string' } } } },
     ],
-    subAgents: [],
     mcpServers: ['filesystem'],
     builtinTools: { bash: true },
     createdAt: dayAgo,
@@ -75,7 +74,6 @@ export const SEED_AGENTS: Agent[] = [
       { id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: { type: 'object', properties: { query: { type: 'string' } } } },
       { id: 'tool-2' as ToolId, name: 'read_file', description: 'Read a file', inputSchema: { type: 'object', properties: { path: { type: 'string' } } } },
     ],
-    subAgents: [],
     mcpServers: [],
     builtinTools: { bash: true },
     createdAt: dayAgo,
@@ -91,10 +89,6 @@ export const SEED_AGENTS: Agent[] = [
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: [],
     tools: [],
-    subAgents: [
-      { agentId: 'agent-1' as AgentId, role: 'Content Creation' },
-      { agentId: 'agent-2' as AgentId, role: 'Information Gathering' },
-    ],
     mcpServers: [],
     builtinTools: { bash: true },
     createdAt: dayAgo,
@@ -111,7 +105,6 @@ export const SEED_AGENTS: Agent[] = [
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: ['skill-5' as SkillId],
     tools: [{ id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: {} }],
-    subAgents: [],
     mcpServers: [],
     builtinTools: { bash: true },
     createdAt: dayAgo,
@@ -127,9 +120,26 @@ export const SEED_AGENTS: Agent[] = [
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: ['skill-6' as SkillId],
     tools: [],
-    subAgents: [],
     mcpServers: [],
     builtinTools: { bash: true },
+    createdAt: dayAgo,
+    updatedAt: dayAgo,
+  },
+]
+
+// --- Teams ---
+export const SEED_TEAMS: Team[] = [
+  {
+    id: 'team-1' as TeamId,
+    projectId: 'proj-1' as ProjectId,
+    name: 'Content Team',
+    description: 'Content creation pipeline with leader, writer and researcher',
+    instruction: 'You are leading a content team. Delegate writing tasks to Writer and research tasks to Researcher.',
+    members: [
+      { agentId: 'agent-3' as AgentId, role: 'Team Lead' },
+      { agentId: 'agent-1' as AgentId, role: 'Content Creation', parentAgentId: 'agent-3' as AgentId },
+      { agentId: 'agent-2' as AgentId, role: 'Information Gathering', parentAgentId: 'agent-3' as AgentId },
+    ],
     createdAt: dayAgo,
     updatedAt: dayAgo,
   },

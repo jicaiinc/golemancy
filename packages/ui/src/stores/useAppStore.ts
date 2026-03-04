@@ -1,14 +1,14 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, Team,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   ThemeMode, WorkspaceEntry, FilePreviewData,
   TranscriptionRecord, SpeechStorageUsage,
   MemoryEntry, MemoryCreateData, MemoryUpdateData,
-  ProjectId, AgentId, ConversationId, SkillId, CronJobId, TranscriptionId, MemoryId,
+  ProjectId, AgentId, ConversationId, SkillId, CronJobId, TranscriptionId, MemoryId, TeamId,
   SkillCreateData, SkillUpdateData,
   AgentStatus,
 } from '@golemancy/shared'
@@ -121,13 +121,18 @@ interface MemorySlice {
   memoriesLoading: boolean
 }
 
+interface TeamSlice {
+  teams: Team[]
+  teamsLoading: boolean
+}
+
 // --- Actions ---
 interface ProjectActions {
   loadProjects(): Promise<void>
   selectProject(id: ProjectId): Promise<void>
   clearProject(): void
   createProject(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
-  updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>): Promise<void>
+  updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<void>
   deleteProject(id: ProjectId): Promise<void>
 }
 
@@ -143,7 +148,7 @@ interface AgentActions {
 interface ConversationActions {
   loadConversations(projectId: ProjectId, agentId?: AgentId): Promise<void>
   selectConversation(id: ConversationId | null): Promise<void>
-  createConversation(agentId: AgentId, title: string): Promise<Conversation>
+  createConversation(agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation>
   updateConversationTitle(id: ConversationId, title: string): Promise<void>
   deleteConversation(id: ConversationId): Promise<void>
 }
@@ -182,8 +187,8 @@ interface MCPActions {
 
 interface CronJobActions {
   loadCronJobs(projectId: ProjectId): Promise<void>
-  createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
-  updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<void>
+  createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'> & { teamId?: TeamId }): Promise<CronJob>
+  updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'> & { teamId?: TeamId }>): Promise<void>
   deleteCronJob(id: CronJobId): Promise<void>
   triggerCronJob(id: CronJobId): Promise<void>
   loadCronJobRuns(cronJobId: CronJobId): Promise<void>
@@ -233,10 +238,17 @@ interface MemoryActions {
   deleteMemory(agentId: AgentId, id: MemoryId): Promise<void>
 }
 
+interface TeamActions {
+  loadTeams(projectId: ProjectId): Promise<void>
+  createTeam(data: Pick<Team, 'name' | 'description' | 'instruction' | 'members'>): Promise<Team>
+  updateTeam(id: TeamId, data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>): Promise<void>
+  deleteTeam(id: TeamId): Promise<void>
+}
+
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice & MemorySlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions & MemoryActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice & MemorySlice & TeamSlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions & MemoryActions & TeamActions
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -272,6 +284,7 @@ export const useAppStore = create<AppState>()(
           cronJobs: [],
           cronJobRuns: [],
           memories: [],
+          teams: [],
           topologyLayout: {},
           topologyLayoutLoading: false,
           agentsLoading: true,
@@ -282,19 +295,21 @@ export const useAppStore = create<AppState>()(
           mcpServersLoading: true,
           cronJobsLoading: true,
           cronJobRunsLoading: false,
+          teamsLoading: true,
         })
 
         // Load project data in parallel (individual failures resolve to empty arrays)
         // Workspace is lazy-loaded on page visit, not on project select
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
-        const [agents, conversations, conversationTasks, skills, mcpServers, cronJobs] = await Promise.all([
+        const [agents, conversations, conversationTasks, skills, mcpServers, cronJobs, teams] = await Promise.all([
           safe(svc.agents.list(id)),
           safe(svc.conversations.list(id)),
           safe(svc.tasks.list(id)),
           safe(svc.skills.list(id)),
           safe(svc.mcp.list(id)),
           safe(svc.cronJobs.list(id)),
+          safe(svc.teams.list(id)),
         ])
 
         // Guard: only apply if still the active project
@@ -307,12 +322,14 @@ export const useAppStore = create<AppState>()(
           skills,
           mcpServers,
           cronJobs,
+          teams,
           agentsLoading: false,
           conversationsLoading: false,
           tasksLoading: false,
           skillsLoading: false,
           mcpServersLoading: false,
           cronJobsLoading: false,
+          teamsLoading: false,
         })
       },
 
@@ -333,6 +350,7 @@ export const useAppStore = create<AppState>()(
           cronJobs: [],
           cronJobRuns: [],
           memories: [],
+          teams: [],
           topologyLayout: {},
           skillsLoading: false,
           mcpServersLoading: false,
@@ -367,7 +385,7 @@ export const useAppStore = create<AppState>()(
         })
 
         // Set as Main Agent
-        const updated = await svc.projects.update(project.id, { mainAgentId: agent.id })
+        const updated = await svc.projects.update(project.id, { defaultAgentId: agent.id })
 
         set(s => ({ projects: [...s.projects, updated] }))
         return updated
@@ -382,7 +400,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [], memories: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [], memories: [], teams: [] } : {}),
         }))
       },
 
@@ -416,10 +434,10 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().agents.delete(projectId, id)
         set(s => ({ agents: s.agents.filter(a => a.id !== id) }))
-        // If the deleted agent was the project's mainAgentId, clear it
+        // If the deleted agent was the project's defaultAgentId, clear it
         const project = get().projects.find(p => p.id === projectId)
-        if (project?.mainAgentId === id) {
-          await get().updateProject(projectId, { mainAgentId: undefined })
+        if (project?.defaultAgentId === id) {
+          await get().updateProject(projectId, { defaultAgentId: undefined })
         }
       },
 
@@ -474,10 +492,10 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      async createConversation(agentId: AgentId, title: string) {
+      async createConversation(agentId: AgentId, title: string, teamId?: TeamId) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
-        const conv = await getServices().conversations.create(projectId, agentId, title)
+        const conv = await getServices().conversations.create(projectId, agentId, title, teamId)
         set(s => ({ conversations: [...s.conversations, conv], currentConversationId: conv.id }))
         return conv
       },
@@ -919,6 +937,43 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().memories.delete(projectId, agentId, id)
         set(s => ({ memories: s.memories.filter(m => m.id !== id) }))
+      },
+
+      // --- Team state ---
+      teams: [],
+      teamsLoading: false,
+
+      async loadTeams(projectId: ProjectId) {
+        set({ teamsLoading: true })
+        const teams = await getServices().teams.list(projectId)
+        set({ teams, teamsLoading: false })
+      },
+
+      async createTeam(data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const team = await getServices().teams.create(projectId, data)
+        set(s => ({ teams: [...s.teams, team] }))
+        return team
+      },
+
+      async updateTeam(id, data) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const updated = await getServices().teams.update(projectId, id, data)
+        set(s => ({ teams: s.teams.map(t => t.id === id ? updated : t) }))
+      },
+
+      async deleteTeam(id) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        await getServices().teams.delete(projectId, id)
+        set(s => ({ teams: s.teams.filter(t => t.id !== id) }))
+        // If the deleted team was the project's defaultTeamId, clear it
+        const project = get().projects.find(p => p.id === get().currentProjectId)
+        if (project?.defaultTeamId === id) {
+          await get().updateProject(project.id, { defaultTeamId: undefined })
+        }
       },
     }),
     {

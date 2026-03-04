@@ -1,7 +1,7 @@
 import type {
   Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
-  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
-  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId,
+  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile, Team,
+  ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -14,11 +14,11 @@ import { DEFAULT_PERMISSIONS_CONFIG, getFileCategory, getMimeType } from '@golem
 import type {
   IProjectService, IAgentService, IConversationService,
   ITaskService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
-  IGlobalDashboardService, IPermissionsConfigService, IWorkspaceService, IMemoryService,
+  IGlobalDashboardService, IPermissionsConfigService, IWorkspaceService, IMemoryService, ITeamService,
 } from '../interfaces'
 import type { ConversationTokenUsageResult } from '@golemancy/shared'
 import {
-  SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS,
+  SEED_PROJECTS, SEED_AGENTS, SEED_CONVERSATIONS, SEED_TEAMS,
   SEED_CONVERSATION_TASKS, SEED_SETTINGS,
   SEED_CRON_JOBS, SEED_SKILLS, SEED_MCP_SERVERS,
   SEED_PERMISSIONS_CONFIGS,
@@ -65,7 +65,7 @@ export class MockProjectService implements IProjectService {
     return project
   }
 
-  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'mainAgentId'>>): Promise<Project> {
+  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<Project> {
     await delay()
     const existing = this.data.get(id)
     if (!existing) throw new Error(`Project ${id} not found`)
@@ -117,7 +117,6 @@ export class MockAgentService implements IAgentService {
       status: 'idle',
       skillIds: [],
       tools: [],
-      subAgents: [],
       mcpServers: [],
       builtinTools: { bash: true },
       createdAt: now,
@@ -160,13 +159,14 @@ export class MockConversationService implements IConversationService {
     return conv && conv.projectId === projectId ? conv : null
   }
 
-  async create(projectId: ProjectId, agentId: AgentId, title: string): Promise<Conversation> {
+  async create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation> {
     await delay()
     const now = new Date().toISOString()
     const conv: Conversation = {
       id: genId('conv') as ConversationId,
       projectId,
       agentId,
+      ...(teamId ? { teamId } : {}),
       title,
       messages: [],
       lastMessageAt: now,
@@ -788,5 +788,50 @@ export class MockMemoryService implements IMemoryService {
   async delete(_projectId: ProjectId, _agentId: AgentId, id: MemoryId): Promise<void> {
     await delay()
     this.data.delete(id)
+  }
+}
+
+// --- TeamService ---
+export class MockTeamService implements ITeamService {
+  private data = new Map<TeamId, Team>(SEED_TEAMS.map(t => [t.id, { ...t }]))
+
+  async list(projectId: ProjectId): Promise<Team[]> {
+    await delay()
+    return [...this.data.values()].filter(t => t.projectId === projectId)
+  }
+
+  async getById(projectId: ProjectId, id: TeamId): Promise<Team | null> {
+    await delay()
+    const team = this.data.get(id)
+    return team && team.projectId === projectId ? team : null
+  }
+
+  async create(projectId: ProjectId, input: Pick<Team, 'name' | 'description' | 'instruction' | 'members'>): Promise<Team> {
+    await delay()
+    const now = new Date().toISOString()
+    const team: Team = {
+      id: genId('team') as TeamId,
+      projectId,
+      ...input,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(team.id, team)
+    return team
+  }
+
+  async update(projectId: ProjectId, id: TeamId, data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>): Promise<Team> {
+    await delay()
+    const existing = this.data.get(id)
+    if (!existing || existing.projectId !== projectId) throw new Error(`Team ${id} not found`)
+    const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
+    this.data.set(id, updated)
+    return updated
+  }
+
+  async delete(projectId: ProjectId, id: TeamId): Promise<void> {
+    await delay()
+    const team = this.data.get(id)
+    if (team && team.projectId === projectId) this.data.delete(id)
   }
 }

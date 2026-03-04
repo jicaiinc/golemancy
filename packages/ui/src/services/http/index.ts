@@ -13,6 +13,7 @@ import {
   HttpGlobalDashboardService,
   HttpPermissionsConfigService,
   HttpMemoryService,
+  HttpTeamService,
 } from './services'
 import { HttpSpeechService } from './speech'
 
@@ -32,9 +33,10 @@ export function createHttpServices(baseUrl: string): ServiceContainer {
     permissionsConfig: new HttpPermissionsConfigService(baseUrl),
     speech: new HttpSpeechService(baseUrl),
     memories: new HttpMemoryService(baseUrl),
+    teams: new HttpTeamService(baseUrl),
   }
 }
 
-export { HttpProjectService, HttpAgentService, HttpConversationService, HttpTaskService, HttpWorkspaceService, HttpSkillService, HttpMCPService, HttpSettingsService, HttpCronJobService, HttpDashboardService, HttpGlobalDashboardService, HttpPermissionsConfigService, HttpMemoryService } from './services'
+export { HttpProjectService, HttpAgentService, HttpConversationService, HttpTaskService, HttpWorkspaceService, HttpSkillService, HttpMCPService, HttpSettingsService, HttpCronJobService, HttpDashboardService, HttpGlobalDashboardService, HttpPermissionsConfigService, HttpMemoryService, HttpTeamService } from './services'
 export { HttpSpeechService } from './speech'
 export { setAuthToken, getAuthToken, setBaseUrl, getBaseUrl } from './base'

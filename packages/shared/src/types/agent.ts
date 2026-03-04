@@ -13,11 +13,6 @@ export interface ToolCallSchema {
   inputSchema: Record<string, unknown>
 }
 
-export interface SubAgentRef {
-  agentId: AgentId
-  role: string
-}
-
 // Built-in tool configuration
 export type BuiltinToolId = 'bash' | 'browser' | 'computer_use' | 'task' | 'memory'
 
@@ -52,7 +47,6 @@ export interface Agent extends Timestamped {
   modelConfig: AgentModelConfig
   skillIds: SkillId[]
   tools: ToolCallSchema[]
-  subAgents: SubAgentRef[]
   mcpServers: string[]
   builtinTools: BuiltinToolConfig
   compactThreshold?: number

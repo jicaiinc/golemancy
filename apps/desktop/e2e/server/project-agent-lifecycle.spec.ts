@@ -47,27 +47,27 @@ test.describe('Project & Agent Lifecycle', () => {
     expect(project.description).toBe('Updated description')
   })
 
-  // ===== Agent + mainAgentId =====
+  // ===== Agent + defaultAgentId =====
 
-  test('creates agents and sets mainAgentId', async ({ helper }) => {
+  test('creates agents and sets defaultAgentId', async ({ helper }) => {
     const agent1 = await helper.createAgentViaApi(projectId, 'Agent One')
     agent1Id = agent1.id
     const agent2 = await helper.createAgentViaApi(projectId, 'Agent Two')
     agent2Id = agent2.id
 
     const updated = await helper.apiPatch(`/api/projects/${projectId}`, {
-      mainAgentId: agent1Id,
+      defaultAgentId: agent1Id,
     })
-    expect(updated.mainAgentId).toBe(agent1Id)
+    expect(updated.defaultAgentId).toBe(agent1Id)
   })
 
-  test('DELETE agent1 cascades: clears mainAgentId', async ({ helper }) => {
+  test('DELETE agent1 cascades: clears defaultAgentId', async ({ helper }) => {
     const result = await helper.apiDelete(`/api/projects/${projectId}/agents/${agent1Id}`)
     expect(result.ok).toBe(true)
 
     const project = await helper.apiGet(`/api/projects/${projectId}`)
-    // mainAgentId should be cleared since agent1 was deleted
-    expect(project.mainAgentId).toBeFalsy()
+    // defaultAgentId should be cleared since agent1 was deleted
+    expect(project.defaultAgentId).toBeFalsy()
   })
 
   test('PATCH project icon is persisted', async ({ helper }) => {

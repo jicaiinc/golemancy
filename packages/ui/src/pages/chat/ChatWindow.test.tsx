@@ -73,7 +73,7 @@ function makeAgent(overrides?: Partial<Agent>): Agent {
     modelConfig: { provider: 'google', model: 'gemini-pro' },
     skillIds: [],
     tools: [],
-    subAgents: [],
+
     mcpServers: [],
     builtinTools: { bash: true },
     createdAt: now,
@@ -121,6 +121,7 @@ const defaultSidebarProps = {
   onNewChat: vi.fn(),
   canNewChat: true,
   agents: [makeAgent()],
+  teams: [] as any[],
   onSwitchAgent: vi.fn(),
 }
 

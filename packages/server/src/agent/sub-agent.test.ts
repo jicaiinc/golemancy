@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 
 import { createSubAgentToolSet, createSubAgentTool, sanitizeToolName } from './sub-agent'
-import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, IPermissionsConfigService } from '@golemancy/shared'
+import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, IPermissionsConfigService, TeamMember } from '@golemancy/shared'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
@@ -15,7 +15,6 @@ function makeAgent(overrides: Partial<Agent> = {}): Agent {
     modelConfig: { provider: 'openai', model: 'gpt-4o' },
     skillIds: [],
     tools: [],
-    subAgents: [],
     mcpServers: [],
     builtinTools: { bash: true },
     createdAt: '2025-01-01T00:00:00Z',
@@ -98,9 +97,9 @@ describe('createSubAgentTool', () => {
 })
 
 describe('createSubAgentToolSet', () => {
-  it('returns empty tools when agent has no subAgents', () => {
-    const agent = makeAgent({ subAgents: [] })
-    const result = createSubAgentToolSet(agent, [], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
+  it('returns empty tools when agent has no directChildren', () => {
+    const agent = makeAgent()
+    const result = createSubAgentToolSet(agent, [], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage, undefined, undefined, undefined, undefined, undefined, [])
 
     expect(result.tools).toEqual({})
   })
@@ -108,14 +107,13 @@ describe('createSubAgentToolSet', () => {
   it('creates tool for each sub-agent ref using agent ID', () => {
     const child1 = makeAgent({ id: 'agent-child1' as AgentId, name: 'Researcher' })
     const child2 = makeAgent({ id: 'agent-child2' as AgentId, name: 'Writer' })
-    const parent = makeAgent({
-      subAgents: [
-        { agentId: 'agent-child1' as AgentId, role: 'research' },
-        { agentId: 'agent-child2' as AgentId, role: 'writing' },
-      ],
-    })
+    const parent = makeAgent()
+    const directChildren: TeamMember[] = [
+      { agentId: 'agent-child1' as AgentId, role: 'research' },
+      { agentId: 'agent-child2' as AgentId, role: 'writing' },
+    ]
 
-    const result = createSubAgentToolSet(parent, [child1, child2, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
+    const result = createSubAgentToolSet(parent, [child1, child2, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage, undefined, undefined, undefined, undefined, undefined, directChildren)
 
     expect(Object.keys(result.tools)).toHaveLength(2)
     expect(result.tools).toHaveProperty('delegate_to_agent-child1')
@@ -124,25 +122,23 @@ describe('createSubAgentToolSet', () => {
 
   it('works with non-ASCII agent names by using ID', () => {
     const child = makeAgent({ id: 'agent-cn' as AgentId, name: '蔡永吉' })
-    const parent = makeAgent({
-      subAgents: [{ agentId: 'agent-cn' as AgentId, role: 'assistant' }],
-    })
+    const parent = makeAgent()
+    const directChildren: TeamMember[] = [{ agentId: 'agent-cn' as AgentId, role: 'assistant' }]
 
-    const result = createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
+    const result = createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage, undefined, undefined, undefined, undefined, undefined, directChildren)
 
     expect(result.tools).toHaveProperty('delegate_to_agent-cn')
   })
 
   it('skips sub-agents not found in allAgents list', () => {
-    const parent = makeAgent({
-      subAgents: [
-        { agentId: 'agent-missing' as AgentId, role: 'ghost' },
-        { agentId: 'agent-exists' as AgentId, role: 'real' },
-      ],
-    })
+    const parent = makeAgent()
+    const directChildren: TeamMember[] = [
+      { agentId: 'agent-missing' as AgentId, role: 'ghost' },
+      { agentId: 'agent-exists' as AgentId, role: 'real' },
+    ]
     const existing = makeAgent({ id: 'agent-exists' as AgentId, name: 'Existing' })
 
-    const result = createSubAgentToolSet(parent, [existing, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
+    const result = createSubAgentToolSet(parent, [existing, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage, undefined, undefined, undefined, undefined, undefined, directChildren)
 
     expect(Object.keys(result.tools)).toHaveLength(1)
     expect(result.tools).toHaveProperty('delegate_to_agent-exists')
@@ -150,11 +146,10 @@ describe('createSubAgentToolSet', () => {
 
   it('does not call loadTools during creation (lazy loading)', () => {
     const child = makeAgent({ id: 'agent-child' as AgentId, name: 'Helper' })
-    const parent = makeAgent({
-      subAgents: [{ agentId: 'agent-child' as AgentId, role: 'help' }],
-    })
+    const parent = makeAgent()
+    const directChildren: TeamMember[] = [{ agentId: 'agent-child' as AgentId, role: 'help' }]
 
-    createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage)
+    createSubAgentToolSet(parent, [child, parent], defaultSettings, 'proj-1', mockLoadTools, mockMcpStorage, mockPermissionsConfigStorage, undefined, undefined, undefined, undefined, undefined, directChildren)
 
     expect(mockLoadTools).not.toHaveBeenCalled()
   })

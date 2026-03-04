@@ -5,8 +5,8 @@ import {
   type UIMessage, type ModelMessage,
 } from 'ai'
 import type {
-  AgentId, ProjectId, ConversationId, MessageId, CompactRecord, Message,
-  IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService,
+  AgentId, ProjectId, ConversationId, MessageId, TeamId, CompactRecord, Message, TeamMember,
+  IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, ITeamService,
 } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
@@ -44,6 +44,7 @@ export interface ChatRouteDeps {
   compactRecordStorage: CompactRecordStorage
   activeChatRegistry?: ActiveChatRegistry
   wsManager?: WebSocketManager
+  teamStorage?: ITeamService
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -55,10 +56,11 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       projectId: string
       agentId?: string
       conversationId?: string
+      teamId?: string
     }>()
 
     const { messages, projectId, conversationId } = body
-    let { agentId } = body
+    let { agentId, teamId } = body
 
     if (!projectId) {
       return c.json({ error: 'PROJECT_ID_REQUIRED' }, 400)
@@ -99,6 +101,28 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     )
     if (!agent) {
       return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
+    }
+
+    // Resolve teamId from body or conversation record
+    if (!teamId && conversationId) {
+      const conv = await deps.conversationStorage.getById(
+        projectId as ProjectId,
+        conversationId as ConversationId,
+      )
+      if (conv?.teamId) {
+        teamId = conv.teamId
+      }
+    }
+
+    // Resolve team members for sub-agent orchestration
+    let teamMembers: TeamMember[] | undefined
+    let teamInstruction: string | undefined
+    if (teamId && deps.teamStorage) {
+      const team = await deps.teamStorage.getById(projectId as ProjectId, teamId as TeamId)
+      if (team) {
+        teamMembers = team.members
+        teamInstruction = team.instruction
+      }
     }
 
     // Get project config for permissions config reference
@@ -175,7 +199,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     }
 
     // Load all tools via unified entry point (skills, MCP, built-in, sub-agents)
-    const allAgents = agent.subAgents?.length > 0
+    const allAgents = (teamMembers && teamMembers.length > 0)
       ? await deps.agentStorage.list(projectId as ProjectId)
       : []
 
@@ -193,6 +217,8 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       taskStorage: deps.taskStorage,
       memoryStorage: deps.memoryStorage,
       tokenRecordStorage: deps.tokenRecordStorage,
+      teamMembers,
+      teamInstruction,
       onTokenUsage: (usage) => {
         streamWriter?.write({
           type: 'data-usage' as `data-${string}`,

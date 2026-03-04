@@ -1,11 +1,11 @@
 import { nanoid } from 'nanoid'
 import type {
   ProjectId, AgentId, ConversationId, MessageId,
-  TaskId, SkillId, CronJobId,
+  TaskId, SkillId, CronJobId, TeamId,
   PermissionsConfigId, TranscriptionId, MemoryId,
 } from '@golemancy/shared'
 
-type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'skill' | 'cron' | 'perm' | 'cronrun' | 'tkr' | 'compact' | 'trans' | 'mem'
+type IdPrefix = 'proj' | 'agent' | 'conv' | 'msg' | 'task' | 'skill' | 'cron' | 'perm' | 'cronrun' | 'tkr' | 'compact' | 'trans' | 'mem' | 'team'
 
 type IdMap = {
   proj: ProjectId
@@ -21,6 +21,7 @@ type IdMap = {
   compact: string
   trans: TranscriptionId
   mem: MemoryId
+  team: TeamId
 }
 
 export function generateId<P extends IdPrefix>(prefix: P): IdMap[P] {

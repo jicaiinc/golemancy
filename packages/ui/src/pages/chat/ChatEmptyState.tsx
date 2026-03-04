@@ -4,14 +4,14 @@ import { Trans, useTranslation } from 'react-i18next'
 import { PixelCard, PixelButton, SidebarToggleIcon } from '../../components'
 
 interface Props {
-  mainAgentId?: AgentId
+  defaultAgentId?: AgentId
   onNewChat: () => void
   canNewChat: boolean
   chatHistoryExpanded?: boolean
   onToggleChatHistory?: () => void
 }
 
-export function ChatEmptyState({ mainAgentId, onNewChat, canNewChat, chatHistoryExpanded, onToggleChatHistory }: Props) {
+export function ChatEmptyState({ defaultAgentId, onNewChat, canNewChat, chatHistoryExpanded, onToggleChatHistory }: Props) {
   const { projectId } = useParams<{ projectId: string }>()
   const { t } = useTranslation('chat')
 
@@ -37,7 +37,7 @@ export function ChatEmptyState({ mainAgentId, onNewChat, canNewChat, chatHistory
 
       {/* Content area */}
       <div className="flex-1 flex items-center justify-center">
-        {mainAgentId ? (
+        {canNewChat ? (
           <div className="text-center max-w-[400px]">
             <div className="font-arcade text-[32px] text-text-dim mb-4 select-none">
               {'> _ <'}

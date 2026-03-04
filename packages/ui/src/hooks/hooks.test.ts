@@ -91,6 +91,8 @@ describe('usePermissionMode', () => {
       },
       permissionsConfig: { getById: mockGetById } as any,
       speech: {} as any,
+      memories: {} as any,
+      teams: {} as any,
     })
   })
 
@@ -201,6 +203,8 @@ describe('usePermissionConfig', () => {
       },
       permissionsConfig: { getById: mockGetById } as any,
       speech: {} as any,
+      memories: {} as any,
+      teams: {} as any,
     })
   })
 

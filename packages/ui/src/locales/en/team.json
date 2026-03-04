@@ -1,0 +1,44 @@
+{
+  "list": {
+    "title": "Teams",
+    "subtitle_one": "{{count}} team in this project",
+    "subtitle_other": "{{count}} teams in this project",
+    "newBtn": "+ New Team",
+    "empty": "No teams yet",
+    "createFirst": "Create Your First Team",
+    "leader": "Leader",
+    "members_one": "{{count}} member",
+    "members_other": "{{count}} members"
+  },
+  "create": {
+    "modalTitle": "Create New Team",
+    "createBtn": "Create Team",
+    "namePlaceholder": "e.g. Research Team",
+    "descPlaceholder": "What does this team do?"
+  },
+  "detail": {
+    "notFound": "Team not found.",
+    "backBtn": "< Teams",
+    "tabs": {
+      "general": "General",
+      "members": "Members"
+    },
+    "deleteBtn": "Delete Team",
+    "savedMsg": "Saved!"
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "instructionLabel": "TEAM INSTRUCTION",
+    "instructionPlaceholder": "Instructions injected into the leader agent's context..."
+  },
+  "members": {
+    "sectionTitle": "TEAM MEMBERS",
+    "addSection": "ADD MEMBER",
+    "noneAssigned": "No members in this team.",
+    "noneAvailable": "No agents available in this project.",
+    "rolePlaceholder": "Role...",
+    "leader": "Leader",
+    "member": "Member",
+    "removeBtn": "Remove"
+  }
+}

@@ -70,26 +70,6 @@ export function NodeDetailPanel({ agentId, onClose }: Props) {
           </div>
         </div>
 
-        {/* Sub-Agents */}
-        {agent.subAgents.length > 0 && (
-          <>
-            <div className="border-t-2 border-border-dim my-3" />
-            <div className="mb-3">
-              <div className="font-pixel text-[8px] text-text-dim mb-1">{t('panel.subAgentsLabel')}</div>
-              <div className="flex flex-col gap-1 text-[11px] font-mono">
-                {agent.subAgents.map(sub => {
-                  const subAgent = agents.find(a => a.id === sub.agentId)
-                  return (
-                    <span key={sub.agentId} className="text-accent-purple">
-                      → {subAgent?.name ?? sub.agentId} ({sub.role})
-                    </span>
-                  )
-                })}
-              </div>
-            </div>
-          </>
-        )}
-
         {/* Actions */}
         <div className="border-t-2 border-border-dim my-3" />
         <div className="flex gap-2">

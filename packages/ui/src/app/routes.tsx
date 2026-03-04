@@ -7,6 +7,8 @@ import {
   GlobalDashboardPage,
   AgentListPage,
   AgentDetailPage,
+  TeamListPage,
+  TeamDetailPage,
   SkillsPage,
   MCPServersPage,
   ChatPage,
@@ -50,6 +52,8 @@ export function AppRoutes() {
           <Route index element={<DashboardPage />} />
           <Route path="agents" element={<AgentListPage />} />
           <Route path="agents/:agentId" element={<AgentDetailPage />} />
+          <Route path="teams" element={<TeamListPage />} />
+          <Route path="teams/:teamId" element={<TeamDetailPage />} />
           <Route path="skills" element={<SkillsPage />} />
           <Route path="mcp-servers" element={<MCPServersPage />} />
           <Route path="chat" element={<ChatPage />} />
