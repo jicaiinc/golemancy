@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Multi-Team Topology Analysis</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #e0e0e0; font-family: 'Courier New', monospace; padding: 40px; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 18px; color: #7dd3fc; margin-bottom: 6px; }
+  h2 { font-size: 13px; color: #94a3b8; margin-bottom: 32px; font-weight: normal; }
+  .section { margin-bottom: 56px; }
+  .section-title { font-size: 15px; color: #facc15; margin-bottom: 8px; border-bottom: 1px solid #facc1540; padding-bottom: 6px; }
+  .section-desc { font-size: 12px; color: #64748b; margin-bottom: 20px; line-height: 1.7; }
+
+  svg text { font-family: 'Courier New', monospace; }
+
+  /* Agent pool card */
+  .pool { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .pool-agent {
+    padding: 8px 14px;
+    border: 2px solid #334155;
+    background: #0f1218;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 140px;
+  }
+  .pool-agent .pa-name { color: #e2e8f0; font-weight: bold; }
+  .pool-agent .pa-role { color: #64748b; font-size: 9px; }
+  .pool-agent .pa-mem { color: #a78bfa; font-size: 9px; }
+  .pool-agent .pa-tools { color: #4ade80; font-size: 9px; }
+
+  /* Team cards grid */
+  .teams-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  .team-card {
+    border: 2px solid #1e293b;
+    background: #0c1017;
+    padding: 16px;
+  }
+  .team-card h4 {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .team-card .tc-desc { font-size: 10px; color: #64748b; margin-bottom: 12px; }
+  .team-card svg { display: block; margin: 0 auto; }
+
+  /* Node styles in SVG */
+  .n-leader rect { fill: #1a1520; stroke: #facc15; stroke-width: 2; }
+  .n-leader text.nm { fill: #facc15; font-size: 10px; font-weight: bold; }
+  .n-coord rect { fill: #131520; stroke: #7dd3fc; stroke-width: 2; }
+  .n-coord text.nm { fill: #7dd3fc; font-size: 10px; font-weight: bold; }
+  .n-exec rect { fill: #101518; stroke: #475569; stroke-width: 2; }
+  .n-exec text.nm { fill: #e2e8f0; font-size: 10px; font-weight: bold; }
+  .n-exec text.rl { fill: #64748b; font-size: 8px; }
+  .n-coord text.rl { fill: #64748b; font-size: 8px; }
+  .n-leader text.rl { fill: #64748b; font-size: 8px; }
+
+  /* Highlight nodes that appear in multiple teams */
+  .n-multi rect { stroke: #c084fc !important; stroke-width: 2; }
+  .n-multi text.nm { fill: #c084fc !important; }
+
+  .edge { stroke: #334155; stroke-width: 1.5; fill: none; }
+  .edge-label { font-size: 8px; fill: #475569; }
+
+  /* Callout */
+  .callout {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-left: 3px solid;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #cbd5e1;
+  }
+  .callout-blue { border-color: #7dd3fc; background: #0c1520; }
+  .callout-purple { border-color: #c084fc; background: #14101f; }
+  .callout-yellow { border-color: #facc15; background: #15130a; }
+  .callout-green { border-color: #4ade80; background: #0a150f; }
+  .callout strong { font-weight: bold; }
+  .callout .hl-purple { color: #c084fc; }
+  .callout .hl-blue { color: #7dd3fc; }
+  .callout .hl-yellow { color: #facc15; }
+  .callout .hl-green { color: #4ade80; }
+  .callout .hl-red { color: #f87171; }
+
+  /* Usage matrix */
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 11px; }
+  th, td { border: 1px solid #1e293b; padding: 6px 10px; text-align: center; }
+  th { background: #131820; color: #94a3b8; font-weight: bold; }
+  td { background: #0c1017; }
+  .cell-yes { color: #facc15; font-weight: bold; }
+  .cell-lead { color: #f87171; font-weight: bold; }
+  .cell-no { color: #1e293b; }
+  td.agent-name { text-align: left; color: #e2e8f0; font-weight: bold; }
+
+  /* Stats */
+  .stats { display: flex; gap: 20px; flex-wrap: wrap; margin: 16px 0; }
+  .stat-box {
+    border: 2px solid #1e293b;
+    background: #0c1017;
+    padding: 12px 20px;
+    min-width: 120px;
+    text-align: center;
+  }
+  .stat-box .val { font-size: 24px; font-weight: bold; color: #facc15; }
+  .stat-box .lbl { font-size: 10px; color: #64748b; margin-top: 4px; }
+
+  /* Frequency chart */
+  .freq-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; font-size: 11px; }
+  .freq-label { width: 180px; color: #94a3b8; text-align: right; }
+  .freq-bar-bg { flex: 1; height: 20px; background: #131820; position: relative; }
+  .freq-bar { height: 100%; position: absolute; left: 0; top: 0; }
+  .freq-pct { width: 50px; color: #e2e8f0; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Multi-Team Analysis: 同一批 Agent 的多种编排</h1>
+<h2>场景：AI 软件开发工作室 —— 8 个 Agent 组成 5 个不同的 Team 来处理不同类型的任务</h2>
+
+<!-- ====== SECTION 1: Agent Pool ====== -->
+<div class="section">
+  <div class="section-title">① Agent Pool（项目中的所有 Agent）</div>
+  <div class="section-desc">
+    每个 Agent 是独立的能力单元：有自己的 System Prompt、工具、记忆。<br>
+    记忆属于 Agent 本身——无论在哪个 Team 中工作，它带着同样的知识和经验。
+  </div>
+
+  <div class="pool">
+    <div class="pool-agent">
+      <span class="pa-name">Architect</span>
+      <span class="pa-role">系统架构师</span>
+      <span class="pa-mem">🧠 记忆: 项目架构决策、技术债记录</span>
+      <span class="pa-tools">🔧 Bash, 文件读写</span>
+    </div>
+    <div class="pool-agent">
+      <span class="pa-name">Frontend</span>
+      <span class="pa-role">前端开发</span>
+      <span class="pa-mem">🧠 记忆: 组件库规范、样式约定</span>
+      <span class="pa-tools">🔧 Bash, Browser, 文件读写</span>
+    </div>
+    <div class="pool-agent">
+      <span class="pa-name">Backend</span>
+      <span class="pa-role">后端开发</span>
+      <span class="pa-mem">🧠 记忆: API设计规范、数据模型</span>
+      <span class="pa-tools">🔧 Bash, 文件读写, DB</span>
+    </div>
+    <div class="pool-agent">
+      <span class="pa-name">DBA</span>
+      <span class="pa-role">数据库专家</span>
+      <span class="pa-mem">🧠 记忆: Schema变更历史、索引策略</span>
+      <span class="pa-tools">🔧 Bash, DB, 文件读写</span>
+    </div>
+    <div class="pool-agent">
+      <span class="pa-name">QA</span>
+      <span class="pa-role">测试工程师</span>
+      <span class="pa-mem">🧠 记忆: 已知bug模式、测试覆盖盲区</span>
+      <span class="pa-tools">🔧 Bash, Browser, 文件读写</span>
+    </div>
+    <div class="pool-agent">
+      <span class="pa-name">DevOps</span>
+      <span class="pa-role">运维工程师</span>
+      <span class="pa-mem">🧠 记忆: 部署配置、故障处理手册</span>
+      <span class="pa-tools">🔧 Bash, 文件读写</span>
+    </div>
+    <div class="pool-agent">
+      <span class="pa-name">Security</span>
+      <span class="pa-role">安全工程师</span>
+      <span class="pa-mem">🧠 记忆: 漏洞修复记录、安全审计标准</span>
+      <span class="pa-tools">🔧 Bash, 文件读写</span>
+    </div>
+    <div class="pool-agent">
+      <span class="pa-name">TechWriter</span>
+      <span class="pa-role">技术文档</span>
+      <span class="pa-mem">🧠 记忆: 文档风格指南、术语表</span>
+      <span class="pa-tools">🔧 文件读写</span>
+    </div>
+  </div>
+
+  <div class="callout callout-purple">
+    <strong class="hl-purple">关键点：Agent 的记忆是持久且私有的</strong><br>
+    Architect 记得所有架构决策历史，QA 记得所有已知 bug 模式——<br>
+    这些知识在不同 Team 中都能发挥作用。这是"同一个 Agent 参与多个 Team"的核心价值。<br>
+    如果复制 Agent，记忆就割裂了。
+  </div>
+</div>
+
+<!-- ====== SECTION 2: Team Configurations ====== -->
+<div class="section">
+  <div class="section-title">② 5 个 Team 编排（同一批 Agent，不同层级结构）</div>
+  <div class="section-desc">
+    每个 Team 处理一种任务类型。紫色边框 = 该 Agent 同时出现在其他 Team 中。
+  </div>
+
+  <div class="teams-grid">
+
+    <!-- Team 1: Feature Development -->
+    <div class="team-card">
+      <h4 style="color:#4ade80">Team 1: Feature Development</h4>
+      <div class="tc-desc">新功能开发，最常用的团队配置</div>
+      <svg width="360" height="220" viewBox="0 0 360 220">
+        <!-- Edges -->
+        <line x1="180" y1="38" x2="100" y2="80" class="edge"/>
+        <line x1="180" y1="38" x2="260" y2="80" class="edge"/>
+        <line x1="100" y1="118" x2="60"  y2="160" class="edge"/>
+        <line x1="100" y1="118" x2="140" y2="160" class="edge"/>
+        <line x1="260" y1="118" x2="220" y2="160" class="edge"/>
+        <line x1="260" y1="118" x2="310" y2="160" class="edge"/>
+        <!-- Nodes -->
+        <g class="n-leader n-multi" transform="translate(120,10)">
+          <rect width="120" height="28"/>
+          <text class="nm" x="60" y="12" text-anchor="middle">Architect</text>
+          <text class="rl" x="60" y="23" text-anchor="middle">Leader · 架构决策</text>
+        </g>
+        <g class="n-coord n-multi" transform="translate(30,80)">
+          <rect width="140" height="38"/>
+          <text class="nm" x="70" y="14" text-anchor="middle">Frontend</text>
+          <text class="rl" x="70" y="26" text-anchor="middle">UI 实现</text>
+          <text class="rl" x="70" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 组件库规范</text>
+        </g>
+        <g class="n-coord n-multi" transform="translate(190,80)">
+          <rect width="140" height="38"/>
+          <text class="nm" x="70" y="14" text-anchor="middle">Backend</text>
+          <text class="rl" x="70" y="26" text-anchor="middle">API + 业务逻辑</text>
+          <text class="rl" x="70" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: API规范</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(10,160)">
+          <rect width="100" height="28"/>
+          <text class="nm" x="50" y="12" text-anchor="middle">DBA</text>
+          <text class="rl" x="50" y="22" text-anchor="middle">Schema 设计</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(100,160)">
+          <rect width="80" height="28"/>
+          <text class="nm" x="40" y="12" text-anchor="middle">QA</text>
+          <text class="rl" x="40" y="22" text-anchor="middle">测试</text>
+        </g>
+        <g class="n-exec" transform="translate(185,160)">
+          <rect width="80" height="28"/>
+          <text class="nm" x="40" y="12" text-anchor="middle">DevOps</text>
+          <text class="rl" x="40" y="22" text-anchor="middle">部署</text>
+        </g>
+        <g class="n-exec" transform="translate(270,160)">
+          <rect width="80" height="28"/>
+          <text class="nm" x="40" y="12" text-anchor="middle">TechWriter</text>
+          <text class="rl" x="40" y="22" text-anchor="middle">文档</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Team 2: Bug Triage -->
+    <div class="team-card">
+      <h4 style="color:#f87171">Team 2: Bug Triage</h4>
+      <div class="tc-desc">线上问题排查——QA 主导，开发配合调查</div>
+      <svg width="360" height="180" viewBox="0 0 360 180">
+        <line x1="180" y1="38" x2="90"  y2="80" class="edge"/>
+        <line x1="180" y1="38" x2="180" y2="80" class="edge"/>
+        <line x1="180" y1="38" x2="270" y2="80" class="edge"/>
+        <line x1="270" y1="118" x2="270" y2="140" class="edge"/>
+        <g class="n-leader n-multi" transform="translate(120,10)">
+          <rect width="120" height="28"/>
+          <text class="nm" x="60" y="12" text-anchor="middle">QA</text>
+          <text class="rl" x="60" y="23" text-anchor="middle">Leader · 问题分析</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(30,80)">
+          <rect width="120" height="38"/>
+          <text class="nm" x="60" y="14" text-anchor="middle">Frontend</text>
+          <text class="rl" x="60" y="26" text-anchor="middle">UI bug 调查</text>
+          <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 已知UI陷阱</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(120,80)">
+          <rect width="120" height="38"/>
+          <text class="nm" x="60" y="14" text-anchor="middle">Backend</text>
+          <text class="rl" x="60" y="26" text-anchor="middle">API bug 调查</text>
+          <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 已知API问题</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(210,80)">
+          <rect width="120" height="38"/>
+          <text class="nm" x="60" y="14" text-anchor="middle">DBA</text>
+          <text class="rl" x="60" y="26" text-anchor="middle">数据问题调查</text>
+          <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 慢查询记录</text>
+        </g>
+        <!-- Note: QA is leader here but member in Team 1 -->
+        <text x="180" y="170" text-anchor="middle" style="font-size:9px;fill:#f87171">注意：QA 在 Team 1 中是 Member，这里是 Leader</text>
+      </svg>
+    </div>
+
+    <!-- Team 3: Security Audit -->
+    <div class="team-card">
+      <h4 style="color:#fb923c">Team 3: Security Audit</h4>
+      <div class="tc-desc">安全审计——Security 主导，审查架构和代码</div>
+      <svg width="360" height="180" viewBox="0 0 360 180">
+        <line x1="180" y1="38" x2="90"  y2="80" class="edge"/>
+        <line x1="180" y1="38" x2="180" y2="80" class="edge"/>
+        <line x1="180" y1="38" x2="270" y2="80" class="edge"/>
+        <g class="n-leader" transform="translate(120,10)">
+          <rect width="120" height="28"/>
+          <text class="nm" x="60" y="12" text-anchor="middle">Security</text>
+          <text class="rl" x="60" y="23" text-anchor="middle">Leader · 安全审查</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(30,80)">
+          <rect width="120" height="38"/>
+          <text class="nm" x="60" y="14" text-anchor="middle">Architect</text>
+          <text class="rl" x="60" y="26" text-anchor="middle">架构安全评估</text>
+          <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 架构决策历史</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(120,80)">
+          <rect width="120" height="38"/>
+          <text class="nm" x="60" y="14" text-anchor="middle">Backend</text>
+          <text class="rl" x="60" y="26" text-anchor="middle">API 安全审查</text>
+          <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: API设计规范</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(210,80)">
+          <rect width="120" height="38"/>
+          <text class="nm" x="60" y="14" text-anchor="middle">DBA</text>
+          <text class="rl" x="60" y="26" text-anchor="middle">数据安全审查</text>
+          <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: Schema历史</text>
+        </g>
+        <text x="180" y="150" text-anchor="middle" style="font-size:9px;fill:#fb923c">注意：Architect 在 Team 1 中是 Leader，这里是 Member</text>
+      </svg>
+    </div>
+
+    <!-- Team 4: Release Pipeline -->
+    <div class="team-card">
+      <h4 style="color:#38bdf8">Team 4: Release Pipeline</h4>
+      <div class="tc-desc">版本发布——DevOps 主导，QA 验证，文档同步</div>
+      <svg width="360" height="180" viewBox="0 0 360 180">
+        <line x1="180" y1="38" x2="90"  y2="80" class="edge"/>
+        <line x1="180" y1="38" x2="270" y2="80" class="edge"/>
+        <line x1="90" y1="118" x2="90" y2="140" class="edge"/>
+        <g class="n-leader" transform="translate(120,10)">
+          <rect width="120" height="28"/>
+          <text class="nm" x="60" y="12" text-anchor="middle">DevOps</text>
+          <text class="rl" x="60" y="23" text-anchor="middle">Leader · 发布编排</text>
+        </g>
+        <g class="n-exec n-multi" transform="translate(30,80)">
+          <rect width="120" height="38"/>
+          <text class="nm" x="60" y="14" text-anchor="middle">QA</text>
+          <text class="rl" x="60" y="26" text-anchor="middle">发布前回归测试</text>
+          <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 回归测试清单</text>
+        </g>
+        <g class="n-exec" transform="translate(210,80)">
+          <rect width="120" height="38"/>
+          <text class="nm" x="60" y="14" text-anchor="middle">TechWriter</text>
+          <text class="rl" x="60" y="26" text-anchor="middle">Release Notes</text>
+          <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 文档风格</text>
+        </g>
+        <text x="180" y="160" text-anchor="middle" style="font-size:9px;fill:#38bdf8">QA 在 Team 1 是 Member，Team 2 是 Leader，这里又是 Member</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Team 5: Full width -->
+  <div class="team-card" style="margin-bottom:24px">
+    <h4 style="color:#a78bfa">Team 5: Performance Optimization</h4>
+    <div class="tc-desc">性能优化——Architect 主导，全栈 + DBA + DevOps 协作排查和优化</div>
+    <svg width="700" height="180" viewBox="0 0 700 180">
+      <line x1="350" y1="38" x2="130" y2="80" class="edge"/>
+      <line x1="350" y1="38" x2="280" y2="80" class="edge"/>
+      <line x1="350" y1="38" x2="420" y2="80" class="edge"/>
+      <line x1="350" y1="38" x2="570" y2="80" class="edge"/>
+      <g class="n-leader n-multi" transform="translate(290,10)">
+        <rect width="120" height="28"/>
+        <text class="nm" x="60" y="12" text-anchor="middle">Architect</text>
+        <text class="rl" x="60" y="23" text-anchor="middle">Leader · 性能策略</text>
+      </g>
+      <g class="n-exec n-multi" transform="translate(70,80)">
+        <rect width="120" height="38"/>
+        <text class="nm" x="60" y="14" text-anchor="middle">Frontend</text>
+        <text class="rl" x="60" y="26" text-anchor="middle">前端性能优化</text>
+        <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 渲染瓶颈记录</text>
+      </g>
+      <g class="n-exec n-multi" transform="translate(220,80)">
+        <rect width="120" height="38"/>
+        <text class="nm" x="60" y="14" text-anchor="middle">Backend</text>
+        <text class="rl" x="60" y="26" text-anchor="middle">API 性能优化</text>
+        <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 慢接口记录</text>
+      </g>
+      <g class="n-exec n-multi" transform="translate(360,80)">
+        <rect width="120" height="38"/>
+        <text class="nm" x="60" y="14" text-anchor="middle">DBA</text>
+        <text class="rl" x="60" y="26" text-anchor="middle">查询优化</text>
+        <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 索引策略历史</text>
+      </g>
+      <g class="n-exec" transform="translate(510,80)">
+        <rect width="120" height="38"/>
+        <text class="nm" x="60" y="14" text-anchor="middle">DevOps</text>
+        <text class="rl" x="60" y="26" text-anchor="middle">基础设施调优</text>
+        <text class="rl" x="60" y="34" text-anchor="middle" style="fill:#a78bfa">记忆: 部署配置</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- ====== SECTION 3: Agent × Team Matrix ====== -->
+<div class="section">
+  <div class="section-title">③ Agent × Team 出现矩阵</div>
+  <div class="section-desc">
+    ★ = Leader, ● = Member, · = 不参与
+  </div>
+
+  <table>
+    <tr>
+      <th>Agent</th>
+      <th style="color:#4ade80">T1 Feature</th>
+      <th style="color:#f87171">T2 Bug</th>
+      <th style="color:#fb923c">T3 Security</th>
+      <th style="color:#38bdf8">T4 Release</th>
+      <th style="color:#a78bfa">T5 Perf</th>
+      <th>参与 Team 数</th>
+    </tr>
+    <tr>
+      <td class="agent-name">Architect</td>
+      <td class="cell-lead">★ Leader</td>
+      <td class="cell-no">·</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-no">·</td>
+      <td class="cell-lead">★ Leader</td>
+      <td style="color:#facc15;font-weight:bold">3</td>
+    </tr>
+    <tr>
+      <td class="agent-name">Frontend</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-no">·</td>
+      <td class="cell-no">·</td>
+      <td class="cell-yes">● Member</td>
+      <td style="color:#facc15;font-weight:bold">3</td>
+    </tr>
+    <tr>
+      <td class="agent-name">Backend</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-no">·</td>
+      <td class="cell-yes">● Member</td>
+      <td style="color:#f87171;font-weight:bold">4</td>
+    </tr>
+    <tr>
+      <td class="agent-name">DBA</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-no">·</td>
+      <td class="cell-yes">● Member</td>
+      <td style="color:#f87171;font-weight:bold">4</td>
+    </tr>
+    <tr>
+      <td class="agent-name">QA</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-lead">★ Leader</td>
+      <td class="cell-no">·</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-no">·</td>
+      <td style="color:#facc15;font-weight:bold">3</td>
+    </tr>
+    <tr>
+      <td class="agent-name">DevOps</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-no">·</td>
+      <td class="cell-no">·</td>
+      <td class="cell-lead">★ Leader</td>
+      <td class="cell-yes">● Member</td>
+      <td style="color:#facc15;font-weight:bold">3</td>
+    </tr>
+    <tr>
+      <td class="agent-name">Security</td>
+      <td class="cell-no">·</td>
+      <td class="cell-no">·</td>
+      <td class="cell-lead">★ Leader</td>
+      <td class="cell-no">·</td>
+      <td class="cell-no">·</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td class="agent-name">TechWriter</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-no">·</td>
+      <td class="cell-no">·</td>
+      <td class="cell-yes">● Member</td>
+      <td class="cell-no">·</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <div class="callout callout-purple">
+    <strong>关键发现</strong><br>
+    <span class="hl-purple">8 个 Agent 中有 6 个参与了 3+ 个 Team。</span>
+    同一个 Agent 在不同 Team 中角色不同：<br><br>
+    · <strong>Architect</strong>：Team 1/5 中是 Leader（架构主导），Team 3 中是 Member（被 Security 审查）<br>
+    · <strong>QA</strong>：Team 2 中是 Leader（bug 排查主导），Team 1/4 中是 Member（配合开发/发布）<br>
+    · <strong>Backend</strong>：参与 4 个 Team，每次带着同样的 API 设计记忆，但执行不同任务<br><br>
+    <span class="hl-yellow">记忆的跨 Team 价值</span>：Backend 在 Team 1 开发新 API 时积累的知识，
+    在 Team 2 排查 bug 时直接可用，在 Team 3 安全审查时也能提供上下文。
+    如果为每个 Team 复制独立 Backend Agent，这些知识就割裂了。
+  </div>
+</div>
+
+<!-- ====== SECTION 4: Stats ====== -->
+<div class="section">
+  <div class="section-title">④ 数据统计</div>
+
+  <div class="stats">
+    <div class="stat-box">
+      <div class="val">8</div>
+      <div class="lbl">Agents</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">5</div>
+      <div class="lbl">Teams</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">23</div>
+      <div class="lbl">Agent×Team 关系</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">2.9</div>
+      <div class="lbl">平均每 Agent 参与 Team 数</div>
+    </div>
+    <div class="stat-box">
+      <div class="val">4.6</div>
+      <div class="lbl">平均每 Team 成员数</div>
+    </div>
+  </div>
+
+  <div class="callout callout-yellow">
+    <strong class="hl-yellow">如果用"复制 Agent"代替"跨 Team 复用"</strong><br>
+    需要 23 个 Agent 实例（而非 8 个）来维护同样的功能。<br>
+    其中 15 个是副本，每个副本的 System Prompt、Tools、MCP 配置都需要手动同步。<br>
+    更关键的是：<strong class="hl-red">15 个副本的记忆是独立的，无法互通</strong>。
+  </div>
+</div>
+
+<!-- ====== SECTION 5: Frequency Analysis ====== -->
+<div class="section">
+  <div class="section-title">⑤ 需求频率分析：什么规模的项目需要多 Team？</div>
+
+  <div style="margin: 20px 0;">
+    <div class="freq-row">
+      <div class="freq-label">个人项目（1-2 Agent）</div>
+      <div class="freq-bar-bg"><div class="freq-bar" style="width:5%;background:#334155"></div></div>
+      <div class="freq-pct" style="color:#64748b">~5%</div>
+    </div>
+    <div class="freq-row">
+      <div class="freq-label">小项目（3-4 Agent）</div>
+      <div class="freq-bar-bg"><div class="freq-bar" style="width:25%;background:#475569"></div></div>
+      <div class="freq-pct">~25%</div>
+    </div>
+    <div class="freq-row">
+      <div class="freq-label">中项目（5-8 Agent）</div>
+      <div class="freq-bar-bg"><div class="freq-bar" style="width:70%;background:#7dd3fc"></div></div>
+      <div class="freq-pct" style="color:#7dd3fc">~70%</div>
+    </div>
+    <div class="freq-row">
+      <div class="freq-label">大项目（8+ Agent）</div>
+      <div class="freq-bar-bg"><div class="freq-bar" style="width:90%;background:#facc15"></div></div>
+      <div class="freq-pct" style="color:#facc15">~90%</div>
+    </div>
+  </div>
+
+  <div class="section-desc" style="margin-top:16px">
+    百分比 = 该规模项目中"需要多 Team"的概率估计。
+  </div>
+
+  <div class="callout callout-blue">
+    <strong class="hl-blue">分析结论</strong><br><br>
+    <strong>多 Team 是真实且高频的需求</strong>，原因有三：<br><br>
+    1. <strong class="hl-yellow">任务类型多样性</strong>：同一个项目有开发、测试、发布、审计等不同工作流，
+    每种工作流需要不同的 Leader 和不同的层级结构。这不是边缘场景——而是日常。<br><br>
+    2. <strong class="hl-purple">Agent 记忆的跨 Team 价值</strong>：Agent 的持久记忆是它的核心资产。
+    Backend Agent 在开发中积累的 API 知识，在 bug 排查和安全审计中同样有价值。
+    复制 Agent 会割裂记忆，违背了"Agent = 有经验的个体"的设计理念。<br><br>
+    3. <strong class="hl-green">角色灵活性</strong>：同一个 Agent 在不同 Team 中扮演不同角色
+    （Architect 有时是 Leader，有时是被审查的 Member）。
+    这种灵活性是 Agent 编排的核心价值——不是 Agent 变了，是组织结构变了。<br><br>
+    <strong>建议</strong>：多 Team 应该是一等公民（first-class）功能，不是边缘场景。
+    数据模型必须原生支持同一个 Agent 参与多个 Team。
+  </div>
+</div>
+
+<!-- ====== SECTION 6: Data Model Implications ====== -->
+<div class="section">
+  <div class="section-title">⑥ 对数据模型的影响</div>
+
+  <div class="callout callout-green">
+    <strong class="hl-green">好消息：当前数据模型已经支持</strong><br><br>
+    <code style="color:#4ade80">Team.memberAgentIds: AgentId[]</code> 天然允许同一个 AgentId 出现在多个 Team 中。<br>
+    Agent 不持有 Team 引用——Team 单向引用 Agent。这意味着：<br><br>
+    · 创建新 Team 时，从 Agent Pool 中选择成员即可<br>
+    · 同一个 Agent 可以被任意数量的 Team 引用<br>
+    · 删除 Team 不影响 Agent<br>
+    · Agent 的记忆与 Team 无关，始终跟随 Agent 本身<br><br>
+    <strong>不需要改数据模型</strong>——只需要在 UI 层清晰地展示"这个 Agent 还参与了哪些其他 Team"。
+  </div>
+</div>
+
+</body>
+</html>

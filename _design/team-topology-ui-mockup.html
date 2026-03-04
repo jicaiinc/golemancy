@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Topology UI Mockup</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; color: #e0e0e0; font-family: 'Courier New', monospace; }
+
+  /* ===== Full Page Layout ===== */
+  .page {
+    width: 100vw; height: 100vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ===== Top Toolbar ===== */
+  .toolbar {
+    background: #16213e;
+    border-bottom: 2px solid #333;
+    padding: 8px 16px;
+    display: flex; align-items: center; gap: 12px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .toolbar .back-btn {
+    background: none; border: 2px solid #555; color: #aaa;
+    padding: 4px 10px; font-family: inherit; font-size: 11px; cursor: pointer;
+  }
+  .toolbar .back-btn:hover { border-color: #888; color: #fff; }
+
+  .toolbar .team-name {
+    font-size: 14px; font-weight: bold; color: #FCDB05;
+    cursor: text; padding: 2px 6px;
+    border: 1px solid transparent;
+  }
+  .toolbar .team-name:hover { border-color: #555; }
+  .toolbar .team-desc {
+    font-size: 11px; color: #888;
+    cursor: text; padding: 2px 6px;
+    border: 1px solid transparent;
+  }
+  .toolbar .team-desc:hover { border-color: #555; }
+
+  .toolbar .spacer { flex: 1; }
+
+  .toolbar .btn {
+    background: #16213e; border: 2px solid #555; color: #ccc;
+    padding: 5px 12px; font-family: inherit; font-size: 11px; cursor: pointer;
+  }
+  .toolbar .btn:hover { border-color: #888; color: #fff; }
+  .toolbar .btn.primary { border-color: #4a9eff; color: #4a9eff; }
+  .toolbar .btn.primary:hover { background: #4a9eff22; }
+  .toolbar .btn.danger { border-color: #ff4a4a; color: #ff4a4a; }
+  .toolbar .btn.danger:hover { background: #ff4a4a22; }
+  .toolbar .saved { color: #4ade80; font-size: 11px; animation: fadeOut 2s forwards; }
+  @keyframes fadeOut { 0%,70% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* Instruction Panel (toggled) */
+  .instruction-panel {
+    background: #0f1629;
+    border-bottom: 2px solid #333;
+    padding: 8px 16px;
+    display: none;
+    flex-shrink: 0;
+  }
+  .instruction-panel.open { display: block; }
+  .instruction-panel label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .instruction-panel textarea {
+    width: 100%; margin-top: 4px; padding: 8px;
+    background: #1a1a2e; border: 2px solid #333; color: #ccc;
+    font-family: inherit; font-size: 12px; resize: vertical;
+    min-height: 60px;
+  }
+
+  /* ===== Canvas Area ===== */
+  .canvas-area {
+    flex: 1; position: relative;
+    background: #1a1a2e;
+    background-image: radial-gradient(circle, #333 1px, transparent 1px);
+    background-size: 24px 24px;
+    overflow: hidden;
+  }
+
+  /* ===== Nodes ===== */
+  .node {
+    position: absolute;
+    width: 280px;
+    background: #16213e;
+    border: 2px solid #333;
+    cursor: grab;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5), inset 2px 2px 0 rgba(255,255,255,0.05);
+    transition: border-color 0.15s;
+  }
+  .node:hover { border-color: #555; }
+  .node.selected {
+    border-color: #4a9eff;
+    box-shadow: 0 0 0 2px rgba(74,158,255,0.3), 4px 4px 0 rgba(0,0,0,0.5);
+  }
+  .node.leader { border-color: #FCDB05; }
+  .node.leader.selected { border-color: #4a9eff; }
+  .node.highlighted {
+    border-color: #4ade80;
+    animation: pulse 1s steps(2) infinite;
+  }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 4px rgba(74,222,128,0.3); } }
+
+  /* Status bar */
+  .node .status-bar { height: 3px; width: 100%; }
+  .status-bar.idle { background: #888; }
+  .status-bar.running { background: #4ade80; }
+  .status-bar.error { background: #ff4a4a; }
+
+  /* Node content */
+  .node .content { padding: 10px 12px 8px; }
+  .node .row { display: flex; align-items: center; gap: 8px; }
+
+  /* Avatar */
+  .avatar {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: bold;
+    border: 2px solid #555;
+    flex-shrink: 0;
+  }
+  .avatar.online { border-color: #4ade80; }
+  .avatar.offline { border-color: #555; }
+
+  .node .name { font-size: 11px; font-weight: bold; color: #fff; }
+  .badge {
+    font-size: 8px; padding: 1px 5px; border: 1px solid;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge.idle { border-color: #666; color: #888; }
+  .badge.running { border-color: #4ade80; color: #4ade80; }
+  .badge.error { border-color: #ff4a4a; color: #ff4a4a; }
+  .badge.leader { border-color: #FCDB05; color: #FCDB05; background: rgba(252,219,5,0.1); }
+
+  .node .role { font-size: 10px; color: #aaa; margin-top: 2px; }
+  .node .model { font-size: 10px; color: #666; margin-top: 1px; }
+
+  .node .divider { border-top: 2px solid #2a2a4a; margin: 6px 0; }
+
+  .node .meta { font-size: 10px; color: #888; display: flex; gap: 8px; flex-wrap: wrap; }
+  .node .meta span { white-space: nowrap; }
+
+  /* Handles */
+  .handle {
+    position: absolute; width: 8px; height: 8px;
+    background: #555; border: 2px solid #333;
+    left: 50%; transform: translateX(-50%);
+  }
+  .handle.top { top: -5px; }
+  .handle.bottom { bottom: -5px; }
+
+  /* ===== Edges (SVG) ===== */
+  .edges-svg {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .edge-path {
+    fill: none; stroke: #444; stroke-width: 2;
+  }
+  .edge-path.selected { stroke: #00d4ff; stroke-width: 2.5; }
+
+  /* ===== Detail Panel (Right Side) ===== */
+  .detail-panel {
+    position: absolute; top: 0; right: 0;
+    width: 320px; height: 100%;
+    background: #16213e;
+    border-left: 2px solid #333;
+    z-index: 20;
+    overflow-y: auto;
+    box-shadow: -4px 0 12px rgba(0,0,0,0.4);
+    animation: slideIn 0.2s ease-out;
+  }
+  @keyframes slideIn { from { transform: translateX(320px); } to { transform: translateX(0); } }
+
+  .detail-panel .panel-header {
+    padding: 12px 16px;
+    border-bottom: 2px solid #333;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .detail-panel .close-btn {
+    margin-left: auto; background: none; border: none; color: #888;
+    font-size: 16px; cursor: pointer;
+  }
+
+  .detail-panel .section {
+    padding: 12px 16px;
+    border-bottom: 1px solid #2a2a4a;
+  }
+  .detail-panel .section-label {
+    font-size: 8px; color: #888; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 6px;
+  }
+  .detail-panel .section-value {
+    font-size: 12px; color: #ccc;
+  }
+  .detail-panel .section-value.dim { color: #666; }
+
+  .detail-panel .role-input {
+    width: 100%; padding: 4px 8px;
+    background: #1a1a2e; border: 2px solid #333;
+    color: #ccc; font-family: inherit; font-size: 12px;
+  }
+  .detail-panel .role-input:focus { border-color: #4a9eff; outline: none; }
+
+  .detail-panel .cap-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 0; font-size: 11px;
+  }
+  .cap-item .cap-icon { color: #4a9eff; font-size: 10px; }
+  .cap-item .cap-name { color: #ccc; }
+
+  .detail-panel .actions {
+    padding: 12px 16px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .detail-panel .actions .btn {
+    width: 100%; text-align: center; padding: 6px;
+    font-family: inherit; font-size: 11px; cursor: pointer;
+    border: 2px solid; background: none;
+  }
+  .btn.open-detail { border-color: #4a9eff; color: #4a9eff; }
+  .btn.set-leader { border-color: #FCDB05; color: #FCDB05; }
+  .btn.remove { border-color: #ff4a4a; color: #ff4a4a; }
+
+  /* ===== Add Member Popover ===== */
+  .popover {
+    position: absolute; top: 42px; right: 280px;
+    width: 240px;
+    background: #16213e; border: 2px solid #555;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    z-index: 30;
+    display: none;
+  }
+  .popover.open { display: block; }
+  .popover .pop-header {
+    padding: 6px 10px; font-size: 10px; color: #888;
+    border-bottom: 1px solid #333; text-transform: uppercase;
+  }
+  .popover .pop-item {
+    padding: 6px 10px; font-size: 12px; color: #ccc;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+  }
+  .popover .pop-item:hover { background: #1a1a3e; }
+  .popover .pop-item .av-sm {
+    width: 20px; height: 20px; border: 1px solid #555;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; color: #888;
+  }
+
+  /* ===== Context Menu ===== */
+  .context-menu {
+    position: absolute;
+    min-width: 180px;
+    background: #16213e; border: 2px solid #555;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    z-index: 40;
+    padding: 4px 0;
+  }
+  .context-menu .menu-item {
+    padding: 6px 12px; font-size: 11px; cursor: pointer;
+    color: #ccc;
+  }
+  .context-menu .menu-item:hover { background: #1a1a3e; }
+  .context-menu .menu-item.danger { color: #ff4a4a; }
+  .context-menu .menu-divider { border-top: 1px solid #333; margin: 2px 0; }
+
+  /* ===== MiniMap (bottom-right corner) ===== */
+  .minimap {
+    position: absolute; bottom: 12px; right: 12px;
+    width: 140px; height: 90px;
+    background: rgba(0,0,0,0.7); border: 2px solid #333;
+    z-index: 5;
+  }
+  .minimap .mm-node {
+    position: absolute; background: #555;
+  }
+  .minimap .mm-node.leader { background: #FCDB05; }
+  .minimap .mm-viewport {
+    position: absolute; border: 1px solid #4a9eff;
+    background: rgba(74,158,255,0.05);
+  }
+
+  /* ===== Controls (bottom-left) ===== */
+  .controls {
+    position: absolute; bottom: 12px; left: 12px;
+    display: flex; flex-direction: column; gap: 2px;
+    z-index: 5;
+  }
+  .controls button {
+    width: 28px; height: 28px;
+    background: #16213e; border: 2px solid #333;
+    color: #888; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .controls button:hover { border-color: #555; color: #fff; }
+
+  /* ===== Annotations ===== */
+  .annotation {
+    position: absolute;
+    font-size: 10px; color: #ff9800;
+    border: 1px dashed #ff9800;
+    padding: 3px 6px;
+    background: rgba(255,152,0,0.08);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 50;
+  }
+  .annotation::before {
+    content: '→ ';
+  }
+
+  /* Scene labels */
+  .scene-tabs {
+    position: fixed; top: 10px; right: 10px; z-index: 100;
+    display: flex; gap: 4px;
+  }
+  .scene-tab {
+    padding: 6px 12px; font-size: 11px;
+    background: #16213e; border: 2px solid #555; color: #aaa;
+    cursor: pointer; font-family: inherit;
+  }
+  .scene-tab.active { border-color: #FCDB05; color: #FCDB05; }
+
+  .scene { display: none; }
+  .scene.active { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- Scene Navigation -->
+<div class="scene-tabs">
+  <button class="scene-tab active" onclick="showScene('main')">Main View</button>
+  <button class="scene-tab" onclick="showScene('panel')">Detail Panel</button>
+  <button class="scene-tab" onclick="showScene('context')">Context Menu</button>
+  <button class="scene-tab" onclick="showScene('addmember')">Add Member</button>
+  <button class="scene-tab" onclick="showScene('instruction')">Instruction</button>
+</div>
+
+<!-- ==================== SCENE 1: Main Topology View ==================== -->
+<div class="page scene active" id="scene-main">
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="back-btn">← Teams</button>
+    <span class="team-name">Content Creation Team</span>
+    <span class="team-desc">AI content pipeline with writer, editor, and SEO optimization</span>
+    <span class="spacer"></span>
+    <span class="saved">Saved!</span>
+    <button class="btn">Instruction</button>
+    <button class="btn primary">+ Add Member</button>
+    <button class="btn">Reset Layout</button>
+    <button class="btn danger">Delete Team</button>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-area">
+
+    <!-- Edges SVG -->
+    <svg class="edges-svg">
+      <!-- Leader → Writer -->
+      <path class="edge-path" d="M 400,215 L 400,240 L 230,240 L 230,280" />
+      <!-- Leader → Editor -->
+      <path class="edge-path" d="M 400,215 L 400,240 L 560,240 L 560,280" />
+      <!-- Editor → SEO -->
+      <path class="edge-path" d="M 560,415 L 560,440 L 560,480" />
+    </svg>
+
+    <!-- Node: Content Director (Leader) -->
+    <div class="node leader" style="left: 260px; top: 80px;">
+      <div class="status-bar running"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar online">CD</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Director</span>
+              <span class="badge running">running</span>
+              <span class="badge leader">LEADER</span>
+            </div>
+            <div class="role">Team Lead / Content Strategy</div>
+            <div class="model">claude-sonnet-4-6</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="meta">
+          <span>2 skills</span>
+          <span>·</span>
+          <span>3 tools</span>
+          <span>·</span>
+          <span>1 MCP</span>
+        </div>
+      </div>
+      <!-- Leader: only BOTTOM handle (source) — no top handle -->
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- Node: Writer -->
+    <div class="node" style="left: 90px; top: 280px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CW</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Writer</span>
+              <span class="badge idle">idle</span>
+            </div>
+            <div class="role">Copywriting & Drafts</div>
+            <div class="model">claude-haiku-4-5</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="meta">
+          <span>1 skill</span>
+          <span>·</span>
+          <span>2 tools</span>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- Node: Editor (Selected) -->
+    <div class="node selected" style="left: 420px; top: 280px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CE</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Editor</span>
+              <span class="badge idle">idle</span>
+            </div>
+            <div class="role">Review & Polish</div>
+            <div class="model">claude-sonnet-4-6</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="meta">
+          <span>1 skill</span>
+          <span>·</span>
+          <span>3 tools</span>
+          <span>·</span>
+          <span>2 MCP</span>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- Node: SEO Optimizer -->
+    <div class="node" style="left: 420px; top: 480px;">
+      <div class="status-bar error"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar" style="border-color:#ff4a4a">SO</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">SEO Optimizer</span>
+              <span class="badge error">error</span>
+            </div>
+            <div class="role">SEO & Keywords</div>
+            <div class="model">claude-haiku-4-5</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="meta">
+          <span>2 tools</span>
+          <span>·</span>
+          <span>1 MCP</span>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button>+</button>
+      <button>−</button>
+      <button>⊡</button>
+    </div>
+
+    <!-- MiniMap -->
+    <div class="minimap">
+      <div class="mm-node leader" style="left: 45px; top: 12px; width: 30px; height: 14px;"></div>
+      <div class="mm-node" style="left: 20px; top: 35px; width: 30px; height: 14px;"></div>
+      <div class="mm-node" style="left: 70px; top: 35px; width: 30px; height: 14px;"></div>
+      <div class="mm-node" style="left: 70px; top: 58px; width: 30px; height: 14px;"></div>
+      <div class="mm-viewport" style="left: 5px; top: 5px; width: 130px; height: 75px;"></div>
+    </div>
+
+    <!-- Annotations (design notes) -->
+    <div class="annotation" style="left: 545px; top: 88px;">Gold border = Leader</div>
+    <div class="annotation" style="left: 545px; top: 128px;">Leader has NO top handle (can't be target)</div>
+    <div class="annotation" style="left: 10px; top: 382px;">Non-leader: top + bottom handles</div>
+    <div class="annotation" style="left: 705px; top: 290px;">Blue glow = selected node</div>
+    <div class="annotation" style="left: 705px; top: 490px;">Red status bar = error state</div>
+  </div>
+</div>
+
+<!-- ==================== SCENE 2: With Detail Panel ==================== -->
+<div class="page scene" id="scene-panel">
+  <div class="toolbar">
+    <button class="back-btn">← Teams</button>
+    <span class="team-name">Content Creation Team</span>
+    <span class="team-desc">AI content pipeline</span>
+    <span class="spacer"></span>
+    <button class="btn">Instruction</button>
+    <button class="btn primary">+ Add Member</button>
+    <button class="btn">Reset Layout</button>
+    <button class="btn danger">Delete Team</button>
+  </div>
+  <div class="canvas-area">
+    <svg class="edges-svg">
+      <path class="edge-path" d="M 300,215 L 300,240 L 160,240 L 160,280" />
+      <path class="edge-path selected" d="M 300,215 L 300,240 L 440,240 L 440,280" />
+    </svg>
+
+    <!-- Leader -->
+    <div class="node leader" style="left: 160px; top: 80px;">
+      <div class="status-bar running"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar online">CD</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Director</span>
+              <span class="badge running">running</span>
+              <span class="badge leader">LEADER</span>
+            </div>
+            <div class="role">Team Lead</div>
+            <div class="model">claude-sonnet-4-6</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="meta"><span>2 skills · 3 tools · 1 MCP</span></div>
+      </div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- Writer -->
+    <div class="node" style="left: 20px; top: 280px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CW</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Writer</span>
+              <span class="badge idle">idle</span>
+            </div>
+            <div class="role">Copywriting</div>
+            <div class="model">claude-haiku-4-5</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="meta"><span>1 skill · 2 tools</span></div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- Editor (selected) -->
+    <div class="node selected" style="left: 300px; top: 280px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CE</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Editor</span>
+              <span class="badge idle">idle</span>
+            </div>
+            <div class="role">Review & Polish</div>
+            <div class="model">claude-sonnet-4-6</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="meta"><span>1 skill · 3 tools · 2 MCP</span></div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- ===== Detail Panel (slides in from right) ===== -->
+    <div class="detail-panel">
+      <div class="panel-header">
+        <div class="avatar offline" style="width:32px;height:32px;font-size:11px;">CE</div>
+        <div>
+          <div class="name" style="font-size:13px;color:#fff;">Content Editor</div>
+          <span class="badge idle" style="margin-top:2px;">idle</span>
+        </div>
+        <button class="close-btn">✕</button>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Description</div>
+        <div class="section-value">Reviews and polishes content drafts for quality, tone, and style consistency.</div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Model</div>
+        <div class="section-value" style="color:#4a9eff;">claude-sonnet-4-6</div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Role</div>
+        <input class="role-input" value="Review & Polish" />
+      </div>
+
+      <div class="section">
+        <div class="section-label">Capabilities</div>
+        <div class="cap-item">
+          <span class="cap-icon">◆</span>
+          <span class="cap-name">Grammar Check</span>
+          <span style="margin-left:auto;font-size:9px;color:#888;">skill</span>
+        </div>
+        <div class="cap-item">
+          <span class="cap-icon">◆</span>
+          <span class="cap-name">Bash</span>
+          <span style="margin-left:auto;font-size:9px;color:#888;">tool</span>
+        </div>
+        <div class="cap-item">
+          <span class="cap-icon">◆</span>
+          <span class="cap-name">Browser</span>
+          <span style="margin-left:auto;font-size:9px;color:#888;">tool</span>
+        </div>
+        <div class="cap-item">
+          <span class="cap-icon">◆</span>
+          <span class="cap-name">Memory</span>
+          <span style="margin-left:auto;font-size:9px;color:#888;">tool</span>
+        </div>
+        <div class="cap-item">
+          <span class="cap-icon">◆</span>
+          <span class="cap-name">Grammarly</span>
+          <span style="margin-left:auto;font-size:9px;color:#888;">MCP</span>
+        </div>
+        <div class="cap-item">
+          <span class="cap-icon">◆</span>
+          <span class="cap-name">Notion</span>
+          <span style="margin-left:auto;font-size:9px;color:#888;">MCP</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn open-detail">Open Agent Detail →</button>
+        <button class="btn set-leader">★ Set as Leader</button>
+        <button class="btn remove">Remove from Team</button>
+      </div>
+    </div>
+
+    <!-- Annotations -->
+    <div class="annotation" style="right: 340px; top: 60px;">320px 右侧滑入面板</div>
+    <div class="annotation" style="right: 340px; top: 200px;">Role 可 inline 编辑</div>
+    <div class="annotation" style="right: 340px; top: 370px;">Skills/Tools/MCP 列表</div>
+    <div class="annotation" style="right: 340px; top: 470px;">操作按钮区</div>
+
+    <div class="controls">
+      <button>+</button>
+      <button>−</button>
+      <button>⊡</button>
+    </div>
+    <div class="minimap" style="right: 340px;">
+      <div class="mm-node leader" style="left: 45px; top: 12px; width: 30px; height: 14px;"></div>
+      <div class="mm-node" style="left: 20px; top: 35px; width: 30px; height: 14px;"></div>
+      <div class="mm-node" style="left: 70px; top: 35px; width: 30px; height: 14px;"></div>
+      <div class="mm-viewport" style="left: 5px; top: 5px; width: 95px; height: 75px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCENE 3: Context Menu ==================== -->
+<div class="page scene" id="scene-context">
+  <div class="toolbar">
+    <button class="back-btn">← Teams</button>
+    <span class="team-name">Content Creation Team</span>
+    <span class="spacer"></span>
+    <button class="btn">Instruction</button>
+    <button class="btn primary">+ Add Member</button>
+    <button class="btn">Reset Layout</button>
+    <button class="btn danger">Delete Team</button>
+  </div>
+  <div class="canvas-area">
+    <svg class="edges-svg">
+      <path class="edge-path" d="M 300,215 L 300,240 L 160,240 L 160,280" />
+      <path class="edge-path" d="M 300,215 L 300,240 L 440,240 L 440,280" />
+    </svg>
+
+    <div class="node leader" style="left: 160px; top: 80px;">
+      <div class="status-bar running"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar online">CD</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Director</span>
+              <span class="badge running">running</span>
+              <span class="badge leader">LEADER</span>
+            </div>
+            <div class="role">Team Lead</div>
+          </div>
+        </div>
+      </div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <div class="node" style="left: 20px; top: 280px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CW</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Writer</span>
+              <span class="badge idle">idle</span>
+            </div>
+            <div class="role">Copywriting</div>
+          </div>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <div class="node" style="left: 300px; top: 280px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CE</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Editor</span>
+              <span class="badge idle">idle</span>
+            </div>
+            <div class="role">Review & Polish</div>
+          </div>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- Context Menu (right-click on Writer) -->
+    <div class="context-menu" style="left: 200px; top: 350px;">
+      <div class="menu-item">Edit Agent</div>
+      <div class="menu-item">★ Set as Leader</div>
+      <div class="menu-divider"></div>
+      <div class="menu-item danger">Remove from Team</div>
+    </div>
+
+    <div class="annotation" style="left: 400px; top: 350px;">右键菜单 (node right-click)</div>
+
+    <div class="controls">
+      <button>+</button>
+      <button>−</button>
+      <button>⊡</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCENE 4: Add Member Popover ==================== -->
+<div class="page scene" id="scene-addmember">
+  <div class="toolbar">
+    <button class="back-btn">← Teams</button>
+    <span class="team-name">Content Creation Team</span>
+    <span class="spacer"></span>
+    <button class="btn">Instruction</button>
+    <button class="btn primary" style="background:#4a9eff22;">+ Add Member</button>
+    <button class="btn">Reset Layout</button>
+    <button class="btn danger">Delete Team</button>
+  </div>
+  <div class="canvas-area">
+    <!-- Popover dropdown -->
+    <div class="popover open" style="top: 0; right: 170px;">
+      <div class="pop-header">Select Agent to Add</div>
+      <div class="pop-item">
+        <div class="av-sm">SA</div>
+        <span>Social Analyst</span>
+        <span style="font-size:9px;color:#666;margin-left:auto;">idle</span>
+      </div>
+      <div class="pop-item">
+        <div class="av-sm">TR</div>
+        <span>Translator</span>
+        <span style="font-size:9px;color:#666;margin-left:auto;">idle</span>
+      </div>
+      <div class="pop-item">
+        <div class="av-sm">QA</div>
+        <span>QA Checker</span>
+        <span style="font-size:9px;color:#4ade80;margin-left:auto;">running</span>
+      </div>
+      <div style="padding:6px 10px;font-size:10px;color:#666;border-top:1px solid #333;">
+        3 agents available · 4 already in team
+      </div>
+    </div>
+
+    <svg class="edges-svg">
+      <path class="edge-path" d="M 300,215 L 300,240 L 160,240 L 160,280" />
+      <path class="edge-path" d="M 300,215 L 300,240 L 440,240 L 440,280" />
+    </svg>
+
+    <div class="node leader" style="left: 160px; top: 80px;">
+      <div class="status-bar running"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar online">CD</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Director</span>
+              <span class="badge leader">LEADER</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="handle bottom"></div>
+    </div>
+    <div class="node" style="left: 20px; top: 280px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CW</div>
+          <div><span class="name">Content Writer</span></div>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+    <div class="node" style="left: 300px; top: 280px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CE</div>
+          <div><span class="name">Content Editor</span></div>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <!-- Newly added node (highlighted) -->
+    <div class="node highlighted" style="left: 620px; top: 120px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">SA</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Social Analyst</span>
+              <span class="badge idle">idle</span>
+            </div>
+            <div class="role" style="color:#666;font-style:italic;">no parent (drag to connect)</div>
+          </div>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <div class="annotation" style="left: 620px; top: 250px;">新成员绿色脉冲高亮 2s</div>
+    <div class="annotation" style="left: 620px; top: 270px;">无 parent，用户拖线连接</div>
+
+    <div class="controls">
+      <button>+</button>
+      <button>−</button>
+      <button>⊡</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCENE 5: Instruction Panel Open ==================== -->
+<div class="page scene" id="scene-instruction">
+  <div class="toolbar">
+    <button class="back-btn">← Teams</button>
+    <span class="team-name">Content Creation Team</span>
+    <span class="team-desc">AI content pipeline</span>
+    <span class="spacer"></span>
+    <button class="btn" style="border-color:#4a9eff;color:#4a9eff;">Instruction ▲</button>
+    <button class="btn primary">+ Add Member</button>
+    <button class="btn">Reset Layout</button>
+    <button class="btn danger">Delete Team</button>
+  </div>
+  <div class="instruction-panel open">
+    <label>Team Instruction</label>
+    <textarea placeholder="Instructions injected into the leader agent's context...">You are the lead of a content creation team. Coordinate the following workflow:
+1. Writer produces initial drafts based on topic briefs
+2. Editor reviews for quality, tone, and factual accuracy
+3. SEO Optimizer adds keywords and meta descriptions
+Always maintain brand voice consistency across all content.</textarea>
+  </div>
+  <div class="canvas-area">
+    <svg class="edges-svg">
+      <path class="edge-path" d="M 300,175 L 300,200 L 160,200 L 160,240" />
+      <path class="edge-path" d="M 300,175 L 300,200 L 440,200 L 440,240" />
+    </svg>
+
+    <div class="node leader" style="left: 160px; top: 40px;">
+      <div class="status-bar running"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar online">CD</div>
+          <div>
+            <div class="row" style="gap:4px">
+              <span class="name">Content Director</span>
+              <span class="badge leader">LEADER</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="handle bottom"></div>
+    </div>
+    <div class="node" style="left: 20px; top: 240px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CW</div>
+          <div><span class="name">Content Writer</span></div>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+    <div class="node" style="left: 300px; top: 240px;">
+      <div class="status-bar idle"></div>
+      <div class="content">
+        <div class="row">
+          <div class="avatar offline">CE</div>
+          <div><span class="name">Content Editor</span></div>
+        </div>
+      </div>
+      <div class="handle top"></div>
+      <div class="handle bottom"></div>
+    </div>
+
+    <div class="annotation" style="left: 10px; top: 10px;">Instruction 面板展开，canvas 下移</div>
+
+    <div class="controls">
+      <button>+</button>
+      <button>−</button>
+      <button>⊡</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showScene(name) {
+  document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'))
+  document.querySelectorAll('.scene-tab').forEach(t => t.classList.remove('active'))
+  document.getElementById('scene-' + name).classList.add('active')
+  event.target.classList.add('active')
+}
+</script>
+
+</body>
+</html>

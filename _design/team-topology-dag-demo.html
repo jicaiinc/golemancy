@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>DAG Team Topology Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #e0e0e0; font-family: 'Courier New', monospace; padding: 40px; }
+  h1 { font-size: 16px; color: #7dd3fc; margin-bottom: 8px; }
+  h2 { font-size: 13px; color: #94a3b8; margin-bottom: 24px; font-weight: normal; }
+  .scenario { margin-bottom: 60px; }
+  .scenario-title { font-size: 14px; color: #facc15; margin-bottom: 6px; }
+  .scenario-desc { font-size: 12px; color: #64748b; margin-bottom: 20px; }
+
+  svg { display: block; margin: 0 auto; }
+
+  .node {
+    cursor: default;
+  }
+  .node rect {
+    rx: 0; ry: 0;
+    stroke-width: 2;
+  }
+  .node text {
+    font-family: 'Courier New', monospace;
+    fill: #e2e8f0;
+  }
+  .node .name { font-size: 11px; font-weight: bold; }
+  .node .role { font-size: 9px; fill: #94a3b8; }
+
+  /* Node tiers */
+  .tier-leader rect { fill: #1a1520; stroke: #facc15; }
+  .tier-leader .name { fill: #facc15; }
+
+  .tier-coord rect { fill: #131520; stroke: #7dd3fc; }
+  .tier-coord .name { fill: #7dd3fc; }
+
+  .tier-exec rect { fill: #101518; stroke: #475569; }
+
+  .tier-shared rect { fill: #1a1018; stroke: #c084fc; stroke-dasharray: 6 3; }
+  .tier-shared .name { fill: #c084fc; }
+
+  /* Edges */
+  .edge { fill: none; stroke-width: 1.5; }
+  .edge-normal { stroke: #334155; }
+  .edge-shared { stroke: #c084fc; stroke-width: 2; stroke-dasharray: 8 4; }
+
+  .edge-label {
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    fill: #64748b;
+  }
+  .edge-label-shared {
+    fill: #c084fc;
+    font-size: 9px;
+  }
+
+  /* Legend */
+  .legend { margin-top: 20px; display: flex; gap: 24px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+  .legend-swatch { width: 24px; height: 12px; border: 2px solid; }
+
+  /* Comparison */
+  .compare { display: flex; gap: 40px; margin-top: 40px; align-items: flex-start; }
+  .compare-col { flex: 1; }
+  .compare-col h3 { font-size: 13px; color: #94a3b8; margin-bottom: 16px; text-align: center; }
+
+  .callout {
+    margin-top: 20px;
+    padding: 12px 16px;
+    border-left: 3px solid #c084fc;
+    background: #1a1018;
+    font-size: 11px;
+    line-height: 1.6;
+    color: #cbd5e1;
+  }
+  .callout strong { color: #c084fc; }
+
+  .problem-list {
+    margin-top: 16px;
+    padding-left: 20px;
+    font-size: 11px;
+    line-height: 1.8;
+    color: #94a3b8;
+  }
+  .problem-list li { margin-bottom: 4px; }
+  .problem-list .bad { color: #f87171; }
+  .problem-list .ok { color: #4ade80; }
+</style>
+</head>
+<body>
+
+<h1>Team Topology: DAG vs Tree 对比</h1>
+<h2>场景：游戏开发公司——一款大型多人在线游戏的开发团队</h2>
+
+<!-- ====== SCENARIO 1: DAG ====== -->
+<div class="scenario">
+  <div class="scenario-title">▸ DAG 结构（共享角色）</div>
+  <div class="scenario-desc">
+    同一个 Agent 被多个 Parent 直接调用。紫色虚线节点 = 共享角色，紫色虚线边 = 共享调用关系。
+  </div>
+
+  <svg width="920" height="620" viewBox="0 0 920 620">
+    <!-- ============ EDGES (draw first, behind nodes) ============ -->
+
+    <!-- L1 → L2 -->
+    <line x1="460" y1="52" x2="180" y2="130" class="edge edge-normal"/>
+    <line x1="460" y1="52" x2="460" y2="130" class="edge edge-normal"/>
+    <line x1="460" y1="52" x2="740" y2="130" class="edge edge-normal"/>
+
+    <!-- L2 Art Director → L3 -->
+    <line x1="180" y1="172" x2="70"  y2="260" class="edge edge-normal"/>
+    <line x1="180" y1="172" x2="200" y2="260" class="edge edge-normal"/>
+
+    <!-- L2 Eng Director → L3 -->
+    <line x1="460" y1="172" x2="350" y2="260" class="edge edge-normal"/>
+    <line x1="460" y1="172" x2="480" y2="260" class="edge edge-normal"/>
+    <line x1="460" y1="172" x2="610" y2="260" class="edge edge-normal"/>
+
+    <!-- L2 Design Director → L3 -->
+    <line x1="740" y1="172" x2="740" y2="260" class="edge edge-normal"/>
+    <line x1="740" y1="172" x2="860" y2="260" class="edge edge-normal"/>
+
+    <!-- L3 → L4 normal -->
+    <line x1="70"  y1="302" x2="70"  y2="390" class="edge edge-normal"/>
+    <line x1="200" y1="302" x2="160" y2="390" class="edge edge-normal"/>
+    <line x1="200" y1="302" x2="250" y2="390" class="edge edge-normal"/>
+    <line x1="350" y1="302" x2="310" y2="390" class="edge edge-normal"/>
+    <line x1="350" y1="302" x2="400" y2="390" class="edge edge-normal"/>
+    <line x1="480" y1="302" x2="480" y2="390" class="edge edge-normal"/>
+    <line x1="610" y1="302" x2="570" y2="390" class="edge edge-normal"/>
+    <line x1="610" y1="302" x2="660" y2="390" class="edge edge-normal"/>
+    <line x1="740" y1="302" x2="740" y2="390" class="edge edge-normal"/>
+    <line x1="860" y1="302" x2="860" y2="390" class="edge edge-normal"/>
+
+    <!-- ===== SHARED EDGES (purple dashed) ===== -->
+
+    <!-- QA Agent (共享): Art Lead, Client Lead, Server Lead 都调用 -->
+    <!-- from Concept Artist Lead (70) → QA Agent (460, 510) -->
+    <path d="M 70 302 C 70 420, 420 400, 460 500" class="edge edge-shared"/>
+    <!-- from Character Lead (200) → QA Agent -->
+    <path d="M 200 302 C 200 420, 420 410, 460 500" class="edge edge-shared"/>
+    <!-- from Client Lead (350) → QA Agent -->
+    <path d="M 350 302 C 350 440, 430 440, 460 500" class="edge edge-shared"/>
+    <!-- from Server Lead (480) → QA Agent -->
+    <line x1="480" y1="302" x2="460" y2="500" class="edge edge-shared"/>
+    <!-- from Level Lead (740) → QA Agent -->
+    <path d="M 740 302 C 740 430, 500 440, 460 500" class="edge edge-shared"/>
+
+    <!-- Localization Agent (共享): Character Lead, UI Lead, Narrative Lead 都调用 -->
+    <!-- from Character Lead (200) → Localization (700, 510) -->
+    <path d="M 200 302 C 200 450, 640 430, 700 500" class="edge edge-shared"/>
+    <!-- from UI Lead (860) → Localization -->
+    <path d="M 860 302 C 860 440, 740 440, 700 500" class="edge edge-shared"/>
+    <!-- from Level Lead (740) → Localization -->
+    <line x1="740" y1="302" x2="700" y2="500" class="edge edge-shared"/>
+
+    <!-- ============ NODES ============ -->
+
+    <!-- L1: Producer (Leader) -->
+    <g class="node tier-leader" transform="translate(380, 20)">
+      <rect width="160" height="32"/>
+      <text class="name" x="80" y="15" text-anchor="middle">Producer</text>
+      <text class="role" x="80" y="27" text-anchor="middle">总制作人 · Leader</text>
+    </g>
+
+    <!-- L2: Directors -->
+    <g class="node tier-coord" transform="translate(100, 130)">
+      <rect width="160" height="42"/>
+      <text class="name" x="80" y="16" text-anchor="middle">Art Director</text>
+      <text class="role" x="80" y="28" text-anchor="middle">美术总监</text>
+      <text class="role" x="80" y="38" text-anchor="middle">管视觉风格 + 角色</text>
+    </g>
+    <g class="node tier-coord" transform="translate(380, 130)">
+      <rect width="160" height="42"/>
+      <text class="name" x="80" y="16" text-anchor="middle">Eng Director</text>
+      <text class="role" x="80" y="28" text-anchor="middle">技术总监</text>
+      <text class="role" x="80" y="38" text-anchor="middle">管客户端 + 服务端 + 工具</text>
+    </g>
+    <g class="node tier-coord" transform="translate(660, 130)">
+      <rect width="160" height="42"/>
+      <text class="name" x="80" y="16" text-anchor="middle">Design Director</text>
+      <text class="role" x="80" y="28" text-anchor="middle">策划总监</text>
+      <text class="role" x="80" y="38" text-anchor="middle">管关卡 + UI + 叙事</text>
+    </g>
+
+    <!-- L3: Leads -->
+    <g class="node tier-exec" transform="translate(10, 260)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Concept Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">概念原画</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(145, 260)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Character Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">角色建模</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(290, 260)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Client Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">客户端</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(420, 260)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Server Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">服务端</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(550, 260)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Tools Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">工具链</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(680, 260)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Level Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">关卡设计</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(810, 260)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">UI Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">界面设计</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+
+    <!-- L4: Workers (normal) — small boxes -->
+    <g class="node tier-exec" transform="translate(30, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Illustrator</text>
+      <text class="role" x="40" y="22" text-anchor="middle">原画师</text>
+    </g>
+    <g class="node tier-exec" transform="translate(120, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Modeler</text>
+      <text class="role" x="40" y="22" text-anchor="middle">3D建模</text>
+    </g>
+    <g class="node tier-exec" transform="translate(210, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Animator</text>
+      <text class="role" x="40" y="22" text-anchor="middle">动画</text>
+    </g>
+    <g class="node tier-exec" transform="translate(270, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Renderer</text>
+      <text class="role" x="40" y="22" text-anchor="middle">渲染</text>
+    </g>
+    <g class="node tier-exec" transform="translate(360, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Gameplay</text>
+      <text class="role" x="40" y="22" text-anchor="middle">玩法程序</text>
+    </g>
+    <g class="node tier-exec" transform="translate(440, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Netcode</text>
+      <text class="role" x="40" y="22" text-anchor="middle">网络同步</text>
+    </g>
+    <g class="node tier-exec" transform="translate(530, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Pipeline</text>
+      <text class="role" x="40" y="22" text-anchor="middle">构建管线</text>
+    </g>
+    <g class="node tier-exec" transform="translate(620, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Editor</text>
+      <text class="role" x="40" y="22" text-anchor="middle">编辑器</text>
+    </g>
+    <g class="node tier-exec" transform="translate(700, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">Level Impl</text>
+      <text class="role" x="40" y="22" text-anchor="middle">关卡搭建</text>
+    </g>
+    <g class="node tier-exec" transform="translate(820, 390)">
+      <rect width="80" height="28"/>
+      <text class="name" x="40" y="12" text-anchor="middle" style="font-size:9px">UI Impl</text>
+      <text class="role" x="40" y="22" text-anchor="middle">UI实现</text>
+    </g>
+
+    <!-- ===== SHARED NODES (purple dashed) ===== -->
+    <g class="node tier-shared" transform="translate(380, 500)">
+      <rect width="160" height="48"/>
+      <text class="name" x="80" y="16" text-anchor="middle">QA Agent</text>
+      <text class="role" x="80" y="28" text-anchor="middle">质量保障（共享）</text>
+      <text class="role" x="80" y="40" text-anchor="middle" style="fill:#f87171">← 5个 Parent 调用</text>
+    </g>
+    <g class="node tier-shared" transform="translate(620, 500)">
+      <rect width="160" height="48"/>
+      <text class="name" x="80" y="16" text-anchor="middle">L10n Agent</text>
+      <text class="role" x="80" y="28" text-anchor="middle">本地化（共享）</text>
+      <text class="role" x="80" y="40" text-anchor="middle" style="fill:#f87171">← 3个 Parent 调用</text>
+    </g>
+
+    <!-- Labels for shared edges -->
+    <text x="200" y="470" class="edge-label edge-label-shared" transform="rotate(-20, 200, 470)">共享调用</text>
+    <text x="680" y="460" class="edge-label edge-label-shared" transform="rotate(15, 680, 460)">共享调用</text>
+
+  </svg>
+
+  <div class="callout">
+    <strong>观察</strong>：紫色虚线就是"共享"带来的视觉复杂度。QA Agent 被 5 条紫线连接，L10n Agent 被 3 条。<br>
+    线条交叉严重，尤其是 QA Agent 的连线横跨整个画面从最左的 Concept Lead 到右边的 Level Lead。<br>
+    真实场景中，如果再多几个共享角色（如 DevOps Agent、Security Agent），画面会更混乱。
+  </div>
+</div>
+
+<!-- ====== SCENARIO 2: Tree (duplication) ====== -->
+<div class="scenario">
+  <div class="scenario-title">▸ Tree 结构（复制替代共享）</div>
+  <div class="scenario-desc">
+    每个需要 QA/L10n 的 Lead 有自己的专属实例。配置相同，但互相独立。绿色节点 = 复制的实例。
+  </div>
+
+  <svg width="920" height="520" viewBox="0 0 920 520">
+
+    <!-- L1 → L2 -->
+    <line x1="460" y1="52" x2="180" y2="120" class="edge edge-normal"/>
+    <line x1="460" y1="52" x2="460" y2="120" class="edge edge-normal"/>
+    <line x1="460" y1="52" x2="740" y2="120" class="edge edge-normal"/>
+
+    <!-- L2 → L3 -->
+    <line x1="180" y1="162" x2="80"  y2="240" class="edge edge-normal"/>
+    <line x1="180" y1="162" x2="210" y2="240" class="edge edge-normal"/>
+    <line x1="460" y1="162" x2="350" y2="240" class="edge edge-normal"/>
+    <line x1="460" y1="162" x2="470" y2="240" class="edge edge-normal"/>
+    <line x1="460" y1="162" x2="590" y2="240" class="edge edge-normal"/>
+    <line x1="740" y1="162" x2="710" y2="240" class="edge edge-normal"/>
+    <line x1="740" y1="162" x2="840" y2="240" class="edge edge-normal"/>
+
+    <!-- L3 → L4 (only showing key ones) -->
+    <line x1="80"  y1="282" x2="40"  y2="370" class="edge edge-normal"/>
+    <line x1="80"  y1="282" x2="110" y2="370" class="edge edge-normal"/>
+    <line x1="210" y1="282" x2="180" y2="370" class="edge edge-normal"/>
+    <line x1="210" y1="282" x2="250" y2="370" class="edge edge-normal"/>
+    <line x1="210" y1="282" x2="320" y2="370" class="edge edge-normal"/>
+    <line x1="350" y1="282" x2="350" y2="370" class="edge edge-normal"/>
+    <line x1="350" y1="282" x2="420" y2="370" class="edge edge-normal"/>
+    <line x1="470" y1="282" x2="470" y2="370" class="edge edge-normal"/>
+    <line x1="470" y1="282" x2="540" y2="370" class="edge edge-normal"/>
+    <line x1="590" y1="282" x2="590" y2="370" class="edge edge-normal"/>
+    <line x1="590" y1="282" x2="660" y2="370" class="edge edge-normal"/>
+    <line x1="710" y1="282" x2="700" y2="370" class="edge edge-normal"/>
+    <line x1="710" y1="282" x2="770" y2="370" class="edge edge-normal"/>
+    <line x1="840" y1="282" x2="830" y2="370" class="edge edge-normal"/>
+    <line x1="840" y1="282" x2="890" y2="370" class="edge edge-normal"/>
+
+    <!-- ============ NODES ============ -->
+
+    <!-- L1 -->
+    <g class="node tier-leader" transform="translate(380, 20)">
+      <rect width="160" height="32"/>
+      <text class="name" x="80" y="15" text-anchor="middle">Producer</text>
+      <text class="role" x="80" y="27" text-anchor="middle">总制作人 · Leader</text>
+    </g>
+
+    <!-- L2 -->
+    <g class="node tier-coord" transform="translate(100, 120)">
+      <rect width="160" height="42"/>
+      <text class="name" x="80" y="16" text-anchor="middle">Art Director</text>
+      <text class="role" x="80" y="28" text-anchor="middle">美术总监</text>
+      <text class="role" x="80" y="38" text-anchor="middle">管视觉风格 + 角色</text>
+    </g>
+    <g class="node tier-coord" transform="translate(380, 120)">
+      <rect width="160" height="42"/>
+      <text class="name" x="80" y="16" text-anchor="middle">Eng Director</text>
+      <text class="role" x="80" y="28" text-anchor="middle">技术总监</text>
+      <text class="role" x="80" y="38" text-anchor="middle">管客户端 + 服务端 + 工具</text>
+    </g>
+    <g class="node tier-coord" transform="translate(660, 120)">
+      <rect width="160" height="42"/>
+      <text class="name" x="80" y="16" text-anchor="middle">Design Director</text>
+      <text class="role" x="80" y="28" text-anchor="middle">策划总监</text>
+      <text class="role" x="80" y="38" text-anchor="middle">管关卡 + UI + 叙事</text>
+    </g>
+
+    <!-- L3 -->
+    <g class="node tier-exec" transform="translate(20, 240)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Concept Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">概念原画</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(150, 240)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Character Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">角色建模</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(290, 240)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Client Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">客户端</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(410, 240)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Server Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">服务端</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(530, 240)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Tools Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">工具链</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(650, 240)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">Level Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">关卡设计</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+    <g class="node tier-exec" transform="translate(780, 240)">
+      <rect width="120" height="42"/>
+      <text class="name" x="60" y="16" text-anchor="middle">UI Lead</text>
+      <text class="role" x="60" y="28" text-anchor="middle">界面设计</text>
+      <text class="role" x="60" y="38" text-anchor="middle">组长</text>
+    </g>
+
+    <!-- L4: Workers — each lead has their own QA/L10n copies where needed -->
+    <g class="node tier-exec" transform="translate(10, 370)">
+      <rect width="70" height="28"/>
+      <text class="name" x="35" y="12" text-anchor="middle" style="font-size:8px">Illustrator</text>
+      <text class="role" x="35" y="22" text-anchor="middle">原画师</text>
+    </g>
+    <g class="node tier-exec" transform="translate(85, 370)">
+      <rect width="50" height="28" style="stroke:#4ade80"/>
+      <text class="name" x="25" y="12" text-anchor="middle" style="font-size:8px;fill:#4ade80">QA①</text>
+      <text class="role" x="25" y="22" text-anchor="middle">质检</text>
+    </g>
+
+    <g class="node tier-exec" transform="translate(150, 370)">
+      <rect width="66" height="28"/>
+      <text class="name" x="33" y="12" text-anchor="middle" style="font-size:8px">Modeler</text>
+      <text class="role" x="33" y="22" text-anchor="middle">3D建模</text>
+    </g>
+    <g class="node tier-exec" transform="translate(222, 370)">
+      <rect width="50" height="28" style="stroke:#4ade80"/>
+      <text class="name" x="25" y="12" text-anchor="middle" style="font-size:8px;fill:#4ade80">QA②</text>
+      <text class="role" x="25" y="22" text-anchor="middle">质检</text>
+    </g>
+    <g class="node tier-exec" transform="translate(280, 370)">
+      <rect width="56" height="28" style="stroke:#4ade80"/>
+      <text class="name" x="28" y="12" text-anchor="middle" style="font-size:8px;fill:#4ade80">L10n①</text>
+      <text class="role" x="28" y="22" text-anchor="middle">本地化</text>
+    </g>
+
+    <g class="node tier-exec" transform="translate(320, 370)">
+      <rect width="66" height="28"/>
+      <text class="name" x="33" y="12" text-anchor="middle" style="font-size:8px">Gameplay</text>
+      <text class="role" x="33" y="22" text-anchor="middle">玩法</text>
+    </g>
+    <g class="node tier-exec" transform="translate(392, 370)">
+      <rect width="50" height="28" style="stroke:#4ade80"/>
+      <text class="name" x="25" y="12" text-anchor="middle" style="font-size:8px;fill:#4ade80">QA③</text>
+      <text class="role" x="25" y="22" text-anchor="middle">质检</text>
+    </g>
+
+    <g class="node tier-exec" transform="translate(445, 370)">
+      <rect width="60" height="28"/>
+      <text class="name" x="30" y="12" text-anchor="middle" style="font-size:8px">Netcode</text>
+      <text class="role" x="30" y="22" text-anchor="middle">网络</text>
+    </g>
+    <g class="node tier-exec" transform="translate(510, 370)">
+      <rect width="50" height="28" style="stroke:#4ade80"/>
+      <text class="name" x="25" y="12" text-anchor="middle" style="font-size:8px;fill:#4ade80">QA④</text>
+      <text class="role" x="25" y="22" text-anchor="middle">质检</text>
+    </g>
+
+    <g class="node tier-exec" transform="translate(565, 370)">
+      <rect width="60" height="28"/>
+      <text class="name" x="30" y="12" text-anchor="middle" style="font-size:8px">Pipeline</text>
+      <text class="role" x="30" y="22" text-anchor="middle">构建</text>
+    </g>
+    <g class="node tier-exec" transform="translate(630, 370)">
+      <rect width="60" height="28"/>
+      <text class="name" x="30" y="12" text-anchor="middle" style="font-size:8px">Editor</text>
+      <text class="role" x="30" y="22" text-anchor="middle">编辑器</text>
+    </g>
+
+    <g class="node tier-exec" transform="translate(670, 370)">
+      <rect width="66" height="28"/>
+      <text class="name" x="33" y="12" text-anchor="middle" style="font-size:8px">Level Impl</text>
+      <text class="role" x="33" y="22" text-anchor="middle">关卡搭建</text>
+    </g>
+    <g class="node tier-exec" transform="translate(740, 370)">
+      <rect width="56" height="28" style="stroke:#4ade80"/>
+      <text class="name" x="28" y="12" text-anchor="middle" style="font-size:8px;fill:#4ade80">L10n②</text>
+      <text class="role" x="28" y="22" text-anchor="middle">本地化</text>
+    </g>
+
+    <g class="node tier-exec" transform="translate(800, 370)">
+      <rect width="60" height="28"/>
+      <text class="name" x="30" y="12" text-anchor="middle" style="font-size:8px">UI Impl</text>
+      <text class="role" x="30" y="22" text-anchor="middle">UI实现</text>
+    </g>
+    <g class="node tier-exec" transform="translate(865, 370)">
+      <rect width="56" height="28" style="stroke:#4ade80"/>
+      <text class="name" x="28" y="12" text-anchor="middle" style="font-size:8px;fill:#4ade80">L10n③</text>
+      <text class="role" x="28" y="22" text-anchor="middle">本地化</text>
+    </g>
+
+    <!-- Annotation -->
+    <text x="460" y="470" text-anchor="middle" style="font-size:11px; fill:#4ade80;">
+      绿色节点 = 相同配置的独立实例（QA①②③④ 配置完全相同，L10n①②③ 配置完全相同）
+    </text>
+    <text x="460" y="490" text-anchor="middle" style="font-size:11px; fill:#64748b;">
+      每条线都是从上到下的单向树结构，无交叉
+    </text>
+  </svg>
+
+  <div class="callout">
+    <strong>对比</strong>：所有连线都是垂直/近垂直向下，无交叉，无横跨。<br>
+    代价：QA 有 4 个副本、L10n 有 3 个副本。但运行时行为和 DAG 完全相同。<br>
+    未来可以通过 Agent Template 功能统一管理配置更新。
+  </div>
+</div>
+
+<!-- ====== Summary ====== -->
+<div class="scenario">
+  <div class="scenario-title">▸ 对比总结</div>
+
+  <ul class="problem-list">
+    <li class="bad">DAG：QA Agent 有 5 条紫色虚线从不同方向汇入，线条交叉横跨整个画布</li>
+    <li class="bad">DAG：L10n Agent 有 3 条紫色虚线，与 QA 的线混在一起难以分辨</li>
+    <li class="bad">DAG：如果再加 Security Agent、DevOps Agent 等共享角色，复杂度指数增长</li>
+    <li class="bad">DAG：用户很难通过视觉追踪某条线从哪来到哪去</li>
+    <li style="height:12px"></li>
+    <li class="ok">Tree：所有连线方向一致（上→下），无交叉</li>
+    <li class="ok">Tree：层级结构一目了然，每个节点的 parent 清晰可见</li>
+    <li class="ok">Tree：副本数量增加，但可通过 Template 机制管理</li>
+    <li class="ok">Tree：拖拽编辑时不会影响其他不相关的线</li>
+  </ul>
+
+  <div class="legend" style="margin-top:24px;">
+    <div class="legend-item"><div class="legend-swatch" style="border-color:#facc15;background:#1a1520"></div>Leader</div>
+    <div class="legend-item"><div class="legend-swatch" style="border-color:#7dd3fc;background:#131520"></div>Coordinator</div>
+    <div class="legend-item"><div class="legend-swatch" style="border-color:#475569;background:#101518"></div>Executor</div>
+    <div class="legend-item"><div class="legend-swatch" style="border-color:#c084fc;background:#1a1018;border-style:dashed"></div>Shared (DAG only)</div>
+    <div class="legend-item"><div class="legend-swatch" style="border-color:#4ade80;background:#101518"></div>Duplicated Instance (Tree)</div>
+  </div>
+</div>
+
+</body>
+</html>
