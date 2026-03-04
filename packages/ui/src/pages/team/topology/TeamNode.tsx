@@ -9,11 +9,6 @@ export interface TeamNodeData extends Record<string, unknown> {
   model: string
   description: string
   isLeader: boolean
-  role: string
-  skillNames: string[]
-  enabledTools: string[]
-  mcpServerNames: string[]
-  memoryEnabled: boolean
   isHighlighted?: boolean
 }
 
@@ -34,8 +29,6 @@ export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {
       : data.isHighlighted
         ? 'border-accent-green'
         : 'border-border-dim'
-
-  const hasCapabilities = data.skillNames.length > 0 || data.enabledTools.length > 0 || data.mcpServerNames.length > 0 || data.memoryEnabled
 
   return (
     <div
@@ -67,49 +60,9 @@ export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {
         </div>
       )}
 
-      {/* Capabilities */}
-      {hasCapabilities && (
-        <>
-          <div className="border-t border-border-dim" />
-          <div className="px-2.5 py-1.5 space-y-0.5">
-            {data.skillNames.length > 0 && (
-              <div className="font-mono text-[8px] text-accent-purple truncate flex items-center gap-1">
-                <span className="shrink-0 opacity-60">&#x2726;</span>
-                {data.skillNames.join(' · ')}
-              </div>
-            )}
-            {data.enabledTools.length > 0 && (
-              <div className="font-mono text-[8px] text-accent-green truncate flex items-center gap-1">
-                <span className="shrink-0 opacity-60">&#x2692;</span>
-                {data.enabledTools.join(' · ')}
-              </div>
-            )}
-            {(data.mcpServerNames.length > 0 || data.memoryEnabled) && (
-              <div className="font-mono text-[8px] text-text-dim flex items-center gap-2">
-                {data.mcpServerNames.length > 0 && (
-                  <span className="flex items-center gap-0.5"><span className="opacity-60">&#x26A1;</span> MCP:{data.mcpServerNames.length}</span>
-                )}
-                {data.memoryEnabled && <span className="flex items-center gap-0.5"><span className="opacity-60">&#x25CF;</span> Memory</span>}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {/* Handles + add-child button */}
-      {!data.isLeader && (
-        <Handle type="target" position={Position.Top} className="!bg-border-bright !w-2 !h-2 !border-2 !border-border-dim !rounded-none" />
-      )}
+      {/* Handles: top (target/parent input) + bottom (source/children output) — always visible */}
+      <Handle type="target" position={Position.Top} className="!bg-border-bright !w-2 !h-2 !border-2 !border-border-dim !rounded-none" />
       <Handle type="source" position={Position.Bottom} className="!bg-border-bright !w-2 !h-2 !border-2 !border-border-dim !rounded-none" />
-
-      {/* "+" button to add child agent */}
-      <button
-        data-action="add-child"
-        className="absolute -bottom-3 left-1/2 -translate-x-1/2 translate-y-full w-5 h-5 bg-deep border-2 border-border-dim hover:border-accent-blue hover:text-accent-blue text-text-dim text-[10px] leading-none flex items-center justify-center cursor-pointer transition-colors z-10"
-        title="Add sub-agent"
-      >
-        +
-      </button>
     </div>
   )
 })

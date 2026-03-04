@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useCallback, useEffect, useRef } from 'react'
+import { useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import {
   ReactFlow,
@@ -14,9 +14,9 @@ import '@xyflow/react/dist/style.css'
 import type { Team, AgentId, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../../stores'
 import { TeamNode } from './TeamNode'
-import { TeamEdge } from './TeamEdge'
+import { TeamEdge, TeamEdgeArrowDefs } from './TeamEdge'
 import { TeamTopologyToolbar } from './TeamTopologyToolbar'
-import { TeamNodeDetailPanel } from './TeamNodeDetailPanel'
+import { TeamTopologySidebar } from './TeamTopologySidebar'
 import { useTeamTopologyData } from './useTeamTopologyData'
 import './team-topology.css'
 
@@ -40,10 +40,8 @@ const FIT_VIEW_OPTIONS = { maxZoom: 1, padding: 0.15 }
 function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
   const { t } = useTranslation('team')
   const { projectId } = useParams<{ projectId: string }>()
-  const navigate = useNavigate()
-  const { getNodes, fitView } = useReactFlow()
+  const { fitView, screenToFlowPosition } = useReactFlow()
   const agents = useAppStore(s => s.agents)
-  const skills = useAppStore(s => s.skills)
   const themeMode = useAppStore(s => s.themeMode)
 
   const {
@@ -54,8 +52,12 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
     resetLayout,
     addMember, removeMember,
     selectedAgentId, setSelectedAgentId,
+    sidebarMode, setSidebarMode,
+    isSidebarOpen, setIsSidebarOpen,
+    onNodesDelete,
+    isValidConnection,
     layoutApplied,
-  } = useTeamTopologyData(team, agents, skills, projectId as ProjectId)
+  } = useTeamTopologyData(team, agents, projectId as ProjectId)
 
   // Re-fitView when saved layout is applied after async load
   const prevLayoutRef = useRef(0)
@@ -66,170 +68,146 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
     }
   }, [layoutApplied, fitView])
 
-  // Add-child popover state
-  const [addChildState, setAddChildState] = useState<{
-    parentAgentId: AgentId
-    screenPos: { x: number; y: number }
-  } | null>(null)
+  // ── Sidebar toggle handlers ──
 
-  // Empty state: add-first-agent popover
-  const [showEmptyPicker, setShowEmptyPicker] = useState(false)
-
-  const selectedAgent = useMemo(() => {
-    if (!selectedAgentId) return null
-    return agents.find(a => a.id === selectedAgentId) ?? null
-  }, [selectedAgentId, agents])
-
-  const selectedMember = useMemo(() => {
-    if (!selectedAgentId) return null
-    return team.members.find(m => m.agentId === selectedAgentId) ?? null
-  }, [selectedAgentId, team.members])
-
-  // Available agents (not already in team)
-  const memberIds = useMemo(() => new Set(team.members.map(m => m.agentId)), [team.members])
-  const availableAgents = useMemo(() => agents.filter(a => !memberIds.has(a.id)), [agents, memberIds])
-
-  // Node handlers — intercept "+" button click
-  const onNodeClick: NodeMouseHandler = useCallback((e, node) => {
-    const target = e.target as HTMLElement
-    if (target.closest('[data-action="add-child"]')) {
-      e.stopPropagation()
-      const rect = target.closest('[data-action="add-child"]')!.getBoundingClientRect()
-      setAddChildState({
-        parentAgentId: node.id as AgentId,
-        screenPos: { x: rect.left, y: rect.bottom + 4 },
-      })
-      return
+  const onToggleAgents = useCallback(() => {
+    if (sidebarMode === 'agents' && isSidebarOpen) {
+      setIsSidebarOpen(false)
+    } else {
+      setSidebarMode('agents')
+      setIsSidebarOpen(true)
     }
-    setAddChildState(null)
+  }, [sidebarMode, isSidebarOpen, setSidebarMode, setIsSidebarOpen])
+
+  const onToggleSettings = useCallback(() => {
+    if (sidebarMode === 'settings' && isSidebarOpen) {
+      setIsSidebarOpen(false)
+    } else {
+      setSidebarMode('settings')
+      setIsSidebarOpen(true)
+    }
+  }, [sidebarMode, isSidebarOpen, setSidebarMode, setIsSidebarOpen])
+
+  // ── Node interaction ──
+
+  const onNodeClick: NodeMouseHandler = useCallback((_e, node) => {
     setSelectedAgentId(node.id as AgentId)
   }, [setSelectedAgentId])
 
   const onNodeDoubleClick: NodeMouseHandler = useCallback((_e, node) => {
-    navigate(`/projects/${projectId}/agents/${node.id}`)
-  }, [navigate, projectId])
+    setSelectedAgentId(node.id as AgentId)
+    setSidebarMode('detail')
+    setIsSidebarOpen(true)
+  }, [setSelectedAgentId, setSidebarMode, setIsSidebarOpen])
 
-  const handleAddChild = useCallback(async (agentId: AgentId) => {
-    if (!addChildState) return
-    const parentNode = getNodes().find(n => n.id === addChildState.parentAgentId)
-    const position = parentNode
-      ? { x: parentNode.position.x, y: parentNode.position.y + (parentNode.measured?.height ?? 120) + 60 }
-      : { x: 0, y: 0 }
-    await addMember(agentId, position, addChildState.parentAgentId)
-    setAddChildState(null)
-  }, [addChildState, getNodes, addMember])
+  const onPaneClick = useCallback(() => {
+    setSelectedAgentId(null)
+    if (isSidebarOpen) setSidebarMode('agents')
+  }, [setSelectedAgentId, isSidebarOpen, setSidebarMode])
 
-  const handleAddFirstAgent = useCallback(async (agentId: AgentId) => {
-    await addMember(agentId, { x: 0, y: 0 })
-    setShowEmptyPicker(false)
-  }, [addMember])
+  // ── Remove handler ──
 
   const handleRemove = useCallback(async (agentId: AgentId) => {
     const success = await removeMember(agentId)
-    if (success) setSelectedAgentId(null)
-  }, [removeMember, setSelectedAgentId])
+    if (success) {
+      setSelectedAgentId(null)
+      setSidebarMode('agents')
+    }
+  }, [removeMember, setSelectedAgentId, setSidebarMode])
+
+  // ── Drag-drop from sidebar ──
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    if (e.dataTransfer.types.includes('application/golemancy-agent')) {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+    }
+  }, [])
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    const agentId = e.dataTransfer.getData('application/golemancy-agent')
+    if (!agentId) return
+    e.preventDefault()
+    const position = screenToFlowPosition({ x: e.clientX, y: e.clientY })
+    addMember(agentId as AgentId, position)
+  }, [screenToFlowPosition, addMember])
 
   const colorMode = themeMode === 'system' ? undefined : themeMode
   const isEmpty = team.members.length === 0
 
   return (
-    <div className="relative flex-1 h-full flex">
-      {/* Canvas area */}
-      <div className="flex-1 relative">
-        <TeamTopologyToolbar team={team} onResetLayout={resetLayout} />
+    <div className="flex flex-col h-full">
+      {/* Toolbar */}
+      <TeamTopologyToolbar
+        team={team}
+        onResetLayout={resetLayout}
+        onToggleAgents={onToggleAgents}
+        onToggleSettings={onToggleSettings}
+      />
 
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onEdgesDelete={onEdgeDelete}
-          onNodeDragStop={onNodeDragStop}
-          onNodeClick={onNodeClick}
-          onNodeDoubleClick={onNodeDoubleClick}
-          onPaneClick={() => { setSelectedAgentId(null); setAddChildState(null); setShowEmptyPicker(false) }}
-          colorMode={colorMode}
-          fitView
-          fitViewOptions={FIT_VIEW_OPTIONS}
-          minZoom={0.1}
-          proOptions={{ hideAttribution: true }}
-          deleteKeyCode={['Backspace', 'Delete']}
-        >
-          <Background />
-          <MiniMap />
-          <Controls />
-        </ReactFlow>
+      {/* Canvas + Sidebar */}
+      <div className="flex flex-1 min-h-0">
+        {/* Canvas */}
+        <div className="flex-1 relative" onDragOver={onDragOver} onDrop={onDrop}>
+          <TeamEdgeArrowDefs />
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onEdgesDelete={onEdgeDelete}
+            onNodesDelete={onNodesDelete}
+            onNodeDragStop={onNodeDragStop}
+            onNodeClick={onNodeClick}
+            onNodeDoubleClick={onNodeDoubleClick}
+            onPaneClick={onPaneClick}
+            isValidConnection={isValidConnection}
+            colorMode={colorMode}
+            fitView
+            fitViewOptions={FIT_VIEW_OPTIONS}
+            minZoom={0.1}
+            proOptions={{ hideAttribution: true }}
+            deleteKeyCode={['Backspace', 'Delete']}
+          >
+            <Background />
+            <MiniMap />
+            <Controls />
+          </ReactFlow>
 
-        {/* Empty state overlay */}
-        {isEmpty && (
-          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-            <div className="flex flex-col items-center gap-3 pointer-events-auto">
-              <div className="font-mono text-[12px] text-text-dim">{t('topology.emptyTeam')}</div>
-              <div className="relative">
-                <button
-                  className="px-4 py-2 bg-accent-blue text-white font-pixel text-[10px] border-2 border-accent-blue hover:brightness-110 cursor-pointer transition-all"
-                  onClick={() => setShowEmptyPicker(!showEmptyPicker)}
-                >
-                  {t('topology.addFirstAgent')}
-                </button>
-                {showEmptyPicker && availableAgents.length > 0 && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-surface border-2 border-border-dim shadow-pixel-drop max-h-[200px] overflow-y-auto w-[200px] z-[100]">
-                    {availableAgents.map(agent => (
-                      <button
-                        key={agent.id}
-                        className="w-full px-2.5 py-1.5 text-left hover:bg-elevated cursor-pointer transition-colors border-b border-border-dim last:border-b-0"
-                        onClick={() => handleAddFirstAgent(agent.id)}
-                      >
-                        <div className="font-pixel text-[9px] text-text-primary truncate">{agent.name}</div>
-                        <div className="font-mono text-[8px] text-text-dim truncate">{agent.modelConfig.model}</div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {showEmptyPicker && availableAgents.length === 0 && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-surface border-2 border-border-dim shadow-pixel-drop px-3 py-2 w-[200px] z-[100]">
-                    <span className="font-mono text-[9px] text-text-dim">{t('topology.noAgentsAvailable')}</span>
-                  </div>
+          {/* Empty state overlay */}
+          {isEmpty && (
+            <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+              <div className="flex flex-col items-center gap-3 pointer-events-auto">
+                <div className="font-mono text-[12px] text-text-dim">
+                  {isSidebarOpen && sidebarMode === 'agents'
+                    ? t('topology.emptyDragHint')
+                    : t('topology.emptyTeam')
+                  }
+                </div>
+                {!(isSidebarOpen && sidebarMode === 'agents') && (
+                  <button
+                    className="px-3 py-1.5 bg-elevated text-text-secondary font-pixel text-[10px] border-2 border-border-dim hover:bg-surface hover:text-text-primary cursor-pointer transition-colors shadow-pixel-raised"
+                    onClick={() => { setSidebarMode('agents'); setIsSidebarOpen(true) }}
+                  >
+                    {t('topology.addFirstAgent')}
+                  </button>
                 )}
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Add-child agent picker popover */}
-        {addChildState && availableAgents.length > 0 && (
-          <div
-            className="fixed z-[100] bg-surface border-2 border-border-dim shadow-pixel-drop max-h-[200px] overflow-y-auto w-[180px]"
-            style={{ left: addChildState.screenPos.x, top: addChildState.screenPos.y }}
-          >
-            {availableAgents.map(agent => (
-              <button
-                key={agent.id}
-                className="w-full px-2.5 py-1.5 text-left hover:bg-elevated cursor-pointer transition-colors border-b border-border-dim last:border-b-0"
-                onClick={() => handleAddChild(agent.id)}
-              >
-                <div className="font-pixel text-[9px] text-text-primary truncate">{agent.name}</div>
-                <div className="font-mono text-[8px] text-text-dim truncate">{agent.modelConfig.model}</div>
-              </button>
-            ))}
-          </div>
-        )}
-        {addChildState && availableAgents.length === 0 && (
-          <div
-            className="fixed z-[100] bg-surface border-2 border-border-dim shadow-pixel-drop px-3 py-2 w-[180px]"
-            style={{ left: addChildState.screenPos.x, top: addChildState.screenPos.y }}
-          >
-            <span className="font-mono text-[9px] text-text-dim">{t('topology.noAgentsAvailable')}</span>
-          </div>
-        )}
-
-        <TeamNodeDetailPanel
-          agent={selectedAgent}
-          isLeader={selectedMember ? !selectedMember.parentAgentId : false}
-          onClose={() => setSelectedAgentId(null)}
+        {/* Sidebar */}
+        <TeamTopologySidebar
+          team={team}
+          agents={agents}
+          mode={sidebarMode}
+          isOpen={isSidebarOpen}
+          selectedAgentId={selectedAgentId}
+          onClose={() => setIsSidebarOpen(false)}
           onRemove={handleRemove}
         />
       </div>

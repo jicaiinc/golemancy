@@ -1,14 +1,13 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import {
   useNodesState, useEdgesState,
-  type Node, type Edge, type OnConnect,
+  type Node, type Edge, type OnConnect, type Connection,
 } from '@xyflow/react'
-import type { Agent, AgentId, Team, Skill, ProjectId } from '@golemancy/shared'
+import type { Agent, AgentId, Team, ProjectId } from '@golemancy/shared'
 import { getServices } from '../../../services'
 import { useAppStore } from '../../../stores'
 import { computeTeamLayout } from './useTeamTopologyLayout'
 import type { TeamNodeData } from './TeamNode'
-import type { TeamEdgeData } from './TeamEdge'
 
 export function isDescendantOf(agentId: AgentId, ancestorId: AgentId, members: Team['members']): boolean {
   let current = agentId
@@ -24,16 +23,26 @@ export function isDescendantOf(agentId: AgentId, ancestorId: AgentId, members: T
   return false
 }
 
+/** Read the latest team members from the Zustand store (avoids stale closures). */
+function getLatestMembers(teamId: string): Team['members'] {
+  const teams = useAppStore.getState().teams
+  return teams.find(t => t.id === teamId)?.members ?? []
+}
+
 export function useTeamTopologyData(
   team: Team,
   agents: Agent[],
-  skills: Skill[],
   projectId: ProjectId,
   highlightedNodeId?: AgentId | null,
 ) {
   const [selectedAgentId, setSelectedAgentId] = useState<AgentId | null>(null)
+  const [sidebarMode, setSidebarMode] = useState<'agents' | 'detail' | 'settings'>('agents')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [layoutApplied, setLayoutApplied] = useState(0)
   const updateTeam = useAppStore(s => s.updateTeam)
+
+  // Guard: prevent onEdgesDelete from racing with onNodesDelete
+  const deletingNodesRef = useRef(false)
 
   // Layout stored in ref to avoid drag jitter feedback loop
   const savedLayoutRef = useRef<Record<string, { x: number; y: number }>>({})
@@ -57,27 +66,14 @@ export function useTeamTopologyData(
     return map
   }, [agents])
 
-  const skillMap = useMemo(() => {
-    const map = new Map<string, Skill>()
-    for (const s of skills) map.set(s.id, s)
-    return map
-  }, [skills])
-
   // Derive raw nodes from team members
   const rawNodes: Node<TeamNodeData>[] = useMemo(() => {
     const saved = savedLayoutRef.current
+    // Only designate leader when there's exactly one root node
+    const rootCount = team.members.filter(m => !m.parentAgentId).length
     return team.members.map(member => {
       const agent = agentMap.get(member.agentId)
-      const isLeader = !member.parentAgentId
-
-      const skillNames = (agent?.skillIds ?? [])
-        .map(sid => skillMap.get(sid)?.name)
-        .filter(Boolean) as string[]
-      const enabledTools = agent
-        ? Object.entries(agent.builtinTools).filter(([, v]) => !!v).map(([k]) => k)
-        : []
-      const mcpServerNames = agent?.mcpServers ?? []
-      const memoryEnabled = agent?.builtinTools?.memory !== false
+      const isLeader = rootCount === 1 && !member.parentAgentId
 
       return {
         id: member.agentId,
@@ -90,19 +86,14 @@ export function useTeamTopologyData(
           model: agent?.modelConfig.model ?? '',
           description: agent?.description ?? '',
           isLeader,
-          role: member.role,
-          skillNames,
-          enabledTools,
-          mcpServerNames,
-          memoryEnabled,
           isHighlighted: highlightedNodeId === member.agentId,
         } satisfies TeamNodeData,
       }
     })
-  }, [team.members, agentMap, skillMap, highlightedNodeId])
+  }, [team.members, agentMap, highlightedNodeId])
 
   // Derive edges from parentAgentId
-  const rawEdges: Edge<TeamEdgeData>[] = useMemo(() => {
+  const rawEdges: Edge[] = useMemo(() => {
     return team.members
       .filter(m => m.parentAgentId)
       .map(m => ({
@@ -110,7 +101,6 @@ export function useTeamTopologyData(
         source: m.parentAgentId!,
         target: m.agentId,
         type: 'teamEdge' as const,
-        data: { role: m.role } satisfies TeamEdgeData,
       }))
   }, [team.members])
 
@@ -127,7 +117,7 @@ export function useTeamTopologyData(
   // Sync when team.members or agents change
   const prevKeyRef = useRef('')
   useEffect(() => {
-    const key = team.members.map(m => `${m.agentId}:${m.role}:${m.parentAgentId ?? ''}`).join('|')
+    const key = team.members.map(m => `${m.agentId}:${m.parentAgentId ?? ''}`).join('|')
       + '||' + agents.map(a => `${a.id}:${a.name}:${a.status}:${a.modelConfig.model}`).join('|')
     if (key !== prevKeyRef.current) {
       prevKeyRef.current = key
@@ -163,28 +153,30 @@ export function useTeamTopologyData(
     }, 500)
   }, [projectId, team.id, setNodes])
 
-  // Connect: set target's parentAgentId = source (via store)
+  // ── Mutation callbacks — all read latest members from store to avoid stale closures ──
+
   const onConnect: OnConnect = useCallback((connection) => {
     const { source, target } = connection
     if (!source || !target) return
-    if (isDescendantOf(source as AgentId, target as AgentId, team.members)) return
-
-    const updatedMembers = team.members.map(m =>
+    const members = getLatestMembers(team.id)
+    if (isDescendantOf(source as AgentId, target as AgentId, members)) return
+    const updatedMembers = members.map(m =>
       m.agentId === target ? { ...m, parentAgentId: source as AgentId } : m,
     )
     updateTeam(team.id, { members: updatedMembers })
-  }, [team.id, team.members, updateTeam])
+  }, [team.id, updateTeam])
 
-  // Edge delete: clear target's parentAgentId (via store)
   const onEdgeDelete = useCallback((deletedEdges: Edge[]) => {
+    // Skip if this was triggered by node deletion — onNodesDelete handles it
+    if (deletingNodesRef.current) return
+    const members = getLatestMembers(team.id)
     const targetIds = new Set(deletedEdges.map(e => e.target))
-    const updatedMembers = team.members.map(m =>
+    const updatedMembers = members.map(m =>
       targetIds.has(m.agentId) ? { ...m, parentAgentId: undefined } : m,
     )
     updateTeam(team.id, { members: updatedMembers })
-  }, [team.id, team.members, updateTeam])
+  }, [team.id, updateTeam])
 
-  // Reset layout
   const resetLayout = useCallback(async () => {
     const fresh = computeTeamLayout(rawNodes, rawEdges, {})
     setNodes(fresh)
@@ -194,36 +186,52 @@ export function useTeamTopologyData(
     await getServices().teams.saveLayout(projectId, team.id, layout).catch(() => {})
   }, [projectId, team.id, rawNodes, rawEdges, setNodes])
 
-  // Add member (with optional drop position and parent)
   const addMember = useCallback(async (agentId: AgentId, position?: { x: number; y: number }, parentAgentId?: AgentId) => {
-    // Pre-save position so sync effect picks it up on re-render
     if (position) {
       savedLayoutRef.current[agentId] = position
     }
-
+    const members = getLatestMembers(team.id)
     const newMember = { agentId, role: '', parentAgentId }
-    const updatedMembers = [...team.members, newMember]
+    const updatedMembers = [...members, newMember]
     await updateTeam(team.id, { members: updatedMembers })
-
-    // Persist layout to server
     if (position) {
       getServices().teams.saveLayout(projectId, team.id, savedLayoutRef.current).catch(() => {})
     }
-  }, [team.id, team.members, updateTeam, projectId])
+  }, [team.id, updateTeam, projectId])
 
-  // Remove member
   const removeMember = useCallback(async (agentId: AgentId): Promise<boolean> => {
-    const member = team.members.find(m => m.agentId === agentId)
+    const members = getLatestMembers(team.id)
+    const member = members.find(m => m.agentId === agentId)
     if (!member) return false
-    if (!member.parentAgentId) return false // can't remove leader
-
-    const updatedMembers = team.members
+    const updatedMembers = members
       .filter(m => m.agentId !== agentId)
       .map(m => m.parentAgentId === agentId ? { ...m, parentAgentId: undefined } : m)
-
     await updateTeam(team.id, { members: updatedMembers })
     return true
-  }, [team.id, team.members, updateTeam])
+  }, [team.id, updateTeam])
+
+  const onNodesDelete = useCallback((deletedNodes: Node[]) => {
+    deletingNodesRef.current = true
+    const members = getLatestMembers(team.id)
+    const deletedIds = new Set(deletedNodes.map(n => n.id))
+    const updatedMembers = members
+      .filter(m => !deletedIds.has(m.agentId))
+      .map(m => m.parentAgentId && deletedIds.has(m.parentAgentId) ? { ...m, parentAgentId: undefined } : m)
+    updateTeam(team.id, { members: updatedMembers })
+    // Reset flag after current event loop so onEdgesDelete (if queued) is skipped
+    setTimeout(() => { deletingNodesRef.current = false }, 0)
+  }, [team.id, updateTeam])
+
+  // Validate connection: target can only have one parent, no cycles, no self-loop
+  const isValidConnection = useCallback((connection: Edge | Connection) => {
+    const { source, target } = connection
+    if (!source || !target || source === target) return false
+    const members = getLatestMembers(team.id)
+    const targetMember = members.find(m => m.agentId === target)
+    if (targetMember?.parentAgentId) return false
+    if (isDescendantOf(source as AgentId, target as AgentId, members)) return false
+    return true
+  }, [team.id])
 
   return {
     nodes, edges,
@@ -233,6 +241,10 @@ export function useTeamTopologyData(
     resetLayout,
     addMember, removeMember,
     selectedAgentId, setSelectedAgentId,
+    sidebarMode, setSidebarMode,
+    isSidebarOpen, setIsSidebarOpen,
+    onNodesDelete,
+    isValidConnection,
     layoutApplied,
   }
 }

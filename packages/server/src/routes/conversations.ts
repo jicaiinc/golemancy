@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { convertToModelMessages, type UIMessage } from 'ai'
 import type {
-  ProjectId, AgentId, ConversationId, MessageId,
+  ProjectId, AgentId, ConversationId, MessageId, TeamId,
   IConversationService, IAgentService, ISettingsService,
 } from '@golemancy/shared'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -72,7 +72,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
   app.patch('/:id', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('id') as ConversationId
-    const data = await c.req.json<{ title?: string }>()
+    const data = await c.req.json<{ title?: string; agentId?: AgentId; teamId?: TeamId | null }>()
     log.debug({ projectId, conversationId: convId }, 'updating conversation')
     const conv = await storage.update(projectId, convId, data)
     return c.json(conv)

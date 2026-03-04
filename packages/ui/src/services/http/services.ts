@@ -80,7 +80,7 @@ export class HttpConversationService implements IConversationService {
       method: 'POST', body: JSON.stringify({ agentId, title, ...(teamId ? { teamId } : {}) }),
     })
   }
-  update(projectId: ProjectId, id: ConversationId, data: { title?: string }) {
+  update(projectId: ProjectId, id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }) {
     return fetchJson<Conversation>(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`, {
       method: 'PATCH', body: JSON.stringify(data),
     })

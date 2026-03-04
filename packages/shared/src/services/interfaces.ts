@@ -44,7 +44,7 @@ export interface IConversationService {
   saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; contextTokens?: number; provider?: string; model?: string; metadata?: Record<string, unknown> }): Promise<void>
   getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>>
   searchMessages(projectId: ProjectId, query: string, params: PaginationParams): Promise<PaginatedResult<Message>>
-  update(projectId: ProjectId, id: ConversationId, data: { title?: string }): Promise<Conversation>
+  update(projectId: ProjectId, id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation>
   delete(projectId: ProjectId, id: ConversationId): Promise<void>
   getConversationTokenUsage?(projectId: ProjectId, conversationId: ConversationId): Promise<ConversationTokenUsageResult>
   compact?(projectId: ProjectId, conversationId: ConversationId, signal?: AbortSignal): Promise<CompactRecord>

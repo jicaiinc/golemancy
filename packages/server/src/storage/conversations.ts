@@ -144,11 +144,13 @@ export class SqliteConversationStorage implements IConversationService {
     log.debug({ projectId, conversationId, messageId: data.id, role: data.role }, 'saved message')
   }
 
-  async update(projectId: ProjectId, id: ConversationId, data: { title?: string }): Promise<Conversation> {
+  async update(projectId: ProjectId, id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation> {
     const db = this.getProjectDb(projectId)
     const now = new Date().toISOString()
-    const updateFields: Record<string, string> = { updatedAt: now }
+    const updateFields: Record<string, string | null> = { updatedAt: now }
     if (data.title !== undefined) updateFields.title = data.title
+    if (data.agentId !== undefined) updateFields.agentId = data.agentId
+    if (data.teamId !== undefined) updateFields.teamId = data.teamId ?? null
 
     await db
       .update(schema.conversations)

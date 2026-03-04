@@ -13,4 +13,5 @@ export interface Team extends Timestamped {
   description: string
   instruction?: string // injected into leader agent systemPrompt as team context
   members: TeamMember[]
+  layout?: Record<string, { x: number; y: number }> // topology node positions
 }

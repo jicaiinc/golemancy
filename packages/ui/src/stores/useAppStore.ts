@@ -144,6 +144,7 @@ interface ConversationActions {
   loadConversations(projectId: ProjectId, agentId?: AgentId): Promise<void>
   selectConversation(id: ConversationId | null): Promise<void>
   createConversation(agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation>
+  updateConversation(id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation>
   updateConversationTitle(id: ConversationId, title: string): Promise<void>
   deleteConversation(id: ConversationId): Promise<void>
 }
@@ -485,6 +486,14 @@ export const useAppStore = create<AppState>()(
         const conv = await getServices().conversations.create(projectId, agentId, title, teamId)
         set(s => ({ conversations: [...s.conversations, conv], currentConversationId: conv.id }))
         return conv
+      },
+
+      async updateConversation(id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const updated = await getServices().conversations.update(projectId, id, data)
+        set(s => ({ conversations: s.conversations.map(c => c.id === id ? updated : c) }))
+        return updated
       },
 
       async updateConversationTitle(id: ConversationId, title: string) {

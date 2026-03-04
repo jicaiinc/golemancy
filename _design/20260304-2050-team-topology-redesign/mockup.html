@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Topology UI Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --void: #0B0E14;
+    --deep: #141820;
+    --surface: #1E2430;
+    --elevated: #2A3242;
+    --border-dim: #2E3A4E;
+    --border-bright: #4A5568;
+    --text-primary: #E8ECF1;
+    --text-secondary: #8B95A5;
+    --text-dim: #505A6A;
+    --accent-green: #4ADE80;
+    --accent-blue: #60A5FA;
+    --accent-amber: #FBBF24;
+    --accent-red: #F87171;
+    --accent-purple: #A78BFA;
+    --accent-cyan: #22D3EE;
+    --mc-gold: #FCDB05;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  body {
+    font-family: var(--font-mono);
+    background: var(--void);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    height: 48px;
+    background: rgba(30, 36, 48, 0.95);
+    border-bottom: 2px solid var(--border-dim);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 12px;
+  }
+  .btn-ghost {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-secondary); background: transparent;
+    border: 2px solid transparent; padding: 4px 8px;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { color: var(--text-primary); border-color: var(--border-dim); background: var(--elevated); }
+  .header-divider { width: 1px; height: 24px; background: var(--border-dim); }
+  .team-name {
+    font-family: var(--font-pixel); font-size: 12px; color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .team-name .star { color: var(--mc-gold); }
+  .spacer { flex: 1; }
+  .btn-danger {
+    font-family: var(--font-mono); font-size: 11px; color: var(--accent-red);
+    background: transparent; border: 2px solid transparent; padding: 4px 8px; cursor: pointer;
+  }
+  .btn-danger:hover { border-color: var(--accent-red); background: rgba(248,113,113,0.1); }
+  .btn-header {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);
+    background: transparent; border: 2px solid transparent; padding: 4px 8px; cursor: pointer;
+  }
+  .btn-header:hover { color: var(--text-primary); border-color: var(--border-dim); background: var(--elevated); }
+
+  /* CONTENT */
+  .content { display: flex; height: calc(100vh - 48px); }
+
+  /* CANVAS */
+  .canvas {
+    flex: 1; min-width: 0; background: var(--void); position: relative; overflow: hidden;
+    background-image: radial-gradient(circle, rgba(46,58,78,0.4) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .canvas-toolbar {
+    position: absolute; bottom: 16px; left: 16px;
+    display: flex; gap: 4px;
+    background: rgba(30,36,48,0.9);
+    border: 2px solid var(--border-dim); padding: 4px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.4); z-index: 10;
+  }
+  .btn-toolbar {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);
+    background: transparent; border: 2px solid transparent; padding: 4px 8px; cursor: pointer;
+  }
+  .btn-toolbar:hover { color: var(--text-primary); background: var(--elevated); border-color: var(--border-dim); }
+
+  /* NODES */
+  .node {
+    position: absolute; width: 200px;
+    background: var(--surface); border: 2px solid var(--border-dim);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    cursor: grab; z-index: 2;
+  }
+  .node:hover { border-color: var(--border-bright); filter: brightness(1.05); }
+  .node.selected { border-color: var(--accent-blue); box-shadow: 0 0 0 2px rgba(96,165,250,0.3); }
+  .node.leader { border-color: var(--mc-gold); box-shadow: 0 0 0 1px rgba(252,219,5,0.2), 2px 2px 0 rgba(0,0,0,0.3); }
+  .node.leader.selected { box-shadow: 0 0 0 2px rgba(252,219,5,0.3); }
+  .node-content { padding: 10px 12px; }
+  .node-row { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; flex-shrink: 0; }
+  .dot.idle { background: var(--text-dim); }
+  .dot.on { background: var(--accent-green); animation: pulse 1s steps(2) infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .nname { font-family: var(--font-pixel); font-size: 9px; color: var(--text-primary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nmodel { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); margin-top: 4px; padding-left: 14px; }
+  .leader-badge {
+    position: absolute; top: -9px; right: -4px;
+    font-family: var(--font-pixel); font-size: 7px;
+    color: var(--mc-gold); background: rgba(252,219,5,0.15);
+    border: 1px solid var(--mc-gold); padding: 2px 5px; z-index: 3;
+  }
+
+  /* HANDLES */
+  .h { position: absolute; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; background: var(--border-bright); border: 2px solid var(--border-dim); z-index: 4; cursor: crosshair; }
+  .h.top { top: -5px; }
+  .h.bot { bottom: -5px; }
+  .node:hover .h { background: var(--accent-blue); border-color: var(--accent-blue); }
+  .node.leader:hover .h { background: var(--mc-gold); border-color: var(--mc-gold); }
+  .h.glow { background: var(--accent-blue); border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(96,165,250,0.3); }
+
+  /* EDGES */
+  .edges { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+  .eline { stroke: var(--border-bright); stroke-width: 2; fill: none; }
+  .earrow { fill: var(--border-bright); }
+  .eline.drag { stroke: var(--accent-blue); stroke-width: 2; stroke-dasharray: 6 4; }
+  .earrow.drag { fill: var(--accent-blue); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 300px; background: var(--deep);
+    border-left: 2px solid var(--border-dim);
+    display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+  }
+  .sidebar.hidden { display: none; }
+  .sidebar-head {
+    height: 40px; padding: 0 16px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 2px solid var(--border-dim); background: var(--surface);
+    font-family: var(--font-pixel); font-size: 9px; color: var(--text-secondary);
+  }
+  .sidebar-head .x {
+    margin-left: auto; color: var(--text-dim); cursor: pointer;
+    font-family: var(--font-mono); font-size: 14px; background: none; border: none;
+  }
+  .sidebar-head .x:hover { color: var(--text-primary); }
+  .sidebar-scroll { flex: 1; overflow-y: auto; }
+
+  /* Agent list items */
+  .ag {
+    padding: 10px 14px; cursor: grab;
+    border-bottom: 1px solid var(--border-dim);
+  }
+  .ag:hover { background: var(--elevated); }
+  .ag:active { cursor: grabbing; }
+  .ag.used { opacity: 0.3; cursor: default; }
+  .ag-name { font-family: var(--font-pixel); font-size: 8px; color: var(--text-primary); }
+  .ag-model { font-family: var(--font-mono); font-size: 9px; color: var(--text-dim); margin-top: 3px; }
+  .ag-desc { font-family: var(--font-mono); font-size: 8px; color: var(--text-dim); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ag-badge { font-family: var(--font-mono); font-size: 8px; color: var(--accent-green); float: right; }
+
+  /* Settings panel */
+  .s-label { font-family: var(--font-pixel); font-size: 8px; color: var(--text-dim); margin-bottom: 8px; letter-spacing: 0.5px; }
+  .s-sep { border-top: 1px solid var(--border-dim); margin: 16px 0; }
+  .s-pad { padding: 16px; }
+  .ta {
+    width: 100%; background: var(--void); border: 2px solid var(--border-dim);
+    color: var(--text-primary); font-family: var(--font-mono); font-size: 12px;
+    padding: 8px 10px; resize: vertical; outline: none; line-height: 1.6;
+  }
+  .ta:focus { border-color: var(--accent-blue); }
+  .ta.sm { min-height: 48px; }
+  .ta.lg { min-height: 120px; }
+  .saved { font-family: var(--font-mono); font-size: 10px; color: var(--accent-green); text-align: right; margin-top: 4px; }
+
+  /* Node detail */
+  .nd-card {
+    background: var(--surface); border: 2px solid var(--border-dim);
+    padding: 12px; margin-bottom: 16px;
+  }
+  .nd-name { font-family: var(--font-pixel); font-size: 10px; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+  .nd-model { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+  .nd-badge { font-family: var(--font-pixel); font-size: 7px; color: var(--mc-gold); background: rgba(252,219,5,0.15); border: 1px solid var(--mc-gold); padding: 2px 6px; margin-top: 6px; display: inline-block; }
+  .cap { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+  .cap-l { font-family: var(--font-mono); font-size: 10px; width: 56px; flex-shrink: 0; }
+  .cap-t { font-family: var(--font-mono); font-size: 9px; padding: 2px 6px; }
+  .cap-t.sk { color: var(--accent-purple); background: rgba(167,139,250,0.1); }
+  .cap-t.to { color: var(--accent-green); background: rgba(74,222,128,0.1); }
+  .cap-t.mc { color: var(--accent-cyan); background: rgba(34,211,238,0.1); }
+  .cap-t.me { color: var(--accent-amber); background: rgba(251,191,36,0.1); }
+  .conn-info { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); margin-bottom: 4px; }
+  .conn-val { color: var(--text-primary); }
+  .conn-none { color: var(--text-dim); }
+  .btn-a {
+    width: 100%; font-family: var(--font-mono); font-size: 11px;
+    padding: 8px 12px; border: 2px solid var(--border-dim);
+    cursor: pointer; text-align: center; margin-bottom: 8px;
+    background: transparent; color: var(--text-secondary);
+  }
+  .btn-a:hover { background: var(--elevated); color: var(--text-primary); border-color: var(--border-bright); }
+  .btn-a.red { color: var(--accent-red); border-color: transparent; }
+  .btn-a.red:hover { background: rgba(248,113,113,0.1); border-color: var(--accent-red); }
+
+  /* Members mini list in settings */
+  .mem { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+  .mem-star { color: var(--mc-gold); font-size: 10px; width: 14px; text-align: center; }
+  .mem-name { font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); flex: 1; }
+  .mem-m { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+
+  /* Empty state */
+  .empty {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; z-index: 20;
+  }
+  .empty-box {
+    border: 2px dashed var(--border-dim); padding: 24px 32px; margin-bottom: 24px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .empty-row { display: flex; gap: 12px; align-items: center; }
+  .empty-sq { width: 36px; height: 28px; border: 2px solid var(--border-dim); background: var(--surface); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 14px; color: var(--text-dim); }
+  .empty-line { width: 20px; height: 2px; background: var(--border-dim); }
+  .empty-vline { width: 2px; height: 12px; background: var(--border-dim); margin-left: 18px; }
+  .empty-title { font-family: var(--font-pixel); font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
+  .empty-desc { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); text-align: center; line-height: 1.7; }
+
+  /* Drag ghost */
+  .ghost {
+    position: absolute; z-index: 100; pointer-events: none;
+    width: 200px; background: var(--surface); border: 2px dashed var(--accent-green);
+    box-shadow: 0 0 0 2px rgba(74,222,128,0.15); opacity: 0.85; padding: 10px 12px;
+  }
+  .ghost .nname { color: var(--accent-green); }
+  .ghost .nmodel { color: var(--accent-green); opacity: 0.6; }
+
+  /* Demo tabs */
+  .tabs {
+    position: fixed; top: 8px; right: 320px;
+    display: flex; gap: 4px; z-index: 100;
+  }
+  .tab {
+    font-family: var(--font-mono); font-size: 10px; padding: 4px 8px;
+    cursor: pointer; border: 2px solid var(--border-dim);
+    background: var(--surface); color: var(--text-secondary);
+  }
+  .tab.on { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(96,165,250,0.1); }
+  .tab:hover:not(.on) { border-color: var(--border-bright); color: var(--text-primary); }
+
+  .view { display: none; height: 100vh; flex-direction: column; }
+  .view.on { display: flex; }
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <div class="tab on" onclick="sw('v1')">Agents List</div>
+  <div class="tab" onclick="sw('v2')">Drag to Canvas</div>
+  <div class="tab" onclick="sw('v3')">Connect</div>
+  <div class="tab" onclick="sw('v4')">Node Detail</div>
+  <div class="tab" onclick="sw('v5')">Team Settings</div>
+  <div class="tab" onclick="sw('v6')">Empty</div>
+</div>
+
+<!-- ====== V1: SIDEBAR = AGENT LIST ====== -->
+<div class="view on" id="v1">
+  <div class="header">
+    <button class="btn-ghost">← Teams</button>
+    <div class="header-divider"></div>
+    <div class="team-name"><span class="star">★</span> Research Team</div>
+    <div class="spacer"></div>
+    <button class="btn-header">⟲ Re-layout</button>
+    <button class="btn-danger">🗑 Delete</button>
+  </div>
+  <div class="content">
+    <div class="canvas">
+      <svg class="edges" width="100%" height="100%">
+        <defs><marker id="m1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" class="earrow"/></marker></defs>
+        <path d="M 260 165 L 260 200 L 150 200 L 150 230" class="eline" marker-end="url(#m1)"/>
+        <path d="M 260 165 L 260 200 L 370 200 L 370 230" class="eline" marker-end="url(#m1)"/>
+        <path d="M 150 300 L 150 330 L 150 350" class="eline" marker-end="url(#m1)"/>
+      </svg>
+      <div class="node leader" style="left:160px;top:100px">
+        <div class="leader-badge">★ LEADER</div>
+        <div class="h top"></div>
+        <div class="node-content"><div class="node-row"><div class="dot on"></div><div class="nname">Main Orchestrator</div></div><div class="nmodel">claude-opus-4-6</div></div>
+        <div class="h bot"></div>
+      </div>
+      <div class="node" style="left:50px;top:232px">
+        <div class="h top"></div>
+        <div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Research Agent</div></div><div class="nmodel">claude-sonnet-4-6</div></div>
+        <div class="h bot"></div>
+      </div>
+      <div class="node" style="left:270px;top:232px">
+        <div class="h top"></div>
+        <div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Code Writer</div></div><div class="nmodel">claude-sonnet-4-6</div></div>
+        <div class="h bot"></div>
+      </div>
+      <div class="node" style="left:50px;top:352px">
+        <div class="h top"></div>
+        <div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Summarizer</div></div><div class="nmodel">claude-haiku-4-5</div></div>
+        <div class="h bot"></div>
+      </div>
+      <div class="canvas-toolbar"><button class="btn-toolbar">⊞ Fit</button><button class="btn-toolbar">⟲ Re-layout</button></div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-head"><span>📋</span> AGENTS</div>
+      <div class="sidebar-scroll">
+        <div class="ag used"><div class="ag-name">Main Orchestrator <span class="ag-badge">in team</span></div><div class="ag-model">claude-opus-4-6</div></div>
+        <div class="ag used"><div class="ag-name">Research Agent <span class="ag-badge">in team</span></div><div class="ag-model">claude-sonnet-4-6</div></div>
+        <div class="ag used"><div class="ag-name">Code Writer <span class="ag-badge">in team</span></div><div class="ag-model">claude-sonnet-4-6</div></div>
+        <div class="ag used"><div class="ag-name">Summarizer <span class="ag-badge">in team</span></div><div class="ag-model">claude-haiku-4-5</div></div>
+        <div class="ag"><div class="ag-name">Data Analyst</div><div class="ag-model">claude-sonnet-4-6</div><div class="ag-desc">Analyzes data and creates visualizations</div></div>
+        <div class="ag"><div class="ag-name">QA Tester</div><div class="ag-model">claude-haiku-4-5</div><div class="ag-desc">Writes and runs test cases</div></div>
+        <div class="ag"><div class="ag-name">Security Auditor</div><div class="ag-model">claude-opus-4-6</div><div class="ag-desc">Reviews code for vulnerabilities</div></div>
+        <div class="ag"><div class="ag-name">Doc Writer</div><div class="ag-model">claude-sonnet-4-6</div><div class="ag-desc">Creates technical documentation</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== V2: DRAGGING ====== -->
+<div class="view" id="v2">
+  <div class="header">
+    <button class="btn-ghost">← Teams</button><div class="header-divider"></div>
+    <div class="team-name"><span class="star">★</span> Research Team</div><div class="spacer"></div>
+    <button class="btn-header">⟲ Re-layout</button><button class="btn-danger">🗑 Delete</button>
+  </div>
+  <div class="content">
+    <div class="canvas" style="outline: 2px dashed var(--accent-green); outline-offset: -2px; background-color: rgba(74,222,128,0.02);">
+      <svg class="edges" width="100%" height="100%">
+        <defs><marker id="m2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" class="earrow"/></marker></defs>
+        <path d="M 210 165 L 210 200 L 100 200 L 100 230" class="eline" marker-end="url(#m2)"/>
+        <path d="M 210 165 L 210 200 L 310 200 L 310 230" class="eline" marker-end="url(#m2)"/>
+      </svg>
+      <div class="node leader" style="left:110px;top:100px">
+        <div class="leader-badge">★ LEADER</div><div class="h top"></div>
+        <div class="node-content"><div class="node-row"><div class="dot on"></div><div class="nname">Main Orchestrator</div></div><div class="nmodel">claude-opus-4-6</div></div>
+        <div class="h bot"></div>
+      </div>
+      <div class="node" style="left:0px;top:232px"><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Research Agent</div></div><div class="nmodel">claude-sonnet-4-6</div></div><div class="h bot"></div></div>
+      <div class="node" style="left:210px;top:232px"><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Code Writer</div></div><div class="nmodel">claude-sonnet-4-6</div></div><div class="h bot"></div></div>
+
+      <!-- Ghost being dragged -->
+      <div class="ghost" style="left:380px;top:160px;transform:rotate(-1deg)">
+        <div class="node-row"><div class="dot idle" style="background:var(--accent-green);opacity:.5"></div><div class="nname">Data Analyst</div></div>
+        <div class="nmodel">claude-sonnet-4-6</div>
+      </div>
+
+      <div class="canvas-toolbar"><button class="btn-toolbar">⊞ Fit</button><button class="btn-toolbar">⟲ Re-layout</button></div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-head"><span>📋</span> AGENTS</div>
+      <div class="sidebar-scroll">
+        <div class="ag used"><div class="ag-name">Main Orchestrator <span class="ag-badge">in team</span></div><div class="ag-model">claude-opus-4-6</div></div>
+        <div class="ag used"><div class="ag-name">Research Agent <span class="ag-badge">in team</span></div><div class="ag-model">claude-sonnet-4-6</div></div>
+        <div class="ag used"><div class="ag-name">Code Writer <span class="ag-badge">in team</span></div><div class="ag-model">claude-sonnet-4-6</div></div>
+        <div class="ag" style="background:rgba(96,165,250,0.1);border-left:3px solid var(--accent-blue)"><div class="ag-name" style="color:var(--accent-blue)">Data Analyst</div><div class="ag-model">claude-sonnet-4-6</div></div>
+        <div class="ag"><div class="ag-name">QA Tester</div><div class="ag-model">claude-haiku-4-5</div></div>
+        <div class="ag"><div class="ag-name">Security Auditor</div><div class="ag-model">claude-opus-4-6</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== V3: CONNECTING ====== -->
+<div class="view" id="v3">
+  <div class="header">
+    <button class="btn-ghost">← Teams</button><div class="header-divider"></div>
+    <div class="team-name"><span class="star">★</span> Research Team</div><div class="spacer"></div>
+    <button class="btn-header">⟲ Re-layout</button><button class="btn-danger">🗑 Delete</button>
+  </div>
+  <div class="content">
+    <div class="canvas">
+      <svg class="edges" width="100%" height="100%">
+        <defs>
+          <marker id="m3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" class="earrow"/></marker>
+          <marker id="m3d" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" class="earrow drag"/></marker>
+        </defs>
+        <path d="M 200 165 L 200 200 L 100 200 L 100 230" class="eline" marker-end="url(#m3)"/>
+        <!-- Dragging line -->
+        <path d="M 200 165 L 200 200 L 370 200 L 370 225" class="eline drag" marker-end="url(#m3d)"/>
+      </svg>
+      <div class="node leader" style="left:100px;top:100px">
+        <div class="leader-badge">★ LEADER</div><div class="h top"></div>
+        <div class="node-content"><div class="node-row"><div class="dot on"></div><div class="nname">Main Orchestrator</div></div><div class="nmodel">claude-opus-4-6</div></div>
+        <div class="h bot glow"></div>
+      </div>
+      <div class="node" style="left:0;top:232px"><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Research Agent</div></div><div class="nmodel">claude-sonnet-4-6</div></div><div class="h bot"></div></div>
+      <!-- Target node with glowing top handle -->
+      <div class="node" style="left:270px;top:232px;border-color:var(--accent-blue);box-shadow:0 0 0 2px rgba(96,165,250,0.2)">
+        <div class="h top glow"></div>
+        <div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Data Analyst</div></div><div class="nmodel">claude-sonnet-4-6</div></div>
+        <div class="h bot"></div>
+      </div>
+      <!-- Standalone -->
+      <div class="node" style="left:440px;top:100px"><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">QA Tester</div></div><div class="nmodel">claude-haiku-4-5</div></div><div class="h bot"></div></div>
+
+      <div class="canvas-toolbar"><button class="btn-toolbar">⊞ Fit</button><button class="btn-toolbar">⟲ Re-layout</button></div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-head"><span>📋</span> AGENTS</div>
+      <div class="sidebar-scroll">
+        <div class="ag used"><div class="ag-name">Main Orchestrator <span class="ag-badge">in team</span></div><div class="ag-model">claude-opus-4-6</div></div>
+        <div class="ag used"><div class="ag-name">Research Agent <span class="ag-badge">in team</span></div><div class="ag-model">claude-sonnet-4-6</div></div>
+        <div class="ag used"><div class="ag-name">Data Analyst <span class="ag-badge">in team</span></div><div class="ag-model">claude-sonnet-4-6</div></div>
+        <div class="ag used"><div class="ag-name">QA Tester <span class="ag-badge">in team</span></div><div class="ag-model">claude-haiku-4-5</div></div>
+        <div class="ag"><div class="ag-name">Security Auditor</div><div class="ag-model">claude-opus-4-6</div></div>
+        <div class="ag"><div class="ag-name">Doc Writer</div><div class="ag-model">claude-sonnet-4-6</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== V4: NODE DETAIL ====== -->
+<div class="view" id="v4">
+  <div class="header">
+    <button class="btn-ghost">← Teams</button><div class="header-divider"></div>
+    <div class="team-name"><span class="star">★</span> Research Team</div><div class="spacer"></div>
+    <button class="btn-header">⟲ Re-layout</button><button class="btn-danger">🗑 Delete</button>
+  </div>
+  <div class="content">
+    <div class="canvas">
+      <svg class="edges" width="100%" height="100%">
+        <defs><marker id="m4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" class="earrow"/></marker></defs>
+        <path d="M 260 165 L 260 200 L 150 200 L 150 230" class="eline" marker-end="url(#m4)"/>
+        <path d="M 260 165 L 260 200 L 370 200 L 370 230" class="eline" marker-end="url(#m4)"/>
+      </svg>
+      <div class="node leader selected" style="left:160px;top:100px">
+        <div class="leader-badge">★ LEADER</div><div class="h top"></div>
+        <div class="node-content"><div class="node-row"><div class="dot on"></div><div class="nname">Main Orchestrator</div></div><div class="nmodel">claude-opus-4-6</div></div>
+        <div class="h bot"></div>
+      </div>
+      <div class="node" style="left:50px;top:232px"><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Research Agent</div></div><div class="nmodel">claude-sonnet-4-6</div></div><div class="h bot"></div></div>
+      <div class="node" style="left:270px;top:232px"><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Code Writer</div></div><div class="nmodel">claude-sonnet-4-6</div></div><div class="h bot"></div></div>
+      <div class="canvas-toolbar"><button class="btn-toolbar">⊞ Fit</button><button class="btn-toolbar">⟲ Re-layout</button></div>
+    </div>
+    <!-- Sidebar shows NODE DETAIL -->
+    <div class="sidebar">
+      <div class="sidebar-head">
+        <span>◈</span> Main Orchestrator
+        <button class="x">✕</button>
+      </div>
+      <div class="sidebar-scroll s-pad">
+        <div class="nd-card">
+          <div class="nd-name"><div class="dot on" style="flex-shrink:0"></div> Main Orchestrator</div>
+          <div class="nd-model">claude-opus-4-6</div>
+          <div class="nd-badge">★ LEADER (auto)</div>
+        </div>
+
+        <div class="s-label">CAPABILITIES</div>
+        <div style="background:var(--surface);border:2px solid var(--border-dim);padding:10px">
+          <div class="cap"><span class="cap-l" style="color:var(--accent-purple)">Skills</span><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="cap-t sk">✦ research</span><span class="cap-t sk">✦ summarize</span></div></div>
+          <div class="cap"><span class="cap-l" style="color:var(--accent-green)">Tools</span><div style="display:flex;gap:4px;flex-wrap:wrap"><span class="cap-t to">⚒ bash</span><span class="cap-t to">⚒ browser</span></div></div>
+          <div class="cap"><span class="cap-l" style="color:var(--accent-cyan)">MCP</span><div style="display:flex;gap:4px"><span class="cap-t mc">⚡ 2 servers</span></div></div>
+          <div class="cap"><span class="cap-l" style="color:var(--accent-amber)">Memory</span><div style="display:flex;gap:4px"><span class="cap-t me">● Enabled</span></div></div>
+        </div>
+
+        <div class="s-sep"></div>
+
+        <div class="s-label">CONNECTIONS</div>
+        <div class="conn-info">Parent: <span class="conn-none">(none — root)</span></div>
+        <div class="conn-info">Children: <span class="conn-val">Research Agent, Code Writer</span></div>
+
+        <div class="s-sep"></div>
+
+        <button class="btn-a">Open Agent Detail →</button>
+        <button class="btn-a red">Remove from Team</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== V5: TEAM SETTINGS ====== -->
+<div class="view" id="v5">
+  <div class="header">
+    <button class="btn-ghost">← Teams</button><div class="header-divider"></div>
+    <div class="team-name"><span class="star">★</span> Research Team</div><div class="spacer"></div>
+    <button class="btn-header">⟲ Re-layout</button><button class="btn-danger">🗑 Delete</button>
+  </div>
+  <div class="content">
+    <div class="canvas">
+      <svg class="edges" width="100%" height="100%">
+        <defs><marker id="m5" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" class="earrow"/></marker></defs>
+        <path d="M 260 165 L 260 200 L 150 200 L 150 230" class="eline" marker-end="url(#m5)"/>
+        <path d="M 260 165 L 260 200 L 370 200 L 370 230" class="eline" marker-end="url(#m5)"/>
+      </svg>
+      <div class="node leader" style="left:160px;top:100px"><div class="leader-badge">★ LEADER</div><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot on"></div><div class="nname">Main Orchestrator</div></div><div class="nmodel">claude-opus-4-6</div></div><div class="h bot"></div></div>
+      <div class="node" style="left:50px;top:232px"><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Research Agent</div></div><div class="nmodel">claude-sonnet-4-6</div></div><div class="h bot"></div></div>
+      <div class="node" style="left:270px;top:232px"><div class="h top"></div><div class="node-content"><div class="node-row"><div class="dot idle"></div><div class="nname">Code Writer</div></div><div class="nmodel">claude-sonnet-4-6</div></div><div class="h bot"></div></div>
+      <div class="canvas-toolbar"><button class="btn-toolbar">⊞ Fit</button><button class="btn-toolbar">⟲ Re-layout</button></div>
+    </div>
+    <!-- Sidebar shows TEAM SETTINGS (click canvas blank) -->
+    <div class="sidebar">
+      <div class="sidebar-head"><span>⚙</span> TEAM SETTINGS</div>
+      <div class="sidebar-scroll s-pad">
+        <div class="s-label">DESCRIPTION</div>
+        <textarea class="ta sm">A research-focused team that investigates topics and writes code.</textarea>
+        <div class="saved">✓ Saved</div>
+        <div class="s-sep"></div>
+        <div class="s-label">INSTRUCTION</div>
+        <textarea class="ta lg">You are the leader of a research team. Your goal is to coordinate team members to investigate technical topics thoroughly. Always delegate research tasks to the Research Agent and coding tasks to the Code Writer.</textarea>
+        <div class="saved">✓ Saved</div>
+        <div class="s-sep"></div>
+        <div class="s-label">MEMBERS (3)</div>
+        <div class="mem"><span class="mem-star">★</span><span class="mem-name">Main Orchestrator</span><span class="mem-m">opus</span></div>
+        <div class="mem"><span class="mem-star"></span><span class="mem-name">Research Agent</span><span class="mem-m">sonnet</span></div>
+        <div class="mem"><span class="mem-star"></span><span class="mem-name">Code Writer</span><span class="mem-m">sonnet</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== V6: EMPTY ====== -->
+<div class="view" id="v6">
+  <div class="header">
+    <button class="btn-ghost">← Teams</button><div class="header-divider"></div>
+    <div class="team-name"><span class="star" style="opacity:.3">★</span> New Team</div><div class="spacer"></div>
+    <button class="btn-danger">🗑 Delete</button>
+  </div>
+  <div class="content">
+    <div class="canvas">
+      <div class="empty">
+        <div class="empty-box">
+          <div class="empty-row"><div class="empty-sq">?</div><div class="empty-line"></div><div class="empty-sq">?</div></div>
+          <div style="display:flex"><div class="empty-vline"></div></div>
+          <div style="display:flex"><div class="empty-sq">?</div></div>
+        </div>
+        <div class="empty-title">Build Your Agent Team</div>
+        <div class="empty-desc">Drag agents from the right panel<br>onto the canvas to get started.</div>
+      </div>
+    </div>
+    <div class="sidebar">
+      <div class="sidebar-head"><span>📋</span> AGENTS</div>
+      <div class="sidebar-scroll">
+        <div class="ag"><div class="ag-name">Main Orchestrator</div><div class="ag-model">claude-opus-4-6</div><div class="ag-desc">General-purpose orchestration agent</div></div>
+        <div class="ag"><div class="ag-name">Research Agent</div><div class="ag-model">claude-sonnet-4-6</div><div class="ag-desc">Investigates topics thoroughly</div></div>
+        <div class="ag"><div class="ag-name">Code Writer</div><div class="ag-model">claude-sonnet-4-6</div><div class="ag-desc">Writes and reviews code</div></div>
+        <div class="ag"><div class="ag-name">Summarizer</div><div class="ag-model">claude-haiku-4-5</div><div class="ag-desc">Creates concise summaries</div></div>
+        <div class="ag"><div class="ag-name">Data Analyst</div><div class="ag-model">claude-sonnet-4-6</div><div class="ag-desc">Analyzes data and visualizations</div></div>
+        <div class="ag"><div class="ag-name">QA Tester</div><div class="ag-model">claude-haiku-4-5</div><div class="ag-desc">Writes and runs test cases</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function sw(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  event.target.classList.add('on');
+}
+</script>
+</body>
+</html>

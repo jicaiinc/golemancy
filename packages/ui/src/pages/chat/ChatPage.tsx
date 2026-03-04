@@ -173,14 +173,20 @@ export function ChatPage() {
     await createConversation(defaultAgentId, 'New Chat')
   }, [defaultAgentId, defaultTeamId, teams, createConversation])
 
-  const handleSwitchAgent = useCallback(async (agentId: AgentId, teamId?: TeamId) => {
-    if (!currentProject) return
-    // Create new conversation with the selected agent — don't change global defaultAgentId
-    await createConversation(agentId, 'New Chat', teamId)
-  }, [currentProject, createConversation])
-
   // Find current conversation and its agent
   const currentConversation = conversations.find(c => c.id === currentConversationId)
+
+  const updateConversation = useAppStore(s => s.updateConversation)
+
+  const handleSwitchAgent = useCallback(async (agentId: AgentId, teamId?: TeamId) => {
+    if (!currentProject) return
+    // If current conversation is empty, update it instead of creating a new one
+    if (currentConversation && currentConversation.messages.length === 0) {
+      await updateConversation(currentConversation.id, { agentId, teamId: teamId ?? null })
+    } else {
+      await createConversation(agentId, 'New Chat', teamId)
+    }
+  }, [currentProject, currentConversation, updateConversation, createConversation])
   const currentAgent = currentConversation
     ? agents.find(a => a.id === currentConversation.agentId)
     : undefined

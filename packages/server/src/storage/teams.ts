@@ -17,21 +17,19 @@ export class FileTeamStorage implements ITeamService {
     return path.join(this.teamsDir(projectId), `${id}.json`)
   }
 
-  private layoutPath(projectId: string, id: string) {
-    validateId(id)
-    return path.join(this.teamsDir(projectId), `${id}-layout.json`)
-  }
-
   private normalize(team: Team): Team {
     return {
       ...team,
       instruction: team.instruction ?? undefined,
       members: team.members ?? [],
+      layout: team.layout ?? undefined,
     }
   }
 
   async list(projectId: ProjectId): Promise<Team[]> {
-    const teams = await listJsonFiles<Team>(this.teamsDir(projectId))
+    const all = await listJsonFiles<Team>(this.teamsDir(projectId))
+    // Filter to valid team objects only (ignore stale layout files from old format)
+    const teams = all.filter(t => t.id && typeof t.id === 'string' && t.id.startsWith('team-'))
     log.debug({ projectId, count: teams.length }, 'listed teams')
     return teams.map(t => this.normalize({ ...t, projectId }))
   }
@@ -86,15 +84,20 @@ export class FileTeamStorage implements ITeamService {
   async delete(projectId: ProjectId, id: TeamId): Promise<void> {
     log.debug({ projectId, teamId: id }, 'deleting team')
     await deleteFile(this.teamPath(projectId, id))
-    // Also clean up layout file
-    await deleteFile(this.layoutPath(projectId, id)).catch(() => {})
+    // Clean up stale layout file from old format
+    const legacyLayoutPath = path.join(this.teamsDir(projectId), `${id}-layout.json`)
+    await deleteFile(legacyLayoutPath).catch(() => {})
   }
 
   async getLayout(projectId: ProjectId, teamId: TeamId): Promise<Record<string, { x: number; y: number }>> {
-    return await readJson<Record<string, { x: number; y: number }>>(this.layoutPath(projectId, teamId)) ?? {}
+    const team = await this.getById(projectId, teamId)
+    return team?.layout ?? {}
   }
 
   async saveLayout(projectId: ProjectId, teamId: TeamId, layout: Record<string, { x: number; y: number }>): Promise<void> {
-    await writeJson(this.layoutPath(projectId, teamId), layout)
+    const team = await this.getById(projectId, teamId)
+    if (!team) throw new Error(`Team ${teamId} not found in project ${projectId}`)
+    const { projectId: _, ...toWrite } = { ...team, layout, updatedAt: new Date().toISOString() }
+    await writeJson(this.teamPath(projectId, teamId), toWrite)
   }
 }
