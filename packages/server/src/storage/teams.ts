@@ -21,7 +21,7 @@ export class FileTeamStorage implements ITeamService {
     return {
       ...team,
       instruction: team.instruction ?? undefined,
-      members: team.members ?? [],
+      members: (team.members ?? []).map(({ agentId, parentAgentId }) => parentAgentId ? { agentId, parentAgentId } : { agentId }),
       layout: team.layout ?? undefined,
     }
   }

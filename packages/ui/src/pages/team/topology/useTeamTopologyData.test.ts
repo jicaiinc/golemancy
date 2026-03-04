@@ -3,7 +3,7 @@ import type { AgentId, TeamMember } from '@golemancy/shared'
 import { isDescendantOf } from './useTeamTopologyData'
 
 function member(agentId: string, parentAgentId?: string): TeamMember {
-  return { agentId: agentId as AgentId, role: '', parentAgentId: parentAgentId as AgentId | undefined }
+  return { agentId: agentId as AgentId, parentAgentId: parentAgentId as AgentId | undefined }
 }
 
 describe('isDescendantOf', () => {

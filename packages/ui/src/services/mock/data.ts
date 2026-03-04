@@ -136,9 +136,9 @@ export const SEED_TEAMS: Team[] = [
     description: 'Content creation pipeline with leader, writer and researcher',
     instruction: 'You are leading a content team. Delegate writing tasks to Writer and research tasks to Researcher.',
     members: [
-      { agentId: 'agent-3' as AgentId, role: 'Team Lead' },
-      { agentId: 'agent-1' as AgentId, role: 'Content Creation', parentAgentId: 'agent-3' as AgentId },
-      { agentId: 'agent-2' as AgentId, role: 'Information Gathering', parentAgentId: 'agent-3' as AgentId },
+      { agentId: 'agent-3' as AgentId },
+      { agentId: 'agent-1' as AgentId, parentAgentId: 'agent-3' as AgentId },
+      { agentId: 'agent-2' as AgentId, parentAgentId: 'agent-3' as AgentId },
     ],
     createdAt: dayAgo,
     updatedAt: dayAgo,

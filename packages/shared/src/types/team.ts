@@ -2,7 +2,6 @@ import type { AgentId, ProjectId, TeamId, Timestamped } from './common'
 
 export interface TeamMember {
   agentId: AgentId
-  role: string
   parentAgentId?: AgentId // undefined = leader (top-level agent)
 }
 

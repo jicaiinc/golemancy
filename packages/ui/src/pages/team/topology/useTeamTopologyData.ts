@@ -69,11 +69,10 @@ export function useTeamTopologyData(
   // Derive raw nodes from team members
   const rawNodes: Node<TeamNodeData>[] = useMemo(() => {
     const saved = savedLayoutRef.current
-    // Only designate leader when there's exactly one root node
-    const rootCount = team.members.filter(m => !m.parentAgentId).length
+    const leaderId = team.members.find(m => !m.parentAgentId)?.agentId
     return team.members.map(member => {
       const agent = agentMap.get(member.agentId)
-      const isLeader = rootCount === 1 && !member.parentAgentId
+      const isLeader = member.agentId === leaderId
 
       return {
         id: member.agentId,
@@ -191,7 +190,7 @@ export function useTeamTopologyData(
       savedLayoutRef.current[agentId] = position
     }
     const members = getLatestMembers(team.id)
-    const newMember = { agentId, role: '', parentAgentId }
+    const newMember = { agentId, parentAgentId }
     const updatedMembers = [...members, newMember]
     await updateTeam(team.id, { members: updatedMembers })
     if (position) {
