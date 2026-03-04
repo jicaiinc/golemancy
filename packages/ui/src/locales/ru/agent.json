@@ -13,8 +13,6 @@
     "error": "ошибка",
     "paused": "приостановлен"
   },
-  "currentMain": "ТЕКУЩИЙ ОСНОВНОЙ",
-  "currentMainTooltip": "Текущий основной агент этого проекта",
   "noProviders": "Провайдеры не настроены",
   "noModels": "Нет доступных моделей",
   "savedMsg": "Сохранено!",
@@ -25,8 +23,6 @@
     "subtitle_many": "{{count}} агентов в этом проекте",
     "subtitle_other": "{{count}} агентов в этом проекте",
     "newBtn": "+ Новый агент",
-    "viewGrid": "Сетка",
-    "viewTopology": "Топология",
     "empty": "Агентов пока нет",
     "createFirst": "Создайте первого агента"
   },
@@ -39,10 +35,6 @@
     "tools_few": "{{count}} инструмента",
     "tools_many": "{{count}} инструментов",
     "tools_other": "{{count}} инструментов",
-    "subAgents_one": "{{count}} суб-агент",
-    "subAgents_few": "{{count}} суб-агента",
-    "subAgents_many": "{{count}} суб-агентов",
-    "subAgents_other": "{{count}} суб-агентов",
     "mcpServers_one": "{{count}} MCP сервер",
     "mcpServers_few": "{{count}} MCP сервера",
     "mcpServers_many": "{{count}} MCP серверов",
@@ -64,7 +56,6 @@
       "modelConfig": "Конфигурация модели",
       "skills": "Навыки",
       "tools": "Инструменты",
-      "subAgents": "Суб-агенты",
       "memory": "Память"
     }
   },
@@ -82,7 +73,7 @@
     "addSection": "ДОБАВИТЬ НАВЫК",
     "noneInProject": "В проекте нет навыков",
     "goTo": "Перейти к навыкам",
-    "manage": "Управление навыками \u2192"
+    "manage": "Управление навыками →"
   },
   "tools": {
     "builtinSection": "ВСТРОЕННЫЕ ИНСТРУМЕНТЫ",
@@ -95,7 +86,7 @@
     "memoryDesc": "Постоянный банк памяти между разговорами"
   },
   "mcp": {
-    "warningTitle": "\u26a0 ПРЕДУПРЕЖДЕНИЕ",
+    "warningTitle": "⚠ ПРЕДУПРЕЖДЕНИЕ",
     "warningText": "Сторонние MCP серверы могут получить доступ к файлам на вашем компьютере или изменить их.",
     "enableSandboxHint": "Включите «Применить к MCP» в Настройки > Разрешения для изоляции MCP серверов.",
     "sandboxUnavailable": "Среда Sandbox недоступна на этой платформе.",
@@ -104,16 +95,8 @@
     "addSection": "ДОБАВИТЬ MCP СЕРВЕР",
     "noneInProject": "В проекте нет MCP серверов",
     "goTo": "Перейти к MCP серверам",
-    "manage": "Управление MCP серверами \u2192",
+    "manage": "Управление MCP серверами →",
     "restricted": "Ограниченный"
-  },
-  "subAgents": {
-    "assigned": "НАЗНАЧЕННЫЕ СУБ-АГЕНТЫ",
-    "noneAssigned": "Этому агенту не назначены суб-агенты.",
-    "addSection": "ДОБАВИТЬ СУБ-АГЕНТА",
-    "noneAvailable": "В этом проекте нет других доступных агентов.",
-    "unknown": "Неизвестно",
-    "rolePlaceholder": "Роль..."
   },
   "panel": {
     "modelLabel": "МОДЕЛЬ",
@@ -124,8 +107,7 @@
   },
   "topology": {
     "resetLayout": "Сбросить макет",
-    "editAgent": "Изменить агента",
-    "setMainAgent": "Назначить основным агентом"
+    "editAgent": "Изменить агента"
   },
   "memory": {
     "sectionTitle": "ВОСПОМИНАНИЯ",

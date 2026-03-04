@@ -13,8 +13,6 @@
     "error": "エラー",
     "paused": "一時停止"
   },
-  "currentMain": "現在のメイン AGENT",
-  "currentMainTooltip": "このプロジェクトで現在選択されているメイン Agent",
   "noProviders": "プロバイダーが設定されていません",
   "noModels": "利用可能なモデルがありません",
   "savedMsg": "保存しました！",
@@ -23,8 +21,6 @@
     "subtitle_one": "このプロジェクトに {{count}} 個の Agent",
     "subtitle_other": "このプロジェクトに {{count}} 個の Agent",
     "newBtn": "+ 新規 Agent",
-    "viewGrid": "グリッド",
-    "viewTopology": "トポロジー",
     "empty": "Agent がありません",
     "createFirst": "最初の Agent を作成"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} スキル",
     "tools_one": "{{count}} ツール",
     "tools_other": "{{count}} ツール",
-    "subAgents_one": "{{count}} サブ Agent",
-    "subAgents_other": "{{count}} サブ Agent",
     "mcpServers_one": "{{count}} MCP サーバー",
     "mcpServers_other": "{{count}} MCP サーバー"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "モデル設定",
       "skills": "スキル",
       "tools": "ツール",
-      "subAgents": "サブ Agent",
       "memory": "メモリー"
     }
   },
@@ -72,7 +65,7 @@
     "addSection": "スキルを追加",
     "noneInProject": "プロジェクトにスキルがありません",
     "goTo": "スキルページへ",
-    "manage": "スキルを管理 \u2192"
+    "manage": "スキルを管理 →"
   },
   "tools": {
     "builtinSection": "組み込みツール",
@@ -85,7 +78,7 @@
     "memoryDesc": "会話を跨ぐ永続メモリーバンク"
   },
   "mcp": {
-    "warningTitle": "\u26a0 警告",
+    "warningTitle": "⚠ 警告",
     "warningText": "サードパーティ MCP サーバーがコンピューター上のファイルにアクセスまたは変更する可能性があります。",
     "enableSandboxHint": "設定 > 権限で「MCP に適用」を有効にして MCP サーバーをサンドボックス化してください。",
     "sandboxUnavailable": "このプラットフォームではサンドボックスランタイムを利用できません。",
@@ -94,16 +87,8 @@
     "addSection": "MCP サーバーを追加",
     "noneInProject": "プロジェクトに MCP サーバーがありません",
     "goTo": "MCP サーバーページへ",
-    "manage": "MCP サーバーを管理 \u2192",
+    "manage": "MCP サーバーを管理 →",
     "restricted": "制限付き"
-  },
-  "subAgents": {
-    "assigned": "割り当て済みサブ AGENT",
-    "noneAssigned": "この Agent にサブ Agent は割り当てられていません。",
-    "addSection": "サブ AGENT を追加",
-    "noneAvailable": "プロジェクトに他の Agent がありません。",
-    "unknown": "不明",
-    "rolePlaceholder": "ロール..."
   },
   "panel": {
     "modelLabel": "モデル",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "レイアウトをリセット",
-    "editAgent": "Agent を編集",
-    "setMainAgent": "メイン Agent に設定"
+    "editAgent": "Agent を編集"
   },
   "memory": {
     "sectionTitle": "メモリー",

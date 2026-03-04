@@ -13,8 +13,6 @@
     "error": "错误",
     "paused": "已暂停"
   },
-  "currentMain": "当前主 AGENT",
-  "currentMainTooltip": "该项目当前选定的主 Agent",
   "noProviders": "未配置供应商",
   "noModels": "无可用模型",
   "savedMsg": "已保存！",
@@ -23,8 +21,6 @@
     "subtitle_one": "该项目有 {{count}} 个 Agent",
     "subtitle_other": "该项目有 {{count}} 个 Agent",
     "newBtn": "+ 新建 Agent",
-    "viewGrid": "网格",
-    "viewTopology": "拓扑",
     "empty": "暂无 Agent",
     "createFirst": "创建第一个 Agent"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} 个技能",
     "tools_one": "{{count}} 个工具",
     "tools_other": "{{count}} 个工具",
-    "subAgents_one": "{{count}} 个子 Agent",
-    "subAgents_other": "{{count}} 个子 Agent",
     "mcpServers_one": "{{count}} 个 MCP 服务器",
     "mcpServers_other": "{{count}} 个 MCP 服务器"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "模型配置",
       "skills": "技能",
       "tools": "工具",
-      "subAgents": "子 Agent",
       "memory": "记忆"
     }
   },
@@ -97,14 +90,6 @@
     "manage": "管理 MCP 服务器 →",
     "restricted": "受限"
   },
-  "subAgents": {
-    "assigned": "已分配子 AGENT",
-    "noneAssigned": "该 Agent 未分配子 Agent。",
-    "addSection": "添加子 AGENT",
-    "noneAvailable": "项目中没有其他可用的 Agent。",
-    "unknown": "未知",
-    "rolePlaceholder": "角色..."
-  },
   "panel": {
     "modelLabel": "模型",
     "inherited": "继承",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "重置布局",
-    "editAgent": "编辑 Agent",
-    "setMainAgent": "设为主 Agent"
+    "editAgent": "编辑 Agent"
   },
   "memory": {
     "sectionTitle": "记忆",

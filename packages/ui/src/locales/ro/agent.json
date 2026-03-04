@@ -13,8 +13,6 @@
     "error": "eroare",
     "paused": "în pauză"
   },
-  "currentMain": "AGENTUL PRINCIPAL CURENT",
-  "currentMainTooltip": "Agentul principal selectat pentru acest proiect",
   "noProviders": "Niciun furnizor configurat",
   "noModels": "Niciun model disponibil",
   "savedMsg": "Salvat!",
@@ -24,8 +22,6 @@
     "subtitle_few": "{{count}} agenți în acest proiect",
     "subtitle_other": "{{count}} de agenți în acest proiect",
     "newBtn": "+ Agent nou",
-    "viewGrid": "Grilă",
-    "viewTopology": "Topologie",
     "empty": "Niciun agent încă",
     "createFirst": "Creați primul agent"
   },
@@ -36,9 +32,6 @@
     "tools_one": "{{count}} instrument",
     "tools_few": "{{count}} instrumente",
     "tools_other": "{{count}} de instrumente",
-    "subAgents_one": "{{count}} sub-agent",
-    "subAgents_few": "{{count}} sub-agenți",
-    "subAgents_other": "{{count}} de sub-agenți",
     "mcpServers_one": "{{count}} server MCP",
     "mcpServers_few": "{{count}} servere MCP",
     "mcpServers_other": "{{count}} de servere MCP"
@@ -59,7 +52,6 @@
       "modelConfig": "Configurare model",
       "skills": "Skills",
       "tools": "Instrumente",
-      "subAgents": "Sub-agenți",
       "memory": "Memorie"
     }
   },
@@ -77,7 +69,7 @@
     "addSection": "ADĂUGARE SKILL",
     "noneInProject": "Niciun skill în acest proiect",
     "goTo": "Mergeți la Skills",
-    "manage": "Gestionare Skills \u2192"
+    "manage": "Gestionare Skills →"
   },
   "tools": {
     "builtinSection": "INSTRUMENTE INTEGRATE",
@@ -90,7 +82,7 @@
     "memoryDesc": "Bancă de memorie persistentă între conversații"
   },
   "mcp": {
-    "warningTitle": "\u26a0 AVERTISMENT",
+    "warningTitle": "⚠ AVERTISMENT",
     "warningText": "Serverele MCP terțe pot accesa sau modifica fișierele de pe computerul dumneavoastră.",
     "enableSandboxHint": "Activați \"Aplicare la MCP\" în Setări > Permisiuni pentru a izola serverele MCP în sandbox.",
     "sandboxUnavailable": "Sandbox runtime nu este disponibil pe această platformă.",
@@ -99,16 +91,8 @@
     "addSection": "ADĂUGARE SERVER MCP",
     "noneInProject": "Niciun server MCP în acest proiect",
     "goTo": "Mergeți la Servere MCP",
-    "manage": "Gestionare Servere MCP \u2192",
+    "manage": "Gestionare Servere MCP →",
     "restricted": "Restricționat"
-  },
-  "subAgents": {
-    "assigned": "SUB-AGENȚI ATRIBUIȚI",
-    "noneAssigned": "Niciun sub-agent atribuit acestui agent.",
-    "addSection": "ADĂUGARE SUB-AGENT",
-    "noneAvailable": "Niciun alt agent disponibil în acest proiect.",
-    "unknown": "Necunoscut",
-    "rolePlaceholder": "Rol..."
   },
   "panel": {
     "modelLabel": "MODEL",
@@ -119,8 +103,7 @@
   },
   "topology": {
     "resetLayout": "Resetare dispunere",
-    "editAgent": "Editare agent",
-    "setMainAgent": "Setare ca Main Agent"
+    "editAgent": "Editare agent"
   },
   "memory": {
     "sectionTitle": "AMINTIRI",

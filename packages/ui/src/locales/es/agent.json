@@ -13,8 +13,6 @@
     "error": "error",
     "paused": "pausado"
   },
-  "currentMain": "PRINCIPAL ACTUAL",
-  "currentMainTooltip": "Agente principal seleccionado para este proyecto",
   "noProviders": "No hay proveedores configurados",
   "noModels": "No hay modelos disponibles",
   "savedMsg": "¡Guardado!",
@@ -23,8 +21,6 @@
     "subtitle_one": "{{count}} agente en este proyecto",
     "subtitle_other": "{{count}} agentes en este proyecto",
     "newBtn": "+ Nuevo Agente",
-    "viewGrid": "Cuadrícula",
-    "viewTopology": "Topología",
     "empty": "Aún no hay agentes",
     "createFirst": "Cree Su Primer Agente"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} skills",
     "tools_one": "{{count}} herramienta",
     "tools_other": "{{count}} herramientas",
-    "subAgents_one": "{{count}} sub-agente",
-    "subAgents_other": "{{count}} sub-agentes",
     "mcpServers_one": "{{count}} servidor MCP",
     "mcpServers_other": "{{count}} servidores MCP"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "Modelo",
       "skills": "Skills",
       "tools": "Herramientas",
-      "subAgents": "Sub-Agentes",
       "memory": "Memoria"
     }
   },
@@ -72,7 +65,7 @@
     "addSection": "AGREGAR SKILL",
     "noneInProject": "No hay skills en este proyecto",
     "goTo": "Ir a Skills",
-    "manage": "Gestionar Skills \u2192"
+    "manage": "Gestionar Skills →"
   },
   "tools": {
     "builtinSection": "HERRAMIENTAS INTEGRADAS",
@@ -85,7 +78,7 @@
     "memoryDesc": "Banco de memoria persistente entre conversaciones"
   },
   "mcp": {
-    "warningTitle": "\u26a0 ADVERTENCIA",
+    "warningTitle": "⚠ ADVERTENCIA",
     "warningText": "Los servidores MCP de terceros pueden acceder o modificar archivos en su computadora.",
     "enableSandboxHint": "Active \"Aplicar a MCP\" en Configuración > Permisos para ejecutar servidores MCP en sandbox.",
     "sandboxUnavailable": "El entorno sandbox no está disponible en esta plataforma.",
@@ -94,16 +87,8 @@
     "addSection": "AGREGAR SERVIDOR MCP",
     "noneInProject": "No hay servidores MCP en este proyecto",
     "goTo": "Ir a Servidores MCP",
-    "manage": "Gestionar Servidores MCP \u2192",
+    "manage": "Gestionar Servidores MCP →",
     "restricted": "Restringido"
-  },
-  "subAgents": {
-    "assigned": "SUB-AGENTES ASIGNADOS",
-    "noneAssigned": "No hay sub-agentes asignados a este agente.",
-    "addSection": "AGREGAR SUB-AGENTE",
-    "noneAvailable": "No hay otros agentes disponibles en este proyecto.",
-    "unknown": "Desconocido",
-    "rolePlaceholder": "Rol..."
   },
   "panel": {
     "modelLabel": "MODELO",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "Restablecer Diseño",
-    "editAgent": "Editar Agente",
-    "setMainAgent": "Establecer como Agente Principal"
+    "editAgent": "Editar Agente"
   },
   "memory": {
     "sectionTitle": "MEMORIAS",

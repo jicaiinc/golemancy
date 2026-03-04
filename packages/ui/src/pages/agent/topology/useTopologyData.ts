@@ -13,10 +13,8 @@ import type { AgentEdgeData } from './AgentEdge'
 export function useTopologyData(highlightedNodeId?: AgentId | null) {
   const { projectId } = useParams<{ projectId: string }>()
   const agents = useAppStore(s => s.agents)
-  const projects = useAppStore(s => s.projects)
   const loadTopologyLayout = useAppStore(s => s.loadTopologyLayout)
   const saveTopologyLayout = useAppStore(s => s.saveTopologyLayout)
-  const currentProject = projects.find(p => p.id === projectId)
 
   const [selectedAgentId, setSelectedAgentId] = useState<AgentId | null>(null)
 
@@ -54,11 +52,10 @@ export function useTopologyData(highlightedNodeId?: AgentId | null) {
         model: agent.modelConfig.model ?? '',
         skillCount: (agent.skillIds ?? []).length,
         toolCount: agent.tools.length,
-        isMainAgent: currentProject?.defaultAgentId === agent.id,
         isHighlighted: highlightedNodeId === agent.id,
       },
     }))
-  }, [agents, currentProject?.defaultAgentId, highlightedNodeId])
+  }, [agents, highlightedNodeId])
 
   // Edges will be driven by Teams in the future; for now, empty
   const rawEdges: Edge<AgentEdgeData>[] = useMemo(() => {

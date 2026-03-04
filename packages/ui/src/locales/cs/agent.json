@@ -13,8 +13,6 @@
     "error": "chyba",
     "paused": "pozastaven"
   },
-  "currentMain": "AKTUÁLNÍ HLAVNÍ",
-  "currentMainTooltip": "Aktuálně vybraný hlavní agent tohoto projektu",
   "noProviders": "Žádní poskytovatelé nejsou nakonfigurováni",
   "noModels": "Žádné dostupné modely",
   "savedMsg": "Uloženo!",
@@ -25,8 +23,6 @@
     "subtitle_many": "{{count}} agentů v tomto projektu",
     "subtitle_other": "{{count}} agentů v tomto projektu",
     "newBtn": "+ Nový agent",
-    "viewGrid": "Mřížka",
-    "viewTopology": "Topologie",
     "empty": "Zatím žádní agenti",
     "createFirst": "Vytvořte prvního agenta"
   },
@@ -39,10 +35,6 @@
     "tools_few": "{{count}} nástroje",
     "tools_many": "{{count}} nástrojů",
     "tools_other": "{{count}} nástrojů",
-    "subAgents_one": "{{count}} sub-agent",
-    "subAgents_few": "{{count}} sub-agenti",
-    "subAgents_many": "{{count}} sub-agentů",
-    "subAgents_other": "{{count}} sub-agentů",
     "mcpServers_one": "{{count}} MCP server",
     "mcpServers_few": "{{count}} MCP servery",
     "mcpServers_many": "{{count}} MCP serverů",
@@ -64,7 +56,6 @@
       "modelConfig": "Konfigurace modelu",
       "skills": "Dovednosti",
       "tools": "Nástroje",
-      "subAgents": "Sub-agenti",
       "memory": "Paměť"
     }
   },
@@ -82,7 +73,7 @@
     "addSection": "PŘIDAT DOVEDNOST",
     "noneInProject": "V projektu nejsou žádné dovednosti",
     "goTo": "Přejít na dovednosti",
-    "manage": "Správa dovedností \u2192"
+    "manage": "Správa dovedností →"
   },
   "tools": {
     "builtinSection": "VESTAVĚNÉ NÁSTROJE",
@@ -95,7 +86,7 @@
     "memoryDesc": "Trvalá paměťová banka napříč konverzacemi"
   },
   "mcp": {
-    "warningTitle": "\u26a0 VAROVÁNÍ",
+    "warningTitle": "⚠ VAROVÁNÍ",
     "warningText": "MCP servery třetích stran mohou přistupovat k souborům na vašem počítači nebo je měnit.",
     "enableSandboxHint": "Zapněte «Použít na MCP» v Nastavení > Oprávnění pro izolaci MCP serverů.",
     "sandboxUnavailable": "Prostředí Sandbox není na této platformě dostupné.",
@@ -104,16 +95,8 @@
     "addSection": "PŘIDAT MCP SERVER",
     "noneInProject": "V projektu nejsou žádné MCP servery",
     "goTo": "Přejít na MCP servery",
-    "manage": "Správa MCP serverů \u2192",
+    "manage": "Správa MCP serverů →",
     "restricted": "Omezený"
-  },
-  "subAgents": {
-    "assigned": "PŘIŘAZENÍ SUB-AGENTI",
-    "noneAssigned": "Tomuto agentovi nejsou přiřazeni žádní sub-agenti.",
-    "addSection": "PŘIDAT SUB-AGENTA",
-    "noneAvailable": "V tomto projektu nejsou žádní další dostupní agenti.",
-    "unknown": "Neznámý",
-    "rolePlaceholder": "Role..."
   },
   "panel": {
     "modelLabel": "MODEL",
@@ -124,8 +107,7 @@
   },
   "topology": {
     "resetLayout": "Obnovit rozložení",
-    "editAgent": "Upravit agenta",
-    "setMainAgent": "Nastavit jako hlavního agenta"
+    "editAgent": "Upravit agenta"
   },
   "memory": {
     "sectionTitle": "VZPOMÍNKY",

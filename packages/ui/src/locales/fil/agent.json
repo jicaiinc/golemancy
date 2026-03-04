@@ -13,8 +13,6 @@
     "error": "error",
     "paused": "naka-pause"
   },
-  "currentMain": "KASALUKUYANG MAIN",
-  "currentMainTooltip": "Kasalukuyang napiling main agent para sa project na ito",
   "noProviders": "Walang naka-configure na provider",
   "noModels": "Walang available na model",
   "savedMsg": "Na-save!",
@@ -23,8 +21,6 @@
     "subtitle_one": "{{count}} agent sa project na ito",
     "subtitle_other": "{{count}} agent sa project na ito",
     "newBtn": "+ Bagong Agent",
-    "viewGrid": "Grid",
-    "viewTopology": "Topology",
     "empty": "Wala pang agent",
     "createFirst": "Gumawa ng Unang Agent"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} skill",
     "tools_one": "{{count}} tool",
     "tools_other": "{{count}} tool",
-    "subAgents_one": "{{count}} sub-agent",
-    "subAgents_other": "{{count}} sub-agent",
     "mcpServers_one": "{{count}} MCP server",
     "mcpServers_other": "{{count}} MCP server"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "Model Config",
       "skills": "Mga Skill",
       "tools": "Mga Tool",
-      "subAgents": "Mga Sub-Agent",
       "memory": "Memory"
     }
   },
@@ -72,7 +65,7 @@
     "addSection": "MAGDAGDAG NG SKILL",
     "noneInProject": "Walang skill sa project na ito",
     "goTo": "Pumunta sa Mga Skill",
-    "manage": "Pamahalaan ang Mga Skill \u2192"
+    "manage": "Pamahalaan ang Mga Skill →"
   },
   "tools": {
     "builtinSection": "MGA BUILT-IN NA TOOL",
@@ -85,7 +78,7 @@
     "memoryDesc": "Permanenteng memory bank sa mga usapan"
   },
   "mcp": {
-    "warningTitle": "\u26a0 BABALA",
+    "warningTitle": "⚠ BABALA",
     "warningText": "Maaaring ma-access o mabago ng third-party MCP server ang mga file sa iyong computer.",
     "enableSandboxHint": "I-enable ang \"Apply to MCP\" sa Settings > Permissions para i-sandbox ang mga MCP server.",
     "sandboxUnavailable": "Hindi available ang Sandbox runtime sa platform na ito.",
@@ -94,16 +87,8 @@
     "addSection": "MAGDAGDAG NG MCP SERVER",
     "noneInProject": "Walang MCP server sa project na ito",
     "goTo": "Pumunta sa MCP Servers",
-    "manage": "Pamahalaan ang MCP Servers \u2192",
+    "manage": "Pamahalaan ang MCP Servers →",
     "restricted": "Restricted"
-  },
-  "subAgents": {
-    "assigned": "MGA NAKA-ASSIGN NA SUB-AGENT",
-    "noneAssigned": "Walang sub-agent na naka-assign sa agent na ito.",
-    "addSection": "MAGDAGDAG NG SUB-AGENT",
-    "noneAvailable": "Walang ibang agent na available sa project na ito.",
-    "unknown": "Hindi kilala",
-    "rolePlaceholder": "Papel..."
   },
   "panel": {
     "modelLabel": "MODEL",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "I-reset ang Layout",
-    "editAgent": "I-edit ang Agent",
-    "setMainAgent": "Itakda bilang Main Agent"
+    "editAgent": "I-edit ang Agent"
   },
   "memory": {
     "sectionTitle": "MGA MEMORY",

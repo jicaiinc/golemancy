@@ -13,8 +13,6 @@
     "error": "fout",
     "paused": "gepauzeerd"
   },
-  "currentMain": "HUIDIGE HOOFDAGENT",
-  "currentMainTooltip": "Huidige geselecteerde hoofdagent voor dit project",
   "noProviders": "Geen providers geconfigureerd",
   "noModels": "Geen modellen beschikbaar",
   "savedMsg": "Opgeslagen!",
@@ -23,8 +21,6 @@
     "subtitle_one": "{{count}} agent in dit project",
     "subtitle_other": "{{count}} agenten in dit project",
     "newBtn": "+ Nieuwe Agent",
-    "viewGrid": "Raster",
-    "viewTopology": "Topologie",
     "empty": "Nog geen agenten",
     "createFirst": "Maak Uw Eerste Agent"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} skills",
     "tools_one": "{{count}} tool",
     "tools_other": "{{count}} tools",
-    "subAgents_one": "{{count}} sub-agent",
-    "subAgents_other": "{{count}} sub-agenten",
     "mcpServers_one": "{{count}} MCP-server",
     "mcpServers_other": "{{count}} MCP-servers"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "Modelconfiguratie",
       "skills": "Skills",
       "tools": "Tools",
-      "subAgents": "Sub-Agenten",
       "memory": "Geheugen"
     }
   },
@@ -72,7 +65,7 @@
     "addSection": "SKILL TOEVOEGEN",
     "noneInProject": "Geen skills in dit project",
     "goTo": "Ga naar Skills",
-    "manage": "Skills Beheren \u2192"
+    "manage": "Skills Beheren →"
   },
   "tools": {
     "builtinSection": "INGEBOUWDE TOOLS",
@@ -85,7 +78,7 @@
     "memoryDesc": "Permanente geheugenbank over gesprekken heen"
   },
   "mcp": {
-    "warningTitle": "\u26a0 WAARSCHUWING",
+    "warningTitle": "⚠ WAARSCHUWING",
     "warningText": "MCP-servers van derden kunnen bestanden op uw computer openen of wijzigen.",
     "enableSandboxHint": "Schakel \"Toepassen op MCP\" in bij Instellingen > Machtigingen om MCP-servers te sandboxen.",
     "sandboxUnavailable": "Sandbox-runtime is niet beschikbaar op dit platform.",
@@ -94,16 +87,8 @@
     "addSection": "MCP-SERVER TOEVOEGEN",
     "noneInProject": "Geen MCP-servers in dit project",
     "goTo": "Ga naar MCP-Servers",
-    "manage": "MCP-Servers Beheren \u2192",
+    "manage": "MCP-Servers Beheren →",
     "restricted": "Beperkt"
-  },
-  "subAgents": {
-    "assigned": "TOEGEWEZEN SUB-AGENTEN",
-    "noneAssigned": "Geen sub-agenten toegewezen aan deze agent.",
-    "addSection": "SUB-AGENT TOEVOEGEN",
-    "noneAvailable": "Geen andere agenten beschikbaar in dit project.",
-    "unknown": "Onbekend",
-    "rolePlaceholder": "Rol..."
   },
   "panel": {
     "modelLabel": "MODEL",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "Layout Resetten",
-    "editAgent": "Agent Bewerken",
-    "setMainAgent": "Als Hoofdagent Instellen"
+    "editAgent": "Agent Bewerken"
   },
   "memory": {
     "sectionTitle": "HERINNERINGEN",

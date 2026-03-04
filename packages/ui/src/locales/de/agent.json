@@ -13,8 +13,6 @@
     "error": "Fehler",
     "paused": "Pausiert"
   },
-  "currentMain": "AKTUELLER HAUPT-AGENT",
-  "currentMainTooltip": "Aktuell ausgewählter Haupt-Agent für dieses Projekt",
   "noProviders": "Keine Provider konfiguriert",
   "noModels": "Keine Modelle verfügbar",
   "savedMsg": "Gespeichert!",
@@ -23,8 +21,6 @@
     "subtitle_one": "{{count}} Agent in diesem Projekt",
     "subtitle_other": "{{count}} Agenten in diesem Projekt",
     "newBtn": "+ Neuer Agent",
-    "viewGrid": "Raster",
-    "viewTopology": "Topologie",
     "empty": "Noch keine Agenten",
     "createFirst": "Erstellen Sie Ihren ersten Agenten"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} Skills",
     "tools_one": "{{count}} Werkzeug",
     "tools_other": "{{count}} Werkzeuge",
-    "subAgents_one": "{{count}} Sub-Agent",
-    "subAgents_other": "{{count}} Sub-Agenten",
     "mcpServers_one": "{{count}} MCP-Server",
     "mcpServers_other": "{{count}} MCP-Server"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "Modellkonfiguration",
       "skills": "Skills",
       "tools": "Werkzeuge",
-      "subAgents": "Sub-Agenten",
       "memory": "Gedächtnis"
     }
   },
@@ -72,7 +65,7 @@
     "addSection": "SKILL HINZUFÜGEN",
     "noneInProject": "Keine Skills in diesem Projekt",
     "goTo": "Zu Skills",
-    "manage": "Skills verwalten \u2192"
+    "manage": "Skills verwalten →"
   },
   "tools": {
     "builtinSection": "INTEGRIERTE WERKZEUGE",
@@ -85,7 +78,7 @@
     "memoryDesc": "Persistenter Wissensspeicher über Konversationen hinweg"
   },
   "mcp": {
-    "warningTitle": "\u26a0 WARNUNG",
+    "warningTitle": "⚠ WARNUNG",
     "warningText": "MCP-Server von Drittanbietern können auf Dateien auf Ihrem Computer zugreifen oder diese ändern.",
     "enableSandboxHint": "Aktivieren Sie \"Auf MCP anwenden\" unter Einstellungen > Berechtigungen, um MCP-Server zu sandboxen.",
     "sandboxUnavailable": "Sandbox-Runtime ist auf dieser Plattform nicht verfügbar.",
@@ -94,16 +87,8 @@
     "addSection": "MCP-SERVER HINZUFÜGEN",
     "noneInProject": "Keine MCP-Server in diesem Projekt",
     "goTo": "Zu MCP-Servern",
-    "manage": "MCP-Server verwalten \u2192",
+    "manage": "MCP-Server verwalten →",
     "restricted": "Eingeschränkt"
-  },
-  "subAgents": {
-    "assigned": "ZUGEWIESENE SUB-AGENTEN",
-    "noneAssigned": "Keine Sub-Agenten diesem Agenten zugewiesen.",
-    "addSection": "SUB-AGENT HINZUFÜGEN",
-    "noneAvailable": "Keine anderen Agenten in diesem Projekt verfügbar.",
-    "unknown": "Unbekannt",
-    "rolePlaceholder": "Rolle..."
   },
   "panel": {
     "modelLabel": "MODELL",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "Layout zurücksetzen",
-    "editAgent": "Agent bearbeiten",
-    "setMainAgent": "Als Haupt-Agent festlegen"
+    "editAgent": "Agent bearbeiten"
   },
   "memory": {
     "sectionTitle": "ERINNERUNGEN",

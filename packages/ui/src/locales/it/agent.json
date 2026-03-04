@@ -13,8 +13,6 @@
     "error": "errore",
     "paused": "in pausa"
   },
-  "currentMain": "PRINCIPALE ATTUALE",
-  "currentMainTooltip": "Agente principale attualmente selezionato per questo progetto",
   "noProviders": "Nessun provider configurato",
   "noModels": "Nessun modello disponibile",
   "savedMsg": "Salvato!",
@@ -23,8 +21,6 @@
     "subtitle_one": "{{count}} agente in questo progetto",
     "subtitle_other": "{{count}} agenti in questo progetto",
     "newBtn": "+ Nuovo Agente",
-    "viewGrid": "Griglia",
-    "viewTopology": "Topologia",
     "empty": "Nessun agente",
     "createFirst": "Crea il Tuo Primo Agente"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} skill",
     "tools_one": "{{count}} strumento",
     "tools_other": "{{count}} strumenti",
-    "subAgents_one": "{{count}} sub-agent",
-    "subAgents_other": "{{count}} sub-agent",
     "mcpServers_one": "{{count}} server MCP",
     "mcpServers_other": "{{count}} server MCP"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "Config. Modello",
       "skills": "Skill",
       "tools": "Strumenti",
-      "subAgents": "Sub-Agent",
       "memory": "Memoria"
     }
   },
@@ -72,7 +65,7 @@
     "addSection": "AGGIUNGI SKILL",
     "noneInProject": "Nessuna skill in questo progetto",
     "goTo": "Vai alle Skill",
-    "manage": "Gestisci Skill \u2192"
+    "manage": "Gestisci Skill →"
   },
   "tools": {
     "builtinSection": "STRUMENTI INTEGRATI",
@@ -85,7 +78,7 @@
     "memoryDesc": "Banca di memoria persistente tra le conversazioni"
   },
   "mcp": {
-    "warningTitle": "\u26a0 ATTENZIONE",
+    "warningTitle": "⚠ ATTENZIONE",
     "warningText": "I server MCP di terze parti possono accedere o modificare file sul computer.",
     "enableSandboxHint": "Attiva \"Applica a MCP\" in Impostazioni > Permessi per sandboxare i server MCP.",
     "sandboxUnavailable": "Il runtime Sandbox non è disponibile su questa piattaforma.",
@@ -94,16 +87,8 @@
     "addSection": "AGGIUNGI SERVER MCP",
     "noneInProject": "Nessun server MCP in questo progetto",
     "goTo": "Vai ai Server MCP",
-    "manage": "Gestisci Server MCP \u2192",
+    "manage": "Gestisci Server MCP →",
     "restricted": "Limitato"
-  },
-  "subAgents": {
-    "assigned": "SUB-AGENT ASSEGNATI",
-    "noneAssigned": "Nessun sub-agent assegnato a questo agente.",
-    "addSection": "AGGIUNGI SUB-AGENT",
-    "noneAvailable": "Nessun altro agente disponibile in questo progetto.",
-    "unknown": "Sconosciuto",
-    "rolePlaceholder": "Ruolo..."
   },
   "panel": {
     "modelLabel": "MODELLO",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "Reimposta Layout",
-    "editAgent": "Modifica Agente",
-    "setMainAgent": "Imposta come Agente Principale"
+    "editAgent": "Modifica Agente"
   },
   "memory": {
     "sectionTitle": "MEMORIE",

@@ -11,7 +11,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import './topology.css'
 
-import type { AgentId, ProjectId } from '@golemancy/shared'
+import type { AgentId } from '@golemancy/shared'
 import { useNavigate, useParams } from 'react-router'
 import { useAppStore } from '../../../stores'
 import { AgentNode } from './AgentNode'
@@ -32,7 +32,6 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
   const deleteAgent = useAppStore(s => s.deleteAgent)
-  const updateProject = useAppStore(s => s.updateProject)
   const agents = useAppStore(s => s.agents)
   const themeMode = useAppStore(s => s.themeMode)
 
@@ -158,17 +157,6 @@ export function TopologyView({ onCreateAgent }: TopologyViewProps) {
             }}
           >
             {t('topology.editAgent')}
-          </button>
-          <button
-            className="block w-full text-left px-3 py-2 text-[12px] font-mono text-mc-gold hover:bg-elevated transition-colors cursor-pointer"
-            onClick={async () => {
-              if (projectId) {
-                await updateProject(projectId as ProjectId, { defaultAgentId: contextMenu.agentId })
-              }
-              closeContextMenu()
-            }}
-          >
-            {t('topology.setMainAgent')}
           </button>
           <div className="border-t-2 border-border-dim my-1" />
           <button

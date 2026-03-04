@@ -13,8 +13,6 @@
     "error": "fel",
     "paused": "pausad"
   },
-  "currentMain": "NUVARANDE HUVUDAGENT",
-  "currentMainTooltip": "Nuvarande vald huvudagent för detta projekt",
   "noProviders": "Inga providers konfigurerade",
   "noModels": "Inga modeller tillgängliga",
   "savedMsg": "Sparat!",
@@ -23,8 +21,6 @@
     "subtitle_one": "{{count}} agent i detta projekt",
     "subtitle_other": "{{count}} agenter i detta projekt",
     "newBtn": "+ Ny agent",
-    "viewGrid": "Rutnät",
-    "viewTopology": "Topologi",
     "empty": "Inga agenter ännu",
     "createFirst": "Skapa din första agent"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} skills",
     "tools_one": "{{count}} verktyg",
     "tools_other": "{{count}} verktyg",
-    "subAgents_one": "{{count}} sub-agent",
-    "subAgents_other": "{{count}} sub-agenter",
     "mcpServers_one": "{{count}} MCP-server",
     "mcpServers_other": "{{count}} MCP-servrar"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "Modellkonfiguration",
       "skills": "Skills",
       "tools": "Verktyg",
-      "subAgents": "Sub-agenter",
       "memory": "Minne"
     }
   },
@@ -72,7 +65,7 @@
     "addSection": "LÄGG TILL SKILL",
     "noneInProject": "Inga skills i detta projekt",
     "goTo": "Gå till Skills",
-    "manage": "Hantera Skills \u2192"
+    "manage": "Hantera Skills →"
   },
   "tools": {
     "builtinSection": "INBYGGDA VERKTYG",
@@ -85,7 +78,7 @@
     "memoryDesc": "Beständig minnesbank mellan konversationer"
   },
   "mcp": {
-    "warningTitle": "\u26a0 VARNING",
+    "warningTitle": "⚠ VARNING",
     "warningText": "Tredjepartsservrar för MCP kan komma åt eller ändra filer på din dator.",
     "enableSandboxHint": "Aktivera \"Tillämpa på MCP\" i Inställningar > Behörigheter för att sandboxa MCP-servrar.",
     "sandboxUnavailable": "Sandbox-runtime är inte tillgängligt på denna plattform.",
@@ -94,16 +87,8 @@
     "addSection": "LÄGG TILL MCP-SERVER",
     "noneInProject": "Inga MCP-servrar i detta projekt",
     "goTo": "Gå till MCP Servers",
-    "manage": "Hantera MCP Servers \u2192",
+    "manage": "Hantera MCP Servers →",
     "restricted": "Begränsad"
-  },
-  "subAgents": {
-    "assigned": "TILLDELADE SUB-AGENTER",
-    "noneAssigned": "Inga sub-agenter tilldelade till denna agent.",
-    "addSection": "LÄGG TILL SUB-AGENT",
-    "noneAvailable": "Inga andra agenter tillgängliga i detta projekt.",
-    "unknown": "Okänd",
-    "rolePlaceholder": "Roll..."
   },
   "panel": {
     "modelLabel": "MODELL",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "Återställ layout",
-    "editAgent": "Redigera agent",
-    "setMainAgent": "Ange som Main Agent"
+    "editAgent": "Redigera agent"
   },
   "memory": {
     "sectionTitle": "MINNEN",

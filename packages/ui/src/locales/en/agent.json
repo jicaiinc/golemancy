@@ -13,8 +13,6 @@
     "error": "error",
     "paused": "paused"
   },
-  "currentMain": "CURRENT MAIN",
-  "currentMainTooltip": "Current selected main agent for this project",
   "noProviders": "No providers configured",
   "noModels": "No models available",
   "savedMsg": "Saved!",
@@ -23,8 +21,6 @@
     "subtitle_one": "{{count}} agent in this project",
     "subtitle_other": "{{count}} agents in this project",
     "newBtn": "+ New Agent",
-    "viewGrid": "Grid",
-    "viewTopology": "Topology",
     "empty": "No agents yet",
     "createFirst": "Create Your First Agent"
   },
@@ -102,8 +98,7 @@
   },
   "topology": {
     "resetLayout": "Reset Layout",
-    "editAgent": "Edit Agent",
-    "setMainAgent": "Set as Main Agent"
+    "editAgent": "Edit Agent"
   },
   "memory": {
     "sectionTitle": "MEMORIES",

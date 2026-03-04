@@ -11,7 +11,6 @@ export interface AgentNodeData extends Record<string, unknown> {
   model: string
   skillCount: number
   toolCount: number
-  isMainAgent: boolean
   isHighlighted?: boolean
 }
 
@@ -56,9 +55,7 @@ export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => 
           ? 'bg-elevated border-accent-blue'
           : data.isHighlighted
             ? 'border-accent-green animate-[pixel-pulse_1s_steps(2)_infinite]'
-            : data.isMainAgent
-              ? 'border-mc-gold/60'
-              : 'border-border-dim'
+            : 'border-border-dim'
         }
       `}
       style={{
@@ -71,13 +68,6 @@ export const AgentNode = memo(({ data, selected }: NodeProps<AgentNodeType>) => 
     >
       {/* Status bar */}
       <div className={`h-1 w-full ${statusBarColor[data.status]} ${statusAnimation[data.status]}`} />
-
-      {/* Main agent label */}
-      {data.isMainAgent && (
-        <div className="px-3 pt-1.5" title={t('currentMainTooltip')}>
-          <span className="font-pixel text-[8px] text-mc-gold">{t('currentMain')}</span>
-        </div>
-      )}
 
       {/* Content */}
       <div className="p-3 pt-2">

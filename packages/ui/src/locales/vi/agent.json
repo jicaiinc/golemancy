@@ -1,140 +1,124 @@
 {
   "label": {
-    "name": "T\u00caN",
-    "agentName": "T\u00caN AGENT",
-    "description": "M\u00d4 T\u1ea2",
+    "name": "TÊN",
+    "agentName": "TÊN AGENT",
+    "description": "MÔ TẢ",
     "systemPrompt": "SYSTEM PROMPT",
     "provider": "PROVIDER",
     "model": "MODEL"
   },
   "statusLabel": {
-    "idle": "ngh\u1ec9",
-    "running": "\u0111ang ch\u1ea1y",
-    "error": "l\u1ed7i",
-    "paused": "t\u1ea1m d\u1eebng"
+    "idle": "nghỉ",
+    "running": "đang chạy",
+    "error": "lỗi",
+    "paused": "tạm dừng"
   },
-  "currentMain": "MAIN HI\u1ec6N T\u1ea0I",
-  "currentMainTooltip": "Main agent hi\u1ec7n \u0111\u01b0\u1ee3c ch\u1ecdn cho d\u1ef1 \u00e1n n\u00e0y",
-  "noProviders": "Ch\u01b0a c\u00f3 provider n\u00e0o \u0111\u01b0\u1ee3c c\u1ea5u h\u00ecnh",
-  "noModels": "Kh\u00f4ng c\u00f3 model kh\u1ea3 d\u1ee5ng",
-  "savedMsg": "\u0110\u00e3 l\u01b0u!",
+  "noProviders": "Chưa có provider nào được cấu hình",
+  "noModels": "Không có model khả dụng",
+  "savedMsg": "Đã lưu!",
   "list": {
     "title": "Agent",
-    "subtitle_one": "{{count}} agent trong d\u1ef1 \u00e1n n\u00e0y",
-    "subtitle_other": "{{count}} agent trong d\u1ef1 \u00e1n n\u00e0y",
-    "newBtn": "+ Agent M\u1edbi",
-    "viewGrid": "L\u01b0\u1edbi",
-    "viewTopology": "Topology",
-    "empty": "Ch\u01b0a c\u00f3 agent",
-    "createFirst": "T\u1ea1o Agent \u0110\u1ea7u Ti\u00ean"
+    "subtitle_one": "{{count}} agent trong dự án này",
+    "subtitle_other": "{{count}} agent trong dự án này",
+    "newBtn": "+ Agent Mới",
+    "empty": "Chưa có agent",
+    "createFirst": "Tạo Agent Đầu Tiên"
   },
   "count": {
     "skills_one": "{{count}} skill",
     "skills_other": "{{count}} skill",
-    "tools_one": "{{count}} c\u00f4ng c\u1ee5",
-    "tools_other": "{{count}} c\u00f4ng c\u1ee5",
-    "subAgents_one": "{{count}} sub-agent",
-    "subAgents_other": "{{count}} sub-agent",
+    "tools_one": "{{count}} công cụ",
+    "tools_other": "{{count}} công cụ",
     "mcpServers_one": "{{count}} MCP server",
     "mcpServers_other": "{{count}} MCP server"
   },
   "create": {
-    "modalTitle": "T\u1ea1o Agent M\u1edbi",
-    "createBtn": "T\u1ea1o Agent",
-    "namePlaceholder": "v\u00ed d\u1ee5: Tr\u1ee3 l\u00fd Nghi\u00ean c\u1ee9u",
-    "descPlaceholder": "Agent n\u00e0y l\u00e0m g\u00ec?",
-    "promptPlaceholder": "B\u1ea1n l\u00e0 m\u1ed9t tr\u1ee3 l\u00fd h\u1eefu \u00edch..."
+    "modalTitle": "Tạo Agent Mới",
+    "createBtn": "Tạo Agent",
+    "namePlaceholder": "ví dụ: Trợ lý Nghiên cứu",
+    "descPlaceholder": "Agent này làm gì?",
+    "promptPlaceholder": "Bạn là một trợ lý hữu ích..."
   },
   "detail": {
-    "notFound": "Kh\u00f4ng t\u00ecm th\u1ea5y Agent.",
-    "backToAgents": "< Quay l\u1ea1i Agent",
+    "notFound": "Không tìm thấy Agent.",
+    "backToAgents": "< Quay lại Agent",
     "backBtn": "< Agent",
     "tabs": {
       "general": "Chung",
-      "modelConfig": "C\u1ea5u H\u00ecnh Model",
+      "modelConfig": "Cấu Hình Model",
       "skills": "Skill",
-      "tools": "C\u00f4ng C\u1ee5",
-      "subAgents": "Sub-Agent",
+      "tools": "Công Cụ",
       "memory": "Bộ Nhớ"
     }
   },
   "general": {
-    "sectionTitle": "TH\u00d4NG TIN",
-    "deleteBtn": "X\u00f3a Agent"
+    "sectionTitle": "THÔNG TIN",
+    "deleteBtn": "Xóa Agent"
   },
   "modelConfig": {
-    "sectionTitle": "C\u1ea4U H\u00ccNH MODEL",
-    "compactLabel": "NG\u01af\u1ee0NG COMPACT"
+    "sectionTitle": "CẤU HÌNH MODEL",
+    "compactLabel": "NGƯỠNG COMPACT"
   },
   "skills": {
-    "assigned": "SKILL \u0110\u00c3 G\u00c1N",
-    "noneAssigned": "Ch\u01b0a c\u00f3 skill n\u00e0o \u0111\u01b0\u1ee3c g\u00e1n cho agent n\u00e0y.",
-    "addSection": "TH\u00caM SKILL",
-    "noneInProject": "Kh\u00f4ng c\u00f3 skill trong d\u1ef1 \u00e1n n\u00e0y",
-    "goTo": "\u0110i \u0111\u1ebfn Skill",
-    "manage": "Qu\u1ea3n l\u00fd Skill \u2192"
+    "assigned": "SKILL ĐÃ GÁN",
+    "noneAssigned": "Chưa có skill nào được gán cho agent này.",
+    "addSection": "THÊM SKILL",
+    "noneInProject": "Không có skill trong dự án này",
+    "goTo": "Đi đến Skill",
+    "manage": "Quản lý Skill →"
   },
   "tools": {
-    "builtinSection": "C\u00d4NG C\u1ee4 T\u00cdCH H\u1ee2P",
-    "comingSoon": "S\u1eaeP RA M\u1eaeT",
-    "customSection": "C\u00d4NG C\u1ee4 T\u00d9Y CH\u1ec8NH",
-    "bashDesc": "Th\u1ef1c thi l\u1ec7nh bash, \u0111\u1ecdc v\u00e0 ghi file",
-    "browserDesc": "\u0110i\u1ec1u khi\u1ec3n tr\u00ecnh duy\u1ec7t web \u0111\u1ec3 t\u1ef1 \u0111\u1ed9ng h\u00f3a",
-    "computerUseDesc": "T\u1ef1 \u0111\u1ed9ng h\u00f3a m\u00e0n h\u00ecnh v\u00e0 \u0111i\u1ec1u khi\u1ec3n h\u1ec7 th\u1ed1ng",
-    "taskDesc": "T\u1ea1o v\u00e0 qu\u1ea3n l\u00fd nhi\u1ec7m v\u1ee5 trong cu\u1ed9c tr\u00f2 chuy\u1ec7n",
-    "memoryDesc": "Kho nh\u1edb b\u1ec1n v\u1eefng xuy\u00ean su\u1ed1t c\u00e1c cu\u1ed9c tr\u00f2 chuy\u1ec7n"
+    "builtinSection": "CÔNG CỤ TÍCH HỢP",
+    "comingSoon": "SẮP RA MẮT",
+    "customSection": "CÔNG CỤ TÙY CHỈNH",
+    "bashDesc": "Thực thi lệnh bash, đọc và ghi file",
+    "browserDesc": "Điều khiển trình duyệt web để tự động hóa",
+    "computerUseDesc": "Tự động hóa màn hình và điều khiển hệ thống",
+    "taskDesc": "Tạo và quản lý nhiệm vụ trong cuộc trò chuyện",
+    "memoryDesc": "Kho nhớ bền vững xuyên suốt các cuộc trò chuyện"
   },
   "mcp": {
-    "warningTitle": "\u26a0 C\u1ea2NH B\u00c1O",
-    "warningText": "MCP server b\u00ean th\u1ee9 ba c\u00f3 th\u1ec3 truy c\u1eadp ho\u1eb7c ch\u1ec9nh s\u1eeda file tr\u00ean m\u00e1y t\u00ednh c\u1ee7a b\u1ea1n.",
-    "enableSandboxHint": "B\u1eadt \"Apply to MCP\" trong C\u00e0i \u0111\u1eb7t > Permissions \u0111\u1ec3 sandbox MCP server.",
-    "sandboxUnavailable": "Sandbox runtime kh\u00f4ng kh\u1ea3 d\u1ee5ng tr\u00ean n\u1ec1n t\u1ea3ng n\u00e0y.",
-    "assigned": "MCP SERVER \u0110\u00c3 G\u00c1N",
-    "noneAssigned": "Ch\u01b0a c\u00f3 MCP server n\u00e0o \u0111\u01b0\u1ee3c g\u00e1n cho agent n\u00e0y.",
-    "addSection": "TH\u00caM MCP SERVER",
-    "noneInProject": "Kh\u00f4ng c\u00f3 MCP server trong d\u1ef1 \u00e1n n\u00e0y",
-    "goTo": "\u0110i \u0111\u1ebfn MCP Server",
-    "manage": "Qu\u1ea3n l\u00fd MCP Server \u2192",
+    "warningTitle": "⚠ CẢNH BÁO",
+    "warningText": "MCP server bên thứ ba có thể truy cập hoặc chỉnh sửa file trên máy tính của bạn.",
+    "enableSandboxHint": "Bật \"Apply to MCP\" trong Cài đặt > Permissions để sandbox MCP server.",
+    "sandboxUnavailable": "Sandbox runtime không khả dụng trên nền tảng này.",
+    "assigned": "MCP SERVER ĐÃ GÁN",
+    "noneAssigned": "Chưa có MCP server nào được gán cho agent này.",
+    "addSection": "THÊM MCP SERVER",
+    "noneInProject": "Không có MCP server trong dự án này",
+    "goTo": "Đi đến MCP Server",
+    "manage": "Quản lý MCP Server →",
     "restricted": "Restricted"
-  },
-  "subAgents": {
-    "assigned": "SUB-AGENT \u0110\u00c3 G\u00c1N",
-    "noneAssigned": "Ch\u01b0a c\u00f3 sub-agent n\u00e0o \u0111\u01b0\u1ee3c g\u00e1n cho agent n\u00e0y.",
-    "addSection": "TH\u00caM SUB-AGENT",
-    "noneAvailable": "Kh\u00f4ng c\u00f3 agent kh\u00e1c trong d\u1ef1 \u00e1n n\u00e0y.",
-    "unknown": "Kh\u00f4ng x\u00e1c \u0111\u1ecbnh",
-    "rolePlaceholder": "Vai tr\u00f2..."
   },
   "panel": {
     "modelLabel": "MODEL",
-    "inherited": "K\u1ebf th\u1eeba",
-    "capabilities": "KH\u1ea2 N\u0102NG",
+    "inherited": "Kế thừa",
+    "capabilities": "KHẢ NĂNG",
     "subAgentsLabel": "SUB-AGENT",
-    "openDetail": "M\u1edf Chi Ti\u1ebft"
+    "openDetail": "Mở Chi Tiết"
   },
   "topology": {
-    "resetLayout": "\u0110\u1eb7t L\u1ea1i B\u1ed1 C\u1ee5c",
-    "editAgent": "S\u1eeda Agent",
-    "setMainAgent": "\u0110\u1eb7t l\u00e0m Main Agent"
+    "resetLayout": "Đặt Lại Bố Cục",
+    "editAgent": "Sửa Agent"
   },
   "memory": {
-    "sectionTitle": "B\u1ed8 NH\u1eda",
-    "pinnedSection": "\u0110\u00c3 GHIM",
-    "pinnedHint": "lu\u00f4n \u0111\u01b0\u1ee3c t\u1ea3i",
-    "autoLoadedSection": "T\u1ef0 \u0110\u1ed8NG T\u1ea2I",
-    "notLoadedSection": "CH\u01af\u0041 T\u1ea2I",
-    "notLoadedCount_one": "{{count}} b\u1ed9 nh\u1edb",
-    "notLoadedCount_other": "{{count}} b\u1ed9 nh\u1edb",
-    "cutoffLine": "ng\u01b0\u1ee1ng t\u1ef1 \u0111\u1ed9ng t\u1ea3i",
-    "addBtn": "+ Th\u00eam B\u1ed9 Nh\u1edb",
-    "addTitle": "TH\u00caM B\u1ed8 NH\u1eda",
-    "contentPlaceholder": "Agent n\u00ean ghi nh\u1edb \u0111i\u1ec1u g\u00ec?",
-    "tagsPlaceholder": "Th\u1ebb (ph\u00e2n c\u00e1ch b\u1eb1ng d\u1ea5u ph\u1ea9y)",
-    "empty": "Ch\u01b0a c\u00f3 b\u1ed9 nh\u1edb n\u00e0o. Th\u00eam b\u1ed9 nh\u1edb \u0111\u1ec3 l\u01b0u ki\u1ebfn th\u1ee9c xuy\u00ean su\u1ed1t c\u00e1c cu\u1ed9c tr\u00f2 chuy\u1ec7n.",
-    "statusLine": "{{pinned}} \u0111\u00e3 ghim | T\u1ef1 \u0111\u1ed9ng t\u1ea3i: {{autoLoaded}}/{{limit}} | {{total}} t\u1ed5ng",
-    "priority": "\u01afu ti\u00ean",
-    "pinned": "\u0110\u00e3 ghim",
+    "sectionTitle": "BỘ NHỚ",
+    "pinnedSection": "ĐÃ GHIM",
+    "pinnedHint": "luôn được tải",
+    "autoLoadedSection": "TỰ ĐỘNG TẢI",
+    "notLoadedSection": "CHƯA TẢI",
+    "notLoadedCount_one": "{{count}} bộ nhớ",
+    "notLoadedCount_other": "{{count}} bộ nhớ",
+    "cutoffLine": "ngưỡng tự động tải",
+    "addBtn": "+ Thêm Bộ Nhớ",
+    "addTitle": "THÊM BỘ NHỚ",
+    "contentPlaceholder": "Agent nên ghi nhớ điều gì?",
+    "tagsPlaceholder": "Thẻ (phân cách bằng dấu phẩy)",
+    "empty": "Chưa có bộ nhớ nào. Thêm bộ nhớ để lưu kiến thức xuyên suốt các cuộc trò chuyện.",
+    "statusLine": "{{pinned}} đã ghim | Tự động tải: {{autoLoaded}}/{{limit}} | {{total}} tổng",
+    "priority": "Ưu tiên",
+    "pinned": "Đã ghim",
     "pin": "Ghim",
-    "unpin": "B\u1ecf ghim"
+    "unpin": "Bỏ ghim"
   }
 }

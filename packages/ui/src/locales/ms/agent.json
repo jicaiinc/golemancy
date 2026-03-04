@@ -13,8 +13,6 @@
     "error": "ralat",
     "paused": "dijeda"
   },
-  "currentMain": "MAIN SEMASA",
-  "currentMainTooltip": "Agen main yang dipilih semasa untuk projek ini",
   "noProviders": "Tiada provider dikonfigurasi",
   "noModels": "Tiada model tersedia",
   "savedMsg": "Disimpan!",
@@ -23,8 +21,6 @@
     "subtitle_one": "{{count}} agen dalam projek ini",
     "subtitle_other": "{{count}} agen dalam projek ini",
     "newBtn": "+ Agen Baharu",
-    "viewGrid": "Grid",
-    "viewTopology": "Topologi",
     "empty": "Belum ada agen",
     "createFirst": "Cipta Agen Pertama Anda"
   },
@@ -33,8 +29,6 @@
     "skills_other": "{{count}} skill",
     "tools_one": "{{count}} alat",
     "tools_other": "{{count}} alat",
-    "subAgents_one": "{{count}} sub-agen",
-    "subAgents_other": "{{count}} sub-agen",
     "mcpServers_one": "{{count}} pelayan MCP",
     "mcpServers_other": "{{count}} pelayan MCP"
   },
@@ -54,7 +48,6 @@
       "modelConfig": "Konfigurasi Model",
       "skills": "Skill",
       "tools": "Alatan",
-      "subAgents": "Sub-Agen",
       "memory": "Memori"
     }
   },
@@ -72,7 +65,7 @@
     "addSection": "TAMBAH SKILL",
     "noneInProject": "Tiada skill dalam projek ini",
     "goTo": "Pergi ke Skill",
-    "manage": "Urus Skill \u2192"
+    "manage": "Urus Skill →"
   },
   "tools": {
     "builtinSection": "ALATAN TERBINA DALAM",
@@ -85,7 +78,7 @@
     "memoryDesc": "Storan memori kekal merentas perbualan"
   },
   "mcp": {
-    "warningTitle": "\u26a0 AMARAN",
+    "warningTitle": "⚠ AMARAN",
     "warningText": "Pelayan MCP pihak ketiga mungkin mengakses atau mengubah fail di komputer anda.",
     "enableSandboxHint": "Aktifkan \"Apply to MCP\" dalam Tetapan > Permissions untuk sandbox pelayan MCP.",
     "sandboxUnavailable": "Sandbox runtime tidak tersedia di platform ini.",
@@ -94,16 +87,8 @@
     "addSection": "TAMBAH PELAYAN MCP",
     "noneInProject": "Tiada pelayan MCP dalam projek ini",
     "goTo": "Pergi ke Pelayan MCP",
-    "manage": "Urus Pelayan MCP \u2192",
+    "manage": "Urus Pelayan MCP →",
     "restricted": "Restricted"
-  },
-  "subAgents": {
-    "assigned": "SUB-AGEN YANG DITETAPKAN",
-    "noneAssigned": "Tiada sub-agen ditetapkan kepada agen ini.",
-    "addSection": "TAMBAH SUB-AGEN",
-    "noneAvailable": "Tiada agen lain tersedia dalam projek ini.",
-    "unknown": "Tidak diketahui",
-    "rolePlaceholder": "Peranan..."
   },
   "panel": {
     "modelLabel": "MODEL",
@@ -114,8 +99,7 @@
   },
   "topology": {
     "resetLayout": "Set Semula Susun Atur",
-    "editAgent": "Sunting Agen",
-    "setMainAgent": "Tetapkan sebagai Main Agent"
+    "editAgent": "Sunting Agen"
   },
   "memory": {
     "sectionTitle": "MEMORI",
