@@ -78,6 +78,27 @@ export class MockProjectService implements IProjectService {
     await delay()
     this.data.delete(id)
   }
+
+  async clone(id: ProjectId, newName: string): Promise<Project> {
+    await delay()
+    const source = this.data.get(id)
+    if (!source) throw new Error(`Project ${id} not found`)
+    const now = new Date().toISOString()
+    const project: Project = {
+      id: genId('proj') as ProjectId,
+      name: newName,
+      description: source.description,
+      icon: source.icon,
+      config: { ...source.config },
+      agentCount: source.agentCount,
+      activeAgentCount: 0,
+      lastActivityAt: now,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(project.id, project)
+    return project
+  }
 }
 
 // --- AgentService ---
@@ -127,6 +148,31 @@ export class MockAgentService implements IAgentService {
     await delay()
     const agent = this.data.get(id)
     if (agent && agent.projectId === projectId) this.data.delete(id)
+  }
+
+  async clone(projectId: ProjectId, id: AgentId, newName: string): Promise<Agent> {
+    await delay()
+    const source = this.data.get(id)
+    if (!source || source.projectId !== projectId) throw new Error(`Agent ${id} not found`)
+    const now = new Date().toISOString()
+    const agent: Agent = {
+      id: genId('agent') as AgentId,
+      projectId,
+      name: newName,
+      description: source.description,
+      status: 'idle',
+      systemPrompt: source.systemPrompt,
+      modelConfig: { ...source.modelConfig },
+      skillIds: [...source.skillIds],
+      tools: source.tools.map(t => ({ ...t })),
+      mcpServers: [...source.mcpServers],
+      builtinTools: { ...source.builtinTools },
+      compactThreshold: source.compactThreshold,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(agent.id, agent)
+    return agent
   }
 }
 
@@ -826,6 +872,28 @@ export class MockTeamService implements ITeamService {
       this.data.delete(id)
       this.layouts.delete(id)
     }
+  }
+
+  async clone(projectId: ProjectId, id: TeamId, newName: string): Promise<Team> {
+    await delay()
+    const source = this.data.get(id)
+    if (!source || source.projectId !== projectId) throw new Error(`Team ${id} not found`)
+    const now = new Date().toISOString()
+    const team: Team = {
+      id: genId('team') as TeamId,
+      projectId,
+      name: newName,
+      description: source.description,
+      instruction: source.instruction,
+      members: source.members.map(m => ({ ...m })),
+      layout: source.layout
+        ? Object.fromEntries(Object.entries(source.layout).map(([k, v]) => [k, { ...v }]))
+        : undefined,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(team.id, team)
+    return team
   }
 
   private layouts = new Map<TeamId, Record<string, { x: number; y: number }>>()

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
-import { PixelButton, PixelCard, PixelBadge, PixelSpinner, OpenExternalIcon } from '../../components'
+import { PixelButton, PixelCard, PixelBadge, PixelSpinner, OpenExternalIcon, CopyIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { ProjectCreateModal } from './ProjectCreateModal'
@@ -24,6 +24,7 @@ export function ProjectListPage() {
   const { t } = useTranslation('project')
   const projects = useAppStore(s => s.projects)
   const projectsLoading = useAppStore(s => s.projectsLoading)
+  const cloneProject = useAppStore(s => s.cloneProject)
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
 
@@ -87,6 +88,16 @@ export function ProjectListPage() {
                         {project.description}
                       </p>
                     </div>
+                    <button
+                      className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0"
+                      title={t('list.clone')}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        cloneProject(project.id, `${project.name} (copy)`)
+                      }}
+                    >
+                      <CopyIcon className="w-[14px] h-[14px]" />
+                    </button>
                     {window.electronAPI?.openNewWindow && (
                       <button
                         className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0"

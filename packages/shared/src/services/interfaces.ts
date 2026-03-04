@@ -20,6 +20,7 @@ export interface IProjectService {
   create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
   update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
+  clone(id: ProjectId, newName: string): Promise<Project>
 }
 
 export interface IAgentService {
@@ -28,6 +29,7 @@ export interface IAgentService {
   create(projectId: ProjectId, data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>): Promise<Agent>
   update(projectId: ProjectId, id: AgentId, data: Partial<Agent>): Promise<Agent>
   delete(projectId: ProjectId, id: AgentId): Promise<void>
+  clone(projectId: ProjectId, id: AgentId, newName: string): Promise<Agent>
 }
 
 export interface ConversationTokenUsageResult {
@@ -202,6 +204,7 @@ export interface ITeamService {
   create(projectId: ProjectId, data: Pick<Team, 'name' | 'description' | 'instruction' | 'members'>): Promise<Team>
   update(projectId: ProjectId, id: TeamId, data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>): Promise<Team>
   delete(projectId: ProjectId, id: TeamId): Promise<void>
+  clone(projectId: ProjectId, id: TeamId, newName: string): Promise<Team>
   getLayout(projectId: ProjectId, teamId: TeamId): Promise<Record<string, { x: number; y: number }>>
   saveLayout(projectId: ProjectId, teamId: TeamId, layout: Record<string, { x: number; y: number }>): Promise<void>
 }

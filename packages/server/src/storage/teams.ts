@@ -95,6 +95,33 @@ export class FileTeamStorage implements ITeamService {
     await deleteFile(legacyLayoutPath).catch(() => {})
   }
 
+  async clone(projectId: ProjectId, id: TeamId, newName: string): Promise<Team> {
+    const source = await this.getById(projectId, id)
+    if (!source) throw new Error(`Team ${id} not found in project ${projectId}`)
+
+    const newId = generateId('team')
+    log.debug({ projectId, sourceId: id, newId }, 'cloning team')
+    const now = new Date().toISOString()
+
+    const cloned: Team = {
+      id: newId,
+      projectId,
+      name: newName,
+      description: source.description,
+      instruction: source.instruction,
+      members: source.members.map(m => ({ ...m })),
+      layout: source.layout
+        ? Object.fromEntries(Object.entries(source.layout).map(([k, v]) => [k, { ...v }]))
+        : undefined,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    const { projectId: _, ...toWrite } = cloned
+    await writeJson(this.teamPath(projectId, newId), toWrite)
+    return cloned
+  }
+
   async getLayout(projectId: ProjectId, teamId: TeamId): Promise<Record<string, { x: number; y: number }>> {
     const team = await this.getById(projectId, teamId)
     return team?.layout ?? {}

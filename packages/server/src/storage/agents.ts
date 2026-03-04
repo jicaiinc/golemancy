@@ -102,4 +102,34 @@ export class FileAgentStorage implements IAgentService {
     log.debug({ projectId, agentId: id }, 'deleting agent')
     await deleteFile(this.agentPath(projectId, id))
   }
+
+  async clone(projectId: ProjectId, id: AgentId, newName: string): Promise<Agent> {
+    const source = await this.getById(projectId, id)
+    if (!source) throw new Error(`Agent ${id} not found in project ${projectId}`)
+
+    const newId = generateId('agent')
+    log.debug({ projectId, sourceId: id, newId }, 'cloning agent')
+    const now = new Date().toISOString()
+
+    const cloned: Agent = {
+      id: newId,
+      projectId,
+      name: newName,
+      description: source.description,
+      status: 'idle',
+      systemPrompt: source.systemPrompt,
+      modelConfig: { ...source.modelConfig },
+      skillIds: [...source.skillIds],
+      tools: structuredClone(source.tools),
+      mcpServers: [...source.mcpServers],
+      builtinTools: structuredClone(source.builtinTools),
+      compactThreshold: source.compactThreshold,
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    const { projectId: _, ...toWrite } = cloned
+    await writeJson(this.agentPath(projectId, newId), toWrite)
+    return cloned
+  }
 }

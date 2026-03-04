@@ -131,6 +131,7 @@ interface ProjectActions {
   createProject(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
   updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<void>
   deleteProject(id: ProjectId): Promise<void>
+  cloneProject(id: ProjectId, newName: string): Promise<Project>
 }
 
 interface AgentActions {
@@ -138,6 +139,7 @@ interface AgentActions {
   createAgent(data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>): Promise<Agent>
   updateAgent(id: AgentId, data: Partial<Agent>): Promise<void>
   deleteAgent(id: AgentId): Promise<void>
+  cloneAgent(id: AgentId, newName: string): Promise<Agent>
   /** Update agent status from WebSocket event (no server call) */
   updateAgentStatus(agentId: AgentId, status: AgentStatus): void
 }
@@ -239,6 +241,7 @@ interface TeamActions {
   createTeam(data: Pick<Team, 'name' | 'description' | 'instruction' | 'members'>): Promise<Team>
   updateTeam(id: TeamId, data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>): Promise<void>
   deleteTeam(id: TeamId): Promise<void>
+  cloneTeam(id: TeamId, newName: string): Promise<Team>
 }
 
 // --- Combined ---
@@ -397,6 +400,12 @@ export const useAppStore = create<AppState>()(
         }))
       },
 
+      async cloneProject(id, newName) {
+        const project = await getServices().projects.clone(id, newName)
+        set(s => ({ projects: [...s.projects, project] }))
+        return project
+      },
+
       // --- Agent state ---
       agents: [],
       agentsLoading: false,
@@ -432,6 +441,14 @@ export const useAppStore = create<AppState>()(
         if (project?.defaultAgentId === id) {
           await get().updateProject(projectId, { defaultAgentId: undefined })
         }
+      },
+
+      async cloneAgent(id, newName) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const agent = await getServices().agents.clone(projectId, id, newName)
+        set(s => ({ agents: [...s.agents, agent] }))
+        return agent
       },
 
       updateAgentStatus(agentId: AgentId, status: AgentStatus) {
@@ -976,6 +993,14 @@ export const useAppStore = create<AppState>()(
         if (project?.defaultTeamId === id) {
           await get().updateProject(project.id, { defaultTeamId: undefined })
         }
+      },
+
+      async cloneTeam(id, newName) {
+        const projectId = get().currentProjectId
+        if (!projectId) throw new Error('No project selected')
+        const team = await getServices().teams.clone(projectId, id, newName)
+        set(s => ({ teams: [...s.teams, team] }))
+        return team
       },
     }),
     {

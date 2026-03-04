@@ -21,6 +21,7 @@
     "subtitle_one": "{{count}} agent in this project",
     "subtitle_other": "{{count}} agents in this project",
     "newBtn": "+ New Agent",
+    "clone": "Clone Agent",
     "empty": "No agents yet",
     "createFirst": "Create Your First Agent"
   },

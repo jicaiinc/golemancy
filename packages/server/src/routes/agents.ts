@@ -48,6 +48,25 @@ export function createAgentRoutes(deps: AgentRouteDeps) {
     return c.json(agent)
   })
 
+  app.post('/:id/clone', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const agentId = c.req.param('id') as AgentId
+    const body = await c.req.json()
+    const name = body?.name
+
+    if (typeof name !== 'string' || name.trim().length === 0) {
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'name', message: 'Must be a non-empty string' }] }, 400)
+    }
+    if (name.length > 100) {
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'name', message: 'Must be 100 characters or fewer' }] }, 400)
+    }
+
+    log.debug({ projectId, sourceId: agentId }, 'cloning agent')
+    const cloned = await storage.clone(projectId, agentId, name.trim())
+    log.debug({ projectId, newId: cloned.id }, 'cloned agent')
+    return c.json(cloned, 201)
+  })
+
   app.delete('/:id', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const agentId = c.req.param('id') as AgentId

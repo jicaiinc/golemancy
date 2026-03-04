@@ -4,6 +4,7 @@ import type { Project, ProjectId, IProjectService } from '@golemancy/shared'
 import { readJson, writeJson, deleteDir, isNodeError } from './base'
 import { getDataDir, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
+import { cloneProject } from './clone-project'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'storage:projects' })
@@ -101,5 +102,9 @@ export class FileProjectStorage implements IProjectService {
     validateId(id)
     log.debug({ projectId: id }, 'deleting project')
     await deleteDir(path.join(this.projectsDir, id))
+  }
+
+  async clone(id: ProjectId, newName: string): Promise<Project> {
+    return cloneProject(id, newName)
   }
 }

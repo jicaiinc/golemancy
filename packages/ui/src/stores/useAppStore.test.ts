@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useAppStore } from './useAppStore'
 import { configureServices } from '../services/container'
 import type { ServiceContainer } from '../services/container'
-import type { ProjectId, AgentId, ConversationId, CronJobId } from '@golemancy/shared'
+import type { ProjectId, AgentId, ConversationId, CronJobId, TeamId } from '@golemancy/shared'
 
 // Mock chat-instances to verify store calls destroyChat/destroyAllChats/releaseIdleChats
 vi.mock('../lib/chat-instances', () => ({
@@ -27,6 +27,9 @@ function createTestServices(): ServiceContainer {
         Promise.resolve({ id, ...data }),
       ),
       delete: vi.fn().mockResolvedValue(undefined),
+      clone: vi.fn().mockImplementation((id, newName) =>
+        Promise.resolve({ id: 'proj-cloned' as ProjectId, name: newName }),
+      ),
     },
     agents: {
       list: vi.fn().mockResolvedValue([
@@ -40,6 +43,9 @@ function createTestServices(): ServiceContainer {
         Promise.resolve({ id, ...data }),
       ),
       delete: vi.fn().mockResolvedValue(undefined),
+      clone: vi.fn().mockImplementation((_pid, _id, newName) =>
+        Promise.resolve({ id: 'agent-cloned' as AgentId, name: newName }),
+      ),
     },
     conversations: {
       list: vi.fn().mockResolvedValue([
@@ -136,6 +142,9 @@ function createTestServices(): ServiceContainer {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      clone: vi.fn().mockImplementation((_pid, _id, newName) =>
+        Promise.resolve({ id: 'team-cloned' as TeamId, name: newName }),
+      ),
       getLayout: vi.fn().mockResolvedValue({}),
       saveLayout: vi.fn(),
     },

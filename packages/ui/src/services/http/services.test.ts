@@ -9,7 +9,7 @@
  * - Network errors
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { ProjectId, AgentId, ConversationId, TaskId, SkillId, CronJobId, PermissionsConfigId, MessageId } from '@golemancy/shared'
+import type { ProjectId, AgentId, ConversationId, TaskId, SkillId, CronJobId, PermissionsConfigId, MessageId, TeamId } from '@golemancy/shared'
 import { setAuthToken } from './base'
 import {
   HttpProjectService,
@@ -23,6 +23,7 @@ import {
   HttpSettingsService,
   HttpDashboardService,
   HttpPermissionsConfigService,
+  HttpTeamService,
 } from './services'
 
 // ── Mock fetch ────────────────────────────────────────────────
@@ -171,6 +172,15 @@ describe('HttpProjectService', () => {
       expect.objectContaining({ method: 'DELETE' }),
     )
   })
+
+  it('clone() → POST /api/projects/:id/clone', async () => {
+    mockFetch.mockResolvedValue(jsonResponse({ id: 'proj-new', name: 'Cloned' }))
+    await svc.clone(PROJ, 'Cloned')
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/clone`,
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ name: 'Cloned' }) }),
+    )
+  })
 })
 
 // ── HttpAgentService ──────────────────────────────────────────
@@ -209,6 +219,15 @@ describe('HttpAgentService', () => {
     expect(mockFetch).toHaveBeenCalledWith(
       `${BASE}/api/projects/${PROJ}/agents/${AGENT}`,
       expect.objectContaining({ method: 'DELETE' }),
+    )
+  })
+
+  it('clone() → POST /api/projects/:projectId/agents/:id/clone', async () => {
+    mockFetch.mockResolvedValue(jsonResponse({ id: 'agent-new', name: 'Cloned Agent' }))
+    await svc.clone(PROJ, AGENT, 'Cloned Agent')
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/agents/${AGENT}/clone`,
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ name: 'Cloned Agent' }) }),
     )
   })
 })
@@ -521,6 +540,22 @@ describe('HttpPermissionsConfigService', () => {
     expect(mockFetch).toHaveBeenCalledWith(
       `${BASE}/api/projects/${PROJ}/permissions-config/${PERM}/duplicate`,
       expect.objectContaining({ method: 'POST', body: JSON.stringify({ title: 'Copy of Custom' }) }),
+    )
+  })
+})
+
+// ── HttpTeamService ──────────────────────────────────────────
+
+describe('HttpTeamService', () => {
+  const svc = new HttpTeamService(BASE)
+  const TEAM = 'team-1' as TeamId
+
+  it('clone() → POST /api/projects/:projectId/teams/:id/clone', async () => {
+    mockFetch.mockResolvedValue(jsonResponse({ id: 'team-new', name: 'Cloned Team' }))
+    await svc.clone(PROJ, TEAM, 'Cloned Team')
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/projects/${PROJ}/teams/${TEAM}/clone`,
+      expect.objectContaining({ method: 'POST', body: JSON.stringify({ name: 'Cloned Team' }) }),
     )
   })
 })

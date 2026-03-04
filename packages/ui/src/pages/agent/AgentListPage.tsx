@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import type { AgentStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
-import { PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelSpinner } from '../../components'
+import { PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelSpinner, CopyIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { AgentCreateModal } from './AgentCreateModal'
 
@@ -34,6 +34,7 @@ export function AgentListPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const agents = useAppStore(s => s.agents)
   const agentsLoading = useAppStore(s => s.agentsLoading)
+  const cloneAgent = useAppStore(s => s.cloneAgent)
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
 
@@ -99,6 +100,16 @@ export function AgentListPage() {
                       <PixelBadge variant={statusBadgeVariant[agent.status]}>
                         {t(`statusLabel.${agent.status}`)}
                       </PixelBadge>
+                      <button
+                        className="ml-auto text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
+                        title={t('list.clone')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          cloneAgent(agent.id, `${agent.name} (copy)`)
+                        }}
+                      >
+                        <CopyIcon className="w-[14px] h-[14px]" />
+                      </button>
                     </div>
                     <p className="text-[12px] text-text-secondary mt-1 line-clamp-2">
                       {agent.description}

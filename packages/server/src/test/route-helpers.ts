@@ -39,6 +39,7 @@ export function createMockStorage(): MockStorage {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn().mockResolvedValue(undefined),
+      clone: vi.fn(),
     },
     agentStorage: {
       list: vi.fn().mockResolvedValue([]),
@@ -46,6 +47,7 @@ export function createMockStorage(): MockStorage {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn().mockResolvedValue(undefined),
+      clone: vi.fn(),
     },
     conversationStorage: {
       list: vi.fn().mockResolvedValue([]),
@@ -138,6 +140,7 @@ export function createMockStorage(): MockStorage {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn().mockResolvedValue(undefined),
+      clone: vi.fn(),
       getLayout: vi.fn().mockResolvedValue({}),
       saveLayout: vi.fn().mockResolvedValue(undefined),
     },

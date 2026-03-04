@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
-import { PixelButton, PixelCard, PixelSpinner } from '../../components'
+import { PixelButton, PixelCard, PixelSpinner, CopyIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { TeamCreateModal } from './TeamCreateModal'
 
@@ -13,6 +13,7 @@ export function TeamListPage() {
   const teams = useAppStore(s => s.teams)
   const teamsLoading = useAppStore(s => s.teamsLoading)
   const agents = useAppStore(s => s.agents)
+  const cloneTeam = useAppStore(s => s.cloneTeam)
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
 
@@ -68,7 +69,19 @@ export function TeamListPage() {
                   <div className="absolute top-0 left-0 right-0 h-1 bg-accent-blue" />
 
                   <div className="mt-1">
-                    <h3 className="font-pixel text-[10px] text-text-primary truncate">{team.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-pixel text-[10px] text-text-primary truncate">{team.name}</h3>
+                      <button
+                        className="ml-auto text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
+                        title={t('list.clone')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          cloneTeam(team.id, `${team.name} (copy)`)
+                        }}
+                      >
+                        <CopyIcon className="w-[14px] h-[14px]" />
+                      </button>
+                    </div>
                     <p className="text-[12px] text-text-secondary mt-1 line-clamp-2">
                       {team.description}
                     </p>

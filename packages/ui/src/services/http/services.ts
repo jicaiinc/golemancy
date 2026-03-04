@@ -39,6 +39,11 @@ export class HttpProjectService implements IProjectService {
   async delete(id: ProjectId) {
     await fetchJson(`${this.baseUrl}/api/projects/${id}`, { method: 'DELETE' })
   }
+  clone(id: ProjectId, newName: string) {
+    return fetchJson<Project>(`${this.baseUrl}/api/projects/${id}/clone`, {
+      method: 'POST', body: JSON.stringify({ name: newName }),
+    })
+  }
 }
 
 export class HttpAgentService implements IAgentService {
@@ -62,6 +67,11 @@ export class HttpAgentService implements IAgentService {
   }
   async delete(projectId: ProjectId, id: AgentId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/agents/${id}`, { method: 'DELETE' })
+  }
+  clone(projectId: ProjectId, id: AgentId, newName: string) {
+    return fetchJson<Agent>(`${this.baseUrl}/api/projects/${projectId}/agents/${id}/clone`, {
+      method: 'POST', body: JSON.stringify({ name: newName }),
+    })
   }
 }
 
@@ -418,6 +428,11 @@ export class HttpTeamService implements ITeamService {
   }
   async delete(projectId: ProjectId, id: TeamId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/teams/${id}`, { method: 'DELETE' })
+  }
+  clone(projectId: ProjectId, id: TeamId, newName: string) {
+    return fetchJson<Team>(`${this.baseUrl}/api/projects/${projectId}/teams/${id}/clone`, {
+      method: 'POST', body: JSON.stringify({ name: newName }),
+    })
   }
   async getLayout(projectId: ProjectId, teamId: TeamId) {
     const layout = await fetchJson<Record<string, { x: number; y: number }>>(

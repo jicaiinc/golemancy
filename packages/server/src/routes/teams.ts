@@ -64,6 +64,25 @@ export function createTeamRoutes(deps: TeamRouteDeps) {
     return c.json(layout)
   })
 
+  app.post('/:teamId/clone', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const teamId = c.req.param('teamId') as TeamId
+    const body = await c.req.json()
+    const name = body?.name
+
+    if (typeof name !== 'string' || name.trim().length === 0) {
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'name', message: 'Must be a non-empty string' }] }, 400)
+    }
+    if (name.length > 100) {
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'name', message: 'Must be 100 characters or fewer' }] }, 400)
+    }
+
+    log.debug({ projectId, sourceId: teamId }, 'cloning team')
+    const cloned = await storage.clone(projectId, teamId, name.trim())
+    log.debug({ projectId, newId: cloned.id }, 'cloned team')
+    return c.json(cloned, 201)
+  })
+
   app.delete('/:teamId', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const teamId = c.req.param('teamId') as TeamId

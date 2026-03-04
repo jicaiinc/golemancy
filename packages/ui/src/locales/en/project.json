@@ -13,6 +13,7 @@
     "empty": "No projects yet",
     "createFirst": "Create Your First Project",
     "openInWindow": "Open in New Window",
+    "clone": "Clone Project",
     "agents_one": "{{count}} agent",
     "agents_other": "{{count}} agents",
     "running_one": "{{count}} running",

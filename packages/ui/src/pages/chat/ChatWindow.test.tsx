@@ -94,8 +94,8 @@ function makeUIMessage(overrides?: Partial<UIMessage>): UIMessage {
 
 function createTestServices(): ServiceContainer {
   return {
-    projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    agents: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
+    projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), clone: vi.fn() },
+    agents: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), clone: vi.fn() },
     conversations: {
       list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(),
       sendMessage: vi.fn().mockResolvedValue(undefined),
@@ -113,7 +113,7 @@ function createTestServices(): ServiceContainer {
       getTokenTrend: vi.fn().mockResolvedValue([]),
       getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
     },
-    teams: { list: vi.fn().mockResolvedValue([]), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), getLayout: vi.fn().mockResolvedValue({}), saveLayout: vi.fn() },
+    teams: { list: vi.fn().mockResolvedValue([]), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), clone: vi.fn(), getLayout: vi.fn().mockResolvedValue({}), saveLayout: vi.fn() },
   } as unknown as ServiceContainer
 }
 

@@ -37,6 +37,30 @@ export function createProjectRoutes(storage: IProjectService) {
     return c.json(project, 201)
   })
 
+  app.post('/:id/clone', async (c) => {
+    const id = c.req.param('id') as ProjectId
+    const body = await c.req.json()
+    const name = body?.name
+
+    if (typeof name !== 'string' || name.trim().length === 0) {
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'name', message: 'Must be a non-empty string' }] }, 400)
+    }
+    if (name.length > 100) {
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'name', message: 'Must be 100 characters or fewer' }] }, 400)
+    }
+
+    log.debug({ projectId: id }, 'cloning project')
+    const project = await storage.clone(id, name.trim())
+    log.debug({ sourceId: id, newId: project.id }, 'cloned project')
+
+    // Eagerly create Python venv (non-blocking, non-fatal)
+    initProjectPythonEnv(project.id).catch((err) => {
+      log.warn({ err, projectId: project.id }, 'failed to create Python venv on project clone')
+    })
+
+    return c.json(project, 201)
+  })
+
   app.patch('/:id', async (c) => {
     const id = c.req.param('id') as ProjectId
     const data = await c.req.json()
