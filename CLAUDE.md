@@ -297,6 +297,17 @@ Key rules (read `_team/team.md` for complete role definitions, phase details, an
 - **Escalation**: Design phase — strict (any ambiguity must be reported to user); Implement/Test — autonomous (only escalate fundamental blockers)
 - **Fact Checker is mandatory** — no tech enters code without verification via WebSearch / Context7 / source code
 
+## Planning & Requirements Tracking
+
+When entering plan mode or creating any implementation plan:
+
+- **Requirements-first**: Every plan MUST begin with a numbered list of the user's original requirements. Include verbatim user quotes where they add clarity. This list is the **single source of truth** for the entire implementation cycle.
+- **User confirmation required**: The requirements list MUST be confirmed by the user before implementation begins. If subsequent discussion contradicts or refines original requirements, update the list and obtain user re-confirmation.
+- **100% satisfaction — no omissions**: Every listed requirement MUST be fully implemented. Partial implementations or silent omissions are not acceptable. When in doubt, re-read the requirements list.
+- **Completion verification**: After implementation, explicitly verify each requirement against the actual code/tests. Any unmet requirement is a blocker — do not consider the task done until all items are checked off.
+
+This discipline exists because agents lose context during long implementations, leading to drift and missed requirements. The requirements list prevents this by serving as an immutable reference throughout planning, implementation, and review.
+
 ## Note: Fact-Based Analysis
 
 When asked to analyze based on "facts", always consult actual evidence before drawing conclusions — never assume. "Facts" refers to: official docs, web search results, Context7 library lookups, source code readings, and similar verifiable sources. Verify technical claims (API signatures, library behavior, version-specific features) against "facts" rather than relying on training knowledge, which may be outdated or wrong.
