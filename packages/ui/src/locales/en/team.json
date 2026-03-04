@@ -45,6 +45,8 @@
     "memory": "Memory",
     "memoryEnabled": "Enabled",
     "memoryDisabled": "Disabled",
-    "noAgentsAvailable": "No agents available"
+    "noAgentsAvailable": "No agents available",
+    "emptyTeam": "This team has no members yet",
+    "addFirstAgent": "Add Agent to Start"
   }
 }

@@ -10,28 +10,22 @@ import { getServices } from '../../../services'
 interface TeamNodeDetailPanelProps {
   agent: Agent | null
   isLeader: boolean
-  role: string
   onClose: () => void
-  onSetLeader: (agentId: AgentId) => void
   onRemove: (agentId: AgentId) => void
-  onRoleChange: (agentId: AgentId, role: string) => void
 }
 
 export function TeamNodeDetailPanel({
-  agent, isLeader, role, onClose, onSetLeader, onRemove, onRoleChange,
+  agent, isLeader, onClose, onRemove,
 }: TeamNodeDetailPanelProps) {
   const { t } = useTranslation('team')
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
   const skills = useAppStore(s => s.skills)
-  const [editingRole, setEditingRole] = useState(role)
   const [memoryCount, setMemoryCount] = useState<number | null>(null)
-
-  useEffect(() => { setEditingRole(role) }, [role])
 
   // Load memory count for selected agent
   const agentId = agent?.id
-  const hasMemory = !!agent?.builtinTools.memory
+  const hasMemory = agent?.builtinTools?.memory !== false
   useEffect(() => {
     if (!agentId || !hasMemory || !projectId) {
       setMemoryCount(null)
@@ -87,19 +81,6 @@ export function TeamNodeDetailPanel({
 
           {/* Body */}
           <div className="p-3 flex flex-col gap-3 flex-1">
-            {/* Role */}
-            <div>
-              <div className="font-pixel text-[8px] text-text-dim mb-1">{t('topology.role')}</div>
-              <input
-                className="w-full h-7 bg-deep px-2 font-mono text-[11px] text-text-primary border-2 border-border-dim outline-none focus:border-accent-blue"
-                placeholder={t('topology.rolePlaceholder')}
-                value={editingRole}
-                onChange={e => setEditingRole(e.target.value)}
-                onBlur={() => { if (editingRole !== role) onRoleChange(agent.id, editingRole) }}
-                onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
-              />
-            </div>
-
             {/* Skills */}
             <div>
               <div className="font-pixel text-[8px] text-text-dim mb-1">
@@ -182,24 +163,14 @@ export function TeamNodeDetailPanel({
               {t('topology.openDetail')}
             </PixelButton>
             {!isLeader && (
-              <>
-                <PixelButton
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-center"
-                  onClick={() => onSetLeader(agent.id)}
-                >
-                  {t('topology.setAsLeader')}
-                </PixelButton>
-                <PixelButton
-                  variant="danger"
-                  size="sm"
-                  className="w-full justify-center"
-                  onClick={() => onRemove(agent.id)}
-                >
-                  {t('topology.removeMember')}
-                </PixelButton>
-              </>
+              <PixelButton
+                variant="danger"
+                size="sm"
+                className="w-full justify-center"
+                onClick={() => onRemove(agent.id)}
+              >
+                {t('topology.removeMember')}
+              </PixelButton>
             )}
           </div>
         </motion.div>

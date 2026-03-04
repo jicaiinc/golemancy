@@ -77,7 +77,7 @@ export function useTeamTopologyData(
         ? Object.entries(agent.builtinTools).filter(([, v]) => !!v).map(([k]) => k)
         : []
       const mcpServerNames = agent?.mcpServers ?? []
-      const memoryEnabled = !!agent?.builtinTools.memory
+      const memoryEnabled = agent?.builtinTools?.memory !== false
 
       return {
         id: member.agentId,
@@ -225,31 +225,13 @@ export function useTeamTopologyData(
     return true
   }, [team.id, team.members, updateTeam])
 
-  // Set leader
-  const setLeader = useCallback(async (agentId: AgentId) => {
-    const updatedMembers = team.members.map(m => {
-      if (m.agentId === agentId) return { ...m, parentAgentId: undefined }
-      if (!m.parentAgentId) return { ...m, parentAgentId: agentId }
-      return m
-    })
-    await updateTeam(team.id, { members: updatedMembers })
-  }, [team.id, team.members, updateTeam])
-
-  // Update member role
-  const updateMemberRole = useCallback(async (agentId: AgentId, role: string) => {
-    const updatedMembers = team.members.map(m =>
-      m.agentId === agentId ? { ...m, role } : m,
-    )
-    await updateTeam(team.id, { members: updatedMembers })
-  }, [team.id, team.members, updateTeam])
-
   return {
     nodes, edges,
     onNodesChange, onEdgesChange,
     onConnect, onEdgeDelete,
     onNodeDragStop,
     resetLayout,
-    addMember, removeMember, setLeader, updateMemberRole,
+    addMember, removeMember,
     selectedAgentId, setSelectedAgentId,
     layoutApplied,
   }

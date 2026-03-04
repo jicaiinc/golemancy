@@ -41,7 +41,7 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
   const { t } = useTranslation('team')
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
-  const { screenToFlowPosition, getNodes, fitView } = useReactFlow()
+  const { getNodes, fitView } = useReactFlow()
   const agents = useAppStore(s => s.agents)
   const skills = useAppStore(s => s.skills)
   const themeMode = useAppStore(s => s.themeMode)
@@ -52,7 +52,7 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
     onConnect, onEdgeDelete,
     onNodeDragStop,
     resetLayout,
-    addMember, removeMember, setLeader, updateMemberRole,
+    addMember, removeMember,
     selectedAgentId, setSelectedAgentId,
     layoutApplied,
   } = useTeamTopologyData(team, agents, skills, projectId as ProjectId)
@@ -72,6 +72,9 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
     screenPos: { x: number; y: number }
   } | null>(null)
 
+  // Empty state: add-first-agent popover
+  const [showEmptyPicker, setShowEmptyPicker] = useState(false)
+
   const selectedAgent = useMemo(() => {
     if (!selectedAgentId) return null
     return agents.find(a => a.id === selectedAgentId) ?? null
@@ -82,7 +85,7 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
     return team.members.find(m => m.agentId === selectedAgentId) ?? null
   }, [selectedAgentId, team.members])
 
-  // Available agents for palette sidebar
+  // Available agents (not already in team)
   const memberIds = useMemo(() => new Set(team.members.map(m => m.agentId)), [team.members])
   const availableAgents = useMemo(() => agents.filter(a => !memberIds.has(a.id)), [agents, memberIds])
 
@@ -106,36 +109,6 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
     navigate(`/projects/${projectId}/agents/${node.id}`)
   }, [navigate, projectId])
 
-  // Drag-to-add: allow drop on canvas
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
-  }, [])
-
-  // Drag-to-add: drop agent onto canvas (or onto existing node to auto-connect)
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault()
-    const agentId = e.dataTransfer.getData('application/golemancy-agent')
-    if (!agentId) return
-
-    const position = screenToFlowPosition({ x: e.clientX, y: e.clientY })
-
-    // Check if dropped on an existing node → auto-connect as child
-    const targetNode = getNodes().find(n => {
-      const w = n.measured?.width ?? 200
-      const h = n.measured?.height ?? 100
-      return position.x >= n.position.x && position.x <= n.position.x + w
-          && position.y >= n.position.y && position.y <= n.position.y + h
-    })
-
-    const parentAgentId = targetNode ? targetNode.id as AgentId : undefined
-    const nodePosition = targetNode
-      ? { x: targetNode.position.x, y: targetNode.position.y + (targetNode.measured?.height ?? 100) + 60 }
-      : position
-
-    await addMember(agentId as AgentId, nodePosition, parentAgentId)
-  }, [screenToFlowPosition, getNodes, addMember])
-
   const handleAddChild = useCallback(async (agentId: AgentId) => {
     if (!addChildState) return
     const parentNode = getNodes().find(n => n.id === addChildState.parentAgentId)
@@ -146,43 +119,21 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
     setAddChildState(null)
   }, [addChildState, getNodes, addMember])
 
+  const handleAddFirstAgent = useCallback(async (agentId: AgentId) => {
+    await addMember(agentId, { x: 0, y: 0 })
+    setShowEmptyPicker(false)
+  }, [addMember])
+
   const handleRemove = useCallback(async (agentId: AgentId) => {
     const success = await removeMember(agentId)
     if (success) setSelectedAgentId(null)
   }, [removeMember, setSelectedAgentId])
 
   const colorMode = themeMode === 'system' ? undefined : themeMode
+  const isEmpty = team.members.length === 0
 
   return (
     <div className="relative flex-1 h-full flex">
-      {/* Agent Palette Sidebar — drag agents to canvas to add */}
-      {availableAgents.length > 0 && (
-        <div className="w-[160px] bg-surface border-r-2 border-border-dim flex flex-col shrink-0 z-10">
-          <div className="px-3 py-2 font-pixel text-[8px] text-text-dim border-b border-border-dim">
-            {t('topology.agentPalette')}
-          </div>
-          <div className="flex-1 overflow-y-auto p-1.5 space-y-1">
-            {availableAgents.map(agent => (
-              <div
-                key={agent.id}
-                className="px-2 py-1.5 bg-deep border border-border-dim cursor-grab hover:border-accent-blue active:cursor-grabbing transition-colors"
-                draggable
-                onDragStart={e => {
-                  e.dataTransfer.setData('application/golemancy-agent', agent.id)
-                  e.dataTransfer.effectAllowed = 'move'
-                }}
-              >
-                <div className="font-pixel text-[9px] text-text-primary truncate">{agent.name}</div>
-                <div className="font-mono text-[8px] text-text-dim truncate">{agent.modelConfig.model}</div>
-              </div>
-            ))}
-          </div>
-          <div className="px-3 py-1.5 border-t border-border-dim">
-            <span className="font-mono text-[8px] text-text-dim">{t('topology.dragHint')}</span>
-          </div>
-        </div>
-      )}
-
       {/* Canvas area */}
       <div className="flex-1 relative">
         <TeamTopologyToolbar team={team} onResetLayout={resetLayout} />
@@ -199,9 +150,7 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
           onNodeDragStop={onNodeDragStop}
           onNodeClick={onNodeClick}
           onNodeDoubleClick={onNodeDoubleClick}
-          onPaneClick={() => { setSelectedAgentId(null); setAddChildState(null) }}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
+          onPaneClick={() => { setSelectedAgentId(null); setAddChildState(null); setShowEmptyPicker(false) }}
           colorMode={colorMode}
           fitView
           fitViewOptions={FIT_VIEW_OPTIONS}
@@ -213,6 +162,42 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
           <MiniMap />
           <Controls />
         </ReactFlow>
+
+        {/* Empty state overlay */}
+        {isEmpty && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+            <div className="flex flex-col items-center gap-3 pointer-events-auto">
+              <div className="font-mono text-[12px] text-text-dim">{t('topology.emptyTeam')}</div>
+              <div className="relative">
+                <button
+                  className="px-4 py-2 bg-accent-blue text-white font-pixel text-[10px] border-2 border-accent-blue hover:brightness-110 cursor-pointer transition-all"
+                  onClick={() => setShowEmptyPicker(!showEmptyPicker)}
+                >
+                  {t('topology.addFirstAgent')}
+                </button>
+                {showEmptyPicker && availableAgents.length > 0 && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-surface border-2 border-border-dim shadow-pixel-drop max-h-[200px] overflow-y-auto w-[200px] z-[100]">
+                    {availableAgents.map(agent => (
+                      <button
+                        key={agent.id}
+                        className="w-full px-2.5 py-1.5 text-left hover:bg-elevated cursor-pointer transition-colors border-b border-border-dim last:border-b-0"
+                        onClick={() => handleAddFirstAgent(agent.id)}
+                      >
+                        <div className="font-pixel text-[9px] text-text-primary truncate">{agent.name}</div>
+                        <div className="font-mono text-[8px] text-text-dim truncate">{agent.modelConfig.model}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {showEmptyPicker && availableAgents.length === 0 && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-surface border-2 border-border-dim shadow-pixel-drop px-3 py-2 w-[200px] z-[100]">
+                    <span className="font-mono text-[9px] text-text-dim">{t('topology.noAgentsAvailable')}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Add-child agent picker popover */}
         {addChildState && availableAgents.length > 0 && (
@@ -244,14 +229,8 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
         <TeamNodeDetailPanel
           agent={selectedAgent}
           isLeader={selectedMember ? !selectedMember.parentAgentId : false}
-          role={selectedMember?.role ?? ''}
           onClose={() => setSelectedAgentId(null)}
-          onSetLeader={async (agentId) => {
-            await setLeader(agentId)
-            setSelectedAgentId(null)
-          }}
           onRemove={handleRemove}
-          onRoleChange={updateMemberRole}
         />
       </div>
     </div>
