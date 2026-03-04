@@ -9,7 +9,10 @@
   },
   "sidebar": {
     "newChat": "+ New Chat",
-    "noConversations": "No conversations"
+    "noConversations": "No conversations",
+    "filter": "Filter",
+    "showCron": "Cron jobs",
+    "showSubAgent": "Sub-agents"
   },
   "window": {
     "startConversation": "Start the conversation...",

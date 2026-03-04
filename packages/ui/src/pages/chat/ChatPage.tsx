@@ -150,6 +150,9 @@ export function ChatPage() {
   }, [selectConversation])
 
   const teams = useAppStore(s => s.teams)
+  const chatFilterShowCron = useAppStore(s => s.chatFilterShowCron)
+  const chatFilterShowSubAgent = useAppStore(s => s.chatFilterShowSubAgent)
+  const setChatFilter = useAppStore(s => s.setChatFilter)
   const defaultAgentId = currentProject?.defaultAgentId ?? null
   const defaultTeamId = currentProject?.defaultTeamId ?? null
   const canNewChat = !!defaultAgentId || !!defaultTeamId
@@ -229,6 +232,9 @@ export function ChatPage() {
           onRenameConversation={handleRenameConversation}
           onNewChat={handleNewChat}
           canNewChat={canNewChat}
+          chatFilterShowCron={chatFilterShowCron}
+          chatFilterShowSubAgent={chatFilterShowSubAgent}
+          onSetChatFilter={setChatFilter}
         />
       )}
 

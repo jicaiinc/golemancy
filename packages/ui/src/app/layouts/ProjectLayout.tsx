@@ -3,6 +3,7 @@ import { Outlet, useParams, useNavigate } from 'react-router'
 import type { AgentId, AgentStatus, ConversationId, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useWs } from '../../providers/WebSocketProvider'
+import { getServices } from '../../services/container'
 import { AppShell } from '../../components/layout'
 
 export function ProjectLayout() {
@@ -33,10 +34,21 @@ export function ProjectLayout() {
       }
     })
 
+    // When a chat ends, silently refresh conversations to pick up sub-agent sessions
+    const removeChatEndListener = addListener('runtime:chat_ended', async () => {
+      const pid = useAppStore.getState().currentProjectId
+      if (!pid) return
+      const conversations = await getServices().conversations.list(pid)
+      if (useAppStore.getState().currentProjectId === pid) {
+        useAppStore.setState({ conversations })
+      }
+    })
+
     return () => {
       unsubscribe([`project:${projectId}`])
       removeStatusListener()
       removeCronListener()
+      removeChatEndListener()
     }
   }, [projectId, subscribe, unsubscribe, addListener])
 

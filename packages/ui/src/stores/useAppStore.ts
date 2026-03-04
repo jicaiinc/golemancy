@@ -90,6 +90,8 @@ interface UISlice {
   updateInfo: { version: string; downloadUrl: string } | null
   skippedVersion: string | null
   updateNotificationsEnabled: boolean
+  chatFilterShowCron: boolean
+  chatFilterShowSubAgent: boolean
 }
 
 interface DashboardSlice {
@@ -204,6 +206,7 @@ interface UIActions {
   setUpdateInfo(info: { version: string; downloadUrl: string } | null): void
   skipVersion(version: string): void
   setUpdateNotifications(enabled: boolean): void
+  setChatFilter(key: 'chatFilterShowCron' | 'chatFilterShowSubAgent', value: boolean): void
 }
 
 interface DashboardActions {
@@ -766,6 +769,8 @@ export const useAppStore = create<AppState>()(
       updateInfo: null,
       skippedVersion: null,
       updateNotificationsEnabled: true,
+      chatFilterShowCron: true,
+      chatFilterShowSubAgent: false,
 
       toggleSidebar() {
         set(s => ({ sidebarCollapsed: !s.sidebarCollapsed }))
@@ -790,6 +795,10 @@ export const useAppStore = create<AppState>()(
 
       setUpdateNotifications(enabled: boolean) {
         set({ updateNotificationsEnabled: enabled })
+      },
+
+      setChatFilter(key: 'chatFilterShowCron' | 'chatFilterShowSubAgent', value: boolean) {
+        set({ [key]: value })
       },
 
       // --- Dashboard state ---
@@ -977,6 +986,8 @@ export const useAppStore = create<AppState>()(
         themeMode: state.themeMode,
         skippedVersion: state.skippedVersion,
         updateNotificationsEnabled: state.updateNotificationsEnabled,
+        chatFilterShowCron: state.chatFilterShowCron,
+        chatFilterShowSubAgent: state.chatFilterShowSubAgent,
       }),
       onRehydrateStorage: () => {
         return (state?: AppState) => {

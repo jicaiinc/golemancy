@@ -1,7 +1,7 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
 import type { Agent, Conversation, ConversationId, Team } from '@golemancy/shared'
 import { useTranslation } from 'react-i18next'
-import { PixelButton } from '../../components'
+import { PixelButton, PixelToggle } from '../../components'
 import { relativeTime } from '../../lib/time'
 
 interface ChatSidebarProps {
@@ -13,6 +13,9 @@ interface ChatSidebarProps {
   onRenameConversation?: (id: ConversationId, title: string) => void
   onNewChat: () => void
   canNewChat?: boolean
+  chatFilterShowCron: boolean
+  chatFilterShowSubAgent: boolean
+  onSetChatFilter: (key: 'chatFilterShowCron' | 'chatFilterShowSubAgent', value: boolean) => void
 }
 
 export function ChatSidebar({
@@ -24,6 +27,9 @@ export function ChatSidebar({
   onRenameConversation,
   onNewChat,
   canNewChat = false,
+  chatFilterShowCron,
+  chatFilterShowSubAgent,
+  onSetChatFilter,
 }: ChatSidebarProps) {
   const { t } = useTranslation('chat')
   const [editingId, setEditingId] = useState<ConversationId | null>(null)
@@ -64,12 +70,22 @@ export function ChatSidebar({
     }
   }, [handleSaveEdit, handleCancelEdit])
 
-  // Sort by lastMessageAt descending
+  const [filterOpen, setFilterOpen] = useState(false)
+  const hasNonDefaultFilter = !chatFilterShowCron || chatFilterShowSubAgent
+
+  // Filter then sort by lastMessageAt descending
   const sorted = useMemo(
-    () => [...conversations].sort(
-      (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
-    ),
-    [conversations],
+    () => {
+      const filtered = conversations.filter(conv => {
+        if (!chatFilterShowCron && conv.title.startsWith('[Cron]')) return false
+        if (!chatFilterShowSubAgent && conv.title.startsWith('[Sub-agent]')) return false
+        return true
+      })
+      return filtered.sort(
+        (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+      )
+    },
+    [conversations, chatFilterShowCron, chatFilterShowSubAgent],
   )
 
   return (
@@ -84,6 +100,36 @@ export function ChatSidebar({
         >
           {t('sidebar.newChat')}
         </PixelButton>
+      </div>
+
+      {/* Filter area */}
+      <div className="border-b-2 border-border-dim">
+        <button
+          className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-mono text-text-dim hover:text-text-secondary transition-colors"
+          onClick={() => setFilterOpen(o => !o)}
+        >
+          <span className="flex items-center gap-1.5">
+            {t('sidebar.filter')}
+            {!filterOpen && hasNonDefaultFilter && (
+              <span className="w-1.5 h-1.5 bg-accent-green" />
+            )}
+          </span>
+          <span className="text-[10px]">{filterOpen ? '▲' : '▼'}</span>
+        </button>
+        {filterOpen && (
+          <div className="px-3 pb-2 flex flex-col gap-1.5">
+            <PixelToggle
+              checked={chatFilterShowCron}
+              onChange={v => onSetChatFilter('chatFilterShowCron', v)}
+              label={t('sidebar.showCron')}
+            />
+            <PixelToggle
+              checked={chatFilterShowSubAgent}
+              onChange={v => onSetChatFilter('chatFilterShowSubAgent', v)}
+              label={t('sidebar.showSubAgent')}
+            />
+          </div>
+        )}
       </div>
 
       {/* Conversation list */}

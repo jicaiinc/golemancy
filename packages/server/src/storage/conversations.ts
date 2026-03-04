@@ -3,7 +3,7 @@ import type {
   PaginationParams, PaginatedResult,
   IConversationService,
 } from '@golemancy/shared'
-import { eq, desc, and, not, like, sql } from 'drizzle-orm'
+import { eq, desc, and, sql } from 'drizzle-orm'
 import type { AppDatabase } from '../db/client'
 import * as schema from '../db/schema'
 import { generateId } from '../utils/ids'
@@ -21,8 +21,7 @@ export class SqliteConversationStorage implements IConversationService {
   async list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]> {
     const db = this.getProjectDb(projectId)
 
-    // Exclude sub-agent session conversations (internal implementation detail)
-    const conditions = [not(like(schema.conversations.title, '[Sub-agent]%'))]
+    const conditions: ReturnType<typeof eq>[] = []
     if (agentId) conditions.push(eq(schema.conversations.agentId, agentId))
 
     const rows = await db
