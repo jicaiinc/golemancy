@@ -148,7 +148,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     const subAgentResult = createSubAgentToolSet(
       agent, allAgents, settings, projectId, loadAgentTools, mcpStorage, permissionsConfigStorage,
       conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage,
-      directChildren, params.teamMembers,
+      directChildren, params.teamMembers, memoryStorage,
     )
     Object.assign(tools, subAgentResult.tools)
   }

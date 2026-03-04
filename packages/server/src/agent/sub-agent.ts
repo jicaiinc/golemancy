@@ -4,6 +4,7 @@ import type { Agent, GlobalSettings, ProjectId, AgentId, ConversationId, IMCPSer
 import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
+import type { SqliteMemoryStorage } from '../storage/memories'
 import { resolveModel } from './model'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { generateId } from '../utils/ids'
@@ -81,6 +82,7 @@ export function createSubAgentTool(
   tokenRecordStorage?: TokenRecordStorage,
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
   allTeamMembers?: TeamMember[],
+  memoryStorage?: SqliteMemoryStorage,
 ) {
   return tool({
     description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}. Returns a sessionId in the result — pass it back in subsequent calls to maintain conversation context.`,
@@ -144,6 +146,7 @@ export function createSubAgentTool(
         conversationId: childConversationId,
         conversationStorage,
         taskStorage,
+        memoryStorage,
         tokenRecordStorage,
         onTokenUsage,
         teamMembers: allTeamMembers,
@@ -363,6 +366,7 @@ export function createSubAgentToolSet(
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
   directChildren?: TeamMember[],
   allTeamMembers?: TeamMember[],
+  memoryStorage?: SqliteMemoryStorage,
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
 
@@ -375,7 +379,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage, allTeamMembers)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage, allTeamMembers, memoryStorage)
 
     log.debug(
       { childAgent: childAgent.name, toolName },
