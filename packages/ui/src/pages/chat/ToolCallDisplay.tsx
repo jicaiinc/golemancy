@@ -190,6 +190,9 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
         <span className="font-mono text-[12px] text-accent-cyan">
           {state.agentName}
         </span>
+        {state.sessionId && (
+          <span className="text-[9px] font-mono text-text-dim">{state.sessionId}</span>
+        )}
         {isRunning && (
           <span className="inline-block w-[6px] h-[6px] bg-accent-cyan animate-[pixel-blink_1s_steps(2)_infinite]" />
         )}
@@ -224,6 +227,14 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
                   <pre className="mt-1 text-[11px] font-mono text-text-secondary bg-void p-2 overflow-x-auto whitespace-pre-wrap">
                     {task}
                   </pre>
+                </div>
+              )}
+
+              {/* Session ID — selectable for copy */}
+              {state.sessionId && (
+                <div className="mt-2">
+                  <span className="text-[10px] font-pixel text-text-dim">SESSION</span>
+                  <pre className="mt-0.5 text-[10px] font-mono text-text-secondary bg-void p-1.5 select-text">{state.sessionId}</pre>
                 </div>
               )}
 
