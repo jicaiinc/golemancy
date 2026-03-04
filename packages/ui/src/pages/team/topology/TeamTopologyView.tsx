@@ -92,10 +92,6 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
 
   const onNodeClick: NodeMouseHandler = useCallback((_e, node) => {
     setSelectedAgentId(node.id as AgentId)
-  }, [setSelectedAgentId])
-
-  const onNodeDoubleClick: NodeMouseHandler = useCallback((_e, node) => {
-    setSelectedAgentId(node.id as AgentId)
     setSidebarMode('detail')
     setIsSidebarOpen(true)
   }, [setSelectedAgentId, setSidebarMode, setIsSidebarOpen])
@@ -162,7 +158,6 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
             onNodesDelete={onNodesDelete}
             onNodeDragStop={onNodeDragStop}
             onNodeClick={onNodeClick}
-            onNodeDoubleClick={onNodeDoubleClick}
             onPaneClick={onPaneClick}
             isValidConnection={isValidConnection}
             colorMode={colorMode}

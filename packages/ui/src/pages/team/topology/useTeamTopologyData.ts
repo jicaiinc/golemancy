@@ -217,9 +217,10 @@ export function useTeamTopologyData(
       .filter(m => !deletedIds.has(m.agentId))
       .map(m => m.parentAgentId && deletedIds.has(m.parentAgentId) ? { ...m, parentAgentId: undefined } : m)
     updateTeam(team.id, { members: updatedMembers })
-    // Reset flag after current event loop so onEdgesDelete (if queued) is skipped
+    setSelectedAgentId(null)
+    setSidebarMode('agents')
     setTimeout(() => { deletingNodesRef.current = false }, 0)
-  }, [team.id, updateTeam])
+  }, [team.id, updateTeam, setSelectedAgentId, setSidebarMode])
 
   // Validate connection: target can only have one parent, no cycles, no self-loop
   const isValidConnection = useCallback((connection: Edge | Connection) => {

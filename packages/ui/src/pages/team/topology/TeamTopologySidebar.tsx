@@ -126,7 +126,7 @@ function AgentsPanel({ agents, team }: { agents: Agent[]; team: Team }) {
       )}
       {agents.length > 0 && (
         <div className="px-3 py-3 font-mono text-[8px] text-text-dim text-center leading-relaxed">
-          {t('topology.doubleClickHint')}
+          {t('topology.clickNodeHint')}
         </div>
       )}
     </div>
@@ -150,7 +150,8 @@ function DetailPanel({
 
   const agent = agents.find(a => a.id === agentId) ?? null
   const member = team.members.find(m => m.agentId === agentId)
-  const isLeader = member ? !member.parentAgentId : false
+  const leaderId = team.members.find(m => !m.parentAgentId)?.agentId
+  const isLeader = member?.agentId === leaderId
   const hasMemory = agent != null && agent.builtinTools?.memory !== false
 
   // Memory count
@@ -368,8 +369,9 @@ function SettingsPanel({ team, agents }: { team: Team; agents: Agent[] }) {
           {t('list.members', { count: team.members.length })}
         </div>
         <div className="flex flex-col gap-1">
-          {team.members.map(m => {
-            const isLeader = !m.parentAgentId
+          {team.members.map((m, _i, arr) => {
+            const settingsLeaderId = arr.find(x => !x.parentAgentId)?.agentId
+            const isLeader = m.agentId === settingsLeaderId
             const agent = agents.find(a => a.id === m.agentId)
             return (
               <div key={m.agentId} className="flex items-center gap-1.5 font-mono text-[9px] text-text-secondary">

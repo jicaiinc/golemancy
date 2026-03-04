@@ -44,7 +44,7 @@
     "emptyTeam": "This team has no members yet",
     "emptyDragHint": "Drag an agent from the sidebar to start building your team",
     "emptyOpenSidebar": "Open sidebar to add agents",
-    "doubleClickHint": "Double-click a node for details",
+    "clickNodeHint": "Click a node for details",
     "settingsBtn": "Settings",
     "description": "Description",
     "descriptionPlaceholder": "What does this team do?",
