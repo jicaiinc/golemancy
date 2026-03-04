@@ -105,10 +105,6 @@
     "subAgentsLabel": "SUB-AGENTI",
     "openDetail": "Otevřít detail"
   },
-  "topology": {
-    "resetLayout": "Obnovit rozložení",
-    "editAgent": "Upravit agenta"
-  },
   "memory": {
     "sectionTitle": "VZPOMÍNKY",
     "pinnedSection": "PŘIPNUTÉ",

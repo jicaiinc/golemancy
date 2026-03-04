@@ -105,10 +105,6 @@
     "subAgentsLabel": "СУБ-АГЕНТИ",
     "openDetail": "Відкрити деталі"
   },
-  "topology": {
-    "resetLayout": "Скинути макет",
-    "editAgent": "Змінити агента"
-  },
   "memory": {
     "sectionTitle": "СПОГАДИ",
     "pinnedSection": "ЗАКРІПЛЕНІ",

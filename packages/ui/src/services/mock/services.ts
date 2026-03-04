@@ -78,18 +78,6 @@ export class MockProjectService implements IProjectService {
     await delay()
     this.data.delete(id)
   }
-
-  private topologyLayouts = new Map<ProjectId, Record<string, { x: number; y: number }>>()
-
-  async getTopologyLayout(projectId: ProjectId): Promise<Record<string, { x: number; y: number }>> {
-    await delay()
-    return this.topologyLayouts.get(projectId) ?? {}
-  }
-
-  async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void> {
-    await delay()
-    this.topologyLayouts.set(projectId, layout)
-  }
 }
 
 // --- AgentService ---
@@ -832,6 +820,21 @@ export class MockTeamService implements ITeamService {
   async delete(projectId: ProjectId, id: TeamId): Promise<void> {
     await delay()
     const team = this.data.get(id)
-    if (team && team.projectId === projectId) this.data.delete(id)
+    if (team && team.projectId === projectId) {
+      this.data.delete(id)
+      this.layouts.delete(id)
+    }
+  }
+
+  private layouts = new Map<TeamId, Record<string, { x: number; y: number }>>()
+
+  async getLayout(_projectId: ProjectId, teamId: TeamId): Promise<Record<string, { x: number; y: number }>> {
+    await delay()
+    return this.layouts.get(teamId) ?? {}
+  }
+
+  async saveLayout(_projectId: ProjectId, teamId: TeamId, layout: Record<string, { x: number; y: number }>): Promise<void> {
+    await delay()
+    this.layouts.set(teamId, layout)
   }
 }

@@ -4,6 +4,7 @@ import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   ISkillService, ISettingsService,
   IDashboardService, ICronJobService, IMCPService, IPermissionsConfigService,
+  ITeamService,
 } from '@golemancy/shared'
 import { createApp, type ServerDependencies } from '../app'
 
@@ -19,6 +20,7 @@ export interface MockStorage extends ServerDependencies {
   cronJobStorage: MockedService<ICronJobService>
   mcpStorage: MockedService<IMCPService>
   permissionsConfigStorage: MockedService<IPermissionsConfigService>
+  teamStorage: MockedService<ITeamService>
 }
 
 /** Turn every method of T into a vi.fn() mock */
@@ -37,8 +39,6 @@ export function createMockStorage(): MockStorage {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn().mockResolvedValue(undefined),
-      getTopologyLayout: vi.fn().mockResolvedValue({}),
-      saveTopologyLayout: vi.fn().mockResolvedValue(undefined),
     },
     agentStorage: {
       list: vi.fn().mockResolvedValue([]),
@@ -132,6 +132,15 @@ export function createMockStorage(): MockStorage {
       loadForContext: vi.fn().mockResolvedValue({ pinned: [], autoLoaded: [], totalCount: 0 }),
       search: vi.fn().mockResolvedValue([]),
     } as any,
+    teamStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+      getLayout: vi.fn().mockResolvedValue({}),
+      saveLayout: vi.fn().mockResolvedValue(undefined),
+    },
   }
 }
 

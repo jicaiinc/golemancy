@@ -18,27 +18,33 @@
   },
   "detail": {
     "notFound": "Team not found.",
-    "backBtn": "< Teams",
-    "tabs": {
-      "general": "General",
-      "members": "Members"
-    },
-    "deleteBtn": "Delete Team",
+    "backBtn": "\u003c Teams",
     "savedMsg": "Saved!"
   },
-  "general": {
-    "sectionTitle": "INFO",
-    "instructionLabel": "TEAM INSTRUCTION (optional)",
-    "instructionPlaceholder": "Instructions injected into the leader agent's context..."
-  },
-  "members": {
-    "sectionTitle": "TEAM MEMBERS",
-    "addSection": "ADD MEMBER",
-    "noneAssigned": "No members in this team.",
-    "noneAvailable": "No agents available in this project.",
-    "rolePlaceholder": "Role...",
-    "leader": "Leader",
-    "member": "Member",
-    "removeBtn": "Remove"
+  "topology": {
+    "agentPalette": "AGENTS",
+    "dragHint": "Drag to canvas to add",
+    "removeMember": "Remove from Team",
+    "resetLayout": "Reset Layout",
+    "openDetail": "Open Agent Detail",
+    "setAsLeader": "Set as Leader",
+    "deleteTeam": "Delete Team",
+    "deleteTeamConfirm": "Are you sure you want to delete this team?",
+    "cannotRemoveLeader": "Cannot remove the leader. Set a new leader first.",
+    "instruction": "Team Instruction",
+    "instructionPlaceholder": "Instructions injected into the leader agent's context...",
+    "role": "Role",
+    "rolePlaceholder": "Role in this team...",
+    "leader": "LEADER",
+    "skills": "Skills",
+    "noSkills": "No skills",
+    "tools": "Tools",
+    "noTools": "No tools",
+    "mcpServers": "MCP Servers",
+    "noMcpServers": "No MCP servers",
+    "memory": "Memory",
+    "memoryEnabled": "Enabled",
+    "memoryDisabled": "Disabled",
+    "noAgentsAvailable": "No agents available"
   }
 }

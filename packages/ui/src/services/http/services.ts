@@ -39,18 +39,6 @@ export class HttpProjectService implements IProjectService {
   async delete(id: ProjectId) {
     await fetchJson(`${this.baseUrl}/api/projects/${id}`, { method: 'DELETE' })
   }
-  async getTopologyLayout(projectId: ProjectId) {
-    const layout = await fetchJson<Record<string, { x: number; y: number }>>(
-      `${this.baseUrl}/api/projects/${projectId}/topology-layout`
-    )
-    return layout ?? {}
-  }
-  async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>) {
-    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/topology-layout`, {
-      method: 'PUT',
-      body: JSON.stringify(layout),
-    })
-  }
 }
 
 export class HttpAgentService implements IAgentService {
@@ -430,5 +418,17 @@ export class HttpTeamService implements ITeamService {
   }
   async delete(projectId: ProjectId, id: TeamId) {
     await fetchJson(`${this.baseUrl}/api/projects/${projectId}/teams/${id}`, { method: 'DELETE' })
+  }
+  async getLayout(projectId: ProjectId, teamId: TeamId) {
+    const layout = await fetchJson<Record<string, { x: number; y: number }>>(
+      `${this.baseUrl}/api/projects/${projectId}/teams/${teamId}/layout`
+    )
+    return layout ?? {}
+  }
+  async saveLayout(projectId: ProjectId, teamId: TeamId, layout: Record<string, { x: number; y: number }>) {
+    await fetchJson(`${this.baseUrl}/api/projects/${projectId}/teams/${teamId}/layout`, {
+      method: 'PUT',
+      body: JSON.stringify(layout),
+    })
   }
 }

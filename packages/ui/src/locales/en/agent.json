@@ -65,7 +65,7 @@
     "addSection": "ADD SKILL",
     "noneInProject": "No skills in this project",
     "goTo": "Go to Skills",
-    "manage": "Manage Skills \u2192"
+    "manage": "Manage Skills →"
   },
   "tools": {
     "builtinSection": "BUILT-IN TOOLS",
@@ -78,7 +78,7 @@
     "memoryDesc": "Persistent memory bank across conversations"
   },
   "mcp": {
-    "warningTitle": "\u26a0 WARNING",
+    "warningTitle": "⚠ WARNING",
     "warningText": "Third-party MCP servers may access or modify files on your computer.",
     "enableSandboxHint": "Enable \"Apply to MCP\" in Settings > Permissions to sandbox MCP servers.",
     "sandboxUnavailable": "Sandbox runtime is not available on this platform.",
@@ -87,7 +87,7 @@
     "addSection": "ADD MCP SERVER",
     "noneInProject": "No MCP servers in this project",
     "goTo": "Go to MCP Servers",
-    "manage": "Manage MCP Servers \u2192",
+    "manage": "Manage MCP Servers →",
     "restricted": "Restricted"
   },
   "panel": {
@@ -95,10 +95,6 @@
     "inherited": "Inherited",
     "capabilities": "CAPABILITIES",
     "openDetail": "Open Detail"
-  },
-  "topology": {
-    "resetLayout": "Reset Layout",
-    "editAgent": "Edit Agent"
   },
   "memory": {
     "sectionTitle": "MEMORIES",

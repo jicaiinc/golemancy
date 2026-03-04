@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams, useNavigate } from 'react-router'
+import { useParams, useNavigate, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, AgentStatus, SkillId, MemoryEntry, MemoryId } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MEMORY_AUTO_LOAD, DEFAULT_MEMORY_PRIORITY } from '@golemancy/shared'
@@ -29,8 +29,12 @@ export function AgentDetailPage() {
   const deleteAgent = useAppStore(s => s.deleteAgent)
   const navigate = useNavigate()
 
+  const location = useLocation()
   const agent = agents.find(a => a.id === agentId)
-  const [activeTab, setActiveTab] = useState('general')
+
+  const validTabs = ['general', 'model-config', 'skills', 'tools', 'mcp', 'memory']
+  const initialTab = (location.state as { tab?: string } | null)?.tab
+  const [activeTab, setActiveTab] = useState(initialTab && validTabs.includes(initialTab) ? initialTab : 'general')
 
   const tabs = useMemo(() => [
     { id: 'general', label: t('detail.tabs.general') },

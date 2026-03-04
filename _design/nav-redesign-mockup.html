@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golemancy Nav Redesign Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .page-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: #a78bfa;
+    text-align: center;
+    padding: 24px;
+    border-bottom: 2px solid #1e1e2e;
+  }
+
+  .mockup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding: 32px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .mockup-card {
+    border: 2px solid #2a2a3e;
+    background: #12121a;
+  }
+
+  .mockup-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #6ee7b7;
+    padding: 12px 16px;
+    border-bottom: 2px solid #2a2a3e;
+    background: #1a1a28;
+  }
+
+  .mockup-label span {
+    color: #666;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    margin-left: 8px;
+  }
+
+  .app-layout {
+    display: flex;
+    height: 520px;
+    overflow: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+    background: #0e0e16;
+    border-right: 2px solid #2a2a3e;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: #a78bfa;
+    padding: 14px 16px;
+    border-bottom: 2px solid #2a2a3e;
+    letter-spacing: 1px;
+  }
+
+  .nav-section {
+    padding: 8px 0;
+  }
+
+  .nav-section-label {
+    font-size: 9px;
+    color: #555;
+    padding: 8px 16px 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 12px;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-item:hover {
+    background: #1a1a28;
+    color: #ccc;
+  }
+
+  .nav-item.active {
+    background: #1e1b2e;
+    color: #a78bfa;
+    border-left-color: #a78bfa;
+  }
+
+  .nav-item .icon {
+    font-size: 14px;
+    width: 20px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .nav-item .badge {
+    margin-left: auto;
+    background: #2a2a3e;
+    color: #888;
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+
+  .nav-sub-item {
+    padding: 7px 16px 7px 46px;
+    color: #666;
+    font-size: 11px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+
+  .nav-sub-item:hover {
+    background: #1a1a28;
+    color: #aaa;
+  }
+
+  .nav-sub-item.active {
+    color: #a78bfa;
+    background: #1e1b2e;
+  }
+
+  .sidebar-spacer { flex: 1; }
+
+  /* Main content */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .content-header {
+    padding: 16px 24px;
+    border-bottom: 2px solid #2a2a3e;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #12121a;
+  }
+
+  .content-header h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: #e0e0e0;
+  }
+
+  .content-header .breadcrumb {
+    font-size: 11px;
+    color: #666;
+  }
+  .content-header .breadcrumb span { color: #a78bfa; }
+
+  .content-body {
+    flex: 1;
+    padding: 20px 24px;
+    overflow-y: auto;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #2a2a3e;
+    padding: 0 24px;
+    background: #12121a;
+  }
+
+  .tab {
+    padding: 10px 16px;
+    color: #666;
+    font-size: 11px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+
+  .tab.active {
+    color: #a78bfa;
+    border-bottom-color: #a78bfa;
+  }
+
+  .tab:hover:not(.active) {
+    color: #aaa;
+  }
+
+  /* Cards / Items */
+  .item-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .item-card {
+    border: 2px solid #2a2a3e;
+    padding: 14px;
+    background: #16161f;
+    cursor: pointer;
+  }
+
+  .item-card:hover {
+    border-color: #3a3a5e;
+  }
+
+  .item-card .name {
+    font-size: 12px;
+    color: #e0e0e0;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .item-card .desc {
+    font-size: 10px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .item-card .tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .item-card .tag {
+    font-size: 9px;
+    padding: 2px 8px;
+    background: #1e1b2e;
+    color: #a78bfa;
+  }
+
+  /* Chat layout */
+  .chat-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 16px 24px;
+    overflow-y: auto;
+  }
+
+  .chat-msg {
+    margin-bottom: 16px;
+    max-width: 85%;
+  }
+
+  .chat-msg.user {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .chat-msg .role {
+    font-size: 9px;
+    color: #666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .chat-msg .bubble {
+    display: inline-block;
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  .chat-msg.user .bubble {
+    background: #1e1b2e;
+    color: #d0c8f0;
+    border: 1px solid #3a3a5e;
+  }
+
+  .chat-msg.assistant .bubble {
+    background: #1a1a28;
+    color: #ccc;
+    border: 1px solid #2a2a3e;
+  }
+
+  .chat-input {
+    padding: 12px 24px;
+    border-top: 2px solid #2a2a3e;
+    display: flex;
+    gap: 8px;
+  }
+
+  .chat-input input {
+    flex: 1;
+    background: #1a1a28;
+    border: 2px solid #2a2a3e;
+    color: #e0e0e0;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+  }
+
+  .chat-input input:focus {
+    border-color: #a78bfa;
+  }
+
+  .chat-input button {
+    background: #a78bfa;
+    color: #0a0a0f;
+    border: none;
+    padding: 10px 16px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Side panel */
+  .side-panel {
+    width: 280px;
+    min-width: 280px;
+    border-left: 2px solid #2a2a3e;
+    display: flex;
+    flex-direction: column;
+    background: #0e0e16;
+  }
+
+  .side-panel-tabs {
+    display: flex;
+    border-bottom: 2px solid #2a2a3e;
+  }
+
+  .side-panel-tab {
+    flex: 1;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 10px;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+
+  .side-panel-tab.active {
+    color: #a78bfa;
+    border-bottom-color: #a78bfa;
+  }
+
+  .side-panel-content {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  .task-item {
+    padding: 10px;
+    border: 1px solid #2a2a3e;
+    margin-bottom: 8px;
+    font-size: 11px;
+  }
+
+  .task-item .task-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 6px;
+  }
+
+  .task-item .task-status.done { background: #6ee7b7; }
+  .task-item .task-status.progress { background: #fbbf24; }
+  .task-item .task-status.pending { background: #555; }
+
+  .task-item .task-title {
+    color: #ccc;
+  }
+
+  .task-item .task-meta {
+    color: #555;
+    font-size: 9px;
+    margin-top: 4px;
+  }
+
+  .artifact-item {
+    padding: 10px;
+    border: 1px solid #2a2a3e;
+    margin-bottom: 8px;
+  }
+
+  .artifact-item .artifact-name {
+    font-size: 11px;
+    color: #ccc;
+  }
+
+  .artifact-item .artifact-type {
+    font-size: 9px;
+    color: #a78bfa;
+    margin-top: 2px;
+  }
+
+  /* Status dot */
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+  }
+  .status-dot.idle { background: #555; }
+  .status-dot.running { background: #6ee7b7; }
+
+  /* List items */
+  .list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border: 1px solid #2a2a3e;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: #ccc;
+  }
+
+  .list-item .meta {
+    font-size: 10px;
+    color: #666;
+  }
+
+  /* Btn */
+  .btn-sm {
+    background: #2a2a3e;
+    color: #aaa;
+    border: none;
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 10px;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: #a78bfa;
+    color: #0a0a0f;
+  }
+
+  /* Full width mockup */
+  .mockup-card.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .annotation {
+    background: #1a1528;
+    border: 1px dashed #a78bfa;
+    padding: 10px 14px;
+    margin-top: 16px;
+    font-size: 10px;
+    color: #a78bfa;
+    line-height: 1.6;
+  }
+
+  /* Comparison header */
+  .compare-header {
+    text-align: center;
+    padding: 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: #888;
+  }
+
+  .compare-header .vs {
+    color: #fbbf24;
+    margin: 0 12px;
+  }
+
+  .section-divider {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: #fbbf24;
+    border-top: 2px solid #2a2a3e;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  GOLEMANCY NAV REDESIGN
+  <div style="font-family: JetBrains Mono; font-size: 11px; color: #666; margin-top: 8px;">
+    Before vs After comparison
+  </div>
+</div>
+
+<div class="mockup-grid">
+
+  <!-- ===== SECTION 1: Sidebar comparison ===== -->
+  <div class="section-divider">1. SIDEBAR NAVIGATION</div>
+
+  <!-- BEFORE: Current sidebar -->
+  <div class="mockup-card">
+    <div class="mockup-label">BEFORE <span>Current sidebar - 10 items</span></div>
+    <div class="app-layout">
+      <div class="sidebar" style="width: 100%; min-width: 100%;">
+        <div class="sidebar-logo">GOLEMANCY</div>
+        <div class="nav-section">
+          <div class="nav-item active"><span class="icon">[]</span> Dashboard</div>
+          <div class="nav-item"><span class="icon">>_</span> Chats <span class="badge">3</span></div>
+          <div class="nav-item"><span class="icon">::</span> Automations</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Workspace</div>
+          <div class="nav-item"><span class="icon">{}</span> Agents <span class="badge">5</span></div>
+          <div class="nav-item"><span class="icon">&&</span> Teams <span class="badge">2</span></div>
+          <div class="nav-item"><span class="icon"><></span> Skills <span class="badge">8</span></div>
+          <div class="nav-item"><span class="icon">~></span> MCP Servers <span class="badge">4</span></div>
+          <div class="nav-item"><span class="icon">#</span> Conversation Tasks</div>
+          <div class="nav-item"><span class="icon">..</span> Artifacts</div>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">*</span> Settings</div>
+        </div>
+        <div class="annotation" style="margin: 12px;">
+          Problems:<br>
+          - 10 items, cognitive overload<br>
+          - Skills/MCP are agent config, not standalone<br>
+          - Conv Tasks/Artifacts rarely visited<br>
+          - "Teams" name is inaccurate
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AFTER: Simplified sidebar -->
+  <div class="mockup-card">
+    <div class="mockup-label">AFTER <span>Simplified sidebar - 6 items</span></div>
+    <div class="app-layout">
+      <div class="sidebar" style="width: 100%; min-width: 100%;">
+        <div class="sidebar-logo">GOLEMANCY</div>
+        <div class="nav-section">
+          <div class="nav-item active"><span class="icon">[]</span> Dashboard</div>
+          <div class="nav-item"><span class="icon">>_</span> Chats <span class="badge">3</span></div>
+          <div class="nav-item"><span class="icon">::</span> Automations</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Workspace</div>
+          <div class="nav-item"><span class="icon">{}</span> Agents <span class="badge">5</span></div>
+          <div class="nav-sub-item">All Agents</div>
+          <div class="nav-sub-item">Skills <span style="color:#555; margin-left:4px;">8</span></div>
+          <div class="nav-sub-item">Integrations <span style="color:#555; margin-left:4px;">4</span></div>
+          <div class="nav-item"><span class="icon">&&</span> Squads <span class="badge">2</span></div>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">*</span> Settings</div>
+        </div>
+        <div class="annotation" style="margin: 12px;">
+          Changes:<br>
+          - 6 top-level items (was 10)<br>
+          - Skills + MCP folded under Agents<br>
+          - Tasks + Artifacts moved into Chat<br>
+          - Teams → Squads<br>
+          - MCP Servers → Integrations
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: Agent detail page ===== -->
+  <div class="section-divider">2. AGENT DETAIL PAGE</div>
+
+  <!-- Agent detail with Skills/MCP tabs -->
+  <div class="mockup-card full-width">
+    <div class="mockup-label">AGENT DETAIL <span>Skills & Integrations as tabs within Agent</span></div>
+    <div class="app-layout">
+      <div class="sidebar">
+        <div class="sidebar-logo">GOLEMANCY</div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">[]</span> Dashboard</div>
+          <div class="nav-item"><span class="icon">>_</span> Chats</div>
+          <div class="nav-item"><span class="icon">::</span> Automations</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Workspace</div>
+          <div class="nav-item active"><span class="icon">{}</span> Agents</div>
+          <div class="nav-sub-item">All Agents</div>
+          <div class="nav-sub-item active">Skills</div>
+          <div class="nav-sub-item">Integrations</div>
+          <div class="nav-item"><span class="icon">&&</span> Squads</div>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">*</span> Settings</div>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="content-header">
+          <div class="breadcrumb">Agents / <span>Research Assistant</span></div>
+          <button class="btn-sm btn-primary">Save</button>
+        </div>
+        <div class="tabs">
+          <div class="tab">General</div>
+          <div class="tab">Prompt</div>
+          <div class="tab active">Skills</div>
+          <div class="tab">Integrations</div>
+          <div class="tab">Tools</div>
+          <div class="tab">Memory</div>
+        </div>
+        <div class="content-body">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="font-size: 12px; color: #888;">3 skills assigned to this agent</div>
+            <button class="btn-sm">+ Assign Skill</button>
+          </div>
+          <div class="item-grid">
+            <div class="item-card">
+              <div class="name">Code Review</div>
+              <div class="desc">Reviews code for quality, security, and performance issues</div>
+              <div class="tags"><span class="tag">assigned</span></div>
+            </div>
+            <div class="item-card">
+              <div class="name">Documentation Writer</div>
+              <div class="desc">Generates technical documentation from code</div>
+              <div class="tags"><span class="tag">assigned</span></div>
+            </div>
+            <div class="item-card">
+              <div class="name">Test Generator</div>
+              <div class="desc">Creates unit and integration tests</div>
+              <div class="tags"><span class="tag">assigned</span></div>
+            </div>
+            <div class="item-card" style="border-style: dashed; opacity: 0.5;">
+              <div class="name" style="color: #666;">+ Assign from project pool</div>
+              <div class="desc">Or create a new skill</div>
+            </div>
+          </div>
+          <div class="annotation">
+            Skills tab shows skills assigned to THIS agent. The "Assign" action picks from the project-level skill pool (accessible via sidebar sub-nav "Skills"). Same pattern for Integrations tab.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: Skills pool page ===== -->
+  <div class="section-divider">3. PROJECT-LEVEL SKILL POOL</div>
+
+  <div class="mockup-card full-width">
+    <div class="mockup-label">SKILLS POOL <span>Project-level skill library under Agents sub-nav</span></div>
+    <div class="app-layout">
+      <div class="sidebar">
+        <div class="sidebar-logo">GOLEMANCY</div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">[]</span> Dashboard</div>
+          <div class="nav-item"><span class="icon">>_</span> Chats</div>
+          <div class="nav-item"><span class="icon">::</span> Automations</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Workspace</div>
+          <div class="nav-item active"><span class="icon">{}</span> Agents</div>
+          <div class="nav-sub-item">All Agents</div>
+          <div class="nav-sub-item active">Skills</div>
+          <div class="nav-sub-item">Integrations</div>
+          <div class="nav-item"><span class="icon">&&</span> Squads</div>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">*</span> Settings</div>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="content-header">
+          <h2>Skills</h2>
+          <button class="btn-sm btn-primary">+ New Skill</button>
+        </div>
+        <div class="content-body">
+          <div style="font-size: 11px; color: #666; margin-bottom: 16px;">Project-level skill pool. Assign skills to agents in their detail page.</div>
+          <div class="item-grid">
+            <div class="item-card">
+              <div class="name">Code Review</div>
+              <div class="desc">Reviews code for quality, security, and performance</div>
+              <div class="tags"><span class="tag">3 agents</span></div>
+            </div>
+            <div class="item-card">
+              <div class="name">Documentation Writer</div>
+              <div class="desc">Generates technical documentation from code</div>
+              <div class="tags"><span class="tag">2 agents</span></div>
+            </div>
+            <div class="item-card">
+              <div class="name">Test Generator</div>
+              <div class="desc">Creates unit and integration tests</div>
+              <div class="tags"><span class="tag">1 agent</span></div>
+            </div>
+            <div class="item-card">
+              <div class="name">API Designer</div>
+              <div class="desc">Designs RESTful API schemas and docs</div>
+              <div class="tags"><span class="tag">0 agents</span><span class="tag" style="background:#2a1a1a;color:#f87171;">unused</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: Chat with side panels ===== -->
+  <div class="section-divider">4. CHAT VIEW WITH TASKS & ARTIFACTS</div>
+
+  <div class="mockup-card full-width">
+    <div class="mockup-label">CHAT VIEW <span>Tasks & Artifacts as side panel tabs within conversation</span></div>
+    <div class="app-layout">
+      <div class="sidebar">
+        <div class="sidebar-logo">GOLEMANCY</div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">[]</span> Dashboard</div>
+          <div class="nav-item active"><span class="icon">>_</span> Chats</div>
+          <div class="nav-item"><span class="icon">::</span> Automations</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Workspace</div>
+          <div class="nav-item"><span class="icon">{}</span> Agents</div>
+          <div class="nav-item"><span class="icon">&&</span> Squads</div>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">*</span> Settings</div>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="content-header">
+          <div class="breadcrumb">Chats / <span>Debug auth flow</span></div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-sm" style="opacity:0.5">Tasks</button>
+            <button class="btn-sm" style="background:#1e1b2e;color:#a78bfa;">Artifacts</button>
+          </div>
+        </div>
+        <div class="chat-layout">
+          <div class="chat-main">
+            <div class="chat-messages">
+              <div class="chat-msg user">
+                <div class="role">You</div>
+                <div class="bubble">Help me debug the authentication flow. The JWT token refresh is failing silently.</div>
+              </div>
+              <div class="chat-msg assistant">
+                <div class="role">Research Assistant</div>
+                <div class="bubble">I'll investigate the JWT refresh issue. Let me break this down into tasks and check the relevant code...<br><br>
+                <span style="color:#6ee7b7;font-size:10px;">+ Created 3 tasks</span></div>
+              </div>
+              <div class="chat-msg assistant">
+                <div class="role">Research Assistant</div>
+                <div class="bubble">Found the issue — the refresh endpoint returns 200 but the response body is empty when the token is within 30s of expiry. Here's the fix...<br><br>
+                <span style="color:#a78bfa;font-size:10px;">+ Generated artifact: auth-fix.patch</span></div>
+              </div>
+            </div>
+            <div class="chat-input">
+              <input type="text" placeholder="Message Research Assistant...">
+              <button>Send</button>
+            </div>
+          </div>
+          <div class="side-panel">
+            <div class="side-panel-tabs">
+              <div class="side-panel-tab">Tasks</div>
+              <div class="side-panel-tab active">Artifacts</div>
+            </div>
+            <div class="side-panel-content">
+              <div class="artifact-item">
+                <div class="artifact-name">auth-fix.patch</div>
+                <div class="artifact-type">Code Patch &middot; just now</div>
+              </div>
+              <div class="artifact-item">
+                <div class="artifact-name">auth-flow-diagram.svg</div>
+                <div class="artifact-type">Diagram &middot; 2 min ago</div>
+              </div>
+              <div class="artifact-item">
+                <div class="artifact-name">debug-log.txt</div>
+                <div class="artifact-type">Log &middot; 5 min ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat with Tasks panel open -->
+  <div class="mockup-card full-width">
+    <div class="mockup-label">CHAT VIEW - TASKS PANEL <span>Same view, Tasks tab selected</span></div>
+    <div class="app-layout">
+      <div class="sidebar">
+        <div class="sidebar-logo">GOLEMANCY</div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">[]</span> Dashboard</div>
+          <div class="nav-item active"><span class="icon">>_</span> Chats</div>
+          <div class="nav-item"><span class="icon">::</span> Automations</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label">Workspace</div>
+          <div class="nav-item"><span class="icon">{}</span> Agents</div>
+          <div class="nav-item"><span class="icon">&&</span> Squads</div>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="nav-section">
+          <div class="nav-item"><span class="icon">*</span> Settings</div>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="content-header">
+          <div class="breadcrumb">Chats / <span>Debug auth flow</span></div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-sm" style="background:#1e1b2e;color:#a78bfa;">Tasks</button>
+            <button class="btn-sm" style="opacity:0.5">Artifacts</button>
+          </div>
+        </div>
+        <div class="chat-layout">
+          <div class="chat-main">
+            <div class="chat-messages">
+              <div class="chat-msg user">
+                <div class="role">You</div>
+                <div class="bubble">Help me debug the authentication flow.</div>
+              </div>
+              <div class="chat-msg assistant">
+                <div class="role">Research Assistant</div>
+                <div class="bubble">I'll investigate the JWT refresh issue. Let me break this down into tasks...</div>
+              </div>
+            </div>
+            <div class="chat-input">
+              <input type="text" placeholder="Message Research Assistant...">
+              <button>Send</button>
+            </div>
+          </div>
+          <div class="side-panel">
+            <div class="side-panel-tabs">
+              <div class="side-panel-tab active">Tasks</div>
+              <div class="side-panel-tab">Artifacts</div>
+            </div>
+            <div class="side-panel-content">
+              <div class="task-item">
+                <span class="task-status done"></span>
+                <span class="task-title">Check JWT refresh endpoint</span>
+                <div class="task-meta">Completed &middot; 3 min ago</div>
+              </div>
+              <div class="task-item">
+                <span class="task-status progress"></span>
+                <span class="task-title">Analyze token expiry edge case</span>
+                <div class="task-meta">In progress</div>
+              </div>
+              <div class="task-item">
+                <span class="task-status pending"></span>
+                <span class="task-title">Write fix + unit test</span>
+                <div class="task-meta">Pending &middot; blocked by #2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: Summary ===== -->
+  <div class="section-divider">SUMMARY</div>
+
+  <div class="mockup-card full-width">
+    <div class="mockup-label">NAVIGATION STRUCTURE <span>Complete hierarchy</span></div>
+    <div style="padding: 24px; font-size: 12px; line-height: 2.2; color: #ccc;">
+      <pre style="font-family: JetBrains Mono; color: #ccc;">
+<span style="color:#a78bfa;">Sidebar (6 top-level)</span>
+│
+├── <span style="color:#6ee7b7;">Dashboard</span>
+│     └── Pending tasks summary card (cross-conversation)
+│
+├── <span style="color:#6ee7b7;">Chats</span>
+│     └── Conversation
+│           ├── Messages
+│           └── Side Panel: <span style="color:#fbbf24;">Tasks</span> | <span style="color:#fbbf24;">Artifacts</span>
+│
+├── <span style="color:#6ee7b7;">Automations</span>
+│
+├── <span style="color:#6ee7b7;">Agents</span>  (expandable sub-nav)
+│     ├── All Agents
+│     │     └── Agent Detail
+│     │           ├── General / Prompt / <span style="color:#fbbf24;">Skills</span> / <span style="color:#fbbf24;">Integrations</span> / Tools / Memory
+│     │           └── (assign from project pool)
+│     ├── <span style="color:#fbbf24;">Skills</span>         ← project-level pool
+│     └── <span style="color:#fbbf24;">Integrations</span>   ← project-level pool (was MCP Servers)
+│
+├── <span style="color:#6ee7b7;">Squads</span>  (was Teams)
+│
+└── <span style="color:#6ee7b7;">Settings</span>
+      </pre>
+      <div class="annotation" style="margin-top: 16px;">
+        <strong>Key changes:</strong><br>
+        - 10 → 6 top-level items<br>
+        - Skills & Integrations: dual access (project pool via sub-nav + agent assignment via detail tabs)<br>
+        - Tasks & Artifacts: conversation side panel, no top-level nav<br>
+        - Dashboard shows cross-conversation task summary for overview needs<br>
+        - Teams → Squads, MCP Servers → Integrations, Conversation Tasks → Tasks
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -97,10 +97,6 @@
     "subAgentsLabel": "ALT AJANLAR",
     "openDetail": "Detayı Aç"
   },
-  "topology": {
-    "resetLayout": "Düzeni Sıfırla",
-    "editAgent": "Ajanı Düzenle"
-  },
   "memory": {
     "sectionTitle": "BELLEKLER",
     "pinnedSection": "SABİTLENMİŞ",

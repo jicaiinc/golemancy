@@ -97,10 +97,6 @@
     "subAgentsLabel": "서브 AGENT",
     "openDetail": "상세 보기"
   },
-  "topology": {
-    "resetLayout": "레이아웃 초기화",
-    "editAgent": "Agent 편집"
-  },
   "memory": {
     "sectionTitle": "메모리",
     "pinnedSection": "고정됨",

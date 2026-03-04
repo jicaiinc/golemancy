@@ -97,10 +97,6 @@
     "subAgentsLabel": "SUB-AGENTES",
     "openDetail": "Abrir Detalle"
   },
-  "topology": {
-    "resetLayout": "Restablecer Diseño",
-    "editAgent": "Editar Agente"
-  },
   "memory": {
     "sectionTitle": "MEMORIAS",
     "pinnedSection": "FIJADAS",

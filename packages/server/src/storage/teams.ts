@@ -17,6 +17,11 @@ export class FileTeamStorage implements ITeamService {
     return path.join(this.teamsDir(projectId), `${id}.json`)
   }
 
+  private layoutPath(projectId: string, id: string) {
+    validateId(id)
+    return path.join(this.teamsDir(projectId), `${id}-layout.json`)
+  }
+
   private normalize(team: Team): Team {
     return {
       ...team,
@@ -81,5 +86,15 @@ export class FileTeamStorage implements ITeamService {
   async delete(projectId: ProjectId, id: TeamId): Promise<void> {
     log.debug({ projectId, teamId: id }, 'deleting team')
     await deleteFile(this.teamPath(projectId, id))
+    // Also clean up layout file
+    await deleteFile(this.layoutPath(projectId, id)).catch(() => {})
+  }
+
+  async getLayout(projectId: ProjectId, teamId: TeamId): Promise<Record<string, { x: number; y: number }>> {
+    return await readJson<Record<string, { x: number; y: number }>>(this.layoutPath(projectId, teamId)) ?? {}
+  }
+
+  async saveLayout(projectId: ProjectId, teamId: TeamId, layout: Record<string, { x: number; y: number }>): Promise<void> {
+    await writeJson(this.layoutPath(projectId, teamId), layout)
   }
 }

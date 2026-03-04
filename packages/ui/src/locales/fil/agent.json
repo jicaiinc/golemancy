@@ -97,10 +97,6 @@
     "subAgentsLabel": "MGA SUB-AGENT",
     "openDetail": "Buksan ang Detalye"
   },
-  "topology": {
-    "resetLayout": "I-reset ang Layout",
-    "editAgent": "I-edit ang Agent"
-  },
   "memory": {
     "sectionTitle": "MGA MEMORY",
     "pinnedSection": "NAKA-PIN",

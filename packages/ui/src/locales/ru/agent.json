@@ -105,10 +105,6 @@
     "subAgentsLabel": "СУБ-АГЕНТЫ",
     "openDetail": "Открыть подробности"
   },
-  "topology": {
-    "resetLayout": "Сбросить макет",
-    "editAgent": "Изменить агента"
-  },
   "memory": {
     "sectionTitle": "ВОСПОМИНАНИЯ",
     "pinnedSection": "ЗАКРЕПЛЁННЫЕ",

@@ -97,10 +97,6 @@
     "subAgentsLabel": "サブ AGENT",
     "openDetail": "詳細を表示"
   },
-  "topology": {
-    "resetLayout": "レイアウトをリセット",
-    "editAgent": "Agent を編集"
-  },
   "memory": {
     "sectionTitle": "メモリー",
     "pinnedSection": "ピン留め",

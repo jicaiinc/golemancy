@@ -97,10 +97,6 @@
     "subAgentsLabel": "SUB-AGENT",
     "openDetail": "Mở Chi Tiết"
   },
-  "topology": {
-    "resetLayout": "Đặt Lại Bố Cục",
-    "editAgent": "Sửa Agent"
-  },
   "memory": {
     "sectionTitle": "BỘ NHỚ",
     "pinnedSection": "ĐÃ GHIM",

@@ -57,6 +57,7 @@ import settingsEn from '../locales/en/settings.json'
 import skillEn from '../locales/en/skill.json'
 import speechEn from '../locales/en/speech.json'
 import taskEn from '../locales/en/task.json'
+import teamEn from '../locales/en/team.json'
 import workspaceEn from '../locales/en/workspace.json'
 
 const translationResources: Record<string, Record<string, unknown>> = {
@@ -75,6 +76,7 @@ const translationResources: Record<string, Record<string, unknown>> = {
   skill: skillEn,
   speech: speechEn,
   task: taskEn,
+  team: teamEn,
   workspace: workspaceEn,
 }
 

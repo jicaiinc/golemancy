@@ -105,11 +105,6 @@ interface DashboardSlice {
   dashboardLoading: boolean
 }
 
-interface TopologySlice {
-  topologyLayout: Record<string, { x: number; y: number }>
-  topologyLayoutLoading: boolean
-}
-
 interface SpeechSlice {
   speechHistory: TranscriptionRecord[]
   speechHistoryLoading: boolean
@@ -214,11 +209,6 @@ interface DashboardActions {
   loadRuntimeStatus(projectId: ProjectId): Promise<void>
 }
 
-interface TopologyActions {
-  loadTopologyLayout(projectId: ProjectId): Promise<void>
-  saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void>
-}
-
 interface SpeechActions {
   transcribeAudio(
     audio: Blob,
@@ -247,8 +237,8 @@ interface TeamActions {
 
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & TopologySlice & SpeechSlice & MemorySlice & TeamSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & TopologyActions & SpeechActions & MemoryActions & TeamActions
+  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & SpeechSlice & MemorySlice & TeamSlice
+  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & SpeechActions & MemoryActions & TeamActions
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -285,8 +275,6 @@ export const useAppStore = create<AppState>()(
           cronJobRuns: [],
           memories: [],
           teams: [],
-          topologyLayout: {},
-          topologyLayoutLoading: false,
           agentsLoading: true,
           conversationsLoading: true,
           tasksLoading: true,
@@ -351,7 +339,6 @@ export const useAppStore = create<AppState>()(
           cronJobRuns: [],
           memories: [],
           teams: [],
-          topologyLayout: {},
           skillsLoading: false,
           mcpServersLoading: false,
           cronJobsLoading: false,
@@ -835,25 +822,6 @@ export const useAppStore = create<AppState>()(
         const runtimeStatus = await getServices().dashboard.getRuntimeStatus(projectId)
         if (get().currentProjectId !== projectId) return
         set({ dashboardRuntimeStatus: runtimeStatus })
-      },
-
-      // --- Topology state ---
-      topologyLayout: {},
-      topologyLayoutLoading: false,
-
-      async loadTopologyLayout(projectId: ProjectId) {
-        set({ topologyLayoutLoading: true })
-        try {
-          const layout = await getServices().projects.getTopologyLayout(projectId)
-          set({ topologyLayout: layout, topologyLayoutLoading: false })
-        } catch {
-          set({ topologyLayout: {}, topologyLayoutLoading: false })
-        }
-      },
-
-      async saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>) {
-        set({ topologyLayout: layout })
-        await getServices().projects.saveTopologyLayout(projectId, layout)
       },
 
       // --- Speech state ---

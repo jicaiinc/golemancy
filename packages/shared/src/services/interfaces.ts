@@ -20,8 +20,6 @@ export interface IProjectService {
   create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
   update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
-  getTopologyLayout(projectId: ProjectId): Promise<Record<string, { x: number; y: number }>>
-  saveTopologyLayout(projectId: ProjectId, layout: Record<string, { x: number; y: number }>): Promise<void>
 }
 
 export interface IAgentService {
@@ -204,4 +202,6 @@ export interface ITeamService {
   create(projectId: ProjectId, data: Pick<Team, 'name' | 'description' | 'instruction' | 'members'>): Promise<Team>
   update(projectId: ProjectId, id: TeamId, data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>): Promise<Team>
   delete(projectId: ProjectId, id: TeamId): Promise<void>
+  getLayout(projectId: ProjectId, teamId: TeamId): Promise<Record<string, { x: number; y: number }>>
+  saveLayout(projectId: ProjectId, teamId: TeamId, layout: Record<string, { x: number; y: number }>): Promise<void>
 }

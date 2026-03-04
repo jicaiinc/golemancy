@@ -97,10 +97,6 @@
     "subAgentsLabel": "子 AGENT",
     "openDetail": "查看详情"
   },
-  "topology": {
-    "resetLayout": "重置布局",
-    "editAgent": "编辑 Agent"
-  },
   "memory": {
     "sectionTitle": "记忆",
     "pinnedSection": "已固定",

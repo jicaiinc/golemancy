@@ -47,6 +47,23 @@ export function createTeamRoutes(deps: TeamRouteDeps) {
     return c.json(team)
   })
 
+  app.get('/:teamId/layout', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const teamId = c.req.param('teamId') as TeamId
+    log.debug({ projectId, teamId }, 'getting team layout')
+    const layout = await storage.getLayout(projectId, teamId)
+    return c.json(layout)
+  })
+
+  app.put('/:teamId/layout', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const teamId = c.req.param('teamId') as TeamId
+    const layout = await c.req.json()
+    log.debug({ projectId, teamId }, 'saving team layout')
+    await storage.saveLayout(projectId, teamId, layout)
+    return c.json(layout)
+  })
+
   app.delete('/:teamId', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const teamId = c.req.param('teamId') as TeamId

@@ -101,10 +101,6 @@
     "subAgentsLabel": "SUB-AGENȚI",
     "openDetail": "Deschidere detalii"
   },
-  "topology": {
-    "resetLayout": "Resetare dispunere",
-    "editAgent": "Editare agent"
-  },
   "memory": {
     "sectionTitle": "AMINTIRI",
     "pinnedSection": "FIXATE",

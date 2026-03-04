@@ -105,10 +105,6 @@
     "subAgentsLabel": "SUB-AGENCI",
     "openDetail": "Otwórz szczegóły"
   },
-  "topology": {
-    "resetLayout": "Resetuj układ",
-    "editAgent": "Edytuj agenta"
-  },
   "memory": {
     "sectionTitle": "WSPOMNIENIA",
     "pinnedSection": "PRZYPIĘTE",

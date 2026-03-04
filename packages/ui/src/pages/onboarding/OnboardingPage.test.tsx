@@ -60,8 +60,6 @@ function createTestServices(): ServiceContainer {
         }),
       ),
       delete: vi.fn(),
-      getTopologyLayout: vi.fn().mockResolvedValue({}),
-      saveTopologyLayout: vi.fn(),
     },
     agents: {
       list: vi.fn().mockResolvedValue([]),

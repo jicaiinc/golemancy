@@ -80,10 +80,6 @@ export const SELECTORS = {
   WORKSPACE_FILE_TREE: '[data-testid="workspace-file-tree"]',
   WORKSPACE_PREVIEW: '[data-testid="workspace-preview"]',
 
-  // Topology
-  TOPOLOGY_CANVAS: '[data-testid="topology-canvas"]',
-  TOPOLOGY_NODE: '[data-testid="topology-node"]',
-
   // Common
   SAVE_BTN: '[data-testid="save-btn"]',
   DELETE_BTN: '[data-testid="delete-btn"]',

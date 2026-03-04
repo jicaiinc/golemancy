@@ -97,10 +97,6 @@
     "subAgentsLabel": "SUB-AGEN",
     "openDetail": "Buka Butiran"
   },
-  "topology": {
-    "resetLayout": "Set Semula Susun Atur",
-    "editAgent": "Sunting Agen"
-  },
   "memory": {
     "sectionTitle": "MEMORI",
     "pinnedSection": "DISEMAT",
