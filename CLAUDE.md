@@ -297,7 +297,7 @@ Key rules (read `_team/team.md` for complete role definitions, phase details, an
 - **Escalation**: Design phase — strict (any ambiguity must be reported to user); Implement/Test — autonomous (only escalate fundamental blockers)
 - **Fact Checker is mandatory** — no tech enters code without verification via WebSearch / Context7 / source code
 
-## Planning & Requirements Tracking
+## Plan Mode Rules
 
 When entering plan mode or creating any implementation plan:
 
