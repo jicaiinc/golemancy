@@ -64,11 +64,11 @@ export function ChatSidebar({
     }
   }, [handleSaveEdit, handleCancelEdit])
 
-  // Filter out sub-agent sessions and sort by lastMessageAt descending
+  // Sort by lastMessageAt descending
   const sorted = useMemo(
-    () => conversations
-      .filter(c => !c.title.startsWith('[Sub-agent]'))
-      .sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()),
+    () => [...conversations].sort(
+      (a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+    ),
     [conversations],
   )
 
