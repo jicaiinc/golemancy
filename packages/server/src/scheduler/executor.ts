@@ -1,6 +1,6 @@
 import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
 import type {
-  CronJob, CronJobRun, ProjectId, TeamId, TeamMember,
+  ConversationId, CronJob, CronJobRun, ProjectId, TeamId, TeamMember,
   IAgentService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, IProjectService, ITeamService,
 } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
@@ -256,7 +256,7 @@ export class CronJobExecutor {
       })
 
       // --- Agent status lifecycle: mark idle ---
-      await this.markAgentIdle(projectId, cronJob)
+      await this.markAgentIdle(projectId, cronJob, conversationId)
 
       log.info({ cronJobId: cronJob.id, durationMs, conversationId }, 'cron job executed successfully')
       return { ...run, status: 'success', durationMs, conversationId }
@@ -286,7 +286,7 @@ export class CronJobExecutor {
     }
   }
 
-  private async markAgentIdle(projectId: ProjectId, cronJob: CronJob) {
+  private async markAgentIdle(projectId: ProjectId, cronJob: CronJob, conversationId?: ConversationId) {
     try {
       // Reference counting: only set idle when no active chats remain for this agent
       const stillActive = this.deps.activeChatRegistry?.countByAgent(cronJob.agentId as string) ?? 0
@@ -296,7 +296,7 @@ export class CronJobExecutor {
       }
       if (this.deps.wsManager) {
         this.deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: cronJob.agentId, status: newStatus })
-        this.deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:cron_ended', projectId, agentId: cronJob.agentId, cronJobId: cronJob.id })
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:cron_ended', projectId, agentId: cronJob.agentId, cronJobId: cronJob.id, conversationId })
       }
     } catch (err) {
       log.warn({ err, agentId: cronJob.agentId }, 'failed to set agent idle status after cron')

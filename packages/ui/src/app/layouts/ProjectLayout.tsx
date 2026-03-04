@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Outlet, useParams, useNavigate } from 'react-router'
-import type { AgentId, AgentStatus, ProjectId } from '@golemancy/shared'
+import type { AgentId, AgentStatus, ConversationId, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useWs } from '../../providers/WebSocketProvider'
 import { AppShell } from '../../components/layout'
@@ -19,16 +19,24 @@ export function ProjectLayout() {
     if (!projectId) return
     subscribe([`project:${projectId}`])
 
-    const removeListener = addListener('agent:status_changed', (data) => {
+    const removeStatusListener = addListener('agent:status_changed', (data) => {
       useAppStore.getState().updateAgentStatus(
         data.agentId as AgentId,
         data.status as AgentStatus,
       )
     })
 
+    // When a cron job finishes, ensure its conversation appears in the sidebar
+    const removeCronListener = addListener('runtime:cron_ended', (data) => {
+      if (data.conversationId) {
+        useAppStore.getState().ensureConversation(data.conversationId as ConversationId)
+      }
+    })
+
     return () => {
       unsubscribe([`project:${projectId}`])
-      removeListener()
+      removeStatusListener()
+      removeCronListener()
     }
   }, [projectId, subscribe, unsubscribe, addListener])
 

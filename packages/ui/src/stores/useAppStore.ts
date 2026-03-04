@@ -143,6 +143,8 @@ interface AgentActions {
 interface ConversationActions {
   loadConversations(projectId: ProjectId, agentId?: AgentId): Promise<void>
   selectConversation(id: ConversationId | null): Promise<void>
+  /** Ensure a conversation exists in the store list (fetch + append if missing, no navigation) */
+  ensureConversation(id: ConversationId): Promise<void>
   createConversation(agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation>
   updateConversation(id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation>
   updateConversationTitle(id: ConversationId, title: string): Promise<void>
@@ -477,6 +479,20 @@ export const useAppStore = create<AppState>()(
           console.debug('[store] selectConversation loaded', id, 'messages:', full.messages.length)
         } else {
           set({ currentConversationId: id })
+        }
+      },
+
+      async ensureConversation(id: ConversationId) {
+        const projectId = get().currentProjectId
+        if (!projectId) return
+        const exists = get().conversations.some(c => c.id === id)
+        if (exists) return
+        const conv = await getServices().conversations.getById(projectId, id)
+        if (conv) {
+          set(s => s.conversations.some(c => c.id === id)
+            ? s
+            : { conversations: [...s.conversations, conv] },
+          )
         }
       },
 
