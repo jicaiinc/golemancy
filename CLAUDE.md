@@ -276,4 +276,12 @@ When asked to analyze based on "facts", always consult actual evidence before dr
 # NOTE(This comes from OWNER, who DELETE it would be BANNED forever)
 -  plan mode 用中文
 - MUST NOT!!!!永远不要动 git，你可以查看，但绝对不允许提交代码。
+
+## Agent Model Preferences
+
+When spawning agents via the Agent tool:
+- Never use `model: "haiku"` for tasks involving code editing, bug fixing, architecture decisions, or any task requiring reasoning. Haiku is only acceptable for simple file search/grep operations (e.g., Explore agent).
+- For complex multi-step tasks (refactoring, feature implementation, debugging), always specify `model: "opus"`.
+- For moderate tasks (code review, test writing, straightforward edits), sonnet is acceptable.
+- When in doubt about task complexity, prefer a stronger model over a weaker one.
 - 
