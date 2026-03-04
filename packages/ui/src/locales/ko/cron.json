@@ -45,6 +45,8 @@
     "scheduledAtLabel": "실행 시간 (로컬 시간)",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Agent 선택",
+    "teamsGroup": "팀",
+    "agentsGroup": "Agent",
     "instructionLabel": "지시사항 (선택사항)",
     "instructionPlaceholder": "트리거 시 Agent에 보낼 지시사항",
     "enabledLabel": "활성화",
@@ -55,8 +57,7 @@
       "daily9am": "매일 오전 9시",
       "weeklyMon": "매주 월요일"
     },
-    "invalidExpression": "잘못된 표현식",
-    "teamLabel": "팀 (선택사항)",
-    "noTeam": "팀 없음"
+    "cronHint": "분 시 일 월 요일",
+    "invalidExpression": "잘못된 표현식"
   }
 }

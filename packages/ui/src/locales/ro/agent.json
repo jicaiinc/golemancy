@@ -22,6 +22,7 @@
     "subtitle_few": "{{count}} agenți în acest proiect",
     "subtitle_other": "{{count}} de agenți în acest proiect",
     "newBtn": "+ Agent nou",
+    "clone": "Clonează agentul",
     "empty": "Niciun agent încă",
     "createFirst": "Creați primul agent"
   },
@@ -57,7 +58,8 @@
   },
   "general": {
     "sectionTitle": "INFORMAȚII",
-    "deleteBtn": "Ștergere agent"
+    "deleteBtn": "Ștergere agent",
+    "deleteConfirm": "Ești sigur că vrei să ștergi acest agent?"
   },
   "modelConfig": {
     "sectionTitle": "CONFIGURARE MODEL",

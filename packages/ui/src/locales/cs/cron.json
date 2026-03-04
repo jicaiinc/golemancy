@@ -45,6 +45,8 @@
     "scheduledAtLabel": "NAPLÁNOVÁNO NA (místní čas)",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Vyberte agenta",
+    "teamsGroup": "Týmy",
+    "agentsGroup": "Agenti",
     "instructionLabel": "INSTRUKCE (volitelné)",
     "instructionPlaceholder": "Instrukce odeslané agentovi při spuštění",
     "enabledLabel": "Zapnuto",
@@ -55,8 +57,7 @@
       "daily9am": "Denně v 9:00",
       "weeklyMon": "Týdně Po"
     },
-    "invalidExpression": "Neplatný výraz",
-    "teamLabel": "TÝM (volitelné)",
-    "noTeam": "Žádný tým"
+    "cronHint": "minuta hodina den měsíc den_týdne",
+    "invalidExpression": "Neplatný výraz"
   }
 }

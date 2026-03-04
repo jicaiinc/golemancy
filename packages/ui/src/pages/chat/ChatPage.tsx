@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import type { AgentId, ConversationId, ConversationTokenUsageResult, TeamId } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -11,6 +12,7 @@ import { ChatWindow } from './ChatWindow'
 import { ChatEmptyState } from './ChatEmptyState'
 
 export function ChatPage() {
+  const { t } = useTranslation('chat')
   const agents = useAppStore(s => s.agents)
   const conversations = useAppStore(s => s.conversations)
   const conversationsLoading = useAppStore(s => s.conversationsLoading)
@@ -168,12 +170,12 @@ export function ChatPage() {
       const leader = team?.members.find(m => !m.parentAgentId)
       const agentId = leader?.agentId ?? defaultAgentId
       if (agentId) {
-        await createConversation(agentId, 'New Chat', defaultTeamId)
+        await createConversation(agentId, t('newChatTitle'), defaultTeamId)
         return
       }
     }
     if (!defaultAgentId) return
-    await createConversation(defaultAgentId, 'New Chat')
+    await createConversation(defaultAgentId, t('newChatTitle'))
   }, [defaultAgentId, defaultTeamId, teams, createConversation])
 
   // Find current conversation and its agent
@@ -187,7 +189,7 @@ export function ChatPage() {
     if (currentConversation && currentConversation.messages.length === 0) {
       await updateConversation(currentConversation.id, { agentId, teamId: teamId ?? null })
     } else {
-      await createConversation(agentId, 'New Chat', teamId)
+      await createConversation(agentId, t('newChatTitle'), teamId)
     }
   }, [currentProject, currentConversation, updateConversation, createConversation])
   const currentAgent = currentConversation

@@ -4,6 +4,7 @@
     "subtitle_one": "이 프로젝트에 {{count}}개 팀",
     "subtitle_other": "이 프로젝트에 {{count}}개 팀",
     "newBtn": "+ 새 팀",
+    "clone": "팀 복제",
     "empty": "아직 팀이 없습니다",
     "createFirst": "첫 번째 팀 만들기",
     "leader": "리더",

@@ -45,6 +45,8 @@
     "scheduledAtLabel": "DIJADWALKAN PADA (waktu lokal)",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Pilih agent",
+    "teamsGroup": "Tim",
+    "agentsGroup": "Agen",
     "instructionLabel": "INSTRUKSI (opsional)",
     "instructionPlaceholder": "Instruksi untuk dikirim ke agent saat dipicu",
     "enabledLabel": "Aktif",
@@ -55,8 +57,7 @@
       "daily9am": "Harian jam 9",
       "weeklyMon": "Mingguan Senin"
     },
-    "invalidExpression": "Ekspresi tidak valid",
-    "teamLabel": "TIM (opsional)",
-    "noTeam": "Tanpa tim"
+    "cronHint": "menit jam hari bulan hari_minggu",
+    "invalidExpression": "Ekspresi tidak valid"
   }
 }

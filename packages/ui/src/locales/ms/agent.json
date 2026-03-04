@@ -21,6 +21,7 @@
     "subtitle_one": "{{count}} agen dalam projek ini",
     "subtitle_other": "{{count}} agen dalam projek ini",
     "newBtn": "+ Agen Baharu",
+    "clone": "Klon ejen",
     "empty": "Belum ada agen",
     "createFirst": "Cipta Agen Pertama Anda"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "INFO",
-    "deleteBtn": "Padam Agen"
+    "deleteBtn": "Padam Agen",
+    "deleteConfirm": "Adakah anda pasti mahu memadam ejen ini?"
   },
   "modelConfig": {
     "sectionTitle": "KONFIGURASI MODEL",

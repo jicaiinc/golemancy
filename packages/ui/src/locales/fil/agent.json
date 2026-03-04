@@ -21,6 +21,7 @@
     "subtitle_one": "{{count}} agent sa project na ito",
     "subtitle_other": "{{count}} agent sa project na ito",
     "newBtn": "+ Bagong Agent",
+    "clone": "I-clone ang ahente",
     "empty": "Wala pang agent",
     "createFirst": "Gumawa ng Unang Agent"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "IMPORMASYON",
-    "deleteBtn": "I-delete ang Agent"
+    "deleteBtn": "I-delete ang Agent",
+    "deleteConfirm": "Sigurado ka bang gusto mong burahin ang ahenteng ito?"
   },
   "modelConfig": {
     "sectionTitle": "MODEL CONFIG",

@@ -13,6 +13,7 @@
     "empty": "暂无项目",
     "createFirst": "创建第一个项目",
     "openInWindow": "在新窗口中打开",
+    "clone": "克隆项目",
     "agents_one": "{{count}} 个 Agent",
     "agents_other": "{{count}} 个 Agent",
     "running_one": "{{count}} 个运行中",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "基本信息",
       "saveBtn": "保存更改",
+      "deleteBtn": "删除项目",
+      "deleteConfirm": "确定要删除这个项目吗？",
       "defaultLabel": "默认 AGENT / 团队",
       "defaultDesc": "新对话使用的默认 Agent 或团队。",
       "defaultNone": "无",

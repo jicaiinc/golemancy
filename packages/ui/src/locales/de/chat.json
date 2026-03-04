@@ -1,4 +1,5 @@
 {
+  "newChatTitle": "Neuer Chat",
   "header": {
     "hideHistory": "Chatverlauf ausblenden",
     "showHistory": "Chatverlauf anzeigen",
@@ -9,7 +10,10 @@
   },
   "sidebar": {
     "newChat": "+ Neuer Chat",
-    "noConversations": "Keine Konversationen"
+    "noConversations": "Keine Konversationen",
+    "filter": "Filtern",
+    "showCron": "Cron-Jobs",
+    "showSubAgent": "Sub-Agents"
   },
   "window": {
     "startConversation": "Konversation starten...",
@@ -57,6 +61,7 @@
     "output": "AUSGABE",
     "error": "FEHLER",
     "task": "AUFGABE",
+    "session": "SITZUNG",
     "tools": "WERKZEUGE",
     "toolCountRunning": "[{{running}}/{{total}} Werkzeuge]",
     "toolCountDone": "[{{total}} Werkzeuge]",

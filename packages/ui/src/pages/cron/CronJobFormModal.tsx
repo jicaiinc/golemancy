@@ -187,7 +187,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
               onChange={e => setCronExpression(e.target.value)}
               placeholder="0 * * * *"
             />
-            <span className="text-[10px] text-text-dim font-mono">minute hour day month weekday</span>
+            <span className="text-[10px] text-text-dim font-mono">{t('form.cronHint')}</span>
             <span className={`text-[10px] font-mono ${tryParseCron(cronExpression, t('cron:form.invalidExpression')) !== t('cron:form.invalidExpression') ? 'text-accent-green' : 'text-accent-red'}`}>
               {tryParseCron(cronExpression, t('cron:form.invalidExpression'))}
             </span>

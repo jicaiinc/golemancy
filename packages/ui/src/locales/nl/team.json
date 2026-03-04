@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} team in dit project",
     "subtitle_other": "{{count}} teams in dit project",
     "newBtn": "+ Nieuw Team",
+    "clone": "Team klonen",
     "empty": "Nog geen teams",
     "createFirst": "Maak je eerste team",
     "leader": "Leider",

@@ -233,7 +233,7 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
               {/* Session ID — selectable for copy */}
               {state.sessionId && (
                 <div className="mt-2">
-                  <span className="text-[10px] font-pixel text-text-dim">SESSION</span>
+                  <span className="text-[10px] font-pixel text-text-dim">{t('tool.session')}</span>
                   <pre className="mt-0.5 text-[10px] font-mono text-text-secondary bg-void p-1.5 select-text">{state.sessionId}</pre>
                 </div>
               )}

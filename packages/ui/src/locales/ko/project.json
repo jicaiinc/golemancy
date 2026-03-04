@@ -13,6 +13,7 @@
     "empty": "프로젝트가 없습니다",
     "createFirst": "첫 번째 프로젝트 생성",
     "openInWindow": "새 창에서 열기",
+    "clone": "프로젝트 복제",
     "agents_one": "{{count}}개 Agent",
     "agents_other": "{{count}}개 Agent",
     "running_one": "{{count}}개 실행 중",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "기본 정보",
       "saveBtn": "변경 사항 저장",
+      "deleteBtn": "프로젝트 삭제",
+      "deleteConfirm": "이 프로젝트를 삭제하시겠습니까?",
       "defaultLabel": "기본 AGENT / 팀",
       "defaultDesc": "새 대화에 사용되는 기본 Agent 또는 팀.",
       "defaultNone": "없음",

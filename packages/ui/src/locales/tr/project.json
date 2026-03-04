@@ -13,6 +13,7 @@
     "empty": "Henüz proje yok",
     "createFirst": "İlk Projenizi Oluşturun",
     "openInWindow": "Yeni Pencerede Aç",
+    "clone": "Projeyi klonla",
     "agents_one": "{{count}} ajan",
     "agents_other": "{{count}} ajan",
     "running_one": "{{count}} çalışıyor",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "TEMEL BİLGİ",
       "saveBtn": "Değişiklikleri Kaydet",
+      "deleteBtn": "Projeyi sil",
+      "deleteConfirm": "Bu projeyi silmek istediğinizden emin misiniz?",
       "defaultLabel": "VARSAYILAN AJAN / TAKIM",
       "defaultDesc": "Yeni konuşmalar için varsayılan Ajan veya takım.",
       "defaultNone": "Yok",

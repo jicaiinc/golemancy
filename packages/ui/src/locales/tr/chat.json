@@ -1,4 +1,5 @@
 {
+  "newChatTitle": "Yeni sohbet",
   "header": {
     "hideHistory": "Sohbet geçmişini gizle",
     "showHistory": "Sohbet geçmişini göster",
@@ -9,7 +10,10 @@
   },
   "sidebar": {
     "newChat": "+ Yeni Sohbet",
-    "noConversations": "Henüz konuşma yok"
+    "noConversations": "Henüz konuşma yok",
+    "filter": "Filtrele",
+    "showCron": "Zamanlanmış görevler",
+    "showSubAgent": "Alt ajanlar"
   },
   "window": {
     "startConversation": "Konuşmayı başlatın...",
@@ -57,6 +61,7 @@
     "output": "ÇIKIŞ",
     "error": "HATA",
     "task": "GÖREV",
+    "session": "OTURUM",
     "tools": "ARAÇLAR",
     "toolCountRunning": "[{{running}}/{{total}} araç]",
     "toolCountDone": "[{{total}} araç]",

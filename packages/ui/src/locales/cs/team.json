@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} tým v tomto projektu",
     "subtitle_other": "{{count}} týmů v tomto projektu",
     "newBtn": "+ Nový tým",
+    "clone": "Klonovat tým",
     "empty": "Zatím žádné týmy",
     "createFirst": "Vytvořte svůj první tým",
     "leader": "Vedoucí",

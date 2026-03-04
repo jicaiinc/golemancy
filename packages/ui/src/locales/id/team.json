@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} tim dalam proyek ini",
     "subtitle_other": "{{count}} tim dalam proyek ini",
     "newBtn": "+ Tim Baru",
+    "clone": "Salin tim",
     "empty": "Belum ada tim",
     "createFirst": "Buat Tim Pertamamu",
     "leader": "Pemimpin",

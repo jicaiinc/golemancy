@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} team i detta projekt",
     "subtitle_other": "{{count}} team i detta projekt",
     "newBtn": "+ Nytt Team",
+    "clone": "Klona team",
     "empty": "Inga team ännu",
     "createFirst": "Skapa ditt första team",
     "leader": "Ledare",

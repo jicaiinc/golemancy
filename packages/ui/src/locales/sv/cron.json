@@ -43,8 +43,10 @@
     "oneTime": "Engångs",
     "cronLabel": "CRON-UTTRYCK",
     "scheduledAtLabel": "SCHEMALAGD TID (lokal tid)",
-    "agentLabel": "AGENT",
-    "agentPlaceholder": "Välj en agent",
+    "agentLabel": "AGENT / TEAM",
+    "agentPlaceholder": "Välj en agent eller ett team",
+    "teamsGroup": "Team",
+    "agentsGroup": "Agenter",
     "instructionLabel": "INSTRUKTION (valfritt)",
     "instructionPlaceholder": "Instruktioner att skicka till agenten vid aktivering",
     "enabledLabel": "Aktiverad",
@@ -55,8 +57,7 @@
       "daily9am": "Dagligen kl 9",
       "weeklyMon": "Varje måndag"
     },
-    "invalidExpression": "Ogiltigt uttryck",
-    "teamLabel": "TEAM (valfritt)",
-    "noTeam": "Inget team"
+    "cronHint": "minut timme dag månad veckodag",
+    "invalidExpression": "Ogiltigt uttryck"
   }
 }

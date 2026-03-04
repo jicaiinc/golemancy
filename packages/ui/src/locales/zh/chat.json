@@ -1,4 +1,5 @@
 {
+  "newChatTitle": "新对话",
   "header": {
     "hideHistory": "隐藏聊天记录",
     "showHistory": "显示聊天记录",
@@ -9,7 +10,10 @@
   },
   "sidebar": {
     "newChat": "+ 新对话",
-    "noConversations": "暂无对话"
+    "noConversations": "暂无对话",
+    "filter": "筛选",
+    "showCron": "自动化",
+    "showSubAgent": "子 Agent"
   },
   "window": {
     "startConversation": "开始对话...",
@@ -57,6 +61,7 @@
     "output": "输出",
     "error": "错误",
     "task": "任务",
+    "session": "会话",
     "tools": "工具",
     "toolCountRunning": "[{{running}}/{{total}} 个工具]",
     "toolCountDone": "[{{total}} 个工具]",

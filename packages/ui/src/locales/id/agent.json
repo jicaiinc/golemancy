@@ -21,6 +21,7 @@
     "subtitle_one": "{{count}} agent dalam proyek ini",
     "subtitle_other": "{{count}} agent dalam proyek ini",
     "newBtn": "+ Agent Baru",
+    "clone": "Salin agen",
     "empty": "Belum ada agent",
     "createFirst": "Buat Agent Pertama Anda"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "INFO",
-    "deleteBtn": "Hapus Agent"
+    "deleteBtn": "Hapus Agent",
+    "deleteConfirm": "Apakah Anda yakin ingin menghapus agen ini?"
   },
   "modelConfig": {
     "sectionTitle": "KONFIGURASI MODEL",

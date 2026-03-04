@@ -1,4 +1,5 @@
 {
+  "newChatTitle": "Новий чат",
   "header": {
     "hideHistory": "Приховати історію чату",
     "showHistory": "Показати історію чату",
@@ -9,7 +10,10 @@
   },
   "sidebar": {
     "newChat": "+ Новий чат",
-    "noConversations": "Немає розмов"
+    "noConversations": "Немає розмов",
+    "filter": "Фільтр",
+    "showCron": "Заплановані завдання",
+    "showSubAgent": "Під-агенти"
   },
   "window": {
     "startConversation": "Розпочніть розмову...",
@@ -57,6 +61,7 @@
     "output": "ВИХІД",
     "error": "ПОМИЛКА",
     "task": "ЗАДАЧА",
+    "session": "СЕСІЯ",
     "tools": "ІНСТРУМЕНТИ",
     "toolCountRunning": "[{{running}}/{{total}} інструментів]",
     "toolCountDone": "[{{total}} інструментів]",

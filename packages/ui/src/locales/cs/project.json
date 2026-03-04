@@ -15,6 +15,7 @@
     "empty": "Zatím žádné projekty",
     "createFirst": "Vytvořte první projekt",
     "openInWindow": "Otevřít v novém okně",
+    "clone": "Klonovat projekt",
     "agents_one": "{{count}} agent",
     "agents_few": "{{count}} agenti",
     "agents_many": "{{count}} agentů",
@@ -41,6 +42,8 @@
     "general": {
       "sectionTitle": "ZÁKLADNÍ INFORMACE",
       "saveBtn": "Uložit změny",
+      "deleteBtn": "Smazat projekt",
+      "deleteConfirm": "Opravdu chcete smazat tento projekt?",
       "defaultLabel": "VÝCHOZÍ AGENT / TÝM",
       "defaultDesc": "Výchozí Agent nebo tým pro nové konverzace.",
       "defaultNone": "Žádný",

@@ -21,6 +21,7 @@
     "subtitle_one": "이 프로젝트에 {{count}}개의 Agent",
     "subtitle_other": "이 프로젝트에 {{count}}개의 Agent",
     "newBtn": "+ 새 Agent",
+    "clone": "Agent 복제",
     "empty": "Agent가 없습니다",
     "createFirst": "첫 번째 Agent 생성"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "기본 정보",
-    "deleteBtn": "Agent 삭제"
+    "deleteBtn": "Agent 삭제",
+    "deleteConfirm": "이 Agent를 삭제하시겠습니까?"
   },
   "modelConfig": {
     "sectionTitle": "모델 설정",

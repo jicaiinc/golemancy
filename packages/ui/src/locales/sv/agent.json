@@ -21,6 +21,7 @@
     "subtitle_one": "{{count}} agent i detta projekt",
     "subtitle_other": "{{count}} agenter i detta projekt",
     "newBtn": "+ Ny agent",
+    "clone": "Klona agent",
     "empty": "Inga agenter ännu",
     "createFirst": "Skapa din första agent"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "INFO",
-    "deleteBtn": "Radera agent"
+    "deleteBtn": "Radera agent",
+    "deleteConfirm": "Är du säker på att du vill radera denna agent?"
   },
   "modelConfig": {
     "sectionTitle": "MODELLKONFIGURATION",

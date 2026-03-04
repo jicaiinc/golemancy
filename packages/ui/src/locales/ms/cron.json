@@ -45,6 +45,8 @@
     "scheduledAtLabel": "DIJADUALKAN PADA (waktu tempatan)",
     "agentLabel": "AGEN",
     "agentPlaceholder": "Pilih agen",
+    "teamsGroup": "Pasukan",
+    "agentsGroup": "Ejen",
     "instructionLabel": "ARAHAN (pilihan)",
     "instructionPlaceholder": "Arahan untuk dihantar kepada agen apabila dicetuskan",
     "enabledLabel": "Aktif",
@@ -55,8 +57,7 @@
       "daily9am": "Harian 9pg",
       "weeklyMon": "Mingguan Isn"
     },
-    "invalidExpression": "Ungkapan tidak sah",
-    "teamLabel": "PASUKAN (pilihan)",
-    "noTeam": "Tiada pasukan"
+    "cronHint": "minit jam hari bulan hari_minggu",
+    "invalidExpression": "Ungkapan tidak sah"
   }
 }

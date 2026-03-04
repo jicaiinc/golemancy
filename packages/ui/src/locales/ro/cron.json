@@ -45,6 +45,8 @@
     "scheduledAtLabel": "PROGRAMAT LA (ora locală)",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Selectați un agent",
+    "teamsGroup": "Echipe",
+    "agentsGroup": "Agenți",
     "instructionLabel": "INSTRUCȚIUNE (opțional)",
     "instructionPlaceholder": "Instrucțiuni de trimis agentului la declanșare",
     "enabledLabel": "Activat",
@@ -55,8 +57,7 @@
       "daily9am": "Zilnic la 9",
       "weeklyMon": "Săptămânal luni"
     },
-    "invalidExpression": "Expresie nevalidă",
-    "teamLabel": "ECHIPĂ (opțional)",
-    "noTeam": "Fără echipă"
+    "cronHint": "minut oră zi lună zi_săptămână",
+    "invalidExpression": "Expresie nevalidă"
   }
 }

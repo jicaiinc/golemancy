@@ -21,6 +21,7 @@
     "subtitle_one": "このプロジェクトに {{count}} 個の Agent",
     "subtitle_other": "このプロジェクトに {{count}} 個の Agent",
     "newBtn": "+ 新規 Agent",
+    "clone": "Agent をコピー",
     "empty": "Agent がありません",
     "createFirst": "最初の Agent を作成"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "基本情報",
-    "deleteBtn": "Agent を削除"
+    "deleteBtn": "Agent を削除",
+    "deleteConfirm": "この Agent を削除してもよろしいですか？"
   },
   "modelConfig": {
     "sectionTitle": "モデル設定",

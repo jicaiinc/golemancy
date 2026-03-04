@@ -13,6 +13,7 @@
     "empty": "Noch keine Projekte",
     "createFirst": "Erstellen Sie Ihr erstes Projekt",
     "openInWindow": "In neuem Fenster öffnen",
+    "clone": "Projekt klonen",
     "agents_one": "{{count}} Agent",
     "agents_other": "{{count}} Agenten",
     "running_one": "{{count}} aktiv",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "ALLGEMEINE INFO",
       "saveBtn": "Änderungen speichern",
+      "deleteBtn": "Projekt löschen",
+      "deleteConfirm": "Dieses Projekt wirklich löschen?",
       "defaultLabel": "STANDARD-AGENT / TEAM",
       "defaultDesc": "Der Standard-Agent oder das Team für neue Unterhaltungen.",
       "defaultNone": "Keines",

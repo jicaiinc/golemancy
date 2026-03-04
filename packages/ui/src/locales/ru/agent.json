@@ -23,6 +23,7 @@
     "subtitle_many": "{{count}} агентов в этом проекте",
     "subtitle_other": "{{count}} агентов в этом проекте",
     "newBtn": "+ Новый агент",
+    "clone": "Клонировать агента",
     "empty": "Агентов пока нет",
     "createFirst": "Создайте первого агента"
   },
@@ -61,7 +62,8 @@
   },
   "general": {
     "sectionTitle": "ИНФОРМАЦИЯ",
-    "deleteBtn": "Удалить агента"
+    "deleteBtn": "Удалить агента",
+    "deleteConfirm": "Вы уверены, что хотите удалить этого агента?"
   },
   "modelConfig": {
     "sectionTitle": "КОНФИГУРАЦИЯ МОДЕЛИ",

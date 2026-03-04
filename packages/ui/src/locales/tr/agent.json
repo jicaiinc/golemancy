@@ -21,6 +21,7 @@
     "subtitle_one": "Bu projede {{count}} ajan",
     "subtitle_other": "Bu projede {{count}} ajan",
     "newBtn": "+ Yeni Ajan",
+    "clone": "Ajanı klonla",
     "empty": "Henüz ajan yok",
     "createFirst": "İlk Ajanınızı Oluşturun"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "BİLGİ",
-    "deleteBtn": "Ajanı Sil"
+    "deleteBtn": "Ajanı Sil",
+    "deleteConfirm": "Bu ajanı silmek istediğinizden emin misiniz?"
   },
   "modelConfig": {
     "sectionTitle": "MODEL YAPILANDIRMASI",

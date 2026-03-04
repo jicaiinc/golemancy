@@ -1,4 +1,5 @@
 {
+  "newChatTitle": "New Chat",
   "header": {
     "hideHistory": "Hide chat history",
     "showHistory": "Show chat history",
@@ -60,6 +61,7 @@
     "output": "OUTPUT",
     "error": "ERROR",
     "task": "TASK",
+    "session": "SESSION",
     "tools": "TOOLS",
     "toolCountRunning": "[{{running}}/{{total}} tools]",
     "toolCountDone": "[{{total}} tools]",

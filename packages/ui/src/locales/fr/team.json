@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} équipe dans ce projet",
     "subtitle_other": "{{count}} équipes dans ce projet",
     "newBtn": "+ Nouvelle équipe",
+    "clone": "Cloner l'équipe",
     "empty": "Pas encore d'équipes",
     "createFirst": "Créez votre première équipe",
     "leader": "Leader",

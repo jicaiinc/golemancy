@@ -45,6 +45,8 @@
     "scheduledAtLabel": "ZAMANLAMA (yerel saat)",
     "agentLabel": "AJAN",
     "agentPlaceholder": "Bir ajan seçin",
+    "teamsGroup": "Takımlar",
+    "agentsGroup": "Ajanlar",
     "instructionLabel": "TALİMAT (isteğe bağlı)",
     "instructionPlaceholder": "Tetiklendiğinde ajana gönderilecek talimatlar",
     "enabledLabel": "Etkin",
@@ -55,8 +57,7 @@
       "daily9am": "Günlük 09:00",
       "weeklyMon": "Haftalık Pzt"
     },
-    "invalidExpression": "Geçersiz ifade",
-    "teamLabel": "TAKIM (isteğe bağlı)",
-    "noTeam": "Takım yok"
+    "cronHint": "dakika saat gün ay haftanın_günü",
+    "invalidExpression": "Geçersiz ifade"
   }
 }

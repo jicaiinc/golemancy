@@ -21,6 +21,7 @@
     "subtitle_one": "{{count}} agent in dit project",
     "subtitle_other": "{{count}} agenten in dit project",
     "newBtn": "+ Nieuwe Agent",
+    "clone": "Agent Klonen",
     "empty": "Nog geen agenten",
     "createFirst": "Maak Uw Eerste Agent"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "INFO",
-    "deleteBtn": "Agent Verwijderen"
+    "deleteBtn": "Agent Verwijderen",
+    "deleteConfirm": "Weet u zeker dat u deze agent wilt verwijderen?"
   },
   "modelConfig": {
     "sectionTitle": "MODELCONFIGURATIE",

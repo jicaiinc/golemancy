@@ -13,6 +13,7 @@
     "empty": "Aucun projet pour le moment",
     "createFirst": "Créez Votre Premier Projet",
     "openInWindow": "Ouvrir dans une Nouvelle Fenêtre",
+    "clone": "Cloner le Projet",
     "agents_one": "{{count}} agent",
     "agents_other": "{{count}} agents",
     "running_one": "{{count}} en cours",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "INFORMATIONS DE BASE",
       "saveBtn": "Enregistrer les Modifications",
+      "deleteBtn": "Supprimer le Projet",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce projet ?",
       "defaultLabel": "AGENT / ÉQUIPE PAR DÉFAUT",
       "defaultDesc": "L'Agent ou l'équipe par défaut pour les nouvelles conversations.",
       "defaultNone": "Aucun",

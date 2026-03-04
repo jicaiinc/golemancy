@@ -13,6 +13,7 @@
     "empty": "Nog geen projecten",
     "createFirst": "Maak Uw Eerste Project",
     "openInWindow": "Openen in Nieuw Venster",
+    "clone": "Project Klonen",
     "agents_one": "{{count}} agent",
     "agents_other": "{{count}} agenten",
     "running_one": "{{count}} actief",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "ALGEMENE INFO",
       "saveBtn": "Wijzigingen Opslaan",
+      "deleteBtn": "Project Verwijderen",
+      "deleteConfirm": "Weet u zeker dat u dit project wilt verwijderen?",
       "defaultLabel": "STANDAARD AGENT / TEAM",
       "defaultDesc": "De standaard Agent of het team voor nieuwe gesprekken.",
       "defaultNone": "Geen",

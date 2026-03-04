@@ -57,6 +57,7 @@
       "daily9am": "Daily 9am",
       "weeklyMon": "Weekly Mon"
     },
+    "cronHint": "minute hour day month weekday",
     "invalidExpression": "Invalid expression"
   }
 }

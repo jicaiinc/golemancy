@@ -21,6 +21,7 @@
     "subtitle_one": "{{count}} agent trong dự án này",
     "subtitle_other": "{{count}} agent trong dự án này",
     "newBtn": "+ Agent Mới",
+    "clone": "Nhân bản tác nhân",
     "empty": "Chưa có agent",
     "createFirst": "Tạo Agent Đầu Tiên"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "THÔNG TIN",
-    "deleteBtn": "Xóa Agent"
+    "deleteBtn": "Xóa Agent",
+    "deleteConfirm": "Bạn có chắc muốn xóa tác nhân này không?"
   },
   "modelConfig": {
     "sectionTitle": "CẤU HÌNH MODEL",

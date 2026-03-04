@@ -45,6 +45,8 @@
     "scheduledAtLabel": "NAKA-SCHEDULE SA (lokal na oras)",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Pumili ng agent",
+    "teamsGroup": "Mga koponan",
+    "agentsGroup": "Mga ahente",
     "instructionLabel": "INSTRUKSYON (opsyonal)",
     "instructionPlaceholder": "Mga instruksyon na ipapadala sa agent kapag na-trigger",
     "enabledLabel": "Naka-enable",
@@ -55,8 +57,7 @@
       "daily9am": "Araw-araw 9am",
       "weeklyMon": "Lingguhan Lun"
     },
-    "invalidExpression": "Hindi valid ang expression",
-    "teamLabel": "KOPONAN (opsyonal)",
-    "noTeam": "Walang koponan"
+    "cronHint": "minuto oras araw buwan araw_linggo",
+    "invalidExpression": "Hindi valid ang expression"
   }
 }

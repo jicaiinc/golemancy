@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} đội trong dự án này",
     "subtitle_other": "{{count}} đội trong dự án này",
     "newBtn": "+ Đội mới",
+    "clone": "Nhân bản nhóm",
     "empty": "Chưa có đội nào",
     "createFirst": "Tạo đội đầu tiên",
     "leader": "Trưởng nhóm",

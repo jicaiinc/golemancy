@@ -43,8 +43,10 @@
     "oneTime": "Eenmalig",
     "cronLabel": "CRON-EXPRESSIE",
     "scheduledAtLabel": "GEPLAND TIJDSTIP (lokale tijd)",
-    "agentLabel": "AGENT",
-    "agentPlaceholder": "Selecteer een agent",
+    "agentLabel": "AGENT / TEAM",
+    "agentPlaceholder": "Selecteer een agent of team",
+    "teamsGroup": "Teams",
+    "agentsGroup": "Agents",
     "instructionLabel": "INSTRUCTIE (optioneel)",
     "instructionPlaceholder": "Instructies om naar de agent te sturen bij activering",
     "enabledLabel": "Ingeschakeld",
@@ -55,8 +57,7 @@
       "daily9am": "Dagelijks 9u",
       "weeklyMon": "Wekelijks ma"
     },
-    "invalidExpression": "Ongeldige expressie",
-    "teamLabel": "TEAM (optioneel)",
-    "noTeam": "Geen team"
+    "cronHint": "minuut uur dag maand weekdag",
+    "invalidExpression": "Ongeldige expressie"
   }
 }

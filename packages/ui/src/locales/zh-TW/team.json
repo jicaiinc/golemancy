@@ -4,6 +4,7 @@
     "subtitle_one": "該專案有 {{count}} 個團隊",
     "subtitle_other": "該專案有 {{count}} 個團隊",
     "newBtn": "+ 新建團隊",
+    "clone": "複製團隊",
     "empty": "尚無團隊",
     "createFirst": "建立第一個團隊",
     "leader": "領隊",

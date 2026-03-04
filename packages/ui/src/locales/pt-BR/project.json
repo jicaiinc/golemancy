@@ -13,6 +13,7 @@
     "empty": "Nenhum projeto ainda",
     "createFirst": "Crie Seu Primeiro Projeto",
     "openInWindow": "Abrir em Nova Janela",
+    "clone": "Clonar Projeto",
     "agents_one": "{{count}} agente",
     "agents_other": "{{count}} agentes",
     "running_one": "{{count}} em execução",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "INFORMAÇÕES BÁSICAS",
       "saveBtn": "Salvar Alterações",
+      "deleteBtn": "Excluir Projeto",
+      "deleteConfirm": "Tem certeza de que deseja excluir este projeto?",
       "defaultLabel": "AGENT / EQUIPE PADRÃO",
       "defaultDesc": "O Agent ou equipe padrão para novas conversas.",
       "defaultNone": "Nenhum",

@@ -13,6 +13,7 @@
     "empty": "Chưa có dự án",
     "createFirst": "Tạo Dự Án Đầu Tiên",
     "openInWindow": "Mở trong Cửa Sổ Mới",
+    "clone": "Nhân bản dự án",
     "agents_one": "{{count}} agent",
     "agents_other": "{{count}} agent",
     "running_one": "{{count}} đang chạy",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "THÔNG TIN CƠ BẢN",
       "saveBtn": "Lưu Thay Đổi",
+      "deleteBtn": "Xóa dự án",
+      "deleteConfirm": "Bạn có chắc muốn xóa dự án này không?",
       "defaultLabel": "AGENT / ĐỘI MẶC ĐỊNH",
       "defaultDesc": "Agent hoặc đội mặc định cho các cuộc trò chuyện mới.",
       "defaultNone": "Không",

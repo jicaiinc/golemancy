@@ -45,6 +45,8 @@
     "scheduledAtLabel": "ЗАПЛАНОВАНО НА (місцевий час)",
     "agentLabel": "АГЕНТ",
     "agentPlaceholder": "Оберіть агента",
+    "teamsGroup": "Команди",
+    "agentsGroup": "Агенти",
     "instructionLabel": "ІНСТРУКЦІЯ (необов'язково)",
     "instructionPlaceholder": "Інструкції, що надсилаються агенту при запуску",
     "enabledLabel": "Увімкнено",
@@ -55,8 +57,7 @@
       "daily9am": "Щодня о 9:00",
       "weeklyMon": "Щотижня Пн"
     },
-    "invalidExpression": "Неприпустимий вираз",
-    "teamLabel": "КОМАНДА (необов'язково)",
-    "noTeam": "Без команди"
+    "cronHint": "хвилина година день місяць день_тижня",
+    "invalidExpression": "Неприпустимий вираз"
   }
 }

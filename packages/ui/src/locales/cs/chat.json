@@ -1,4 +1,5 @@
 {
+  "newChatTitle": "Nový chat",
   "header": {
     "hideHistory": "Skrýt historii chatu",
     "showHistory": "Zobrazit historii chatu",
@@ -9,7 +10,10 @@
   },
   "sidebar": {
     "newChat": "+ Nový chat",
-    "noConversations": "Žádné konverzace"
+    "noConversations": "Žádné konverzace",
+    "filter": "Filtrovat",
+    "showCron": "Naplánované úlohy",
+    "showSubAgent": "Pod-agenti"
   },
   "window": {
     "startConversation": "Zahájit konverzaci...",
@@ -57,6 +61,7 @@
     "output": "VÝSTUP",
     "error": "CHYBA",
     "task": "ÚKOL",
+    "session": "RELACE",
     "tools": "NÁSTROJE",
     "toolCountRunning": "[{{running}}/{{total}} nástrojů]",
     "toolCountDone": "[{{total}} nástrojů]",

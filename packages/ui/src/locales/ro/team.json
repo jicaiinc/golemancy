@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} echipă în acest proiect",
     "subtitle_other": "{{count}} echipe în acest proiect",
     "newBtn": "+ Echipă nouă",
+    "clone": "Clonează echipa",
     "empty": "Nicio echipă încă",
     "createFirst": "Creează prima ta echipă",
     "leader": "Lider",

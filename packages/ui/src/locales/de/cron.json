@@ -43,8 +43,10 @@
     "oneTime": "Einmalig",
     "cronLabel": "CRON-AUSDRUCK",
     "scheduledAtLabel": "GEPLANTE ZEIT (Ortszeit)",
-    "agentLabel": "AGENT",
-    "agentPlaceholder": "Agent auswählen",
+    "agentLabel": "AGENT / TEAM",
+    "agentPlaceholder": "Agent oder Team auswählen",
+    "teamsGroup": "Teams",
+    "agentsGroup": "Agents",
     "instructionLabel": "ANWEISUNG (optional)",
     "instructionPlaceholder": "Anweisungen, die beim Auslösen an den Agenten gesendet werden",
     "enabledLabel": "Aktiviert",
@@ -55,8 +57,7 @@
       "daily9am": "Täglich 9 Uhr",
       "weeklyMon": "Wöchentlich Mo"
     },
-    "invalidExpression": "Ungültiger Ausdruck",
-    "teamLabel": "TEAM (optional)",
-    "noTeam": "Kein Team"
+    "cronHint": "Minute Stunde Tag Monat Wochentag",
+    "invalidExpression": "Ungültiger Ausdruck"
   }
 }

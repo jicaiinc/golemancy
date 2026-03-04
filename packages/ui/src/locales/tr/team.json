@@ -4,6 +4,7 @@
     "subtitle_one": "Bu projede {{count}} takım",
     "subtitle_other": "Bu projede {{count}} takım",
     "newBtn": "+ Yeni Takım",
+    "clone": "Takımı klonla",
     "empty": "Henüz takım yok",
     "createFirst": "İlk takımınızı oluşturun",
     "leader": "Lider",

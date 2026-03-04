@@ -13,6 +13,7 @@
     "empty": "Wala pang project",
     "createFirst": "Gumawa ng Unang Project",
     "openInWindow": "Buksan sa Bagong Window",
+    "clone": "I-clone ang proyekto",
     "agents_one": "{{count}} agent",
     "agents_other": "{{count}} agent",
     "running_one": "{{count}} tumatakbo",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "PANGUNAHING IMPORMASYON",
       "saveBtn": "I-save ang mga Pagbabago",
+      "deleteBtn": "I-delete ang proyekto",
+      "deleteConfirm": "Sigurado ka bang gusto mong burahin ang proyektong ito?",
       "defaultLabel": "DEFAULT NA AGENT / KOPONAN",
       "defaultDesc": "Ang default na Agent o koponan para sa mga bagong pag-uusap.",
       "defaultNone": "Wala",

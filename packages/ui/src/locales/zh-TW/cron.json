@@ -45,8 +45,8 @@
     "scheduledAtLabel": "執行時間（本地時間）",
     "agentLabel": "AGENT",
     "agentPlaceholder": "選擇一個 Agent",
-    "teamLabel": "團隊（選填）",
-    "noTeam": "不使用團隊",
+    "teamsGroup": "團隊",
+    "agentsGroup": "Agent",
     "instructionLabel": "指令（選填）",
     "instructionPlaceholder": "觸發時傳送給 Agent 的指令",
     "enabledLabel": "啟用",
@@ -57,6 +57,7 @@
       "daily9am": "每天 9 點",
       "weeklyMon": "每週一"
     },
+    "cronHint": "分 時 日 月 星期",
     "invalidExpression": "無效的表達式"
   }
 }

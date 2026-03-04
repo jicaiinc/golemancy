@@ -23,6 +23,7 @@
     "subtitle_many": "{{count}} agentů v tomto projektu",
     "subtitle_other": "{{count}} agentů v tomto projektu",
     "newBtn": "+ Nový agent",
+    "clone": "Klonovat agenta",
     "empty": "Zatím žádní agenti",
     "createFirst": "Vytvořte prvního agenta"
   },
@@ -61,7 +62,8 @@
   },
   "general": {
     "sectionTitle": "INFORMACE",
-    "deleteBtn": "Smazat agenta"
+    "deleteBtn": "Smazat agenta",
+    "deleteConfirm": "Opravdu chcete smazat tohoto agenta?"
   },
   "modelConfig": {
     "sectionTitle": "KONFIGURACE MODELU",

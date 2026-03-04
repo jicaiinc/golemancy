@@ -13,6 +13,7 @@
     "empty": "Belum ada projek",
     "createFirst": "Cipta Projek Pertama Anda",
     "openInWindow": "Buka dalam Tetingkap Baharu",
+    "clone": "Klon projek",
     "agents_one": "{{count}} agen",
     "agents_other": "{{count}} agen",
     "running_one": "{{count}} berjalan",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "INFO ASAS",
       "saveBtn": "Simpan Perubahan",
+      "deleteBtn": "Padam projek",
+      "deleteConfirm": "Adakah anda pasti mahu memadam projek ini?",
       "defaultLabel": "EJEN / PASUKAN LALAI",
       "defaultDesc": "Ejen atau pasukan lalai untuk perbualan baharu.",
       "defaultNone": "Tiada",

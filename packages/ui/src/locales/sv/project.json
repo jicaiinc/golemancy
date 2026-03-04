@@ -13,6 +13,7 @@
     "empty": "Inga projekt ännu",
     "createFirst": "Skapa ditt första projekt",
     "openInWindow": "Öppna i nytt fönster",
+    "clone": "Klona projekt",
     "agents_one": "{{count}} agent",
     "agents_other": "{{count}} agenter",
     "running_one": "{{count}} kör",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "GRUNDLÄGGANDE INFO",
       "saveBtn": "Spara ändringar",
+      "deleteBtn": "Radera projekt",
+      "deleteConfirm": "Är du säker på att du vill radera detta projekt?",
       "defaultLabel": "STANDARD-AGENT / TEAM",
       "defaultDesc": "Standardagent eller team för nya konversationer.",
       "defaultNone": "Inget",

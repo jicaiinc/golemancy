@@ -13,6 +13,7 @@
     "empty": "Belum ada proyek",
     "createFirst": "Buat Proyek Pertama Anda",
     "openInWindow": "Buka di Jendela Baru",
+    "clone": "Salin proyek",
     "agents_one": "{{count}} agent",
     "agents_other": "{{count}} agent",
     "running_one": "{{count}} berjalan",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "INFO DASAR",
       "saveBtn": "Simpan Perubahan",
+      "deleteBtn": "Hapus proyek",
+      "deleteConfirm": "Apakah Anda yakin ingin menghapus proyek ini?",
       "defaultLabel": "AGEN / TIM DEFAULT",
       "defaultDesc": "Agen atau tim default untuk percakapan baru.",
       "defaultNone": "Tidak ada",

@@ -21,6 +21,7 @@
     "subtitle_one": "該專案有 {{count}} 個 Agent",
     "subtitle_other": "該專案有 {{count}} 個 Agent",
     "newBtn": "+ 新建 Agent",
+    "clone": "複製 Agent",
     "empty": "尚無 Agent",
     "createFirst": "建立第一個 Agent"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "基本資訊",
-    "deleteBtn": "刪除 Agent"
+    "deleteBtn": "刪除 Agent",
+    "deleteConfirm": "確定要刪除這個 Agent 嗎？"
   },
   "modelConfig": {
     "sectionTitle": "模型設定",

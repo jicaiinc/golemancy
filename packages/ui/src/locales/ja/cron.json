@@ -45,6 +45,8 @@
     "scheduledAtLabel": "実行時刻（ローカル時間）",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Agent を選択",
+    "teamsGroup": "チーム",
+    "agentsGroup": "Agent",
     "instructionLabel": "指示（任意）",
     "instructionPlaceholder": "トリガー時に Agent に送信する指示",
     "enabledLabel": "有効",
@@ -55,8 +57,7 @@
       "daily9am": "毎日 9 時",
       "weeklyMon": "毎週月曜"
     },
-    "invalidExpression": "無効な式",
-    "teamLabel": "チーム（任意）",
-    "noTeam": "チームなし"
+    "cronHint": "分 時 日 月 曜日",
+    "invalidExpression": "無効な式"
   }
 }

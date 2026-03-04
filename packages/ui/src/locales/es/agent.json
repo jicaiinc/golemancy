@@ -21,6 +21,7 @@
     "subtitle_one": "{{count}} agente en este proyecto",
     "subtitle_other": "{{count}} agentes en este proyecto",
     "newBtn": "+ Nuevo Agente",
+    "clone": "Clonar Agente",
     "empty": "Aún no hay agentes",
     "createFirst": "Cree Su Primer Agente"
   },
@@ -53,7 +54,8 @@
   },
   "general": {
     "sectionTitle": "INFO",
-    "deleteBtn": "Eliminar Agente"
+    "deleteBtn": "Eliminar Agente",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este agente?"
   },
   "modelConfig": {
     "sectionTitle": "CONFIGURACIÓN DEL MODELO",

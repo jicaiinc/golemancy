@@ -15,6 +15,7 @@
     "empty": "Brak projektów",
     "createFirst": "Utwórz pierwszy projekt",
     "openInWindow": "Otwórz w nowym oknie",
+    "clone": "Sklonuj projekt",
     "agents_one": "{{count}} agent",
     "agents_few": "{{count}} agentów",
     "agents_many": "{{count}} agentów",
@@ -41,6 +42,8 @@
     "general": {
       "sectionTitle": "INFORMACJE PODSTAWOWE",
       "saveBtn": "Zapisz zmiany",
+      "deleteBtn": "Usuń projekt",
+      "deleteConfirm": "Czy na pewno chcesz usunąć ten projekt?",
       "defaultLabel": "DOMYŚLNY AGENT / ZESPÓŁ",
       "defaultDesc": "Domyślny Agent lub zespół dla nowych rozmów.",
       "defaultNone": "Brak",

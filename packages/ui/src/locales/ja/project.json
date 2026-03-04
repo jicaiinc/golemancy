@@ -13,6 +13,7 @@
     "empty": "プロジェクトがありません",
     "createFirst": "最初のプロジェクトを作成",
     "openInWindow": "新しいウィンドウで開く",
+    "clone": "プロジェクトをコピー",
     "agents_one": "{{count}} Agent",
     "agents_other": "{{count}} Agent",
     "running_one": "{{count}} 実行中",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "基本情報",
       "saveBtn": "変更を保存",
+      "deleteBtn": "プロジェクトを削除",
+      "deleteConfirm": "このプロジェクトを削除してもよろしいですか？",
       "defaultLabel": "デフォルト AGENT / チーム",
       "defaultDesc": "新しい会話で使用するデフォルトの Agent またはチーム。",
       "defaultNone": "なし",

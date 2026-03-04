@@ -45,6 +45,8 @@
     "scheduledAtLabel": "LÊN LỊCH VÀO (giờ địa phương)",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Chọn agent",
+    "teamsGroup": "Nhóm",
+    "agentsGroup": "Tác nhân",
     "instructionLabel": "HƯỚNG DẪN (tùy chọn)",
     "instructionPlaceholder": "Hướng dẫn gửi cho agent khi được kích hoạt",
     "enabledLabel": "Bật",
@@ -55,8 +57,7 @@
       "daily9am": "Hàng ngày 9h",
       "weeklyMon": "Hàng tuần T2"
     },
-    "invalidExpression": "Biểu thức không hợp lệ",
-    "teamLabel": "ĐỘI (tùy chọn)",
-    "noTeam": "Không có đội"
+    "cronHint": "phút giờ ngày tháng ngày_tuần",
+    "invalidExpression": "Biểu thức không hợp lệ"
   }
 }

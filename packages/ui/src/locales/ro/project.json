@@ -14,6 +14,7 @@
     "empty": "Niciun proiect încă",
     "createFirst": "Creați primul proiect",
     "openInWindow": "Deschidere în fereastră nouă",
+    "clone": "Clonează proiectul",
     "agents_one": "{{count}} agent",
     "agents_few": "{{count}} agenți",
     "agents_other": "{{count}} de agenți",
@@ -38,6 +39,8 @@
     "general": {
       "sectionTitle": "INFORMAȚII DE BAZĂ",
       "saveBtn": "Salvare modificări",
+      "deleteBtn": "Șterge proiectul",
+      "deleteConfirm": "Ești sigur că vrei să ștergi acest proiect?",
       "defaultLabel": "AGENT / ECHIPĂ IMPLICITĂ",
       "defaultDesc": "Agentul sau echipa implicită pentru conversațiile noi.",
       "defaultNone": "Niciunul",

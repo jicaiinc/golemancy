@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} pasukan dalam projek ini",
     "subtitle_other": "{{count}} pasukan dalam projek ini",
     "newBtn": "+ Pasukan Baharu",
+    "clone": "Klon pasukan",
     "empty": "Belum ada pasukan",
     "createFirst": "Cipta Pasukan Pertama Anda",
     "leader": "Ketua",

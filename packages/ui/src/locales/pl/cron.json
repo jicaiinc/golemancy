@@ -45,6 +45,8 @@
     "scheduledAtLabel": "ZAPLANOWANE NA (czas lokalny)",
     "agentLabel": "AGENT",
     "agentPlaceholder": "Wybierz agenta",
+    "teamsGroup": "Zespoły",
+    "agentsGroup": "Agenci",
     "instructionLabel": "INSTRUKCJA (opcjonalnie)",
     "instructionPlaceholder": "Instrukcje wysyłane do agenta przy uruchomieniu",
     "enabledLabel": "Włączona",
@@ -55,8 +57,7 @@
       "daily9am": "Codziennie 9:00",
       "weeklyMon": "Co tydzień Pn"
     },
-    "invalidExpression": "Nieprawidłowe wyrażenie",
-    "teamLabel": "ZESPÓŁ (opcjonalnie)",
-    "noTeam": "Brak zespołu"
+    "cronHint": "minuta godzina dzień miesiąc dzień_tygodnia",
+    "invalidExpression": "Nieprawidłowe wyrażenie"
   }
 }

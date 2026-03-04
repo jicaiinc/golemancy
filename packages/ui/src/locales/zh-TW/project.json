@@ -13,6 +13,7 @@
     "empty": "尚無專案",
     "createFirst": "建立第一個專案",
     "openInWindow": "在新視窗中開啟",
+    "clone": "複製專案",
     "agents_one": "{{count}} 個 Agent",
     "agents_other": "{{count}} 個 Agent",
     "running_one": "{{count}} 個執行中",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "基本資訊",
       "saveBtn": "儲存變更",
+      "deleteBtn": "刪除專案",
+      "deleteConfirm": "確定要刪除這個專案嗎？",
       "defaultLabel": "預設 AGENT / 團隊",
       "defaultDesc": "新對話使用的預設 Agent 或團隊。",
       "defaultNone": "無",

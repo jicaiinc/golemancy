@@ -13,6 +13,7 @@
     "empty": "Nessun progetto",
     "createFirst": "Crea il Tuo Primo Progetto",
     "openInWindow": "Apri in Nuova Finestra",
+    "clone": "Clona Progetto",
     "agents_one": "{{count}} agente",
     "agents_other": "{{count}} agenti",
     "running_one": "{{count}} in esecuzione",
@@ -35,6 +36,8 @@
     "general": {
       "sectionTitle": "INFO GENERALI",
       "saveBtn": "Salva Modifiche",
+      "deleteBtn": "Elimina Progetto",
+      "deleteConfirm": "Sei sicuro di voler eliminare questo progetto?",
       "defaultLabel": "AGENT / TEAM PREDEFINITO",
       "defaultDesc": "L'Agent o il team predefinito per le nuove conversazioni.",
       "defaultNone": "Nessuno",

@@ -4,6 +4,7 @@
     "subtitle_one": "{{count}} koponan sa proyektong ito",
     "subtitle_other": "{{count}} koponan sa proyektong ito",
     "newBtn": "+ Bagong Koponan",
+    "clone": "I-clone ang koponan",
     "empty": "Wala pang koponan",
     "createFirst": "Lumikha ng Iyong Unang Koponan",
     "leader": "Pinuno",
