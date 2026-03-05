@@ -18,9 +18,6 @@ Golemancy — AI Agent orchestration platform. Electron desktop app with pixel a
 | Copyright | Jicai, Inc. |
 | Website Repo | `/Users/cai/developer/github/golemancyweb` (Next.js 官网，可参考其 GitHub API 集成、平台检测、下载逻辑等) |
 
-## Plan Mode
-
-Only enter plan mode when I explicitly ask for it (e.g., "plan this", "make a plan", "先规划一下"). Never enter plan mode on your own initiative.
 
 ## Commands
 
