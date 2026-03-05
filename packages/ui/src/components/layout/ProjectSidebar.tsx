@@ -1,28 +1,39 @@
 import { useNavigate, useLocation, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
+import {
+  DashboardIcon,
+  ChatIcon,
+  CycleIcon,
+  GolemIcon,
+  TreeIcon,
+  ScrollIcon,
+  PlugIcon,
+  DocumentIcon,
+  WrenchIcon,
+} from '../base/PixelIcons'
 
 interface NavItem {
   key: string
   path: string
-  icon: string
+  icon: React.ReactNode
   /** Stable testid suffix for E2E selectors (e.g., 'agents' → data-testid="nav-agents") */
   testId: string
 }
 
 const navItems: NavItem[] = [
-  { key: 'item.dashboard', path: '', icon: '[]', testId: 'dashboard' },
-  { key: 'item.chats', path: '/chat', icon: '>_', testId: 'chat' },
-  { key: 'item.automations', path: '/cron', icon: '::', testId: 'cron' },
-  { key: 'item.agents', path: '/agents', icon: '{}', testId: 'agents' },
-  { key: 'item.teams', path: '/teams', icon: '&&', testId: 'teams' },
-  { key: 'item.skills', path: '/skills', icon: '<>', testId: 'skills' },
-  { key: 'item.mcpServers', path: '/mcp-servers', icon: '~>', testId: 'mcp-servers' },
-  { key: 'item.artifacts', path: '/artifacts', icon: '..', testId: 'artifacts' },
+  { key: 'item.dashboard', path: '', icon: <DashboardIcon />, testId: 'dashboard' },
+  { key: 'item.chats', path: '/chat', icon: <ChatIcon />, testId: 'chat' },
+  { key: 'item.automations', path: '/cron', icon: <CycleIcon />, testId: 'cron' },
+  { key: 'item.agents', path: '/agents', icon: <GolemIcon />, testId: 'agents' },
+  { key: 'item.teams', path: '/teams', icon: <TreeIcon />, testId: 'teams' },
+  { key: 'item.skills', path: '/skills', icon: <ScrollIcon />, testId: 'skills' },
+  { key: 'item.mcpServers', path: '/mcp-servers', icon: <PlugIcon />, testId: 'mcp-servers' },
+  { key: 'item.artifacts', path: '/artifacts', icon: <DocumentIcon />, testId: 'artifacts' },
 ]
 
 const configItems: NavItem[] = [
-  { key: 'item.settings', path: '/settings', icon: '*', testId: 'settings' },
+  { key: 'item.settings', path: '/settings', icon: <WrenchIcon />, testId: 'settings' },
 ]
 
 export function ProjectSidebar() {
@@ -51,7 +62,7 @@ export function ProjectSidebar() {
               key={item.path}
               data-testid={`nav-${item.testId}`}
               onClick={() => navigate(basePath + item.path)}
-              className={`w-full h-10 flex items-center justify-center font-mono text-[12px] cursor-pointer ${
+              className={`w-full h-10 flex items-center justify-center cursor-pointer ${
                 isActive(item.path)
                   ? 'bg-elevated text-accent-green border-l-2 border-l-accent-green'
                   : 'text-text-secondary hover:text-text-primary hover:bg-elevated/50'
@@ -90,7 +101,7 @@ export function ProjectSidebar() {
                 : 'text-text-secondary hover:text-text-primary hover:bg-elevated/50'
             }`}
           >
-            <span className="w-4 text-center text-[10px]">{item.icon}</span>
+            <span className="w-4 flex items-center justify-center">{item.icon}</span>
             {t(item.key)}
           </button>
         ))}
@@ -109,7 +120,7 @@ export function ProjectSidebar() {
                 : 'text-text-secondary hover:text-text-primary hover:bg-elevated/50'
             }`}
           >
-            <span className="w-4 text-center text-[10px]">{item.icon}</span>
+            <span className="w-4 flex items-center justify-center">{item.icon}</span>
             {t(item.key)}
           </button>
         ))}

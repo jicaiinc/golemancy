@@ -80,3 +80,113 @@ export function StopSquareIcon({ className }: { className?: string }) {
     </svg>
   )
 }
+
+// ── Navigation icons ──────────────────────────────────────────
+
+/** Pixel-art SVG: 2×2 tile grid (dashboard) */
+export function DashboardIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <rect x="1" y="1" width="5" height="5" stroke="currentColor" strokeWidth="2" />
+      <rect x="8" y="1" width="5" height="5" stroke="currentColor" strokeWidth="2" />
+      <rect x="1" y="8" width="5" height="5" stroke="currentColor" strokeWidth="2" />
+      <rect x="8" y="8" width="5" height="5" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: speech bubble with step tail + text lines (chats) */
+export function ChatIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <path d="M1 1 H13 V10 H5 V13 H3 V10 H1 Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinejoin="miter" />
+      <line x1="4" y1="4" x2="10" y2="4" stroke="currentColor" strokeWidth="2" />
+      <line x1="4" y1="7" x2="8" y2="7" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: two L-shaped arrows forming clockwise cycle (automations) */
+export function CycleIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <path d="M4 3 H11 V10" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
+      <path d="M9 8 L11 10 L13 8" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
+      <path d="M10 11 H3 V4" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
+      <path d="M1 6 L3 4 L5 6" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: golem head with two horns and glowing eyes (agents) */
+export function GolemIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <rect x="3" y="1" width="2" height="2" fill="currentColor" />
+      <rect x="9" y="1" width="2" height="2" fill="currentColor" />
+      <rect x="2" y="3" width="10" height="10" stroke="currentColor" strokeWidth="2" />
+      <rect x="4" y="6" width="2" height="2" fill="currentColor" />
+      <rect x="8" y="6" width="2" height="2" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: three-node tree diagram (teams) */
+export function TreeIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <rect x="6" y="1" width="2" height="2" fill="currentColor" />
+      <line x1="7" y1="3" x2="7" y2="7" stroke="currentColor" strokeWidth="2" />
+      <line x1="3" y1="7" x2="11" y2="7" stroke="currentColor" strokeWidth="2" />
+      <line x1="3" y1="7" x2="3" y2="11" stroke="currentColor" strokeWidth="2" />
+      <line x1="11" y1="7" x2="11" y2="11" stroke="currentColor" strokeWidth="2" />
+      <rect x="2" y="11" width="2" height="2" fill="currentColor" />
+      <rect x="10" y="11" width="2" height="2" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: magic scroll with rollers and diamond sparkle (skills) */
+export function ScrollIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <rect x="2" y="1" width="10" height="2" fill="currentColor" />
+      <rect x="2" y="11" width="10" height="2" fill="currentColor" />
+      <line x1="4" y1="3" x2="4" y2="11" stroke="currentColor" strokeWidth="2" />
+      <line x1="10" y1="3" x2="10" y2="11" stroke="currentColor" strokeWidth="2" />
+      <path d="M7 5 L9 7 L7 9 L5 7 Z" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: plug with prongs and cable (MCP servers) */
+export function PlugIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <line x1="5" y1="1" x2="5" y2="4" stroke="currentColor" strokeWidth="2" />
+      <line x1="9" y1="1" x2="9" y2="4" stroke="currentColor" strokeWidth="2" />
+      <rect x="3" y="4" width="8" height="5" stroke="currentColor" strokeWidth="2" />
+      <line x1="7" y1="9" x2="7" y2="13" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: document with folded corner (artifacts) */
+export function DocumentIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <path d="M2 1 L2 13 L12 13 L12 5 L8 1 Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
+      <path d="M8 1 L8 5 L12 5" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
+    </svg>
+  )
+}
+
+/** Pixel-art SVG: diagonal L-wrench with T-end (settings) */
+export function WrenchIcon({ className }: { className?: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
+      <path d="M1 13 L7 7 H13" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
+      <line x1="13" y1="5" x2="13" y2="9" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
