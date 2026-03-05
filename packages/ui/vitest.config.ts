@@ -20,12 +20,8 @@ export default defineConfig({
     // Memory isolation: each worker is a separate process, memory is released
     // when the process exits. Prevents jsdom + i18n setup from accumulating.
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: 4,   // 34 test files, 10 cores, 16 GB RAM — 4 concurrent jsdom workers is safe
-        minForks: 1,
-      },
-    },
+    maxWorkers: 4,   // 34 test files, 10 cores, 16 GB RAM — 4 concurrent jsdom workers is safe
+    minWorkers: 1,
 
     coverage: {
       provider: 'v8',
