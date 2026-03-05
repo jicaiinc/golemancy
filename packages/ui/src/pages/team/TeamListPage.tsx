@@ -67,9 +67,7 @@ export function TeamListPage() {
                   className="relative overflow-hidden group h-full flex flex-col"
                   onClick={() => navigate(`/projects/${projectId}/teams/${team.id}`)}
                 >
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-accent-blue" />
-
-                  <div className="mt-1">
+                  <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-pixel text-[10px] text-text-primary truncate">{team.name}</h3>
                       <button
