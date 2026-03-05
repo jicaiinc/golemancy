@@ -106,14 +106,13 @@ export function ChatIcon({ className }: { className?: string }) {
   )
 }
 
-/** Pixel-art SVG: two L-shaped arrows forming clockwise cycle (automations) */
-export function CycleIcon({ className }: { className?: string }) {
+/** Pixel-art SVG: square clock face (automations/cron) */
+export function ClockIcon({ className }: { className?: string }) {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
-      <path d="M4 3 H11 V10" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
-      <path d="M9 8 L11 10 L13 8" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
-      <path d="M10 11 H3 V4" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
-      <path d="M1 6 L3 4 L5 6" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
+      <rect x="1" y="1" width="12" height="12" stroke="currentColor" strokeWidth="2" />
+      <line x1="7" y1="3" x2="7" y2="7" stroke="currentColor" strokeWidth="2" />
+      <line x1="7" y1="7" x2="10" y2="7" stroke="currentColor" strokeWidth="2" />
     </svg>
   )
 }
@@ -181,12 +180,16 @@ export function DocumentIcon({ className }: { className?: string }) {
   )
 }
 
-/** Pixel-art SVG: diagonal L-wrench with T-end (settings) */
-export function WrenchIcon({ className }: { className?: string }) {
+/** Pixel-art SVG: three sliders with knobs at different positions (settings) */
+export function GearIcon({ className }: { className?: string }) {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className}>
-      <path d="M1 13 L7 7 H13" stroke="currentColor" strokeWidth="2" strokeLinejoin="miter" />
-      <line x1="13" y1="5" x2="13" y2="9" stroke="currentColor" strokeWidth="2" />
+      <line x1="1" y1="3" x2="13" y2="3" stroke="currentColor" strokeWidth="2" />
+      <line x1="4" y1="1" x2="4" y2="5" stroke="currentColor" strokeWidth="2" />
+      <line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" strokeWidth="2" />
+      <line x1="10" y1="5" x2="10" y2="9" stroke="currentColor" strokeWidth="2" />
+      <line x1="1" y1="11" x2="13" y2="11" stroke="currentColor" strokeWidth="2" />
+      <line x1="7" y1="9" x2="7" y2="13" stroke="currentColor" strokeWidth="2" />
     </svg>
   )
 }

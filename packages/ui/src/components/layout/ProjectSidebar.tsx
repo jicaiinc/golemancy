@@ -4,13 +4,13 @@ import { useAppStore } from '../../stores'
 import {
   DashboardIcon,
   ChatIcon,
-  CycleIcon,
+  ClockIcon,
   GolemIcon,
   TreeIcon,
   ScrollIcon,
   PlugIcon,
   DocumentIcon,
-  WrenchIcon,
+  GearIcon,
 } from '../base/PixelIcons'
 
 interface NavItem {
@@ -24,7 +24,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { key: 'item.dashboard', path: '', icon: <DashboardIcon />, testId: 'dashboard' },
   { key: 'item.chats', path: '/chat', icon: <ChatIcon />, testId: 'chat' },
-  { key: 'item.automations', path: '/cron', icon: <CycleIcon />, testId: 'cron' },
+  { key: 'item.automations', path: '/cron', icon: <ClockIcon />, testId: 'cron' },
   { key: 'item.agents', path: '/agents', icon: <GolemIcon />, testId: 'agents' },
   { key: 'item.teams', path: '/teams', icon: <TreeIcon />, testId: 'teams' },
   { key: 'item.skills', path: '/skills', icon: <ScrollIcon />, testId: 'skills' },
@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
 ]
 
 const configItems: NavItem[] = [
-  { key: 'item.settings', path: '/settings', icon: <WrenchIcon />, testId: 'settings' },
+  { key: 'item.settings', path: '/settings', icon: <GearIcon />, testId: 'settings' },
 ]
 
 export function ProjectSidebar() {
