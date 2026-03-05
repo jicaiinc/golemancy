@@ -12,7 +12,6 @@ import {
   SkillsPage,
   MCPServersPage,
   ChatPage,
-  TaskListPage,
   CronJobsPage,
   WorkspacePage,
   ProjectSettingsPage,
@@ -57,7 +56,6 @@ export function AppRoutes() {
           <Route path="skills" element={<SkillsPage />} />
           <Route path="mcp-servers" element={<MCPServersPage />} />
           <Route path="chat" element={<ChatPage />} />
-          <Route path="tasks" element={<TaskListPage />} />
           <Route path="cron" element={<CronJobsPage />} />
           <Route path="artifacts" element={<WorkspacePage />} />
           <Route path="settings" element={<ProjectSettingsPage />} />
