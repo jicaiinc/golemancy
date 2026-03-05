@@ -10,6 +10,9 @@ export interface TeamNodeData extends Record<string, unknown> {
   description: string
   isLeader: boolean
   isHighlighted?: boolean
+  enabledTools: string[]
+  skillNames: string[]
+  mcpServers: string[]
 }
 
 export type TeamNodeType = Node<TeamNodeData, 'teamNode'>
@@ -30,10 +33,12 @@ export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {
         ? 'border-accent-green'
         : 'border-border-dim'
 
+  const hasCapabilities = data.enabledTools.length > 0 || data.skillNames.length > 0 || data.mcpServers.length > 0
+
   return (
     <div
       data-testid="team-topology-node"
-      className={`w-[200px] bg-surface border-2 relative cursor-pointer transition-colors ${borderClass}`}
+      className={`w-[220px] bg-surface border-2 relative cursor-pointer transition-colors ${borderClass}`}
       style={{
         boxShadow: selected
           ? '0 0 0 2px color-mix(in srgb, var(--color-accent-blue) 30%, transparent)'
@@ -56,7 +61,45 @@ export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {
       {/* Model */}
       {data.model && (
         <div className="px-2.5 -mt-1 pb-1">
-          <span className="font-mono text-[9px] text-text-dim truncate block">{data.model}</span>
+          <span className="font-mono text-[9px] text-accent-blue truncate block">{data.model}</span>
+        </div>
+      )}
+
+      {/* Capabilities */}
+      {hasCapabilities && (
+        <div className="px-2 pb-2 flex flex-col gap-1">
+          {/* Tools — green */}
+          {data.enabledTools.length > 0 && (
+            <div className="flex flex-wrap gap-0.5">
+              {data.enabledTools.map(tool => (
+                <span key={tool} className="font-mono text-[7px] text-accent-green bg-accent-green/10 px-1 py-px border border-accent-green/20 leading-tight">
+                  {tool}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Skills — purple */}
+          {data.skillNames.length > 0 && (
+            <div className="flex flex-wrap gap-0.5">
+              {data.skillNames.map(name => (
+                <span key={name} className="font-mono text-[7px] text-accent-purple bg-accent-purple/10 px-1 py-px border border-accent-purple/20 leading-tight truncate max-w-full">
+                  {name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* MCP Servers — cyan */}
+          {data.mcpServers.length > 0 && (
+            <div className="flex flex-wrap gap-0.5">
+              {data.mcpServers.map(name => (
+                <span key={name} className="font-mono text-[7px] text-accent-cyan bg-accent-cyan/10 px-1 py-px border border-accent-cyan/20 leading-tight truncate max-w-full">
+                  {name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

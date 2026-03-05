@@ -42,6 +42,7 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
   const { projectId } = useParams<{ projectId: string }>()
   const { fitView, screenToFlowPosition } = useReactFlow()
   const agents = useAppStore(s => s.agents)
+  const skills = useAppStore(s => s.skills)
   const themeMode = useAppStore(s => s.themeMode)
 
   const {
@@ -57,7 +58,7 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
     onNodesDelete,
     isValidConnection,
     layoutApplied,
-  } = useTeamTopologyData(team, agents, projectId as ProjectId)
+  } = useTeamTopologyData(team, agents, projectId as ProjectId, undefined, skills)
 
   // Re-fitView when saved layout is applied after async load
   const prevLayoutRef = useRef(0)

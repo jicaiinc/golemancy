@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'motion/react'
-import type { Agent, AgentId, Team, ProjectId } from '@golemancy/shared'
+import { type Agent, type AgentId, type Team, type ProjectId, getEnabledBuiltinTools } from '@golemancy/shared'
 import { PixelButton } from '../../../components'
 import { useAppStore } from '../../../stores'
 import { getServices } from '../../../services'
@@ -173,9 +173,7 @@ function DetailPanel({
   const agentSkills = (agent.skillIds ?? [])
     .map(sid => skills.find(s => s.id === sid))
     .filter(Boolean) as { id: string; name: string }[]
-  const enabledTools = Object.entries(agent.builtinTools)
-    .filter(([, v]) => !!v)
-    .map(([k]) => k)
+  const enabledTools = getEnabledBuiltinTools(agent.builtinTools)
   const mcpServers = agent.mcpServers ?? []
 
   return (
@@ -200,24 +198,6 @@ function DetailPanel({
 
       {/* Capabilities */}
       <div className="p-3 flex flex-col gap-3 flex-1">
-        {/* Skills */}
-        <div>
-          <div className="font-pixel text-[8px] text-text-dim mb-1">
-            {t('topology.skills')} ({agentSkills.length})
-          </div>
-          {agentSkills.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {agentSkills.map(s => (
-                <span key={s.id} className="font-mono text-[9px] text-accent-purple bg-accent-purple/10 px-1.5 py-0.5 border border-accent-purple/20">
-                  {s.name}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <span className="font-mono text-[9px] text-text-dim">{t('topology.noSkills')}</span>
-          )}
-        </div>
-
         {/* Tools */}
         <div>
           <div className="font-pixel text-[8px] text-text-dim mb-1">
@@ -233,6 +213,24 @@ function DetailPanel({
             </div>
           ) : (
             <span className="font-mono text-[9px] text-text-dim">{t('topology.noTools')}</span>
+          )}
+        </div>
+
+        {/* Skills */}
+        <div>
+          <div className="font-pixel text-[8px] text-text-dim mb-1">
+            {t('topology.skills')} ({agentSkills.length})
+          </div>
+          {agentSkills.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {agentSkills.map(s => (
+                <span key={s.id} className="font-mono text-[9px] text-accent-purple bg-accent-purple/10 px-1.5 py-0.5 border border-accent-purple/20">
+                  {s.name}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span className="font-mono text-[9px] text-text-dim">{t('topology.noSkills')}</span>
           )}
         </div>
 

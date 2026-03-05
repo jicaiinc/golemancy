@@ -3,7 +3,7 @@ import {
   useNodesState, useEdgesState,
   type Node, type Edge, type OnConnect, type Connection,
 } from '@xyflow/react'
-import type { Agent, AgentId, Team, ProjectId } from '@golemancy/shared'
+import { type Agent, type AgentId, type Team, type ProjectId, type Skill, getEnabledBuiltinTools } from '@golemancy/shared'
 import { getServices } from '../../../services'
 import { useAppStore } from '../../../stores'
 import { computeTeamLayout } from './useTeamTopologyLayout'
@@ -34,6 +34,7 @@ export function useTeamTopologyData(
   agents: Agent[],
   projectId: ProjectId,
   highlightedNodeId?: AgentId | null,
+  skills?: Skill[],
 ) {
   const [selectedAgentId, setSelectedAgentId] = useState<AgentId | null>(null)
   const [sidebarMode, setSidebarMode] = useState<'agents' | 'detail' | 'settings'>('agents')
@@ -66,6 +67,12 @@ export function useTeamTopologyData(
     return map
   }, [agents])
 
+  const skillMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const s of (skills ?? [])) map.set(s.id, s.name)
+    return map
+  }, [skills])
+
   // Derive raw nodes from team members
   const rawNodes: Node<TeamNodeData>[] = useMemo(() => {
     const saved = savedLayoutRef.current
@@ -73,6 +80,14 @@ export function useTeamTopologyData(
     return team.members.map(member => {
       const agent = agentMap.get(member.agentId)
       const isLeader = member.agentId === leaderId
+
+      const enabledTools = agent
+        ? getEnabledBuiltinTools(agent.builtinTools)
+        : []
+      const skillNames = agent
+        ? (agent.skillIds ?? []).map(sid => skillMap.get(sid)).filter(Boolean) as string[]
+        : []
+      const mcpServers = agent?.mcpServers ?? []
 
       return {
         id: member.agentId,
@@ -86,10 +101,13 @@ export function useTeamTopologyData(
           description: agent?.description ?? '',
           isLeader,
           isHighlighted: highlightedNodeId === member.agentId,
+          enabledTools,
+          skillNames,
+          mcpServers,
         } satisfies TeamNodeData,
       }
     })
-  }, [team.members, agentMap, highlightedNodeId])
+  }, [team.members, agentMap, skillMap, highlightedNodeId])
 
   // Derive edges from parentAgentId
   const rawEdges: Edge[] = useMemo(() => {
@@ -117,7 +135,7 @@ export function useTeamTopologyData(
   const prevKeyRef = useRef('')
   useEffect(() => {
     const key = team.members.map(m => `${m.agentId}:${m.parentAgentId ?? ''}`).join('|')
-      + '||' + agents.map(a => `${a.id}:${a.name}:${a.status}:${a.modelConfig.model}`).join('|')
+      + '||' + agents.map(a => `${a.id}:${a.name}:${a.status}:${a.modelConfig.model}:${(a.skillIds ?? []).join(',')}:${getEnabledBuiltinTools(a.builtinTools).join(',')}:${(a.mcpServers ?? []).join(',')}`).join('|')
     if (key !== prevKeyRef.current) {
       prevKeyRef.current = key
       setNodes(currentNodes => {

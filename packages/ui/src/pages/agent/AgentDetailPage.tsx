@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, AgentStatus, SkillId, MemoryEntry, MemoryId } from '@golemancy/shared'
-import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MEMORY_AUTO_LOAD, DEFAULT_MEMORY_PRIORITY } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MEMORY_AUTO_LOAD, DEFAULT_MEMORY_PRIORITY, BUILTIN_TOOL_DEFAULTS } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { usePermissionConfig } from '../../hooks'
 import {
@@ -378,16 +378,15 @@ function ToolsTab({ agent, onUpdate }: {
 }) {
   const { t } = useTranslation('agent')
   const builtinToolDefs = [
-    { id: 'bash', name: 'Bash', description: t('tools.bashDesc'), defaultEnabled: true, available: true },
-    { id: 'browser', name: 'Browser', description: t('tools.browserDesc'), defaultEnabled: false, available: true },
-    { id: 'computer_use', name: 'Computer Use', description: t('tools.computerUseDesc'), defaultEnabled: false, available: false },
-    { id: 'task', name: 'Task', description: t('tools.taskDesc'), defaultEnabled: true, available: true },
-    { id: 'memory', name: 'Memory', description: t('tools.memoryDesc'), defaultEnabled: true, available: true },
-  ]
+    { id: 'bash', name: 'Bash', description: t('tools.bashDesc'), available: true },
+    { id: 'browser', name: 'Browser', description: t('tools.browserDesc'), available: true },
+    { id: 'computer_use', name: 'Computer Use', description: t('tools.computerUseDesc'), available: false },
+    { id: 'task', name: 'Task', description: t('tools.taskDesc'), available: true },
+    { id: 'memory', name: 'Memory', description: t('tools.memoryDesc'), available: true },
+  ] as const
 
   async function toggleBuiltinTool(toolId: string) {
-    const def = builtinToolDefs.find(d => d.id === toolId)
-    const current = agent.builtinTools[toolId] ?? (def?.defaultEnabled ?? false)
+    const current = agent.builtinTools[toolId] ?? (BUILTIN_TOOL_DEFAULTS[toolId as keyof typeof BUILTIN_TOOL_DEFAULTS] ?? false)
     await onUpdate(agent.id, {
       builtinTools: { ...agent.builtinTools, [toolId]: !current },
     })
@@ -400,7 +399,7 @@ function ToolsTab({ agent, onUpdate }: {
         <div className="font-pixel text-[8px] text-text-dim mb-2">{t('tools.builtinSection')}</div>
         <div className="flex flex-col gap-2">
           {builtinToolDefs.map(tool => {
-            const enabled = agent.builtinTools[tool.id] ?? (tool.defaultEnabled ?? false)
+            const enabled = agent.builtinTools[tool.id] ?? (BUILTIN_TOOL_DEFAULTS[tool.id as keyof typeof BUILTIN_TOOL_DEFAULTS] ?? false)
             return (
               <PixelCard key={tool.id} className={`flex items-center gap-3 ${!tool.available ? 'opacity-50' : ''}`}>
                 <div className="flex-1 min-w-0">

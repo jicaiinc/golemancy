@@ -1,5 +1,5 @@
 import type { ToolSet } from 'ai'
-import type { BuiltinToolConfig, PermissionMode } from '@golemancy/shared'
+import { type BuiltinToolConfig, type PermissionMode, BUILTIN_TOOL_DEFAULTS } from '@golemancy/shared'
 import { SandboxUnavailableError } from '../errors'
 import { createBashToolForMode, createRestrictedBashTool, resolveEffectivePermissions, type BuiltinToolOptions } from './bash-tools'
 import { loadBrowserTools } from './browser-tools'
@@ -9,11 +9,11 @@ const log = logger.child({ component: 'agent:builtin-tools' })
 
 /** Registry of all built-in tools with metadata */
 export const BUILTIN_TOOL_REGISTRY = [
-  { id: 'bash', name: 'Bash', description: 'Execute bash commands, read/write files', defaultEnabled: true, available: true },
-  { id: 'browser', name: 'Browser', description: 'Control web browser for navigation, clicking, typing, and page analysis', defaultEnabled: false, available: true },
-  { id: 'computer_use', name: 'Computer Use', description: 'Desktop automation (coming soon)', defaultEnabled: false, available: false },
-  { id: 'task', name: 'Task', description: 'Create and manage tasks within the conversation', defaultEnabled: true, available: true },
-  { id: 'memory', name: 'Memory', description: 'Persistent memory bank across conversations with priority-based auto-loading', defaultEnabled: true, available: true },
+  { id: 'bash', name: 'Bash', description: 'Execute bash commands, read/write files', defaultEnabled: BUILTIN_TOOL_DEFAULTS.bash, available: true },
+  { id: 'browser', name: 'Browser', description: 'Control web browser for navigation, clicking, typing, and page analysis', defaultEnabled: BUILTIN_TOOL_DEFAULTS.browser, available: true },
+  { id: 'computer_use', name: 'Computer Use', description: 'Desktop automation (coming soon)', defaultEnabled: BUILTIN_TOOL_DEFAULTS.computer_use, available: false },
+  { id: 'task', name: 'Task', description: 'Create and manage tasks within the conversation', defaultEnabled: BUILTIN_TOOL_DEFAULTS.task, available: true },
+  { id: 'memory', name: 'Memory', description: 'Persistent memory bank across conversations with priority-based auto-loading', defaultEnabled: BUILTIN_TOOL_DEFAULTS.memory, available: true },
 ] as const
 
 // ── Mode Degradation Info ──────────────────────────────────

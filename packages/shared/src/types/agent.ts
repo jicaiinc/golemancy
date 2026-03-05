@@ -16,8 +16,25 @@ export interface ToolCallSchema {
 // Built-in tool configuration
 export type BuiltinToolId = 'bash' | 'browser' | 'computer_use' | 'task' | 'memory'
 
+/** Default-enabled state for each built-in tool (when key is absent from agent.builtinTools) */
+export const BUILTIN_TOOL_DEFAULTS: Record<BuiltinToolId, boolean> = {
+  bash: true,
+  browser: false,
+  computer_use: false,
+  task: true,
+  memory: true,
+}
+
 export interface BuiltinToolConfig {
   [key: string]: boolean | Record<string, unknown>
+}
+
+/** Resolve which built-in tools are enabled, accounting for defaults */
+export function getEnabledBuiltinTools(config: BuiltinToolConfig): BuiltinToolId[] {
+  return (Object.keys(BUILTIN_TOOL_DEFAULTS) as BuiltinToolId[]).filter(id => {
+    const v = config[id]
+    return v !== undefined ? !!v : BUILTIN_TOOL_DEFAULTS[id]
+  })
 }
 
 export interface SubAgentToolCallState {
