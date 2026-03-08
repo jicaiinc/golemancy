@@ -161,6 +161,7 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
             isValidConnection={isValidConnection}
+            connectionRadius={20}
             colorMode={colorMode}
             fitView
             fitViewOptions={FIT_VIEW_OPTIONS}

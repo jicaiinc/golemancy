@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { Team, TeamId, ProjectId, ITeamService } from '@golemancy/shared'
-import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
+import { readJson, writeJson, deleteFile, listJsonFiles, withFileLock } from './base'
 import { getProjectPath, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
@@ -71,20 +71,23 @@ export class FileTeamStorage implements ITeamService {
     id: TeamId,
     data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>,
   ): Promise<Team> {
-    const existing = await this.getById(projectId, id)
-    if (!existing) throw new Error(`Team ${id} not found in project ${projectId}`)
+    const filePath = this.teamPath(projectId, id)
+    return withFileLock(filePath, async () => {
+      const existing = await this.getById(projectId, id)
+      if (!existing) throw new Error(`Team ${id} not found in project ${projectId}`)
 
-    log.debug({ projectId, teamId: id }, 'updating team')
-    const updated: Team = {
-      ...existing,
-      ...data,
-      id,
-      projectId,
-      updatedAt: new Date().toISOString(),
-    }
-    const { projectId: _, ...toWrite } = updated
-    await writeJson(this.teamPath(projectId, id), toWrite)
-    return updated
+      log.debug({ projectId, teamId: id }, 'updating team')
+      const updated: Team = {
+        ...existing,
+        ...data,
+        id,
+        projectId,
+        updatedAt: new Date().toISOString(),
+      }
+      const { projectId: _, ...toWrite } = updated
+      await writeJson(filePath, toWrite)
+      return updated
+    })
   }
 
   async delete(projectId: ProjectId, id: TeamId): Promise<void> {
@@ -128,9 +131,12 @@ export class FileTeamStorage implements ITeamService {
   }
 
   async saveLayout(projectId: ProjectId, teamId: TeamId, layout: Record<string, { x: number; y: number }>): Promise<void> {
-    const team = await this.getById(projectId, teamId)
-    if (!team) throw new Error(`Team ${teamId} not found in project ${projectId}`)
-    const { projectId: _, ...toWrite } = { ...team, layout, updatedAt: new Date().toISOString() }
-    await writeJson(this.teamPath(projectId, teamId), toWrite)
+    const filePath = this.teamPath(projectId, teamId)
+    return withFileLock(filePath, async () => {
+      const team = await this.getById(projectId, teamId)
+      if (!team) throw new Error(`Team ${teamId} not found in project ${projectId}`)
+      const { projectId: _, ...toWrite } = { ...team, layout, updatedAt: new Date().toISOString() }
+      await writeJson(filePath, toWrite)
+    })
   }
 }

@@ -11,6 +11,16 @@
   border: 2px solid var(--color-border-dim) !important;
 }
 
+.react-flow__handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+}
+
 .react-flow__handle:hover {
   background: var(--color-accent-cyan) !important;
 }

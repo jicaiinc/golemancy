@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { randomUUID } from 'node:crypto'
 
 export function isNodeError(e: unknown): e is NodeJS.ErrnoException {
   return e instanceof Error && 'code' in e
@@ -16,8 +17,23 @@ export async function readJson<T>(filePath: string): Promise<T | null> {
 }
 
 export async function writeJson<T>(filePath: string, data: T): Promise<void> {
-  await fs.mkdir(path.dirname(filePath), { recursive: true })
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
+  const dir = path.dirname(filePath)
+  await fs.mkdir(dir, { recursive: true })
+  const tmpPath = path.join(dir, `.${path.basename(filePath)}.${randomUUID()}.tmp`)
+  await fs.writeFile(tmpPath, JSON.stringify(data, null, 2), 'utf-8')
+  await fs.rename(tmpPath, filePath)
+}
+
+const fileLocks = new Map<string, Promise<unknown>>()
+
+export function withFileLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const prev = fileLocks.get(key) ?? Promise.resolve()
+  const result = prev.catch(() => {}).then(() => fn())
+  fileLocks.set(key, result)
+  result.catch(() => {}).finally(() => {
+    if (fileLocks.get(key) === result) fileLocks.delete(key)
+  })
+  return result
 }
 
 export async function deleteFile(filePath: string): Promise<void> {
