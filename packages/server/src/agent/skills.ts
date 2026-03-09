@@ -32,6 +32,7 @@ export async function loadAgentSkillTools(
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'golemancy-skills-'))
   const cleanup = () => fs.rm(tempDir, { recursive: true, force: true }).catch(() => {})
 
+  const pathMap = new Map<string, string>() // sandboxPath -> absolutePath
   let linkedCount = 0
   for (const skillId of skillIds) {
     validateId(skillId)
@@ -40,6 +41,7 @@ export async function loadAgentSkillTools(
     try {
       await fs.access(source)
       await fs.symlink(source, target, 'dir')
+      pathMap.set(`./skills/${skillId}`, source)
       linkedCount++
     } catch {
       log.warn({ skillId, projectId }, 'skill directory not found, skipping')
@@ -60,9 +62,34 @@ export async function loadAgentSkillTools(
       'loaded agent skill tools',
     )
 
+    // Wrap skill tool: replace sandbox paths with real absolute paths
+    const wrappedSkill = {
+      ...skill,
+      description: skill.description.replace(
+        /\nAfter loading a skill[^\n]*/,
+        '',
+      ),
+      execute: async (...args: Parameters<typeof skill.execute>) => {
+        const result = await skill.execute(...args)
+        if (result?.success && result.skill?.path) {
+          const absPath = pathMap.get(result.skill.path)
+          if (absPath) {
+            return { ...result, skill: { ...result.skill, path: absPath } }
+          }
+          log.warn(
+            { sandboxPath: result.skill.path },
+            'skill path not found in pathMap, returning sandboxPath as-is',
+          )
+        }
+        return result
+      },
+    }
+
     // NOTE: Do NOT clean up tempDir here — bash-tool reads skill files lazily
     // when the tool is invoked during streaming. Caller must call cleanup() after stream ends.
-    return { tools: { skill }, instructions, cleanup }
+    // Return empty instructions — bash-tool generates sandbox-relative paths that don't exist.
+    // The skill tool description + execute result already provide all info the model needs.
+    return { tools: { skill: wrappedSkill }, instructions: '', cleanup }
   } catch (e) {
     log.error({ err: e, projectId }, 'failed to create skill tools')
     await cleanup()
