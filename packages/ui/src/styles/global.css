@@ -5,7 +5,7 @@
 @source "..";
 @source "../../../shared/src";
 /* Scan streamdown dist so Tailwind picks up its utility classes */
-@source "../../../node_modules/streamdown/dist";
+@source "../../node_modules/streamdown/dist";
 
 /* === Theme switching: supports .dark class + system preference === */
 @custom-variant dark {
@@ -164,6 +164,16 @@
   --color-mc-gold: var(--color-mc-gold);
   --color-mc-redstone: var(--color-mc-redstone);
   --color-mc-lapis: var(--color-mc-lapis);
+
+  /* shadcn/ui compat — Streamdown uses these tokens internally.
+     Mapped to our design tokens so Tailwind v4 generates the utility classes
+     (bg-background, border-border, bg-sidebar, text-foreground, etc.). */
+  --color-background: var(--color-surface);
+  --color-foreground: var(--color-text-primary);
+  --color-border: var(--color-border-dim);
+  --color-sidebar: var(--color-deep);
+  --color-muted: var(--color-elevated);
+  --color-muted-foreground: var(--color-text-secondary);
 
   /* Fonts */
   --font-pixel: "Press Start 2P", "Pixel CJK", monospace;
@@ -496,14 +506,22 @@ input[type="range"].pixel-slider::-moz-range-thumb {
   color: var(--color-accent-amber);
 }
 
-/* Code blocks */
+/* Code blocks — override Streamdown's built-in code block wrapper */
+.streamdown-content [data-streamdown="code-block"] {
+  border: 2px solid var(--color-border-dim) !important;
+  background: var(--color-deep) !important;
+}
+.streamdown-content [data-streamdown="code-block-header"] {
+  background: var(--color-deep) !important;
+  border-bottom: 1px solid var(--color-border-dim) !important;
+  color: var(--color-text-secondary);
+}
+.streamdown-content [data-streamdown="code-block-body"] {
+  background: var(--color-deep) !important;
+}
 .streamdown-content pre {
   background: var(--color-deep) !important;
-  border: 2px solid var(--color-border-dim);
-  padding: 0.75em 1em;
-  margin: 0.5em 0;
-  overflow-x: auto;
-  font-size: 0.9em;
+  margin: 0;
 }
 .streamdown-content pre code {
   background: transparent;
@@ -536,16 +554,19 @@ input[type="range"].pixel-slider::-moz-range-thumb {
   color: var(--color-accent-cyan);
 }
 
-/* Tables */
+/* Table wrapper — override Streamdown's outer border + controls area */
+.streamdown-content [data-streamdown="table-wrapper"] {
+  border: 2px solid var(--color-border-dim) !important;
+  background: var(--color-surface) !important;
+}
 .streamdown-content table {
   border-collapse: collapse;
-  margin: 0.5em 0;
   width: 100%;
   font-size: 0.9em;
 }
 .streamdown-content th,
 .streamdown-content td {
-  border: 2px solid var(--color-border-dim);
+  border: 1px solid var(--color-border-dim);
   padding: 0.4em 0.75em;
   text-align: left;
 }
@@ -556,6 +577,13 @@ input[type="range"].pixel-slider::-moz-range-thumb {
 }
 .streamdown-content tr:nth-child(even) td {
   background: var(--color-deep);
+}
+
+/* Table fullscreen overlay — pixel art overrides */
+[data-streamdown="table-fullscreen"] th {
+  background: var(--color-deep);
+  color: var(--color-accent-green);
+  font-weight: 700;
 }
 
 /* Strong & emphasis */
