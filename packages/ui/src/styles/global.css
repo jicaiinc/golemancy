@@ -580,10 +580,18 @@ input[type="range"].pixel-slider::-moz-range-thumb {
 }
 
 /* Table fullscreen overlay — pixel art overrides */
+[data-streamdown="table-fullscreen"] th,
+[data-streamdown="table-fullscreen"] td {
+  border: 1px solid var(--color-border-dim);
+  padding: 0.5em 0.75em;
+}
 [data-streamdown="table-fullscreen"] th {
   background: var(--color-deep);
   color: var(--color-accent-green);
   font-weight: 700;
+}
+[data-streamdown="table-fullscreen"] tr:nth-child(even) td {
+  background: var(--color-deep);
 }
 
 /* Strong & emphasis */

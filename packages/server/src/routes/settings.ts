@@ -11,11 +11,11 @@ async function createTestModel(sdkType: ProviderSdkType, apiKey?: string, baseUr
   switch (sdkType) {
     case 'anthropic': {
       const { createAnthropic } = await import('@ai-sdk/anthropic')
-      return createAnthropic({ apiKey, baseURL: baseUrl })(model ?? 'claude-sonnet-4-5')
+      return createAnthropic({ apiKey, baseURL: baseUrl })(model ?? 'claude-sonnet-4-6')
     }
     case 'openai': {
       const { createOpenAI } = await import('@ai-sdk/openai')
-      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-4o')
+      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-5.2')
     }
     case 'google': {
       const { createGoogleGenerativeAI } = await import('@ai-sdk/google')
@@ -27,7 +27,7 @@ async function createTestModel(sdkType: ProviderSdkType, apiKey?: string, baseUr
     }
     case 'xai': {
       const { createXai } = await import('@ai-sdk/xai')
-      return createXai({ apiKey, baseURL: baseUrl })(model ?? 'grok-3')
+      return createXai({ apiKey, baseURL: baseUrl })(model ?? 'grok-4')
     }
     case 'groq': {
       const { createGroq } = await import('@ai-sdk/groq')
@@ -39,16 +39,16 @@ async function createTestModel(sdkType: ProviderSdkType, apiKey?: string, baseUr
     }
     case 'moonshot': {
       const { createMoonshotAI } = await import('@ai-sdk/moonshotai')
-      return createMoonshotAI({ apiKey, baseURL: baseUrl })(model ?? 'kimi-k2')
+      return createMoonshotAI({ apiKey, baseURL: baseUrl })(model ?? 'kimi-k2.5')
     }
     case 'alibaba': {
       const { createAlibaba } = await import('@ai-sdk/alibaba')
-      return createAlibaba({ apiKey, baseURL: baseUrl })(model ?? 'qwen-max')
+      return createAlibaba({ apiKey, baseURL: baseUrl })(model ?? 'qwen3.5-plus')
     }
     case 'openai-compatible':
     default: {
       const { createOpenAI } = await import('@ai-sdk/openai')
-      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-4o')
+      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-5.2')
     }
   }
 }

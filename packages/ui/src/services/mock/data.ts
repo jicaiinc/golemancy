@@ -51,7 +51,7 @@ export const SEED_AGENTS: Agent[] = [
     description: 'Content creation and blog writing assistant',
     status: 'running',
     systemPrompt: DEFAULT_AGENT_SYSTEM_PROMPT,
-    modelConfig: { provider: 'openai', model: 'gpt-4o' },
+    modelConfig: { provider: 'openai', model: 'gpt-5.2' },
     skillIds: ['skill-1' as SkillId, 'skill-2' as SkillId],
     tools: [
       { id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: { type: 'object', properties: { query: { type: 'string' } } } },
@@ -68,7 +68,7 @@ export const SEED_AGENTS: Agent[] = [
     description: 'Information gathering and analysis',
     status: 'idle',
     systemPrompt: 'You are a research assistant...',
-    modelConfig: { provider: 'anthropic', model: 'claude-sonnet-4-5-20250929' },
+    modelConfig: { provider: 'anthropic', model: 'claude-sonnet-4-6' },
     skillIds: ['skill-3' as SkillId, 'skill-4' as SkillId],
     tools: [
       { id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: { type: 'object', properties: { query: { type: 'string' } } } },
@@ -86,7 +86,7 @@ export const SEED_AGENTS: Agent[] = [
     description: 'Orchestrates Writer and Researcher',
     status: 'idle',
     systemPrompt: 'You are a team lead coordinating agents...',
-    modelConfig: { provider: 'openai', model: 'gpt-4o' },
+    modelConfig: { provider: 'openai', model: 'gpt-5.2' },
     skillIds: [],
     tools: [],
     mcpServers: [],
@@ -102,7 +102,7 @@ export const SEED_AGENTS: Agent[] = [
     description: 'Scans marketplaces for trending products',
     status: 'idle',
     systemPrompt: 'You scout for trending products...',
-    modelConfig: { provider: 'openai', model: 'gpt-4o' },
+    modelConfig: { provider: 'openai', model: 'gpt-5.2' },
     skillIds: ['skill-5' as SkillId],
     tools: [{ id: 'tool-1' as ToolId, name: 'web_search', description: 'Search the web', inputSchema: {} }],
     mcpServers: [],
@@ -117,7 +117,7 @@ export const SEED_AGENTS: Agent[] = [
     description: 'Creates product listings and descriptions',
     status: 'idle',
     systemPrompt: 'You create compelling product listings...',
-    modelConfig: { provider: 'openai', model: 'gpt-4o' },
+    modelConfig: { provider: 'openai', model: 'gpt-5.2' },
     skillIds: ['skill-6' as SkillId],
     tools: [],
     mcpServers: [],
@@ -229,10 +229,10 @@ export const SEED_CONVERSATION_TASKS: ConversationTask[] = [
 // --- Global Settings ---
 export const SEED_SETTINGS: GlobalSettings = {
   providers: {
-    anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant-mock-key', models: ['claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-6'], testStatus: 'ok' },
-    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-mock-key', models: ['gpt-4o', 'gpt-4o-mini'], testStatus: 'ok' },
+    anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant-mock-key', models: ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5'], testStatus: 'ok' },
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-mock-key', models: ['gpt-5.2', 'gpt-5', 'gpt-5-mini'], testStatus: 'ok' },
   },
-  defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
+  defaultModel: { provider: 'anthropic', model: 'claude-opus-4-6' },
   theme: 'dark',
   onboardingCompleted: true,
 }
@@ -251,7 +251,7 @@ export const SEED_DASHBOARD_AGENT_STATS: DashboardAgentStats[] = [
     projectId: 'proj-1' as ProjectId,
     projectName: 'Content Biz',
     agentName: 'Writer',
-    model: 'gpt-4o',
+    model: 'gpt-5.2',
     status: 'running',
     totalTokens: 125_430,
     conversationCount: 4,
@@ -265,7 +265,7 @@ export const SEED_DASHBOARD_AGENT_STATS: DashboardAgentStats[] = [
     projectId: 'proj-1' as ProjectId,
     projectName: 'Content Biz',
     agentName: 'Researcher',
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
     status: 'idle',
     totalTokens: 89_200,
     conversationCount: 3,
@@ -279,7 +279,7 @@ export const SEED_DASHBOARD_AGENT_STATS: DashboardAgentStats[] = [
     projectId: 'proj-1' as ProjectId,
     projectName: 'Content Biz',
     agentName: 'Team Lead',
-    model: 'gpt-4o',
+    model: 'gpt-5.2',
     status: 'idle',
     totalTokens: 45_600,
     conversationCount: 2,
@@ -293,7 +293,7 @@ export const SEED_DASHBOARD_AGENT_STATS: DashboardAgentStats[] = [
     projectId: 'proj-2' as ProjectId,
     projectName: 'E-Commerce Ops',
     agentName: 'Product Scout',
-    model: 'gpt-4o',
+    model: 'gpt-5.2',
     status: 'idle',
     totalTokens: 32_100,
     conversationCount: 2,
@@ -307,7 +307,7 @@ export const SEED_DASHBOARD_AGENT_STATS: DashboardAgentStats[] = [
     projectId: 'proj-2' as ProjectId,
     projectName: 'E-Commerce Ops',
     agentName: 'Listing Writer',
-    model: 'gpt-4o',
+    model: 'gpt-5.2',
     status: 'idle',
     totalTokens: 18_750,
     conversationCount: 1,
@@ -377,8 +377,8 @@ export const SEED_DASHBOARD_TOKEN_TREND: DashboardTokenTrend[] = generateTokenTr
 
 // --- Dashboard: Token By Model ---
 export const SEED_DASHBOARD_TOKEN_BY_MODEL: DashboardTokenByModel[] = [
-  { provider: 'openai', model: 'gpt-4o', inputTokens: 85_200, outputTokens: 42_600, callCount: 28 },
-  { provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', inputTokens: 52_400, outputTokens: 26_100, callCount: 14 },
+  { provider: 'openai', model: 'gpt-5.2', inputTokens: 85_200, outputTokens: 42_600, callCount: 28 },
+  { provider: 'anthropic', model: 'claude-sonnet-4-6', inputTokens: 52_400, outputTokens: 26_100, callCount: 14 },
 ]
 
 // --- Dashboard: Token By Agent ---

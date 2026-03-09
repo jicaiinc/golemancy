@@ -448,7 +448,7 @@ export function ProviderStep({
                   label={t('provider.defaultModel.labelModelName')}
                   value={defaultModel?.model ?? ''}
                   onChange={e => handleModelSelect(e.target.value)}
-                  placeholder="e.g. gpt-4o, claude-sonnet-4-5"
+                  placeholder="e.g. gpt-5.2, claude-sonnet-4-6"
                 />
               )}
             </div>
