@@ -64,6 +64,11 @@ describe('BUILTIN_TOOL_REGISTRY', () => {
     expect(computerUse!.available).toBe(false)
     expect(computerUse!.defaultEnabled).toBe(false)
   })
+
+  it('does not include open in the registry (sandbox-only, not user-togglable)', () => {
+    const open = BUILTIN_TOOL_REGISTRY.find(t => t.id === 'open')
+    expect(open).toBeUndefined()
+  })
 })
 
 describe('loadBuiltinTools', () => {

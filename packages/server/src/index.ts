@@ -32,6 +32,7 @@ import { CronJobExecutor } from './scheduler'
 import { sandboxPool } from './agent/sandbox-pool'
 import { mcpPool } from './agent/mcp-pool'
 import { OAuthManager } from './auth/oauth-manager'
+import { initOpenToolsIPC } from './agent/builtin-tools/open-tools'
 import { logger } from './logger'
 
 async function main() {
@@ -160,6 +161,7 @@ async function main() {
 
     if (process.send) {
       process.send({ type: 'ready', port: info.port, token: authToken })
+      initOpenToolsIPC()
     }
 
     // Startup cleanup: reset stale 'running' agents to 'idle'

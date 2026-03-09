@@ -80,6 +80,8 @@ function startServer(): Promise<number> {
         serverPort = msg.port
         serverToken = msg.token ?? null
         resolve(msg.port)
+      } else if (msg?.type === 'open-path' && msg.path && msg.requestId) {
+        handleOpenPathIPC(child, msg.path, msg.requestId)
       }
     })
 
@@ -111,6 +113,15 @@ function stopServer(): Promise<void> {
         resolve()
       }
     }, 5000)
+  })
+}
+
+function handleOpenPathIPC(child: ChildProcess, filePath: string, requestId: string): void {
+  const resolved = resolve(filePath)
+  shell.openPath(resolved).then(error => {
+    child.send?.({ type: 'open-path-result', requestId, error })
+  }).catch(err => {
+    child.send?.({ type: 'open-path-result', requestId, error: err instanceof Error ? err.message : String(err) })
   })
 }
 
@@ -317,7 +328,7 @@ app.whenReady().then(async () => {
     // Security: only allow opening files under the golemancy data directory
     const dataDir = join(homedir(), '.golemancy')
     const resolved = resolve(fullPath)
-    if (!resolved.startsWith(dataDir)) {
+    if (!resolved.startsWith(dataDir + '/') && resolved !== dataDir) {
       throw new Error('Cannot open paths outside data directory')
     }
     return shell.openPath(resolved)

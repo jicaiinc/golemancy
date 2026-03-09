@@ -13,6 +13,7 @@ import { createTaskTools, buildTaskInstructions } from './builtin-tools/task-too
 import { createMemoryTools, buildMemoryBaseInstructions, buildMemoryContextInstructions } from './builtin-tools/memory-tools'
 import { buildBashInstructions } from './builtin-tools/bash-tools'
 import { buildBrowserInstructions } from './builtin-tools/browser-tools'
+import { createOpenTools, buildOpenInstructions } from './builtin-tools/open-tools'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
 import { logger } from '../logger'
@@ -155,7 +156,19 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     Object.assign(tools, subAgentResult.tools)
   }
 
-  // 5. Task tools — conversation-scoped task management
+  // 5. Open file tool — sandbox-only: `open` is blocked by Seatbelt, so we provide IPC bypass
+  if (agent.builtinTools?.bash !== false && actualMode === 'sandbox' && projectId) {
+    const workspaceDir = getProjectPath(projectId) + '/workspace'
+    const openTools = createOpenTools({ workspaceRoot: workspaceDir })
+    Object.assign(tools, openTools)
+
+    const openInstr = buildOpenInstructions()
+    instructions = instructions ? instructions + '\n\n' + openInstr : openInstr
+
+    log.debug('loaded open file built-in tools')
+  }
+
+  // 6. Task tools — conversation-scoped task management
   if (agent.builtinTools?.task !== false && conversationId && taskStorage) {
     const taskTools = createTaskTools({
       projectId: projectId as ProjectId,
@@ -171,7 +184,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     log.debug('loaded task built-in tools')
   }
 
-  // 6. Memory tools — agent-scoped persistent memory with auto-loading
+  // 7. Memory tools — agent-scoped persistent memory with auto-loading
   if (agent.builtinTools?.memory !== false && memoryStorage) {
     const memoryConfig = agent.builtinTools?.memory
     const maxAutoLoad = (typeof memoryConfig === 'object' && memoryConfig !== null && 'maxAutoLoad' in memoryConfig)
@@ -213,7 +226,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     log.debug({ agentId: agent.id, agentName: agent.name }, 'loaded memory built-in tools')
   }
 
-  // 7. Team instruction — injected into leader agent context
+  // 8. Team instruction — injected into leader agent context
   if (params.teamInstruction) {
     const teamInstr = `## Team Context\n${params.teamInstruction}`
     instructions = instructions ? instructions + '\n\n' + teamInstr : teamInstr

@@ -27,11 +27,16 @@ vi.mock('./resolve-permissions', () => ({
 vi.mock('../utils/paths', () => ({
   getProjectPath: vi.fn().mockReturnValue('/tmp/test-project'),
 }))
+vi.mock('./builtin-tools/open-tools', () => ({
+  createOpenTools: vi.fn().mockReturnValue({ OpenFile: {} }),
+  buildOpenInstructions: vi.fn().mockReturnValue('## File Opening'),
+}))
 
 import { loadAgentTools } from './tools'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
+import { createOpenTools, buildOpenInstructions } from './builtin-tools/open-tools'
 import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, IPermissionsConfigService, MCPServerConfig, TeamMember } from '@golemancy/shared'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
@@ -89,9 +94,7 @@ beforeEach(() => {
 })
 
 describe('loadAgentTools', () => {
-  it('returns empty tools and instructions for a bare agent', async () => {
-    const agent = makeAgent({ skillIds: [], mcpServers: [], builtinTools: undefined as never })
-    // builtinTools is truthy so loadBuiltinTools will be called but returns null
+  it('returns empty tools for a bare agent without builtin tools loaded', async () => {
     const result = await loadAgentTools({
       agent: makeAgent({ skillIds: [], mcpServers: [] }),
       projectId: 'proj-1',
@@ -101,8 +104,8 @@ describe('loadAgentTools', () => {
       permissionsConfigStorage: makeMockPermissionsConfigStorage(),
     })
 
-    expect(result.tools).toEqual({})
-    expect(result.instructions).toBe('')
+    // No builtin tools loaded (mock returns null), so no OpenFile either
+    expect(result.tools).not.toHaveProperty('OpenFile')
     expect(result.cleanup).toBeTypeOf('function')
   })
 
@@ -126,8 +129,9 @@ describe('loadAgentTools', () => {
 
     expect(loadAgentSkillTools).toHaveBeenCalledWith('proj-1', ['skill-1'])
     expect(result.tools).toHaveProperty('skill')
-    // skills no longer produce bash tools
-    expect(result.instructions).toBe('Use skill X for research')
+    // No OpenFile — loadBuiltinTools returns null so actualMode is not sandbox
+    expect(result.tools).not.toHaveProperty('OpenFile')
+    expect(result.instructions).toContain('Use skill X for research')
 
     await result.cleanup()
     expect(mockSkillCleanup).toHaveBeenCalled()
@@ -193,6 +197,73 @@ describe('loadAgentTools', () => {
     expect(mockBuiltinCleanup).toHaveBeenCalled()
   })
 
+  it('loads open file tools in sandbox mode', async () => {
+    vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
+      tools: { execute: {} as never },
+      actualMode: 'sandbox',
+      cleanup: vi.fn(),
+    })
+
+    const agent = makeAgent({ builtinTools: { bash: true } })
+    const result = await loadAgentTools({
+      agent,
+      projectId: 'proj-1',
+      settings: defaultSettings,
+      allAgents: [],
+      mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
+    })
+
+    expect(createOpenTools).toHaveBeenCalledWith({ workspaceRoot: '/tmp/test-project/workspace' })
+    expect(result.tools).toHaveProperty('OpenFile')
+    expect(result.instructions).toContain('File Opening')
+  })
+
+  it('skips open file tools in non-sandbox modes', async () => {
+    vi.mocked(createOpenTools).mockClear()
+    // restricted mode — OpenFile should not load
+    vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
+      tools: { execute: {} as never },
+      actualMode: 'restricted',
+      cleanup: vi.fn(),
+    })
+
+    const agent = makeAgent({ builtinTools: { bash: true } })
+    const result = await loadAgentTools({
+      agent,
+      projectId: 'proj-1',
+      settings: defaultSettings,
+      allAgents: [],
+      mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
+    })
+
+    expect(createOpenTools).not.toHaveBeenCalled()
+    expect(result.tools).not.toHaveProperty('OpenFile')
+  })
+
+  it('skips open file tools when bash is disabled', async () => {
+    vi.mocked(createOpenTools).mockClear()
+    vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
+      tools: { browser: {} as never },
+      actualMode: 'sandbox',
+      cleanup: vi.fn(),
+    })
+
+    const agent = makeAgent({ builtinTools: { bash: false, browser: true } })
+    const result = await loadAgentTools({
+      agent,
+      projectId: 'proj-1',
+      settings: defaultSettings,
+      allAgents: [],
+      mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
+    })
+
+    expect(createOpenTools).not.toHaveBeenCalled()
+    expect(result.tools).not.toHaveProperty('OpenFile')
+  })
+
   it('creates sub-agent delegate tools without preloading', async () => {
     const child = makeAgent({ id: 'agent-child' as AgentId, name: 'Researcher', description: 'Finds info' })
     const parent = makeAgent()
@@ -254,6 +325,8 @@ describe('loadAgentTools', () => {
     expect(result.tools).toHaveProperty('mcp_tool')
     expect(result.tools).toHaveProperty('execute')
     expect(result.tools).toHaveProperty('delegate_to_agent-child')
+    // No OpenFile — actualMode is 'restricted', not 'sandbox'
+    expect(result.tools).not.toHaveProperty('OpenFile')
     // Instructions include skill instructions + bash environment instructions
     expect(result.instructions).toContain('skill instructions')
     expect(result.instructions).toContain('## Bash Environment')
