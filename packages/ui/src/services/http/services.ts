@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, Team,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, OAuthFlowState, CronJob,CronJobRun, Skill, Team,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
@@ -291,6 +291,29 @@ export class HttpSettingsService implements ISettingsService {
   testProvider(slug: string) {
     return fetchJson<{ ok: boolean; error?: string; latencyMs?: number }>(
       `${this.baseUrl}/api/settings/providers/${encodeURIComponent(slug)}/test`,
+      { method: 'POST' },
+    )
+  }
+  startOAuthFlow(slug: string) {
+    return fetchJson<{ authUrl: string }>(
+      `${this.baseUrl}/api/auth/oauth/providers/${encodeURIComponent(slug)}/start`,
+      { method: 'POST' },
+    )
+  }
+  getOAuthFlowStatus(slug: string) {
+    return fetchJson<OAuthFlowState>(
+      `${this.baseUrl}/api/auth/oauth/providers/${encodeURIComponent(slug)}/status`,
+    )
+  }
+  async cancelOAuthFlow(slug: string) {
+    await fetchJson(
+      `${this.baseUrl}/api/auth/oauth/providers/${encodeURIComponent(slug)}/cancel`,
+      { method: 'POST' },
+    )
+  }
+  async disconnectOAuth(slug: string) {
+    await fetchJson(
+      `${this.baseUrl}/api/auth/oauth/providers/${encodeURIComponent(slug)}/disconnect`,
       { method: 'POST' },
     )
   }

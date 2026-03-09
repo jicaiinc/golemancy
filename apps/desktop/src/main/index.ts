@@ -323,6 +323,14 @@ app.whenReady().then(async () => {
     return shell.openPath(resolved)
   })
 
+  ipcMain.handle('shell:openExternal', async (_event, url: string) => {
+    // Security: only allow https URLs (OAuth endpoints, etc.)
+    if (!url.startsWith('https://')) {
+      throw new Error('Only HTTPS URLs are allowed')
+    }
+    await shell.openExternal(url)
+  })
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })

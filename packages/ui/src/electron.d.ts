@@ -9,6 +9,7 @@ interface ElectronAPI {
   getPlatformLabel: () => string | null
   onUpdateAvailable: (callback: (info: { version: string; downloadUrl: string }) => void) => () => void
   openDownloadUrl: (url: string) => Promise<void>
+  openExternalUrl: (url: string) => Promise<void>
 }
 
 interface Window {

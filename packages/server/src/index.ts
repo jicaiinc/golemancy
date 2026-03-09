@@ -31,6 +31,7 @@ import { cronScheduler } from './scheduler'
 import { CronJobExecutor } from './scheduler'
 import { sandboxPool } from './agent/sandbox-pool'
 import { mcpPool } from './agent/mcp-pool'
+import { OAuthManager } from './auth/oauth-manager'
 import { logger } from './logger'
 
 async function main() {
@@ -73,6 +74,9 @@ async function main() {
     cronJobRunStorage,
     cronJobStorage,
   }
+  const settingsStorage = new FileSettingsStorage()
+  const oauthManager = new OAuthManager(settingsStorage)
+
   const deps: ServerDependencies = {
     projectStorage,
     agentStorage,
@@ -81,7 +85,7 @@ async function main() {
     skillStorage: new FileSkillStorage(agentStorage),
     cronJobStorage,
     cronJobRunStorage,
-    settingsStorage: new FileSettingsStorage(),
+    settingsStorage,
     mcpStorage: new FileMCPStorage(),
     permissionsConfigStorage: new FilePermissionsConfigStorage(),
     dashboardService: new DashboardService(dashboardDeps),
@@ -93,6 +97,7 @@ async function main() {
     speechStorage,
     wsManager,
     activeChatRegistry,
+    oauthManager,
   }
 
   // SEC-07: Generate auth token for IPC-based authentication
@@ -130,9 +135,10 @@ async function main() {
     }
   }))
 
-  // Graceful shutdown: clean up sandbox workers, MCP connections, and cron scheduler
+  // Graceful shutdown: clean up sandbox workers, MCP connections, cron scheduler, and OAuth
   process.on('SIGTERM', async () => {
     logger.info('SIGTERM received, shutting down')
+    oauthManager.shutdown()
     await Promise.allSettled([
       sandboxPool.shutdown(),
       mcpPool.shutdown(),
@@ -173,6 +179,11 @@ async function main() {
       logger.warn({ err }, 'failed to reset stale agent statuses on startup')
     }
 
+    // Initialize OAuth token refresh schedules for existing providers
+    oauthManager.initializeRefreshSchedules().catch(err => {
+      logger.warn({ err }, 'failed to initialize OAuth refresh schedules')
+    })
+
     // Start cron scheduler after server is ready
     const executor = new CronJobExecutor({
       agentStorage,
@@ -188,6 +199,7 @@ async function main() {
       teamStorage,
       tokenRecordStorage,
       wsManager,
+      oauthManager,
     })
     cronScheduler.start({
       cronJobStorage: deps.cronJobStorage as FileCronJobStorage,

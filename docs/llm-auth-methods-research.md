@@ -33,8 +33,8 @@ PKCE 的原理：客户端先生成随机密钥（code_verifier），将其 SHA2
 | Provider | 协议 | 子流程 | PKCE | 前置条件 |
 |----------|------|--------|------|---------|
 | **OpenAI Codex** | OAuth 2.0 | Authorization Code Flow | 是 | ChatGPT Plus 订阅（$20/月） |
-| **Qwen Portal** | OAuth 2.0 | Device Flow | 是 | 免费注册 |
-| **MiniMax Portal** | OAuth 2.0 | Device Flow | 是 | 免费注册 |
+| **Qwen Portal** | OAuth 2.0 | Device Flow | 是 | 免费注册（免费层）；Coding Plan 需 API Key |
+| **MiniMax Portal** | OAuth 2.0 | Device Flow | 是 | Coding Plan 订阅（$10/月起） |
 | **GitHub Copilot** | OAuth 2.0 | Device Flow | 否 | Copilot 订阅 |
 
 ---
@@ -140,6 +140,22 @@ PKCE 的原理：客户端先生成随机密钥（code_verifier），将其 SHA2
 6. 后续请求: Authorization: Bearer {access_token}
 7. Token 过期时用 refresh_token 自动刷新（有效期约 1 小时）
 ```
+
+#### 源码级技术参数（来自 `openai/codex` 官方仓库）
+
+> 以下参数从 `codex-rs/login/src/server.rs` 和 `codex-rs/core/src/auth.rs` 提取，为权威参考。
+
+| 参数 | 值 |
+|------|-----|
+| **Scope** | `openid profile email offline_access api.connectors.read api.connectors.invoke` |
+| 额外参数 | `id_token_add_organizations=true`, `codex_cli_simplified_flow=true`, `originator=golemancy` |
+| PKCE | 64 bytes → URL-safe base64 verifier → SHA256 → URL-safe base64 challenge (S256) |
+| State | 32 bytes → URL-safe base64 |
+| Token 刷新格式 | POST JSON body（非 form-urlencoded）：`{client_id, grant_type: "refresh_token", refresh_token}` |
+| Token 响应 | `{id_token, access_token, refresh_token}`（`id_token` 为 JWT，含 `chatgpt_account_id`、`chatgpt_plan_type`） |
+| 端口重试 | 先发 GET `/cancel` 到已有服务器，再重试绑定，最多 10 次，每次间隔 200ms |
+
+**Scope 重要发现**：Scope 必须包含 `api.connectors.read api.connectors.invoke`，否则 API 调用会返回 403 "Missing scopes"。
 
 #### API 调用
 
@@ -282,7 +298,7 @@ OAuth 登录和 API Key 的**计费模式完全不同**。OAuth 通常提供按�
 |----------|-----------|-----------|-------------------|
 | **OpenAI Codex** | 需 Plus 订阅 $20/月 | 3h/24h 窗口限额 | gpt-4o: $2.50/M input, $10/M output |
 | **Qwen Portal** | **免费** | 1,000~2,000 次/天，60次/分钟，**不限 token** | Qwen-Plus: $0.40/M input, $1.20/M output |
-| **MiniMax Portal** | **免费** | 1,000 次/天，100次/分钟 | M2.5: $0.30/M input, $1.20/M output |
+| **MiniMax Portal** | Coding Plan $10/月起 | Starter: 40次/5h；Plus: 更多；Max: 1000次/5h | M2.5: $0.30/M input, $1.20/M output |
 | **GitHub Copilot** | 订阅 $10/月起 | 订阅内无限制 | N/A（无独立 API） |
 
 ### 4.2 Qwen 付费升级方案
@@ -295,16 +311,31 @@ OAuth 登录和 API Key 的**计费模式完全不同**。OAuth 通常提供按�
 
 Coding Plan 包含多个模型：Qwen3.5-Plus、Qwen3-Coder-Next、GLM-4.7、Kimi-K2.5。
 
+> **注意**：Qwen OAuth 仅对应免费层。付费 Coding Plan 需切换到 API Key 认证（`sk-sp-...`），两者是不同的认证路径。
+
 ### 4.3 MiniMax 付费升级方案
 
 | 接入方式 | 费用 | 额度 |
 |----------|------|------|
-| OAuth 免费层 | 免费 | 1,000 次/天 |
 | Coding Plan Starter | $10/月 | 40次/5小时窗口 |
 | Coding Plan Plus | $20/月 | 更多额度 |
 | Coding Plan Max | $50/月 | 1000次/5小时窗口 |
 
-### 4.4 结论
+> **注意**：MiniMax Portal OAuth 登录仅限 Coding Plan 付费用户。OpenClaw README 明确写 "Currently, OAuth login is supported only for the Coding plan"。无免费层。
+
+### 4.4 Qwen / MiniMax / Codex 源码级技术对比
+
+| 维度 | OpenAI Codex | Qwen Portal | MiniMax Portal |
+|------|-------------|-------------|----------------|
+| Grant Type | Authorization Code | Device Code | Device Code |
+| PKCE | SHA256 (S256) | SHA256 (S256) | SHA256 (S256) + state |
+| Token 请求格式 | JSON body | JSON body | JSON body |
+| Token 响应 | `id_token` + `access_token` + `refresh_token` | `access_token` + `refresh_token` | `access_token` + `refresh_token` |
+| 轮询策略 | N/A（回调） | 2s 间隔，指数退避 | 2s 间隔，指数退避 |
+| API 兼容性 | OpenAI Responses API | OpenAI Completions API | Anthropic Messages API |
+| 区域端点 | 单一 | 单一 | Global / CN 双端点 |
+
+### 4.5 结论
 
 Qwen 和 MiniMax 的 OAuth 免费层**不需要任何付费订阅**，注册即用。对于不愿付费的用户，这是零成本使用 AI 模型的最佳途径。免费额度耗尽后，请求会被 rate limit 拒绝（返回 429），用户需等待次日额度重置或升级到 Coding Plan。
 

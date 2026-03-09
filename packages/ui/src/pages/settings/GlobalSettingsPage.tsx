@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect, type ReactNode } from 'react'
+import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
-import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig } from '@golemancy/shared'
+import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig, OAuthFlowStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
@@ -29,12 +29,12 @@ function isLocalUrl(url?: string): boolean {
   return url.includes('localhost') || url.includes('127.0.0.1')
 }
 
-/** Whether the provider has credentials (API key or localhost) */
+/** Whether the provider has credentials (API key, localhost, or OAuth) */
 function hasCredentials(entry: ProviderEntry): boolean {
-  return !!(entry.apiKey || isLocalUrl(entry.baseUrl))
+  return !!(entry.apiKey || isLocalUrl(entry.baseUrl) || entry.oauth?.accessToken)
 }
 
-/** Whether the provider is available for selection (test passed) */
+/** Whether the provider is available for selection (test passed — server persists testStatus on OAuth connect) */
 function isProviderAvailable(entry: ProviderEntry): boolean {
   return entry.testStatus === 'ok'
 }
@@ -139,6 +139,7 @@ function ProvidersTab({ settings, onUpdate }: {
       sdkType: preset.sdkType,
       models: [...preset.defaultModels],
       baseUrl: preset.defaultBaseUrl,
+      ...(preset.oauthConfig ? { oauthConfig: preset.oauthConfig } : {}),
     }
     await onUpdate({ providers: updated })
     setNewlyAddedKey(key)
@@ -216,10 +217,21 @@ function ProvidersTab({ settings, onUpdate }: {
               <button
                 key={key}
                 onClick={() => handleAddPreset(key)}
-                className="p-3 border-2 border-border-dim bg-deep hover:border-border-bright cursor-pointer transition-colors text-left"
+                className={`p-3 border-2 cursor-pointer transition-colors text-left ${
+                  preset.oauthConfig
+                    ? 'border-[rgba(123,143,168,0.45)] bg-gradient-to-br from-deep to-[rgba(107,203,119,0.03)] hover:border-[rgba(123,143,168,0.7)]'
+                    : 'border-border-dim bg-deep hover:border-border-bright'
+                }`}
               >
                 <div className="text-[11px] text-text-primary">{preset.name}</div>
-                <div className="text-[9px] text-text-dim mt-1">{preset.sdkType}</div>
+                {preset.oauthConfig ? (
+                  <div className="flex gap-1 mt-1.5 flex-wrap">
+                    <span className="font-pixel text-[7px] text-[#7B8FA8] bg-[rgba(123,143,168,0.1)] border border-[rgba(123,143,168,0.3)] px-1.5 py-0.5 tracking-wide">OAUTH</span>
+                    <span className="font-pixel text-[7px] text-accent-green bg-accent-green/10 border border-accent-green/30 px-1.5 py-0.5 tracking-wide">{t('provider.oauthNoApiFees')}</span>
+                  </div>
+                ) : (
+                  <div className="text-[9px] text-text-dim mt-1">{preset.sdkType}</div>
+                )}
               </button>
             ))}
             <button
@@ -456,18 +468,127 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
     await onUpdate({ ...entry, models: safeEntry.models.filter(m => m !== model) })
   }
 
+  // --- OAuth state ---
+  const isOAuth = !!entry.oauthConfig
+  const isOAuthConnected = !!(entry.oauth?.accessToken)
+  const [oauthStatus, setOauthStatus] = useState<OAuthFlowStatus>('idle')
+  const [oauthError, setOauthError] = useState('')
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current)
+    }
+  }, [])
+
+  const startOAuthFlow = useCallback(async () => {
+    if (!services.settings.startOAuthFlow) return
+    setOauthStatus('pending')
+    setOauthError('')
+    try {
+      const { authUrl } = await services.settings.startOAuthFlow(providerKey)
+      // Open browser
+      if (window.electronAPI?.openExternalUrl) {
+        await window.electronAPI.openExternalUrl(authUrl)
+      } else {
+        window.open(authUrl, '_blank')
+      }
+      // Start polling for completion
+      pollRef.current = setInterval(async () => {
+        try {
+          const flowState = await services.settings.getOAuthFlowStatus!(providerKey)
+          if (flowState.status === 'success') {
+            if (pollRef.current) clearInterval(pollRef.current)
+            pollRef.current = null
+            setOauthStatus('success')
+            // Refresh settings to get new tokens
+            const fresh = await services.settings.get()
+            const freshEntry = fresh.providers[providerKey]
+            if (freshEntry) {
+              // Mark as ok — OAuth token exchange already validated credentials
+              await onUpdate({ ...freshEntry, testStatus: 'ok' })
+            }
+          } else if (flowState.status === 'error') {
+            if (pollRef.current) clearInterval(pollRef.current)
+            pollRef.current = null
+            setOauthStatus('error')
+            setOauthError(flowState.error ?? t('provider.oauthError'))
+          }
+        } catch {
+          // Polling error — ignore
+        }
+      }, 2000)
+      // Stop polling after 5 minutes
+      setTimeout(() => {
+        if (pollRef.current) {
+          clearInterval(pollRef.current)
+          pollRef.current = null
+          setOauthStatus('error')
+          setOauthError('Authentication timed out')
+        }
+      }, 5 * 60 * 1000)
+    } catch (err) {
+      setOauthStatus('error')
+      setOauthError(err instanceof Error ? err.message : String(err))
+    }
+  }, [services, providerKey, onUpdate, runTest]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const cancelOAuthFlow = useCallback(async () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current)
+      pollRef.current = null
+    }
+    setOauthStatus('idle')
+    setOauthError('')
+    try {
+      await services.settings.cancelOAuthFlow?.(providerKey)
+    } catch {
+      // ignore
+    }
+  }, [services, providerKey])
+
+  const disconnectOAuth = useCallback(async () => {
+    try {
+      await services.settings.disconnectOAuth?.(providerKey)
+      // Refresh settings
+      const fresh = await services.settings.get()
+      const freshEntry = fresh.providers[providerKey]
+      if (freshEntry) await onUpdate(freshEntry)
+      setOauthStatus('idle')
+    } catch (err) {
+      setOauthError(err instanceof Error ? err.message : String(err))
+    }
+  }, [services, providerKey, onUpdate])
+
+  // Token expiry calculation
+  const tokenExpiryMinutes = entry.oauth?.expiresAt
+    ? Math.max(0, Math.round((new Date(entry.oauth.expiresAt).getTime() - Date.now()) / 60000))
+    : 0
+
   const maskedKey = entry.apiKey
     ? entry.apiKey.slice(0, 7) + '\u2022'.repeat(8)
     : ''
 
   return (
-    <PixelCard>
+    <PixelCard className={isOAuth ? 'border-[rgba(123,143,168,0.35)]' : undefined}>
       {/* Header row */}
       <div className="flex items-center gap-3">
         <span className="font-pixel text-[11px] text-text-primary">{entry.name}</span>
         <span className="text-[9px] text-text-dim font-mono">({providerKey})</span>
-        {/* Status indicator */}
-        {testing ? (
+        {/* OAuth badges */}
+        {isOAuth && (
+          <>
+            <span className="font-pixel text-[7px] text-[#7B8FA8] bg-[rgba(123,143,168,0.1)] border border-[rgba(123,143,168,0.3)] px-1.5 py-0.5 tracking-wide">OAUTH</span>
+            {(isOAuthConnected || oauthStatus !== 'pending') && (
+              <span className="font-pixel text-[7px] text-accent-green bg-accent-green/10 border border-accent-green/30 px-1.5 py-0.5 tracking-wide">{t('provider.oauthNoApiFees')}</span>
+            )}
+          </>
+        )}
+        {/* Status indicator — OAuth connected overrides test status */}
+        {isOAuth && isOAuthConnected ? (
+          <span className="text-[10px] text-accent-green">{'\u2705'} {t('provider.ok')}</span>
+        ) : testing ? (
           <span className="text-[10px] text-accent-blue animate-pulse">{t('provider.testing')}</span>
         ) : testStatus === 'ok' ? (
           <span className="text-[10px] text-accent-green">{'\u2705'} {testLatency > 0 ? t('provider.okLatency', { latency: testLatency }) : t('provider.ok')}</span>
@@ -475,11 +596,11 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
           <span className="text-[10px] text-accent-red">{'\u274C'} {t('provider.failed')}</span>
         ) : hasCredentials(safeEntry) ? (
           <span className="text-[10px] text-accent-amber">{t('provider.untested')}</span>
-        ) : (
+        ) : isOAuth ? null : (
           <span className="text-[10px] text-text-dim">{'\u26AA'} {t('provider.noKey')}</span>
         )}
-        {/* Test button (only when has credentials and not editing) */}
-        {hasCredentials(safeEntry) && !editing && !testing && (
+        {/* Test button (only when has credentials and not editing; hidden for connected OAuth providers) */}
+        {hasCredentials(safeEntry) && !editing && !testing && !(isOAuth && isOAuthConnected) && (
           <PixelButton size="sm" variant="ghost" onClick={() => runTest()}>
             {testStatus === 'ok' ? t('provider.retest') : t('provider.test')}
           </PixelButton>
@@ -521,6 +642,95 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
         </div>
       )}
 
+      {/* OAuth section */}
+      {isOAuth && !editing && (
+        <div className={`mt-3 p-3.5 bg-deep border-2 ${
+          oauthStatus === 'pending' ? 'border-accent-amber' :
+          oauthStatus === 'error' ? 'border-accent-red' :
+          isOAuthConnected ? 'border-accent-green' :
+          'border-border-dim'
+        }`}>
+          <div className="flex items-center gap-2 font-pixel text-[9px] text-text-secondary mb-2.5">
+            SIGN IN
+            {isOAuthConnected && (
+              <span className="font-mono text-[9px] text-accent-green bg-accent-green/15 px-1.5 py-0.5">Active</span>
+            )}
+          </div>
+
+          {/* Not connected */}
+          {!isOAuthConnected && oauthStatus === 'idle' && (
+            <>
+              <button
+                onClick={startOAuthFlow}
+                className="w-full py-2.5 px-5 border-2 border-accent-green bg-gradient-to-br from-[#1a3a1a] to-[#0d2a0d] text-accent-green font-mono text-[13px] font-semibold cursor-pointer hover:from-[#1f4a1f] hover:to-[#0f350f] hover:shadow-[0_0_12px_rgba(107,203,119,0.2)] transition-all tracking-wide"
+              >
+                {t('provider.oauthSignIn', { provider: 'ChatGPT' })}
+              </button>
+              <p className="text-[9px] text-text-dim mt-2 leading-relaxed">{t('provider.oauthSubscriptionHint')}</p>
+            </>
+          )}
+
+          {/* Pending */}
+          {oauthStatus === 'pending' && (
+            <>
+              <div className="flex items-center gap-2.5">
+                <span className="text-[11px] text-accent-amber animate-pulse">{t('provider.oauthPending')}</span>
+              </div>
+              <p className="text-[9px] text-text-dim mt-2">{t('provider.oauthPendingHint')}</p>
+              <div className="mt-2.5">
+                <PixelButton size="sm" variant="ghost" onClick={cancelOAuthFlow} className="text-accent-amber border-accent-amber">
+                  {t('provider.oauthCancel')}
+                </PixelButton>
+              </div>
+            </>
+          )}
+
+          {/* Connected */}
+          {isOAuthConnected && oauthStatus !== 'pending' && (
+            <>
+              <div className="flex items-center gap-2.5">
+                <span className="inline-block w-2 h-2 bg-accent-green shadow-[0_0_6px_rgba(107,203,119,0.5)]" />
+                <span className="text-[12px] text-accent-green font-medium">{t('provider.oauthConnected')}</span>
+                {entry.oauth?.accountId && (
+                  <span className="text-[10px] text-text-dim">ChatGPT Plus</span>
+                )}
+                <div className="ml-auto">
+                  <PixelButton size="sm" variant="ghost" onClick={disconnectOAuth} className="text-accent-red">
+                    {t('provider.oauthDisconnect')}
+                  </PixelButton>
+                </div>
+              </div>
+              <p className="text-[9px] text-text-dim mt-1.5">
+                {t('provider.oauthTokenExpiry', { minutes: tokenExpiryMinutes })}
+              </p>
+            </>
+          )}
+
+          {/* Error */}
+          {oauthStatus === 'error' && oauthError && (
+            <>
+              <div className="mt-2 p-2 bg-accent-red/10 border-2 border-accent-red/30">
+                <span className="text-[10px] text-accent-red font-mono">{oauthError}</span>
+              </div>
+              <div className="mt-2.5">
+                <PixelButton size="sm" variant="primary" onClick={startOAuthFlow}>
+                  {t('common:button.retry')}
+                </PixelButton>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* "Or use API Key" divider for OAuth providers */}
+      {isOAuth && !editing && (
+        <div className="flex items-center gap-3 my-3.5 text-text-dim text-[10px]">
+          <div className="flex-1 border-t border-dashed border-border-dim" />
+          {t('provider.oauthOrApiKey')}
+          <div className="flex-1 border-t border-dashed border-border-dim" />
+        </div>
+      )}
+
       {/* Edit mode */}
       {editing ? (
         <div className="flex flex-col gap-3 mt-3">
@@ -546,7 +756,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
             placeholder="https://api.example.com/v1"
           />
         </div>
-      ) : (
+      ) : !isOAuth ? (
         <div className="mt-2">
           {/* API Key display */}
           <div className="flex items-center gap-2">
@@ -572,7 +782,20 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
             </div>
           )}
         </div>
-      )}
+      ) : entry.apiKey ? (
+        /* OAuth provider with API key set — show it below the divider */
+        <div className="mt-0">
+          <div className="flex items-center gap-2">
+            <label className="font-pixel text-[8px] text-text-dim">{t('provider.apiKeyLabel')}</label>
+            <span className="text-[11px] text-text-secondary font-mono">
+              {showKey ? entry.apiKey : maskedKey}
+            </span>
+            <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>
+              {showKey ? t('provider.hide') : t('provider.show')}
+            </PixelButton>
+          </div>
+        </div>
+      ) : null}
 
       {/* Models section (collapsible) */}
       <div className="mt-3 border-t-2 border-border-dim pt-2">

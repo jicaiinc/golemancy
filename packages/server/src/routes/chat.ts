@@ -15,7 +15,8 @@ import type { TokenRecordStorage } from '../storage/token-records'
 import type { CompactRecordStorage } from '../storage/compact-records'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import type { WebSocketManager } from '../ws/handler'
-import { resolveModel } from '../agent/model'
+import type { OAuthManager } from '../auth/oauth-manager'
+import { resolveModel, buildSystemPromptOptions } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { buildMessagesForModel, compactConversation } from '../agent/compact'
 import { generateId } from '../utils/ids'
@@ -45,6 +46,7 @@ export interface ChatRouteDeps {
   activeChatRegistry?: ActiveChatRegistry
   wsManager?: WebSocketManager
   teamStorage: ITeamService
+  oauthManager?: OAuthManager
 }
 
 export function createChatRoutes(deps: ChatRouteDeps) {
@@ -130,7 +132,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     // Get global settings for model resolution
     const settings = await deps.settingsStorage.get()
-    const model = await resolveModel(settings, agent.modelConfig)
+    const resolved = await resolveModel(settings, agent.modelConfig, deps.oauthManager)
 
     log.debug({ projectId, agentId, conversationId, messageCount: messages.length }, 'starting chat stream')
 
@@ -219,6 +221,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       tokenRecordStorage: deps.tokenRecordStorage,
       teamMembers,
       teamInstruction,
+      oauthManager: deps.oauthManager,
       onTokenUsage: (usage) => {
         streamWriter?.write({
           type: 'data-usage' as `data-${string}`,
@@ -315,7 +318,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           try {
             const compactResult = await compactConversation({
               messages: compactInputs.allModelMsgs,
-              model,
+              resolved,
               systemPrompt: agent.systemPrompt,
               signal: c.req.raw.signal,
               onProgress: (info) => {
@@ -360,8 +363,8 @@ export function createChatRoutes(deps: ChatRouteDeps) {
         let stepIndex = 0
         let lastFinishReason: string | undefined
         const result = streamText({
-          model,
-          system: systemPrompt,
+          model: resolved.model,
+          ...buildSystemPromptOptions(resolved, systemPrompt),
           messages: modelMessages,
           tools: hasTools ? allTools : undefined,
           stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,

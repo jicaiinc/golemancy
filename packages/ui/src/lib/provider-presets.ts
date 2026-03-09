@@ -1,8 +1,30 @@
-import type { ProviderSdkType } from '@golemancy/shared'
+import type { ProviderSdkType, OAuthProviderConfig } from '@golemancy/shared'
 
-export const PROVIDER_PRESETS: Record<string, { name: string; sdkType: ProviderSdkType; defaultModels: string[]; defaultBaseUrl?: string }> = {
+export interface ProviderPreset {
+  name: string
+  sdkType: ProviderSdkType
+  defaultModels: string[]
+  defaultBaseUrl?: string
+  oauthConfig?: OAuthProviderConfig
+}
+
+export const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
   anthropic: { name: 'Anthropic', sdkType: 'anthropic', defaultModels: ['claude-sonnet-4-5', 'claude-haiku-4-5', 'claude-opus-4-6'] },
   openai: { name: 'OpenAI', sdkType: 'openai', defaultModels: ['gpt-4o', 'gpt-4o-mini', 'o3-mini'] },
+  'openai-codex': {
+    name: 'OpenAI Codex',
+    sdkType: 'openai',
+    defaultModels: ['gpt-5.3-codex'],
+    oauthConfig: {
+      flowType: 'authorization_code',
+      clientId: 'app_EMoamEEZ73f0CkXaXp7hrann',
+      authEndpoint: 'https://auth.openai.com/oauth/authorize',
+      tokenEndpoint: 'https://auth.openai.com/oauth/token',
+      redirectUri: 'http://localhost:1455/auth/callback',
+      scope: 'openid profile email offline_access api.connectors.read api.connectors.invoke',
+      apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+    },
+  },
   google: { name: 'Google', sdkType: 'google', defaultModels: ['gemini-2.5-flash', 'gemini-2.5-pro'] },
   deepseek: { name: 'DeepSeek', sdkType: 'deepseek', defaultModels: ['deepseek-chat', 'deepseek-reasoner'] },
   xai: { name: 'xAI (Grok)', sdkType: 'xai', defaultModels: ['grok-3', 'grok-3-mini'] },

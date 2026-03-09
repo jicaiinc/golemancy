@@ -20,6 +20,10 @@ vi.mock('ai', () => ({
 
 vi.mock('./agent/model', () => ({
   resolveModel: vi.fn().mockResolvedValue({ modelId: 'test-model' }),
+  buildSystemPromptOptions: vi.fn((resolved: any, systemPrompt: any) => ({
+    system: systemPrompt,
+    providerOptions: resolved.providerOptions,
+  })),
 }))
 
 function createMockDeps() {

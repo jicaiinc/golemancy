@@ -26,12 +26,13 @@ describeWithApiKey('model.live — Google (Gemini)', (settings) => {
   it.skipIf(!hasProvider(settings, 'google'))(
     'resolves and generates text with gemini-2.5-flash',
     async () => {
-      const model = await resolveModel(settings, { provider: 'google', model: 'gemini-2.5-flash' })
-      expect(model).toBeDefined()
-      expect(model.modelId).toContain('gemini')
+      const resolved = await resolveModel(settings, { provider: 'google', model: 'gemini-2.5-flash' })
+      expect(resolved.model).toBeDefined()
+      expect(resolved.model.modelId).toContain('gemini')
 
       const result = await generateText({
-        model,
+        model: resolved.model,
+        providerOptions: resolved.providerOptions,
         prompt: 'Reply with exactly: HELLO_TEST',
         maxOutputTokens: 50,
       })
@@ -49,11 +50,12 @@ describeWithApiKey('model.live — OpenAI', (settings) => {
   it.skipIf(!hasProvider(settings, 'openai'))(
     'resolves and generates text with gpt-4o-mini',
     async () => {
-      const model = await resolveModel(settings, { provider: 'openai', model: 'gpt-4o-mini' })
-      expect(model).toBeDefined()
+      const resolved = await resolveModel(settings, { provider: 'openai', model: 'gpt-4o-mini' })
+      expect(resolved.model).toBeDefined()
 
       const result = await generateText({
-        model,
+        model: resolved.model,
+        providerOptions: resolved.providerOptions,
         prompt: 'Reply with exactly: HELLO_TEST',
         maxOutputTokens: 50,
       })
@@ -71,11 +73,12 @@ describeWithApiKey('model.live — Anthropic', (settings) => {
   it.skipIf(!hasProvider(settings, 'anthropic'))(
     'resolves and generates text with claude-haiku-4-5',
     async () => {
-      const model = await resolveModel(settings, { provider: 'anthropic', model: 'claude-haiku-4-5' })
-      expect(model).toBeDefined()
+      const resolved = await resolveModel(settings, { provider: 'anthropic', model: 'claude-haiku-4-5' })
+      expect(resolved.model).toBeDefined()
 
       const result = await generateText({
-        model,
+        model: resolved.model,
+        providerOptions: resolved.providerOptions,
         prompt: 'Reply with exactly: HELLO_TEST',
         maxOutputTokens: 50,
       })

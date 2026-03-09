@@ -1,7 +1,8 @@
 import { streamText, stepCountIs, type ModelMessage, type ToolSet } from 'ai'
 import type { Agent, ConversationId, GlobalSettings } from '@golemancy/shared'
 import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
-import { resolveModel } from './model'
+import type { OAuthManager } from '../auth/oauth-manager'
+import { resolveModel, buildSystemPromptOptions } from './model'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:runtime' })
@@ -21,6 +22,7 @@ export interface RunAgentParams {
   tools?: ToolSet
   abortSignal?: AbortSignal
   onEvent?: (event: AgentEvent) => void
+  oauthManager?: OAuthManager
 }
 
 export async function runAgent(params: RunAgentParams) {
@@ -28,11 +30,11 @@ export async function runAgent(params: RunAgentParams) {
 
   log.info({ agentId: agent.id, conversationId: params.conversationId, messageCount: messages.length }, 'running agent')
 
-  const model = await resolveModel(settings, agent.modelConfig)
+  const resolved = await resolveModel(settings, agent.modelConfig, params.oauthManager)
 
   const result = streamText({
-    model,
-    system: agent.systemPrompt,
+    model: resolved.model,
+    ...buildSystemPromptOptions(resolved, agent.systemPrompt),
     messages,
     tools,
     stopWhen: stepCountIs(DEFAULT_MAX_STEPS),

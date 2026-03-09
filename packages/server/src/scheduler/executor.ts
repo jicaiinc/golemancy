@@ -10,7 +10,8 @@ import type { FileCronJobStorage } from '../storage/cronjobs'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { WebSocketManager } from '../ws/handler'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
-import { resolveModel } from '../agent/model'
+import type { OAuthManager } from '../auth/oauth-manager'
+import { resolveModel, buildSystemPromptOptions } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
@@ -32,6 +33,7 @@ export interface ExecutorDeps {
   tokenRecordStorage: TokenRecordStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
+  oauthManager?: OAuthManager
 }
 
 export class CronJobExecutor {
@@ -77,7 +79,7 @@ export class CronJobExecutor {
       const settings = await this.deps.settingsStorage.get()
 
       // 4. Resolve model
-      const model = await resolveModel(settings, agent.modelConfig)
+      const resolved = await resolveModel(settings, agent.modelConfig, this.deps.oauthManager)
 
       // 4b. Resolve team if configured
       let teamMembers: TeamMember[] | undefined
@@ -134,6 +136,7 @@ export class CronJobExecutor {
         tokenRecordStorage: this.deps.tokenRecordStorage,
         teamMembers,
         teamInstruction,
+        oauthManager: this.deps.oauthManager,
       })
 
       const allTools = agentToolsResult.tools
@@ -153,8 +156,8 @@ export class CronJobExecutor {
 
       // 9. Call streamText and consume the full stream
       const result = streamText({
-        model,
-        system: systemPrompt,
+        model: resolved.model,
+        ...buildSystemPromptOptions(resolved, systemPrompt),
         messages: modelMessages,
         tools: hasTools ? allTools : undefined,
         stopWhen: hasTools ? stepCountIs(10) : undefined,

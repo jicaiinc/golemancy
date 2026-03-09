@@ -5,7 +5,8 @@ import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { SqliteMemoryStorage } from '../storage/memories'
-import { resolveModel } from './model'
+import type { OAuthManager } from '../auth/oauth-manager'
+import { resolveModel, buildSystemPromptOptions } from './model'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
@@ -83,6 +84,7 @@ export function createSubAgentTool(
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void,
   allTeamMembers?: TeamMember[],
   memoryStorage?: SqliteMemoryStorage,
+  oauthManager?: OAuthManager,
 ) {
   return tool({
     description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}. Returns a sessionId in the result — pass it back in subsequent calls to maintain conversation context.`,
@@ -150,10 +152,11 @@ export function createSubAgentTool(
         tokenRecordStorage,
         onTokenUsage,
         teamMembers: allTeamMembers,
+        oauthManager,
       })
 
       try {
-        const childModel = await resolveModel(settings, childAgent.modelConfig)
+        const childResolved = await resolveModel(settings, childAgent.modelConfig, oauthManager)
 
         const systemPrompt = childToolsResult.instructions
           ? childAgent.systemPrompt + '\n\n' + childToolsResult.instructions
@@ -196,8 +199,8 @@ export function createSubAgentTool(
         }
 
         const result = streamText({
-          model: childModel,
-          system: systemPrompt,
+          model: childResolved.model,
+          ...buildSystemPromptOptions(childResolved, systemPrompt),
           tools: hasTools ? childToolsResult.tools : undefined,
           stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           ...(modelMessages ? { messages: modelMessages } : { prompt: userContent }),
@@ -367,6 +370,7 @@ export function createSubAgentToolSet(
   directChildren?: TeamMember[],
   allTeamMembers?: TeamMember[],
   memoryStorage?: SqliteMemoryStorage,
+  oauthManager?: OAuthManager,
 ): { tools: ToolSet } {
   const tools: ToolSet = {}
 
@@ -379,7 +383,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage, allTeamMembers, memoryStorage)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage, allTeamMembers, memoryStorage, oauthManager)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

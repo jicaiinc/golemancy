@@ -4,6 +4,7 @@ import { DEFAULT_MEMORY_AUTO_LOAD } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { TokenRecordStorage } from '../storage/token-records'
+import type { OAuthManager } from '../auth/oauth-manager'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools, type ModeDegradation } from './builtin-tools'
@@ -35,6 +36,7 @@ export interface LoadAgentToolsParams {
   onTokenUsage?: (usage: { inputTokens: number; outputTokens: number }) => void
   teamMembers?: TeamMember[]
   teamInstruction?: string
+  oauthManager?: OAuthManager
 }
 
 export interface AgentToolsResult {
@@ -148,7 +150,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     const subAgentResult = createSubAgentToolSet(
       agent, allAgents, settings, projectId, loadAgentTools, mcpStorage, permissionsConfigStorage,
       conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage,
-      directChildren, params.teamMembers, memoryStorage,
+      directChildren, params.teamMembers, memoryStorage, params.oauthManager,
     )
     Object.assign(tools, subAgentResult.tools)
   }

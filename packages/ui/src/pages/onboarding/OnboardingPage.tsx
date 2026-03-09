@@ -19,7 +19,7 @@ const TOTAL_STEPS = STEPS.length
 
 function buildProviderEntry(data: OnboardingData) {
   let providerKey: string
-  let providerEntry: { name: string; sdkType: string; models: string[]; apiKey?: string; baseUrl?: string; testStatus?: 'ok' }
+  let providerEntry: { name: string; sdkType: string; models: string[]; apiKey?: string; baseUrl?: string; testStatus?: 'ok'; oauthConfig?: any }
 
   if (data.selectedProvider!.startsWith('custom:')) {
     const parts = data.selectedProvider!.split(':')
@@ -40,6 +40,7 @@ function buildProviderEntry(data: OnboardingData) {
       models: [...preset.defaultModels],
       apiKey: data.apiKey || undefined,
       baseUrl: data.baseUrl || preset.defaultBaseUrl || undefined,
+      ...(preset.oauthConfig ? { oauthConfig: preset.oauthConfig } : {}),
     }
   }
 
@@ -107,6 +108,11 @@ export function OnboardingPage() {
   }, [])
 
   // --- Step validation ---
+  const selectedPreset = data.selectedProvider && !data.selectedProvider.startsWith('custom:')
+    ? PROVIDER_PRESETS[data.selectedProvider]
+    : null
+  const isOAuthProvider = !!selectedPreset?.oauthConfig
+
   function canProceed(): boolean {
     switch (step) {
       case 0: return true // Welcome — always OK
@@ -158,14 +164,24 @@ export function OnboardingPage() {
   // --- Persist helpers ---
   async function persistProviderStep() {
     if (!data.selectedProvider || !data.defaultModel) return
-    const { providerKey, providerEntry } = buildProviderEntry(data)
-    providerEntry.testStatus = 'ok'
-    if (data.defaultModel && !providerEntry.models.includes(data.defaultModel.model)) {
-      providerEntry.models.push(data.defaultModel.model)
+    const { providerKey } = buildProviderEntry(data)
+
+    // Fetch fresh settings to preserve server-side changes (e.g., OAuth tokens
+    // written by OAuthManager.saveTokens which bypasses the UI state)
+    const freshSettings = await getServices().settings.get()
+    const currentEntry = freshSettings.providers[providerKey]
+    if (!currentEntry) return
+
+    const updatedEntry = {
+      ...currentEntry,
+      testStatus: 'ok' as const,
+      models: data.defaultModel && !currentEntry.models.includes(data.defaultModel.model)
+        ? [...currentEntry.models, data.defaultModel.model]
+        : currentEntry.models,
     }
-    const providers = { ...settings?.providers, [providerKey]: providerEntry }
+
     await updateSettings({
-      providers: providers as any,
+      providers: { ...freshSettings.providers, [providerKey]: updatedEntry } as any,
       defaultModel: data.defaultModel,
       onboardingStep: 1,
     })
@@ -196,9 +212,19 @@ export function OnboardingPage() {
     await updateSettings({ onboardingCompleted: true, onboardingStep: 4 })
   }
 
+  // --- Save provider entry (needed before OAuth flow or test) ---
+  const handleSaveProvider = useCallback(async () => {
+    if (!data.selectedProvider) return
+    const { providerKey, providerEntry } = buildProviderEntry(data)
+    const providers = { ...settings?.providers, [providerKey]: providerEntry }
+    await updateSettings({ providers: providers as any, onboardingStep: 0 })
+  }, [data, settings?.providers, updateSettings])
+
   // --- Provider test ---
   const handleTestProvider = useCallback(async () => {
-    if (!data.selectedProvider || !data.apiKey) return
+    if (!data.selectedProvider) return
+    // OAuth providers don't require apiKey — they use OAuth tokens
+    if (!data.apiKey && !isOAuthProvider) return
     updateData({ providerTestStatus: 'testing' })
 
     const { providerKey, providerEntry } = buildProviderEntry(data)
@@ -211,8 +237,14 @@ export function OnboardingPage() {
       const result = await getServices().settings.testProvider(providerKey)
       if (result.ok) {
         updateData({ providerTestStatus: 'ok' })
-        providerEntry.testStatus = 'ok'
-        await updateSettings({ providers: { ...providers, [providerKey]: providerEntry } as any })
+        // Fetch fresh settings to preserve server-side data (e.g., OAuth tokens)
+        const freshSettings = await getServices().settings.get()
+        const currentEntry = freshSettings.providers[providerKey]
+        if (currentEntry) {
+          await updateSettings({
+            providers: { ...freshSettings.providers, [providerKey]: { ...currentEntry, testStatus: 'ok' as const } } as any,
+          })
+        }
       } else {
         updateData({ providerTestStatus: 'error' })
         throw new Error(result.error ?? t('error.connectionTestFailed'))
@@ -221,7 +253,7 @@ export function OnboardingPage() {
       updateData({ providerTestStatus: 'error' })
       throw err
     }
-  }, [data.selectedProvider, data.apiKey, data.baseUrl, data.defaultModel, settings?.providers, updateData, updateSettings, t])
+  }, [data.selectedProvider, data.apiKey, data.baseUrl, data.defaultModel, settings?.providers, updateData, updateSettings, t, isOAuthProvider])
 
   // --- Speech test ---
   const handleTestSpeech = useCallback(async (config: SpeechToTextSettings) => {
@@ -300,6 +332,8 @@ export function OnboardingPage() {
                   defaultModel={data.defaultModel}
                   onUpdate={updateData}
                   onTestProvider={handleTestProvider}
+                  onSaveProvider={handleSaveProvider}
+                  isOAuthProvider={isOAuthProvider}
                 />
               )}
               {step === 2 && (

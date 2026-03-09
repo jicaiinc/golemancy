@@ -1,5 +1,6 @@
-import { streamText, type LanguageModel, type ModelMessage, type UIMessage } from 'ai'
+import { streamText, type ModelMessage, type UIMessage } from 'ai'
 import type { CompactRecord } from '@golemancy/shared'
+import { type ResolvedModel, buildSystemPromptOptions } from './model'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:compact' })
@@ -17,7 +18,7 @@ Do not call any tools. Output only the summary text, no extra formatting.`
 
 export async function compactConversation(opts: {
   messages: ModelMessage[]
-  model: LanguageModel
+  resolved: ResolvedModel
   systemPrompt: string
   signal?: AbortSignal
   onProgress?: (info: { generatedChars: number }) => void
@@ -25,8 +26,8 @@ export async function compactConversation(opts: {
   log.info({ messageCount: opts.messages.length }, 'starting compact')
 
   const result = streamText({
-    model: opts.model,
-    system: opts.systemPrompt,
+    model: opts.resolved.model,
+    ...buildSystemPromptOptions(opts.resolved, opts.systemPrompt),
     messages: [...opts.messages, { role: 'user', content: COMPACT_PROMPT }],
     abortSignal: opts.signal,
   })

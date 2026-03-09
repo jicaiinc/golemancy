@@ -14,6 +14,7 @@ import type { SqliteMemoryStorage } from './storage/memories'
 import type { SpeechStorage } from './storage/speech'
 import type { WebSocketManager } from './ws/handler'
 import type { ActiveChatRegistry } from './agent/active-chat-registry'
+import type { OAuthManager } from './auth/oauth-manager'
 import { createProjectRoutes } from './routes/projects'
 import { createAgentRoutes } from './routes/agents'
 import { createConversationRoutes } from './routes/conversations'
@@ -33,6 +34,7 @@ import { createUploadRoutes } from './routes/uploads'
 import { createMemoryRoutes } from './routes/memories'
 import { createTeamRoutes } from './routes/teams'
 import { createSpeechRoutes } from './routes/speech'
+import { createOAuthRoutes } from './routes/oauth'
 import { logger } from './logger'
 import { ConfigurationError } from './agent/errors'
 
@@ -56,6 +58,7 @@ export interface ServerDependencies {
   speechStorage?: SpeechStorage
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
+  oauthManager?: OAuthManager
 }
 
 export function createApp(deps: ServerDependencies, authToken?: string) {
@@ -123,6 +126,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     compactRecordStorage: deps.compactRecordStorage,
     agentStorage: deps.agentStorage,
     settingsStorage: deps.settingsStorage,
+    oauthManager: deps.oauthManager,
   }))
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
   app.route('/api/projects/:projectId/workspace', createWorkspaceRoutes())
@@ -155,6 +159,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     activeChatRegistry: deps.activeChatRegistry,
     wsManager: deps.wsManager,
     teamStorage: deps.teamStorage,
+    oauthManager: deps.oauthManager,
   }))
   app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
   app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes({
@@ -175,6 +180,10 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
       storage: deps.speechStorage,
       settingsStorage: deps.settingsStorage,
     }))
+  }
+
+  if (deps.oauthManager) {
+    app.route('/api/auth/oauth', createOAuthRoutes(deps.oauthManager))
   }
 
   return app

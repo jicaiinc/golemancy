@@ -11,6 +11,10 @@ import { ConfigurationError } from '../agent/errors'
 // Mock heavy dependencies — we don't want real AI calls
 vi.mock('../agent/model', () => ({
   resolveModel: vi.fn().mockReturnValue({ modelId: 'mock-model' }),
+  buildSystemPromptOptions: vi.fn((resolved: any, systemPrompt: any) => ({
+    system: systemPrompt,
+    providerOptions: resolved.providerOptions,
+  })),
 }))
 
 vi.mock('../agent/tools', () => ({

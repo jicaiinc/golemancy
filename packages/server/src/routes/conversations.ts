@@ -6,6 +6,7 @@ import type {
 } from '@golemancy/shared'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { CompactRecordStorage } from '../storage/compact-records'
+import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel } from '../agent/model'
 import { compactConversation } from '../agent/compact'
 import { resolveUploadsForClient, extractUploads } from '../utils/message-parts'
@@ -25,6 +26,7 @@ export interface ConversationRouteDeps {
   compactRecordStorage: CompactRecordStorage
   agentStorage: IAgentService
   settingsStorage: ISettingsService
+  oauthManager?: OAuthManager
 }
 
 export function createConversationRoutes(deps: ConversationRouteDeps) {
@@ -158,7 +160,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     if (!agent) return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
 
     const settings = await deps.settingsStorage.get()
-    const model = await resolveModel(settings, agent.modelConfig)
+    const resolved = await resolveModel(settings, agent.modelConfig, deps.oauthManager)
 
     const uiMessages: UIMessage[] = conv.messages.map(m => ({
       id: m.id,
@@ -171,7 +173,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     try {
       result = await compactConversation({
         messages: modelMessages,
-        model,
+        resolved,
         systemPrompt: agent.systemPrompt,
         signal: c.req.raw.signal,
       })

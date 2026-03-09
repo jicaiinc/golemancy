@@ -8,7 +8,9 @@ const mocks = vi.hoisted(() => {
   const createAnthropic = vi.fn(() => anthropicFactory)
 
   const openaiModel = { id: 'openai-model' }
+  const openaiResponsesModel = { id: 'openai-responses-model' }
   const openaiFactory = vi.fn(() => openaiModel)
+  openaiFactory.responses = vi.fn(() => openaiResponsesModel)
   const createOpenAI = vi.fn(() => openaiFactory)
 
   const googleModel = { id: 'google-model' }
@@ -17,7 +19,7 @@ const mocks = vi.hoisted(() => {
 
   return {
     createAnthropic, anthropicFactory, anthropicModel,
-    createOpenAI, openaiFactory, openaiModel,
+    createOpenAI, openaiFactory, openaiModel, openaiResponsesModel,
     createGoogleGenerativeAI, googleFactory, googleModel,
   }
 })
@@ -26,7 +28,7 @@ vi.mock('@ai-sdk/anthropic', () => ({ createAnthropic: mocks.createAnthropic }))
 vi.mock('@ai-sdk/openai', () => ({ createOpenAI: mocks.createOpenAI }))
 vi.mock('@ai-sdk/google', () => ({ createGoogleGenerativeAI: mocks.createGoogleGenerativeAI }))
 
-import { resolveModel } from './model'
+import { resolveModel, buildSystemPromptOptions, type ResolvedModel } from './model'
 
 function makeSettings(overrides: Partial<GlobalSettings> = {}): GlobalSettings {
   return {
@@ -56,7 +58,7 @@ describe('resolveModel', () => {
         baseURL: undefined,
       })
       expect(mocks.googleFactory).toHaveBeenCalledWith('gemini-2.5-flash')
-      expect(result).toBe(mocks.googleModel)
+      expect(result.model).toBe(mocks.googleModel)
     })
 
     it('resolves openai sdkType via OpenAI SDK', async () => {
@@ -69,7 +71,7 @@ describe('resolveModel', () => {
         baseURL: undefined,
       })
       expect(mocks.openaiFactory).toHaveBeenCalledWith('gpt-4o')
-      expect(result).toBe(mocks.openaiModel)
+      expect(result.model).toBe(mocks.openaiModel)
     })
 
     it('resolves anthropic sdkType via Anthropic SDK', async () => {
@@ -82,7 +84,7 @@ describe('resolveModel', () => {
         baseURL: undefined,
       })
       expect(mocks.anthropicFactory).toHaveBeenCalledWith('claude-sonnet-4-5')
-      expect(result).toBe(mocks.anthropicModel)
+      expect(result.model).toBe(mocks.anthropicModel)
     })
 
     it('resolves openai-compatible sdkType via OpenAI SDK', async () => {
@@ -105,7 +107,7 @@ describe('resolveModel', () => {
         baseURL: 'http://localhost:11434/v1',
       })
       expect(mocks.openaiFactory).toHaveBeenCalledWith('llama3')
-      expect(result).toBe(mocks.openaiModel)
+      expect(result.model).toBe(mocks.openaiModel)
     })
   })
 
@@ -215,8 +217,220 @@ describe('resolveModel', () => {
       })
       const agentConfig: AgentModelConfig = { provider: 'ollama', model: 'llama3' }
 
-      const model = await resolveModel(settings, agentConfig)
-      expect(model).toBeDefined()
+      const resolved = await resolveModel(settings, agentConfig)
+      expect(resolved.model).toBeDefined()
+    })
+  })
+
+  describe('OAuth model resolution', () => {
+    it('resolves OAuth provider via .responses() with useInstructionsParam', async () => {
+      const settings = makeSettings({
+        providers: {
+          codex: {
+            name: 'OpenAI Codex',
+            sdkType: 'openai',
+            models: ['gpt-5.3-codex'],
+            oauth: {
+              accessToken: 'test-access-token',
+              refreshToken: 'test-refresh-token',
+              expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+            },
+            oauthConfig: {
+              flowType: 'authorization_code',
+              clientId: 'app_test',
+              authEndpoint: 'https://auth.openai.com/oauth/authorize',
+              tokenEndpoint: 'https://auth.openai.com/oauth/token',
+              scope: 'openid',
+              apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+            },
+          },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'codex', model: 'gpt-5.3-codex' }
+      const result = await resolveModel(settings, agentConfig)
+
+      expect(mocks.createOpenAI).toHaveBeenCalledWith({
+        apiKey: 'test-access-token',
+        baseURL: 'https://chatgpt.com/backend-api/codex',
+        headers: undefined,
+      })
+      expect(mocks.openaiFactory.responses).toHaveBeenCalledWith('gpt-5.3-codex')
+      expect(result.model).toBe(mocks.openaiResponsesModel)
+      expect(result.useInstructionsParam).toBe(true)
+      expect(result.providerOptions).toEqual({ openai: { store: false } })
+    })
+
+    it('passes ChatGPT-Account-Id header when accountId is present', async () => {
+      const settings = makeSettings({
+        providers: {
+          codex: {
+            name: 'OpenAI Codex',
+            sdkType: 'openai',
+            models: ['gpt-5.3-codex'],
+            oauth: {
+              accessToken: 'test-access-token',
+              refreshToken: 'test-refresh-token',
+              expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+              accountId: 'account-123',
+            },
+            oauthConfig: {
+              flowType: 'authorization_code',
+              clientId: 'app_test',
+              authEndpoint: 'https://auth.openai.com/oauth/authorize',
+              tokenEndpoint: 'https://auth.openai.com/oauth/token',
+              scope: 'openid',
+              apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+            },
+          },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'codex', model: 'gpt-5.3-codex' }
+      await resolveModel(settings, agentConfig)
+
+      expect(mocks.createOpenAI).toHaveBeenCalledWith({
+        apiKey: 'test-access-token',
+        baseURL: 'https://chatgpt.com/backend-api/codex',
+        headers: { 'ChatGPT-Account-Id': 'account-123' },
+      })
+    })
+
+    it('prefers OAuth path over API key when both exist', async () => {
+      const settings = makeSettings({
+        providers: {
+          codex: {
+            name: 'OpenAI Codex',
+            sdkType: 'openai',
+            apiKey: 'should-not-use-this',
+            models: ['gpt-5.3-codex'],
+            oauth: {
+              accessToken: 'oauth-token',
+              refreshToken: 'refresh',
+              expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+            },
+            oauthConfig: {
+              flowType: 'authorization_code',
+              clientId: 'app_test',
+              authEndpoint: 'https://auth.openai.com/oauth/authorize',
+              tokenEndpoint: 'https://auth.openai.com/oauth/token',
+              scope: 'openid',
+              apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+            },
+          },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'codex', model: 'gpt-5.3-codex' }
+      const result = await resolveModel(settings, agentConfig)
+
+      // Should use OAuth token, not API key
+      expect(mocks.createOpenAI).toHaveBeenCalledWith(
+        expect.objectContaining({ apiKey: 'oauth-token' }),
+      )
+      expect(result.useInstructionsParam).toBe(true)
+    })
+
+    it('falls back to API key when OAuth has no accessToken', async () => {
+      const settings = makeSettings({
+        providers: {
+          openai: {
+            name: 'OpenAI',
+            sdkType: 'openai',
+            apiKey: 'api-key',
+            models: ['gpt-4o'],
+            oauth: {
+              accessToken: '',
+              refreshToken: 'refresh',
+              expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+            },
+            oauthConfig: {
+              flowType: 'authorization_code',
+              clientId: 'app_test',
+              authEndpoint: 'https://auth.openai.com/oauth/authorize',
+              tokenEndpoint: 'https://auth.openai.com/oauth/token',
+              scope: 'openid',
+              apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+            },
+          },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'openai', model: 'gpt-4o' }
+      const result = await resolveModel(settings, agentConfig)
+
+      // Should fall back to API key path
+      expect(mocks.createOpenAI).toHaveBeenCalledWith({
+        apiKey: 'api-key',
+        baseURL: undefined,
+      })
+      expect(result.useInstructionsParam).toBeUndefined()
+    })
+  })
+})
+
+describe('buildSystemPromptOptions', () => {
+  it('returns system + providerOptions for standard models', () => {
+    const resolved: ResolvedModel = { model: {} as any }
+    const result = buildSystemPromptOptions(resolved, 'You are helpful.')
+    expect(result.system).toBe('You are helpful.')
+    expect(result.providerOptions).toBeUndefined()
+  })
+
+  it('returns providerOptions with providerOptions passthrough for standard models', () => {
+    const resolved: ResolvedModel = {
+      model: {} as any,
+      providerOptions: { anthropic: { cacheControl: true } } as any,
+    }
+    const result = buildSystemPromptOptions(resolved, 'Hello')
+    expect(result.system).toBe('Hello')
+    expect(result.providerOptions).toEqual({ anthropic: { cacheControl: true } })
+  })
+
+  it('returns instructions in providerOptions for Codex models', () => {
+    const resolved: ResolvedModel = {
+      model: {} as any,
+      providerOptions: { openai: { store: false } } as any,
+      useInstructionsParam: true,
+    }
+    const result = buildSystemPromptOptions(resolved, 'You are a coding assistant.')
+    expect(result.system).toBeUndefined()
+    expect(result.providerOptions).toEqual({
+      openai: { store: false, instructions: 'You are a coding assistant.' },
+    })
+  })
+
+  it('provides default instructions when systemPrompt is empty for Codex models', () => {
+    const resolved: ResolvedModel = {
+      model: {} as any,
+      providerOptions: { openai: { store: false } } as any,
+      useInstructionsParam: true,
+    }
+    const result = buildSystemPromptOptions(resolved, '')
+    expect(result.system).toBeUndefined()
+    expect(result.providerOptions).toEqual({
+      openai: { store: false, instructions: 'You are a helpful assistant.' },
+    })
+  })
+
+  it('provides default instructions when systemPrompt is undefined for Codex models', () => {
+    const resolved: ResolvedModel = {
+      model: {} as any,
+      providerOptions: { openai: { store: false } } as any,
+      useInstructionsParam: true,
+    }
+    const result = buildSystemPromptOptions(resolved, undefined)
+    expect(result.system).toBeUndefined()
+    expect(result.providerOptions).toEqual({
+      openai: { store: false, instructions: 'You are a helpful assistant.' },
+    })
+  })
+
+  it('preserves existing providerOptions when adding instructions', () => {
+    const resolved: ResolvedModel = {
+      model: {} as any,
+      providerOptions: { openai: { store: false, user: 'test-user' } } as any,
+      useInstructionsParam: true,
+    }
+    const result = buildSystemPromptOptions(resolved, 'Custom prompt')
+    expect(result.providerOptions).toEqual({
+      openai: { store: false, user: 'test-user', instructions: 'Custom prompt' },
     })
   })
 })

@@ -5,6 +5,10 @@ import { CronJobExecutor, type ExecutorDeps } from './executor'
 // Mock heavy dependencies that executor imports
 vi.mock('../agent/model', () => ({
   resolveModel: vi.fn().mockResolvedValue({ id: 'mock-model' }),
+  buildSystemPromptOptions: vi.fn((resolved: any, systemPrompt: any) => ({
+    system: systemPrompt,
+    providerOptions: resolved.providerOptions,
+  })),
 }))
 
 vi.mock('../agent/tools', () => ({

@@ -78,7 +78,7 @@ export function createSettingsRoutes(storage: ISettingsService) {
     if (!entry) {
       return c.json({ ok: false, error: 'PROVIDER_NOT_FOUND' }, 404)
     }
-    if (!entry.apiKey && !entry.baseUrl?.includes('localhost')) {
+    if (!entry.apiKey && !entry.baseUrl?.includes('localhost') && !entry.oauth?.accessToken) {
       return c.json({ ok: false, error: 'NO_API_KEY' }, 400)
     }
 
@@ -88,7 +88,22 @@ export function createSettingsRoutes(storage: ISettingsService) {
     }
 
     try {
-      const model = await createTestModel(entry.sdkType, entry.apiKey, entry.baseUrl, testModel)
+      let model
+      let isOAuthModel = false
+      // OAuth path: use access token and OAuth base URL
+      if (entry.oauth?.accessToken && entry.oauthConfig) {
+        const { createOpenAI } = await import('@ai-sdk/openai')
+        model = createOpenAI({
+          apiKey: entry.oauth.accessToken,
+          baseURL: entry.oauthConfig.apiBaseUrl,
+          headers: entry.oauth.accountId
+            ? { 'ChatGPT-Account-Id': entry.oauth.accountId }
+            : undefined,
+        }).responses(testModel)
+        isOAuthModel = true
+      } else {
+        model = await createTestModel(entry.sdkType, entry.apiKey, entry.baseUrl, testModel)
+      }
       const start = Date.now()
 
       const controller = new AbortController()
@@ -100,6 +115,8 @@ export function createSettingsRoutes(storage: ISettingsService) {
           prompt: 'Say "ok"',
           maxOutputTokens: 20,
           abortSignal: controller.signal,
+          // Codex Responses API: store=false + instructions required
+          ...(isOAuthModel ? { providerOptions: { openai: { store: false, instructions: 'You are a helpful assistant.' } } } : {}),
         })
       } finally {
         clearTimeout(timeout)

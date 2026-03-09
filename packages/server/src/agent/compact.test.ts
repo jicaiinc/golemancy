@@ -30,7 +30,7 @@ describe('compactConversation', () => {
 
     const result = await compactConversation({
       messages: [{ role: 'user', content: 'test' }] as any,
-      model: {} as any,
+      resolved: { model: {} as any },
       systemPrompt: 'system',
     })
 
@@ -58,7 +58,7 @@ describe('compactConversation', () => {
 
     await compactConversation({
       messages: [{ role: 'user', content: 'x' }] as any,
-      model: {} as any,
+      resolved: { model: {} as any },
       systemPrompt: 'sys',
       onProgress,
     })
@@ -84,7 +84,7 @@ describe('compactConversation', () => {
 
     await expect(compactConversation({
       messages: [{ role: 'user', content: 'x' }] as any,
-      model: {} as any,
+      resolved: { model: {} as any },
       systemPrompt: 'sys',
     })).rejects.toThrow('Compact failed: model returned empty response')
   })

@@ -34,4 +34,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return () => { ipcRenderer.removeListener('update:available', handler) }
   },
   openDownloadUrl: (url: string) => ipcRenderer.invoke('update:open-download', url),
+  openExternalUrl: (url: string) => ipcRenderer.invoke('shell:openExternal', url),
 })

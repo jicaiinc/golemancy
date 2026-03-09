@@ -1,6 +1,7 @@
 import type {
   Project, Agent, Conversation, ConversationTask, CronJob, CronJobRun, Skill, Team,
-  GlobalSettings, ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId, TeamId,
+  GlobalSettings, OAuthFlowState,
+  ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId, TeamId,
   PermissionsConfigId, TranscriptionId, MemoryId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
@@ -96,6 +97,10 @@ export interface ISettingsService {
   get(): Promise<GlobalSettings>
   update(data: Partial<GlobalSettings>): Promise<GlobalSettings>
   testProvider(slug: string): Promise<{ ok: boolean; error?: string; latencyMs?: number }>
+  startOAuthFlow?(slug: string): Promise<{ authUrl: string }>
+  getOAuthFlowStatus?(slug: string): Promise<OAuthFlowState>
+  cancelOAuthFlow?(slug: string): Promise<void>
+  disconnectOAuth?(slug: string): Promise<void>
 }
 
 export interface ICronJobService {
