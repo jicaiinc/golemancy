@@ -1,5 +1,6 @@
 import { memo, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { Streamdown } from 'streamdown'
 import type { UIMessage } from 'ai'
 import { useTranslation } from 'react-i18next'
 import { CopyIcon, CheckIcon } from '../../components'
@@ -211,10 +212,21 @@ export const MessageBubble = memo(function MessageBubble({ message, chatStatus }
                         : 'bg-surface border-border-dim'
                     }`}
                   >
-                    <p className="text-[13px] font-mono text-text-primary whitespace-pre-wrap break-words">
-                      {part.text}
-                      {part.state === 'streaming' && <BlinkingCursor />}
-                    </p>
+                    {isUser ? (
+                      <p className="text-[13px] font-mono text-text-primary whitespace-pre-wrap break-words">
+                        {part.text}
+                      </p>
+                    ) : (
+                      <div className="streamdown-content text-[13px] font-mono text-text-primary">
+                        <Streamdown
+                          mode={part.state === 'streaming' ? 'streaming' : 'static'}
+                          isAnimating={part.state === 'streaming'}
+                        >
+                          {part.text}
+                        </Streamdown>
+                        {part.state === 'streaming' && <BlinkingCursor />}
+                      </div>
+                    )}
                   </div>
                   <CopyButton text={part.text} position={isUser ? 'left' : 'right'} />
                 </div>

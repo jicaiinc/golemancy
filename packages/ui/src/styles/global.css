@@ -1,8 +1,11 @@
 @import "tailwindcss";
+@import "streamdown/styles.css";
 
 /* Scan packages/ui and packages/shared for Tailwind class usage */
 @source "..";
 @source "../../../shared/src";
+/* Scan streamdown dist so Tailwind picks up its utility classes */
+@source "../../../node_modules/streamdown/dist";
 
 /* === Theme switching: supports .dark class + system preference === */
 @custom-variant dark {
@@ -447,4 +450,126 @@ input[type="range"].pixel-slider::-moz-range-thumb {
   cursor: pointer;
   box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.2),
     inset -2px -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* === Streamdown (AI markdown) — pixel art overrides === */
+
+.streamdown-content {
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+/* Headings */
+.streamdown-content h1,
+.streamdown-content h2,
+.streamdown-content h3,
+.streamdown-content h4 {
+  color: var(--color-accent-green);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+.streamdown-content h1 { font-size: 1.25em; }
+.streamdown-content h2 { font-size: 1.1em; }
+.streamdown-content h3 { font-size: 1em; }
+
+/* Paragraphs & lists */
+.streamdown-content p {
+  margin: 0.5em 0;
+}
+.streamdown-content ul,
+.streamdown-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+.streamdown-content li {
+  margin: 0.25em 0;
+}
+
+/* Inline code */
+.streamdown-content :not(pre) > code {
+  background: var(--color-deep);
+  border: 1px solid var(--color-border-dim);
+  padding: 0.1em 0.4em;
+  font-size: 0.9em;
+  color: var(--color-accent-amber);
+}
+
+/* Code blocks */
+.streamdown-content pre {
+  background: var(--color-deep) !important;
+  border: 2px solid var(--color-border-dim);
+  padding: 0.75em 1em;
+  margin: 0.5em 0;
+  overflow-x: auto;
+  font-size: 0.9em;
+}
+.streamdown-content pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* Blockquote */
+.streamdown-content blockquote {
+  border-left: 4px solid var(--color-accent-purple);
+  padding-left: 1em;
+  margin: 0.5em 0;
+  color: var(--color-text-secondary);
+}
+
+/* Horizontal rule */
+.streamdown-content hr {
+  border: none;
+  border-top: 2px solid var(--color-border-dim);
+  margin: 1em 0;
+}
+
+/* Links */
+.streamdown-content a {
+  color: var(--color-accent-blue);
+  text-decoration: underline;
+}
+.streamdown-content a:hover {
+  color: var(--color-accent-cyan);
+}
+
+/* Tables */
+.streamdown-content table {
+  border-collapse: collapse;
+  margin: 0.5em 0;
+  width: 100%;
+  font-size: 0.9em;
+}
+.streamdown-content th,
+.streamdown-content td {
+  border: 2px solid var(--color-border-dim);
+  padding: 0.4em 0.75em;
+  text-align: left;
+}
+.streamdown-content th {
+  background: var(--color-deep);
+  color: var(--color-accent-green);
+  font-weight: 700;
+}
+.streamdown-content tr:nth-child(even) td {
+  background: var(--color-deep);
+}
+
+/* Strong & emphasis */
+.streamdown-content strong {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+.streamdown-content em {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Task lists (GFM) */
+.streamdown-content input[type="checkbox"] {
+  margin-right: 0.4em;
+  accent-color: var(--color-accent-green);
 }
