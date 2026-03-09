@@ -63,7 +63,7 @@ export async function resolveModel(
       ? await oauthManager.getValidToken(provider)
       : entry.oauth.accessToken
     const { createOpenAI } = await import('@ai-sdk/openai')
-    log.debug({ provider, model, sdkType: entry.sdkType, auth: 'oauth' }, 'resolving model via OAuth')
+    log.info({ provider, model, sdkType: entry.sdkType, auth: 'oauth', apiPath: 'responses' }, 'resolving model via OAuth (Responses API)')
     return {
       model: createOpenAI({
         apiKey: accessToken,

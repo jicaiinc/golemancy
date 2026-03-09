@@ -134,7 +134,12 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const settings = await deps.settingsStorage.get()
     const resolved = await resolveModel(settings, agent.modelConfig, deps.oauthManager)
 
-    log.debug({ projectId, agentId, conversationId, messageCount: messages.length }, 'starting chat stream')
+    log.debug({
+      projectId, agentId, conversationId, messageCount: messages.length,
+      provider: agent.modelConfig.provider,
+      model: agent.modelConfig.model,
+      useInstructionsParam: resolved.useInstructionsParam ?? false,
+    }, 'starting chat stream')
 
     // --- Agent status lifecycle: mark running ---
     const chatConvId = conversationId ?? 'ephemeral'
@@ -360,6 +365,13 @@ export function createChatRoutes(deps: ChatRouteDeps) {
         const modelMessages = await convertToModelMessages(messagesForModel)
 
         // --- Chat stream ---
+        const toolNames = hasTools ? Object.keys(allTools) : []
+        log.debug({
+          conversationId, toolCount: toolNames.length, toolNames,
+          provider: agent.modelConfig.provider, model: agent.modelConfig.model,
+          useInstructionsParam: resolved.useInstructionsParam ?? false,
+        }, 'calling streamText')
+
         let stepIndex = 0
         let lastFinishReason: string | undefined
         const result = streamText({
@@ -372,14 +384,22 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           onStepFinish: ({ usage, finishReason, toolCalls }) => {
             stepIndex++
             lastFinishReason = finishReason
-            const toolNames = toolCalls?.map(tc => tc.toolName) ?? []
+            const calledTools = toolCalls?.map(tc => tc.toolName) ?? []
             log.debug({
               conversationId, step: stepIndex, finishReason,
               inputTokens: usage.inputTokens ?? 0,
               outputTokens: usage.outputTokens ?? 0,
               totalTokens: usage.totalTokens ?? 0,
-              ...(toolNames.length > 0 ? { toolCalls: toolNames } : {}),
+              ...(calledTools.length > 0 ? { toolCalls: calledTools } : {}),
             }, 'step finished')
+
+            // Warn when model had tools available but chose not to call any
+            if (stepIndex === 1 && finishReason === 'stop' && hasTools && calledTools.length === 0) {
+              log.warn({
+                conversationId, provider: agent.modelConfig.provider, model: agent.modelConfig.model,
+                availableToolCount: toolNames.length,
+              }, 'model finished without calling any tools despite tools being available — the model may not support tool calling properly')
+            }
           },
           onFinish: ensureCleanup,
           onAbort: async ({ steps }) => {

@@ -53,6 +53,24 @@ export interface AgentToolsResult {
 }
 
 /**
+ * Build the behavior directive that instructs the model to take action
+ * proactively using available tools, rather than just describing plans.
+ */
+function buildBehaviorDirective(): string {
+  return [
+    '## Execution Behavior',
+    '',
+    'You are an autonomous agent. Act, don\'t narrate.',
+    '',
+    '- **Do not restate what the user said** — just do it. Go straight to execution using your available tools.',
+    '- **Lead with action, not reasoning.** Call tools first, explain after. Try the simplest approach first.',
+    '- **Keep text output brief and direct.** If you can say it in one sentence, don\'t use three. Spend tokens on tool calls, not commentary.',
+    '- **Do not ask for permission or confirmation** before each step. Execute multi-step tasks sequentially without pausing for approval.',
+    '- Only ask the user for clarification when the request is genuinely ambiguous and you cannot make a reasonable assumption.',
+  ].join('\n')
+}
+
+/**
  * Unified entry point: load all tools for an agent (skills, MCP, built-in, sub-agents).
  *
  * Sub-agent tools are lightweight shells — they only load their own tools
@@ -65,7 +83,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
-  let instructions = ''
+  let instructions = buildBehaviorDirective()
   let actualMode: PermissionMode | undefined
   let degradation: ModeDegradation | undefined
 
@@ -74,7 +92,9 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     const skillResult = await loadAgentSkillTools(projectId, agent.skillIds)
     if (skillResult) {
       Object.assign(tools, skillResult.tools)  // only { skill }
-      instructions = skillResult.instructions
+      if (skillResult.instructions) {
+        instructions = instructions + '\n\n' + skillResult.instructions
+      }
       cleanups.push(skillResult.cleanup)
     }
   }
