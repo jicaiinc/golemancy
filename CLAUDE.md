@@ -298,16 +298,28 @@ Key rules (read `_team/team.md` for complete role definitions, phase details, an
 - **Escalation**: Design phase — strict (any ambiguity must be reported to user); Implement/Test — autonomous (only escalate fundamental blockers)
 - **Fact Checker is mandatory** — no tech enters code without verification via WebSearch / Context7 / source code
 
-## Golemancy Plan Mode - requirements-first
+## When to Enter Plan Mode
 
-When entering plan mode or creating any implementation plan:
+Before starting any task, check if ANY of the following apply. **If yes, enter Plan Mode first — do not skip ahead to implementation**:
 
-- **Requirements-first**: Every plan MUST begin with a numbered list of the user's original requirements. Include verbatim user quotes where they add clarity. This list is the **single source of truth** for the entire implementation cycle.
-- **User confirmation required**: The requirements list MUST be confirmed by the user before implementation begins. If subsequent discussion contradicts or refines original requirements, update the list and obtain user re-confirmation.
-- **100% satisfaction — no omissions**: Every listed requirement MUST be fully implemented. Partial implementations or silent omissions are not acceptable. When in doubt, re-read the requirements list.
-- **Completion verification**: After implementation, explicitly verify each requirement against the actual code/tests. Any unmet requirement is a blocker — do not consider the task done until all items are checked off.
+1. **Multi-file changes** — expected to modify 3+ files
+2. **New feature** — requires new types, routes, services, components, or other abstractions
+3. **Architecture change** — modifies module boundaries, data flow, or communication patterns
+4. **Cross-package change** — touches 2+ monorepo packages
+5. **Ambiguous requirements** — the user's request can be interpreted in multiple ways; clarify first
+6. **Refactoring** — renaming, moving, merging, or splitting existing code structures
 
-This discipline exists because agents lose context during long implementations, leading to drift and missed requirements. The requirements list prevents this by serving as an immutable reference throughout planning, implementation, and review.
+**Skip Plan Mode (just do it):**
+- Single-file small changes (bug fix, styling, copy)
+- Search, lookup, or explain code
+- Executing an already-confirmed plan
+
+### Plan Mode Rules
+
+1. **Requirements list first** — Start by listing all user requirements as a numbered list, quoting the user's own words. This list is the single source of truth for the entire implementation.
+2. **User confirms before work begins** — The requirements list must be confirmed by the user. If requirements change later, update the list and re-confirm.
+3. **Every requirement must be implemented** — No partial implementations or silent omissions. When in doubt, re-read the requirements list.
+4. **Verify each requirement after implementation** — Check code/tests against the requirements list. Any unmet requirement is a blocker.
 
 ## Note: Fact-Based Analysis
 
