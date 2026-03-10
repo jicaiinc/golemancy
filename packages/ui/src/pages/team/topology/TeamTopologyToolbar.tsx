@@ -63,7 +63,7 @@ export function TeamTopologyToolbar({
           onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
         />
       ) : (
-        <button onClick={() => setEditingName(true)} className="font-pixel text-[12px] text-text-primary hover:text-accent-blue cursor-pointer truncate max-w-[240px]">
+        <button onClick={() => setEditingName(true)} className="font-pixel text-[12px] text-text-primary hover:text-accent-blue cursor-pointer truncate max-w-[400px]" title={team.name}>
           {team.name}
         </button>
       )}

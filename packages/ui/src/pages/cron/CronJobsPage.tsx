@@ -151,8 +151,8 @@ export function CronJobsPage() {
 
                     {/* Name + schedule info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-pixel text-[10px] text-text-primary truncate">
+                      <div className="flex items-start gap-2">
+                        <span className="font-pixel text-[10px] text-text-primary line-clamp-2 flex-1 min-w-0" title={job.name}>
                           {job.name}
                         </span>
                         {job.scheduleType === 'once' ? (

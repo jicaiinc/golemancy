@@ -46,7 +46,7 @@ export function OverviewPanel({ agentStats, recentChats }: OverviewPanelProps) {
                   status={statusToAvatar[agent.status] ?? 'offline'}
                 />
                 <div className="min-w-0 flex-1">
-                  <span className="text-[11px] text-text-primary truncate block">{agent.agentName}</span>
+                  <span className="text-[11px] text-text-primary truncate block" title={agent.agentName}>{agent.agentName}</span>
                   <span className="text-[9px] text-text-dim">{agent.model}</span>
                 </div>
                 <PixelBadge variant={agent.status === 'running' ? 'running' : agent.status === 'error' ? 'error' : 'idle'}>

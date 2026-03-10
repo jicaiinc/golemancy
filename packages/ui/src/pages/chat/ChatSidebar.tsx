@@ -178,7 +178,7 @@ export function ChatSidebar({
                   )}
                 </div>
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-[10px] text-accent-blue font-mono">
+                  <span className="text-[10px] text-accent-blue font-mono truncate" title={displayName}>
                     {displayName}
                   </span>
                   <span className="text-[10px] text-text-dim">

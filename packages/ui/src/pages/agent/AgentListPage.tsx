@@ -96,13 +96,13 @@ export function AgentListPage() {
                     status={agent.status === 'running' ? 'online' : agent.status === 'error' ? 'error' : agent.status === 'paused' ? 'paused' : 'offline'}
                   />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-pixel text-[10px] text-text-primary truncate">{agent.name}</h3>
-                      <PixelBadge variant={statusBadgeVariant[agent.status]}>
+                    <div className="flex items-start gap-2">
+                      <h3 className="font-pixel text-[10px] text-text-primary line-clamp-2 flex-1 min-w-0" title={agent.name}>{agent.name}</h3>
+                      <PixelBadge variant={statusBadgeVariant[agent.status]} className="shrink-0">
                         {t(`statusLabel.${agent.status}`)}
                       </PixelBadge>
                       <button
-                        className="ml-auto text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
+                        className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
                         title={t('list.clone')}
                         onClick={(e) => {
                           e.stopPropagation()

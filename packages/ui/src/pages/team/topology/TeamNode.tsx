@@ -38,7 +38,7 @@ export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {
   return (
     <div
       data-testid="team-topology-node"
-      className={`w-[220px] bg-surface border-2 relative cursor-pointer transition-colors ${borderClass}`}
+      className={`w-[270px] bg-surface border-2 relative cursor-pointer transition-colors ${borderClass}`}
       style={{
         boxShadow: selected
           ? '0 0 0 2px color-mix(in srgb, var(--color-accent-blue) 30%, transparent)'
@@ -52,7 +52,7 @@ export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {
       {/* Header: status dot + name + leader star */}
       <div className="px-2.5 py-1.5 flex items-center gap-1.5">
         <span className={`w-2 h-2 shrink-0 ${statusDotColor[data.status]}`} />
-        <span className="font-pixel text-[9px] text-text-primary truncate flex-1">{data.name}</span>
+        <span className="font-pixel text-[9px] text-text-primary line-clamp-2 flex-1 min-w-0" title={data.name}>{data.name}</span>
         {data.isLeader && (
           <span className="font-pixel text-[8px] text-mc-gold leading-none">★</span>
         )}

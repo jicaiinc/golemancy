@@ -80,7 +80,7 @@ describe('computeTeamLayout', () => {
   })
 
   it('exports correct constants', () => {
-    expect(NODE_WIDTH).toBe(200)
+    expect(NODE_WIDTH).toBe(250)
     expect(NODE_HEIGHT).toBe(120)
   })
 })

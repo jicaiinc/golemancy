@@ -68,10 +68,10 @@ export function TeamListPage() {
                   onClick={() => navigate(`/projects/${projectId}/teams/${team.id}`)}
                 >
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-pixel text-[10px] text-text-primary truncate">{team.name}</h3>
+                    <div className="flex items-start gap-2">
+                      <h3 className="font-pixel text-[10px] text-text-primary line-clamp-2 flex-1 min-w-0" title={team.name}>{team.name}</h3>
                       <button
-                        className="ml-auto text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
+                        className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
                         title={t('list.clone')}
                         onClick={(e) => {
                           e.stopPropagation()

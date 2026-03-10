@@ -102,7 +102,7 @@ function AgentsPanel({ agents, team }: { agents: Agent[]; team: Team }) {
               {!inTeam && (
                 <span className="font-mono text-[11px] text-text-dim opacity-40 shrink-0 leading-none select-none">⠿</span>
               )}
-              <span className="font-pixel text-[9px] text-text-primary truncate flex-1">
+              <span className="font-pixel text-[9px] text-text-primary truncate flex-1" title={agent.name}>
                 {agent.name}
               </span>
               {inTeam && (
@@ -181,7 +181,7 @@ function DetailPanel({
       {/* Agent info */}
       <div className="p-3 border-b-2 border-border-dim">
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-pixel text-[11px] text-text-primary truncate flex-1">{agent.name}</span>
+          <span className="font-pixel text-[11px] text-text-primary truncate flex-1" title={agent.name}>{agent.name}</span>
           {isLeader && (
             <span className="font-pixel text-[7px] text-mc-gold border border-mc-gold px-1 leading-[14px] shrink-0">
               {t('topology.leader')}

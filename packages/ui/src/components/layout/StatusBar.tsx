@@ -264,7 +264,7 @@ export function StatusBar({ permissionMode, actualMode, tokenUsage, tokenBreakdo
                 <div className="max-h-48 overflow-y-auto">
                   {tokenBreakdown.byAgent.map(a => (
                     <div key={a.agentId} className="flex items-center justify-between px-3 py-1.5 hover:bg-deep/50">
-                      <span className="text-[11px] font-mono text-text-primary truncate flex-1">{a.name}</span>
+                      <span className="text-[11px] font-mono text-text-primary truncate flex-1" title={a.name}>{a.name}</span>
                       <span className="text-[11px] font-mono text-text-dim ml-2">
                         {t('nav:statusBar.tokensInOut', {
                           input: formatTokenCount(a.inputTokens),

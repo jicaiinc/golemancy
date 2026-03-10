@@ -1,7 +1,7 @@
 import dagre from '@dagrejs/dagre'
 import type { Node, Edge } from '@xyflow/react'
 
-export const NODE_WIDTH = 200
+export const NODE_WIDTH = 250
 export const NODE_HEIGHT = 120
 
 const ISOLATED_X_OFFSET = 600
