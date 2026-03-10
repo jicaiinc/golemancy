@@ -618,9 +618,6 @@ async function bundleServer() {
       'node-linker=hoisted\nsymlink=false\n',
     )
 
-    // Write empty pnpm-workspace.yaml so pnpm treats this as a standalone root
-    await writeFile(join(TEMP_DEPLOY_DIR, 'pnpm-workspace.yaml'), 'packages: []\n')
-
     // Step 4: Re-install with hoisted layout — pnpm resolves version conflicts
     // by nesting incompatible versions in per-package node_modules.
     // Note: lifecycle scripts don't run in hoisted mode, which is fine — native
@@ -633,7 +630,7 @@ async function bundleServer() {
     //      step which DOES use the real lockfile
     //   2. Only transitive deps of native packages come from this hoisted install
     try {
-      execSync('pnpm install --prod --ignore-scripts', {
+      execSync('pnpm --ignore-workspace install --prod --ignore-scripts', {
         cwd: TEMP_DEPLOY_DIR,
         stdio: 'pipe',
         encoding: 'utf-8',
