@@ -23,6 +23,10 @@
   <a href="https://github.com/jicaiinc/golemancy/releases/latest">Download</a>
 </p>
 
+<p align="center">
+  English | <a href="README.zh.md">简体中文</a>
+</p>
+
 ---
 
 <!-- TODO: Replace with actual screenshot -->

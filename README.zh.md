@@ -23,6 +23,10 @@
   <a href="https://github.com/jicaiinc/golemancy/releases/latest">下载</a>
 </p>
 
+<p align="center">
+  <a href="README.md">English</a> | 简体中文
+</p>
+
 ---
 
 Golemancy 是一款免费开源的本地 AI Agent 编排桌面应用。你可以在一个项目里召唤多个 Agent，为每个 Agent 配备不同的工具和技能，让它们并行工作、相互协作——所有计算都在你自己的机器上完成，数据不出本地。
