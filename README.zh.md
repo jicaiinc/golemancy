@@ -129,6 +129,10 @@ Bug 反馈和功能建议请[提交 Issue](https://github.com/jicaiinc/golemancy
 - [Twitter](https://x.com/golemancyai) — 版本动态与公告
 - [邮件](mailto:hi@golemancy.ai) — hi@golemancy.ai
 
+**微信交流群**
+
+<img src=".github/wechat-group-qr.jpg" alt="微信群二维码" width="200">
+
 ## Star 趋势
 
 <a href="https://star-history.com/#jicaiinc/golemancy&Date">
