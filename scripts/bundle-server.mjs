@@ -24,6 +24,7 @@ import { chmod, cp, mkdir, readdir, readFile, rm, stat, symlink, writeFile } fro
 import { builtinModules, createRequire } from 'node:module'
 import { arch as osArch, tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 const ROOT = resolve(import.meta.dirname, '..')
 
@@ -63,6 +64,163 @@ const ENTRY_POINTS = {
 const FORCE_EXTERNAL = new Set([
   // Example: 'some-package-with-wasm-binary'
 ])
+
+// ── Lockfile helpers ─────────────────────────────────────────
+
+const LOCKFILE_DEP_SECTIONS = ['dependencies', 'optionalDependencies', 'devDependencies']
+
+function unquoteYamlScalar(value) {
+  if (
+    (value.startsWith("'") && value.endsWith("'"))
+    || (value.startsWith('"') && value.endsWith('"'))
+  ) {
+    const inner = value.slice(1, -1)
+    return value.startsWith("'") ? inner.replace(/''/g, "'") : inner.replace(/\\"/g, '"')
+  }
+  return value
+}
+
+function quoteYamlScalar(value) {
+  return `'${String(value).replace(/'/g, "''")}'`
+}
+
+function findLockfileSections(lockfileText) {
+  const importersIdx = lockfileText.indexOf('\nimporters:\n')
+  const packagesIdx = lockfileText.indexOf('\npackages:\n')
+  if (importersIdx === -1 || packagesIdx === -1 || packagesIdx <= importersIdx) {
+    throw new Error('Unsupported pnpm-lock.yaml format: expected importers and packages sections')
+  }
+  return {
+    header: lockfileText.slice(0, importersIdx + 1),
+    packagesAndSnapshots: lockfileText.slice(packagesIdx + 1),
+  }
+}
+
+function parsePnpmLockfileImporters(lockfileText) {
+  const lines = lockfileText.split(/\r?\n/)
+  const importers = new Map()
+  let inImporters = false
+  let currentImporter = null
+  let currentSection = null
+  let currentDep = null
+
+  for (const line of lines) {
+    if (line === 'importers:') {
+      inImporters = true
+      currentImporter = null
+      currentSection = null
+      currentDep = null
+      continue
+    }
+    if (!inImporters) continue
+    if (line === 'packages:' || line === 'snapshots:') break
+
+    const importerMatch = line.match(/^  ([^ ].*):$/)
+    if (importerMatch) {
+      currentImporter = unquoteYamlScalar(importerMatch[1])
+      importers.set(currentImporter, {
+        dependencies: new Map(),
+        optionalDependencies: new Map(),
+        devDependencies: new Map(),
+      })
+      currentSection = null
+      currentDep = null
+      continue
+    }
+
+    if (!currentImporter) continue
+
+    const sectionMatch = line.match(/^    (dependencies|optionalDependencies|devDependencies):$/)
+    if (sectionMatch) {
+      currentSection = sectionMatch[1]
+      currentDep = null
+      continue
+    }
+
+    if (!currentSection) continue
+
+    const depMatch = line.match(/^      (.+):$/)
+    if (depMatch) {
+      currentDep = unquoteYamlScalar(depMatch[1])
+      importers.get(currentImporter)[currentSection].set(currentDep, {})
+      continue
+    }
+
+    if (!currentDep) continue
+
+    const specifierMatch = line.match(/^        specifier: (.+)$/)
+    if (specifierMatch) {
+      importers.get(currentImporter)[currentSection].get(currentDep).specifier = unquoteYamlScalar(specifierMatch[1])
+      continue
+    }
+
+    const versionMatch = line.match(/^        version: (.+)$/)
+    if (versionMatch) {
+      importers.get(currentImporter)[currentSection].get(currentDep).version = unquoteYamlScalar(versionMatch[1])
+    }
+  }
+
+  return importers
+}
+
+function resolveLockedDependency(importers, importerName, depName) {
+  const importer = importers.get(importerName)
+  if (!importer) {
+    throw new Error(`Missing importer '${importerName}' in pnpm-lock.yaml`)
+  }
+
+  for (const section of LOCKFILE_DEP_SECTIONS) {
+    const depMeta = importer[section].get(depName)
+    if (depMeta) {
+      if (!depMeta.specifier || !depMeta.version) {
+        throw new Error(`Incomplete lockfile entry for '${depName}' in importer '${importerName}'`)
+      }
+      return { ...depMeta, section }
+    }
+  }
+
+  throw new Error(`Missing lockfile entry for '${depName}' in importer '${importerName}'`)
+}
+
+function collectLockedDependencies(lockfileText, dependencySources) {
+  const importers = parsePnpmLockfileImporters(lockfileText)
+  const lockedDependencies = []
+
+  for (const [depName, importerName] of [...dependencySources.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    const depMeta = resolveLockedDependency(importers, importerName, depName)
+    lockedDependencies.push({
+      name: depName,
+      importerName,
+      specifier: depMeta.specifier,
+      version: depMeta.version,
+    })
+  }
+
+  return lockedDependencies
+}
+
+function buildStandaloneLockfile(lockfileText, dependencySources) {
+  const { header, packagesAndSnapshots } = findLockfileSections(lockfileText)
+  const lockedDependencies = collectLockedDependencies(lockfileText, dependencySources)
+  const depLines = lockedDependencies.flatMap((dep) => [
+    `      ${quoteYamlScalar(dep.name)}:`,
+    `        specifier: ${quoteYamlScalar(dep.specifier)}`,
+    `        version: ${quoteYamlScalar(dep.version)}`,
+  ])
+
+  return [
+    header.trimEnd(),
+    '',
+    'importers:',
+    '',
+    '  .:',
+    '    dependencies:',
+    ...depLines,
+    '',
+    packagesAndSnapshots.trimEnd(),
+    '',
+  ].join('\n')
+}
 
 // ── Native package detection ──────────────────────────────────
 
@@ -594,23 +752,40 @@ async function bundleServer() {
 
     // Strip workspace deps from package.json (already bundled by esbuild)
     // and promote their native dependencies so they still get installed.
+    // Track where each direct dependency is locked so we can generate a
+    // standalone temp lockfile and keep the hoisted install deterministic.
     const deployedPkgJson = JSON.parse(await readFile(join(TEMP_DEPLOY_DIR, 'package.json'), 'utf-8'))
+    const dependencySources = new Map(
+      Object.keys(deployedPkgJson.dependencies || {}).map(depName => [depName, 'packages/server']),
+    )
     for (const [name, version] of Object.entries(deployedPkgJson.dependencies || {})) {
       if (!String(version).startsWith('workspace:')) continue
       delete deployedPkgJson.dependencies[name]
+      dependencySources.delete(name)
 
       // Read the workspace package's deps and promote any native ones
       const pkgDir = name.replace('@golemancy/', '')
+      const lockImporter = `packages/${pkgDir}`
       try {
         const wsPkgJson = JSON.parse(await readFile(join(ROOT, 'packages', pkgDir, 'package.json'), 'utf-8'))
         for (const [depName, depVersion] of Object.entries(wsPkgJson.dependencies || {})) {
           if (nativePackages.has(depName) && !deployedPkgJson.dependencies[depName]) {
             deployedPkgJson.dependencies[depName] = depVersion
+            dependencySources.set(depName, lockImporter)
             console.log(`  Promoted native dep: ${depName}@${depVersion} (from ${name})`)
           }
         }
       } catch { /* workspace package not readable */ }
     }
+
+    const rootPkgJson = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf-8'))
+    const rootLockfileText = await readFile(join(ROOT, 'pnpm-lock.yaml'), 'utf-8')
+    const lockedDependencies = collectLockedDependencies(rootLockfileText, dependencySources)
+    deployedPkgJson.dependencies = Object.fromEntries(
+      lockedDependencies.map(dep => [dep.name, dep.specifier]),
+    )
+    delete deployedPkgJson.devDependencies
+    deployedPkgJson.packageManager = rootPkgJson.packageManager
     await writeFile(join(TEMP_DEPLOY_DIR, 'package.json'), JSON.stringify(deployedPkgJson, null, 2) + '\n')
 
     // Write .npmrc: hoisted layout (npm-style flat node_modules), no symlinks
@@ -619,18 +794,20 @@ async function bundleServer() {
       'node-linker=hoisted\nsymlink=false\n',
     )
 
-    // Copy the root lockfile so pnpm uses exact pinned versions.
-    // Without this, pnpm resolves package.json ranges freely and may pick up
-    // broken transitive deps (e.g. fast-xml-parser@5.5.0 leaked a local link:
-    // path in its published package, causing ERR_PNPM_LINKED_PKG_DIR_NOT_FOUND).
-    await cp(join(ROOT, 'pnpm-lock.yaml'), join(TEMP_DEPLOY_DIR, 'pnpm-lock.yaml'))
+    // Generate a dedicated lockfile for the temp project from the workspace
+    // lockfile. This lets us run with --frozen-lockfile even though the temp
+    // package.json differs from the workspace importer shape.
+    await writeFile(
+      join(TEMP_DEPLOY_DIR, 'pnpm-lock.yaml'),
+      buildStandaloneLockfile(rootLockfileText, dependencySources),
+    )
 
     // Step 4: Re-install with hoisted layout — pnpm resolves version conflicts
     // by nesting incompatible versions in per-package node_modules.
     // Note: lifecycle scripts don't run with --ignore-scripts, which is fine —
     // native packages are overlaid from the deploy in the next step.
     try {
-      execSync('pnpm install --prod --ignore-scripts', {
+      execSync('pnpm install --prod --ignore-scripts --frozen-lockfile', {
         cwd: TEMP_DEPLOY_DIR,
         stdio: 'pipe',
         encoding: 'utf-8',
@@ -800,7 +977,16 @@ process.exit(errors.length > 0 ? 1 : 0);
   console.log('\nServer bundle complete.')
 }
 
-bundleServer().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+export {
+  buildStandaloneLockfile,
+  bundleServer,
+  collectLockedDependencies,
+  parsePnpmLockfileImporters,
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  bundleServer().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}
