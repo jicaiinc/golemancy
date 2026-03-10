@@ -50,6 +50,12 @@ Golemancy is a free, open-source desktop app for orchestrating autonomous AI age
 
 **Skill System** — Equip agents with reusable prompt templates. Create, share, and import skill packs like equipping items in an RPG.
 
+**Agent Memory** — Agents remember what matters. Persistent, agent-scoped memory stored in SQLite — pinned facts always load, others ranked by priority and recency. Full CRUD via built-in memory tools.
+
+**Workspace** — Built-in file browser and previewer for your project workspace. Navigate, inspect, and reference files without leaving the app.
+
+**Voice Input** — Speak your prompts. Built-in speech-to-text powered by your preferred provider, with full transcription history.
+
 **Cron Scheduling** — Set it and forget it. Schedule agents to run on autopilot — daily reports, periodic scraping, recurring workflows.
 
 **Local-First Security** — Your data never leaves your machine. Loopback-only server, per-session auth tokens, three-tier sandboxed permissions.
