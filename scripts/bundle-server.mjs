@@ -45,9 +45,10 @@ const SERVER_PKG = join(ROOT, 'packages/server')
 const OUT_DIR = join(ROOT, 'apps/desktop/resources/server')
 const DEPS_DIR = join(OUT_DIR, 'deps')
 const OUT_NODE_MODULES = join(DEPS_DIR, 'node_modules')
-// Use project-relative temp dir — tmpdir() returns 8.3 short paths on Windows CI
-// (e.g., C:\Users\RUNNER~1\...) which breaks pnpm deploy.
-const TEMP_DEPLOY_DIR = join(ROOT, '.tmp-pnpm-deploy')
+// Place temp dir as a SIBLING of the repo root (outside the monorepo) so pnpm
+// does not detect the parent pnpm-workspace.yaml and treat it as a workspace member.
+// Avoids tmpdir() which returns 8.3 short paths on Windows CI (e.g. C:\Users\RUNNER~1\).
+const TEMP_DEPLOY_DIR = join(ROOT, '..', '.tmp-pnpm-deploy')
 
 // Entry points — object format so esbuild outputs flat names (no subdirectories).
 // sandbox-pool.ts does: path.join(import.meta.dirname, 'sandbox-worker.js')
@@ -630,13 +631,16 @@ async function bundleServer() {
     //      step which DOES use the real lockfile
     //   2. Only transitive deps of native packages come from this hoisted install
     try {
-      execSync('pnpm --ignore-workspace install --prod --ignore-scripts', {
+      execSync('pnpm install --prod --ignore-scripts', {
         cwd: TEMP_DEPLOY_DIR,
         stdio: 'pipe',
         encoding: 'utf-8',
       })
     } catch (err) {
-      console.error('pnpm install (hoisted) failed:', err.stderr || err.message)
+      console.error('pnpm install (hoisted) failed:')
+      console.error('  stdout:', err.stdout || '(empty)')
+      console.error('  stderr:', err.stderr || '(empty)')
+      console.error('  message:', err.message)
       process.exit(1)
     }
     console.log('  pnpm install (hoisted) completed')
