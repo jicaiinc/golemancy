@@ -29,9 +29,6 @@
 
 ---
 
-<p align="center">
-  <img src=".github/screenshot-en.png" alt="Golemancy Screenshot" width="800">
-</p>
 
 Golemancy is a free, open-source desktop app for orchestrating autonomous AI agents. Summon multiple agents, equip them with tools and skills, and let them work in parallel — all running locally on your machine.
 
