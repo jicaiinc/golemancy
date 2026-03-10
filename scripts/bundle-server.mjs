@@ -633,7 +633,7 @@ async function bundleServer() {
     //      step which DOES use the real lockfile
     //   2. Only transitive deps of native packages come from this hoisted install
     try {
-      execSync('pnpm install --prod', {
+      execSync('pnpm install --prod --ignore-scripts', {
         cwd: TEMP_DEPLOY_DIR,
         stdio: 'pipe',
         encoding: 'utf-8',
