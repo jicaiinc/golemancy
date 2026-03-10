@@ -85,14 +85,15 @@ function quoteYamlScalar(value) {
 }
 
 function findLockfileSections(lockfileText) {
-  const importersIdx = lockfileText.indexOf('\nimporters:\n')
-  const packagesIdx = lockfileText.indexOf('\npackages:\n')
+  const normalizedLockfileText = lockfileText.replace(/\r\n/g, '\n')
+  const importersIdx = normalizedLockfileText.indexOf('\nimporters:\n')
+  const packagesIdx = normalizedLockfileText.indexOf('\npackages:\n')
   if (importersIdx === -1 || packagesIdx === -1 || packagesIdx <= importersIdx) {
     throw new Error('Unsupported pnpm-lock.yaml format: expected importers and packages sections')
   }
   return {
-    header: lockfileText.slice(0, importersIdx + 1),
-    packagesAndSnapshots: lockfileText.slice(packagesIdx + 1),
+    header: normalizedLockfileText.slice(0, importersIdx + 1),
+    packagesAndSnapshots: normalizedLockfileText.slice(packagesIdx + 1),
   }
 }
 

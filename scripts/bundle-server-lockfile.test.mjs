@@ -49,6 +49,20 @@ describe('bundle-server lockfile helpers', () => {
     assert.match(lockfile, /^snapshots:$/m)
   })
 
+  it('accepts CRLF pnpm lockfiles from Windows checkouts', () => {
+    const crlfLockfile = ROOT_LOCKFILE.replace(/\n/g, '\r\n')
+    const lockfile = buildStandaloneLockfile(crlfLockfile, new Map([
+      ['better-sqlite3', 'packages/server'],
+      ['just-bash', 'packages/server'],
+      ['agent-browser', 'packages/tools'],
+    ]))
+
+    assert.match(lockfile, /^lockfileVersion: '9\.0'/m)
+    assert.match(lockfile, /^importers:\n\n  \.:\n    dependencies:/m)
+    assert.match(lockfile, /^packages:$/m)
+    assert.match(lockfile, /^snapshots:$/m)
+  })
+
   it('supports frozen offline install with the generated standalone lockfile', () => {
     const dependencySources = new Map([
       ['agent-browser', 'packages/tools'],
