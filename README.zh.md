@@ -37,6 +37,8 @@ Golemancy 是一款免费开源的本地 AI Agent 编排桌面应用。你可以
 
 **递归子 Agent** — Agent 可以在执行过程中动态派遣子 Agent，支持无限嵌套。发出一条指令，就能启动整个自主工作流，结果实时流式返回。
 
+**团队协作** — 用可视化拓扑图编排 Agent 组织架构，定义主导者与成员的层级关系，分配角色职责。一次对话即可调度整个团队协同完成任务。
+
 **10+ 大模型提供商** — 支持 Claude、GPT、Gemini、DeepSeek、Kimi（Moonshot）、通义千问（Qwen）、Groq、Mistral、Grok 等，也可接入任意 OpenAI 兼容的本地模型（Ollama、LM Studio 等）。每个 Agent 可以独立选模型。
 
 **MCP 协议** — 原生支持 Model Context Protocol，内置连接池管理。接入 MCP 生态，让 Agent 调用任意外部能力。

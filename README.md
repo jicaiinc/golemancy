@@ -42,6 +42,8 @@ Golemancy is a free, open-source desktop app for orchestrating autonomous AI age
 
 **Recursive Sub-Agents** — Agents spawn sub-agents with unlimited nesting. One command triggers an entire autonomous workforce, streaming results in real-time.
 
+**Teams** — Organize agents into structured teams with a visual topology editor. Define leader/member hierarchies, assign roles, and run entire teams in a single conversation.
+
 **9+ LLM Providers** — Claude, GPT, Gemini, DeepSeek, Groq, Mistral, and more. Switch models per agent. Use the right brain for every task.
 
 **MCP Protocol** — Native Model Context Protocol support with connection pooling. Plug into the expanding MCP ecosystem out of the box.
