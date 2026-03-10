@@ -28,3 +28,4 @@ apps/desktop/resources/server/
 .tmp-pnpm-deploy/
 /apps/desktop/golemancy-desktop-0.1.0.tgz
 /_logs/
+/_content-ops/

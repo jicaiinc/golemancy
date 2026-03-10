@@ -66,7 +66,6 @@ export interface GlobalSettings {
 }
 
 export interface ProjectConfig {
-  maxConcurrentAgents: number
   permissionsConfigId?: PermissionsConfigId
 }
 

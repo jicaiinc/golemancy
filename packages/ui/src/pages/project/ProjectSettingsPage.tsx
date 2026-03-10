@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import type { Agent, AgentId, ProjectConfig, ProjectId, Team, TeamId } from '@golemancy/shared'
+import type { Agent, AgentId, ProjectId, Team, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
@@ -32,7 +32,6 @@ export function ProjectSettingsPage() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('pickaxe')
-  const [maxConcurrentAgents, setMaxConcurrentAgents] = useState(3)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -47,7 +46,6 @@ export function ProjectSettingsPage() {
     setName(project.name)
     setDescription(project.description)
     setIcon(project.icon)
-    setMaxConcurrentAgents(project.config.maxConcurrentAgents)
   }, [project])
 
   useEffect(() => () => { clearTimeout(timerRef.current) }, [])
@@ -69,15 +67,10 @@ export function ProjectSettingsPage() {
   async function handleSave() {
     if (!project) return
     setSaving(true)
-    const config: ProjectConfig = {
-      ...project.config,
-      maxConcurrentAgents,
-    }
     await updateProject(project.id, {
       name: name.trim(),
       description: description.trim(),
       icon,
-      config,
     })
     setSaving(false)
     clearTimeout(timerRef.current)

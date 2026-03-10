@@ -56,7 +56,7 @@ export class FileProjectStorage implements IProjectService {
     const project: Project = {
       id,
       ...data,
-      config: { maxConcurrentAgents: 3 },
+      config: {},
       agentCount: 0,
       activeAgentCount: 0,
       lastActivityAt: now,

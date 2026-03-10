@@ -54,7 +54,7 @@ export class MockProjectService implements IProjectService {
     const project: Project = {
       id: genId('proj') as ProjectId,
       ...input,
-      config: { maxConcurrentAgents: 3 },
+      config: {},
       agentCount: 0,
       activeAgentCount: 0,
       lastActivityAt: now,

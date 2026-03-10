@@ -60,7 +60,6 @@ describe('FileProjectStorage', () => {
       expect(project.description).toBe('A test project')
       expect(project.agentCount).toBe(0)
       expect(project.activeAgentCount).toBe(0)
-      expect(project.config.maxConcurrentAgents).toBe(3)
       expect(project.createdAt).toBeTruthy()
     })
 

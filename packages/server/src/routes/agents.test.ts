@@ -31,7 +31,7 @@ function makeProject(overrides: Partial<Project> = {}): Project {
     name: 'Test Project',
     description: '',
     icon: 'sword',
-    config: { maxConcurrentAgents: 3 },
+    config: {},
     agentCount: 1,
     activeAgentCount: 0,
     lastActivityAt: '2026-01-01T00:00:00Z',

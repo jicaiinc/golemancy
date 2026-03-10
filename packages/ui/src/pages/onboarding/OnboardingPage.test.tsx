@@ -37,7 +37,7 @@ function createTestServices(): ServiceContainer {
         Promise.resolve({
           id: 'proj-new' as ProjectId,
           ...data,
-          config: { maxConcurrentAgents: 3 },
+          config: {},
           agentCount: 0,
           activeAgentCount: 0,
           createdAt: new Date().toISOString(),
@@ -50,7 +50,7 @@ function createTestServices(): ServiceContainer {
           name: 'Test',
           description: '',
           icon: 'pickaxe',
-          config: { maxConcurrentAgents: 3 },
+          config: {},
           defaultAgentId: 'agent-1' as AgentId,
           agentCount: 1,
           activeAgentCount: 0,

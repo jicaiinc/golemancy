@@ -40,7 +40,7 @@ const mockProject: Project = {
   name: 'Content Biz',
   description: 'A content business project',
   icon: '📄',
-  config: { maxConcurrentAgents: 3 },
+  config: {},
   agentCount: 5,
   activeAgentCount: 1,
   lastActivityAt: new Date().toISOString(),

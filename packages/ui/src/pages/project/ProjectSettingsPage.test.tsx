@@ -44,7 +44,7 @@ const testProject: Project = {
   name: 'My Project',
   description: 'A test project for settings',
   icon: 'sword',
-  config: { maxConcurrentAgents: 5 },
+  config: {},
   agentCount: 2,
   activeAgentCount: 0,
   lastActivityAt: now,
