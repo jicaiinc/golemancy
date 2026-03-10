@@ -619,17 +619,16 @@ async function bundleServer() {
       'node-linker=hoisted\nsymlink=false\n',
     )
 
+    // Copy the root lockfile so pnpm uses exact pinned versions.
+    // Without this, pnpm resolves package.json ranges freely and may pick up
+    // broken transitive deps (e.g. fast-xml-parser@5.5.0 leaked a local link:
+    // path in its published package, causing ERR_PNPM_LINKED_PKG_DIR_NOT_FOUND).
+    await cp(join(ROOT, 'pnpm-lock.yaml'), join(TEMP_DEPLOY_DIR, 'pnpm-lock.yaml'))
+
     // Step 4: Re-install with hoisted layout — pnpm resolves version conflicts
     // by nesting incompatible versions in per-package node_modules.
-    // Note: lifecycle scripts don't run in hoisted mode, which is fine — native
-    // packages are overlaid from the deploy in the next step.
-    //
-    // Known limitation: This install runs without --frozen-lockfile because the
-    // temp directory has a modified package.json (workspace deps stripped, native
-    // deps promoted). The risk of version drift is limited because:
-    //   1. Native packages (the critical ones) are overlaid from the pnpm deploy
-    //      step which DOES use the real lockfile
-    //   2. Only transitive deps of native packages come from this hoisted install
+    // Note: lifecycle scripts don't run with --ignore-scripts, which is fine —
+    // native packages are overlaid from the deploy in the next step.
     try {
       execSync('pnpm install --prod --ignore-scripts', {
         cwd: TEMP_DEPLOY_DIR,
