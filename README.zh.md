@@ -64,6 +64,20 @@ Golemancy 是一款免费开源的本地 AI Agent 编排桌面应用。你可以
 
 **[前往 Releases 页面下载](https://github.com/jicaiinc/golemancy/releases/latest)**，支持 macOS、Windows、Linux。
 
+> [!IMPORTANT]
+> **安装遇到问题？**
+>
+> **macOS**：首次打开提示"无法验证开发者"时，在终端执行以下命令后重新打开：
+> ```bash
+> xattr -cr /Applications/Golemancy.app
+> ```
+> **Windows**：SmartScreen 拦截时点击「仍要运行」即可。
+>
+> **Linux**：若无法启动，请先赋予可执行权限：
+> ```bash
+> chmod +x Golemancy.AppImage
+> ```
+
 安装完成后，首次启动会引导你配置 AI 提供商的 API Key，填完即可开始使用。
 
 ### 从源码构建
