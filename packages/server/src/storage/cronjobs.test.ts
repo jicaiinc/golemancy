@@ -28,7 +28,10 @@ describe('FileCronJobStorage', () => {
     const tmp = await createTmpDir()
     state.tmpDir = tmp.dir
     cleanup = tmp.cleanup
-    storage = new FileCronJobStorage()
+    storage = new FileCronJobStorage(async (_projectId, target) => {
+      if (target.kind !== 'agent') throw new Error('Unexpected team target in test')
+      return target.id
+    })
 
     await fs.mkdir(`${state.tmpDir}/projects/${projId}/cronjobs`, { recursive: true })
     await fs.mkdir(`${state.tmpDir}/projects/${projId2}/cronjobs`, { recursive: true })
@@ -46,7 +49,7 @@ describe('FileCronJobStorage', () => {
 
     it('returns created jobs', async () => {
       await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Job A',
         cronExpression: '0 * * * *',
         enabled: true,
@@ -54,7 +57,7 @@ describe('FileCronJobStorage', () => {
         scheduleType: 'cron',
       })
       await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Job B',
         cronExpression: '*/5 * * * *',
         enabled: false,
@@ -70,7 +73,7 @@ describe('FileCronJobStorage', () => {
   describe('create', () => {
     it('creates job with correct fields', async () => {
       const job = await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Test Cron',
         cronExpression: '0 9 * * *',
         enabled: true,
@@ -80,6 +83,8 @@ describe('FileCronJobStorage', () => {
 
       expect(job.id).toMatch(/^cron-/)
       expect(job.projectId).toBe(projId)
+      expect(job.executionAgentId).toBe('agent-1')
+      expect(job.target).toEqual({ kind: 'agent', id: 'agent-1' })
       expect(job.name).toBe('Test Cron')
       expect(job.enabled).toBe(true)
       expect(job.cronExpression).toBe('0 9 * * *')
@@ -90,7 +95,7 @@ describe('FileCronJobStorage', () => {
   describe('getById', () => {
     it('returns existing job', async () => {
       const created = await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Find', cronExpression: '* * * * *',
         enabled: true, instruction: 'inst', scheduleType: 'cron',
       })
@@ -109,7 +114,7 @@ describe('FileCronJobStorage', () => {
   describe('update', () => {
     it('updates fields and preserves others', async () => {
       const created = await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Old Name', cronExpression: '* * * * *',
         enabled: true, instruction: 'inst', scheduleType: 'cron',
       })
@@ -130,7 +135,7 @@ describe('FileCronJobStorage', () => {
   describe('delete', () => {
     it('removes job file', async () => {
       const created = await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Del', cronExpression: '* * * * *',
         enabled: true, instruction: 'x', scheduleType: 'cron',
       })
@@ -150,17 +155,17 @@ describe('FileCronJobStorage', () => {
   describe('listAllEnabled', () => {
     it('returns enabled jobs across projects', async () => {
       await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Enabled 1', cronExpression: '* * * * *',
         enabled: true, instruction: 'x', scheduleType: 'cron',
       })
       await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Disabled', cronExpression: '* * * * *',
         enabled: false, instruction: 'x', scheduleType: 'cron',
       })
       await storage.create(projId2, {
-        agentId: 'agent-2' as AgentId,
+        target: { kind: 'agent', id: 'agent-2' as AgentId },
         name: 'Enabled 2', cronExpression: '0 * * * *',
         enabled: true, instruction: 'y', scheduleType: 'cron',
       })
@@ -182,7 +187,7 @@ describe('FileCronJobStorage', () => {
   describe('updateRunMeta', () => {
     it('updates run metadata on existing job', async () => {
       const created = await storage.create(projId, {
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'Meta', cronExpression: '* * * * *',
         enabled: true, instruction: 'x', scheduleType: 'cron',
       })

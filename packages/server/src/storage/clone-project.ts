@@ -26,14 +26,8 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
   validateId(sourceId)
 
   const sourceDir = projectDir(sourceId)
-  const sourceProjectRaw = await readJson<Project & { mainAgentId?: AgentId }>(path.join(sourceDir, 'project.json'))
-  if (!sourceProjectRaw) throw new Error(`Project ${sourceId} not found`)
-
-  // Normalize: migrate legacy mainAgentId → defaultAgentId
-  const sourceProject: Project = {
-    ...sourceProjectRaw,
-    defaultAgentId: sourceProjectRaw.defaultAgentId ?? sourceProjectRaw.mainAgentId,
-  }
+  const sourceProject = await readJson<Project>(path.join(sourceDir, 'project.json'))
+  if (!sourceProject) throw new Error(`Project ${sourceId} not found`)
 
   const newId = generateId('proj')
   const targetDir = projectDir(newId)
@@ -207,12 +201,16 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
         delete data.lastRunStatus
         delete data.nextRunAt
         delete data.lastRunId
-        // Remap agentId and teamId
-        if (data.agentId) {
-          data.agentId = remap.agents.get(data.agentId as AgentId) ?? data.agentId
+        if (data.executionAgentId) {
+          data.executionAgentId = remap.agents.get(data.executionAgentId as AgentId) ?? data.executionAgentId
         }
-        if (data.teamId) {
-          data.teamId = remap.teams.get(data.teamId as TeamId) ?? data.teamId
+        if (data.target && typeof data.target === 'object') {
+          const target = data.target as { kind: 'agent' | 'team'; id: string }
+          if (target.kind === 'agent') {
+            data.target = { ...target, id: remap.agents.get(target.id as AgentId) ?? target.id }
+          } else {
+            data.target = { ...target, id: remap.teams.get(target.id as TeamId) ?? target.id }
+          }
         }
         await writeJson(path.join(targetDir, 'cronjobs', `${newCronId}.json`), data)
       }
@@ -231,12 +229,11 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
           ? remap.permissions.get(sourceProject.config.permissionsConfigId) ?? sourceProject.config.permissionsConfigId
           : undefined,
       },
-      defaultAgentId: sourceProject.defaultAgentId
-        ? remap.agents.get(sourceProject.defaultAgentId) ?? sourceProject.defaultAgentId
-        : undefined,
-      defaultTeamId: sourceProject.defaultTeamId
-        ? remap.teams.get(sourceProject.defaultTeamId) ?? sourceProject.defaultTeamId
-        : undefined,
+      defaultTarget: sourceProject.defaultTarget
+        ? sourceProject.defaultTarget.kind === 'agent'
+          ? { kind: 'agent', id: remap.agents.get(sourceProject.defaultTarget.id) ?? sourceProject.defaultTarget.id }
+          : { kind: 'team', id: remap.teams.get(sourceProject.defaultTarget.id) ?? sourceProject.defaultTarget.id }
+        : null,
       agentCount: remap.agents.size,
       activeAgentCount: 0,
       lastActivityAt: now,

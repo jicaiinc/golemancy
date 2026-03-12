@@ -53,7 +53,8 @@ function makeConversation(overrides?: Partial<Conversation>): Conversation {
   return {
     id: 'conv-1' as ConversationId,
     projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-1' as AgentId,
+    executionAgentId: 'agent-1' as AgentId,
+    target: { kind: 'agent', id: 'agent-1' as AgentId },
     title: 'Test Chat',
     messages: [],
     lastMessageAt: now,
@@ -124,7 +125,7 @@ const defaultSidebarProps = {
   canNewChat: true,
   agents: [makeAgent()],
   teams: [] as any[],
-  onSwitchAgent: vi.fn(),
+  onSwitchTarget: vi.fn(),
 }
 
 describe('ChatWindow', () => {
@@ -247,13 +248,12 @@ describe('ChatWindow', () => {
     expect(getOrCreateChat).toHaveBeenCalledWith({
       conversationId: 'conv-1',
       projectId: 'proj-1',
-      agentId: 'agent-1',
       initialMessages: [],
       serverConfig: null,
     })
   })
 
-  it('re-resolves chat when the conversation target agent changes', async () => {
+  it('reuses the same chat instance when conversation metadata changes', async () => {
     const { getOrCreateChat } = await import('../../lib/chat-instances')
 
     const { rerender } = render(
@@ -265,20 +265,17 @@ describe('ChatWindow', () => {
     rerender(
       <MemoryRouter>
         <ChatWindow
-          conversation={makeConversation({ agentId: 'agent-2' as AgentId })}
+          conversation={makeConversation({
+            executionAgentId: 'agent-2' as AgentId,
+            target: { kind: 'agent', id: 'agent-2' as AgentId },
+          })}
           agent={makeAgent({ id: 'agent-2' as AgentId, name: 'Researcher' })}
           {...defaultSidebarProps}
         />
       </MemoryRouter>,
     )
 
-    expect(getOrCreateChat).toHaveBeenNthCalledWith(2, {
-      conversationId: 'conv-1',
-      projectId: 'proj-1',
-      agentId: 'agent-2',
-      initialMessages: [],
-      serverConfig: null,
-    })
+    expect(getOrCreateChat).toHaveBeenCalledTimes(1)
   })
 
   it('delete button calls deleteConversation and clears selection after confirmation', async () => {

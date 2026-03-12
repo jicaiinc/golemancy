@@ -7,12 +7,14 @@ const projId = 'proj-1' as ProjectId
 const agentId = 'agent-1' as AgentId
 const convId = 'conv-1' as ConversationId
 const msgId = 'msg-1' as MessageId
+const agentTarget = { kind: 'agent', id: agentId } as const
 
 function makeConversation(overrides: Partial<Conversation> = {}): Conversation {
   return {
     id: convId,
     projectId: projId,
-    agentId,
+    executionAgentId: agentId,
+    target: agentTarget,
     title: 'Test Conversation',
     messages: [],
     lastMessageAt: '2026-01-01T00:00:00Z',
@@ -58,8 +60,8 @@ describe('Conversations routes', () => {
       expect(await res.json()).toHaveLength(1)
     })
 
-    it('filters by agentId query param', async () => {
-      await makeRequest(app, 'GET', `/api/projects/${projId}/conversations?agentId=${agentId}`)
+    it('filters by executionAgentId query param', async () => {
+      await makeRequest(app, 'GET', `/api/projects/${projId}/conversations?executionAgentId=${agentId}`)
       expect(mocks.conversationStorage.list).toHaveBeenCalledWith(projId, agentId)
     })
   })
@@ -84,7 +86,7 @@ describe('Conversations routes', () => {
       vi.mocked(mocks.conversationStorage.create).mockResolvedValue(makeConversation())
 
       const res = await makeRequest(app, 'POST', `/api/projects/${projId}/conversations`, {
-        agentId,
+        target: agentTarget,
         title: 'Test Conversation',
       })
       expect(res.status).toBe(201)

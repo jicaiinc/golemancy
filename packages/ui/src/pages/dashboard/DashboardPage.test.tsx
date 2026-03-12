@@ -41,6 +41,7 @@ const mockProject: Project = {
   description: 'A content business project',
   icon: '📄',
   config: {},
+          defaultTarget: null,
   agentCount: 5,
   activeAgentCount: 1,
   lastActivityAt: new Date().toISOString(),

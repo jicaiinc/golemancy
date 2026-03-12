@@ -2,8 +2,9 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
 
 export const conversations = sqliteTable('conversations', {
   id: text('id').primaryKey(),
-  agentId: text('agent_id').notNull(),
-  teamId: text('team_id'),
+  executionAgentId: text('execution_agent_id').notNull(),
+  targetKind: text('target_kind').notNull(),
+  targetId: text('target_id').notNull(),
   title: text('title').notNull(),
   lastMessageAt: text('last_message_at'),
   createdAt: text('created_at').notNull(),

@@ -34,6 +34,7 @@ const testProject: Project = {
   description: 'A test project',
   icon: 'sword',
   config: {},
+          defaultTarget: null,
   agentCount: 1,
   activeAgentCount: 0,
   lastActivityAt: now,

@@ -20,13 +20,14 @@ test.describe('Conversation API', () => {
 
   test('POST /conversations creates a conversation', async ({ helper }) => {
     const response = await helper.apiPostRaw(`/api/projects/${projectId}/conversations`, {
-      agentId,
+      target: { kind: 'agent', id: agentId },
       title: 'Test Conversation',
     })
     expect(response.status()).toBe(201)
     const data = await response.json()
     expect(data.id).toBeDefined()
-    expect(data.agentId).toBe(agentId)
+    expect(data.executionAgentId).toBe(agentId)
+    expect(data.target).toEqual({ kind: 'agent', id: agentId })
     expect(data.title).toBe('Test Conversation')
     conversationId = data.id
   })
@@ -38,25 +39,25 @@ test.describe('Conversation API', () => {
     expect(found).toBeDefined()
   })
 
-  test('GET /conversations?agentId= filters by agent', async ({ helper }) => {
+  test('GET /conversations?executionAgentId= filters by agent', async ({ helper }) => {
     // Create a second agent and conversation
     const agent2 = await helper.createAgentViaApi(projectId, 'Other Agent')
     await helper.createConversationViaApi(projectId, agent2.id, 'Other Conv')
 
     const filtered = await helper.apiGet(
-      `/api/projects/${projectId}/conversations?agentId=${agentId}`,
+      `/api/projects/${projectId}/conversations?executionAgentId=${agentId}`,
     )
     expect(Array.isArray(filtered)).toBe(true)
     expect(filtered.length).toBeGreaterThanOrEqual(1)
     for (const conv of filtered) {
-      expect(conv.agentId).toBe(agentId)
+      expect(conv.executionAgentId).toBe(agentId)
     }
   })
 
   test('GET /conversations/:id returns single conversation', async ({ helper }) => {
     const conv = await helper.apiGet(`/api/projects/${projectId}/conversations/${conversationId}`)
     expect(conv.id).toBe(conversationId)
-    expect(conv.agentId).toBe(agentId)
+    expect(conv.executionAgentId).toBe(agentId)
   })
 
   test('PATCH /conversations/:id updates title', async ({ helper }) => {

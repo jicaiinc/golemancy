@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import cronstrue from 'cronstrue'
-import type { AgentId, CronJob, TeamId } from '@golemancy/shared'
+import type { CronJob, TargetRef } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelInput, PixelTextArea, PixelButton, PixelToggle } from '../../components'
-import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
+import { encodeTargetValue, decodeTargetValue } from '../../lib/target-select'
 
 function tryParseCron(expr: string, invalidLabel: string): string {
   try {
@@ -44,16 +44,14 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
 
   const [name, setName] = useState('')
   const [cronExpression, setCronExpression] = useState('0 * * * *')
-  const [agentId, setAgentId] = useState<AgentId | ''>('')
-  const [teamId, setTeamId] = useState<TeamId | ''>('')
+  const [target, setTarget] = useState<TargetRef | null>(null)
   const [instruction, setInstruction] = useState('')
   const [enabled, setEnabled] = useState(true)
   const [scheduleType, setScheduleType] = useState<'cron' | 'once'>('cron')
   const [scheduledAtLocal, setScheduledAtLocal] = useState('') // datetime-local format: YYYY-MM-DDTHH:mm
   const [saving, setSaving] = useState(false)
 
-  // Combined select value: agent or team (mutually exclusive, like Chat)
-  const selectValue = teamId ? encodeTeamValue(teamId) : (agentId as string)
+  const selectValue = target ? encodeTargetValue(target) : ''
 
   const isEdit = !!editJob
 
@@ -69,8 +67,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     if (editJob) {
       setName(editJob.name)
       setCronExpression(editJob.cronExpression)
-      setAgentId(editJob.agentId)
-      setTeamId(editJob.teamId ?? '')
+      setTarget(editJob.target)
       setInstruction(editJob.instruction ?? '')
       setEnabled(editJob.enabled)
       setScheduleType(editJob.scheduleType ?? 'cron')
@@ -78,8 +75,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     } else {
       setName('')
       setCronExpression('0 * * * *')
-      setAgentId(agents.length > 0 ? agents[0].id : '')
-      setTeamId('')
+      setTarget(agents.length > 0 ? { kind: 'agent', id: agents[0].id } : null)
       setInstruction('')
       setEnabled(true)
       setScheduleType('cron')
@@ -88,21 +84,19 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
   }, [editJob, open, agents])
 
   const isValid = scheduleType === 'cron'
-    ? !!(name.trim() && cronExpression.trim() && agentId)
-    : !!(name.trim() && scheduledAtLocal && agentId)
+    ? !!(name.trim() && cronExpression.trim() && target)
+    : !!(name.trim() && scheduledAtLocal && target)
 
   async function handleSubmit() {
     if (!isValid) return
     setSaving(true)
     try {
       const scheduledAtIso = scheduleType === 'once' ? localDatetimeToIso(scheduledAtLocal) : undefined
-      const resolvedTeamId = teamId || undefined
       if (isEdit && editJob) {
         await updateCronJob(editJob.id, {
           name: name.trim(),
           cronExpression: cronExpression.trim(),
-          agentId: agentId as AgentId,
-          teamId: resolvedTeamId as TeamId | undefined,
+          target: target!,
           instruction: instruction.trim() || undefined,
           enabled,
           scheduleType,
@@ -112,8 +106,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
         await createCronJob({
           name: name.trim(),
           cronExpression: scheduleType === 'cron' ? cronExpression.trim() : '',
-          agentId: agentId as AgentId,
-          teamId: resolvedTeamId as TeamId | undefined,
+          target: target!,
           instruction: instruction.trim() || undefined,
           enabled,
           scheduleType,
@@ -224,20 +217,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
           <select
             value={selectValue}
             onChange={e => {
-              const parsed = decodeSelectValue(e.target.value)
-              if (!parsed) {
-                setAgentId('')
-                setTeamId('')
-              } else if ('teamId' in parsed) {
-                setTeamId(parsed.teamId)
-                // Auto-set agent to team leader
-                const team = teams.find(tm => tm.id === parsed.teamId)
-                const leader = team?.members.find(m => !m.parentAgentId)
-                if (leader) setAgentId(leader.agentId)
-              } else {
-                setAgentId(parsed.agentId)
-                setTeamId('')
-              }
+              setTarget(decodeTargetValue(e.target.value))
             }}
             className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
           >
@@ -246,18 +226,18 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
               <>
                 <optgroup label={t('cron:form.teamsGroup')}>
                   {teams.map(tm => (
-                    <option key={tm.id} value={encodeTeamValue(tm.id)}>{tm.name}</option>
+                    <option key={tm.id} value={encodeTargetValue({ kind: 'team', id: tm.id })}>{tm.name}</option>
                   ))}
                 </optgroup>
                 <optgroup label={t('cron:form.agentsGroup')}>
                   {agents.map(a => (
-                    <option key={a.id} value={a.id}>@{a.name}</option>
+                    <option key={a.id} value={encodeTargetValue({ kind: 'agent', id: a.id })}>@{a.name}</option>
                   ))}
                 </optgroup>
               </>
             ) : (
               agents.map(a => (
-                <option key={a.id} value={a.id}>{a.name}</option>
+                <option key={a.id} value={encodeTargetValue({ kind: 'agent', id: a.id })}>{a.name}</option>
               ))
             )}
           </select>

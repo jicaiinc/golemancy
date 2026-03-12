@@ -1,5 +1,5 @@
 import type {
-  Conversation, ConversationId, ProjectId, AgentId, TeamId, Message, MessageId,
+  Conversation, ConversationId, ProjectId, AgentId, Message, MessageId, TargetRef,
   PaginationParams, PaginatedResult,
   IConversationService,
 } from '@golemancy/shared'
@@ -13,16 +13,21 @@ const log = logger.child({ component: 'storage:conversations' })
 
 export class SqliteConversationStorage implements IConversationService {
   private getProjectDb: (projectId: ProjectId) => AppDatabase
+  private resolveExecutionAgentId: (projectId: ProjectId, target: TargetRef) => Promise<AgentId>
 
-  constructor(getProjectDb: (projectId: ProjectId) => AppDatabase) {
+  constructor(
+    getProjectDb: (projectId: ProjectId) => AppDatabase,
+    resolveExecutionAgentId: (projectId: ProjectId, target: TargetRef) => Promise<AgentId>,
+  ) {
     this.getProjectDb = getProjectDb
+    this.resolveExecutionAgentId = resolveExecutionAgentId
   }
 
-  async list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]> {
+  async list(projectId: ProjectId, executionAgentId?: AgentId): Promise<Conversation[]> {
     const db = this.getProjectDb(projectId)
 
     const conditions: ReturnType<typeof eq>[] = []
-    if (agentId) conditions.push(eq(schema.conversations.agentId, agentId))
+    if (executionAgentId) conditions.push(eq(schema.conversations.executionAgentId, executionAgentId))
 
     const rows = await db
       .select()
@@ -48,16 +53,18 @@ export class SqliteConversationStorage implements IConversationService {
     return this.rowToConversation(rows[0], projectId, messages)
   }
 
-  async create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation> {
+  async create(projectId: ProjectId, target: TargetRef, title: string): Promise<Conversation> {
     const db = this.getProjectDb(projectId)
     const id = generateId('conv')
-    log.debug({ projectId, agentId, conversationId: id }, 'creating conversation')
+    const executionAgentId = await this.resolveExecutionAgentId(projectId, target)
+    log.debug({ projectId, executionAgentId, conversationId: id }, 'creating conversation')
     const now = new Date().toISOString()
 
     await db.insert(schema.conversations).values({
       id,
-      agentId,
-      teamId: teamId ?? null,
+      executionAgentId,
+      targetKind: target.kind,
+      targetId: target.id,
       title,
       lastMessageAt: now,
       createdAt: now,
@@ -67,8 +74,8 @@ export class SqliteConversationStorage implements IConversationService {
     return {
       id,
       projectId,
-      agentId,
-      ...(teamId ? { teamId } : {}),
+      executionAgentId,
+      target,
       title,
       messages: [],
       lastMessageAt: now,
@@ -143,13 +150,16 @@ export class SqliteConversationStorage implements IConversationService {
     log.debug({ projectId, conversationId, messageId: data.id, role: data.role }, 'saved message')
   }
 
-  async update(projectId: ProjectId, id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation> {
+  async update(projectId: ProjectId, id: ConversationId, data: { title?: string; target?: TargetRef }): Promise<Conversation> {
     const db = this.getProjectDb(projectId)
     const now = new Date().toISOString()
     const updateFields: Record<string, string | null> = { updatedAt: now }
     if (data.title !== undefined) updateFields.title = data.title
-    if (data.agentId !== undefined) updateFields.agentId = data.agentId
-    if (data.teamId !== undefined) updateFields.teamId = data.teamId ?? null
+    if (data.target !== undefined) {
+      updateFields.executionAgentId = await this.resolveExecutionAgentId(projectId, data.target)
+      updateFields.targetKind = data.target.kind
+      updateFields.targetId = data.target.id
+    }
 
     await db
       .update(schema.conversations)
@@ -294,8 +304,11 @@ export class SqliteConversationStorage implements IConversationService {
     return {
       id: row.id as ConversationId,
       projectId,
-      agentId: row.agentId as AgentId,
-      ...(row.teamId ? { teamId: row.teamId as TeamId } : {}),
+      executionAgentId: row.executionAgentId as AgentId,
+      target: {
+        kind: row.targetKind as TargetRef['kind'],
+        id: row.targetId as TargetRef['id'],
+      } as TargetRef,
       title: row.title,
       messages,
       lastMessageAt: row.lastMessageAt ?? row.createdAt,

@@ -346,22 +346,26 @@ describe('useAppStore', () => {
       vi.mocked(destroyChat).mockClear()
     })
 
-    it('destroys cached chat when agent or team target changes', async () => {
+    it('destroys cached chat when target changes', async () => {
       const { destroyChat } = await import('../lib/chat-instances')
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
-        conversations: [{ id: 'conv-1' as ConversationId, title: 'Chat 1', agentId: 'agent-1' as AgentId, teamId: null } as any],
+        conversations: [{
+          id: 'conv-1' as ConversationId,
+          title: 'Chat 1',
+          target: { kind: 'agent', id: 'agent-1' as AgentId },
+          executionAgentId: 'agent-1' as AgentId,
+        } as any],
       })
       ;(mockServices.conversations.update as any).mockResolvedValue({
         id: 'conv-1',
         title: 'Chat 1',
-        agentId: 'agent-2',
-        teamId: 'team-1',
+        target: { kind: 'team', id: 'team-1' as TeamId },
+        executionAgentId: 'agent-2',
       })
 
       await useAppStore.getState().updateConversation('conv-1' as ConversationId, {
-        agentId: 'agent-2' as AgentId,
-        teamId: 'team-1' as TeamId,
+        target: { kind: 'team', id: 'team-1' as TeamId },
       })
 
       expect(destroyChat).toHaveBeenCalledWith('conv-1')
@@ -371,13 +375,18 @@ describe('useAppStore', () => {
       const { destroyChat } = await import('../lib/chat-instances')
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
-        conversations: [{ id: 'conv-1' as ConversationId, title: 'Chat 1', agentId: 'agent-1' as AgentId, teamId: null } as any],
+        conversations: [{
+          id: 'conv-1' as ConversationId,
+          title: 'Chat 1',
+          target: { kind: 'agent', id: 'agent-1' as AgentId },
+          executionAgentId: 'agent-1' as AgentId,
+        } as any],
       })
       ;(mockServices.conversations.update as any).mockResolvedValue({
         id: 'conv-1',
         title: 'Renamed',
-        agentId: 'agent-1',
-        teamId: null,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
+        executionAgentId: 'agent-1',
       })
 
       await useAppStore.getState().updateConversation('conv-1' as ConversationId, {
@@ -544,10 +553,15 @@ describe('useAppStore', () => {
     })
 
     it('createCronJob adds to list', async () => {
-      const newJob = { id: 'cron-new' as CronJobId, name: 'New Job', agentId: 'agent-1' as AgentId }
+      const newJob = {
+        id: 'cron-new' as CronJobId,
+        name: 'New Job',
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
+        executionAgentId: 'agent-1' as AgentId,
+      }
       ;(mockServices.cronJobs.create as any).mockResolvedValue(newJob)
       const result = await useAppStore.getState().createCronJob({
-        agentId: 'agent-1' as AgentId,
+        target: { kind: 'agent', id: 'agent-1' as AgentId },
         name: 'New Job',
         cronExpression: '0 * * * *',
         enabled: true,
@@ -562,7 +576,7 @@ describe('useAppStore', () => {
       useAppStore.setState({ currentProjectId: null })
       await expect(
         useAppStore.getState().createCronJob({
-          agentId: 'agent-1' as AgentId,
+          target: { kind: 'agent', id: 'agent-1' as AgentId },
           name: 'Job',
           cronExpression: '0 * * * *',
           enabled: true,
@@ -621,12 +635,11 @@ describe('useAppStore', () => {
   })
 
   describe('deleteAgent cascades defaultAgentId', () => {
-    it('clears defaultAgentId when deleting the main agent', async () => {
-      // Set up: project with defaultAgentId = agent-1
+    it('clears defaultTarget when deleting the main agent target', async () => {
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
         projects: [
-          { id: 'proj-1' as ProjectId, name: 'Test', defaultAgentId: 'agent-1' as AgentId } as any,
+          { id: 'proj-1' as ProjectId, name: 'Test', defaultTarget: { kind: 'agent', id: 'agent-1' as AgentId } } as any,
         ],
         agents: [
           { id: 'agent-1' as AgentId, name: 'Agent A' } as any,
@@ -634,22 +647,20 @@ describe('useAppStore', () => {
       })
       ;(mockServices.agents.delete as any).mockResolvedValue(undefined)
       ;(mockServices.projects.update as any).mockImplementation((id: string, data: any) =>
-        Promise.resolve({ id, ...data, defaultAgentId: undefined }),
+        Promise.resolve({ id, ...data, defaultTarget: null }),
       )
 
       await useAppStore.getState().deleteAgent('agent-1' as AgentId)
 
-      // Agent should be removed
       expect(useAppStore.getState().agents).toHaveLength(0)
-      // updateProject should have been called to clear defaultAgentId
-      expect(mockServices.projects.update).toHaveBeenCalledWith('proj-1', { defaultAgentId: undefined })
+      expect(mockServices.projects.update).toHaveBeenCalledWith('proj-1', { defaultTarget: null })
     })
 
-    it('does not clear defaultAgentId when deleting a non-main agent', async () => {
+    it('does not clear defaultTarget when deleting a non-default agent', async () => {
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
         projects: [
-          { id: 'proj-1' as ProjectId, name: 'Test', defaultAgentId: 'agent-1' as AgentId } as any,
+          { id: 'proj-1' as ProjectId, name: 'Test', defaultTarget: { kind: 'agent', id: 'agent-1' as AgentId } } as any,
         ],
         agents: [
           { id: 'agent-1' as AgentId, name: 'Agent A' } as any,
@@ -661,7 +672,6 @@ describe('useAppStore', () => {
       await useAppStore.getState().deleteAgent('agent-2' as AgentId)
 
       expect(useAppStore.getState().agents).toHaveLength(1)
-      // updateProject should NOT have been called
       expect(mockServices.projects.update).not.toHaveBeenCalled()
     })
   })

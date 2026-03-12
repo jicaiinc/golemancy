@@ -104,7 +104,7 @@ export function createSubAgentTool(
         if (sessionId) {
           try {
             const conv = await conversationStorage.getById(projectId as ProjectId, sessionId as ConversationId)
-            if (conv && conv.agentId === childAgent.id) {
+            if (conv && conv.executionAgentId === childAgent.id) {
               sessionConvId = conv.id
               historyMessages = conv.messages.map(m => ({
                 id: m.id,
@@ -113,7 +113,7 @@ export function createSubAgentTool(
               }))
               log.debug({ sessionId, messageCount: historyMessages.length }, 'resumed sub-agent session')
             } else {
-              log.warn({ sessionId, childAgentId: childAgent.id, foundAgentId: conv?.agentId }, 'invalid sessionId or agentId mismatch, creating new session')
+              log.warn({ sessionId, childAgentId: childAgent.id, foundAgentId: conv?.executionAgentId }, 'invalid sessionId or agentId mismatch, creating new session')
             }
           } catch (err) {
             log.warn({ err, sessionId }, 'failed to load session, creating new one')
@@ -124,7 +124,7 @@ export function createSubAgentTool(
           try {
             const conv = await conversationStorage.create(
               projectId as ProjectId,
-              childAgent.id as AgentId,
+              { kind: 'agent', id: childAgent.id as AgentId },
               `[Sub-agent] ${childAgent.name}`,
             )
             sessionConvId = conv.id

@@ -5,7 +5,7 @@ import {
   type UIMessage, type ModelMessage,
 } from 'ai'
 import type {
-  AgentId, ProjectId, ConversationId, MessageId, TeamId, CompactRecord, Message, TeamMember,
+  AgentId, ProjectId, ConversationId, MessageId, CompactRecord, Message, TeamMember, TargetRef,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, ITeamService,
 } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS } from '@golemancy/shared'
@@ -56,13 +56,13 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const body = await c.req.json<{
       messages: UIMessage[]
       projectId: string
-      agentId?: string
+      target?: TargetRef
       conversationId?: string
-      teamId?: string
     }>()
 
     const { messages, projectId, conversationId } = body
-    let { agentId, teamId } = body
+    let { target } = body
+    let executionAgentId: AgentId | undefined
 
     if (!projectId) {
       return c.json({ error: 'PROJECT_ID_REQUIRED' }, 400)
@@ -81,46 +81,51 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       }
     }
 
-    // Resolve agentId — from body or from conversation lookup
-    if (!agentId && conversationId) {
-      const conv = await deps.conversationStorage.getById(
-        projectId as ProjectId,
-        conversationId as ConversationId,
-      )
-      if (conv) {
-        agentId = conv.agentId
+    const conversation = conversationId
+      ? await deps.conversationStorage.getById(
+          projectId as ProjectId,
+          conversationId as ConversationId,
+        )
+      : null
+
+    if (conversation) {
+      target = conversation.target
+      executionAgentId = conversation.executionAgentId
+    }
+
+    if (!target) {
+      return c.json({ error: 'TARGET_REQUIRED' }, 400)
+    }
+
+    if (!executionAgentId) {
+      executionAgentId = target.kind === 'agent'
+        ? target.id
+        : undefined
+      if (target.kind === 'team') {
+        const team = await deps.teamStorage.getById(projectId as ProjectId, target.id)
+        const leader = team?.members.find(member => !member.parentAgentId)
+        executionAgentId = leader?.agentId
       }
     }
 
-    if (!agentId) {
-      return c.json({ error: 'AGENT_ID_REQUIRED' }, 400)
+    if (!executionAgentId) {
+      return c.json({ error: 'EXECUTION_AGENT_ID_REQUIRED' }, 400)
     }
 
     // Look up agent config
     const agent = await deps.agentStorage.getById(
       projectId as ProjectId,
-      agentId as AgentId,
+      executionAgentId,
     )
     if (!agent) {
       return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
     }
 
-    // Resolve teamId from body or conversation record
-    if (!teamId && conversationId) {
-      const conv = await deps.conversationStorage.getById(
-        projectId as ProjectId,
-        conversationId as ConversationId,
-      )
-      if (conv?.teamId) {
-        teamId = conv.teamId
-      }
-    }
-
     // Resolve team members for sub-agent orchestration
     let teamMembers: TeamMember[] | undefined
     let teamInstruction: string | undefined
-    if (teamId) {
-      const team = await deps.teamStorage.getById(projectId as ProjectId, teamId as TeamId)
+    if (target.kind === 'team') {
+      const team = await deps.teamStorage.getById(projectId as ProjectId, target.id)
       if (team) {
         teamMembers = team.members
         teamInstruction = team.instruction
@@ -135,7 +140,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const resolved = await resolveModel(settings, agent.modelConfig, deps.oauthManager)
 
     log.debug({
-      projectId, agentId, conversationId, messageCount: messages.length,
+      projectId, executionAgentId, conversationId, messageCount: messages.length, target,
       provider: agent.modelConfig.provider,
       model: agent.modelConfig.model,
       useInstructionsParam: resolved.useInstructionsParam ?? false,
@@ -145,39 +150,39 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const chatConvId = conversationId ?? 'ephemeral'
     try {
       if (deps.activeChatRegistry) {
-        deps.activeChatRegistry.register(chatConvId, { agentId, projectId })
+        deps.activeChatRegistry.register(chatConvId, { agentId: executionAgentId, projectId })
       }
-      await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'running' })
+      await deps.agentStorage.update(projectId as ProjectId, executionAgentId, { status: 'running' })
       if (deps.wsManager) {
-        deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'running' })
-        deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:chat_started', projectId, agentId: agentId as AgentId, conversationId: conversationId as ConversationId | undefined })
+        deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: executionAgentId, status: 'running' })
+        deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:chat_started', projectId, agentId: executionAgentId, conversationId: conversationId as ConversationId | undefined })
       }
     } catch (err) {
-      log.warn({ err, agentId }, 'failed to set agent running status')
+      log.warn({ err, executionAgentId }, 'failed to set agent running status')
     }
 
     const markChatEnded = async () => {
       try {
         if (deps.activeChatRegistry) {
           deps.activeChatRegistry.unregister(chatConvId)
-          const remaining = deps.activeChatRegistry.countByAgent(agentId!)
+          const remaining = deps.activeChatRegistry.countByAgent(executionAgentId)
           if (remaining === 0) {
-            await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'idle' })
+            await deps.agentStorage.update(projectId as ProjectId, executionAgentId, { status: 'idle' })
             if (deps.wsManager) {
-              deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'idle' })
+              deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: executionAgentId, status: 'idle' })
             }
           }
         } else {
-          await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'idle' })
+          await deps.agentStorage.update(projectId as ProjectId, executionAgentId, { status: 'idle' })
           if (deps.wsManager) {
-            deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'idle' })
+            deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: executionAgentId, status: 'idle' })
           }
         }
         if (deps.wsManager) {
-          deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:chat_ended', projectId, agentId: agentId as AgentId, conversationId: conversationId as ConversationId | undefined })
+          deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:chat_ended', projectId, agentId: executionAgentId, conversationId: conversationId as ConversationId | undefined })
         }
       } catch (err) {
-        log.warn({ err, agentId }, 'failed to set agent idle status')
+        log.warn({ err, executionAgentId }, 'failed to set agent idle status')
       }
     }
 
@@ -341,7 +346,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
             })
 
             deps.tokenRecordStorage.save(projectId as ProjectId, {
-              conversationId, agentId: agentId as string,
+              conversationId, agentId: executionAgentId,
               provider: agent.modelConfig.provider, model: agent.modelConfig.model,
               inputTokens: compactResult.inputTokens, outputTokens: compactResult.outputTokens,
               source: 'compact',
@@ -411,7 +416,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
             try {
               deps.tokenRecordStorage.save(projectId as ProjectId, {
                 conversationId,
-                agentId: agentId as string,
+                agentId: executionAgentId,
                 provider: agent.modelConfig.provider,
                 model: agent.modelConfig.model,
                 inputTokens,
@@ -420,7 +425,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                 aborted: true,
               })
               if (deps.wsManager) {
-                deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId as AgentId, model: agent.modelConfig.model, inputTokens, outputTokens })
+                deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: executionAgentId, model: agent.modelConfig.model, inputTokens, outputTokens })
               }
               log.debug({ conversationId, inputTokens, outputTokens, completedSteps: steps.length }, 'saved abort token record')
             } catch (err) {
@@ -478,14 +483,14 @@ export function createChatRoutes(deps: ChatRouteDeps) {
                     ...(Object.keys(allToolUsages).length > 0 ? { metadata: { toolUsages: allToolUsages } } : {}),
                   },
                 )
-                log.info({ conversationId, agentId, inputTokens: billingInput, outputTokens: billingOutput }, 'agent response complete')
+                log.info({ conversationId, executionAgentId, inputTokens: billingInput, outputTokens: billingOutput }, 'agent response complete')
                 log.debug({ conversationId, role: 'assistant', contextTokens, billingInput, billingOutput }, 'saved assistant message in onFinish')
               }
 
               deps.tokenRecordStorage.save(projectId as ProjectId, {
                 conversationId,
                 messageId: responseMessage.id,
-                agentId: agentId as string,
+                agentId: executionAgentId,
                 provider: agent.modelConfig.provider,
                 model: agent.modelConfig.model,
                 inputTokens: billingInput,
@@ -494,7 +499,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
               })
 
               if (deps.wsManager) {
-                deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId as AgentId, model: agent.modelConfig.model, inputTokens: billingInput, outputTokens: billingOutput })
+                deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: executionAgentId, model: agent.modelConfig.model, inputTokens: billingInput, outputTokens: billingOutput })
               }
 
               writer.write({

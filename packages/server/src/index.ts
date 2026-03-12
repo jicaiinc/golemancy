@@ -4,6 +4,7 @@ import { serve } from '@hono/node-server'
 import { createNodeWebSocket } from '@hono/node-ws'
 import { createApp, type ServerDependencies } from './app'
 import path from 'node:path'
+import type { ProjectId, TargetRef } from '@golemancy/shared'
 import { ProjectDbManager } from './db/project-db'
 import { createSpeechDatabase } from './db/speech-db'
 import { migrateSpeechDatabase } from './db/speech-migrate'
@@ -34,6 +35,7 @@ import { mcpPool } from './agent/mcp-pool'
 import { OAuthManager } from './auth/oauth-manager'
 import { initOpenToolsIPC } from './agent/builtin-tools/open-tools'
 import { logger } from './logger'
+import { resolveExecutionAgentId } from './utils/targets'
 
 async function main() {
   const startTime = Date.now()
@@ -66,7 +68,9 @@ async function main() {
   const compactRecordStorage = new CompactRecordStorage(dbManager.getProjectDb)
   const wsManager = new WebSocketManager()
   const activeChatRegistry = new ActiveChatRegistry()
-  const cronJobStorage = new FileCronJobStorage()
+  const resolveTargetExecution = (projectId: ProjectId, target: TargetRef) =>
+    resolveExecutionAgentId(teamStorage, projectId, target)
+  const cronJobStorage = new FileCronJobStorage(resolveTargetExecution)
   const dashboardDeps = {
     projectStorage,
     agentStorage,
@@ -81,7 +85,7 @@ async function main() {
   const deps: ServerDependencies = {
     projectStorage,
     agentStorage,
-    conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb),
+    conversationStorage: new SqliteConversationStorage(dbManager.getProjectDb, resolveTargetExecution),
     taskStorage: new SqliteConversationTaskStorage(dbManager.getProjectDb),
     skillStorage: new FileSkillStorage(agentStorage),
     cronJobStorage,

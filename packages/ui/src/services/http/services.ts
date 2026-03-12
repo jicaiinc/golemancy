@@ -2,6 +2,7 @@ import type {
   Project, Agent, Conversation, ConversationTask, GlobalSettings, OAuthFlowState, CronJob,CronJobRun, Skill, Team,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId,
+  TargetRef,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -29,9 +30,8 @@ export class HttpProjectService implements IProjectService {
       method: 'POST', body: JSON.stringify(data),
     })
   }
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>) {
-    // Convert undefined → null so JSON.stringify preserves "clear" intent
-    const body = JSON.stringify(data, (_k, v) => v === undefined ? null : v)
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultTarget'>>) {
+    const body = JSON.stringify(data)
     return fetchJson<Project>(`${this.baseUrl}/api/projects/${id}`, {
       method: 'PATCH', body,
     })
@@ -78,19 +78,19 @@ export class HttpAgentService implements IAgentService {
 export class HttpConversationService implements IConversationService {
   constructor(private baseUrl: string) {}
 
-  list(projectId: ProjectId, agentId?: AgentId) {
-    const params = agentId ? `?agentId=${agentId}` : ''
+  list(projectId: ProjectId, executionAgentId?: AgentId) {
+    const params = executionAgentId ? `?executionAgentId=${executionAgentId}` : ''
     return fetchJson<Conversation[]>(`${this.baseUrl}/api/projects/${projectId}/conversations${params}`)
   }
   getById(projectId: ProjectId, id: ConversationId) {
     return fetchJson<Conversation | null>(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`)
   }
-  create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId) {
+  create(projectId: ProjectId, target: TargetRef, title: string) {
     return fetchJson<Conversation>(`${this.baseUrl}/api/projects/${projectId}/conversations`, {
-      method: 'POST', body: JSON.stringify({ agentId, title, ...(teamId ? { teamId } : {}) }),
+      method: 'POST', body: JSON.stringify({ target, title }),
     })
   }
-  update(projectId: ProjectId, id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }) {
+  update(projectId: ProjectId, id: ConversationId, data: { title?: string; target?: TargetRef }) {
     return fetchJson<Conversation>(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`, {
       method: 'PATCH', body: JSON.stringify(data),
     })
@@ -250,12 +250,12 @@ export class HttpCronJobService implements ICronJobService {
   getById(projectId: ProjectId, id: CronJobId) {
     return fetchJson<CronJob | null>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`)
   }
-  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>) {
+  create(projectId: ProjectId, data: Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>) {
     return fetchJson<CronJob>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs`, {
       method: 'POST', body: JSON.stringify(data),
     })
   }
-  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>) {
+  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>) {
     return fetchJson<CronJob>(`${this.baseUrl}/api/projects/${projectId}/cron-jobs/${id}`, {
       method: 'PATCH', body: JSON.stringify(data),
     })

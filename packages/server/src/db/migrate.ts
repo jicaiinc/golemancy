@@ -11,7 +11,9 @@ export function migrateDatabase(db: AppDatabase) {
   db.run(sql`
     CREATE TABLE IF NOT EXISTS conversations (
       id            TEXT PRIMARY KEY,
-      agent_id      TEXT NOT NULL,
+      execution_agent_id TEXT NOT NULL,
+      target_kind   TEXT NOT NULL,
+      target_id     TEXT NOT NULL,
       title         TEXT NOT NULL,
       last_message_at TEXT,
       created_at    TEXT NOT NULL,
@@ -51,7 +53,8 @@ export function migrateDatabase(db: AppDatabase) {
   `)
 
   // Create indexes
-  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(agent_id)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_execution_agent ON conversations(execution_agent_id)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_target ON conversations(target_kind, target_id)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at DESC)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversation_tasks_conv ON conversation_tasks(conversation_id)`)
 
@@ -175,22 +178,6 @@ export function migrateDatabase(db: AppDatabase) {
   `)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_compact_records_conv ON compact_records(conversation_id, created_at DESC)`)
 
-  // --- Migration v7: drop redundant project_id columns ---
-  const convCols = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
-  if (convCols.some(c => c.name === 'project_id')) {
-    log.debug('migrating conversations: dropping project_id column')
-    db.run(sql`DROP INDEX IF EXISTS idx_conversations_project`)
-    db.run(sql`DROP INDEX IF EXISTS idx_conversations_agent`)
-    db.run(sql`ALTER TABLE conversations DROP COLUMN project_id`)
-    db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(agent_id)`)
-  }
-
-  const cronRunCols = db.all<{ name: string }>(sql`PRAGMA table_info(cron_job_runs)`)
-  if (cronRunCols.some(c => c.name === 'project_id')) {
-    log.debug('migrating cron_job_runs: dropping project_id column')
-    db.run(sql`ALTER TABLE cron_job_runs DROP COLUMN project_id`)
-  }
-
   // --- Migration v8: agent_memories table ---
   db.run(sql`
     CREATE TABLE IF NOT EXISTS agent_memories (
@@ -205,13 +192,6 @@ export function migrateDatabase(db: AppDatabase) {
     )
   `)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_agent_memories_agent ON agent_memories(agent_id, pinned DESC, priority DESC, updated_at DESC)`)
-
-  // --- Migration v9: team_id column on conversations ---
-  const convColsV9 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
-  if (!convColsV9.some(c => c.name === 'team_id')) {
-    log.debug('migrating conversations: adding team_id column')
-    db.run(sql`ALTER TABLE conversations ADD COLUMN team_id TEXT`)
-  }
 
   // Set up FTS5
   setupFTS(db)

@@ -90,6 +90,7 @@ function makeProject(overrides: Partial<Project> = {}): Project {
     description: '',
     icon: 'sword',
     config: {},
+    defaultTarget: null,
     agentCount: 1,
     activeAgentCount: 0,
     lastActivityAt: '2026-01-01T00:00:00Z',
@@ -166,6 +167,24 @@ function createMocks(): ChatRouteDeps {
       list: vi.fn().mockResolvedValue([]),
       save: vi.fn().mockResolvedValue({ id: 'compact-1' }),
     },
+    memoryStorage: {
+      loadForContext: vi.fn().mockResolvedValue({ pinned: [], autoLoaded: [], totalCount: 0 }),
+      search: vi.fn().mockResolvedValue([]),
+      list: vi.fn().mockResolvedValue([]),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    } as any,
+    teamStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      clone: vi.fn(),
+      getLayout: vi.fn().mockResolvedValue({}),
+      saveLayout: vi.fn(),
+    },
   }
 }
 
@@ -194,7 +213,7 @@ describe('Chat routes', () => {
 
   const validBody = {
     projectId: projId,
-    agentId,
+    target: { kind: 'agent', id: agentId },
     conversationId: convId,
     messages: [
       { id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello' }] },
@@ -257,7 +276,7 @@ describe('Chat routes', () => {
       expect((await res.json()).error).toBe('INVALID_MESSAGE_ROLE')
     })
 
-    it('returns 400 when neither agentId nor conversationId provided', async () => {
+    it('returns 400 when neither target nor conversationId provided', async () => {
       const res = await app.request('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -267,7 +286,7 @@ describe('Chat routes', () => {
         }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toBe('AGENT_ID_REQUIRED')
+      expect((await res.json()).error).toBe('TARGET_REQUIRED')
     })
   })
 
@@ -282,11 +301,12 @@ describe('Chat routes', () => {
       expect((await res.json()).error).toBe('AGENT_NOT_FOUND')
     })
 
-    it('resolves agentId from conversation when not provided directly', async () => {
+    it('resolves executionAgentId from conversation when not provided directly', async () => {
       vi.mocked(mocks.conversationStorage.getById).mockResolvedValue({
         id: convId,
         projectId: projId,
-        agentId,
+        executionAgentId: agentId,
+        target: { kind: 'agent', id: agentId },
         title: 'Test',
         messages: [],
         lastMessageAt: '2026-01-01T00:00:00Z',

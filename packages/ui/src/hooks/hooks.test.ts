@@ -61,6 +61,7 @@ describe('usePermissionMode', () => {
     description: 'A test project',
     icon: 'sword',
     config: {},
+          defaultTarget: null,
     agentCount: 1,
     activeAgentCount: 0,
     lastActivityAt: new Date().toISOString(),
@@ -173,6 +174,7 @@ describe('usePermissionConfig', () => {
     description: 'Another test project',
     icon: 'pickaxe',
     config: {},
+          defaultTarget: null,
     agentCount: 2,
     activeAgentCount: 1,
     lastActivityAt: new Date().toISOString(),
@@ -247,6 +249,7 @@ describe('usePermissionConfig', () => {
     mockGetById.mockResolvedValue({
       mode: 'sandbox',
       config: {},
+          defaultTarget: null,
     })
     useAppStore.setState({
       projects: [testProject],

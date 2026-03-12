@@ -88,11 +88,11 @@ export function createTeamRoutes(deps: TeamRouteDeps) {
     const teamId = c.req.param('teamId') as TeamId
     log.debug({ projectId, teamId }, 'deleting team')
 
-    // Cascade: clear defaultTeamId if it points to the deleted team
+    // Cascade: clear defaultTarget if it points to the deleted team
     const project = await projectStorage.getById(projectId)
-    if (project && project.defaultTeamId === teamId) {
-      log.debug({ projectId, teamId }, 'clearing defaultTeamId (cascade)')
-      await projectStorage.update(projectId, { defaultTeamId: undefined })
+    if (project?.defaultTarget?.kind === 'team' && project.defaultTarget.id === teamId) {
+      log.debug({ projectId, teamId }, 'clearing defaultTarget (cascade)')
+      await projectStorage.update(projectId, { defaultTarget: null })
     }
 
     await storage.delete(projectId, teamId)

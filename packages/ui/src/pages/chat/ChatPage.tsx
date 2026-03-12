@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import type { AgentId, ConversationId, ConversationTokenUsageResult, TeamId } from '@golemancy/shared'
+import type { ConversationId, ConversationTokenUsageResult, TargetRef } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject, usePermissionMode } from '../../hooks'
@@ -155,45 +155,34 @@ export function ChatPage() {
   const chatFilterShowCron = useAppStore(s => s.chatFilterShowCron)
   const chatFilterShowSubAgent = useAppStore(s => s.chatFilterShowSubAgent)
   const setChatFilter = useAppStore(s => s.setChatFilter)
-  const defaultAgentId = currentProject?.defaultAgentId ?? null
-  const defaultTeamId = currentProject?.defaultTeamId ?? null
-  const canNewChat = !!defaultAgentId || !!defaultTeamId
+  const defaultTarget = currentProject?.defaultTarget ?? null
+  const canNewChat = !!defaultTarget
 
   const handleRenameConversation = useCallback((id: ConversationId, title: string) => {
     updateConversationTitle(id, title)
   }, [updateConversationTitle])
 
   const handleNewChat = useCallback(async () => {
-    // Prefer defaultTeamId: find leader agent and create conversation with teamId
-    if (defaultTeamId) {
-      const team = teams.find(t => t.id === defaultTeamId)
-      const leader = team?.members.find(m => !m.parentAgentId)
-      const agentId = leader?.agentId ?? defaultAgentId
-      if (agentId) {
-        await createConversation(agentId, t('newChatTitle'), defaultTeamId)
-        return
-      }
-    }
-    if (!defaultAgentId) return
-    await createConversation(defaultAgentId, t('newChatTitle'))
-  }, [defaultAgentId, defaultTeamId, teams, createConversation])
+    if (!defaultTarget) return
+    await createConversation(defaultTarget, t('newChatTitle'))
+  }, [defaultTarget, createConversation, t])
 
   // Find current conversation and its agent
   const currentConversation = conversations.find(c => c.id === currentConversationId)
 
   const updateConversation = useAppStore(s => s.updateConversation)
 
-  const handleSwitchAgent = useCallback(async (agentId: AgentId, teamId?: TeamId) => {
+  const handleSwitchTarget = useCallback(async (target: TargetRef) => {
     if (!currentProject) return
     // If current conversation is empty, update it instead of creating a new one
     if (currentConversation && currentConversation.messages.length === 0) {
-      await updateConversation(currentConversation.id, { agentId, teamId: teamId ?? null })
+      await updateConversation(currentConversation.id, { target })
     } else {
-      await createConversation(agentId, t('newChatTitle'), teamId)
+      await createConversation(target, t('newChatTitle'))
     }
   }, [currentProject, currentConversation, updateConversation, createConversation])
   const currentAgent = currentConversation
-    ? agents.find(a => a.id === currentConversation.agentId)
+    ? agents.find(a => a.id === currentConversation.executionAgentId)
     : undefined
 
   const compactThreshold = currentAgent?.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD
@@ -255,7 +244,7 @@ export function ChatPage() {
             onToggleChatHistory={toggleChatHistory}
             onNewChat={handleNewChat}
             canNewChat={canNewChat}
-            onSwitchAgent={handleSwitchAgent}
+            onSwitchTarget={handleSwitchTarget}
             onUsageUpdate={handleUsageUpdate}
             onContextUpdate={handleContextUpdate}
             onCompactingChange={handleCompactingChange}
@@ -264,7 +253,6 @@ export function ChatPage() {
           />
         ) : (
           <ChatEmptyState
-            defaultAgentId={currentProject?.defaultAgentId}
             onNewChat={handleNewChat}
             canNewChat={canNewChat}
             chatHistoryExpanded={chatHistoryExpanded}

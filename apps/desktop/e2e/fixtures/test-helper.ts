@@ -274,7 +274,10 @@ export class TestHelper {
     agentId: string,
     title = 'Test Conversation',
   ): Promise<{ id: string; [key: string]: any }> {
-    return this.apiPost(`/api/projects/${projectId}/conversations`, { agentId, title })
+    return this.apiPost(`/api/projects/${projectId}/conversations`, {
+      target: { kind: 'agent', id: agentId },
+      title,
+    })
   }
 
   /** Save a message to a conversation via the API */
@@ -317,13 +320,24 @@ export class TestHelper {
         const timeoutId = setTimeout(() => controller.abort(), timeout)
 
         try {
-          const res = await fetch(`${baseUrl}/api/projects/${projectId}/chat`, {
+          const res = await fetch(`${baseUrl}/api/chat`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ agentId, conversationId, message }),
+            body: JSON.stringify({
+              projectId,
+              conversationId,
+              target: { kind: 'agent', id: agentId },
+              messages: [
+                {
+                  id: `msg-${Date.now()}`,
+                  role: 'user',
+                  parts: [{ type: 'text', text: message }],
+                },
+              ],
+            }),
             signal: controller.signal,
           })
 

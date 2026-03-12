@@ -68,8 +68,11 @@ describe('GlobalDashboardService', () => {
   })
 
   function insertConversation(convId: string, agentIdParam: string = agentId as string) {
-    db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
-      VALUES (${convId}, ${agentIdParam}, 'Test Conv', ${todayISO()}, ${todayISO()})`)
+    db.run(sql`INSERT INTO conversations (
+      id, execution_agent_id, target_kind, target_id, title, created_at, updated_at
+    ) VALUES (
+      ${convId}, ${agentIdParam}, 'agent', ${agentIdParam}, 'Test Conv', ${todayISO()}, ${todayISO()}
+    )`)
   }
 
   function insertMessage(

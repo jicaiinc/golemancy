@@ -8,6 +8,10 @@ import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:skills' })
 
+function isAsyncIterable(value: unknown): value is AsyncIterable<unknown> {
+  return typeof value === 'object' && value !== null && Symbol.asyncIterator in value
+}
+
 /**
  * Load skill tools for a specific agent based on its skillIds.
  *
@@ -56,6 +60,10 @@ export async function loadAgentSkillTools(
   try {
     // 2. Discover skills and create skill selector tool
     const { skill, files, instructions } = await createSkillTool({ skillsDirectory: tempDir })
+    const rawSkill = skill as typeof skill & {
+      description?: string
+      execute?: (...args: any[]) => Promise<any> | AsyncIterable<any>
+    }
 
     log.debug(
       { projectId, skillCount: linkedCount, fileCount: Object.keys(files).length },
@@ -64,13 +72,16 @@ export async function loadAgentSkillTools(
 
     // Wrap skill tool: replace sandbox paths with real absolute paths
     const wrappedSkill = {
-      ...skill,
-      description: skill.description.replace(
+      ...rawSkill,
+      description: (rawSkill.description ?? '').replace(
         /\nAfter loading a skill[^\n]*/,
         '',
       ),
-      execute: async (...args: Parameters<typeof skill.execute>) => {
-        const result = await skill.execute(...args)
+      execute: rawSkill.execute ? async (...args: any[]) => {
+        const result = await rawSkill.execute!(...args)
+        if (isAsyncIterable(result)) {
+          return result
+        }
         if (result?.success && result.skill?.path) {
           const absPath = pathMap.get(result.skill.path)
           if (absPath) {
@@ -82,7 +93,7 @@ export async function loadAgentSkillTools(
           )
         }
         return result
-      },
+      } : undefined,
     }
 
     // NOTE: Do NOT clean up tempDir here — bash-tool reads skill files lazily

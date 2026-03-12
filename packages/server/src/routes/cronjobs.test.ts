@@ -6,16 +6,19 @@ import type { Hono } from 'hono'
 const projId = 'proj-1' as ProjectId
 const agentId = 'agent-1' as AgentId
 const cronId = 'cron-1' as CronJobId
+const agentTarget = { kind: 'agent', id: agentId } as const
 
 function makeCronJob(overrides: Partial<CronJob> = {}): CronJob {
   return {
     id: cronId,
     projectId: projId,
-    agentId,
+    executionAgentId: agentId,
+    target: agentTarget,
     name: 'Daily Report',
-    description: 'Generate daily summary',
     cronExpression: '0 9 * * *',
     enabled: true,
+    instruction: 'Generate daily summary',
+    scheduleType: 'cron',
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
     ...overrides,
@@ -69,11 +72,12 @@ describe('CronJobs routes', () => {
       vi.mocked(mocks.cronJobStorage.create).mockResolvedValue(created)
 
       const res = await makeRequest(app, 'POST', `/api/projects/${projId}/cron-jobs`, {
-        agentId,
+        target: agentTarget,
         name: 'Daily Report',
-        description: 'Generate daily summary',
+        instruction: 'Generate daily summary',
         cronExpression: '0 9 * * *',
         enabled: true,
+        scheduleType: 'cron',
       })
       expect(res.status).toBe(201)
       expect((await res.json()).name).toBe('Daily Report')

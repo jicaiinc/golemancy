@@ -1,6 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import type { CronJob, CronJobId, CronJobRunStatus, ProjectId, ICronJobService } from '@golemancy/shared'
+import type { CronJob, CronJobId, CronJobRunStatus, ProjectId, ICronJobService, AgentId, TargetRef } from '@golemancy/shared'
 import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
 import { getProjectPath, getDataDir, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
@@ -9,6 +9,10 @@ import { logger } from '../logger'
 const log = logger.child({ component: 'storage:cronjobs' })
 
 export class FileCronJobStorage implements ICronJobService {
+  constructor(
+    private readonly resolveExecutionAgentId: (projectId: ProjectId, target: TargetRef) => Promise<AgentId>,
+  ) {}
+
   private cronJobsDir(projectId: string) {
     return path.join(getProjectPath(projectId), 'cronjobs')
   }
@@ -31,16 +35,18 @@ export class FileCronJobStorage implements ICronJobService {
 
   async create(
     projectId: ProjectId,
-    data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>,
+    data: Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>,
   ): Promise<CronJob> {
     const id = generateId('cron')
     log.debug({ projectId, cronJobId: id }, 'creating cron job')
     const now = new Date().toISOString()
+    const executionAgentId = await this.resolveExecutionAgentId(projectId, data.target)
 
     const job: CronJob = {
       id,
       projectId,
       ...data,
+      executionAgentId,
       createdAt: now,
       updatedAt: now,
     }
@@ -54,7 +60,7 @@ export class FileCronJobStorage implements ICronJobService {
   async update(
     projectId: ProjectId,
     id: CronJobId,
-    data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>,
+    data: Partial<Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>,
   ): Promise<CronJob> {
     const existing = await this.getById(projectId, id)
     if (!existing) throw new Error(`CronJob ${id} not found in project ${projectId}`)
@@ -63,6 +69,9 @@ export class FileCronJobStorage implements ICronJobService {
     const updated: CronJob = {
       ...existing,
       ...data,
+      executionAgentId: data.target
+        ? await this.resolveExecutionAgentId(projectId, data.target)
+        : existing.executionAgentId,
       id,
       projectId,
       updatedAt: new Date().toISOString(),

@@ -237,17 +237,18 @@ describe('HttpAgentService', () => {
 describe('HttpConversationService', () => {
   const svc = new HttpConversationService(BASE)
   const CONV = 'conv-1' as ConversationId
+  const agentTarget = { kind: 'agent', id: AGENT } as const
 
-  it('list() includes agentId query param when provided', async () => {
+  it('list() includes executionAgentId query param when provided', async () => {
     mockFetch.mockResolvedValue(jsonResponse([]))
     await svc.list(PROJ, AGENT)
     expect(mockFetch).toHaveBeenCalledWith(
-      `${BASE}/api/projects/${PROJ}/conversations?agentId=${AGENT}`,
+      `${BASE}/api/projects/${PROJ}/conversations?executionAgentId=${AGENT}`,
       expect.any(Object),
     )
   })
 
-  it('list() omits agentId when not provided', async () => {
+  it('list() omits executionAgentId when not provided', async () => {
     mockFetch.mockResolvedValue(jsonResponse([]))
     await svc.list(PROJ)
     expect(mockFetch).toHaveBeenCalledWith(
@@ -256,12 +257,12 @@ describe('HttpConversationService', () => {
     )
   })
 
-  it('create() sends agentId and title', async () => {
+  it('create() sends target and title', async () => {
     mockFetch.mockResolvedValue(jsonResponse({}))
-    await svc.create(PROJ, AGENT, 'New Chat')
+    await svc.create(PROJ, agentTarget, 'New Chat')
     expect(mockFetch).toHaveBeenCalledWith(
       `${BASE}/api/projects/${PROJ}/conversations`,
-      expect.objectContaining({ body: JSON.stringify({ agentId: AGENT, title: 'New Chat' }) }),
+      expect.objectContaining({ body: JSON.stringify({ target: agentTarget, title: 'New Chat' }) }),
     )
   })
 
@@ -444,9 +445,10 @@ describe('HttpMCPService', () => {
 describe('HttpCronJobService', () => {
   const svc = new HttpCronJobService(BASE)
   const CRON = 'cron-1' as CronJobId
+  const agentTarget = { kind: 'agent', id: AGENT } as const
 
   it('create() → POST with cron data', async () => {
-    const data = { agentId: AGENT, name: 'Daily task', cronExpression: '0 9 * * *', enabled: true, scheduleType: 'cron' as const }
+    const data = { target: agentTarget, name: 'Daily task', cronExpression: '0 9 * * *', enabled: true, scheduleType: 'cron' as const }
     mockFetch.mockResolvedValue(jsonResponse({ id: CRON, ...data }))
     await svc.create(PROJ, data)
     expect(mockFetch).toHaveBeenCalledWith(

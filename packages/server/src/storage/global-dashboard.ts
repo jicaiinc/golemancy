@@ -151,7 +151,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
           sql`SELECT agent_id, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out, count(*) as cnt FROM (
                 SELECT agent_id, input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
                 UNION ALL
-                SELECT c.agent_id, m.input_tokens as inp, m.output_tokens as out
+                SELECT c.execution_agent_id as agent_id, m.input_tokens as inp, m.output_tokens as out
                 FROM messages m
                 JOIN conversations c ON c.id = m.conversation_id
                 WHERE m.input_tokens > 0${dateConditionMsg}
@@ -404,8 +404,8 @@ export class GlobalDashboardService implements IGlobalDashboardService {
                 projectId: project.id,
                 projectName: project.name,
                 cronJobName: job.name,
-                agentId: job.agentId,
-                agentName: globalAgentMap.get(job.agentId as string) ?? 'Unknown',
+                agentId: job.executionAgentId,
+                agentName: globalAgentMap.get(job.executionAgentId as string) ?? 'Unknown',
                 nextRunAt: job.nextRunAt,
               })
             }
@@ -454,7 +454,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
 
         // Recent conversations — include title
         const chatRows = db.all<{ id: string; agent_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
-          sql`SELECT c.id, c.agent_id, c.title, c.last_message_at,
+          sql`SELECT c.id, c.execution_agent_id as agent_id, c.title, c.last_message_at,
                      COALESCE((SELECT SUM(total) FROM (
                        SELECT (input_tokens + output_tokens) as total FROM token_records WHERE conversation_id = c.id
                        UNION ALL

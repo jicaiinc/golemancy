@@ -2,6 +2,7 @@ import type {
   Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile, Team,
   ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId,
+  TargetRef,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -34,6 +35,18 @@ function genId(prefix: string): string {
   return `${prefix}-${++nextId}`
 }
 
+async function resolveExecutionAgentId(
+  teamService: ITeamService,
+  projectId: ProjectId,
+  target: TargetRef,
+): Promise<AgentId> {
+  if (target.kind === 'agent') return target.id
+  const team = await teamService.getById(projectId, target.id)
+  const leader = team?.members.find(member => !member.parentAgentId)
+  if (!leader) throw new Error(`Team ${target.id} has no leader`)
+  return leader.agentId
+}
+
 // --- ProjectService ---
 export class MockProjectService implements IProjectService {
   private data = new Map<ProjectId, Project>(SEED_PROJECTS.map(p => [p.id, { ...p }]))
@@ -55,6 +68,7 @@ export class MockProjectService implements IProjectService {
       id: genId('proj') as ProjectId,
       ...input,
       config: {},
+      defaultTarget: null,
       agentCount: 0,
       activeAgentCount: 0,
       lastActivityAt: now,
@@ -65,7 +79,7 @@ export class MockProjectService implements IProjectService {
     return project
   }
 
-  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<Project> {
+  async update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultTarget'>>): Promise<Project> {
     await delay()
     const existing = this.data.get(id)
     if (!existing) throw new Error(`Project ${id} not found`)
@@ -90,6 +104,7 @@ export class MockProjectService implements IProjectService {
       description: source.description,
       icon: source.icon,
       config: { ...source.config },
+      defaultTarget: source.defaultTarget ? { ...source.defaultTarget } : null,
       agentCount: source.agentCount,
       activeAgentCount: 0,
       lastActivityAt: now,
@@ -178,12 +193,14 @@ export class MockAgentService implements IAgentService {
 
 // --- ConversationService ---
 export class MockConversationService implements IConversationService {
+  constructor(private readonly teamService: ITeamService) {}
+
   private data = new Map<ConversationId, Conversation>(SEED_CONVERSATIONS.map(c => [c.id, { ...c }]))
 
-  async list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]> {
+  async list(projectId: ProjectId, executionAgentId?: AgentId): Promise<Conversation[]> {
     await delay()
     return [...this.data.values()].filter(c =>
-      c.projectId === projectId && (!agentId || c.agentId === agentId)
+      c.projectId === projectId && (!executionAgentId || c.executionAgentId === executionAgentId)
     )
   }
 
@@ -193,14 +210,15 @@ export class MockConversationService implements IConversationService {
     return conv && conv.projectId === projectId ? conv : null
   }
 
-  async create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation> {
+  async create(projectId: ProjectId, target: TargetRef, title: string): Promise<Conversation> {
     await delay()
     const now = new Date().toISOString()
+    const executionAgentId = await resolveExecutionAgentId(this.teamService, projectId, target)
     const conv: Conversation = {
       id: genId('conv') as ConversationId,
       projectId,
-      agentId,
-      ...(teamId ? { teamId } : {}),
+      executionAgentId,
+      target,
       title,
       messages: [],
       lastMessageAt: now,
@@ -211,13 +229,15 @@ export class MockConversationService implements IConversationService {
     return conv
   }
 
-  async update(projectId: ProjectId, id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation> {
+  async update(projectId: ProjectId, id: ConversationId, data: { title?: string; target?: TargetRef }): Promise<Conversation> {
     await delay()
     const conv = this.data.get(id)
     if (!conv || conv.projectId !== projectId) throw new Error('Conversation not found')
     if (data.title !== undefined) conv.title = data.title
-    if (data.agentId !== undefined) conv.agentId = data.agentId
-    if (data.teamId !== undefined) conv.teamId = data.teamId ?? undefined
+    if (data.target !== undefined) {
+      conv.target = data.target
+      conv.executionAgentId = await resolveExecutionAgentId(this.teamService, projectId, data.target)
+    }
     conv.updatedAt = new Date().toISOString()
     return { ...conv }
   }
@@ -552,6 +572,8 @@ export class MockMCPService implements IMCPService {
 
 // --- CronJobService ---
 export class MockCronJobService implements ICronJobService {
+  constructor(private readonly teamService: ITeamService) {}
+
   private data = new Map<CronJobId, CronJob>(SEED_CRON_JOBS.map(c => [c.id, { ...c }]))
 
   async list(projectId: ProjectId): Promise<CronJob[]> {
@@ -565,13 +587,15 @@ export class MockCronJobService implements ICronJobService {
     return job && job.projectId === projectId ? job : null
   }
 
-  async create(projectId: ProjectId, input: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob> {
+  async create(projectId: ProjectId, input: Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob> {
     await delay()
     const now = new Date().toISOString()
+    const executionAgentId = await resolveExecutionAgentId(this.teamService, projectId, input.target)
     const job: CronJob = {
       id: genId('cron') as CronJobId,
       projectId,
       ...input,
+      executionAgentId,
       createdAt: now,
       updatedAt: now,
     }
@@ -579,11 +603,18 @@ export class MockCronJobService implements ICronJobService {
     return job
   }
 
-  async update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<CronJob> {
+  async update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<CronJob> {
     await delay()
     const existing = this.data.get(id)
     if (!existing || existing.projectId !== projectId) throw new Error(`CronJob ${id} not found`)
-    const updated = { ...existing, ...data, updatedAt: new Date().toISOString() }
+    const updated = {
+      ...existing,
+      ...data,
+      executionAgentId: data.target
+        ? await resolveExecutionAgentId(this.teamService, projectId, data.target)
+        : existing.executionAgentId,
+      updatedAt: new Date().toISOString(),
+    }
     this.data.set(id, updated)
     return updated
   }

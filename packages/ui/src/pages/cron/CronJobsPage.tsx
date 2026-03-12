@@ -134,8 +134,8 @@ export function CronJobsPage() {
           animate="animate"
         >
           {cronJobs.map(job => {
-            const agent = agents.find(a => a.id === job.agentId)
-            const team = job.teamId ? teams.find(tm => tm.id === job.teamId) : undefined
+            const agent = agents.find(a => a.id === job.executionAgentId)
+            const team = job.target.kind === 'team' ? teams.find(tm => tm.id === job.target.id) : undefined
             return (
               <motion.div key={job.id} {...staggerItem}>
                 <PixelCard variant="interactive" data-testid="cron-card">
