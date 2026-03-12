@@ -256,12 +256,13 @@ describe('HttpConversationService', () => {
     )
   })
 
-  it('create() sends agentId and title', async () => {
+  it('create() sends target and title', async () => {
     mockFetch.mockResolvedValue(jsonResponse({}))
-    await svc.create(PROJ, AGENT, 'New Chat')
+    const target = { kind: 'agent' as const, agentId: AGENT }
+    await svc.create(PROJ, target, 'New Chat')
     expect(mockFetch).toHaveBeenCalledWith(
       `${BASE}/api/projects/${PROJ}/conversations`,
-      expect.objectContaining({ body: JSON.stringify({ agentId: AGENT, title: 'New Chat' }) }),
+      expect.objectContaining({ body: JSON.stringify({ target, title: 'New Chat' }) }),
     )
   })
 
@@ -446,7 +447,7 @@ describe('HttpCronJobService', () => {
   const CRON = 'cron-1' as CronJobId
 
   it('create() → POST with cron data', async () => {
-    const data = { agentId: AGENT, name: 'Daily task', cronExpression: '0 9 * * *', enabled: true, scheduleType: 'cron' as const }
+    const data = { target: { kind: 'agent' as const, agentId: AGENT }, name: 'Daily task', cronExpression: '0 9 * * *', enabled: true, scheduleType: 'cron' as const }
     mockFetch.mockResolvedValue(jsonResponse({ id: CRON, ...data }))
     await svc.create(PROJ, data)
     expect(mockFetch).toHaveBeenCalledWith(

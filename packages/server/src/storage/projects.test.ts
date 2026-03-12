@@ -123,8 +123,8 @@ describe('FileProjectStorage', () => {
       )
 
       const found = await storage.getById(projectId)
-      expect(found?.defaultTeamId).toBe('team-1')
-      expect(found?.defaultAgentId).toBeUndefined()
+      // Legacy normalize: team takes priority over agent
+      expect(found?.defaultTarget).toEqual({ kind: 'team', teamId: 'team-1' })
     })
   })
 
@@ -157,36 +157,36 @@ describe('FileProjectStorage', () => {
       expect(reloaded!.name).toBe('After')
     })
 
-    it('clears defaultAgentId when setting defaultTeamId', async () => {
+    it('sets and persists defaultTarget', async () => {
       const created = await storage.create({
         name: 'Before', description: '', icon: 's',
       })
-      await storage.update(created.id, { defaultAgentId: 'agent-1' as AgentId })
+      const updated = await storage.update(created.id, {
+        defaultTarget: { kind: 'agent', agentId: 'agent-1' as AgentId },
+      })
 
-      const updated = await storage.update(created.id, { defaultTeamId: 'team-1' as TeamId })
-
-      expect(updated.defaultTeamId).toBe('team-1')
-      expect(updated.defaultAgentId).toBeUndefined()
+      expect(updated.defaultTarget).toEqual({ kind: 'agent', agentId: 'agent-1' })
 
       const reloaded = await storage.getById(created.id)
-      expect(reloaded?.defaultTeamId).toBe('team-1')
-      expect(reloaded?.defaultAgentId).toBeUndefined()
+      expect(reloaded?.defaultTarget).toEqual({ kind: 'agent', agentId: 'agent-1' })
     })
 
-    it('clears defaultTeamId when setting defaultAgentId', async () => {
+    it('replaces defaultTarget when switching kind', async () => {
       const created = await storage.create({
         name: 'Before', description: '', icon: 's',
       })
-      await storage.update(created.id, { defaultTeamId: 'team-1' as TeamId })
+      await storage.update(created.id, {
+        defaultTarget: { kind: 'agent', agentId: 'agent-1' as AgentId },
+      })
 
-      const updated = await storage.update(created.id, { defaultAgentId: 'agent-1' as AgentId })
+      const updated = await storage.update(created.id, {
+        defaultTarget: { kind: 'team', teamId: 'team-1' as TeamId },
+      })
 
-      expect(updated.defaultAgentId).toBe('agent-1')
-      expect(updated.defaultTeamId).toBeUndefined()
+      expect(updated.defaultTarget).toEqual({ kind: 'team', teamId: 'team-1' })
 
       const reloaded = await storage.getById(created.id)
-      expect(reloaded?.defaultAgentId).toBe('agent-1')
-      expect(reloaded?.defaultTeamId).toBeUndefined()
+      expect(reloaded?.defaultTarget).toEqual({ kind: 'team', teamId: 'team-1' })
     })
   })
 

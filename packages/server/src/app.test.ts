@@ -60,8 +60,8 @@ function createMockDeps() {
         { id: 'conv-1', projectId: 'proj-1', title: 'Chat 1' },
       ]),
       getById: vi.fn().mockResolvedValue(null),
-      create: vi.fn().mockImplementation((_pid: any, agentId: any, title: any) =>
-        Promise.resolve({ id: 'conv-new', projectId: _pid, agentId, title, messages: [] }),
+      create: vi.fn().mockImplementation((_pid: any, target: any, title: any) =>
+        Promise.resolve({ id: 'conv-new', projectId: _pid, target, title, messages: [] }),
       ),
       sendMessage: vi.fn().mockResolvedValue(undefined),
       saveMessage: vi.fn().mockResolvedValue(undefined),
@@ -144,6 +144,13 @@ function createMockDeps() {
       getLatest: vi.fn().mockResolvedValue(null),
       list: vi.fn().mockResolvedValue([]),
       save: vi.fn().mockResolvedValue({ id: 'compact-1' }),
+    },
+    teamStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
   } as unknown as ServerDependencies
 }
@@ -309,12 +316,13 @@ describe('HTTP API routes', () => {
     })
 
     it('POST creates conversation with 201', async () => {
+      const target = { kind: 'agent', agentId: 'agent-1' }
       const res = await app.request(jsonRequest('/api/projects/proj-1/conversations', {
         method: 'POST',
-        body: JSON.stringify({ agentId: 'agent-1', title: 'New Chat' }),
+        body: JSON.stringify({ target, title: 'New Chat' }),
       }))
       expect(res.status).toBe(201)
-      expect(deps.conversationStorage.create).toHaveBeenCalledWith('proj-1', 'agent-1', 'New Chat', undefined)
+      expect(deps.conversationStorage.create).toHaveBeenCalledWith('proj-1', target, 'New Chat')
     })
 
     it('DELETE deletes conversation', async () => {
@@ -544,14 +552,14 @@ describe('HTTP API routes', () => {
     it('POST /api/chat returns 400 when messages is empty', async () => {
       const res = await app.request(jsonRequest('/api/chat', {
         method: 'POST',
-        body: JSON.stringify({ projectId: 'proj-1', messages: [] }),
+        body: JSON.stringify({ projectId: 'proj-1', conversationId: 'conv-1', messages: [] }),
       }))
       expect(res.status).toBe(400)
       const body = await res.json()
       expect(body.error).toBe('MESSAGES_REQUIRED')
     })
 
-    it('POST /api/chat returns 400 when no agentId or conversationId', async () => {
+    it('POST /api/chat returns 400 when conversationId is missing', async () => {
       const res = await app.request(jsonRequest('/api/chat', {
         method: 'POST',
         body: JSON.stringify({
@@ -561,26 +569,26 @@ describe('HTTP API routes', () => {
       }))
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toBe('AGENT_ID_REQUIRED')
+      expect(body.error).toBe('CONVERSATION_ID_REQUIRED')
     })
 
-    it('POST /api/chat returns 404 when agent not found', async () => {
+    it('POST /api/chat returns 404 when conversation not found', async () => {
       const res = await app.request(jsonRequest('/api/chat', {
         method: 'POST',
         body: JSON.stringify({
           projectId: 'proj-1',
-          agentId: 'agent-nonexistent',
+          conversationId: 'conv-nonexistent',
           messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hi' }] }],
         }),
       }))
       expect(res.status).toBe(404)
       const body = await res.json()
-      expect(body.error).toBe('AGENT_NOT_FOUND')
+      expect(body.error).toBe('CONVERSATION_NOT_FOUND')
     })
 
-    it('POST /api/chat resolves agentId from conversationId', async () => {
+    it('POST /api/chat resolves agentId from conversation target', async () => {
       deps.conversationStorage.getById.mockResolvedValueOnce({
-        id: 'conv-1', projectId: 'proj-1', agentId: 'agent-missing', title: 'Test',
+        id: 'conv-1', projectId: 'proj-1', target: { kind: 'agent', agentId: 'agent-missing' }, title: 'Test',
         messages: [], lastMessageAt: '', createdAt: '', updatedAt: '',
       })
       const res = await app.request(jsonRequest('/api/chat', {
@@ -609,6 +617,10 @@ describe('HTTP API routes', () => {
         skills: [], tools: [],
         createdAt: '2024-01-01', updatedAt: '2024-01-01',
       }
+      deps.conversationStorage.getById.mockResolvedValueOnce({
+        id: 'conv-1', projectId: 'proj-1', target: { kind: 'agent', agentId: 'agent-1' },
+        title: 'Test', messages: [], lastMessageAt: '', createdAt: '', updatedAt: '',
+      })
       ;(deps.agentStorage.getById as any).mockResolvedValueOnce(mockAgent)
 
       const mockResponse = new Response('data: {"type":"text"}\n\n', {
@@ -623,7 +635,7 @@ describe('HTTP API routes', () => {
         method: 'POST',
         body: JSON.stringify({
           projectId: 'proj-1',
-          agentId: 'agent-1',
+          conversationId: 'conv-1',
           messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] }],
         }),
       }))
@@ -646,6 +658,10 @@ describe('HTTP API routes', () => {
         skills: [], tools: [],
         createdAt: '2024-01-01', updatedAt: '2024-01-01',
       }
+      deps.conversationStorage.getById.mockResolvedValueOnce({
+        id: 'conv-1', projectId: 'proj-1', target: { kind: 'agent', agentId: 'agent-1' },
+        title: 'Test', messages: [], lastMessageAt: '', createdAt: '', updatedAt: '',
+      })
       ;(deps.agentStorage.getById as any).mockResolvedValueOnce(mockAgent)
 
       const mockModelMessages = [{ role: 'user', content: 'converted' }]
@@ -658,7 +674,7 @@ describe('HTTP API routes', () => {
         method: 'POST',
         body: JSON.stringify({
           projectId: 'proj-1',
-          agentId: 'agent-1',
+          conversationId: 'conv-1',
           messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] }],
         }),
       }))

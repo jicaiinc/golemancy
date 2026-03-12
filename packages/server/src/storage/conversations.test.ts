@@ -30,10 +30,10 @@ describe('SqliteConversationStorage', () => {
 
   describe('create', () => {
     it('creates conversation with generated id', async () => {
-      const conv = await storage.create(projId, agentId1, 'Test Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Test Chat')
       expect(conv.id).toMatch(/^conv-/)
       expect(conv.projectId).toBe(projId)
-      expect(conv.agentId).toBe(agentId1)
+      expect(conv.target).toEqual({ kind: 'agent', agentId: agentId1 })
       expect(conv.title).toBe('Test Chat')
       expect(conv.messages).toEqual([])
       expect(conv.createdAt).toBeTruthy()
@@ -42,8 +42,8 @@ describe('SqliteConversationStorage', () => {
 
   describe('list', () => {
     it('filters by projectId', async () => {
-      await storage.create(projId, agentId1, 'Chat 1')
-      await storage.create(projId2, agentId1, 'Chat 2')
+      await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat 1')
+      await storage.create(projId2, { kind: 'agent', agentId: agentId1 }, 'Chat 2')
 
       const result = await storage.list(projId)
       expect(result).toHaveLength(1)
@@ -51,17 +51,17 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('filters by agentId when provided', async () => {
-      await storage.create(projId, agentId1, 'Agent1 Chat')
-      await storage.create(projId, agentId2, 'Agent2 Chat')
+      await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Agent1 Chat')
+      await storage.create(projId, { kind: 'agent', agentId: agentId2 }, 'Agent2 Chat')
 
       const result = await storage.list(projId, agentId1)
       expect(result).toHaveLength(1)
-      expect(result[0].agentId).toBe(agentId1)
+      expect(result[0].target).toEqual({ kind: 'agent', agentId: agentId1 })
     })
 
     it('returns all conversations for project when no agentId', async () => {
-      await storage.create(projId, agentId1, 'Chat 1')
-      await storage.create(projId, agentId2, 'Chat 2')
+      await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat 1')
+      await storage.create(projId, { kind: 'agent', agentId: agentId2 }, 'Chat 2')
 
       const result = await storage.list(projId)
       expect(result).toHaveLength(2)
@@ -75,14 +75,14 @@ describe('SqliteConversationStorage', () => {
 
   describe('getById', () => {
     it('returns existing conversation', async () => {
-      const created = await storage.create(projId, agentId1, 'My Chat')
+      const created = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'My Chat')
       const found = await storage.getById(projId, created.id)
       expect(found).not.toBeNull()
       expect(found!.title).toBe('My Chat')
     })
 
     it('returns null for wrong projectId', async () => {
-      const created = await storage.create(projId, agentId1, 'My Chat')
+      const created = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'My Chat')
       const found = await storage.getById(projId2, created.id)
       expect(found).toBeNull()
     })
@@ -95,7 +95,7 @@ describe('SqliteConversationStorage', () => {
 
   describe('sendMessage', () => {
     it('inserts a user message', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.sendMessage(projId, conv.id, 'Hello world')
 
       const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
@@ -105,7 +105,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('updates conversation lastMessageAt', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       const originalTime = conv.lastMessageAt
 
       await new Promise(r => setTimeout(r, 15))
@@ -119,7 +119,7 @@ describe('SqliteConversationStorage', () => {
 
   describe('delete', () => {
     it('deletes conversation', async () => {
-      const conv = await storage.create(projId, agentId1, 'To Delete')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'To Delete')
       await storage.delete(projId, conv.id)
 
       const found = await storage.getById(projId, conv.id)
@@ -127,7 +127,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('cascades delete to messages', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.sendMessage(projId, conv.id, 'Msg 1')
       await storage.sendMessage(projId, conv.id, 'Msg 2')
 
@@ -140,7 +140,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('does not delete conversation from different project', async () => {
-      const conv = await storage.create(projId, agentId1, 'Keep Me')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Keep Me')
       await storage.delete(projId2, conv.id)
 
       const found = await storage.getById(projId, conv.id)
@@ -150,7 +150,7 @@ describe('SqliteConversationStorage', () => {
 
   describe('getMessages', () => {
     it('paginates messages', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       for (let i = 0; i < 5; i++) {
         await storage.sendMessage(projId, conv.id, `Msg ${i}`)
       }
@@ -169,7 +169,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('orders messages newest first', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.sendMessage(projId, conv.id, 'First')
       await new Promise(r => setTimeout(r, 15))
       await storage.sendMessage(projId, conv.id, 'Second')
@@ -180,7 +180,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('returns empty for conversation with no messages', async () => {
-      const conv = await storage.create(projId, agentId1, 'Empty')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Empty')
       const result = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
       expect(result.items).toEqual([])
       expect(result.total).toBe(0)
@@ -189,7 +189,7 @@ describe('SqliteConversationStorage', () => {
 
   describe('searchMessages (FTS5)', () => {
     it('finds messages matching query', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.sendMessage(projId, conv.id, 'The quick brown fox')
       await storage.sendMessage(projId, conv.id, 'Hello world')
       await storage.sendMessage(projId, conv.id, 'Another message here')
@@ -200,8 +200,8 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('scopes search to projectId', async () => {
-      const conv1 = await storage.create(projId, agentId1, 'Chat 1')
-      const conv2 = await storage.create(projId2, agentId1, 'Chat 2')
+      const conv1 = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat 1')
+      const conv2 = await storage.create(projId2, { kind: 'agent', agentId: agentId1 }, 'Chat 2')
       await storage.sendMessage(projId, conv1.id, 'Alpha beta gamma')
       await storage.sendMessage(projId2, conv2.id, 'Alpha delta epsilon')
 
@@ -211,7 +211,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('returns empty for no matches', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.sendMessage(projId, conv.id, 'Hello world')
 
       const result = await storage.searchMessages(projId, 'nonexistent', { page: 1, pageSize: 50 })
@@ -220,7 +220,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('paginates search results', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       for (let i = 0; i < 5; i++) {
         await storage.sendMessage(projId, conv.id, `Common keyword message ${i}`)
       }
@@ -233,7 +233,7 @@ describe('SqliteConversationStorage', () => {
 
   describe('saveMessage', () => {
     it('saves a message with explicit id and role', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-custom-1' as MessageId,
         role: 'assistant',
@@ -249,7 +249,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('deduplicates messages with same id', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       const msgId = 'msg-dedup-1' as MessageId
 
       await storage.saveMessage(projId, conv.id, { id: msgId, role: 'user', parts: [{ type: 'text', text: 'Original' }], content: 'Original' })
@@ -272,7 +272,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('throws when conversation belongs to different project', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await expect(
         storage.saveMessage(projId2, conv.id, {
           id: 'msg-1' as MessageId,
@@ -284,7 +284,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('updates conversation lastMessageAt', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       const originalTime = conv.lastMessageAt
 
       await new Promise(r => setTimeout(r, 15))
@@ -301,7 +301,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('saves messages with different roles', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
 
       await storage.saveMessage(projId, conv.id, { id: 'msg-u' as MessageId, role: 'user', parts: [{ type: 'text', text: 'Hi' }], content: 'Hi' })
       await new Promise(r => setTimeout(r, 5))
@@ -316,7 +316,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('saves provider and model fields', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-prov-1' as MessageId,
         role: 'assistant',
@@ -337,7 +337,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('defaults provider and model to empty string', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-no-prov' as MessageId,
         role: 'assistant',
@@ -353,7 +353,7 @@ describe('SqliteConversationStorage', () => {
 
   describe('full persistence flow', () => {
     it('create → saveMessage → getMessages returns saved messages', async () => {
-      const conv = await storage.create(projId, agentId1, 'Full Flow Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Full Flow Chat')
 
       // Simulate a chat exchange
       await storage.saveMessage(projId, conv.id, {
@@ -383,7 +383,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('getById returns conversation with messages loaded', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-check-1' as MessageId,
         role: 'user',
@@ -409,7 +409,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('list returns conversations with messages: [] (lightweight)', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-list-1' as MessageId,
         role: 'user',
@@ -423,7 +423,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('sendMessage and saveMessage messages coexist in getMessages', async () => {
-      const conv = await storage.create(projId, agentId1, 'Mixed Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Mixed Chat')
 
       // sendMessage creates a user message with auto-generated id
       await storage.sendMessage(projId, conv.id, 'User via sendMessage')
@@ -445,8 +445,8 @@ describe('SqliteConversationStorage', () => {
 
   describe('cross-project message isolation', () => {
     it('messages in one project are not visible in another', async () => {
-      const conv1 = await storage.create(projId, agentId1, 'Proj1 Chat')
-      const conv2 = await storage.create(projId2, agentId1, 'Proj2 Chat')
+      const conv1 = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Proj1 Chat')
+      const conv2 = await storage.create(projId2, { kind: 'agent', agentId: agentId1 }, 'Proj2 Chat')
 
       await storage.saveMessage(projId, conv1.id, {
         id: 'msg-p1' as MessageId,
@@ -471,7 +471,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('cannot access messages via getMessages with wrong projectId', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.saveMessage(projId, conv.id, {
         id: 'msg-cross-1' as MessageId,
         role: 'user',
@@ -486,8 +486,8 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('search is scoped to project after saveMessage', async () => {
-      const conv1 = await storage.create(projId, agentId1, 'Chat 1')
-      const conv2 = await storage.create(projId2, agentId1, 'Chat 2')
+      const conv1 = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat 1')
+      const conv2 = await storage.create(projId2, { kind: 'agent', agentId: agentId1 }, 'Chat 2')
 
       await storage.saveMessage(projId, conv1.id, {
         id: 'msg-search-1' as MessageId,
@@ -510,7 +510,7 @@ describe('SqliteConversationStorage', () => {
 
   describe('parts round-trip persistence', () => {
     it('stores and retrieves text parts', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       const textParts = [{ type: 'text', text: 'Hello world' }]
 
       await storage.saveMessage(projId, conv.id, {
@@ -526,7 +526,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('stores and retrieves tool-invocation parts', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       const toolParts = [
         { type: 'text', text: 'Let me search for that.' },
         {
@@ -561,7 +561,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('stores and retrieves mixed parts (text + tool + reasoning)', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       const mixedParts = [
         { type: 'reasoning', text: 'I need to search the web first.', signature: 'sig-abc' },
         { type: 'text', text: 'Searching now...' },
@@ -597,7 +597,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('content column holds plain text extracted from parts', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       const parts = [
         { type: 'text', text: 'Before tool call.' },
         { type: 'tool-invocation', toolInvocation: { toolCallId: 'c1', toolName: 'x', args: {}, state: 'result', result: 'ok' } },
@@ -618,7 +618,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('getById returns messages with parts populated', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       const parts = [{ type: 'text', text: 'Check parts via getById' }]
 
       await storage.saveMessage(projId, conv.id, {
@@ -634,7 +634,7 @@ describe('SqliteConversationStorage', () => {
     })
 
     it('sendMessage auto-generates text parts', async () => {
-      const conv = await storage.create(projId, agentId1, 'Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Chat')
       await storage.sendMessage(projId, conv.id, 'Auto parts test')
 
       const msgs = await storage.getMessages(projId, conv.id, { page: 1, pageSize: 50 })
@@ -645,7 +645,7 @@ describe('SqliteConversationStorage', () => {
 
   describe('getMessages pagination with saveMessage', () => {
     it('paginates saveMessage messages correctly', async () => {
-      const conv = await storage.create(projId, agentId1, 'Paginated Chat')
+      const conv = await storage.create(projId, { kind: 'agent', agentId: agentId1 }, 'Paginated Chat')
 
       for (let i = 0; i < 7; i++) {
         await new Promise(r => setTimeout(r, 5))

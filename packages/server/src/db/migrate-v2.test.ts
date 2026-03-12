@@ -70,8 +70,8 @@ describe('migration v2: message parts backfill', () => {
     migrateDatabase(db)
 
     // Insert a message using new schema
-    db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
-      VALUES ('conv-1', 'agent-1', 'Chat', '2024-01-01', '2024-01-01')`)
+    db.run(sql`INSERT INTO conversations (id, target_kind, target_id, title, created_at, updated_at)
+      VALUES ('conv-1', 'agent', 'agent-1', 'Chat', '2024-01-01', '2024-01-01')`)
     db.run(sql`INSERT INTO messages (id, conversation_id, role, parts, content, created_at)
       VALUES ('msg-1', 'conv-1', 'user', '[{"type":"text","text":"Hello"}]', 'Hello', '2024-01-01')`)
 

@@ -497,12 +497,13 @@ export class DashboardService implements IDashboardService {
           .slice(0, 10)
 
         for (const job of enabledWithNext) {
+          const jobAgentId = job.target.kind === 'agent' ? job.target.agentId : undefined
           upcoming.push({
             cronJobId: job.id,
             projectId,
             cronJobName: job.name,
-            agentId: job.agentId,
-            agentName: agentMap.get(job.agentId as string) ?? 'Unknown',
+            agentId: (jobAgentId ?? '') as AgentId,
+            agentName: jobAgentId ? (agentMap.get(jobAgentId as string) ?? 'Unknown') : 'Team',
             nextRunAt: job.nextRunAt!,
           })
         }

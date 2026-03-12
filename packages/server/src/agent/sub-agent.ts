@@ -1,6 +1,6 @@
 import { tool, streamText, stepCountIs, convertToModelMessages, type ToolSet, type UIMessage } from 'ai'
 import { z } from 'zod'
-import type { Agent, GlobalSettings, ProjectId, AgentId, ConversationId, IMCPService, IConversationService, IPermissionsConfigService, SubAgentStreamState, TeamMember } from '@golemancy/shared'
+import type { Agent, GlobalSettings, ProjectId, AgentId, ChatTarget, ConversationId, IMCPService, IConversationService, IPermissionsConfigService, SubAgentStreamState, TeamMember } from '@golemancy/shared'
 import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -104,7 +104,7 @@ export function createSubAgentTool(
         if (sessionId) {
           try {
             const conv = await conversationStorage.getById(projectId as ProjectId, sessionId as ConversationId)
-            if (conv && conv.agentId === childAgent.id) {
+            if (conv && conv.target.kind === 'agent' && conv.target.agentId === childAgent.id) {
               sessionConvId = conv.id
               historyMessages = conv.messages.map(m => ({
                 id: m.id,
@@ -113,7 +113,7 @@ export function createSubAgentTool(
               }))
               log.debug({ sessionId, messageCount: historyMessages.length }, 'resumed sub-agent session')
             } else {
-              log.warn({ sessionId, childAgentId: childAgent.id, foundAgentId: conv?.agentId }, 'invalid sessionId or agentId mismatch, creating new session')
+              log.warn({ sessionId, childAgentId: childAgent.id }, 'invalid sessionId or agentId mismatch, creating new session')
             }
           } catch (err) {
             log.warn({ err, sessionId }, 'failed to load session, creating new one')
@@ -122,9 +122,10 @@ export function createSubAgentTool(
 
         if (!sessionConvId) {
           try {
+            const childTarget: ChatTarget = { kind: 'agent', agentId: childAgent.id as AgentId }
             const conv = await conversationStorage.create(
               projectId as ProjectId,
-              childAgent.id as AgentId,
+              childTarget,
               `[Sub-agent] ${childAgent.name}`,
             )
             sessionConvId = conv.id

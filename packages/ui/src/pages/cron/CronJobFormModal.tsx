@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import cronstrue from 'cronstrue'
-import type { AgentId, CronJob, TeamId } from '@golemancy/shared'
+import type { AgentId, ChatTarget, CronJob, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelInput, PixelTextArea, PixelButton, PixelToggle } from '../../components'
-import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
+import { encodeChatTarget, decodeChatTarget } from '../../lib/chat-target'
 
 function tryParseCron(expr: string, invalidLabel: string): string {
   try {
@@ -53,7 +53,11 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
   const [saving, setSaving] = useState(false)
 
   // Combined select value: agent or team (mutually exclusive, like Chat)
-  const selectValue = teamId ? encodeTeamValue(teamId) : (agentId as string)
+  const selectValue = teamId
+    ? encodeChatTarget({ kind: 'team', teamId })
+    : agentId
+      ? encodeChatTarget({ kind: 'agent', agentId: agentId as AgentId })
+      : ''
 
   const isEdit = !!editJob
 
@@ -69,8 +73,17 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     if (editJob) {
       setName(editJob.name)
       setCronExpression(editJob.cronExpression)
-      setAgentId(editJob.agentId)
-      setTeamId(editJob.teamId ?? '')
+      const editTarget = editJob.target
+      if (editTarget.kind === 'team') {
+        setTeamId(editTarget.teamId)
+        // Resolve agent from team leader
+        const team = teams.find(tm => tm.id === editTarget.teamId)
+        const leader = team?.members.find(m => !m.parentAgentId)
+        setAgentId(leader?.agentId ?? '')
+      } else {
+        setAgentId(editTarget.agentId)
+        setTeamId('')
+      }
       setInstruction(editJob.instruction ?? '')
       setEnabled(editJob.enabled)
       setScheduleType(editJob.scheduleType ?? 'cron')
@@ -85,7 +98,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
       setScheduleType('cron')
       setScheduledAtLocal('')
     }
-  }, [editJob, open, agents])
+  }, [editJob, open, agents, teams])
 
   const isValid = scheduleType === 'cron'
     ? !!(name.trim() && cronExpression.trim() && agentId)
@@ -96,13 +109,14 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     setSaving(true)
     try {
       const scheduledAtIso = scheduleType === 'once' ? localDatetimeToIso(scheduledAtLocal) : undefined
-      const resolvedTeamId = teamId || undefined
+      const target: ChatTarget = teamId
+        ? { kind: 'team', teamId }
+        : { kind: 'agent', agentId: agentId as AgentId }
       if (isEdit && editJob) {
         await updateCronJob(editJob.id, {
           name: name.trim(),
           cronExpression: cronExpression.trim(),
-          agentId: agentId as AgentId,
-          teamId: resolvedTeamId as TeamId | undefined,
+          target,
           instruction: instruction.trim() || undefined,
           enabled,
           scheduleType,
@@ -112,8 +126,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
         await createCronJob({
           name: name.trim(),
           cronExpression: scheduleType === 'cron' ? cronExpression.trim() : '',
-          agentId: agentId as AgentId,
-          teamId: resolvedTeamId as TeamId | undefined,
+          target,
           instruction: instruction.trim() || undefined,
           enabled,
           scheduleType,
@@ -224,11 +237,11 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
           <select
             value={selectValue}
             onChange={e => {
-              const parsed = decodeSelectValue(e.target.value)
+              const parsed = decodeChatTarget(e.target.value)
               if (!parsed) {
                 setAgentId('')
                 setTeamId('')
-              } else if ('teamId' in parsed) {
+              } else if (parsed.kind === 'team') {
                 setTeamId(parsed.teamId)
                 // Auto-set agent to team leader
                 const team = teams.find(tm => tm.id === parsed.teamId)
@@ -246,7 +259,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
               <>
                 <optgroup label={t('cron:form.teamsGroup')}>
                   {teams.map(tm => (
-                    <option key={tm.id} value={encodeTeamValue(tm.id)}>{tm.name}</option>
+                    <option key={tm.id} value={encodeChatTarget({ kind: 'team', teamId: tm.id })}>{tm.name}</option>
                   ))}
                 </optgroup>
                 <optgroup label={t('cron:form.agentsGroup')}>

@@ -94,7 +94,7 @@ describe('Teams routes', () => {
   })
 
   describe('DELETE /api/projects/:projectId/teams/:teamId', () => {
-    it('deletes team and clears defaultTeamId if matching', async () => {
+    it('deletes team and clears defaultTarget if matching', async () => {
       vi.mocked(mocks.projectStorage.getById).mockResolvedValue({
         id: projId,
         name: 'Project',
@@ -106,18 +106,18 @@ describe('Teams routes', () => {
         lastActivityAt: '',
         createdAt: '',
         updatedAt: '',
-        defaultTeamId: teamId,
+        defaultTarget: { kind: 'team', teamId },
       })
       vi.mocked(mocks.teamStorage.delete).mockResolvedValue(undefined)
       vi.mocked(mocks.projectStorage.update).mockResolvedValue({} as any)
 
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}/teams/${teamId}`)
       expect(res.status).toBe(200)
-      expect(mocks.projectStorage.update).toHaveBeenCalledWith(projId, { defaultTeamId: undefined })
+      expect(mocks.projectStorage.update).toHaveBeenCalledWith(projId, { defaultTarget: undefined })
       expect(mocks.teamStorage.delete).toHaveBeenCalledWith(projId, teamId)
     })
 
-    it('deletes team without clearing defaultTeamId if not matching', async () => {
+    it('deletes team without clearing defaultTarget if not matching', async () => {
       vi.mocked(mocks.projectStorage.getById).mockResolvedValue({
         id: projId,
         name: 'Project',
@@ -129,7 +129,7 @@ describe('Teams routes', () => {
         lastActivityAt: '',
         createdAt: '',
         updatedAt: '',
-        defaultTeamId: 'team-other' as TeamId,
+        defaultTarget: { kind: 'team', teamId: 'team-other' as TeamId },
       })
       vi.mocked(mocks.teamStorage.delete).mockResolvedValue(undefined)
 

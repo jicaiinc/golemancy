@@ -59,7 +59,7 @@ function makeCronJob(overrides: Partial<CronJob> = {}): CronJob {
   return {
     id: cronJobId,
     projectId: projId,
-    agentId,
+    target: { kind: 'agent', agentId },
     name: 'Test Cron Job',
     cronExpression: '*/5 * * * *',
     enabled: true,
@@ -132,6 +132,14 @@ function createMockDeps(overrides: Partial<ExecutorDeps> = {}): ExecutorDeps {
       updateRunMeta: vi.fn().mockResolvedValue(undefined),
     } as unknown as ExecutorDeps['cronJobStorage'],
     taskStorage: {} as unknown as ExecutorDeps['taskStorage'],
+    memoryStorage: {} as unknown as ExecutorDeps['memoryStorage'],
+    teamStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    } as unknown as ExecutorDeps['teamStorage'],
     projectStorage: {
       getById: vi.fn().mockResolvedValue({ id: projId, name: 'Test', config: {} }),
       list: vi.fn(),
@@ -205,9 +213,8 @@ describe('CronJobExecutor', () => {
 
       expect(deps.conversationStorage.create).toHaveBeenCalledWith(
         projId,
-        agentId,
+        { kind: 'agent', agentId },
         expect.stringContaining('[Cron] Test Cron Job'),
-        undefined,
       )
     })
 

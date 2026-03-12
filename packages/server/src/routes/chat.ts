@@ -5,10 +5,10 @@ import {
   type UIMessage, type ModelMessage,
 } from 'ai'
 import type {
-  AgentId, ProjectId, ConversationId, MessageId, TeamId, CompactRecord, Message, TeamMember,
+  AgentId, ProjectId, ConversationId, MessageId, CompactRecord, Message, TeamMember,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, ITeamService,
 } from '@golemancy/shared'
-import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS, resolveTargetAgentId } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -56,16 +56,16 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const body = await c.req.json<{
       messages: UIMessage[]
       projectId: string
-      agentId?: string
-      conversationId?: string
-      teamId?: string
+      conversationId: string
     }>()
 
     const { messages, projectId, conversationId } = body
-    let { agentId, teamId } = body
 
     if (!projectId) {
       return c.json({ error: 'PROJECT_ID_REQUIRED' }, 400)
+    }
+    if (!conversationId) {
+      return c.json({ error: 'CONVERSATION_ID_REQUIRED' }, 400)
     }
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return c.json({ error: 'MESSAGES_REQUIRED' }, 400)
@@ -81,17 +81,19 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       }
     }
 
-    // Resolve agentId — from body or from conversation lookup
-    if (!agentId && conversationId) {
-      const conv = await deps.conversationStorage.getById(
-        projectId as ProjectId,
-        conversationId as ConversationId,
-      )
-      if (conv) {
-        agentId = conv.agentId
-      }
+    // Resolve target from conversation DB — single source of truth
+    const conv = await deps.conversationStorage.getById(
+      projectId as ProjectId,
+      conversationId as ConversationId,
+    )
+    if (!conv) {
+      return c.json({ error: 'CONVERSATION_NOT_FOUND' }, 404)
     }
+    const target = conv.target
 
+    // Resolve agentId and team from target
+    const teams = await deps.teamStorage.list(projectId as ProjectId)
+    const agentId = resolveTargetAgentId(target, teams)
     if (!agentId) {
       return c.json({ error: 'AGENT_ID_REQUIRED' }, 400)
     }
@@ -99,28 +101,17 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     // Look up agent config
     const agent = await deps.agentStorage.getById(
       projectId as ProjectId,
-      agentId as AgentId,
+      agentId,
     )
     if (!agent) {
       return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
     }
 
-    // Resolve teamId from body or conversation record
-    if (!teamId && conversationId) {
-      const conv = await deps.conversationStorage.getById(
-        projectId as ProjectId,
-        conversationId as ConversationId,
-      )
-      if (conv?.teamId) {
-        teamId = conv.teamId
-      }
-    }
-
     // Resolve team members for sub-agent orchestration
     let teamMembers: TeamMember[] | undefined
     let teamInstruction: string | undefined
-    if (teamId) {
-      const team = await deps.teamStorage.getById(projectId as ProjectId, teamId as TeamId)
+    if (target.kind === 'team') {
+      const team = teams.find(t => t.id === target.teamId)
       if (team) {
         teamMembers = team.members
         teamInstruction = team.instruction

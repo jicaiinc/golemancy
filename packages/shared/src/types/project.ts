@@ -1,4 +1,4 @@
-import type { ProjectId, AgentId, TeamId, Timestamped } from './common'
+import type { ProjectId, ChatTarget, Timestamped } from './common'
 import type { ProjectConfig } from './settings'
 
 export interface Project extends Timestamped {
@@ -7,8 +7,7 @@ export interface Project extends Timestamped {
   description: string
   icon: string // pixel-art icon identifier
   config: ProjectConfig
-  defaultAgentId?: AgentId
-  defaultTeamId?: TeamId
+  defaultTarget?: ChatTarget
   agentCount: number
   activeAgentCount: number
   lastActivityAt: string

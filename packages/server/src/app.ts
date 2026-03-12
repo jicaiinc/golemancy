@@ -126,6 +126,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     compactRecordStorage: deps.compactRecordStorage,
     agentStorage: deps.agentStorage,
     settingsStorage: deps.settingsStorage,
+    teamStorage: deps.teamStorage,
     oauthManager: deps.oauthManager,
   }))
   app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))

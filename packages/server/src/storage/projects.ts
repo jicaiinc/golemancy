@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import type { Project, ProjectId, IProjectService } from '@golemancy/shared'
+import type { Project, ProjectId, AgentId, TeamId, IProjectService } from '@golemancy/shared'
 import { readJson, writeJson, deleteDir, isNodeError } from './base'
 import { getDataDir, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
@@ -10,31 +10,26 @@ import { logger } from '../logger'
 const log = logger.child({ component: 'storage:projects' })
 
 export class FileProjectStorage implements IProjectService {
-  private normalizeDefaultTarget(project: Project): Project {
-    const defaultTeamId = project.defaultTeamId
-    if (defaultTeamId && project.defaultAgentId) {
-      log.warn(
-        { projectId: project.id, defaultAgentId: project.defaultAgentId, defaultTeamId },
-        'project has both defaultAgentId and defaultTeamId; preferring defaultTeamId',
-      )
-      return {
-        ...project,
-        defaultAgentId: undefined,
-        defaultTeamId,
-      }
-    }
-
-    return project
-  }
-
-  /** Migrate mainAgentId → defaultAgentId for existing project data */
+  /** Migrate legacy fields → defaultTarget for existing project data */
   private normalize(project: Project): Project {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const raw = project as any
-    return this.normalizeDefaultTarget({
-      ...project,
-      defaultAgentId: project.defaultAgentId ?? raw.mainAgentId,
-    })
+
+    // Already migrated
+    if (project.defaultTarget) return project
+
+    // Legacy: defaultAgentId / defaultTeamId / mainAgentId
+    const legacyAgentId: AgentId | undefined = raw.defaultAgentId ?? raw.mainAgentId
+    const legacyTeamId: TeamId | undefined = raw.defaultTeamId
+
+    if (legacyTeamId) {
+      return { ...project, defaultTarget: { kind: 'team', teamId: legacyTeamId } }
+    }
+    if (legacyAgentId) {
+      return { ...project, defaultTarget: { kind: 'agent', agentId: legacyAgentId } }
+    }
+
+    return project
   }
 
   private get projectsDir() {
@@ -96,7 +91,7 @@ export class FileProjectStorage implements IProjectService {
 
   async update(
     id: ProjectId,
-    data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>,
+    data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultTarget'>>,
   ): Promise<Project> {
     const existing = await this.getById(id)
     if (!existing) throw new Error(`Project ${id} not found`)
@@ -110,20 +105,6 @@ export class FileProjectStorage implements IProjectService {
       ...existing,
       ...cleaned,
       updatedAt: new Date().toISOString(),
-    }
-
-    if (
-      Object.prototype.hasOwnProperty.call(cleaned, 'defaultTeamId')
-      && cleaned.defaultTeamId !== undefined
-    ) {
-      updated.defaultAgentId = undefined
-    }
-
-    if (
-      Object.prototype.hasOwnProperty.call(cleaned, 'defaultAgentId')
-      && cleaned.defaultAgentId !== undefined
-    ) {
-      updated.defaultTeamId = undefined
     }
 
     await writeJson(this.projectJsonPath(id), updated)

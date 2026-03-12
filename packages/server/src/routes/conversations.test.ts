@@ -12,7 +12,7 @@ function makeConversation(overrides: Partial<Conversation> = {}): Conversation {
   return {
     id: convId,
     projectId: projId,
-    agentId,
+    target: { kind: 'agent', agentId },
     title: 'Test Conversation',
     messages: [],
     lastMessageAt: '2026-01-01T00:00:00Z',
@@ -84,7 +84,7 @@ describe('Conversations routes', () => {
       vi.mocked(mocks.conversationStorage.create).mockResolvedValue(makeConversation())
 
       const res = await makeRequest(app, 'POST', `/api/projects/${projId}/conversations`, {
-        agentId,
+        target: { kind: 'agent', agentId },
         title: 'Test Conversation',
       })
       expect(res.status).toBe(201)

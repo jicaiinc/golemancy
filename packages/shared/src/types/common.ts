@@ -14,6 +14,11 @@ export type TranscriptionId = Brand<string, 'TranscriptionId'>
 export type MemoryId = Brand<string, 'MemoryId'>
 export type TeamId = Brand<string, 'TeamId'>
 
+// ChatTarget — discriminated union for "who is this conversation/cronjob/project targeting"
+export type ChatTarget =
+  | { kind: 'agent'; agentId: AgentId }
+  | { kind: 'team'; teamId: TeamId }
+
 // Pagination
 export interface PaginationParams {
   page: number
