@@ -399,14 +399,13 @@ export class GlobalDashboardService implements IGlobalDashboardService {
           const jobs = await this.deps.cronJobStorage.list(project.id)
           for (const job of jobs) {
             if (job.enabled && job.nextRunAt) {
-              const jobAgentId = job.target.kind === 'agent' ? job.target.agentId : undefined
               upcoming.push({
                 cronJobId: job.id,
                 projectId: project.id,
                 projectName: project.name,
                 cronJobName: job.name,
-                agentId: (jobAgentId ?? '') as AgentId,
-                agentName: jobAgentId ? (globalAgentMap.get(jobAgentId as string) ?? 'Unknown') : 'Team',
+                agentId: job.agentId,
+                agentName: globalAgentMap.get(job.agentId as string) ?? 'Unknown',
                 nextRunAt: job.nextRunAt,
               })
             }

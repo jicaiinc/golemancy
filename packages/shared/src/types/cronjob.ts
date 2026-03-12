@@ -1,11 +1,12 @@
-import type { CronJobId, ProjectId, AgentId, ChatTarget, ConversationId, Timestamped } from './common'
+import type { CronJobId, ProjectId, AgentId, TeamId, ConversationId, Timestamped } from './common'
 
 export type CronJobRunStatus = 'running' | 'success' | 'error'
 
 export interface CronJob extends Timestamped {
   id: CronJobId
   projectId: ProjectId
-  target: ChatTarget
+  agentId: AgentId
+  teamId?: TeamId
   name: string
   cronExpression: string
   enabled: boolean

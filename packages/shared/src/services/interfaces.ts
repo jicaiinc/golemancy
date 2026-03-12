@@ -3,7 +3,6 @@ import type {
   GlobalSettings, OAuthFlowState,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId, TeamId,
   PermissionsConfigId, TranscriptionId, MemoryId,
-  ChatTarget,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   Message, PaginationParams, PaginatedResult,
@@ -20,7 +19,7 @@ export interface IProjectService {
   list(): Promise<Project[]>
   getById(id: ProjectId): Promise<Project | null>
   create(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
-  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultTarget'>>): Promise<Project>
+  update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
   clone(id: ProjectId, newName: string): Promise<Project>
 }
@@ -43,12 +42,12 @@ export interface ConversationTokenUsageResult {
 export interface IConversationService {
   list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]>
   getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null>
-  create(projectId: ProjectId, target: ChatTarget, title: string): Promise<Conversation>
+  create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation>
   sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void>
   saveMessage(projectId: ProjectId, conversationId: ConversationId, data: { id: MessageId; role: string; parts: unknown[]; content: string; inputTokens?: number; outputTokens?: number; contextTokens?: number; provider?: string; model?: string; metadata?: Record<string, unknown> }): Promise<void>
   getMessages(projectId: ProjectId, conversationId: ConversationId, params: PaginationParams): Promise<PaginatedResult<Message>>
   searchMessages(projectId: ProjectId, query: string, params: PaginationParams): Promise<PaginatedResult<Message>>
-  update(projectId: ProjectId, id: ConversationId, data: { title?: string; target?: ChatTarget }): Promise<Conversation>
+  update(projectId: ProjectId, id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation>
   delete(projectId: ProjectId, id: ConversationId): Promise<void>
   getConversationTokenUsage?(projectId: ProjectId, conversationId: ConversationId): Promise<ConversationTokenUsageResult>
   compact?(projectId: ProjectId, conversationId: ConversationId, signal?: AbortSignal): Promise<CompactRecord>
@@ -107,8 +106,8 @@ export interface ISettingsService {
 export interface ICronJobService {
   list(projectId: ProjectId): Promise<CronJob[]>
   getById(projectId: ProjectId, id: CronJobId): Promise<CronJob | null>
-  create(projectId: ProjectId, data: Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
-  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<CronJob>
+  create(projectId: ProjectId, data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'> & { teamId?: TeamId }): Promise<CronJob>
+  update(projectId: ProjectId, id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'> & { teamId?: TeamId }>): Promise<CronJob>
   delete(projectId: ProjectId, id: CronJobId): Promise<void>
   trigger?(projectId: ProjectId, id: CronJobId): Promise<void>
   listRuns?(projectId: ProjectId, cronJobId?: CronJobId, limit?: number): Promise<CronJobRun[]>

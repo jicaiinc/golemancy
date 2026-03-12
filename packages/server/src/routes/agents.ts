@@ -72,11 +72,11 @@ export function createAgentRoutes(deps: AgentRouteDeps) {
     const agentId = c.req.param('id') as AgentId
     log.debug({ projectId, agentId }, 'deleting agent')
 
-    // Cascade: clear defaultTarget if it points to the deleted agent
+    // Cascade: clear defaultAgentId if it points to the deleted agent
     const project = await projectStorage.getById(projectId)
-    if (project?.defaultTarget?.kind === 'agent' && project.defaultTarget.agentId === agentId) {
-      log.debug({ projectId, agentId }, 'clearing defaultTarget (cascade)')
-      await projectStorage.update(projectId, { defaultTarget: undefined })
+    if (project && project.defaultAgentId === agentId) {
+      log.debug({ projectId, agentId }, 'clearing defaultAgentId (cascade)')
+      await projectStorage.update(projectId, { defaultAgentId: undefined })
     }
 
     await storage.delete(projectId, agentId)

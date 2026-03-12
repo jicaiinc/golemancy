@@ -53,7 +53,7 @@ function makeConversation(overrides?: Partial<Conversation>): Conversation {
   return {
     id: 'conv-1' as ConversationId,
     projectId: 'proj-1' as ProjectId,
-    target: { kind: 'agent', agentId: 'agent-1' as AgentId },
+    agentId: 'agent-1' as AgentId,
     title: 'Test Chat',
     messages: [],
     lastMessageAt: now,
@@ -247,6 +247,7 @@ describe('ChatWindow', () => {
     expect(getOrCreateChat).toHaveBeenCalledWith({
       conversationId: 'conv-1',
       projectId: 'proj-1',
+      agentId: 'agent-1',
       initialMessages: [],
       serverConfig: null,
     })
@@ -264,7 +265,7 @@ describe('ChatWindow', () => {
     rerender(
       <MemoryRouter>
         <ChatWindow
-          conversation={makeConversation({ target: { kind: 'agent', agentId: 'agent-2' as AgentId } })}
+          conversation={makeConversation({ agentId: 'agent-2' as AgentId })}
           agent={makeAgent({ id: 'agent-2' as AgentId, name: 'Researcher' })}
           {...defaultSidebarProps}
         />
@@ -274,6 +275,7 @@ describe('ChatWindow', () => {
     expect(getOrCreateChat).toHaveBeenNthCalledWith(2, {
       conversationId: 'conv-1',
       projectId: 'proj-1',
+      agentId: 'agent-2',
       initialMessages: [],
       serverConfig: null,
     })

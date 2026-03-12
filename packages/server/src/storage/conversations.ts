@@ -1,5 +1,5 @@
 import type {
-  Conversation, ConversationId, ProjectId, AgentId, TeamId, ChatTarget, Message, MessageId,
+  Conversation, ConversationId, ProjectId, AgentId, TeamId, Message, MessageId,
   PaginationParams, PaginatedResult,
   IConversationService,
 } from '@golemancy/shared'
@@ -22,11 +22,7 @@ export class SqliteConversationStorage implements IConversationService {
     const db = this.getProjectDb(projectId)
 
     const conditions: ReturnType<typeof eq>[] = []
-    if (agentId) {
-      // Filter by agent target (kind='agent' and targetId matches)
-      conditions.push(eq(schema.conversations.targetKind, 'agent'))
-      conditions.push(eq(schema.conversations.targetId, agentId))
-    }
+    if (agentId) conditions.push(eq(schema.conversations.agentId, agentId))
 
     const rows = await db
       .select()
@@ -52,17 +48,16 @@ export class SqliteConversationStorage implements IConversationService {
     return this.rowToConversation(rows[0], projectId, messages)
   }
 
-  async create(projectId: ProjectId, target: ChatTarget, title: string): Promise<Conversation> {
+  async create(projectId: ProjectId, agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation> {
     const db = this.getProjectDb(projectId)
     const id = generateId('conv')
-    const targetId = target.kind === 'agent' ? target.agentId : target.teamId
-    log.debug({ projectId, targetKind: target.kind, targetId, conversationId: id }, 'creating conversation')
+    log.debug({ projectId, agentId, conversationId: id }, 'creating conversation')
     const now = new Date().toISOString()
 
     await db.insert(schema.conversations).values({
       id,
-      targetKind: target.kind,
-      targetId,
+      agentId,
+      teamId: teamId ?? null,
       title,
       lastMessageAt: now,
       createdAt: now,
@@ -72,7 +67,8 @@ export class SqliteConversationStorage implements IConversationService {
     return {
       id,
       projectId,
-      target,
+      agentId,
+      ...(teamId ? { teamId } : {}),
       title,
       messages: [],
       lastMessageAt: now,
@@ -147,15 +143,13 @@ export class SqliteConversationStorage implements IConversationService {
     log.debug({ projectId, conversationId, messageId: data.id, role: data.role }, 'saved message')
   }
 
-  async update(projectId: ProjectId, id: ConversationId, data: { title?: string; target?: ChatTarget }): Promise<Conversation> {
+  async update(projectId: ProjectId, id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation> {
     const db = this.getProjectDb(projectId)
     const now = new Date().toISOString()
-    const updateFields: Record<string, string> = { updatedAt: now }
+    const updateFields: Record<string, string | null> = { updatedAt: now }
     if (data.title !== undefined) updateFields.title = data.title
-    if (data.target !== undefined) {
-      updateFields.targetKind = data.target.kind
-      updateFields.targetId = data.target.kind === 'agent' ? data.target.agentId : data.target.teamId
-    }
+    if (data.agentId !== undefined) updateFields.agentId = data.agentId
+    if (data.teamId !== undefined) updateFields.teamId = data.teamId ?? null
 
     await db
       .update(schema.conversations)
@@ -297,14 +291,11 @@ export class SqliteConversationStorage implements IConversationService {
   }
 
   private rowToConversation(row: typeof schema.conversations.$inferSelect, projectId: ProjectId, messages: Message[] = []): Conversation {
-    const target: ChatTarget = row.targetKind === 'team'
-      ? { kind: 'team', teamId: row.targetId as TeamId }
-      : { kind: 'agent', agentId: row.targetId as AgentId }
-
     return {
       id: row.id as ConversationId,
       projectId,
-      target,
+      agentId: row.agentId as AgentId,
+      ...(row.teamId ? { teamId: row.teamId as TeamId } : {}),
       title: row.title,
       messages,
       lastMessageAt: row.lastMessageAt ?? row.createdAt,

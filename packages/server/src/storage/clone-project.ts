@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type {
-  Project, ProjectId, AgentId, SkillId, TeamId, CronJobId, PermissionsConfigId, ChatTarget,
+  Project, ProjectId, AgentId, SkillId, TeamId, CronJobId, PermissionsConfigId,
 } from '@golemancy/shared'
 import { readJson, writeJson, isNodeError } from './base'
 import { getDataDir, validateId } from '../utils/paths'
@@ -26,21 +26,14 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
   validateId(sourceId)
 
   const sourceDir = projectDir(sourceId)
-  const sourceProjectRaw = await readJson<Project & { mainAgentId?: AgentId; defaultAgentId?: AgentId; defaultTeamId?: TeamId }>(path.join(sourceDir, 'project.json'))
+  const sourceProjectRaw = await readJson<Project & { mainAgentId?: AgentId }>(path.join(sourceDir, 'project.json'))
   if (!sourceProjectRaw) throw new Error(`Project ${sourceId} not found`)
 
-  // Normalize: migrate legacy mainAgentId/defaultAgentId/defaultTeamId → defaultTarget
-  let defaultTarget: ChatTarget | undefined = sourceProjectRaw.defaultTarget
-  if (!defaultTarget) {
-    const legacyAgentId = sourceProjectRaw.defaultAgentId ?? sourceProjectRaw.mainAgentId
-    const legacyTeamId = sourceProjectRaw.defaultTeamId
-    if (legacyTeamId) {
-      defaultTarget = { kind: 'team', teamId: legacyTeamId }
-    } else if (legacyAgentId) {
-      defaultTarget = { kind: 'agent', agentId: legacyAgentId }
-    }
+  // Normalize: migrate legacy mainAgentId → defaultAgentId
+  const sourceProject: Project = {
+    ...sourceProjectRaw,
+    defaultAgentId: sourceProjectRaw.defaultAgentId ?? sourceProjectRaw.mainAgentId,
   }
-  const sourceProject: Project = { ...sourceProjectRaw, defaultTarget }
 
   const newId = generateId('proj')
   const targetDir = projectDir(newId)
@@ -214,16 +207,7 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
         delete data.lastRunStatus
         delete data.nextRunAt
         delete data.lastRunId
-        // Remap target (new format) or legacy agentId/teamId
-        if (data.target && typeof data.target === 'object') {
-          const t = data.target as { kind: string; agentId?: string; teamId?: string }
-          if (t.kind === 'agent' && t.agentId) {
-            t.agentId = remap.agents.get(t.agentId as AgentId) ?? t.agentId
-          } else if (t.kind === 'team' && t.teamId) {
-            t.teamId = remap.teams.get(t.teamId as TeamId) ?? t.teamId
-          }
-        }
-        // Legacy fields (for backward compat with pre-migration JSON)
+        // Remap agentId and teamId
         if (data.agentId) {
           data.agentId = remap.agents.get(data.agentId as AgentId) ?? data.agentId
         }
@@ -236,19 +220,6 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
 
     // 7. Write project.json
     const now = new Date().toISOString()
-
-    // Remap defaultTarget IDs
-    let newDefaultTarget: ChatTarget | undefined
-    if (sourceProject.defaultTarget) {
-      if (sourceProject.defaultTarget.kind === 'agent') {
-        const remapped = remap.agents.get(sourceProject.defaultTarget.agentId) ?? sourceProject.defaultTarget.agentId
-        newDefaultTarget = { kind: 'agent', agentId: remapped }
-      } else {
-        const remapped = remap.teams.get(sourceProject.defaultTarget.teamId) ?? sourceProject.defaultTarget.teamId
-        newDefaultTarget = { kind: 'team', teamId: remapped }
-      }
-    }
-
     const newProject: Project = {
       id: newId,
       name: newName,
@@ -260,7 +231,12 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
           ? remap.permissions.get(sourceProject.config.permissionsConfigId) ?? sourceProject.config.permissionsConfigId
           : undefined,
       },
-      defaultTarget: newDefaultTarget,
+      defaultAgentId: sourceProject.defaultAgentId
+        ? remap.agents.get(sourceProject.defaultAgentId) ?? sourceProject.defaultAgentId
+        : undefined,
+      defaultTeamId: sourceProject.defaultTeamId
+        ? remap.teams.get(sourceProject.defaultTeamId) ?? sourceProject.defaultTeamId
+        : undefined,
       agentCount: remap.agents.size,
       activeAgentCount: 0,
       lastActivityAt: now,

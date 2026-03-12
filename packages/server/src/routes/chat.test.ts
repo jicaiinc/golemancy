@@ -3,7 +3,7 @@ import { Hono } from 'hono'
 import type {
   Agent, Project, Conversation, GlobalSettings,
   ProjectId, AgentId, ConversationId, IMCPService, IAgentService,
-  IProjectService, IConversationService, ISettingsService, IPermissionsConfigService, ITeamService,
+  IProjectService, IConversationService, ISettingsService, IPermissionsConfigService,
 } from '@golemancy/shared'
 import { createChatRoutes, type ChatRouteDeps } from './chat'
 import { ConfigurationError } from '../agent/errors'
@@ -106,20 +106,6 @@ const defaultSettings: GlobalSettings = {
   theme: 'dark',
 }
 
-function makeConversation(overrides: Partial<Conversation> = {}): Conversation {
-  return {
-    id: convId,
-    projectId: projId,
-    target: { kind: 'agent', agentId },
-    title: 'Test Conversation',
-    messages: [],
-    lastMessageAt: '2026-01-01T00:00:00Z',
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-    ...overrides,
-  }
-}
-
 function createMocks(): ChatRouteDeps {
   return {
     agentStorage: {
@@ -180,14 +166,6 @@ function createMocks(): ChatRouteDeps {
       list: vi.fn().mockResolvedValue([]),
       save: vi.fn().mockResolvedValue({ id: 'compact-1' }),
     },
-    teamStorage: {
-      list: vi.fn().mockResolvedValue([]),
-      getById: vi.fn().mockResolvedValue(null),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      clone: vi.fn(),
-    },
   }
 }
 
@@ -216,6 +194,7 @@ describe('Chat routes', () => {
 
   const validBody = {
     projectId: projId,
+    agentId,
     conversationId: convId,
     messages: [
       { id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello' }] },
@@ -278,7 +257,7 @@ describe('Chat routes', () => {
       expect((await res.json()).error).toBe('INVALID_MESSAGE_ROLE')
     })
 
-    it('returns 400 when conversationId is missing', async () => {
+    it('returns 400 when neither agentId nor conversationId provided', async () => {
       const res = await app.request('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -288,24 +267,12 @@ describe('Chat routes', () => {
         }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toBe('CONVERSATION_ID_REQUIRED')
+      expect((await res.json()).error).toBe('AGENT_ID_REQUIRED')
     })
   })
 
   describe('agent resolution', () => {
-    it('returns 404 when conversation not found', async () => {
-      const res = await app.request('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validBody),
-      })
-      expect(res.status).toBe(404)
-      expect((await res.json()).error).toBe('CONVERSATION_NOT_FOUND')
-    })
-
     it('returns 404 when agent not found', async () => {
-      vi.mocked(mocks.conversationStorage.getById).mockResolvedValue(makeConversation())
-
       const res = await app.request('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -315,16 +282,29 @@ describe('Chat routes', () => {
       expect((await res.json()).error).toBe('AGENT_NOT_FOUND')
     })
 
-    it('resolves agentId from conversation target', async () => {
-      vi.mocked(mocks.conversationStorage.getById).mockResolvedValue(makeConversation())
+    it('resolves agentId from conversation when not provided directly', async () => {
+      vi.mocked(mocks.conversationStorage.getById).mockResolvedValue({
+        id: convId,
+        projectId: projId,
+        agentId,
+        title: 'Test',
+        messages: [],
+        lastMessageAt: '2026-01-01T00:00:00Z',
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-01-01T00:00:00Z',
+      })
       vi.mocked(mocks.agentStorage.getById).mockResolvedValue(makeAgent())
 
       const res = await app.request('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validBody),
+        body: JSON.stringify({
+          projectId: projId,
+          conversationId: convId,
+          messages: [{ id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello' }] }],
+        }),
       })
-      // Should not be a 400 — agent resolved from conversation target
+      // Should not be a 400 — agent resolved from conversation
       expect(res.status).not.toBe(400)
       expect(mocks.conversationStorage.getById).toHaveBeenCalledWith(projId, convId)
     })
@@ -332,7 +312,6 @@ describe('Chat routes', () => {
 
   describe('successful stream', () => {
     it('returns streaming response', async () => {
-      vi.mocked(mocks.conversationStorage.getById).mockResolvedValue(makeConversation())
       vi.mocked(mocks.agentStorage.getById).mockResolvedValue(makeAgent())
 
       const res = await app.request('/api/chat', {
@@ -344,8 +323,7 @@ describe('Chat routes', () => {
       expect(res.headers.get('Content-Type')).toContain('text/event-stream')
     })
 
-    it('saves user message before streaming', async () => {
-      vi.mocked(mocks.conversationStorage.getById).mockResolvedValue(makeConversation())
+    it('saves user message before streaming when conversationId is provided', async () => {
       vi.mocked(mocks.agentStorage.getById).mockResolvedValue(makeAgent())
 
       await app.request('/api/chat', {
@@ -363,11 +341,22 @@ describe('Chat routes', () => {
         }),
       )
     })
+
+    it('does not save user message when conversationId is not provided', async () => {
+      vi.mocked(mocks.agentStorage.getById).mockResolvedValue(makeAgent())
+
+      await app.request('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...validBody, conversationId: undefined }),
+      })
+
+      expect(mocks.conversationStorage.saveMessage).not.toHaveBeenCalled()
+    })
   })
 
   describe('error classification', () => {
     it('returns 422 with error details when resolveModel throws ConfigurationError', async () => {
-      vi.mocked(mocks.conversationStorage.getById).mockResolvedValue(makeConversation())
       vi.mocked(mocks.agentStorage.getById).mockResolvedValue(makeAgent())
       const { resolveModel } = await import('../agent/model')
       vi.mocked(resolveModel).mockRejectedValueOnce(
@@ -387,7 +376,6 @@ describe('Chat routes', () => {
     })
 
     it('returns 500 with generic error when resolveModel throws a plain Error', async () => {
-      vi.mocked(mocks.conversationStorage.getById).mockResolvedValue(makeConversation())
       vi.mocked(mocks.agentStorage.getById).mockResolvedValue(makeAgent())
       const { resolveModel } = await import('../agent/model')
       vi.mocked(resolveModel).mockRejectedValueOnce(new Error('Unexpected failure'))

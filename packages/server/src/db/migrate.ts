@@ -213,32 +213,6 @@ export function migrateDatabase(db: AppDatabase) {
     db.run(sql`ALTER TABLE conversations ADD COLUMN team_id TEXT`)
   }
 
-  // --- Migration v10: ChatTarget refactor — replace agent_id + team_id with target_kind + target_id ---
-  const convColsV10 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
-  const hasTargetKind = convColsV10.some(c => c.name === 'target_kind')
-
-  if (!hasTargetKind) {
-    log.debug('migrating conversations: adding target_kind + target_id columns')
-    db.run(sql`ALTER TABLE conversations ADD COLUMN target_kind TEXT NOT NULL DEFAULT 'agent'`)
-    db.run(sql`ALTER TABLE conversations ADD COLUMN target_id TEXT NOT NULL DEFAULT ''`)
-
-    // Populate from existing data
-    db.run(sql`
-      UPDATE conversations
-      SET target_kind = CASE WHEN team_id IS NOT NULL AND team_id != '' THEN 'team' ELSE 'agent' END,
-          target_id   = CASE WHEN team_id IS NOT NULL AND team_id != '' THEN team_id ELSE agent_id END
-    `)
-
-    // Create new index
-    db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_target ON conversations(target_kind, target_id)`)
-
-    // Drop old columns and index
-    db.run(sql`DROP INDEX IF EXISTS idx_conversations_agent`)
-    db.run(sql`ALTER TABLE conversations DROP COLUMN team_id`)
-    db.run(sql`ALTER TABLE conversations DROP COLUMN agent_id`)
-    log.debug('migrating conversations: ChatTarget migration complete')
-  }
-
   // Set up FTS5
   setupFTS(db)
   log.info('database migrations complete')

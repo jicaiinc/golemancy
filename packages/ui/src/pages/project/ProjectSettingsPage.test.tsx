@@ -180,7 +180,7 @@ describe('ProjectSettingsPage', () => {
 
   it('calls updateProject with mutual exclusion when default is changed', async () => {
     const agentId = 'agent-ps1' as AgentId
-    const projectWithMain: Project = { ...testProject, defaultTarget: { kind: 'agent', agentId } }
+    const projectWithMain: Project = { ...testProject, defaultAgentId: agentId }
     useAppStore.setState({ projects: [projectWithMain], currentProjectId: PROJECT_ID })
     const mockUpdate = vi.fn().mockResolvedValue(undefined)
     useAppStore.setState({ updateProject: mockUpdate })

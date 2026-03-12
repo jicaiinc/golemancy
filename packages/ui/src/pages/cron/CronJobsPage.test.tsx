@@ -27,7 +27,7 @@ const mockCronJobs = [
   {
     id: 'cron-1' as CronJobId,
     projectId: 'proj-1' as ProjectId,
-    target: { kind: 'agent' as const, agentId: 'agent-1' as AgentId },
+    agentId: 'agent-1' as AgentId,
     name: 'Daily Summary',
     cronExpression: '0 9 * * *',
     enabled: true,
@@ -38,7 +38,7 @@ const mockCronJobs = [
   {
     id: 'cron-2' as CronJobId,
     projectId: 'proj-1' as ProjectId,
-    target: { kind: 'agent' as const, agentId: 'agent-2' as AgentId },
+    agentId: 'agent-2' as AgentId,
     name: 'Weekly Scan',
     cronExpression: '0 8 * * 1',
     enabled: false,
@@ -162,7 +162,7 @@ describe('CronJobsPage', () => {
     useAppStore.setState({
       cronJobs: [{
         ...mockCronJobs[0],
-        target: { kind: 'agent' as const, agentId: 'agent-missing' as AgentId },
+        agentId: 'agent-missing' as AgentId,
       }] as any,
     })
     renderWithRouter(<CronJobsPage />)

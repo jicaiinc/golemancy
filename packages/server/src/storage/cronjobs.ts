@@ -1,7 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import type { CronJob, CronJobId, CronJobRunStatus, ProjectId, AgentId, TeamId, ICronJobService } from '@golemancy/shared'
-import { chatTargetFromLegacy } from '@golemancy/shared'
+import type { CronJob, CronJobId, CronJobRunStatus, ProjectId, ICronJobService } from '@golemancy/shared'
 import { readJson, writeJson, deleteFile, listJsonFiles } from './base'
 import { getProjectPath, getDataDir, validateId } from '../utils/paths'
 import { generateId } from '../utils/ids'
@@ -19,33 +18,20 @@ export class FileCronJobStorage implements ICronJobService {
     return path.join(this.cronJobsDir(projectId), `${id}.json`)
   }
 
-  /** Migrate legacy agentId + teamId? → target for existing cronjob data */
-  private normalizeCronJob(job: CronJob): CronJob {
-    if (job.target) return job
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const raw = job as any
-    const legacyAgentId: AgentId | undefined = raw.agentId
-    const legacyTeamId: TeamId | undefined = raw.teamId
-    if (legacyAgentId || legacyTeamId) {
-      return { ...job, target: chatTargetFromLegacy(legacyAgentId!, legacyTeamId) }
-    }
-    return job
-  }
-
   async list(projectId: ProjectId): Promise<CronJob[]> {
     const jobs = await listJsonFiles<CronJob>(this.cronJobsDir(projectId))
     log.debug({ projectId, count: jobs.length }, 'listed cron jobs')
-    return jobs.map(j => this.normalizeCronJob({ ...j, projectId }))
+    return jobs.map(j => ({ ...j, projectId }))
   }
 
   async getById(projectId: ProjectId, id: CronJobId): Promise<CronJob | null> {
     const job = await readJson<CronJob>(this.cronJobPath(projectId, id))
-    return job ? this.normalizeCronJob({ ...job, projectId }) : null
+    return job ? { ...job, projectId } : null
   }
 
   async create(
     projectId: ProjectId,
-    data: Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>,
+    data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>,
   ): Promise<CronJob> {
     const id = generateId('cron')
     log.debug({ projectId, cronJobId: id }, 'creating cron job')
@@ -68,7 +54,7 @@ export class FileCronJobStorage implements ICronJobService {
   async update(
     projectId: ProjectId,
     id: CronJobId,
-    data: Partial<Pick<CronJob, 'target' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>,
+    data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>,
   ): Promise<CronJob> {
     const existing = await this.getById(projectId, id)
     if (!existing) throw new Error(`CronJob ${id} not found in project ${projectId}`)
@@ -103,7 +89,7 @@ export class FileCronJobStorage implements ICronJobService {
         const projectId = entry.name as ProjectId
         const cronDir = path.join(projectsDir, entry.name, 'cronjobs')
         const jobs = await listJsonFiles<CronJob>(cronDir)
-        allJobs.push(...jobs.filter(j => j.enabled).map(j => this.normalizeCronJob({ ...j, projectId })))
+        allJobs.push(...jobs.filter(j => j.enabled).map(j => ({ ...j, projectId })))
       }
       return allJobs
     } catch (e) {

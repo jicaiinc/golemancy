@@ -1,10 +1,9 @@
 import { Hono } from 'hono'
 import { convertToModelMessages, type UIMessage } from 'ai'
 import type {
-  ProjectId, AgentId, ConversationId, MessageId, ChatTarget,
-  IConversationService, IAgentService, ISettingsService, ITeamService,
+  ProjectId, AgentId, ConversationId, MessageId, TeamId,
+  IConversationService, IAgentService, ISettingsService,
 } from '@golemancy/shared'
-import { resolveTargetAgentId } from '@golemancy/shared'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { CompactRecordStorage } from '../storage/compact-records'
 import type { OAuthManager } from '../auth/oauth-manager'
@@ -27,7 +26,6 @@ export interface ConversationRouteDeps {
   compactRecordStorage: CompactRecordStorage
   agentStorage: IAgentService
   settingsStorage: ISettingsService
-  teamStorage: ITeamService
   oauthManager?: OAuthManager
 }
 
@@ -66,9 +64,9 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
 
   app.post('/', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
-    const { target, title } = await c.req.json<{ target: ChatTarget; title: string }>()
-    log.debug({ projectId, targetKind: target.kind }, 'creating conversation')
-    const conv = await storage.create(projectId, target, title)
+    const { agentId, title, teamId } = await c.req.json()
+    log.debug({ projectId, agentId }, 'creating conversation')
+    const conv = await storage.create(projectId, agentId, title, teamId)
     log.debug({ projectId, conversationId: conv.id }, 'created conversation')
     return c.json(conv, 201)
   })
@@ -76,7 +74,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
   app.patch('/:id', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('id') as ConversationId
-    const data = await c.req.json<{ title?: string; target?: ChatTarget }>()
+    const data = await c.req.json<{ title?: string; agentId?: AgentId; teamId?: TeamId | null }>()
     log.debug({ projectId, conversationId: convId }, 'updating conversation')
     const conv = await storage.update(projectId, convId, data)
     return c.json(conv)
@@ -158,10 +156,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     if (!conv) return c.json({ error: 'NOT_FOUND' }, 404)
     if (conv.messages.length === 0) return c.json({ error: 'NO_MESSAGES_TO_COMPACT' }, 400)
 
-    const teams = await deps.teamStorage.list(projectId)
-    const resolvedAgentId = resolveTargetAgentId(conv.target, teams)
-    if (!resolvedAgentId) return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
-    const agent = await agentStorage.getById(projectId, resolvedAgentId)
+    const agent = await agentStorage.getById(projectId, conv.agentId)
     if (!agent) return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
 
     const settings = await deps.settingsStorage.get()
