@@ -10,14 +10,31 @@ import { logger } from '../logger'
 const log = logger.child({ component: 'storage:projects' })
 
 export class FileProjectStorage implements IProjectService {
+  private normalizeDefaultTarget(project: Project): Project {
+    const defaultTeamId = project.defaultTeamId
+    if (defaultTeamId && project.defaultAgentId) {
+      log.warn(
+        { projectId: project.id, defaultAgentId: project.defaultAgentId, defaultTeamId },
+        'project has both defaultAgentId and defaultTeamId; preferring defaultTeamId',
+      )
+      return {
+        ...project,
+        defaultAgentId: undefined,
+        defaultTeamId,
+      }
+    }
+
+    return project
+  }
+
   /** Migrate mainAgentId → defaultAgentId for existing project data */
   private normalize(project: Project): Project {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const raw = project as any
-    return {
+    return this.normalizeDefaultTarget({
       ...project,
       defaultAgentId: project.defaultAgentId ?? raw.mainAgentId,
-    }
+    })
   }
 
   private get projectsDir() {
@@ -94,6 +111,21 @@ export class FileProjectStorage implements IProjectService {
       ...cleaned,
       updatedAt: new Date().toISOString(),
     }
+
+    if (
+      Object.prototype.hasOwnProperty.call(cleaned, 'defaultTeamId')
+      && cleaned.defaultTeamId !== undefined
+    ) {
+      updated.defaultAgentId = undefined
+    }
+
+    if (
+      Object.prototype.hasOwnProperty.call(cleaned, 'defaultAgentId')
+      && cleaned.defaultAgentId !== undefined
+    ) {
+      updated.defaultTeamId = undefined
+    }
+
     await writeJson(this.projectJsonPath(id), updated)
     return updated
   }

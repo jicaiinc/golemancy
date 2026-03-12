@@ -253,6 +253,34 @@ describe('ChatWindow', () => {
     })
   })
 
+  it('re-resolves chat when the conversation target agent changes', async () => {
+    const { getOrCreateChat } = await import('../../lib/chat-instances')
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} />
+      </MemoryRouter>,
+    )
+
+    rerender(
+      <MemoryRouter>
+        <ChatWindow
+          conversation={makeConversation({ agentId: 'agent-2' as AgentId })}
+          agent={makeAgent({ id: 'agent-2' as AgentId, name: 'Researcher' })}
+          {...defaultSidebarProps}
+        />
+      </MemoryRouter>,
+    )
+
+    expect(getOrCreateChat).toHaveBeenNthCalledWith(2, {
+      conversationId: 'conv-1',
+      projectId: 'proj-1',
+      agentId: 'agent-2',
+      initialMessages: [],
+      serverConfig: null,
+    })
+  })
+
   it('delete button calls deleteConversation and clears selection after confirmation', async () => {
     const mockDelete = vi.fn().mockResolvedValue(undefined)
     const mockSelect = vi.fn()

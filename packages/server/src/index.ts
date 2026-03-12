@@ -39,7 +39,7 @@ async function main() {
   const startTime = Date.now()
   logger.info({ node: process.version, platform: process.platform, arch: process.arch, pid: process.pid }, 'server starting')
 
-  const port = parseInt(process.env.PORT ?? '3000', 10)
+  const port = parseInt(process.env.PORT ?? '3883', 10)
 
   // Ensure data directory exists
   const dataDir = getDataDir()

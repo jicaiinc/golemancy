@@ -528,6 +528,11 @@ export const useAppStore = create<AppState>()(
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
         const updated = await getServices().conversations.update(projectId, id, data)
+        const changesTarget = Object.prototype.hasOwnProperty.call(data, 'agentId')
+          || Object.prototype.hasOwnProperty.call(data, 'teamId')
+        if (changesTarget) {
+          destroyChat(id)
+        }
         set(s => ({ conversations: s.conversations.map(c => c.id === id ? updated : c) }))
         return updated
       },

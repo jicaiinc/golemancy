@@ -340,6 +340,54 @@ describe('useAppStore', () => {
     })
   })
 
+  describe('updateConversation', () => {
+    beforeEach(async () => {
+      const { destroyChat } = await import('../lib/chat-instances')
+      vi.mocked(destroyChat).mockClear()
+    })
+
+    it('destroys cached chat when agent or team target changes', async () => {
+      const { destroyChat } = await import('../lib/chat-instances')
+      useAppStore.setState({
+        currentProjectId: 'proj-1' as ProjectId,
+        conversations: [{ id: 'conv-1' as ConversationId, title: 'Chat 1', agentId: 'agent-1' as AgentId, teamId: null } as any],
+      })
+      ;(mockServices.conversations.update as any).mockResolvedValue({
+        id: 'conv-1',
+        title: 'Chat 1',
+        agentId: 'agent-2',
+        teamId: 'team-1',
+      })
+
+      await useAppStore.getState().updateConversation('conv-1' as ConversationId, {
+        agentId: 'agent-2' as AgentId,
+        teamId: 'team-1' as TeamId,
+      })
+
+      expect(destroyChat).toHaveBeenCalledWith('conv-1')
+    })
+
+    it('does not destroy cached chat when only the title changes', async () => {
+      const { destroyChat } = await import('../lib/chat-instances')
+      useAppStore.setState({
+        currentProjectId: 'proj-1' as ProjectId,
+        conversations: [{ id: 'conv-1' as ConversationId, title: 'Chat 1', agentId: 'agent-1' as AgentId, teamId: null } as any],
+      })
+      ;(mockServices.conversations.update as any).mockResolvedValue({
+        id: 'conv-1',
+        title: 'Renamed',
+        agentId: 'agent-1',
+        teamId: null,
+      })
+
+      await useAppStore.getState().updateConversation('conv-1' as ConversationId, {
+        title: 'Renamed',
+      })
+
+      expect(destroyChat).not.toHaveBeenCalled()
+    })
+  })
+
   describe('chat cleanup on project switch', () => {
     it('selectProject calls releaseIdleChats (keeps streaming chats alive)', async () => {
       const { releaseIdleChats } = await import('../lib/chat-instances')

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { createTmpDir } from '../test/helpers'
-import type { ProjectId } from '@golemancy/shared'
+import type { AgentId, ProjectId, TeamId } from '@golemancy/shared'
 
 const state = vi.hoisted(() => ({ tmpDir: '' }))
 
@@ -16,6 +16,22 @@ vi.mock('../utils/paths', async (importOriginal) => {
 })
 
 import { FileProjectStorage } from './projects'
+
+function makeProject(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'proj-1',
+    name: 'Test Project',
+    description: 'A test project',
+    icon: 'sword',
+    config: {},
+    agentCount: 0,
+    activeAgentCount: 0,
+    lastActivityAt: '2026-01-01T00:00:00Z',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    ...overrides,
+  }
+}
 
 describe('FileProjectStorage', () => {
   let storage: FileProjectStorage
@@ -90,6 +106,26 @@ describe('FileProjectStorage', () => {
       const found = await storage.getById('proj-missing' as ProjectId)
       expect(found).toBeNull()
     })
+
+    it('normalizes legacy projects with both defaultAgentId and defaultTeamId', async () => {
+      const projectId = 'proj-legacy' as ProjectId
+      const projectDir = path.join(state.tmpDir, 'projects', projectId)
+      await fs.mkdir(projectDir, { recursive: true })
+      await fs.writeFile(
+        path.join(projectDir, 'project.json'),
+        JSON.stringify({
+          ...makeProject({
+            id: projectId,
+            defaultAgentId: 'agent-1' as AgentId,
+            defaultTeamId: 'team-1' as TeamId,
+          }),
+        }, null, 2),
+      )
+
+      const found = await storage.getById(projectId)
+      expect(found?.defaultTeamId).toBe('team-1')
+      expect(found?.defaultAgentId).toBeUndefined()
+    })
   })
 
   describe('update', () => {
@@ -119,6 +155,38 @@ describe('FileProjectStorage', () => {
 
       const reloaded = await storage.getById(created.id)
       expect(reloaded!.name).toBe('After')
+    })
+
+    it('clears defaultAgentId when setting defaultTeamId', async () => {
+      const created = await storage.create({
+        name: 'Before', description: '', icon: 's',
+      })
+      await storage.update(created.id, { defaultAgentId: 'agent-1' as AgentId })
+
+      const updated = await storage.update(created.id, { defaultTeamId: 'team-1' as TeamId })
+
+      expect(updated.defaultTeamId).toBe('team-1')
+      expect(updated.defaultAgentId).toBeUndefined()
+
+      const reloaded = await storage.getById(created.id)
+      expect(reloaded?.defaultTeamId).toBe('team-1')
+      expect(reloaded?.defaultAgentId).toBeUndefined()
+    })
+
+    it('clears defaultTeamId when setting defaultAgentId', async () => {
+      const created = await storage.create({
+        name: 'Before', description: '', icon: 's',
+      })
+      await storage.update(created.id, { defaultTeamId: 'team-1' as TeamId })
+
+      const updated = await storage.update(created.id, { defaultAgentId: 'agent-1' as AgentId })
+
+      expect(updated.defaultAgentId).toBe('agent-1')
+      expect(updated.defaultTeamId).toBeUndefined()
+
+      const reloaded = await storage.getById(created.id)
+      expect(reloaded?.defaultAgentId).toBe('agent-1')
+      expect(reloaded?.defaultTeamId).toBeUndefined()
     })
   })
 

@@ -111,10 +111,9 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
       serverConfig,
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // Only re-create Chat when conversation identity changes.
-  // Other deps (projectId, agentId, messages, serverConfig) are stable
-  // for a given conversation, or handled by the Chat instance cache.
-  }, [conversation.id])
+  // Re-resolve Chat when the conversation target changes.
+  // Empty conversations can switch agent/team before the first message.
+  }, [conversation.id, conversation.agentId, conversation.teamId, currentProjectId, serverConfig])
 
   // SAFETY: chat is null only when currentProjectId is null,
   // but ChatWindow is only rendered inside ProjectLayout which guarantees a project is selected.
