@@ -287,7 +287,22 @@ E2E pitfalls: macOS GUI processes don't inherit shell PATH → use `GOLEMANCY_FO
 
 Full team process defined in `_team/team.md`. **NEVER use Plan Mode to start a team** — create the team directly.
 
-Key rules (read `_team/team.md` for complete role definitions, phase details, and workflows):
+### How to Create a Team
+
+**必须使用 `TeamCreate` 工具创建团队**，该工具位于 deferred tools 列表中，使用前需要先通过 `ToolSearch` 加载：
+
+```
+1. ToolSearch: query "select:TeamCreate,SendMessage" → 加载工具 schema
+2. TeamCreate: 创建团队（会自动创建对应的 task list）
+3. Agent: 带 team_name 参数派出 teammates（选择合适的 subagent_type）
+4. SendMessage: 与 teammates 通信协调
+```
+
+**绝对不要用裸 Agent + TaskCreate 来模拟团队工作流。** 如果从上个会话恢复且 summary 提到"团队"，第一时间通过 TeamCreate 重建团队。
+
+### Key Rules
+
+Read `_team/team.md` for complete role definitions, phase details, and workflows:
 
 - **Step 0 (mandatory)**: Team Lead MUST recap ALL user requirements back to the user, get confirmation, then save to `_requirement/{YYYYMMDD-HHmm}-{name}.md` and broadcast to all members. This file is the **single source of truth**.
 - **12 roles**: Team Lead, Architect, Requirements Analyst, Abstraction Strategist, Fact Checker, UI/UX Designer, Full-stack Engineer, Test Engineer, Reference Analyst (on-demand), CR-Quality, CR-Security, CR-Performance
