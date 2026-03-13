@@ -103,6 +103,18 @@ function SourceLink({ url, title }: { url: string; title?: string }) {
   )
 }
 
+/** Source document display */
+function SourceDocumentDisplay({ title, mediaType, filename }: { title: string; mediaType: string; filename?: string }) {
+  return (
+    <div className="my-1 flex items-center gap-2">
+      <span className="text-[10px] font-mono text-text-dim">[DOC]</span>
+      <span className="text-[11px] font-mono text-accent-blue truncate">{title}</span>
+      {filename && <span className="text-[10px] font-mono text-text-dim">{filename}</span>}
+      <span className="text-[10px] font-mono text-text-dim ml-auto">{mediaType}</span>
+    </div>
+  )
+}
+
 /** Extract tool invocation data from a part that looks like a tool part.
  *  Handles both DynamicToolUIPart (type: 'dynamic-tool') and
  *  typed ToolUIPart (type: 'tool-${name}'). */
@@ -240,6 +252,9 @@ export const MessageBubble = memo(function MessageBubble({ message, chatStatus }
 
             case 'source-url':
               return <SourceLink key={i} url={part.url} title={part.title} />
+
+            case 'source-document':
+              return <SourceDocumentDisplay key={i} title={(part as any).title || 'Document'} mediaType={(part as any).mediaType || ''} filename={(part as any).filename} />
 
             case 'step-start':
               return <div key={i} className="my-2 border-t border-border-dim/50" />

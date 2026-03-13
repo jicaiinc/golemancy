@@ -182,12 +182,14 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
   // within the last message don't change messages.length, so we need status).
   // Use 'instant' on initial mount to avoid a visible scroll animation when
   // loading a conversation with existing messages.
+  const lastMsgPartsLength = messages[messages.length - 1]?.parts?.length ?? 0
+
   const hasScrolledRef = useRef(false)
   useEffect(() => {
     const behavior = hasScrolledRef.current ? 'smooth' : 'instant'
     messagesEndRef.current?.scrollIntoView({ behavior })
     hasScrolledRef.current = true
-  }, [messages.length, status])
+  }, [messages.length, status, lastMsgPartsLength])
 
   // Refresh conversation tasks after streaming completes.
   // Agent may have created/updated tasks via built-in TaskCreate/TaskUpdate tools.
@@ -264,7 +266,21 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
   }, [isBusy, onBusyChange])
   const lastMsg = messages[messages.length - 1]
   const hasVisibleContent = lastMsg?.role === 'assistant' &&
-    lastMsg.parts.some(p => p.type === 'text' && (p as { text: string }).text.length > 0)
+    lastMsg.parts.some(p => {
+      switch (p.type) {
+        case 'text':
+          return (p as { text: string }).text.length > 0
+        case 'reasoning':
+        case 'step-start':
+        case 'dynamic-tool':
+        case 'file':
+        case 'source-url':
+        case 'source-document':
+          return true
+        default:
+          return p.type.startsWith('tool-')
+      }
+    })
   const showThinking = isBusy && !hasVisibleContent
 
   return (
