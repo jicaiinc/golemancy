@@ -11,7 +11,9 @@
     "blankProject": "Blank Project",
     "blankProjectDescription": "Start from scratch with a default agent",
     "fromTemplate": "From Template",
-    "featured": "Featured"
+    "fromTemplateDescription": "Pre-configured agents, skills & tools",
+    "featured": "Featured",
+    "allCategories": "All"
   },
   "projects": {
     "writing-assistant": {
