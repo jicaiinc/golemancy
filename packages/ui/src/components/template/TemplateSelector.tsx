@@ -37,77 +37,57 @@ interface TemplateSelectorProps {
   onSelect: (templateId: string | null) => void
 }
 
-/** Compact card for the grid — icon + name + featured star */
-function CompactCard({
-  template,
-  selected,
-  onClick,
-}: {
-  template: ProjectTemplate
-  selected: boolean
-  onClick: () => void
-}) {
-  const { t } = useTranslation('templates')
-  const icon = ICON_MAP[template.icon] ?? ICON_MAP['star']
-
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full text-left px-3 py-2.5 border-2 cursor-pointer transition-colors ${
-        selected
-          ? 'bg-accent-green/10 border-accent-green'
-          : 'bg-surface border-border-dim hover:bg-elevated hover:border-border-bright'
-      }`}
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-[16px] shrink-0">{icon}</span>
-        <span className="font-pixel text-[9px] text-text-primary truncate flex-1">
-          {t(`projects.${template.id}.name`, { defaultValue: template.name })}
-        </span>
-        {template.featured && (
-          <span className="font-pixel text-[8px] text-accent-amber shrink-0">{'\u2605'}</span>
-        )}
-      </div>
-    </button>
-  )
-}
-
-/** Detail panel shown below grid when a template is selected */
+/** Detail panel for the selected template */
 function TemplateDetail({ template }: { template: ProjectTemplate }) {
   const { t } = useTranslation('templates')
   const icon = ICON_MAP[template.icon] ?? ICON_MAP['star']
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.15 }}
-      className="p-3 border-2 border-accent-green/30 bg-accent-green/5"
-    >
-      <div className="flex items-start gap-3">
-        <span className="text-[20px] mt-0.5 shrink-0">{icon}</span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-pixel text-[10px] text-text-primary">
-              {t(`projects.${template.id}.name`, { defaultValue: template.name })}
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <span className="text-[28px] shrink-0">{icon}</span>
+        <div>
+          <div className="font-pixel text-[11px] text-text-primary">
+            {t(`projects.${template.id}.name`, { defaultValue: template.name })}
+          </div>
+          {template.featured && (
+            <span className="font-pixel text-[7px] text-accent-amber">
+              {'\u2605'} {t('ui.featured')}
             </span>
-            {template.featured && (
-              <span className="font-pixel text-[7px] text-accent-amber">
-                {t('ui.featured')}
-              </span>
-            )}
-          </div>
-          <p className="font-mono text-[10px] text-text-dim leading-[14px]">
-            {t(`projects.${template.id}.description`, { defaultValue: template.description })}
-          </p>
-          <div className="mt-2">
-            <PixelBadge variant={CATEGORY_VARIANTS[template.category]}>
-              {t(`categories.${template.category}`, { defaultValue: template.category })}
-            </PixelBadge>
-          </div>
+          )}
         </div>
       </div>
-    </motion.div>
+
+      <p className="font-mono text-[11px] text-text-secondary leading-[18px]">
+        {t(`projects.${template.id}.description`, { defaultValue: template.description })}
+      </p>
+
+      <div>
+        <PixelBadge variant={CATEGORY_VARIANTS[template.category]}>
+          {t(`categories.${template.category}`, { defaultValue: template.category })}
+        </PixelBadge>
+      </div>
+
+      <div className="flex gap-4 font-mono text-[10px] text-text-dim">
+        {template.agents.length > 0 && <span>{template.agents.length} Agents</span>}
+        {template.skills.length > 0 && <span>{template.skills.length} Skills</span>}
+        {template.mcpServers.length > 0 && <span>{template.mcpServers.length} MCP</span>}
+        {template.teams.length > 0 && <span>{template.teams.length} Teams</span>}
+      </div>
+
+      {template.tags.length > 0 && (
+        <div className="flex gap-1 flex-wrap">
+          {template.tags.map(tag => (
+            <span
+              key={tag}
+              className="font-mono text-[9px] px-1.5 py-0.5 bg-elevated text-text-dim border border-border-dim"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -117,16 +97,15 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
   const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | null>(null)
 
   const filteredTemplates = categoryFilter
-    ? PROJECT_TEMPLATES.filter(t => t.category === categoryFilter)
+    ? PROJECT_TEMPLATES.filter(tmpl => tmpl.category === categoryFilter)
     : PROJECT_TEMPLATES
 
   const selectedTemplate = selectedTemplateId
-    ? PROJECT_TEMPLATES.find(t => t.id === selectedTemplateId)
+    ? PROJECT_TEMPLATES.find(tmpl => tmpl.id === selectedTemplateId)
     : undefined
 
-  // Gather which categories actually have templates
   const activeCategories = CATEGORIES.filter(cat =>
-    PROJECT_TEMPLATES.some(t => t.category === cat),
+    PROJECT_TEMPLATES.some(tmpl => tmpl.category === cat),
   )
 
   function handleBlankClick() {
@@ -142,7 +121,6 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
     <div className="flex flex-col gap-3">
       {/* Two creation mode options */}
       <div className="grid grid-cols-2 gap-3">
-        {/* Blank Project */}
         <button
           onClick={handleBlankClick}
           className={`text-left p-4 border-2 cursor-pointer transition-colors ${
@@ -162,7 +140,6 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
           </div>
         </button>
 
-        {/* From Template */}
         <button
           onClick={handleFromTemplateClick}
           className={`text-left p-4 border-2 cursor-pointer transition-colors ${
@@ -183,7 +160,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
         </button>
       </div>
 
-      {/* Template browser (expanded when "From Template" is active) */}
+      {/* Master-Detail split panel */}
       <AnimatePresence>
         {showTemplates && (
           <motion.div
@@ -193,48 +170,76 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="flex flex-col gap-2 pt-1">
-              {/* Category filter tabs */}
-              <div className="flex gap-1.5 flex-wrap">
-                <button
-                  onClick={() => setCategoryFilter(null)}
-                  className={`px-2 py-1 font-pixel text-[8px] border-2 cursor-pointer transition-colors ${
-                    categoryFilter === null
-                      ? 'bg-accent-green/15 border-accent-green text-accent-green'
-                      : 'bg-surface border-border-dim text-text-dim hover:text-text-secondary hover:border-border-bright'
-                  }`}
-                >
-                  {t('ui.allCategories')}
-                </button>
-                {activeCategories.map(cat => (
+            <div className="grid grid-cols-[200px_1fr] border-2 border-border-dim min-h-[280px]">
+              {/* Left: template list */}
+              <div className="border-r-2 border-border-dim flex flex-col">
+                {/* Category filter header */}
+                <div className="flex gap-1 flex-wrap p-2 border-b-2 border-border-dim bg-deep">
                   <button
-                    key={cat}
-                    onClick={() => setCategoryFilter(cat)}
-                    className={`px-2 py-1 font-pixel text-[8px] border-2 cursor-pointer transition-colors ${
-                      categoryFilter === cat
-                        ? 'bg-accent-green/15 border-accent-green text-accent-green'
-                        : 'bg-surface border-border-dim text-text-dim hover:text-text-secondary hover:border-border-bright'
+                    onClick={() => setCategoryFilter(null)}
+                    className={`px-1.5 py-0.5 font-pixel text-[7px] border cursor-pointer transition-colors ${
+                      categoryFilter === null
+                        ? 'text-accent-green border-accent-green bg-accent-green/8'
+                        : 'text-text-dim border-border-dim hover:text-text-secondary hover:border-border-bright'
                     }`}
                   >
-                    {t(`categories.${cat}`, { defaultValue: cat })}
+                    {t('ui.allCategories')}
                   </button>
-                ))}
+                  {activeCategories.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategoryFilter(cat)}
+                      className={`px-1.5 py-0.5 font-pixel text-[7px] border cursor-pointer transition-colors ${
+                        categoryFilter === cat
+                          ? 'text-accent-green border-accent-green bg-accent-green/8'
+                          : 'text-text-dim border-border-dim hover:text-text-secondary hover:border-border-bright'
+                      }`}
+                    >
+                      {t(`categories.${cat}`, { defaultValue: cat })}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Scrollable template list */}
+                <div className="flex-1 overflow-y-auto max-h-[240px]">
+                  {filteredTemplates.map(template => {
+                    const icon = ICON_MAP[template.icon] ?? ICON_MAP['star']
+                    const isSelected = selectedTemplateId === template.id
+                    return (
+                      <button
+                        key={template.id}
+                        onClick={() => onSelect(template.id)}
+                        className={`w-full flex items-center gap-2 px-2.5 py-2.5 border-b border-border-dim text-left cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-accent-green/10 border-l-[3px] border-l-accent-green pl-[7px]'
+                            : 'hover:bg-elevated'
+                        }`}
+                      >
+                        <span className="text-[16px] shrink-0">{icon}</span>
+                        <span className="font-pixel text-[8px] text-text-primary truncate flex-1">
+                          {t(`projects.${template.id}.name`, { defaultValue: template.name })}
+                        </span>
+                        {template.featured && (
+                          <span className="text-[8px] text-accent-amber shrink-0">{'\u2605'}</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
-              {/* Compact template grid */}
-              <div className="grid grid-cols-2 gap-2 max-h-[240px] overflow-y-auto">
-                {filteredTemplates.map(template => (
-                  <CompactCard
-                    key={template.id}
-                    template={template}
-                    selected={selectedTemplateId === template.id}
-                    onClick={() => onSelect(template.id)}
-                  />
-                ))}
+              {/* Right: detail panel */}
+              <div className="p-4 bg-deep">
+                {selectedTemplate ? (
+                  <TemplateDetail template={selectedTemplate} />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <span className="font-mono text-[11px] text-text-dim">
+                      {t('ui.selectToPreview')}
+                    </span>
+                  </div>
+                )}
               </div>
-
-              {/* Selected template detail */}
-              {selectedTemplate && <TemplateDetail template={selectedTemplate} />}
             </div>
           </motion.div>
         )}

@@ -13,7 +13,8 @@
     "fromTemplate": "From Template",
     "fromTemplateDescription": "Pre-configured agents, skills & tools",
     "featured": "Featured",
-    "allCategories": "All"
+    "allCategories": "All",
+    "selectToPreview": "Select a template to see details"
   },
   "projects": {
     "writing-assistant": {

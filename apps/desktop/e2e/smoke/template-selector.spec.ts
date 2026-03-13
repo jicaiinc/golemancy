@@ -13,26 +13,27 @@ test.describe('Template Selector', () => {
     await expect(window.getByText('Blank Project')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     await expect(window.getByText('From Template')).toBeVisible()
 
-    // Template grid should NOT be visible until "From Template" is clicked
+    // Template list should NOT be visible until "From Template" is clicked
     await expect(window.getByText('Writing Assistant')).not.toBeVisible()
 
     // Close modal
     await window.click(SELECTORS.CANCEL_BTN)
   })
 
-  test('clicking From Template shows category filters and template grid', async ({ window }) => {
+  test('clicking From Template shows master-detail panel', async ({ window }) => {
     await window.click(SELECTORS.CREATE_PROJECT_BTN)
     await expect(window.getByText('From Template')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
     // Expand template browser
     await window.getByText('From Template').first().click()
 
-    // Category filter tabs should appear
+    // Category filter and template list should appear
     await expect(window.getByText('All')).toBeVisible()
-
-    // Compact template cards should be visible
     await expect(window.getByText('Writing Assistant')).toBeVisible()
     await expect(window.getByText('Deep Research')).toBeVisible()
+
+    // Placeholder text should show in detail panel
+    await expect(window.getByText('Select a template to see details')).toBeVisible()
 
     // Close modal
     await window.click(SELECTORS.CANCEL_BTN)
@@ -42,11 +43,11 @@ test.describe('Template Selector', () => {
     await window.click(SELECTORS.CREATE_PROJECT_BTN)
     await expect(window.locator(SELECTORS.PROJECT_NAME_INPUT)).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
-    // Expand template browser and select
+    // Expand and select a template
     await window.getByText('From Template').first().click()
     await window.getByText('Writing Assistant').first().click()
 
-    // Detail panel should appear with description
+    // Detail panel should show description
     await expect(window.getByText(/AI writing expert/)).toBeVisible()
 
     // Name should auto-fill
@@ -56,7 +57,7 @@ test.describe('Template Selector', () => {
     await window.click(SELECTORS.CANCEL_BTN)
   })
 
-  test('switching back to blank collapses template browser', async ({ window }) => {
+  test('switching back to blank collapses template panel', async ({ window }) => {
     await window.click(SELECTORS.CREATE_PROJECT_BTN)
     await expect(window.locator(SELECTORS.PROJECT_NAME_INPUT)).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
@@ -68,7 +69,7 @@ test.describe('Template Selector', () => {
     // Click Blank Project
     await window.getByText('Blank Project').first().click()
 
-    // Template browser should collapse — category filter gone
+    // Master-detail panel should collapse — category filter gone
     await expect(window.getByText('All')).not.toBeVisible()
 
     // Description input should reappear (only shown for blank projects)

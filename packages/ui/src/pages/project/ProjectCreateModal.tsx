@@ -78,7 +78,7 @@ export function ProjectCreateModal({ open, onClose }: Props) {
       open={open}
       onClose={onClose}
       title={t('create.modalTitle')}
-      size="md"
+      size="lg"
       footer={
         <>
           <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
