@@ -1,17 +1,15 @@
 import { useParams } from 'react-router'
-import type { AgentId } from '@golemancy/shared'
 import { Trans, useTranslation } from 'react-i18next'
 import { PixelCard, PixelButton, SidebarToggleIcon } from '../../components'
 
 interface Props {
-  defaultAgentId?: AgentId
   onNewChat: () => void
   canNewChat: boolean
   chatHistoryExpanded?: boolean
   onToggleChatHistory?: () => void
 }
 
-export function ChatEmptyState({ defaultAgentId, onNewChat, canNewChat, chatHistoryExpanded, onToggleChatHistory }: Props) {
+export function ChatEmptyState({ onNewChat, canNewChat, chatHistoryExpanded, onToggleChatHistory }: Props) {
   const { projectId } = useParams<{ projectId: string }>()
   const { t } = useTranslation('chat')
 

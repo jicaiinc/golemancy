@@ -11,7 +11,8 @@ export function migrateDatabase(db: AppDatabase) {
   db.run(sql`
     CREATE TABLE IF NOT EXISTS conversations (
       id            TEXT PRIMARY KEY,
-      agent_id      TEXT NOT NULL,
+      target_type   TEXT NOT NULL DEFAULT 'agent',
+      target_id     TEXT NOT NULL DEFAULT '',
       title         TEXT NOT NULL,
       last_message_at TEXT,
       created_at    TEXT NOT NULL,
@@ -50,8 +51,7 @@ export function migrateDatabase(db: AppDatabase) {
     )
   `)
 
-  // Create indexes
-  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(agent_id)`)
+  // Create indexes (conversations target index created after v10 migration below)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at DESC)`)
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversation_tasks_conv ON conversation_tasks(conversation_id)`)
 
@@ -182,7 +182,11 @@ export function migrateDatabase(db: AppDatabase) {
     db.run(sql`DROP INDEX IF EXISTS idx_conversations_project`)
     db.run(sql`DROP INDEX IF EXISTS idx_conversations_agent`)
     db.run(sql`ALTER TABLE conversations DROP COLUMN project_id`)
-    db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(agent_id)`)
+    // Re-create index on whatever column exists (agent_id pre-v10, target_type/target_id post-v10)
+    const colsAfterDrop = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+    if (colsAfterDrop.some(c => c.name === 'agent_id')) {
+      db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(agent_id)`)
+    }
   }
 
   const cronRunCols = db.all<{ name: string }>(sql`PRAGMA table_info(cron_job_runs)`)
@@ -207,11 +211,52 @@ export function migrateDatabase(db: AppDatabase) {
   db.run(sql`CREATE INDEX IF NOT EXISTS idx_agent_memories_agent ON agent_memories(agent_id, pinned DESC, priority DESC, updated_at DESC)`)
 
   // --- Migration v9: team_id column on conversations ---
+  // (superseded by v10, but kept for databases that already ran v9 — v10 handles cleanup)
   const convColsV9 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
-  if (!convColsV9.some(c => c.name === 'team_id')) {
+  if (!convColsV9.some(c => c.name === 'team_id') && convColsV9.some(c => c.name === 'agent_id')) {
     log.debug('migrating conversations: adding team_id column')
     db.run(sql`ALTER TABLE conversations ADD COLUMN team_id TEXT`)
   }
+
+  // --- Migration v10: unify agentId + teamId → targetType + targetId ---
+  const convColsV10 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+  const hasAgentId = convColsV10.some(c => c.name === 'agent_id')
+  const hasTargetType = convColsV10.some(c => c.name === 'target_type')
+
+  if (hasAgentId && !hasTargetType) {
+    log.info('migrating conversations: unifying agent_id + team_id → target_type + target_id')
+
+    db.run(sql`BEGIN`)
+    try {
+      // Step 1: Add new columns with safe defaults
+      db.run(sql`ALTER TABLE conversations ADD COLUMN target_type TEXT DEFAULT 'agent'`)
+      db.run(sql`ALTER TABLE conversations ADD COLUMN target_id TEXT DEFAULT ''`)
+
+      // Step 2: Migrate data — if team_id is set, target is team; otherwise agent
+      db.run(sql`
+        UPDATE conversations
+        SET target_type = CASE WHEN team_id IS NOT NULL THEN 'team' ELSE 'agent' END,
+            target_id   = CASE WHEN team_id IS NOT NULL THEN team_id ELSE agent_id END
+      `)
+
+      // Step 3: Drop old indexes and columns
+      db.run(sql`DROP INDEX IF EXISTS idx_conversations_agent`)
+      db.run(sql`ALTER TABLE conversations DROP COLUMN agent_id`)
+      db.run(sql`ALTER TABLE conversations DROP COLUMN team_id`)
+
+      // Step 4: Create new index
+      db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_target ON conversations(target_type, target_id)`)
+
+      db.run(sql`COMMIT`)
+      log.info('migration v10 complete: conversations unified')
+    } catch (err) {
+      db.run(sql`ROLLBACK`)
+      throw err
+    }
+  }
+
+  // Ensure target index exists (fresh DBs, post-v10 migration, or idempotent re-run)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_target ON conversations(target_type, target_id)`)
 
   // Set up FTS5
   setupFTS(db)

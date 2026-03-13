@@ -26,13 +26,15 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
   validateId(sourceId)
 
   const sourceDir = projectDir(sourceId)
-  const sourceProjectRaw = await readJson<Project & { mainAgentId?: AgentId }>(path.join(sourceDir, 'project.json'))
+  const sourceProjectRaw = await readJson<Project & { mainAgentId?: AgentId; defaultAgentId?: AgentId; defaultTeamId?: TeamId }>(path.join(sourceDir, 'project.json'))
   if (!sourceProjectRaw) throw new Error(`Project ${sourceId} not found`)
 
-  // Normalize: migrate legacy mainAgentId → defaultAgentId
+  // Normalize: migrate legacy fields → defaultTargetType + defaultTargetId
+  const legacyDefaultAgentId = sourceProjectRaw.defaultAgentId ?? sourceProjectRaw.mainAgentId
   const sourceProject: Project = {
     ...sourceProjectRaw,
-    defaultAgentId: sourceProjectRaw.defaultAgentId ?? sourceProjectRaw.mainAgentId,
+    defaultTargetType: sourceProjectRaw.defaultTargetType ?? (sourceProjectRaw.defaultTeamId ? 'team' : legacyDefaultAgentId ? 'agent' : undefined),
+    defaultTargetId: sourceProjectRaw.defaultTargetId ?? (sourceProjectRaw.defaultTeamId ?? legacyDefaultAgentId),
   }
 
   const newId = generateId('proj')
@@ -207,12 +209,18 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
         delete data.lastRunStatus
         delete data.nextRunAt
         delete data.lastRunId
-        // Remap agentId and teamId
-        if (data.agentId) {
-          data.agentId = remap.agents.get(data.agentId as AgentId) ?? data.agentId
+        // Normalize legacy agentId + teamId → targetType + targetId
+        if (data.agentId && !data.targetType) {
+          data.targetType = data.teamId ? 'team' : 'agent'
+          data.targetId = data.teamId ?? data.agentId
+          delete data.agentId
+          delete data.teamId
         }
-        if (data.teamId) {
-          data.teamId = remap.teams.get(data.teamId as TeamId) ?? data.teamId
+        // Remap targetId
+        if (data.targetType === 'agent' && data.targetId) {
+          data.targetId = remap.agents.get(data.targetId as AgentId) ?? data.targetId
+        } else if (data.targetType === 'team' && data.targetId) {
+          data.targetId = remap.teams.get(data.targetId as TeamId) ?? data.targetId
         }
         await writeJson(path.join(targetDir, 'cronjobs', `${newCronId}.json`), data)
       }
@@ -231,11 +239,11 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
           ? remap.permissions.get(sourceProject.config.permissionsConfigId) ?? sourceProject.config.permissionsConfigId
           : undefined,
       },
-      defaultAgentId: sourceProject.defaultAgentId
-        ? remap.agents.get(sourceProject.defaultAgentId) ?? sourceProject.defaultAgentId
-        : undefined,
-      defaultTeamId: sourceProject.defaultTeamId
-        ? remap.teams.get(sourceProject.defaultTeamId) ?? sourceProject.defaultTeamId
+      defaultTargetType: sourceProject.defaultTargetType,
+      defaultTargetId: sourceProject.defaultTargetId
+        ? (sourceProject.defaultTargetType === 'agent'
+            ? remap.agents.get(sourceProject.defaultTargetId as AgentId) ?? sourceProject.defaultTargetId
+            : remap.teams.get(sourceProject.defaultTargetId as TeamId) ?? sourceProject.defaultTargetId)
         : undefined,
       agentCount: remap.agents.size,
       activeAgentCount: 0,

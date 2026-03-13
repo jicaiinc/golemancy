@@ -141,8 +141,8 @@ export function ChatSidebar({
         ) : (
           sorted.map(conv => {
             const isActive = conv.id === selectedConversationId
-            const team = conv.teamId ? teams.find(tm => tm.id === conv.teamId) : undefined
-            const agent = agents.find(a => a.id === conv.agentId)
+            const team = conv.targetType === 'team' ? teams.find(tm => tm.id === conv.targetId) : undefined
+            const agent = conv.targetType === 'agent' ? agents.find(a => a.id === conv.targetId) : undefined
             const displayName = team?.name ?? agent?.name ?? '???'
             return (
               <button

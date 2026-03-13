@@ -56,11 +56,9 @@ export function ProjectSettingsPage() {
     if (!project) return
     const parsed = decodeSelectValue(value)
     if (!parsed) {
-      await updateProject(project.id, { defaultAgentId: undefined, defaultTeamId: undefined })
-    } else if ('teamId' in parsed) {
-      await updateProject(project.id, { defaultAgentId: undefined, defaultTeamId: parsed.teamId })
+      await updateProject(project.id, { defaultTargetType: undefined, defaultTargetId: undefined })
     } else {
-      await updateProject(project.id, { defaultAgentId: parsed.agentId, defaultTeamId: undefined })
+      await updateProject(project.id, { defaultTargetType: parsed.targetType, defaultTargetId: parsed.targetId })
     }
   }
 
@@ -188,7 +186,7 @@ function GeneralTab({
         <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('settings.general.defaultLabel')}</div>
         <p className="text-[12px] text-text-dim mb-3">{t('settings.general.defaultDesc')}</p>
         <select
-          value={project.defaultTeamId ? encodeTeamValue(project.defaultTeamId) : project.defaultAgentId ?? ''}
+          value={project.defaultTargetType === 'team' ? encodeTeamValue(project.defaultTargetId as TeamId) : project.defaultTargetId ?? ''}
           onChange={e => onDefaultChange(e.target.value)}
           className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
         >

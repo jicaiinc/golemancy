@@ -166,7 +166,21 @@ function createMocks(): ChatRouteDeps {
       list: vi.fn().mockResolvedValue([]),
       save: vi.fn().mockResolvedValue({ id: 'compact-1' }),
     },
-  }
+    teamStorage: {
+      getById: vi.fn().mockResolvedValue(null),
+      list: vi.fn().mockResolvedValue([]),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    memoryStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+  } as unknown as ChatRouteDeps
 }
 
 function createChatApp(mocks: ChatRouteDeps) {
@@ -194,7 +208,8 @@ describe('Chat routes', () => {
 
   const validBody = {
     projectId: projId,
-    agentId,
+    targetType: 'agent' as const,
+    targetId: agentId,
     conversationId: convId,
     messages: [
       { id: 'msg-1', role: 'user', parts: [{ type: 'text', text: 'Hello' }] },
@@ -257,7 +272,7 @@ describe('Chat routes', () => {
       expect((await res.json()).error).toBe('INVALID_MESSAGE_ROLE')
     })
 
-    it('returns 400 when neither agentId nor conversationId provided', async () => {
+    it('returns 400 when neither targetType/targetId nor conversationId provided', async () => {
       const res = await app.request('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -267,7 +282,7 @@ describe('Chat routes', () => {
         }),
       })
       expect(res.status).toBe(400)
-      expect((await res.json()).error).toBe('AGENT_ID_REQUIRED')
+      expect((await res.json()).error).toBe('TARGET_REQUIRED')
     })
   })
 
@@ -286,7 +301,8 @@ describe('Chat routes', () => {
       vi.mocked(mocks.conversationStorage.getById).mockResolvedValue({
         id: convId,
         projectId: projId,
-        agentId,
+        targetType: 'agent',
+        targetId: agentId,
         title: 'Test',
         messages: [],
         lastMessageAt: '2026-01-01T00:00:00Z',

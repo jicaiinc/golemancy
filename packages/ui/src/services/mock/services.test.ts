@@ -140,19 +140,20 @@ describe('MockConversationService', () => {
 
   it('list() filters by agentId when provided', async () => {
     const convos = await service.list('proj-1' as ProjectId, 'agent-1' as AgentId)
-    convos.forEach(c => expect(c.agentId).toBe('agent-1'))
+    convos.forEach(c => expect(c.targetId).toBe('agent-1'))
   })
 
   it('create() creates a new conversation', async () => {
-    const conv = await service.create('proj-1' as ProjectId, 'agent-1' as AgentId, 'New Chat')
+    const conv = await service.create('proj-1' as ProjectId, 'agent', 'agent-1' as AgentId, 'New Chat')
     expect(conv.title).toBe('New Chat')
     expect(conv.projectId).toBe('proj-1')
-    expect(conv.agentId).toBe('agent-1')
+    expect(conv.targetType).toBe('agent')
+    expect(conv.targetId).toBe('agent-1')
     expect(conv.messages).toEqual([])
   })
 
   it('sendMessage() adds user and assistant messages', async () => {
-    const conv = await service.create('proj-1' as ProjectId, 'agent-1' as AgentId, 'Chat')
+    const conv = await service.create('proj-1' as ProjectId, 'agent', 'agent-1' as AgentId, 'Chat')
     await service.sendMessage('proj-1' as ProjectId, conv.id, 'Hello')
 
     const fetched = await service.getById('proj-1' as ProjectId, conv.id)

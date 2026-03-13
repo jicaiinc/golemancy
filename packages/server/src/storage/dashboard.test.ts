@@ -72,9 +72,9 @@ describe('DashboardService (integration with token_records)', () => {
   })
 
   /** Insert a conversation + optional messages directly via SQL for test setup */
-  function insertConversation(convId: string, agentIdParam: string = agentId) {
-    db.run(sql`INSERT INTO conversations (id, agent_id, title, created_at, updated_at)
-      VALUES (${convId}, ${agentIdParam}, 'Test Conv', ${todayISO()}, ${todayISO()})`)
+  function insertConversation(convId: string, targetIdParam: string = agentId) {
+    db.run(sql`INSERT INTO conversations (id, target_type, target_id, title, created_at, updated_at)
+      VALUES (${convId}, 'agent', ${targetIdParam}, 'Test Conv', ${todayISO()}, ${todayISO()})`)
   }
 
   function insertMessage(

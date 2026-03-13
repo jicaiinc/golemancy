@@ -24,8 +24,8 @@ describe('SqliteConversationTaskStorage', () => {
     // Seed conversations (FK target for conversation_tasks)
     const now = new Date().toISOString()
     db.insert(schema.conversations).values([
-      { id: convId1, projectId: projId, agentId: 'agent-1', title: 'Chat 1', createdAt: now, updatedAt: now },
-      { id: convId2, projectId: projId, agentId: 'agent-2', title: 'Chat 2', createdAt: now, updatedAt: now },
+      { id: convId1, projectId: projId, targetType: 'agent', targetId: 'agent-1', title: 'Chat 1', createdAt: now, updatedAt: now },
+      { id: convId2, projectId: projId, targetType: 'agent', targetId: 'agent-2', title: 'Chat 2', createdAt: now, updatedAt: now },
     ]).run()
   })
 

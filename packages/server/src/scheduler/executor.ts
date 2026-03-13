@@ -1,8 +1,9 @@
 import { streamText, stepCountIs, convertToModelMessages, type UIMessage } from 'ai'
 import type {
-  ConversationId, CronJob, CronJobRun, ProjectId, TeamId, TeamMember,
+  ConversationId, CronJob, CronJobRun, ProjectId, AgentId, TeamId, TeamMember,
   IAgentService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, IProjectService, ITeamService,
 } from '@golemancy/shared'
+import { resolveAgentId } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { SqliteCronJobRunStorage } from '../storage/cron-job-runs'
@@ -43,11 +44,30 @@ export class CronJobExecutor {
     const startTime = Date.now()
     const projectId = cronJob.projectId
 
+    // Resolve team + agentId from target
+    let team: Awaited<ReturnType<ITeamService['getById']>> | undefined
+    let teamMembers: TeamMember[] | undefined
+    let teamInstruction: string | undefined
+    if (cronJob.targetType === 'team') {
+      team = (await this.deps.teamStorage.getById(projectId, cronJob.targetId as TeamId)) ?? undefined
+      if (team) {
+        teamMembers = team.members
+        teamInstruction = team.instruction
+      }
+    }
+    let agentId: AgentId
+    try {
+      agentId = resolveAgentId(cronJob.targetType, cronJob.targetId, team ?? undefined)
+    } catch (err) {
+      log.error({ err, cronJobId: cronJob.id, targetType: cronJob.targetType, targetId: cronJob.targetId }, 'failed to resolve agent for cron job')
+      throw new Error(`Cannot resolve agent for cron job ${cronJob.id}: ${err instanceof Error ? err.message : String(err)}`)
+    }
+
     // 1. Create CronJobRun record
     const run = await this.deps.cronJobRunStorage.create(projectId, {
       cronJobId: cronJob.id,
       projectId,
-      agentId: cronJob.agentId,
+      agentId,
       status: 'running',
       triggeredBy,
     })
@@ -61,19 +81,19 @@ export class CronJobExecutor {
 
     // --- Agent status lifecycle: mark running ---
     try {
-      await this.deps.agentStorage.update(projectId, cronJob.agentId, { status: 'running' })
+      await this.deps.agentStorage.update(projectId, agentId, { status: 'running' })
       if (this.deps.wsManager) {
-        this.deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: cronJob.agentId, status: 'running' })
-        this.deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:cron_started', projectId, agentId: cronJob.agentId, cronJobId: cronJob.id })
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId, status: 'running' })
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:cron_started', projectId, agentId, cronJobId: cronJob.id })
       }
     } catch (err) {
-      log.warn({ err, agentId: cronJob.agentId }, 'failed to set agent running status for cron')
+      log.warn({ err, agentId }, 'failed to set agent running status for cron')
     }
 
     try {
       // 2. Load agent config
-      const agent = await this.deps.agentStorage.getById(projectId, cronJob.agentId)
-      if (!agent) throw new Error(`Agent ${cronJob.agentId} not found`)
+      const agent = await this.deps.agentStorage.getById(projectId, agentId)
+      if (!agent) throw new Error(`Agent ${agentId} not found`)
 
       // 3. Load global settings
       const settings = await this.deps.settingsStorage.get()
@@ -81,24 +101,13 @@ export class CronJobExecutor {
       // 4. Resolve model
       const resolved = await resolveModel(settings, agent.modelConfig, this.deps.oauthManager)
 
-      // 4b. Resolve team if configured
-      let teamMembers: TeamMember[] | undefined
-      let teamInstruction: string | undefined
-      if (cronJob.teamId) {
-        const team = await this.deps.teamStorage.getById(projectId, cronJob.teamId as TeamId)
-        if (team) {
-          teamMembers = team.members
-          teamInstruction = team.instruction
-        }
-      }
-
       // 5. Create conversation
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
       const conv = await this.deps.conversationStorage.create(
         projectId,
-        cronJob.agentId,
+        cronJob.targetType,
+        cronJob.targetId,
         `[Cron] ${cronJob.name} — ${timestamp}`,
-        cronJob.teamId as TeamId | undefined,
       )
       const conversationId = conv.id
 
@@ -171,7 +180,7 @@ export class CronJobExecutor {
           try {
             this.deps.tokenRecordStorage.save(projectId, {
               conversationId,
-              agentId: cronJob.agentId,
+              agentId: agentId,
               provider: agent.modelConfig.provider,
               model: agent.modelConfig.model,
               inputTokens: abortInput,
@@ -180,7 +189,7 @@ export class CronJobExecutor {
               aborted: true,
             })
             if (this.deps.wsManager) {
-              this.deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: cronJob.agentId, model: agent.modelConfig.model, inputTokens: abortInput, outputTokens: abortOutput })
+              this.deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId, model: agent.modelConfig.model, inputTokens: abortInput, outputTokens: abortOutput })
             }
             log.debug({ cronJobId: cronJob.id, inputTokens: abortInput, outputTokens: abortOutput, completedSteps: steps.length }, 'saved cron abort token record')
           } catch (err) {
@@ -228,7 +237,7 @@ export class CronJobExecutor {
         this.deps.tokenRecordStorage.save(projectId, {
           conversationId,
           messageId: assistantMsgId,
-          agentId: cronJob.agentId,
+          agentId: agentId,
           provider: agent.modelConfig.provider,
           model: agent.modelConfig.model,
           inputTokens,
@@ -236,7 +245,7 @@ export class CronJobExecutor {
           source: 'cron',
         })
         if (this.deps.wsManager) {
-          this.deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: cronJob.agentId, model: agent.modelConfig.model, inputTokens, outputTokens })
+          this.deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId, model: agent.modelConfig.model, inputTokens, outputTokens })
         }
       } catch (err) {
         log.error({ err, conversationId }, 'failed to save cron token record')
@@ -259,7 +268,7 @@ export class CronJobExecutor {
       })
 
       // --- Agent status lifecycle: mark idle ---
-      await this.markAgentIdle(projectId, cronJob, conversationId)
+      await this.markAgentIdle(projectId, agentId, cronJob.id, conversationId)
 
       log.info({ cronJobId: cronJob.id, durationMs, conversationId }, 'cron job executed successfully')
       return { ...run, status: 'success', durationMs, conversationId }
@@ -282,27 +291,27 @@ export class CronJobExecutor {
       })
 
       // --- Agent status lifecycle: mark idle on error ---
-      await this.markAgentIdle(projectId, cronJob)
+      await this.markAgentIdle(projectId, agentId, cronJob.id)
 
       log.error({ cronJobId: cronJob.id, err, durationMs }, 'cron job execution failed')
       return { ...run, status: 'error', durationMs, error: errorMessage }
     }
   }
 
-  private async markAgentIdle(projectId: ProjectId, cronJob: CronJob, conversationId?: ConversationId) {
+  private async markAgentIdle(projectId: ProjectId, agentId: AgentId, cronJobId: CronJob['id'], conversationId?: ConversationId) {
     try {
       // Reference counting: only set idle when no active chats remain for this agent
-      const stillActive = this.deps.activeChatRegistry?.countByAgent(cronJob.agentId as string) ?? 0
+      const stillActive = this.deps.activeChatRegistry?.countByAgent(agentId as string) ?? 0
       const newStatus = stillActive > 0 ? 'running' : 'idle'
       if (stillActive === 0) {
-        await this.deps.agentStorage.update(projectId, cronJob.agentId, { status: 'idle' })
+        await this.deps.agentStorage.update(projectId, agentId, { status: 'idle' })
       }
       if (this.deps.wsManager) {
-        this.deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: cronJob.agentId, status: newStatus })
-        this.deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:cron_ended', projectId, agentId: cronJob.agentId, cronJobId: cronJob.id, conversationId })
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId, status: newStatus })
+        this.deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:cron_ended', projectId, agentId, cronJobId, conversationId })
       }
     } catch (err) {
-      log.warn({ err, agentId: cronJob.agentId }, 'failed to set agent idle status after cron')
+      log.warn({ err, agentId }, 'failed to set agent idle status after cron')
     }
   }
 

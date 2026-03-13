@@ -1,9 +1,10 @@
 import { Hono } from 'hono'
 import { convertToModelMessages, type UIMessage } from 'ai'
 import type {
-  ProjectId, AgentId, ConversationId, MessageId, TeamId,
-  IConversationService, IAgentService, ISettingsService,
+  ProjectId, AgentId, ConversationId, MessageId, TeamId, TargetType,
+  IConversationService, IAgentService, ISettingsService, ITeamService,
 } from '@golemancy/shared'
+import { resolveAgentId } from '@golemancy/shared'
 import type { TokenRecordStorage } from '../storage/token-records'
 import type { CompactRecordStorage } from '../storage/compact-records'
 import type { OAuthManager } from '../auth/oauth-manager'
@@ -26,6 +27,7 @@ export interface ConversationRouteDeps {
   compactRecordStorage: CompactRecordStorage
   agentStorage: IAgentService
   settingsStorage: ISettingsService
+  teamStorage: ITeamService
   oauthManager?: OAuthManager
 }
 
@@ -64,9 +66,15 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
 
   app.post('/', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
-    const { agentId, title, teamId } = await c.req.json()
-    log.debug({ projectId, agentId }, 'creating conversation')
-    const conv = await storage.create(projectId, agentId, title, teamId)
+    const { targetType, targetId, title } = await c.req.json()
+    if (!targetType || !targetId) {
+      return c.json({ error: 'TARGET_REQUIRED' }, 400)
+    }
+    if (targetType !== 'agent' && targetType !== 'team') {
+      return c.json({ error: 'INVALID_TARGET_TYPE' }, 400)
+    }
+    log.debug({ projectId, targetType, targetId }, 'creating conversation')
+    const conv = await storage.create(projectId, targetType, targetId, title)
     log.debug({ projectId, conversationId: conv.id }, 'created conversation')
     return c.json(conv, 201)
   })
@@ -74,7 +82,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
   app.patch('/:id', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('id') as ConversationId
-    const data = await c.req.json<{ title?: string; agentId?: AgentId; teamId?: TeamId | null }>()
+    const data = await c.req.json<{ title?: string; targetType?: TargetType; targetId?: AgentId | TeamId }>()
     log.debug({ projectId, conversationId: convId }, 'updating conversation')
     const conv = await storage.update(projectId, convId, data)
     return c.json(conv)
@@ -156,7 +164,13 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     if (!conv) return c.json({ error: 'NOT_FOUND' }, 404)
     if (conv.messages.length === 0) return c.json({ error: 'NO_MESSAGES_TO_COMPACT' }, 400)
 
-    const agent = await agentStorage.getById(projectId, conv.agentId)
+    // Resolve agent from conversation target
+    let compactTeam: Awaited<ReturnType<ITeamService['getById']>> | undefined
+    if (conv.targetType === 'team') {
+      compactTeam = (await deps.teamStorage.getById(projectId, conv.targetId as TeamId)) ?? undefined
+    }
+    const convAgentId = resolveAgentId(conv.targetType, conv.targetId, compactTeam ?? undefined)
+    const agent = await agentStorage.getById(projectId, convAgentId)
     if (!agent) return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
 
     const settings = await deps.settingsStorage.get()

@@ -25,7 +25,7 @@ describe('createTaskTools', () => {
     // Seed a conversation (FK target)
     const now = new Date().toISOString()
     db.insert(schema.conversations).values({
-      id: convId, projectId: projId, agentId: 'agent-1', title: 'Chat', createdAt: now, updatedAt: now,
+      id: convId, projectId: projId, targetType: 'agent', targetId: 'agent-1', title: 'Chat', createdAt: now, updatedAt: now,
     }).run()
 
     tools = createTaskTools({ projectId: projId, conversationId: convId, taskStorage })

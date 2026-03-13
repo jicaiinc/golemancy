@@ -5,10 +5,10 @@ import {
   type UIMessage, type ModelMessage,
 } from 'ai'
 import type {
-  AgentId, ProjectId, ConversationId, MessageId, TeamId, CompactRecord, Message, TeamMember,
+  AgentId, ProjectId, ConversationId, MessageId, TeamId, TargetType, CompactRecord, Message, TeamMember,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, ITeamService,
 } from '@golemancy/shared'
-import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS } from '@golemancy/shared'
+import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS, resolveAgentId } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -56,13 +56,14 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const body = await c.req.json<{
       messages: UIMessage[]
       projectId: string
-      agentId?: string
+      targetType?: string
+      targetId?: string
       conversationId?: string
-      teamId?: string
     }>()
 
     const { messages, projectId, conversationId } = body
-    let { agentId, teamId } = body
+    let targetType = body.targetType as TargetType | undefined
+    let targetId = body.targetId as (AgentId | TeamId) | undefined
 
     if (!projectId) {
       return c.json({ error: 'PROJECT_ID_REQUIRED' }, 400)
@@ -81,50 +82,54 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       }
     }
 
-    // Resolve agentId — from body or from conversation lookup
-    if (!agentId && conversationId) {
+    // Resolve target from body or from conversation lookup
+    if (!targetType && conversationId) {
       const conv = await deps.conversationStorage.getById(
         projectId as ProjectId,
         conversationId as ConversationId,
       )
       if (conv) {
-        agentId = conv.agentId
+        targetType = conv.targetType
+        targetId = conv.targetId
       }
     }
 
-    if (!agentId) {
-      return c.json({ error: 'AGENT_ID_REQUIRED' }, 400)
+    if (!targetType || !targetId) {
+      return c.json({ error: 'TARGET_REQUIRED' }, 400)
+    }
+    if (targetType !== 'agent' && targetType !== 'team') {
+      return c.json({ error: 'INVALID_TARGET_TYPE' }, 400)
+    }
+
+    // Resolve team for sub-agent orchestration
+    let team: import('@golemancy/shared').Team | undefined
+    let teamMembers: TeamMember[] | undefined
+    let teamInstruction: string | undefined
+    if (targetType === 'team') {
+      const t = await deps.teamStorage.getById(projectId as ProjectId, targetId as TeamId)
+      if (t) {
+        team = t
+        teamMembers = t.members
+        teamInstruction = t.instruction
+      }
+    }
+
+    // Resolve agentId from target
+    let agentId: AgentId
+    try {
+      agentId = resolveAgentId(targetType, targetId, team)
+    } catch (err) {
+      log.warn({ err, targetType, targetId }, 'failed to resolve agent from target')
+      return c.json({ error: 'AGENT_RESOLVE_FAILED' }, 400)
     }
 
     // Look up agent config
     const agent = await deps.agentStorage.getById(
       projectId as ProjectId,
-      agentId as AgentId,
+      agentId,
     )
     if (!agent) {
       return c.json({ error: 'AGENT_NOT_FOUND' }, 404)
-    }
-
-    // Resolve teamId from body or conversation record
-    if (!teamId && conversationId) {
-      const conv = await deps.conversationStorage.getById(
-        projectId as ProjectId,
-        conversationId as ConversationId,
-      )
-      if (conv?.teamId) {
-        teamId = conv.teamId
-      }
-    }
-
-    // Resolve team members for sub-agent orchestration
-    let teamMembers: TeamMember[] | undefined
-    let teamInstruction: string | undefined
-    if (teamId) {
-      const team = await deps.teamStorage.getById(projectId as ProjectId, teamId as TeamId)
-      if (team) {
-        teamMembers = team.members
-        teamInstruction = team.instruction
-      }
     }
 
     // Get project config for permissions config reference

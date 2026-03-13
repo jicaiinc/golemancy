@@ -3,7 +3,7 @@ import { useChat } from '@ai-sdk/react'
 import type { UIMessage, FileUIPart } from 'ai'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
-import type { Agent, AgentId, CompactRecord, Conversation, Team, TeamId } from '@golemancy/shared'
+import type { Agent, AgentId, CompactRecord, Conversation, Team, TeamId, TargetType } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services'
 import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
@@ -40,7 +40,7 @@ interface ChatWindowProps {
   onToggleChatHistory: () => void
   onNewChat: () => void
   canNewChat: boolean
-  onSwitchAgent: (agentId: AgentId, teamId?: TeamId) => void
+  onSwitchAgent: (targetType: TargetType, targetId: AgentId | TeamId) => void
   onUsageUpdate?: (usage: { inputTokens: number; outputTokens: number }) => void
   onContextUpdate?: (contextTokens: number) => void
   onCompactingChange?: (compacting: boolean) => void
@@ -106,14 +106,15 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
     return getOrCreateChat({
       conversationId: conversation.id,
       projectId: currentProjectId,
-      agentId: conversation.agentId,
+      targetType: conversation.targetType,
+      targetId: conversation.targetId,
       initialMessages: conversation.messages,
       serverConfig,
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   // Re-resolve Chat when the conversation target changes.
   // Empty conversations can switch agent/team before the first message.
-  }, [conversation.id, conversation.agentId, conversation.teamId, currentProjectId, serverConfig])
+  }, [conversation.id, conversation.targetType, conversation.targetId, currentProjectId, serverConfig])
 
   // SAFETY: chat is null only when currentProjectId is null,
   // but ChatWindow is only rendered inside ProjectLayout which guarantees a project is selected.
@@ -251,7 +252,7 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
 
 
   // --- Derived display state ---
-  const teamForConv = conversation.teamId ? teams.find(t => t.id === conversation.teamId) : undefined
+  const teamForConv = conversation.targetType === 'team' ? teams.find(t => t.id === conversation.targetId) : undefined
   const displayLabel = teamForConv ? `@${teamForConv.name}` : agent ? `@${agent.name}` : null
   const isBusy = status === 'submitted' || status === 'streaming'
   const prevBusyRef = useRef(isBusy)
@@ -310,17 +311,11 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
             messages.length === 0 && (agents.length > 1 || teams.length > 0) ? (
               <select
                 className="text-[11px] text-accent-blue font-mono bg-deep border-2 border-border-dim px-1 py-0.5 outline-none cursor-pointer shrink-0"
-                value={conversation.teamId ? encodeTeamValue(conversation.teamId) : conversation.agentId}
+                value={conversation.targetType === 'team' ? encodeTeamValue(conversation.targetId as TeamId) : conversation.targetId}
                 onChange={e => {
                   const parsed = decodeSelectValue(e.target.value)
                   if (!parsed) return
-                  if ('teamId' in parsed) {
-                    const team = teams.find(t => t.id === parsed.teamId)
-                    const leader = team?.members.find(m => !m.parentAgentId)
-                    if (leader) onSwitchAgent(leader.agentId, parsed.teamId)
-                  } else {
-                    onSwitchAgent(parsed.agentId)
-                  }
+                  onSwitchAgent(parsed.targetType, parsed.targetId)
                 }}
               >
                 {teams.length > 0 && (

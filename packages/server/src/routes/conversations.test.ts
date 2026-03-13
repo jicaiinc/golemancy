@@ -84,7 +84,8 @@ describe('Conversations routes', () => {
       vi.mocked(mocks.conversationStorage.create).mockResolvedValue(makeConversation())
 
       const res = await makeRequest(app, 'POST', `/api/projects/${projId}/conversations`, {
-        agentId,
+        targetType: 'agent',
+        targetId: agentId,
         title: 'Test Conversation',
       })
       expect(res.status).toBe(201)

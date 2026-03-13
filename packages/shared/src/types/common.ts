@@ -14,6 +14,9 @@ export type TranscriptionId = Brand<string, 'TranscriptionId'>
 export type MemoryId = Brand<string, 'MemoryId'>
 export type TeamId = Brand<string, 'TeamId'>
 
+/** The kind of entity a conversation / cron job / project targets */
+export type TargetType = 'agent' | 'team'
+
 // Pagination
 export interface PaginationParams {
   page: number

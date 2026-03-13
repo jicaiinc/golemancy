@@ -1,4 +1,4 @@
-import type { AgentId, ConversationId, MessageId, ProjectId, TeamId, Timestamped } from './common'
+import type { AgentId, ConversationId, MessageId, ProjectId, TeamId, TargetType, Timestamped } from './common'
 
 export interface Message extends Timestamped {
   id: MessageId
@@ -28,8 +28,8 @@ export interface CompactRecord {
 export interface Conversation extends Timestamped {
   id: ConversationId
   projectId: ProjectId
-  agentId: AgentId
-  teamId?: TeamId
+  targetType: TargetType
+  targetId: AgentId | TeamId
   title: string
   messages: Message[]
   lastMessageAt: string

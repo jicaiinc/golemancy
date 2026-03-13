@@ -110,19 +110,19 @@ describe('Agents routes', () => {
   })
 
   describe('DELETE /api/projects/:projectId/agents/:id', () => {
-    it('deletes agent and clears defaultAgentId if it matches', async () => {
-      vi.mocked(mocks.projectStorage.getById).mockResolvedValue(makeProject({ defaultAgentId: agentId }))
-      vi.mocked(mocks.projectStorage.update).mockResolvedValue(makeProject({ defaultAgentId: undefined }))
+    it('deletes agent and clears defaultTargetId if it matches', async () => {
+      vi.mocked(mocks.projectStorage.getById).mockResolvedValue(makeProject({ defaultTargetType: 'agent', defaultTargetId: agentId }))
+      vi.mocked(mocks.projectStorage.update).mockResolvedValue(makeProject({ defaultTargetType: undefined, defaultTargetId: undefined }))
 
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}/agents/${agentId}`)
       expect(res.status).toBe(200)
       expect((await res.json()).ok).toBe(true)
-      expect(mocks.projectStorage.update).toHaveBeenCalledWith(projId, { defaultAgentId: undefined })
+      expect(mocks.projectStorage.update).toHaveBeenCalledWith(projId, { defaultTargetType: undefined, defaultTargetId: undefined })
       expect(mocks.agentStorage.delete).toHaveBeenCalledWith(projId, agentId)
     })
 
-    it('deletes agent without clearing defaultAgentId if different', async () => {
-      vi.mocked(mocks.projectStorage.getById).mockResolvedValue(makeProject({ defaultAgentId: 'agent-other' as AgentId }))
+    it('deletes agent without clearing defaultTargetId if different', async () => {
+      vi.mocked(mocks.projectStorage.getById).mockResolvedValue(makeProject({ defaultTargetType: 'agent', defaultTargetId: 'agent-other' as AgentId }))
 
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}/agents/${agentId}`)
       expect(res.status).toBe(200)

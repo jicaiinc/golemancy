@@ -21,7 +21,8 @@ export const SEED_PROJECTS: Project[] = [
     description: 'Content creation and distribution pipeline',
     icon: 'pickaxe',
     config: {},
-    defaultAgentId: 'agent-1' as AgentId,
+    defaultTargetType: 'agent' as const,
+    defaultTargetId: 'agent-1' as AgentId,
     agentCount: 3,
     activeAgentCount: 1,
     lastActivityAt: hourAgo,
@@ -150,7 +151,8 @@ export const SEED_CONVERSATIONS: Conversation[] = [
   {
     id: 'conv-1' as ConversationId,
     projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-1' as AgentId,
+    targetType: 'agent' as const,
+    targetId: 'agent-1' as AgentId,
     title: 'Blog Draft: AI Trends',
     messages: [
       {
@@ -409,7 +411,8 @@ export const SEED_CRON_JOBS: CronJob[] = [
   {
     id: 'cron-1' as CronJobId,
     projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-1' as AgentId,
+    targetType: 'agent' as const,
+    targetId: 'agent-1' as AgentId,
     name: 'Daily Summary',
     cronExpression: '0 9 * * *',
     enabled: true,
@@ -420,7 +423,8 @@ export const SEED_CRON_JOBS: CronJob[] = [
   {
     id: 'cron-2' as CronJobId,
     projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-2' as AgentId,
+    targetType: 'agent' as const,
+    targetId: 'agent-2' as AgentId,
     name: 'Weekly Competitor Scan',
     cronExpression: '0 8 * * 1',
     enabled: true,
@@ -431,7 +435,8 @@ export const SEED_CRON_JOBS: CronJob[] = [
   {
     id: 'cron-3' as CronJobId,
     projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-1' as AgentId,
+    targetType: 'agent' as const,
+    targetId: 'agent-1' as AgentId,
     name: 'Social Media Posting',
     cronExpression: '0 14 * * 2,4',
     enabled: false,

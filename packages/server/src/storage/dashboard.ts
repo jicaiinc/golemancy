@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm'
 import type {
-  IDashboardService, IProjectService, IAgentService, ICronJobService,
-  ProjectId, AgentId, ConversationId, CronJobId,
+  IDashboardService, IProjectService, IAgentService, ICronJobService, ITeamService,
+  ProjectId, AgentId, TeamId, ConversationId, CronJobId,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
 } from '@golemancy/shared'
@@ -20,6 +20,7 @@ export interface DashboardServiceDeps {
   activeChatRegistry?: ActiveChatRegistry
   cronJobRunStorage?: SqliteCronJobRunStorage
   cronJobStorage?: ICronJobService
+  teamStorage?: ITeamService
 }
 
 export class DashboardService implements IDashboardService {
@@ -136,7 +137,7 @@ export class DashboardService implements IDashboardService {
       // Count conversations for this agent
       const convRows = db.all<{ cnt: number }>(
         sql`SELECT count(*) as cnt FROM conversations
-            WHERE agent_id = ${agent.id}`,
+            WHERE target_type = 'agent' AND target_id = ${agent.id}`,
       )
       const conversationCount = convRows[0]?.cnt ?? 0
 
@@ -147,7 +148,7 @@ export class DashboardService implements IDashboardService {
                 UNION ALL
                 SELECT (m.input_tokens + m.output_tokens) as total FROM messages m
                 JOIN conversations c ON c.id = m.conversation_id
-                WHERE c.agent_id = ${agent.id} AND m.input_tokens > 0 AND m.created_at >= ${startDate}
+                WHERE c.target_type = 'agent' AND c.target_id = ${agent.id} AND m.input_tokens > 0 AND m.created_at >= ${startDate}
                   AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
               )`
         : sql`SELECT COALESCE(SUM(total), 0) as total FROM (
@@ -155,7 +156,7 @@ export class DashboardService implements IDashboardService {
                 UNION ALL
                 SELECT (m.input_tokens + m.output_tokens) as total FROM messages m
                 JOIN conversations c ON c.id = m.conversation_id
-                WHERE c.agent_id = ${agent.id} AND m.input_tokens > 0
+                WHERE c.target_type = 'agent' AND c.target_id = ${agent.id} AND m.input_tokens > 0
                   AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
               )`
       const tokenRows = db.all<{ total: number }>(tokenQuery)
@@ -169,7 +170,7 @@ export class DashboardService implements IDashboardService {
               SUM(CASE WHEN status = 'deleted' THEN 1 ELSE 0 END) as failed
             FROM conversation_tasks ct
             JOIN conversations c ON c.id = ct.conversation_id
-            WHERE c.agent_id = ${agent.id}`,
+            WHERE c.target_type = 'agent' AND c.target_id = ${agent.id}`,
       )
       const taskCount = taskRows[0]?.total ?? 0
       const completedTasks = taskRows[0]?.completed ?? 0
@@ -180,7 +181,7 @@ export class DashboardService implements IDashboardService {
         sql`SELECT MAX(m.created_at) as last
             FROM messages m
             JOIN conversations c ON c.id = m.conversation_id
-            WHERE c.agent_id = ${agent.id}`,
+            WHERE c.target_type = 'agent' AND c.target_id = ${agent.id}`,
       )
       const lastActiveAt = lastActiveRows[0]?.last ?? null
 
@@ -216,15 +217,26 @@ export class DashboardService implements IDashboardService {
       const agents = await this.deps.agentStorage.list(projectId)
       const agentMap = new Map(agents.map(a => [a.id, a.name]))
 
+      // Build team → leader agent map for resolving team conversations
+      const teamLeaderMap = new Map<string, AgentId>()
+      if (this.deps.teamStorage) {
+        const teams = await this.deps.teamStorage.list(projectId)
+        for (const t of teams) {
+          const leader = t.members.find(m => !m.parentAgentId)
+          if (leader) teamLeaderMap.set(t.id as string, leader.agentId)
+        }
+      }
+
       const rows = db.all<{
         id: string
-        agent_id: string
+        target_type: string
+        target_id: string
         title: string
         last_message_at: string | null
         msg_count: number
         total_tokens: number
       }>(
-        sql`SELECT c.id, c.agent_id, c.title, c.last_message_at,
+        sql`SELECT c.id, c.target_type, c.target_id, c.title, c.last_message_at,
                    count(m.id) as msg_count,
                    COALESCE((
                      SELECT SUM(total) FROM (
@@ -243,12 +255,15 @@ export class DashboardService implements IDashboardService {
       )
 
       for (const row of rows) {
+        const resolvedAgentId = row.target_type === 'agent'
+          ? row.target_id as AgentId
+          : teamLeaderMap.get(row.target_id) ?? '' as AgentId
         chats.push({
           conversationId: row.id as ConversationId,
           projectId,
           projectName: project.name,
-          agentId: row.agent_id as AgentId,
-          agentName: agentMap.get(row.agent_id as AgentId) ?? 'Unknown',
+          agentId: resolvedAgentId as AgentId,
+          agentName: agentMap.get(resolvedAgentId as AgentId) ?? 'Unknown',
           title: row.title,
           messageCount: row.msg_count,
           totalTokens: row.total_tokens,
@@ -396,10 +411,10 @@ export class DashboardService implements IDashboardService {
         sql`SELECT agent_id, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out, count(*) as cnt FROM (
               SELECT agent_id, input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
               UNION ALL
-              SELECT c.agent_id, m.input_tokens as inp, m.output_tokens as out
+              SELECT c.target_id as agent_id, m.input_tokens as inp, m.output_tokens as out
               FROM messages m
               JOIN conversations c ON c.id = m.conversation_id
-              WHERE m.input_tokens > 0${dateConditionMsg}
+              WHERE c.target_type = 'agent' AND m.input_tokens > 0${dateConditionMsg}
                 AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
             ) GROUP BY agent_id ORDER BY (inp + out) DESC`,
       )
@@ -496,13 +511,26 @@ export class DashboardService implements IDashboardService {
           .sort((a, b) => (a.nextRunAt ?? '').localeCompare(b.nextRunAt ?? ''))
           .slice(0, 10)
 
+        // Build team → leader map for resolving team targets
+        const teamLeaderMap = new Map<string, AgentId>()
+        if (this.deps.teamStorage) {
+          const teams = await this.deps.teamStorage.list(projectId)
+          for (const t of teams) {
+            const leader = t.members.find(m => !m.parentAgentId)
+            if (leader) teamLeaderMap.set(t.id as string, leader.agentId)
+          }
+        }
+
         for (const job of enabledWithNext) {
+          const resolvedAgentId = job.targetType === 'agent'
+            ? job.targetId as AgentId
+            : teamLeaderMap.get(job.targetId as string) ?? '' as AgentId
           upcoming.push({
             cronJobId: job.id,
             projectId,
             cronJobName: job.name,
-            agentId: job.agentId,
-            agentName: agentMap.get(job.agentId as string) ?? 'Unknown',
+            agentId: resolvedAgentId as AgentId,
+            agentName: agentMap.get(resolvedAgentId as string) ?? 'Unknown',
             nextRunAt: job.nextRunAt!,
           })
         }
@@ -545,8 +573,8 @@ export class DashboardService implements IDashboardService {
       }
 
       // Recent conversations (as "chat" completed items) — include title
-      const chatRows = db.all<{ id: string; agent_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
-        sql`SELECT c.id, c.agent_id, c.title, c.last_message_at,
+      const chatRows = db.all<{ id: string; target_type: string; target_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
+        sql`SELECT c.id, c.target_type, c.target_id, c.title, c.last_message_at,
                    COALESCE((SELECT SUM(total) FROM (
                      SELECT (input_tokens + output_tokens) as total FROM token_records WHERE conversation_id = c.id
                      UNION ALL
@@ -563,7 +591,7 @@ export class DashboardService implements IDashboardService {
           type: 'chat',
           id: row.id,
           projectId,
-          agentName: agentMap.get(row.agent_id) ?? 'Unknown',
+          agentName: agentMap.get(row.target_id) ?? 'Unknown',
           title: row.title || '',
           completedAt: row.last_message_at!,
           status: 'success',

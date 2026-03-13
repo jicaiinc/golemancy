@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { ConversationId, ProjectId, AgentId, MessageId, Message } from '@golemancy/shared'
+import type { ConversationId, ProjectId, AgentId, MessageId, Message, TargetType } from '@golemancy/shared'
 
 // vi.hoisted ensures these are available when vi.mock factories run (hoisted)
 const { mockStop, MockChat, chatConstructorCalls } = vi.hoisted(() => {
@@ -69,7 +69,8 @@ function makeConfig(overrides?: Partial<Parameters<typeof getOrCreateChat>[0]>) 
   return {
     conversationId: 'conv-1' as ConversationId,
     projectId: 'proj-1' as ProjectId,
-    agentId: 'agent-1' as AgentId,
+    targetType: 'agent' as TargetType,
+    targetId: 'agent-1' as AgentId,
     initialMessages: [],
     serverConfig: null,
     ...overrides,
@@ -127,7 +128,8 @@ describe('chat-instances', () => {
     it('configures transport with correct API URL and auth header', () => {
       getOrCreateChat(makeConfig({
         projectId: 'proj-x' as ProjectId,
-        agentId: 'agent-y' as AgentId,
+        targetType: 'agent' as TargetType,
+        targetId: 'agent-y' as AgentId,
         conversationId: 'conv-z' as ConversationId,
         serverConfig: { baseUrl: 'http://localhost:4000', token: 'my-token' },
       }))
@@ -137,7 +139,8 @@ describe('chat-instances', () => {
       expect(transport.opts.headers).toEqual({ Authorization: 'Bearer my-token' })
       expect(transport.opts.body).toEqual({
         projectId: 'proj-x',
-        agentId: 'agent-y',
+        targetType: 'agent',
+        targetId: 'agent-y',
         conversationId: 'conv-z',
       })
     })

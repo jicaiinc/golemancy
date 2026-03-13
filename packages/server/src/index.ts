@@ -74,6 +74,7 @@ async function main() {
     activeChatRegistry,
     cronJobRunStorage,
     cronJobStorage,
+    teamStorage,
   }
   const settingsStorage = new FileSettingsStorage()
   const oauthManager = new OAuthManager(settingsStorage)

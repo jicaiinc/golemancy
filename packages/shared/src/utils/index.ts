@@ -1,0 +1,1 @@
+export { resolveAgentId } from './target'

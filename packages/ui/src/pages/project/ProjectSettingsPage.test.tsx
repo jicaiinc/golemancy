@@ -180,7 +180,7 @@ describe('ProjectSettingsPage', () => {
 
   it('calls updateProject with mutual exclusion when default is changed', async () => {
     const agentId = 'agent-ps1' as AgentId
-    const projectWithMain: Project = { ...testProject, defaultAgentId: agentId }
+    const projectWithMain: Project = { ...testProject, defaultTargetType: 'agent', defaultTargetId: agentId }
     useAppStore.setState({ projects: [projectWithMain], currentProjectId: PROJECT_ID })
     const mockUpdate = vi.fn().mockResolvedValue(undefined)
     useAppStore.setState({ updateProject: mockUpdate })
@@ -192,7 +192,7 @@ describe('ProjectSettingsPage', () => {
     fireEvent.change(defaultSelect, { target: { value: '' } })
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, { defaultAgentId: undefined, defaultTeamId: undefined })
+      expect(mockUpdate).toHaveBeenCalledWith(PROJECT_ID, { defaultTargetType: undefined, defaultTargetId: undefined })
     })
   })
 

@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm'
 import type {
-  IGlobalDashboardService, IProjectService, IAgentService, ICronJobService,
-  ProjectId, AgentId, ConversationId, CronJobId,
+  IGlobalDashboardService, IProjectService, IAgentService, ICronJobService, ITeamService,
+  ProjectId, AgentId, TeamId, ConversationId, CronJobId,
   DashboardSummary, DashboardTokenTrend, DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
 } from '@golemancy/shared'
 import type { AppDatabase } from '../db/client'
@@ -19,6 +19,7 @@ export interface GlobalDashboardServiceDeps {
   activeChatRegistry?: ActiveChatRegistry
   cronJobRunStorage?: SqliteCronJobRunStorage
   cronJobStorage?: ICronJobService
+  teamStorage?: ITeamService
 }
 
 export class GlobalDashboardService implements IGlobalDashboardService {
@@ -151,10 +152,10 @@ export class GlobalDashboardService implements IGlobalDashboardService {
           sql`SELECT agent_id, COALESCE(SUM(inp), 0) as inp, COALESCE(SUM(out), 0) as out, count(*) as cnt FROM (
                 SELECT agent_id, input_tokens as inp, output_tokens as out FROM token_records WHERE 1=1${dateCondition}
                 UNION ALL
-                SELECT c.agent_id, m.input_tokens as inp, m.output_tokens as out
+                SELECT c.target_id as agent_id, m.input_tokens as inp, m.output_tokens as out
                 FROM messages m
                 JOIN conversations c ON c.id = m.conversation_id
-                WHERE m.input_tokens > 0${dateConditionMsg}
+                WHERE c.target_type = 'agent' AND m.input_tokens > 0${dateConditionMsg}
                   AND NOT EXISTS (SELECT 1 FROM token_records tr WHERE tr.message_id = m.id)
               ) GROUP BY agent_id ORDER BY (inp + out) DESC`,
         )
@@ -397,15 +398,29 @@ export class GlobalDashboardService implements IGlobalDashboardService {
       for (const project of projects) {
         try {
           const jobs = await this.deps.cronJobStorage.list(project.id)
+
+          // Build team → leader map for resolving team targets
+          const teamLeaderMap = new Map<string, AgentId>()
+          if (this.deps.teamStorage) {
+            const teams = await this.deps.teamStorage.list(project.id)
+            for (const t of teams) {
+              const leader = t.members.find(m => !m.parentAgentId)
+              if (leader) teamLeaderMap.set(t.id as string, leader.agentId)
+            }
+          }
+
           for (const job of jobs) {
             if (job.enabled && job.nextRunAt) {
+              const resolvedAgentId = job.targetType === 'agent'
+                ? job.targetId as AgentId
+                : teamLeaderMap.get(job.targetId as string) ?? '' as AgentId
               upcoming.push({
                 cronJobId: job.id,
                 projectId: project.id,
                 projectName: project.name,
                 cronJobName: job.name,
-                agentId: job.agentId,
-                agentName: globalAgentMap.get(job.agentId as string) ?? 'Unknown',
+                agentId: resolvedAgentId as AgentId,
+                agentName: globalAgentMap.get(resolvedAgentId as string) ?? 'Unknown',
                 nextRunAt: job.nextRunAt,
               })
             }
@@ -453,8 +468,8 @@ export class GlobalDashboardService implements IGlobalDashboardService {
         }
 
         // Recent conversations — include title
-        const chatRows = db.all<{ id: string; agent_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
-          sql`SELECT c.id, c.agent_id, c.title, c.last_message_at,
+        const chatRows = db.all<{ id: string; target_type: string; target_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
+          sql`SELECT c.id, c.target_type, c.target_id, c.title, c.last_message_at,
                      COALESCE((SELECT SUM(total) FROM (
                        SELECT (input_tokens + output_tokens) as total FROM token_records WHERE conversation_id = c.id
                        UNION ALL
@@ -472,7 +487,7 @@ export class GlobalDashboardService implements IGlobalDashboardService {
             id: row.id,
             projectId: project.id,
             projectName: project.name,
-            agentName: globalAgentMap.get(row.agent_id) ?? 'Unknown',
+            agentName: globalAgentMap.get(row.target_id) ?? 'Unknown',
             title: row.title || '',
             completedAt: row.last_message_at!,
             status: 'success',

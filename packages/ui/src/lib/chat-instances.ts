@@ -8,7 +8,7 @@
 import { Chat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import type { UIMessage, ChatTransport } from 'ai'
-import type { ConversationId, AgentId, ProjectId, Message } from '@golemancy/shared'
+import type { ConversationId, AgentId, TeamId, ProjectId, Message, TargetType } from '@golemancy/shared'
 
 /** Convert app Message[] → UIMessage[] for Chat constructor. */
 function messagesToUIMessages(messages: Message[]): UIMessage[] {
@@ -23,7 +23,8 @@ function messagesToUIMessages(messages: Message[]): UIMessage[] {
 export interface ChatInstanceConfig {
   conversationId: ConversationId
   projectId: ProjectId
-  agentId: AgentId
+  targetType: TargetType
+  targetId: AgentId | TeamId
   initialMessages: Message[]
   serverConfig: { baseUrl: string; token: string } | null
 }
@@ -40,7 +41,8 @@ export function getOrCreateChat(config: ChatInstanceConfig): Chat<UIMessage> {
         api: `${config.serverConfig.baseUrl}/api/chat`,
         body: {
           projectId: config.projectId,
-          agentId: config.agentId,
+          targetType: config.targetType,
+          targetId: config.targetId,
           conversationId: config.conversationId,
         },
         headers: { Authorization: `Bearer ${config.serverConfig.token}` },

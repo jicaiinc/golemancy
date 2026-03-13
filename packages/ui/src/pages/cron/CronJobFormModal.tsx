@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import cronstrue from 'cronstrue'
-import type { AgentId, CronJob, TeamId } from '@golemancy/shared'
+import type { AgentId, CronJob, TeamId, TargetType } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { PixelModal, PixelInput, PixelTextArea, PixelButton, PixelToggle } from '../../components'
 import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
@@ -44,16 +44,16 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
 
   const [name, setName] = useState('')
   const [cronExpression, setCronExpression] = useState('0 * * * *')
-  const [agentId, setAgentId] = useState<AgentId | ''>('')
-  const [teamId, setTeamId] = useState<TeamId | ''>('')
+  const [targetType, setTargetType] = useState<TargetType>('agent')
+  const [targetId, setTargetId] = useState<AgentId | TeamId | ''>('')
   const [instruction, setInstruction] = useState('')
   const [enabled, setEnabled] = useState(true)
   const [scheduleType, setScheduleType] = useState<'cron' | 'once'>('cron')
   const [scheduledAtLocal, setScheduledAtLocal] = useState('') // datetime-local format: YYYY-MM-DDTHH:mm
   const [saving, setSaving] = useState(false)
 
-  // Combined select value: agent or team (mutually exclusive, like Chat)
-  const selectValue = teamId ? encodeTeamValue(teamId) : (agentId as string)
+  // Combined select value: agent or team
+  const selectValue = targetType === 'team' && targetId ? encodeTeamValue(targetId as TeamId) : (targetId as string)
 
   const isEdit = !!editJob
 
@@ -69,8 +69,8 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     if (editJob) {
       setName(editJob.name)
       setCronExpression(editJob.cronExpression)
-      setAgentId(editJob.agentId)
-      setTeamId(editJob.teamId ?? '')
+      setTargetType(editJob.targetType)
+      setTargetId(editJob.targetId)
       setInstruction(editJob.instruction ?? '')
       setEnabled(editJob.enabled)
       setScheduleType(editJob.scheduleType ?? 'cron')
@@ -78,8 +78,8 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     } else {
       setName('')
       setCronExpression('0 * * * *')
-      setAgentId(agents.length > 0 ? agents[0].id : '')
-      setTeamId('')
+      setTargetType('agent')
+      setTargetId(agents.length > 0 ? agents[0].id : '')
       setInstruction('')
       setEnabled(true)
       setScheduleType('cron')
@@ -88,21 +88,20 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
   }, [editJob, open, agents])
 
   const isValid = scheduleType === 'cron'
-    ? !!(name.trim() && cronExpression.trim() && agentId)
-    : !!(name.trim() && scheduledAtLocal && agentId)
+    ? !!(name.trim() && cronExpression.trim() && targetId)
+    : !!(name.trim() && scheduledAtLocal && targetId)
 
   async function handleSubmit() {
     if (!isValid) return
     setSaving(true)
     try {
       const scheduledAtIso = scheduleType === 'once' ? localDatetimeToIso(scheduledAtLocal) : undefined
-      const resolvedTeamId = teamId || undefined
       if (isEdit && editJob) {
         await updateCronJob(editJob.id, {
           name: name.trim(),
           cronExpression: cronExpression.trim(),
-          agentId: agentId as AgentId,
-          teamId: resolvedTeamId as TeamId | undefined,
+          targetType,
+          targetId: targetId as AgentId | TeamId,
           instruction: instruction.trim() || undefined,
           enabled,
           scheduleType,
@@ -112,8 +111,8 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
         await createCronJob({
           name: name.trim(),
           cronExpression: scheduleType === 'cron' ? cronExpression.trim() : '',
-          agentId: agentId as AgentId,
-          teamId: resolvedTeamId as TeamId | undefined,
+          targetType,
+          targetId: targetId as AgentId | TeamId,
           instruction: instruction.trim() || undefined,
           enabled,
           scheduleType,
@@ -226,17 +225,11 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
             onChange={e => {
               const parsed = decodeSelectValue(e.target.value)
               if (!parsed) {
-                setAgentId('')
-                setTeamId('')
-              } else if ('teamId' in parsed) {
-                setTeamId(parsed.teamId)
-                // Auto-set agent to team leader
-                const team = teams.find(tm => tm.id === parsed.teamId)
-                const leader = team?.members.find(m => !m.parentAgentId)
-                if (leader) setAgentId(leader.agentId)
+                setTargetType('agent')
+                setTargetId('')
               } else {
-                setAgentId(parsed.agentId)
-                setTeamId('')
+                setTargetType(parsed.targetType)
+                setTargetId(parsed.targetId)
               }
             }}
             className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"

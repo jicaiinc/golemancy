@@ -9,6 +9,7 @@ import type {
   TranscriptionRecord, SpeechStorageUsage,
   MemoryEntry, MemoryCreateData, MemoryUpdateData,
   ProjectId, AgentId, ConversationId, SkillId, CronJobId, TranscriptionId, MemoryId, TeamId,
+  TargetType,
   SkillCreateData, SkillUpdateData,
   AgentStatus,
 } from '@golemancy/shared'
@@ -129,7 +130,7 @@ interface ProjectActions {
   selectProject(id: ProjectId): Promise<void>
   clearProject(): void
   createProject(data: Pick<Project, 'name' | 'description' | 'icon'>): Promise<Project>
-  updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultAgentId' | 'defaultTeamId'>>): Promise<void>
+  updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultTargetType' | 'defaultTargetId'>>): Promise<void>
   deleteProject(id: ProjectId): Promise<void>
   cloneProject(id: ProjectId, newName: string): Promise<Project>
 }
@@ -149,8 +150,8 @@ interface ConversationActions {
   selectConversation(id: ConversationId | null): Promise<void>
   /** Ensure a conversation exists in the store list (fetch + append if missing, no navigation) */
   ensureConversation(id: ConversationId): Promise<void>
-  createConversation(agentId: AgentId, title: string, teamId?: TeamId): Promise<Conversation>
-  updateConversation(id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }): Promise<Conversation>
+  createConversation(targetType: TargetType, targetId: AgentId | TeamId, title: string): Promise<Conversation>
+  updateConversation(id: ConversationId, data: { title?: string; targetType?: TargetType; targetId?: AgentId | TeamId }): Promise<Conversation>
   updateConversationTitle(id: ConversationId, title: string): Promise<void>
   deleteConversation(id: ConversationId): Promise<void>
 }
@@ -189,8 +190,8 @@ interface MCPActions {
 
 interface CronJobActions {
   loadCronJobs(projectId: ProjectId): Promise<void>
-  createCronJob(data: Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'> & { teamId?: TeamId }): Promise<CronJob>
-  updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'agentId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'> & { teamId?: TeamId }>): Promise<void>
+  createCronJob(data: Pick<CronJob, 'targetType' | 'targetId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
+  updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'targetType' | 'targetId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<void>
   deleteCronJob(id: CronJobId): Promise<void>
   triggerCronJob(id: CronJobId): Promise<void>
   loadCronJobRuns(cronJobId: CronJobId): Promise<void>
@@ -381,7 +382,7 @@ export const useAppStore = create<AppState>()(
         })
 
         // Set as Main Agent
-        const updated = await svc.projects.update(project.id, { defaultAgentId: agent.id })
+        const updated = await svc.projects.update(project.id, { defaultTargetType: 'agent', defaultTargetId: agent.id })
 
         set(s => ({ projects: [...s.projects, updated] }))
         return updated
@@ -436,10 +437,10 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().agents.delete(projectId, id)
         set(s => ({ agents: s.agents.filter(a => a.id !== id) }))
-        // If the deleted agent was the project's defaultAgentId, clear it
+        // If the deleted agent was the project's default target, clear it
         const project = get().projects.find(p => p.id === projectId)
-        if (project?.defaultAgentId === id) {
-          await get().updateProject(projectId, { defaultAgentId: undefined })
+        if (project?.defaultTargetId === id) {
+          await get().updateProject(projectId, { defaultTargetType: undefined, defaultTargetId: undefined })
         }
       },
 
@@ -516,20 +517,20 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      async createConversation(agentId: AgentId, title: string, teamId?: TeamId) {
+      async createConversation(targetType: TargetType, targetId: AgentId | TeamId, title: string) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
-        const conv = await getServices().conversations.create(projectId, agentId, title, teamId)
+        const conv = await getServices().conversations.create(projectId, targetType, targetId, title)
         set(s => ({ conversations: [...s.conversations, conv], currentConversationId: conv.id }))
         return conv
       },
 
-      async updateConversation(id: ConversationId, data: { title?: string; agentId?: AgentId; teamId?: TeamId | null }) {
+      async updateConversation(id: ConversationId, data: { title?: string; targetType?: TargetType; targetId?: AgentId | TeamId }) {
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
         const updated = await getServices().conversations.update(projectId, id, data)
-        const changesTarget = Object.prototype.hasOwnProperty.call(data, 'agentId')
-          || Object.prototype.hasOwnProperty.call(data, 'teamId')
+        const changesTarget = Object.prototype.hasOwnProperty.call(data, 'targetType')
+          || Object.prototype.hasOwnProperty.call(data, 'targetId')
         if (changesTarget) {
           destroyChat(id)
         }
@@ -993,10 +994,10 @@ export const useAppStore = create<AppState>()(
         if (!projectId) throw new Error('No project selected')
         await getServices().teams.delete(projectId, id)
         set(s => ({ teams: s.teams.filter(t => t.id !== id) }))
-        // If the deleted team was the project's defaultTeamId, clear it
+        // If the deleted team was the project's default target, clear it
         const project = get().projects.find(p => p.id === get().currentProjectId)
-        if (project?.defaultTeamId === id) {
-          await get().updateProject(project.id, { defaultTeamId: undefined })
+        if (project?.defaultTargetId === id) {
+          await get().updateProject(project.id, { defaultTargetType: undefined, defaultTargetId: undefined })
         }
       },
 

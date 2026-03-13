@@ -26,6 +26,15 @@ vi.mock('./agent/model', () => ({
   })),
 }))
 
+vi.mock('./agent/tools', () => ({
+  loadAgentTools: vi.fn().mockResolvedValue({
+    tools: {},
+    instructions: '',
+    warnings: [],
+    cleanup: vi.fn(),
+  }),
+}))
+
 function createMockDeps() {
   return {
     projectStorage: {
@@ -144,6 +153,20 @@ function createMockDeps() {
       getLatest: vi.fn().mockResolvedValue(null),
       list: vi.fn().mockResolvedValue([]),
       save: vi.fn().mockResolvedValue({ id: 'compact-1' }),
+    },
+    teamStorage: {
+      getById: vi.fn().mockResolvedValue(null),
+      list: vi.fn().mockResolvedValue([]),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    memoryStorage: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
   } as unknown as ServerDependencies
 }
@@ -311,10 +334,10 @@ describe('HTTP API routes', () => {
     it('POST creates conversation with 201', async () => {
       const res = await app.request(jsonRequest('/api/projects/proj-1/conversations', {
         method: 'POST',
-        body: JSON.stringify({ agentId: 'agent-1', title: 'New Chat' }),
+        body: JSON.stringify({ targetType: 'agent', targetId: 'agent-1', title: 'New Chat' }),
       }))
       expect(res.status).toBe(201)
-      expect(deps.conversationStorage.create).toHaveBeenCalledWith('proj-1', 'agent-1', 'New Chat', undefined)
+      expect(deps.conversationStorage.create).toHaveBeenCalledWith('proj-1', 'agent', 'agent-1', 'New Chat')
     })
 
     it('DELETE deletes conversation', async () => {
@@ -551,7 +574,7 @@ describe('HTTP API routes', () => {
       expect(body.error).toBe('MESSAGES_REQUIRED')
     })
 
-    it('POST /api/chat returns 400 when no agentId or conversationId', async () => {
+    it('POST /api/chat returns 400 when no targetType/targetId or conversationId', async () => {
       const res = await app.request(jsonRequest('/api/chat', {
         method: 'POST',
         body: JSON.stringify({
@@ -561,7 +584,7 @@ describe('HTTP API routes', () => {
       }))
       expect(res.status).toBe(400)
       const body = await res.json()
-      expect(body.error).toBe('AGENT_ID_REQUIRED')
+      expect(body.error).toBe('TARGET_REQUIRED')
     })
 
     it('POST /api/chat returns 404 when agent not found', async () => {
@@ -569,7 +592,8 @@ describe('HTTP API routes', () => {
         method: 'POST',
         body: JSON.stringify({
           projectId: 'proj-1',
-          agentId: 'agent-nonexistent',
+          targetType: 'agent',
+          targetId: 'agent-nonexistent',
           messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hi' }] }],
         }),
       }))
@@ -578,9 +602,9 @@ describe('HTTP API routes', () => {
       expect(body.error).toBe('AGENT_NOT_FOUND')
     })
 
-    it('POST /api/chat resolves agentId from conversationId', async () => {
+    it('POST /api/chat resolves targetType/targetId from conversationId', async () => {
       deps.conversationStorage.getById.mockResolvedValueOnce({
-        id: 'conv-1', projectId: 'proj-1', agentId: 'agent-missing', title: 'Test',
+        id: 'conv-1', projectId: 'proj-1', targetType: 'agent', targetId: 'agent-missing', title: 'Test',
         messages: [], lastMessageAt: '', createdAt: '', updatedAt: '',
       })
       const res = await app.request(jsonRequest('/api/chat', {
@@ -623,7 +647,8 @@ describe('HTTP API routes', () => {
         method: 'POST',
         body: JSON.stringify({
           projectId: 'proj-1',
-          agentId: 'agent-1',
+          targetType: 'agent',
+          targetId: 'agent-1',
           messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] }],
         }),
       }))
@@ -658,7 +683,8 @@ describe('HTTP API routes', () => {
         method: 'POST',
         body: JSON.stringify({
           projectId: 'proj-1',
-          agentId: 'agent-1',
+          targetType: 'agent',
+          targetId: 'agent-1',
           messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] }],
         }),
       }))
