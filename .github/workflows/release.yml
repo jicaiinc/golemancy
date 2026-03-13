@@ -185,13 +185,17 @@ jobs:
           "
 
       # ── Step 6: Package with electron-builder ──
+      # Windows: Azure Trusted Signing via electron-builder's azureSignOptions.
+      # macOS: Code signing disabled until Apple Developer certificate is ready.
       - name: Package (electron-builder)
         run: |
           cd apps/desktop
           npx electron-builder --${{ matrix.platform }} --${{ matrix.arch }} --publish never
         env:
-          # Disable code signing (no Apple Developer / Windows cert)
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          AZURE_TENANT_ID: ${{ matrix.platform == 'win' && secrets.AZURE_TENANT_ID || '' }}
+          AZURE_CLIENT_ID: ${{ matrix.platform == 'win' && secrets.AZURE_CLIENT_ID || '' }}
+          AZURE_CLIENT_SECRET: ${{ matrix.platform == 'win' && secrets.AZURE_CLIENT_SECRET || '' }}
 
       # ── Step 7: Verify package integrity ──
       # Every platform gets a verification step to catch corrupted artifacts
@@ -331,7 +335,7 @@ jobs:
             xattr -cr /Applications/Golemancy.app
             ```
 
-            **Windows (unsigned):** Windows SmartScreen may warn — click "More info" → "Run anyway".
+            **Windows:** Signed by Jicai, Inc. via Azure Trusted Signing. SmartScreen warnings may still appear for new releases as reputation builds.
 
             **Linux (.deb) — Ubuntu, Debian, Mint:**
             ```bash

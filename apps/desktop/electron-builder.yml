@@ -43,3 +43,8 @@ win:
   target: [nsis, msi]
   icon: resources/build/icons/win/icon.ico
   artifactName: ${productName}-${version}-win-${arch}.${ext}
+  azureSignOptions:
+    publisherName: "Jicai, Inc."
+    endpoint: https://eus.codesigning.azure.net/
+    codeSigningAccountName: golemancy
+    certificateProfileName: golemancy
