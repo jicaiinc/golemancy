@@ -99,6 +99,25 @@ export class MockProjectService implements IProjectService {
     this.data.set(project.id, project)
     return project
   }
+
+  async createFromTemplate(templateId: string, name: string): Promise<Project> {
+    await delay()
+    const now = new Date().toISOString()
+    const project: Project = {
+      id: genId('proj') as ProjectId,
+      name,
+      description: `Project from template ${templateId}`,
+      icon: 'sparkles',
+      config: {},
+      agentCount: 0,
+      activeAgentCount: 0,
+      lastActivityAt: now,
+      createdAt: now,
+      updatedAt: now,
+    }
+    this.data.set(project.id, project)
+    return project
+  }
 }
 
 // --- AgentService ---

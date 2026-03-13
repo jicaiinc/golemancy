@@ -1,11 +1,19 @@
 import { Hono } from 'hono'
-import type { IProjectService, ProjectId } from '@golemancy/shared'
+import type { IProjectService, ISettingsService, ProjectId } from '@golemancy/shared'
+import { getProjectTemplate } from '@golemancy/shared'
+import { instantiateProjectTemplate } from '../storage/template-instantiate'
 import { initProjectPythonEnv } from '../runtime/python-manager'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:projects' })
 
-export function createProjectRoutes(storage: IProjectService) {
+interface ProjectRouteDeps {
+  projectStorage: IProjectService
+  settingsStorage: ISettingsService
+}
+
+export function createProjectRoutes(deps: ProjectRouteDeps) {
+  const { projectStorage: storage, settingsStorage } = deps
   const app = new Hono()
 
   app.get('/', async (c) => {
@@ -56,6 +64,36 @@ export function createProjectRoutes(storage: IProjectService) {
     // Eagerly create Python venv (non-blocking, non-fatal)
     initProjectPythonEnv(project.id).catch((err) => {
       log.warn({ err, projectId: project.id }, 'failed to create Python venv on project clone')
+    })
+
+    return c.json(project, 201)
+  })
+
+  app.post('/from-template', async (c) => {
+    const body = await c.req.json()
+    const { templateId, name } = body as { templateId?: string; name?: string }
+
+    if (!templateId || typeof templateId !== 'string') {
+      return c.json({ error: 'VALIDATION_FAILED', details: [{ field: 'templateId', message: 'Required' }] }, 400)
+    }
+
+    const template = getProjectTemplate(templateId)
+    if (!template) {
+      return c.json({ error: 'NOT_FOUND', message: `Template "${templateId}" not found` }, 404)
+    }
+
+    const settings = await settingsStorage.get()
+    if (!settings.defaultModel) {
+      return c.json({ error: 'CONFIGURATION_REQUIRED', message: 'Default model must be configured before creating from template' }, 400)
+    }
+
+    const projectName = (typeof name === 'string' && name.trim()) ? name.trim() : template.name
+    log.debug({ templateId, projectName }, 'creating project from template')
+    const project = await instantiateProjectTemplate(templateId, projectName, settings.defaultModel)
+    log.debug({ templateId, projectId: project.id }, 'created project from template')
+
+    initProjectPythonEnv(project.id).catch((err) => {
+      log.warn({ err, projectId: project.id }, 'failed to create Python venv on template instantiation')
     })
 
     return c.json(project, 201)

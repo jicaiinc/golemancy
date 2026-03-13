@@ -61,6 +61,7 @@ interface OnboardingData {
   projectName: string
   projectDescription: string
   projectIcon: string
+  selectedTemplateId: string | null
   createdProjectId: ProjectId | null
 }
 
@@ -78,6 +79,7 @@ const INITIAL_DATA: OnboardingData = {
   projectName: '',
   projectDescription: '',
   projectIcon: 'pickaxe',
+  selectedTemplateId: null,
   createdProjectId: null,
 }
 
@@ -94,6 +96,7 @@ export function OnboardingPage() {
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
   const createProject = useAppStore(s => s.createProject)
+  const createProjectFromTemplate = useAppStore(s => s.createProjectFromTemplate)
   const navigate = useNavigate()
 
   const hasProviders = Object.keys(settings?.providers ?? {}).length > 0
@@ -203,11 +206,16 @@ export function OnboardingPage() {
   }
 
   async function persistProjectStep() {
-    const project = await createProject({
-      name: data.projectName.trim(),
-      description: data.projectDescription.trim(),
-      icon: data.projectIcon,
-    })
+    let project
+    if (data.selectedTemplateId) {
+      project = await createProjectFromTemplate(data.selectedTemplateId, data.projectName.trim())
+    } else {
+      project = await createProject({
+        name: data.projectName.trim(),
+        description: data.projectDescription.trim(),
+        icon: data.projectIcon,
+      })
+    }
     setData(d => ({ ...d, createdProjectId: project.id }))
     await updateSettings({ onboardingCompleted: true, onboardingStep: 4 })
   }
@@ -351,6 +359,7 @@ export function OnboardingPage() {
                   projectName={data.projectName}
                   projectDescription={data.projectDescription}
                   projectIcon={data.projectIcon}
+                  selectedTemplateId={data.selectedTemplateId}
                   onUpdate={updateData}
                 />
               )}

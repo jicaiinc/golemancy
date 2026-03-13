@@ -133,6 +133,7 @@ interface ProjectActions {
   updateProject(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultTargetType' | 'defaultTargetId'>>): Promise<void>
   deleteProject(id: ProjectId): Promise<void>
   cloneProject(id: ProjectId, newName: string): Promise<Project>
+  createProjectFromTemplate(templateId: string, name: string): Promise<Project>
 }
 
 interface AgentActions {
@@ -403,6 +404,14 @@ export const useAppStore = create<AppState>()(
 
       async cloneProject(id, newName) {
         const project = await getServices().projects.clone(id, newName)
+        set(s => ({ projects: [...s.projects, project] }))
+        return project
+      },
+
+      async createProjectFromTemplate(templateId, name) {
+        const service = getServices().projects
+        if (!service.createFromTemplate) throw new Error('createFromTemplate not supported')
+        const project = await service.createFromTemplate(templateId, name)
         set(s => ({ projects: [...s.projects, project] }))
         return project
       },

@@ -45,6 +45,11 @@ export class HttpProjectService implements IProjectService {
       method: 'POST', body: JSON.stringify({ name: newName }),
     })
   }
+  createFromTemplate(templateId: string, name: string) {
+    return fetchJson<Project>(`${this.baseUrl}/api/projects/from-template`, {
+      method: 'POST', body: JSON.stringify({ templateId, name }),
+    })
+  }
 }
 
 export class HttpAgentService implements IAgentService {

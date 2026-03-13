@@ -22,6 +22,7 @@ export interface IProjectService {
   update(id: ProjectId, data: Partial<Pick<Project, 'name' | 'description' | 'icon' | 'config' | 'defaultTargetType' | 'defaultTargetId'>>): Promise<Project>
   delete(id: ProjectId): Promise<void>
   clone(id: ProjectId, newName: string): Promise<Project>
+  createFromTemplate?(templateId: string, name: string): Promise<Project>
 }
 
 export interface IAgentService {

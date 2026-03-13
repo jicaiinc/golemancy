@@ -1,0 +1,26 @@
+{
+  "categories": {
+    "starter": "Starter",
+    "productivity": "Productivity",
+    "research": "Research",
+    "creative": "Creative",
+    "development": "Development"
+  },
+  "ui": {
+    "chooseTemplate": "Choose a template",
+    "blankProject": "Blank Project",
+    "blankProjectDescription": "Start from scratch with a default agent",
+    "fromTemplate": "From Template",
+    "featured": "Featured"
+  },
+  "projects": {
+    "writing-assistant": {
+      "name": "Writing Assistant",
+      "description": "AI writing expert for emails, blogs, social media, and all types of content"
+    },
+    "deep-research": {
+      "name": "Deep Research",
+      "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
+    }
+  }
+}

@@ -114,7 +114,10 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     return c.json({ status: 'ok', timestamp: new Date().toISOString() })
   })
 
-  app.route('/api/projects', createProjectRoutes(deps.projectStorage))
+  app.route('/api/projects', createProjectRoutes({
+    projectStorage: deps.projectStorage,
+    settingsStorage: deps.settingsStorage,
+  }))
   app.route('/api/projects/:projectId/agents', createAgentRoutes({
     agentStorage: deps.agentStorage,
     projectStorage: deps.projectStorage,

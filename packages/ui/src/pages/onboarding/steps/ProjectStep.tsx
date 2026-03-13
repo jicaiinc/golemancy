@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { PixelCard, PixelInput, PixelTextArea } from '../../../components'
+import { getProjectTemplate } from '@golemancy/shared'
+import { PixelCard, PixelInput, PixelTextArea, TemplateSelector } from '../../../components'
 
 const ICONS = [
   { id: 'pickaxe', label: '\u26CF' },
@@ -16,10 +17,12 @@ interface ProjectStepProps {
   projectName: string
   projectDescription: string
   projectIcon: string
+  selectedTemplateId: string | null
   onUpdate: (data: {
     projectName?: string
     projectDescription?: string
     projectIcon?: string
+    selectedTemplateId?: string | null
   }) => void
 }
 
@@ -27,9 +30,25 @@ export function ProjectStep({
   projectName,
   projectDescription,
   projectIcon,
+  selectedTemplateId,
   onUpdate,
 }: ProjectStepProps) {
   const { t } = useTranslation('onboarding')
+
+  function handleTemplateSelect(templateId: string | null) {
+    if (templateId) {
+      const template = getProjectTemplate(templateId)
+      if (template) {
+        onUpdate({
+          selectedTemplateId: templateId,
+          projectName: template.name,
+          projectIcon: template.icon,
+        })
+        return
+      }
+    }
+    onUpdate({ selectedTemplateId: null })
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -37,6 +56,11 @@ export function ProjectStep({
         <h2 className="font-pixel text-[14px] text-text-primary mb-2">{t('project.heading')}</h2>
         <p className="font-mono text-[11px] text-text-dim">{t('project.description')}</p>
       </div>
+
+      <TemplateSelector
+        selectedTemplateId={selectedTemplateId}
+        onSelect={handleTemplateSelect}
+      />
 
       <PixelCard>
         <div className="flex flex-col gap-4">
@@ -73,14 +97,6 @@ export function ProjectStep({
                   {ic.label}
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* Coming soon placeholder */}
-          <div className="mt-2 pt-3 border-t-2 border-border-dim">
-            <div className="flex items-center gap-2">
-              <span className="font-pixel text-[9px] text-text-dim">{t('project.fromTemplate')}</span>
-              <span className="text-[9px] text-accent-amber font-mono">{t('project.comingSoon')}</span>
             </div>
           </div>
         </div>
