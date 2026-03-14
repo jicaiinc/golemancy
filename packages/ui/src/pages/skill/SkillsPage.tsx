@@ -160,7 +160,7 @@ export function SkillsPage() {
                     <PixelCard data-testid="skill-card">
                       <div className="flex items-start gap-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-pixel text-[10px] text-accent-cyan">{skill.name}</h3>
+                          <h3 className="font-pixel text-[10px] text-accent-purple">{skill.name}</h3>
                           <p className="text-[12px] text-text-secondary mt-1 line-clamp-2">{skill.description}</p>
                           {skill.instructions && (
                             <p className="text-[11px] text-text-dim font-mono mt-1 line-clamp-1">{skill.instructions}</p>

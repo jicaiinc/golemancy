@@ -206,7 +206,7 @@ function DetailPanel({
           {enabledTools.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {enabledTools.map(tool => (
-                <span key={tool} className="font-mono text-[9px] text-accent-green bg-accent-green/10 px-1.5 py-0.5 border border-accent-green/20">
+                <span key={tool} className="font-mono text-[9px] text-accent-amber bg-accent-amber/10 px-1.5 py-0.5 border border-accent-amber/20">
                   {tool}
                 </span>
               ))}

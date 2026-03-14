@@ -242,7 +242,7 @@ export function MCPServersPage() {
                         <div className="flex items-start gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-pixel text-[10px] text-accent-purple">{server.name}</h3>
+                              <h3 className="font-pixel text-[10px] text-accent-cyan">{server.name}</h3>
                               <PixelBadge variant="idle">
                                 <span className={transportColors[server.transportType]}>{server.transportType.toUpperCase()}</span>
                               </PixelBadge>

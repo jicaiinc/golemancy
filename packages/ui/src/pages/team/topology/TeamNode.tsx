@@ -68,11 +68,11 @@ export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {
       {/* Capabilities */}
       {hasCapabilities && (
         <div className="px-2 pb-2 flex flex-col gap-1">
-          {/* Tools — green */}
+          {/* Tools — amber */}
           {data.enabledTools.length > 0 && (
             <div className="flex flex-wrap gap-0.5">
               {data.enabledTools.map(tool => (
-                <span key={tool} className="font-mono text-[7px] text-accent-green bg-accent-green/10 px-1 py-px border border-accent-green/20 leading-tight">
+                <span key={tool} className="font-mono text-[7px] text-accent-amber bg-accent-amber/10 px-1 py-px border border-accent-amber/20 leading-tight">
                   {tool}
                 </span>
               ))}

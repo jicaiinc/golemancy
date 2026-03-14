@@ -315,7 +315,7 @@ function SkillsTab({ agent, onUpdate }: {
           {assigned.map(skill => (
             <PixelCard key={skill.id} className="flex items-center gap-3">
               <div className="flex-1 min-w-0">
-                <div className="font-pixel text-[9px] text-accent-cyan">{skill.name}</div>
+                <div className="font-pixel text-[9px] text-accent-purple">{skill.name}</div>
                 <div className="text-[11px] text-text-secondary mt-0.5">{skill.description}</div>
               </div>
               <PixelButton size="sm" variant="ghost" onClick={() => removeSkill(skill.id)}>
@@ -342,7 +342,7 @@ function SkillsTab({ agent, onUpdate }: {
                 className="flex items-center gap-3 p-2 text-left hover:bg-elevated/50 cursor-pointer transition-colors"
                 onClick={() => addSkill(skill.id)}
               >
-                <span className="font-pixel text-[9px] text-accent-cyan">{skill.name}</span>
+                <span className="font-pixel text-[9px] text-accent-purple">{skill.name}</span>
                 <span className="text-[11px] text-text-dim">{skill.description}</span>
               </button>
             ))}
@@ -512,7 +512,7 @@ function MCPTab({ agent, onUpdate }: {
             <PixelCard key={server.name} className="flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-pixel text-[9px] text-accent-purple">{server.name}</span>
+                  <span className="font-pixel text-[9px] text-accent-cyan">{server.name}</span>
                   <span className={`font-mono text-[9px] ${transportColors[server.transportType] ?? 'text-text-dim'}`}>
                     {server.transportType.toUpperCase()}
                   </span>
@@ -548,7 +548,7 @@ function MCPTab({ agent, onUpdate }: {
                 className="flex items-center gap-3 p-2 text-left hover:bg-elevated/50 cursor-pointer transition-colors"
                 onClick={() => addServer(server.name)}
               >
-                <span className="font-pixel text-[9px] text-accent-purple">{server.name}</span>
+                <span className="font-pixel text-[9px] text-accent-cyan">{server.name}</span>
                 <span className={`font-mono text-[9px] ${transportColors[server.transportType] ?? 'text-text-dim'}`}>
                   {server.transportType.toUpperCase()}
                 </span>
