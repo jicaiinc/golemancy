@@ -3,7 +3,7 @@
   "version": "0.1.34",
   "private": true,
   "productName": "Golemancy",
-  "description": "Command Your AI Golems",
+  "description": "Summon an AI Team to Work for You",
   "homepage": "https://golemancy.ai",
   "repository": {
     "type": "git",

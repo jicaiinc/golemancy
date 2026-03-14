@@ -110,7 +110,7 @@ describe('GlobalSettingsPage', () => {
   it('renders About tab with app info', () => {
     renderWithRouter(<GlobalSettingsPage />)
     fireEvent.click(screen.getByText('About'))
-    expect(screen.getByText('Command Your AI Golems')).toBeInTheDocument()
+    expect(screen.getByText('Summon an AI Team to Work for You')).toBeInTheDocument()
     expect(screen.getByText('UPDATES')).toBeInTheDocument()
     expect(screen.getByText(/You're up to date/)).toBeInTheDocument()
   })

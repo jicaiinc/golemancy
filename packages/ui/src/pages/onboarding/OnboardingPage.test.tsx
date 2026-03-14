@@ -157,8 +157,8 @@ describe('OnboardingPage', () => {
 
   it('shows welcome step initially', () => {
     renderOnboarding()
-    expect(screen.getByText('Command Your AI Golems')).toBeInTheDocument()
-    expect(screen.getByText('Orchestrate autonomous AI agents from your desktop.')).toBeInTheDocument()
+    expect(screen.getByText('Summon an AI Team to Work for You')).toBeInTheDocument()
+    expect(screen.getByText('Gives one person the power of a full AI team for research, writing, translation, data analysis, marketing, and reporting.')).toBeInTheDocument()
   })
 
   it('shows Get Started button on welcome step', () => {
@@ -208,7 +208,7 @@ describe('OnboardingPage', () => {
     fireEvent.click(screen.getByText('Get Started'))
     expect(screen.getByText('Connect an AI Provider')).toBeInTheDocument()
     fireEvent.click(screen.getByText('Back'))
-    expect(screen.getByText('Command Your AI Golems')).toBeInTheDocument()
+    expect(screen.getByText('Summon an AI Team to Work for You')).toBeInTheDocument()
   })
 
   it('shows provider grid on provider step', () => {

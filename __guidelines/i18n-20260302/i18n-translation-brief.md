@@ -60,7 +60,7 @@ Example (English):
 ### 3.4 Creative Localization
 Some strings are playful or cultural references. Adapt them naturally rather than translating literally:
 - `"A wild error appeared!"` — Pokemon reference. Use an equivalent pop-culture joke or just a friendly error tone.
-- `"Command Your AI Golems"` — Brand slogan. Translate the meaning ("command/control your AI agents") while keeping it catchy.
+- `"Summon an AI Team to Work for You"` — Brand slogan. Translate the meaning ("summon/assemble an AI team that works for you") while keeping it catchy.
 - `"Something Exploded"` — Error boundary title. Keep the playful pixel-game vibe.
 
 ### 3.5 Consistency Across Namespaces

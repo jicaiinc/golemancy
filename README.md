@@ -5,8 +5,8 @@
 <h1 align="center">Golemancy</h1>
 
 <p align="center">
-  <strong>Command Your AI Golems</strong><br>
-  Orchestrate autonomous AI agents from your desktop.
+  <strong>Summon an AI Team to Work for You</strong><br>
+  One person. The power of a full AI team.
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 ---
 
 
-Golemancy is a free, open-source desktop app for orchestrating autonomous AI agents. Summon multiple agents, equip them with tools and skills, and let them work in parallel — all running locally on your machine.
+Golemancy is a free, open-source desktop app that gives one person the power of a full AI team. Create AI agents for research, writing, translation, data analysis, marketing, and reporting — equip them with tools and skills, and let them work in parallel. All running locally on your machine.
 
 ## Features
 
@@ -149,6 +149,6 @@ For bugs and feature requests, [open an issue](https://github.com/jicaiinc/golem
 ---
 
 <p align="center">
-  Built for One-Person Teams.<br>
+  Built for teams of one.<br>
   <sub>&copy; 2026 <a href="https://golemancy.ai">Jicai, Inc.</a></sub>
 </p>

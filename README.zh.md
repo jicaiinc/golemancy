@@ -5,8 +5,8 @@
 <h1 align="center">Golemancy</h1>
 
 <p align="center">
-  <strong>召唤你的 AI 魔像军团</strong><br>
-  本地运行的 AI Agent 编排平台
+  <strong>召唤一支为你效力的 AI 团队</strong><br>
+  一个人，也能拥有一整支 AI 团队。
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 ---
 
 
-Golemancy 是一款免费开源的本地 AI Agent 编排桌面应用。你可以在一个项目里召唤多个 Agent，为每个 Agent 配备不同的工具和技能，让它们并行工作、相互协作——所有计算都在你自己的机器上完成，数据不出本地。
+Golemancy 是一款免费开源的桌面应用，让一个人也能拥有一整支 AI 团队的力量。创建不同角色的 AI Agent，完成调研、写作、翻译、数据分析、营销和报告——为它们配备工具和技能，让它们并行工作、相互协作。所有数据都在你自己的机器上，不出本地。
 
 ## 核心功能
 
@@ -167,6 +167,6 @@ Bug 反馈和功能建议请[提交 Issue](https://github.com/jicaiinc/golemancy
 ---
 
 <p align="center">
-  为单人团队而生。<br>
+  为一人团队打造。<br>
   <sub>&copy; 2026 <a href="https://golemancy.ai">Jicai, Inc.</a></sub>
 </p>

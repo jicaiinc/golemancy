@@ -141,7 +141,7 @@ function showAbout(): void {
     icon: icon.isEmpty() ? undefined : icon,
     title: 'About Golemancy',
     message: 'Golemancy',
-    detail: `Version ${APP_VERSION}\nCommand Your AI Golems`,
+    detail: `Version ${APP_VERSION}\nSummon an AI Team to Work for You`,
     buttons: ['OK'],
   })
 }
