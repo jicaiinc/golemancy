@@ -6,7 +6,7 @@ data = json.load(sys.stdin)
 
 user = os.environ.get('USER', '—')
 host = socket.gethostname().split('.')[0]
-model = (data.get('model') or {}).get('display_name', '—')
+model = (data.get('model') or {}).get('display_name', '—').replace(' (', ' ').replace(')', '').replace(' context', '')
 session = data.get('session_id') or '—'
 version = data.get('version', '—')
 ctx = (data.get('context_window') or {}).get('remaining_percentage')
