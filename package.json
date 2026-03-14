@@ -11,7 +11,7 @@
     "test:e2e:ai": "pnpm --filter @golemancy/desktop test:e2e:ai",
     "test:live": "pnpm --filter @golemancy/server test:live",
     "check:i18n": "node scripts/check-i18n.mjs",
-    "test:build": "node --test scripts/preflight-check.test.mjs scripts/bundle-server.test.mjs scripts/bundle-server-lockfile.test.mjs",
+    "test:build": "node --test scripts/preflight-check.test.mjs scripts/bundle-server.test.mjs scripts/bundle-server-lockfile.test.mjs scripts/pack-resources.test.mjs",
     "pack": "turbo build && pnpm --filter @golemancy/desktop run pack",
     "dist": "turbo build && pnpm --filter @golemancy/desktop run dist",
     "verify": "pnpm lint && pnpm test && pnpm build && pnpm --filter @golemancy/desktop download-runtime && pnpm --filter @golemancy/desktop bundle-server && pnpm --filter @golemancy/desktop preflight-check && node scripts/smoke-test-local.mjs && pnpm test:build"
