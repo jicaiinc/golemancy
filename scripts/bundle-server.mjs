@@ -61,9 +61,7 @@ const ENTRY_POINTS = {
 
 // Manual override: force-external packages that auto-detection misses.
 // Escape hatch for edge cases. Should normally be empty.
-const FORCE_EXTERNAL = new Set([
-  'docx',
-])
+const FORCE_EXTERNAL = new Set()
 
 // ── Lockfile helpers ─────────────────────────────────────────
 
@@ -221,6 +219,53 @@ function buildStandaloneLockfile(lockfileText, dependencySources) {
     packagesAndSnapshots.trimEnd(),
     '',
   ].join('\n')
+}
+
+function normalizeExternalPackageSpecifier(specifier) {
+  if (
+    !specifier
+    || specifier.startsWith('.')
+    || specifier.startsWith('/')
+    || specifier.startsWith('file:')
+    || specifier.startsWith('data:')
+  ) {
+    return null
+  }
+
+  if (specifier.startsWith('node:')) {
+    return specifier
+  }
+
+  const parts = specifier.startsWith('@')
+    ? specifier.split('/').slice(0, 2)
+    : specifier.split('/').slice(0, 1)
+
+  return parts.length > 0 ? parts.join('/') : null
+}
+
+function collectExternalImportsFromMetafile(metafile) {
+  if (!metafile?.outputs) {
+    return []
+  }
+
+  const pkgs = new Set()
+
+  for (const output of Object.values(metafile.outputs)) {
+    for (const imported of output.imports || []) {
+      if (!imported.external) continue
+      const pkg = normalizeExternalPackageSpecifier(imported.path)
+      if (pkg) {
+        pkgs.add(pkg)
+      }
+    }
+  }
+
+  return [...pkgs].sort((a, b) => a.localeCompare(b))
+}
+
+function collectExternalPackagesToVerify(metafile, externals) {
+  const configuredExternals = new Set(externals)
+  return collectExternalImportsFromMetafile(metafile).filter(pkg => configuredExternals.has(pkg))
 }
 
 // ── Native package detection ──────────────────────────────────
@@ -676,6 +721,7 @@ async function bundleServer() {
     entryPoints: ENTRY_POINTS,
     outdir: DEPS_DIR,
     bundle: true,
+    metafile: true,
     platform: 'node',
     target: 'node22',
     format: 'esm',
@@ -872,31 +918,12 @@ async function bundleServer() {
   // caught later by the CI smoke test which uses the bundled target-arch Node.js.
   console.log('\n[4/5] Verifying external imports (isolated subprocess)...')
 
-  // Extract all external imports from bundled output
-  const allImportedPkgs = new Set()
-  for (const entryName of Object.keys(ENTRY_POINTS)) {
-    const bundlePath = join(DEPS_DIR, `${entryName}.js`)
-    const bundleContent = await readFile(bundlePath, 'utf-8')
-
-    // Extract external imports from the bundled output.
-    // Must anchor to statement boundaries to avoid matching `from"..."` inside minified code.
-    // In minified ESM, statements are separated by `;`. Actual imports/exports:
-    //   ;import{foo}from"pkg";  |  ;import e from"pkg";  |  ;import"pkg";  |  ;export{x}from"pkg";
-    // Pattern 1: import/export ... from "pkg" (anchored to statement boundary via ^ or ;)
-    // Pattern 2: import "pkg" (side-effect import)
-    const importRegex = /(?:^|;)\s*(?:import|export)\b[^;]*?from\s*["']([^"'./][^"']*)["']|(?:^|;)\s*import\s*["']([^"'./][^"']*)["']/gm
-    let match
-    while ((match = importRegex.exec(bundleContent)) !== null) {
-      const raw = match[1] || match[2]
-      // Normalize to package name (e.g., "@scope/pkg/sub" → "@scope/pkg", "pkg/sub" → "pkg")
-      const parts = raw.startsWith('@') ? raw.split('/').slice(0, 2) : raw.split('/').slice(0, 1)
-      allImportedPkgs.add(parts.join('/'))
-    }
-  }
-
   // Filter out Node.js built-in modules (auto-detected from running Node.js)
   const NODE_BUILTINS = new Set(builtinModules)
-  const pkgsToVerify = [...allImportedPkgs].filter(
+  // esbuild's metafile also includes optional require() calls from bundled deps
+  // (for example ws -> bufferutil). Only verify packages we intentionally left
+  // external and therefore expect to exist in deps/node_modules.
+  const pkgsToVerify = collectExternalPackagesToVerify(result.metafile, externals).filter(
     pkg => !pkg.startsWith('node:') && !NODE_BUILTINS.has(pkg),
   )
 
@@ -981,6 +1008,8 @@ process.exit(errors.length > 0 ? 1 : 0);
 export {
   buildStandaloneLockfile,
   bundleServer,
+  collectExternalImportsFromMetafile,
+  collectExternalPackagesToVerify,
   collectLockedDependencies,
   parsePnpmLockfileImporters,
 }

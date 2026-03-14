@@ -8,6 +8,8 @@ import { describe, it } from 'node:test'
 import {
   buildStandaloneLockfile,
   collectLockedDependencies,
+  collectExternalImportsFromMetafile,
+  collectExternalPackagesToVerify,
   parsePnpmLockfileImporters,
 } from './bundle-server.mjs'
 
@@ -104,5 +106,45 @@ describe('bundle-server lockfile helpers', () => {
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true })
     }
+  })
+
+  it('collects only real external packages from the esbuild metafile', () => {
+    const externalPkgs = collectExternalImportsFromMetafile({
+      outputs: {
+        'apps/desktop/resources/server/deps/index.js': {
+          imports: [
+            { path: 'better-sqlite3', external: true },
+            { path: '@scope/pkg/subpath', external: true },
+            { path: 'node:fs', external: true },
+            { path: './chunk.js', external: false },
+            { path: 'docx', external: false },
+          ],
+        },
+        'apps/desktop/resources/server/deps/sandbox-worker.js': {
+          imports: [
+            { path: 'better-sqlite3', external: true },
+          ],
+        },
+      },
+    })
+
+    assert.deepEqual(externalPkgs, ['@scope/pkg', 'better-sqlite3', 'node:fs'])
+  })
+
+  it('verifies only packages we intentionally externalized', () => {
+    const pkgsToVerify = collectExternalPackagesToVerify({
+      outputs: {
+        'apps/desktop/resources/server/deps/index.js': {
+          imports: [
+            { path: 'better-sqlite3', external: true },
+            { path: 'bufferutil', external: true },
+            { path: 'utf-8-validate', external: true },
+            { path: 'agent-browser/dist/browser.js', external: true },
+          ],
+        },
+      },
+    }, ['better-sqlite3', 'agent-browser'])
+
+    assert.deepEqual(pkgsToVerify, ['agent-browser', 'better-sqlite3'])
   })
 })
