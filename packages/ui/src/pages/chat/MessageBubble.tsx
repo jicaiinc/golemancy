@@ -13,10 +13,14 @@ function BlinkingCursor() {
   )
 }
 
-/** Collapsible reasoning display */
+/** Collapsible reasoning display — hidden when text is empty (e.g. OpenAI encrypted reasoning) */
 function ReasoningDisplay({ text, state }: { text: string; state?: string }) {
   const { t } = useTranslation('chat')
   const [expanded, setExpanded] = useState(false)
+
+  // OpenAI reasoning models return reasoning parts with empty text (content is encrypted/hidden).
+  // Don't render an empty collapsible block — it confuses users.
+  if (!text && state !== 'streaming') return null
 
   return (
     <div className="my-1 border-2 border-border-dim bg-deep/50">
