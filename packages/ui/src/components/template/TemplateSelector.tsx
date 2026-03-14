@@ -51,6 +51,22 @@ interface TemplateSelectorProps {
   onSelect: (templateId: string | null) => void
 }
 
+/** Inventory item: skill (purple), mcp (cyan), or tool (amber) */
+function InvItem({ type, children }: { type: 'skill' | 'mcp' | 'tool'; children: string }) {
+  const colors = {
+    skill: 'text-accent-purple bg-accent-purple',
+    mcp: 'text-accent-cyan bg-accent-cyan',
+    tool: 'text-accent-amber bg-accent-amber',
+  }
+  const [textColor, dotColor] = colors[type].split(' ')
+  return (
+    <div className={`flex items-center gap-1.5 font-mono text-[8px] leading-[14px] ${textColor} truncate`}>
+      <span className={`w-1 h-1 shrink-0 ${dotColor}`} />
+      <span className="truncate">{children}</span>
+    </div>
+  )
+}
+
 /** Detail panel for the selected template */
 function TemplateDetail({ template }: { template: ProjectTemplate }) {
   const { t } = useTranslation('templates')
@@ -100,43 +116,53 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
         </div>
       </div>
 
-      {/* Agent Details */}
+      {/* Legend */}
+      <div className="flex gap-3.5 font-mono text-[8px] text-text-dim">
+        <span className="flex items-center gap-1.5">
+          <span className="w-[5px] h-[5px] bg-accent-purple" /> Skills
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-[5px] h-[5px] bg-accent-cyan" /> MCP
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-[5px] h-[5px] bg-accent-amber" /> Tools
+        </span>
+      </div>
+
+      {/* Inventory Grid */}
       {template.agents.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <>
           <div className="font-pixel text-[8px] text-text-dim uppercase tracking-wider border-b border-border-dim pb-1">
             Agents
           </div>
-          {template.agents.map(agent => {
-            const skills = agent.skillRefs?.map(getSkillName) ?? []
-            const mcps = agent.mcpRefs?.map(getMCPName) ?? []
-            const tools = getBuiltinTools(agent.builtinTools)
-            return (
-              <div key={agent.refId} className="flex flex-col gap-0.5 pl-2 border-l-2 border-border-dim">
-                <span className="font-pixel text-[9px] text-text-primary">{agent.name}</span>
-                {skills.length > 0 && (
-                  <span className="font-mono text-[9px] text-text-dim">
-                    Skills: {skills.join(', ')}
-                  </span>
-                )}
-                {mcps.length > 0 && (
-                  <span className="font-mono text-[9px] text-text-dim">
-                    MCP: {mcps.join(', ')}
-                  </span>
-                )}
-                {tools.length > 0 && (
-                  <span className="font-mono text-[9px] text-text-dim">
-                    Tools: {tools.join(', ')}
-                  </span>
-                )}
-              </div>
-            )
-          })}
-        </div>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-1.5">
+            {template.agents.map(agent => {
+              const skills = agent.skillRefs?.map(getSkillName) ?? []
+              const mcps = agent.mcpRefs?.map(getMCPName) ?? []
+              const tools = getBuiltinTools(agent.builtinTools)
+              return (
+                <div
+                  key={agent.refId}
+                  className="bg-surface border-2 border-border-dim p-2 hover:border-border-bright transition-colors"
+                >
+                  <div className="font-pixel text-[8px] text-text-primary mb-1.5 truncate">
+                    {agent.name}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    {skills.map(name => <InvItem key={`s-${name}`} type="skill">{name}</InvItem>)}
+                    {mcps.map(name => <InvItem key={`m-${name}`} type="mcp">{name}</InvItem>)}
+                    {tools.map(name => <InvItem key={`t-${name}`} type="tool">{name}</InvItem>)}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </>
       )}
 
       {/* Teams */}
       {template.teams.length > 0 && (
-        <div className="flex flex-col gap-1">
+        <>
           <div className="font-pixel text-[8px] text-text-dim uppercase tracking-wider border-b border-border-dim pb-1">
             Teams
           </div>
@@ -144,16 +170,21 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
             const lead = team.members.find(m => !m.parentAgentRef)
             const children = team.members.filter(m => m.parentAgentRef)
             return (
-              <div key={team.refId} className="pl-2 border-l-2 border-border-dim">
-                <span className="font-pixel text-[9px] text-text-primary">{team.name}</span>
-                <div className="font-mono text-[9px] text-text-dim">
+              <div key={team.refId} className="bg-surface border border-border-dim p-2">
+                <div className="font-pixel text-[9px] text-text-primary">{team.name}</div>
+                <div className="font-mono text-[9px] text-text-secondary mt-0.5">
                   {lead && <span>{getAgentName(lead.agentRef)}</span>}
-                  {children.length > 0 && <span> {'\u2192'} {children.map(c => getAgentName(c.agentRef)).join(', ')}</span>}
+                  {children.length > 0 && (
+                    <span>
+                      {' '}<span className="text-accent-green">{'\u2192'}</span>{' '}
+                      {children.map(c => getAgentName(c.agentRef)).join(', ')}
+                    </span>
+                  )}
                 </div>
               </div>
             )
           })}
-        </div>
+        </>
       )}
 
       {/* Tags */}
