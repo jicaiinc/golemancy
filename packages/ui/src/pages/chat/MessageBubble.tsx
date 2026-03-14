@@ -20,7 +20,7 @@ function ReasoningDisplay({ text, state }: { text: string; state?: string }) {
 
   // OpenAI reasoning models return reasoning parts with empty text (content is encrypted/hidden).
   // Don't render an empty collapsible block — it confuses users.
-  if (!text && state !== 'streaming') return null
+  if (!text) return null
 
   return (
     <div className="my-1 border-2 border-border-dim bg-deep/50">

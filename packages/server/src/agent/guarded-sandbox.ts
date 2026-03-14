@@ -168,7 +168,7 @@ export class GuardedSandbox implements Sandbox {
 
       child.on('error', (err) => {
         clearTimeout(timer)
-        log.error({ err: err.message, shell, cwd: this.workspaceRoot, command: command.slice(0, 100) }, 'child process spawn error')
+        log.error({ err: err.message, shell, cwd, command: command.slice(0, 100) }, 'child process spawn error')
         reject(err)
       })
     })
