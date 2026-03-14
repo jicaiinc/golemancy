@@ -107,14 +107,15 @@ jobs:
             });
           "
 
-      # No code signing — Azure Trusted Signing secrets may not be configured.
-      # Add AZURE_* env vars here if you want signed builds.
       - name: Package (electron-builder)
         run: |
           cd apps/desktop
           npx electron-builder --win --x64 --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Verify Windows packages
         shell: pwsh
