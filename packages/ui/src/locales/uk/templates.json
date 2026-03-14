@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Початковий",
+    "productivity": "Продуктивність",
+    "research": "Дослідження",
+    "creative": "Творчий",
+    "development": "Розробка"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Оберіть шаблон",
+    "blankProject": "Порожній проєкт",
+    "blankProjectDescription": "Починайте з нуля з агентом за замовчуванням",
+    "fromTemplate": "З шаблону",
     "fromTemplateDescription": "Попередньо налаштовані агенти, навички та інструменти",
-    "featured": "Featured",
+    "featured": "Рекомендоване",
     "allCategories": "Усі",
     "selectToPreview": "Оберіть шаблон для перегляду деталей",
     "statsLine": "{{templates}} шаблонів · {{agents}} агентів · {{skills}} навичок",

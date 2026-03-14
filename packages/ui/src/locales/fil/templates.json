@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Panimula",
+    "productivity": "Produktibidad",
+    "research": "Pananaliksik",
+    "creative": "Malikhain",
+    "development": "Pagpapaunlad"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Pumili ng template",
+    "blankProject": "Blankong Proyekto",
+    "blankProjectDescription": "Magsimula mula sa simula gamit ang isang default na agent",
+    "fromTemplate": "Mula sa Template",
     "fromTemplateDescription": "Mga pre-configured na ahente, kasanayan at kagamitan",
-    "featured": "Featured",
+    "featured": "Itinatampok",
     "allCategories": "Lahat",
     "selectToPreview": "Pumili ng template para makita ang mga detalye",
     "statsLine": "{{templates}} template · {{agents}} ahente · {{skills}} kasanayan",

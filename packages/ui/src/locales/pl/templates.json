@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Podstawowy",
+    "productivity": "Produktywność",
+    "research": "Badania",
+    "creative": "Kreatywny",
+    "development": "Rozwój"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Wybierz szablon",
+    "blankProject": "Pusty projekt",
+    "blankProjectDescription": "Zacznij od zera z domyślnym agentem",
+    "fromTemplate": "Z szablonu",
     "fromTemplateDescription": "Wstępnie skonfigurowane agenty, umiejętności i narzędzia",
-    "featured": "Featured",
+    "featured": "Polecane",
     "allCategories": "Wszystkie",
     "selectToPreview": "Wybierz szablon, aby zobaczyć szczegóły",
     "statsLine": "{{templates}} szablonów · {{agents}} agentów · {{skills}} umiejętności",

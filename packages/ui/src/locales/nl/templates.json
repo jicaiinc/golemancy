@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Basis",
+    "productivity": "Productiviteit",
+    "research": "Onderzoek",
+    "creative": "Creatief",
+    "development": "Ontwikkeling"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Kies een sjabloon",
+    "blankProject": "Leeg project",
+    "blankProjectDescription": "Begin vanaf nul met een standaard agent",
+    "fromTemplate": "Uit sjabloon",
     "fromTemplateDescription": "Vooraf geconfigureerde agenten, vaardigheden en tools",
-    "featured": "Featured",
+    "featured": "Aanbevolen",
     "allCategories": "Alle",
     "selectToPreview": "Selecteer een sjabloon om details te zien",
     "statsLine": "{{templates}} sjablonen · {{agents}} agenten · {{skills}} vaardigheden",

@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "入門",
+    "productivity": "生産性",
+    "research": "リサーチ",
+    "creative": "クリエイティブ",
+    "development": "開発"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "テンプレートを選択",
+    "blankProject": "空のプロジェクト",
+    "blankProjectDescription": "デフォルトのエージェントでゼロから始める",
+    "fromTemplate": "テンプレートから",
     "fromTemplateDescription": "事前設定済みのエージェント、スキル、ツール",
-    "featured": "Featured",
+    "featured": "おすすめ",
     "allCategories": "すべて",
     "selectToPreview": "テンプレートを選択して詳細を確認",
     "statsLine": "{{templates}} テンプレート · {{agents}} エージェント · {{skills}} スキル",

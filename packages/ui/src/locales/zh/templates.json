@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "入门",
+    "productivity": "效率",
+    "research": "研究",
+    "creative": "创意",
+    "development": "开发"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "选择模板",
+    "blankProject": "空白项目",
+    "blankProjectDescription": "从零开始，使用默认 Agent",
+    "fromTemplate": "从模板创建",
     "fromTemplateDescription": "预配置的 Agent、技能和工具",
-    "featured": "Featured",
+    "featured": "精选",
     "allCategories": "全部",
     "selectToPreview": "选择模板以查看详情",
     "statsLine": "{{templates}} 个模板 · {{agents}} 个 Agent · {{skills}} 个技能",

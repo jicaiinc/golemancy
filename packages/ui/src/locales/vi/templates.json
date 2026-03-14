@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Cơ bản",
+    "productivity": "Năng suất",
+    "research": "Nghiên cứu",
+    "creative": "Sáng tạo",
+    "development": "Phát triển"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Chọn một mẫu",
+    "blankProject": "Dự án trống",
+    "blankProjectDescription": "Bắt đầu từ đầu với agent mặc định",
+    "fromTemplate": "Từ mẫu",
     "fromTemplateDescription": "Tác nhân, kỹ năng và công cụ được cấu hình sẵn",
-    "featured": "Featured",
+    "featured": "Nổi bật",
     "allCategories": "Tất cả",
     "selectToPreview": "Chọn một mẫu để xem chi tiết",
     "statsLine": "{{templates}} mẫu · {{agents}} tác nhân · {{skills}} kỹ năng",

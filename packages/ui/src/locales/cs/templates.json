@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Začátečník",
+    "productivity": "Produktivita",
+    "research": "Výzkum",
+    "creative": "Kreativní",
+    "development": "Vývoj"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Vyberte šablonu",
+    "blankProject": "Prázdný projekt",
+    "blankProjectDescription": "Začněte od nuly s výchozím agentem",
+    "fromTemplate": "Ze šablony",
     "fromTemplateDescription": "Předkonfigurovaní agenti, dovednosti a nástroje",
-    "featured": "Featured",
+    "featured": "Doporučené",
     "allCategories": "Vše",
     "selectToPreview": "Vyberte šablonu pro zobrazení detailů",
     "statsLine": "{{templates}} šablon · {{agents}} agentů · {{skills}} dovedností",

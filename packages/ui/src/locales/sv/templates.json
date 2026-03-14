@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Nybörjare",
+    "productivity": "Produktivitet",
+    "research": "Forskning",
+    "creative": "Kreativ",
+    "development": "Utveckling"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Välj en mall",
+    "blankProject": "Tomt projekt",
+    "blankProjectDescription": "Börja från grunden med en standardagent",
+    "fromTemplate": "Från mall",
     "fromTemplateDescription": "Förkonfigurerade agenter, färdigheter och verktyg",
-    "featured": "Featured",
+    "featured": "Rekommenderat",
     "allCategories": "Alla",
     "selectToPreview": "Välj en mall för att se detaljer",
     "statsLine": "{{templates}} mallar · {{agents}} agenter · {{skills}} färdigheter",

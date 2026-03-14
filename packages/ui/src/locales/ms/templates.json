@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Pemula",
+    "productivity": "Produktiviti",
+    "research": "Penyelidikan",
+    "creative": "Kreatif",
+    "development": "Pembangunan"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Pilih templat",
+    "blankProject": "Projek Kosong",
+    "blankProjectDescription": "Mulakan dari awal dengan agent lalai",
+    "fromTemplate": "Dari Templat",
     "fromTemplateDescription": "Ejen, kemahiran & alat yang telah dikonfigurasikan",
-    "featured": "Featured",
+    "featured": "Pilihan",
     "allCategories": "Semua",
     "selectToPreview": "Pilih templat untuk melihat butiran",
     "statsLine": "{{templates}} templat · {{agents}} ejen · {{skills}} kemahiran",

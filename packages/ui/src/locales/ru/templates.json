@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Начальный",
+    "productivity": "Продуктивность",
+    "research": "Исследования",
+    "creative": "Творческий",
+    "development": "Разработка"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Выберите шаблон",
+    "blankProject": "Пустой проект",
+    "blankProjectDescription": "Начните с нуля с агентом по умолчанию",
+    "fromTemplate": "Из шаблона",
     "fromTemplateDescription": "Предварительно настроенные агенты, навыки и инструменты",
-    "featured": "Featured",
+    "featured": "Рекомендуемое",
     "allCategories": "Все",
     "selectToPreview": "Выберите шаблон для просмотра деталей",
     "statsLine": "{{templates}} шаблонов · {{agents}} агентов · {{skills}} навыков",

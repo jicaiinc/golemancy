@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Başlangıç",
+    "productivity": "Verimlilik",
+    "research": "Araştırma",
+    "creative": "Yaratıcı",
+    "development": "Geliştirme"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Bir şablon seçin",
+    "blankProject": "Boş Proje",
+    "blankProjectDescription": "Varsayılan bir ajanla sıfırdan başlayın",
+    "fromTemplate": "Şablondan",
     "fromTemplateDescription": "Önceden yapılandırılmış ajanlar, beceriler ve araçlar",
-    "featured": "Featured",
+    "featured": "Öne Çıkan",
     "allCategories": "Tümü",
     "selectToPreview": "Ayrıntıları görmek için bir şablon seçin",
     "statsLine": "{{templates}} şablon · {{agents}} ajan · {{skills}} beceri",

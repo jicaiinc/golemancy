@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "Începător",
+    "productivity": "Productivitate",
+    "research": "Cercetare",
+    "creative": "Creativ",
+    "development": "Dezvoltare"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "Alege un șablon",
+    "blankProject": "Proiect gol",
+    "blankProjectDescription": "Începe de la zero cu un agent implicit",
+    "fromTemplate": "Din șablon",
     "fromTemplateDescription": "Agenți, abilități și instrumente pre-configurate",
-    "featured": "Featured",
+    "featured": "Recomandat",
     "allCategories": "Toate",
     "selectToPreview": "Selectează un șablon pentru a vedea detaliile",
     "statsLine": "{{templates}} șabloane · {{agents}} agenți · {{skills}} abilități",

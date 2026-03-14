@@ -1,18 +1,18 @@
 {
   "categories": {
-    "starter": "Starter",
-    "productivity": "Productivity",
-    "research": "Research",
-    "creative": "Creative",
-    "development": "Development"
+    "starter": "입문",
+    "productivity": "생산성",
+    "research": "리서치",
+    "creative": "창의적",
+    "development": "개발"
   },
   "ui": {
-    "chooseTemplate": "Choose a template",
-    "blankProject": "Blank Project",
-    "blankProjectDescription": "Start from scratch with a default agent",
-    "fromTemplate": "From Template",
+    "chooseTemplate": "템플릿 선택",
+    "blankProject": "빈 프로젝트",
+    "blankProjectDescription": "기본 에이전트로 처음부터 시작하기",
+    "fromTemplate": "템플릿에서",
     "fromTemplateDescription": "사전 구성된 에이전트, 스킬 및 도구",
-    "featured": "Featured",
+    "featured": "추천",
     "allCategories": "전체",
     "selectToPreview": "템플릿을 선택하여 세부 정보 확인",
     "statsLine": "{{templates}} 템플릿 · {{agents}} 에이전트 · {{skills}} 스킬",
