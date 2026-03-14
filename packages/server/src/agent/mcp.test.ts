@@ -266,7 +266,7 @@ describe('loadAgentMcpTools', () => {
   // ── Windows Sandbox Warning Tests ─────────────────────
 
   describe('Windows sandbox warning', () => {
-    it('warns about unsandboxed stdio servers when platform lacks OS sandbox', async () => {
+    it('does not push UI warning for unsandboxed stdio servers (platform-inherent, log only)', async () => {
       vi.mocked(isSandboxRuntimeSupported).mockReturnValue(false)
       mocks.getTools.mockResolvedValue({ tools: { tool: { execute: vi.fn() } } })
 
@@ -290,7 +290,8 @@ describe('loadAgentMcpTools', () => {
         makeServer({ name: 'my-stdio', transportType: 'stdio' }),
       ], options)
 
-      expect(result.warnings).toContainEqual(
+      // Platform-inherent limitation should NOT appear in UI warnings
+      expect(result.warnings).not.toContainEqual(
         expect.stringContaining('running without sandbox isolation'),
       )
       // Tools should still be loaded (not filtered)

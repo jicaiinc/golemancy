@@ -72,13 +72,16 @@ export async function loadAgentMcpTools(
     'MCP sandbox decision',
   )
 
-  // ── Warn about unsandboxed stdio servers on unsupported platforms ──
+  // ── Log unsandboxed stdio servers on unsupported platforms (server-side only) ──
+  // Not pushed to UI warnings — this is a platform-inherent limitation (Windows),
+  // already surfaced in MCP settings page and Agent detail page.
   if (mode === 'sandbox' && !isSandboxRuntimeSupported(platform)) {
     const stdioServers = filtered.filter(s => s.transportType === 'stdio')
     if (stdioServers.length > 0) {
-      const msg = `${stdioServers.length} MCP server(s) running without sandbox isolation (not available on this platform)`
-      log.warn({ platform, servers: stdioServers.map(s => s.name) }, msg)
-      warnings.push(msg)
+      log.warn(
+        { platform, servers: stdioServers.map(s => s.name) },
+        `${stdioServers.length} MCP server(s) running without sandbox isolation (not available on this platform)`,
+      )
     }
   }
 
