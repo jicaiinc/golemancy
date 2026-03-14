@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API KEY",
     "baseUrlOptional": "BASE URL (pilihan)",
     "hideKey": "Sembunyikan Key",
-    "showKey": "Tunjukkan Key"
+    "showKey": "Tunjukkan Key",
+    "oauthSignIn": "Log masuk dengan {{provider}}",
+    "oauthConnected": "Disambungkan",
+    "oauthDisconnect": "Putuskan sambungan",
+    "oauthPending": "Menunggu pengesahan dalam penyemak imbas...",
+    "oauthPendingHint": "Lengkapkan log masuk dalam penyemak imbas anda, kemudian kembali ke sini.",
+    "oauthCancel": "Batal",
+    "oauthError": "Pengesahan gagal",
+    "oauthOrApiKey": "Atau gunakan API Key",
+    "oauthNoApiFees": "TIADA BAYARAN API",
+    "oauthSubscriptionHint": "Menggunakan langganan ChatGPT Plus / Pro anda. Tiada caj API tambahan.",
+    "oauthTokenExpiry": "Token dimuat semula secara automatik. Tamat tempoh dalam {{minutes}} min."
   },
   "threshold": {
     "tokens": "token"

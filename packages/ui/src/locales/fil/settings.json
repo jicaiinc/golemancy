@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API KEY",
     "baseUrlOptional": "BASE URL (opsyonal)",
     "hideKey": "Itago ang Key",
-    "showKey": "Ipakita ang Key"
+    "showKey": "Ipakita ang Key",
+    "oauthSignIn": "Mag-sign in sa {{provider}}",
+    "oauthConnected": "Nakakonekta",
+    "oauthDisconnect": "I-disconnect",
+    "oauthPending": "Naghihintay ng authentication sa browser...",
+    "oauthPendingHint": "Kumpletuhin ang login sa iyong browser, tapos bumalik dito.",
+    "oauthCancel": "Kanselahin",
+    "oauthError": "Nabigo ang authentication",
+    "oauthOrApiKey": "O gamitin ang API Key",
+    "oauthNoApiFees": "WALANG API FEES",
+    "oauthSubscriptionHint": "Gumagamit ng iyong ChatGPT Plus / Pro subscription. Walang karagdagang API charges.",
+    "oauthTokenExpiry": "Awtomatikong nire-refresh ang Token. Mag-e-expire sa loob ng {{minutes}} min."
   },
   "threshold": {
     "tokens": "token"

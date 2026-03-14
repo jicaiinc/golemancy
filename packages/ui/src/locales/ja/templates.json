@@ -11,16 +11,35 @@
     "blankProject": "Blank Project",
     "blankProjectDescription": "Start from scratch with a default agent",
     "fromTemplate": "From Template",
-    "featured": "Featured"
+    "fromTemplateDescription": "事前設定済みのエージェント、スキル、ツール",
+    "featured": "Featured",
+    "allCategories": "すべて",
+    "selectToPreview": "テンプレートを選択して詳細を確認"
   },
   "projects": {
     "writing-assistant": {
-      "name": "Writing Assistant",
-      "description": "AI writing expert for emails, blogs, social media, and all types of content"
+      "name": "ライティングアシスタント",
+      "description": "メール、ブログ、SNS、あらゆるコンテンツに対応するAIライティングエキスパート"
     },
     "deep-research": {
-      "name": "Deep Research",
-      "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
-    }
+      "name": "ディープリサーチ",
+      "description": "深掘り調査、競合分析、トレンドレポートのためのマルチエージェントチーム"
+    },
+    "smart-secretary": { "name": "スマートセクレタリー", "description": "メール、カレンダー、タスク、情報フローを管理し、コアな仕事に集中できるようにします" },
+    "translator": { "name": "翻訳者", "description": "文脈を理解した多言語コミュニケーションパートナー、単なる逐語訳ではありません" },
+    "knowledge-explorer": { "name": "ナレッジエクスプローラー", "description": "情報を収集し、知識を整理し、学習の旅をガイドします" },
+    "life-manager": { "name": "ライフマネージャー", "description": "旅行計画、価格比較、レシピ提案、日常生活のタスク" },
+    "doc-hub": { "name": "ドキュメントハブ", "description": "PDF、Word、Excel、PowerPoint文書のAI処理センター" },
+    "content-marketing": { "name": "コンテンツマーケティング", "description": "トピック選定から執筆、マルチプラットフォーム配信までの完全なコンテンツパイプライン" },
+    "social-media-ops": { "name": "SNS運用", "description": "マルチプラットフォームSNSアカウントのAI運用センター" },
+    "seo-optimizer": { "name": "SEOオプティマイザー", "description": "テクニカルSEO、コンテンツSEO、AI検索最適化（GEO/AEO）" },
+    "sales-pipeline": { "name": "セールスパイプライン", "description": "リード発掘から案件フォローアップまでのフルサイクル営業アシスタント" },
+    "customer-service": { "name": "カスタマーサービス", "description": "チケット分類からスマートな返信までの自動化されたカスタマーサポート" },
+    "financial-mgmt": { "name": "財務管理", "description": "記帳、確定申告、請求書管理、財務分析" },
+    "legal-compliance": { "name": "リーガル＆コンプライアンス", "description": "契約書レビュー、条項リスクの指摘、コンプライアンスチェック" },
+    "data-analytics": { "name": "データアナリティクス", "description": "生データから視覚的なインサイトまでのフルサイクル分析" },
+    "product-mgmt": { "name": "プロダクトマネジメント", "description": "要件分析、PRD作成、ロードマップ計画、進捗管理" },
+    "recruitment": { "name": "採用", "description": "求人票作成、履歴書スクリーニング、面接設計、候補者評価" },
+    "academic-research": { "name": "学術研究", "description": "文献検索、論文分析、仮説生成、実験設計、執筆支援" }
   }
 }

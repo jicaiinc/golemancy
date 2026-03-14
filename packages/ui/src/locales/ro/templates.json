@@ -11,16 +11,35 @@
     "blankProject": "Blank Project",
     "blankProjectDescription": "Start from scratch with a default agent",
     "fromTemplate": "From Template",
-    "featured": "Featured"
+    "fromTemplateDescription": "Agenți, abilități și instrumente pre-configurate",
+    "featured": "Featured",
+    "allCategories": "Toate",
+    "selectToPreview": "Selectează un șablon pentru a vedea detaliile"
   },
   "projects": {
     "writing-assistant": {
-      "name": "Writing Assistant",
-      "description": "AI writing expert for emails, blogs, social media, and all types of content"
+      "name": "Asistent de Scriere",
+      "description": "Expert AI în redactare de emailuri, bloguri, social media și orice tip de conținut"
     },
     "deep-research": {
-      "name": "Deep Research",
-      "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
-    }
+      "name": "Cercetare Aprofundată",
+      "description": "Echipă multi-agent pentru cercetare aprofundată, analiză competitivă și rapoarte de tendințe"
+    },
+    "smart-secretary": { "name": "Secretar Inteligent", "description": "Gestionează emailurile, calendarul, sarcinile și fluxul de informații pentru a te concentra pe munca esențială" },
+    "translator": { "name": "Traducător", "description": "Partener de comunicare multilingv conștient de context, nu doar traducere cuvânt cu cuvânt" },
+    "knowledge-explorer": { "name": "Explorator de Cunoștințe", "description": "Colectează informații, organizează cunoștințele și ghidează călătoria ta de învățare" },
+    "life-manager": { "name": "Manager de Viață", "description": "Planificarea călătoriilor, compararea prețurilor, sugestii de rețete și sarcini din viața cotidiană" },
+    "doc-hub": { "name": "Centrul de Documente", "description": "Centru de procesare AI pentru documente PDF, Word, Excel și PowerPoint" },
+    "content-marketing": { "name": "Marketing de Conținut", "description": "Pipeline complet de conținut de la selecția subiectului la scriere și distribuție pe mai multe platforme" },
+    "social-media-ops": { "name": "Operațiuni Social Media", "description": "Centru de operațiuni AI pentru conturi de social media pe mai multe platforme" },
+    "seo-optimizer": { "name": "Optimizator SEO", "description": "SEO tehnic, SEO de conținut și optimizare pentru căutarea AI (GEO/AEO)" },
+    "sales-pipeline": { "name": "Pipeline de Vânzări", "description": "Asistent de vânzări cu ciclu complet de la descoperirea leadurilor până la finalizarea tranzacțiilor" },
+    "customer-service": { "name": "Serviciu Clienți", "description": "Suport automat pentru clienți de la clasificarea tichetelor la răspunsuri inteligente" },
+    "financial-mgmt": { "name": "Management Financiar", "description": "Contabilitate, depunerea taxelor, gestionarea facturilor și analiză financiară" },
+    "legal-compliance": { "name": "Juridic și Conformitate", "description": "Revizuirea contractelor, marcarea riscurilor din clauze și verificări de conformitate" },
+    "data-analytics": { "name": "Analiză de Date", "description": "Analiză cu ciclu complet de la date brute la perspective vizuale" },
+    "product-mgmt": { "name": "Management de Produs", "description": "Analiza cerințelor, scrierea PRD, planificarea roadmap-ului și urmărirea progresului" },
+    "recruitment": { "name": "Recrutare", "description": "Scrierea descrierilor de post, selecția CV-urilor, designul interviurilor și evaluarea candidaților" },
+    "academic-research": { "name": "Cercetare Academică", "description": "Căutarea literaturii, analiza lucrărilor, generarea ipotezelor, designul experimentelor și asistență la scriere" }
   }
 }

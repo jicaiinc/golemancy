@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API KEY",
     "baseUrlOptional": "BASE URL (optional)",
     "hideKey": "Key ausblenden",
-    "showKey": "Key anzeigen"
+    "showKey": "Key anzeigen",
+    "oauthSignIn": "Mit {{provider}} anmelden",
+    "oauthConnected": "Verbunden",
+    "oauthDisconnect": "Trennen",
+    "oauthPending": "Warte auf Authentifizierung im Browser...",
+    "oauthPendingHint": "Schließen Sie die Anmeldung im Browser ab und kehren Sie dann hierher zurück.",
+    "oauthCancel": "Abbrechen",
+    "oauthError": "Authentifizierung fehlgeschlagen",
+    "oauthOrApiKey": "Oder API Key verwenden",
+    "oauthNoApiFees": "KEINE API-GEBÜHREN",
+    "oauthSubscriptionHint": "Verwendet Ihr ChatGPT Plus / Pro Abonnement. Keine zusätzlichen API-Kosten.",
+    "oauthTokenExpiry": "Token wird automatisch erneuert. Läuft in {{minutes}} Min. ab."
   },
   "threshold": {
     "tokens": "Token"

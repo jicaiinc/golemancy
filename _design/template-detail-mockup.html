@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Template Detail Panel — Design Options</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --void: #0B0E14;
+      --deep: #141820;
+      --surface: #1E2430;
+      --elevated: #2A3242;
+      --border-dim: #2E3A4E;
+      --border-bright: #4A5568;
+      --text-primary: #E8ECF1;
+      --text-secondary: #8B95A5;
+      --text-dim: #505A6A;
+      --accent-green: #4ADE80;
+      --accent-blue: #60A5FA;
+      --accent-amber: #FBBF24;
+      --accent-purple: #A78BFA;
+      --accent-cyan: #22D3EE;
+      --accent-red: #F87171;
+      --font-pixel: "Press Start 2P", monospace;
+      --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
+    }
+
+    body {
+      background: var(--void);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      padding: 40px;
+    }
+
+    h1 {
+      font-family: var(--font-pixel);
+      font-size: 14px;
+      color: var(--accent-green);
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+    }
+
+    /* Tab switcher */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+    .tab {
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 2px solid var(--border-dim);
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .tab.active {
+      background: var(--accent-green);
+      background: rgba(74, 222, 128, 0.15);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+    .tab:hover:not(.active) {
+      border-color: var(--border-bright);
+      color: var(--text-secondary);
+    }
+
+    .option { display: none; }
+    .option.active { display: block; }
+
+    .option-label {
+      font-family: var(--font-pixel);
+      font-size: 10px;
+      color: var(--accent-amber);
+      margin-bottom: 8px;
+    }
+    .option-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    /* Simulated detail panel container */
+    .detail-panel {
+      background: var(--deep);
+      border: 2px solid var(--border-dim);
+      padding: 20px;
+      width: 560px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* Common header */
+    .template-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .template-icon { font-size: 28px; }
+    .template-name {
+      font-family: var(--font-pixel);
+      font-size: 11px;
+      color: var(--text-primary);
+    }
+    .template-featured {
+      font-family: var(--font-pixel);
+      font-size: 7px;
+      color: var(--accent-amber);
+    }
+    .template-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 18px;
+      margin-bottom: 12px;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      border: 2px solid;
+    }
+    .badge-info { background: rgba(96,165,250,0.15); color: var(--accent-blue); border-color: rgba(96,165,250,0.3); }
+    .badge-amber { background: rgba(251,191,36,0.15); color: var(--accent-amber); border-color: rgba(251,191,36,0.3); }
+    .badge .dot {
+      width: 6px; height: 6px;
+      display: inline-block;
+    }
+    .badge-info .dot { background: var(--accent-blue); }
+    .badge-amber .dot { background: var(--accent-amber); }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .stat {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* Section divider */
+    .section-label {
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border-dim);
+      padding-bottom: 4px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* Tags */
+    .tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 12px; }
+    .tag {
+      font-size: 9px;
+      padding: 2px 6px;
+      background: var(--elevated);
+      color: var(--text-dim);
+      border: 1px solid var(--border-dim);
+    }
+
+    /* ===== OPTION A: Card style ===== */
+    .agent-card {
+      background: var(--surface);
+      border: 1px solid var(--border-dim);
+      padding: 10px 12px;
+      margin-bottom: 6px;
+    }
+    .agent-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .agent-card-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      font-size: 12px;
+    }
+    .agent-card-name {
+      font-family: var(--font-pixel);
+      font-size: 9px;
+      color: var(--text-primary);
+    }
+    .agent-card-desc {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+    .agent-card-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .meta-pill {
+      font-size: 8px;
+      padding: 2px 6px;
+      border: 1px solid;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .meta-pill.skill { color: var(--accent-purple); border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
+    .meta-pill.mcp { color: var(--accent-cyan); border-color: rgba(34,211,238,0.3); background: rgba(34,211,238,0.08); }
+    .meta-pill.tool { color: var(--accent-amber); border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
+
+    /* ===== OPTION B: Compact list ===== */
+    .agent-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .agent-row:last-child { border-bottom: none; }
+    .agent-row-marker {
+      width: 3px;
+      min-height: 100%;
+      background: var(--accent-green);
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+    .agent-row-content { flex: 1; }
+    .agent-row-name {
+      font-family: var(--font-pixel);
+      font-size: 9px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .agent-row-detail {
+      font-size: 9px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .agent-row-detail span {
+      color: var(--text-secondary);
+    }
+    .detail-label {
+      color: var(--text-dim);
+      margin-right: 4px;
+    }
+
+    /* ===== OPTION C: Inventory grid ===== */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 6px;
+    }
+    .inventory-slot {
+      background: var(--surface);
+      border: 2px solid var(--border-dim);
+      padding: 8px;
+      position: relative;
+    }
+    .inventory-slot:hover {
+      border-color: var(--border-bright);
+    }
+    .inventory-slot-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .inventory-slot-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .inventory-slot-name {
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      color: var(--text-primary);
+    }
+    .inventory-slot-items {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .inventory-item {
+      font-size: 8px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .inventory-item .item-dot {
+      width: 4px;
+      height: 4px;
+      flex-shrink: 0;
+    }
+    .inventory-item.skill .item-dot { background: var(--accent-purple); }
+    .inventory-item.mcp .item-dot { background: var(--accent-cyan); }
+    .inventory-item.tool .item-dot { background: var(--accent-amber); }
+
+    /* Team section shared */
+    .team-tree {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      background: var(--surface);
+      border: 1px solid var(--border-dim);
+      font-size: 9px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .team-tree-name {
+      font-family: var(--font-pixel);
+      font-size: 9px;
+      color: var(--text-primary);
+    }
+    .team-tree-arrow { color: var(--accent-green); }
+
+    /* Comparison layout */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .comparison-single {
+      width: 560px;
+      margin-bottom: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Template Detail Panel Redesign</h1>
+  <p class="subtitle">Three design approaches for showing agent details. Click tabs to switch.</p>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">A: Agent Cards</div>
+    <div class="tab" onclick="switchTab(1)">B: Compact List</div>
+    <div class="tab" onclick="switchTab(2)">C: Inventory Grid</div>
+  </div>
+
+  <!-- ===== OPTION A: Agent Cards ===== -->
+  <div class="option active" id="opt-0">
+    <div class="option-label">Option A: Agent Cards</div>
+    <div class="option-desc">
+      Each agent in a card with colored pills for skills (purple), MCP (cyan), and tools (amber).<br>
+      Clean visual hierarchy. Works well for 2-4 agents.
+    </div>
+
+    <div class="detail-panel">
+      <!-- Header -->
+      <div class="template-header">
+        <span class="template-icon">&#x1F9ED;</span>
+        <div>
+          <div class="template-name">Deep Research</div>
+          <span class="template-featured">&#x2605; Featured</span>
+        </div>
+      </div>
+      <p class="template-desc">Multi-agent team for in-depth research, competitive analysis, and trend reports</p>
+
+      <!-- Category + Stats -->
+      <div class="stats-row">
+        <span class="badge badge-info"><span class="dot"></span>Research</span>
+        <span class="stat">3 Agents</span>
+        <span class="stat">4 Skills</span>
+        <span class="stat">3 MCP</span>
+        <span class="stat">1 Team</span>
+        <span class="stat">1 Cron</span>
+      </div>
+
+      <!-- Agent Cards -->
+      <div class="section-label">Agents</div>
+
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-icon">&#x1F451;</div>
+          <span class="agent-card-name">Research Lead</span>
+        </div>
+        <div class="agent-card-meta">
+          <span class="meta-pill skill">Research Outline</span>
+          <span class="meta-pill skill">Competitive Analysis</span>
+          <span class="meta-pill skill">Market Research</span>
+          <span class="meta-pill mcp">open-websearch</span>
+          <span class="meta-pill tool">memory</span>
+          <span class="meta-pill tool">browser</span>
+          <span class="meta-pill tool">bash</span>
+          <span class="meta-pill tool">task</span>
+        </div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-icon">&#x1F50D;</div>
+          <span class="agent-card-name">Web Researcher</span>
+        </div>
+        <div class="agent-card-meta">
+          <span class="meta-pill skill">Deep Research Execution</span>
+          <span class="meta-pill mcp">open-websearch</span>
+          <span class="meta-pill mcp">playwright</span>
+          <span class="meta-pill tool">memory</span>
+          <span class="meta-pill tool">browser</span>
+        </div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-icon">&#x1F4CA;</div>
+          <span class="agent-card-name">Analyst</span>
+        </div>
+        <div class="agent-card-meta">
+          <span class="meta-pill skill">Competitive Analysis</span>
+          <span class="meta-pill skill">Market Research</span>
+          <span class="meta-pill mcp">sequential-thinking</span>
+          <span class="meta-pill tool">memory</span>
+          <span class="meta-pill tool">bash</span>
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div class="section-label" style="margin-top: 12px;">Teams</div>
+      <div class="team-tree">
+        <span class="team-tree-name">Research Team</span>
+        <span style="color: var(--text-dim);">&mdash;</span>
+        <span>Research Lead <span class="team-tree-arrow">&#x2192;</span> Web Researcher, Analyst</span>
+      </div>
+
+      <!-- Tags -->
+      <div class="tags">
+        <span class="tag">research</span>
+        <span class="tag">analysis</span>
+        <span class="tag">competitive-intelligence</span>
+        <span class="tag">reports</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== OPTION B: Compact List ===== -->
+  <div class="option" id="opt-1">
+    <div class="option-label">Option B: Compact List</div>
+    <div class="option-desc">
+      Agents as rows with green left border. Text-based labels for skills/MCP/tools.<br>
+      Very space-efficient. Good for templates with many agents. Closer to current design.
+    </div>
+
+    <div class="detail-panel">
+      <!-- Header -->
+      <div class="template-header">
+        <span class="template-icon">&#x1F9ED;</span>
+        <div>
+          <div class="template-name">Deep Research</div>
+          <span class="template-featured">&#x2605; Featured</span>
+        </div>
+      </div>
+      <p class="template-desc">Multi-agent team for in-depth research, competitive analysis, and trend reports</p>
+
+      <!-- Category + Stats -->
+      <div class="stats-row">
+        <span class="badge badge-info"><span class="dot"></span>Research</span>
+        <span class="stat">3 Agents</span>
+        <span class="stat">4 Skills</span>
+        <span class="stat">3 MCP</span>
+        <span class="stat">1 Team</span>
+        <span class="stat">1 Cron</span>
+      </div>
+
+      <!-- Agent List -->
+      <div class="section-label">Agents</div>
+
+      <div class="agent-row">
+        <div class="agent-row-marker"></div>
+        <div class="agent-row-content">
+          <div class="agent-row-name">Research Lead</div>
+          <div class="agent-row-detail">
+            <span class="detail-label">Skills:</span> <span>Research Outline, Competitive Analysis, Market Research</span><br>
+            <span class="detail-label">MCP:</span> <span>open-websearch</span><br>
+            <span class="detail-label">Tools:</span> <span>memory, browser, bash, task</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="agent-row">
+        <div class="agent-row-marker"></div>
+        <div class="agent-row-content">
+          <div class="agent-row-name">Web Researcher</div>
+          <div class="agent-row-detail">
+            <span class="detail-label">Skills:</span> <span>Deep Research Execution</span><br>
+            <span class="detail-label">MCP:</span> <span>open-websearch, playwright</span><br>
+            <span class="detail-label">Tools:</span> <span>memory, browser</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="agent-row">
+        <div class="agent-row-marker"></div>
+        <div class="agent-row-content">
+          <div class="agent-row-name">Analyst</div>
+          <div class="agent-row-detail">
+            <span class="detail-label">Skills:</span> <span>Competitive Analysis, Market Research</span><br>
+            <span class="detail-label">MCP:</span> <span>sequential-thinking</span><br>
+            <span class="detail-label">Tools:</span> <span>memory, bash</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div class="section-label" style="margin-top: 4px;">Teams</div>
+      <div class="team-tree">
+        <span class="team-tree-name">Research Team</span>
+        <span style="color: var(--text-dim);">&mdash;</span>
+        <span>Research Lead <span class="team-tree-arrow">&#x2192;</span> Web Researcher, Analyst</span>
+      </div>
+
+      <div class="tags">
+        <span class="tag">research</span>
+        <span class="tag">analysis</span>
+        <span class="tag">competitive-intelligence</span>
+        <span class="tag">reports</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== OPTION C: Inventory Grid ===== -->
+  <div class="option" id="opt-2">
+    <div class="option-label">Option C: Inventory Grid (Minecraft style)</div>
+    <div class="option-desc">
+      Agents as inventory slots with color-coded dots for capabilities.<br>
+      Most consistent with pixel art aesthetic. Compact and scannable.
+    </div>
+
+    <div class="detail-panel">
+      <!-- Header -->
+      <div class="template-header">
+        <span class="template-icon">&#x1F9ED;</span>
+        <div>
+          <div class="template-name">Deep Research</div>
+          <span class="template-featured">&#x2605; Featured</span>
+        </div>
+      </div>
+      <p class="template-desc">Multi-agent team for in-depth research, competitive analysis, and trend reports</p>
+
+      <!-- Category + Stats -->
+      <div class="stats-row">
+        <span class="badge badge-info"><span class="dot"></span>Research</span>
+        <span class="stat">3 Agents</span>
+        <span class="stat">4 Skills</span>
+        <span class="stat">3 MCP</span>
+        <span class="stat">1 Team</span>
+        <span class="stat">1 Cron</span>
+      </div>
+
+      <!-- Legend -->
+      <div style="display: flex; gap: 12px; margin-bottom: 8px; font-size: 8px; color: var(--text-dim);">
+        <span style="display: flex; align-items: center; gap: 4px;">
+          <span style="width: 6px; height: 6px; background: var(--accent-purple); display: inline-block;"></span> Skills
+        </span>
+        <span style="display: flex; align-items: center; gap: 4px;">
+          <span style="width: 6px; height: 6px; background: var(--accent-cyan); display: inline-block;"></span> MCP
+        </span>
+        <span style="display: flex; align-items: center; gap: 4px;">
+          <span style="width: 6px; height: 6px; background: var(--accent-amber); display: inline-block;"></span> Tools
+        </span>
+      </div>
+
+      <!-- Inventory Grid -->
+      <div class="section-label">Agents</div>
+      <div class="inventory-grid">
+        <div class="inventory-slot">
+          <div class="inventory-slot-header">
+            <div class="inventory-slot-icon">&#x1F451;</div>
+            <span class="inventory-slot-name">Research Lead</span>
+          </div>
+          <div class="inventory-slot-items">
+            <span class="inventory-item skill"><span class="item-dot"></span> Research Outline</span>
+            <span class="inventory-item skill"><span class="item-dot"></span> Competitive Analysis</span>
+            <span class="inventory-item skill"><span class="item-dot"></span> Market Research</span>
+            <span class="inventory-item mcp"><span class="item-dot"></span> open-websearch</span>
+            <span class="inventory-item tool"><span class="item-dot"></span> memory, browser, bash, task</span>
+          </div>
+        </div>
+
+        <div class="inventory-slot">
+          <div class="inventory-slot-header">
+            <div class="inventory-slot-icon">&#x1F50D;</div>
+            <span class="inventory-slot-name">Web Researcher</span>
+          </div>
+          <div class="inventory-slot-items">
+            <span class="inventory-item skill"><span class="item-dot"></span> Deep Research Execution</span>
+            <span class="inventory-item mcp"><span class="item-dot"></span> open-websearch</span>
+            <span class="inventory-item mcp"><span class="item-dot"></span> playwright</span>
+            <span class="inventory-item tool"><span class="item-dot"></span> memory, browser</span>
+          </div>
+        </div>
+
+        <div class="inventory-slot">
+          <div class="inventory-slot-header">
+            <div class="inventory-slot-icon">&#x1F4CA;</div>
+            <span class="inventory-slot-name">Analyst</span>
+          </div>
+          <div class="inventory-slot-items">
+            <span class="inventory-item skill"><span class="item-dot"></span> Competitive Analysis</span>
+            <span class="inventory-item skill"><span class="item-dot"></span> Market Research</span>
+            <span class="inventory-item mcp"><span class="item-dot"></span> sequential-thinking</span>
+            <span class="inventory-item tool"><span class="item-dot"></span> memory, bash</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team -->
+      <div class="section-label" style="margin-top: 12px;">Teams</div>
+      <div class="team-tree">
+        <span class="team-tree-name">Research Team</span>
+        <span style="color: var(--text-dim);">&mdash;</span>
+        <span>Research Lead <span class="team-tree-arrow">&#x2192;</span> Web Researcher, Analyst</span>
+      </div>
+
+      <div class="tags">
+        <span class="tag">research</span>
+        <span class="tag">analysis</span>
+        <span class="tag">competitive-intelligence</span>
+        <span class="tag">reports</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Also show a simple single-agent template for comparison ===== -->
+  <div style="margin-top: 48px; border-top: 2px solid var(--border-dim); padding-top: 24px;">
+    <h1 style="font-size: 12px;">Single-Agent Example (Smart Secretary)</h1>
+    <p class="subtitle">Same design applied to a simpler template with 1 agent.</p>
+
+    <div class="detail-panel">
+      <div class="template-header">
+        <span class="template-icon">&#x1F5C2;</span>
+        <div>
+          <div class="template-name">Smart Secretary</div>
+          <span class="template-featured">&#x2605; Featured</span>
+        </div>
+      </div>
+      <p class="template-desc">Manage your emails, calendar, todos, and information flow so you can focus on core work</p>
+
+      <div class="stats-row">
+        <span class="badge badge-amber"><span class="dot"></span>Productivity</span>
+        <span class="stat">1 Agent</span>
+        <span class="stat">3 Skills</span>
+        <span class="stat">3 MCP</span>
+        <span class="stat">2 Cron</span>
+      </div>
+
+      <!-- Using Option A style for this example -->
+      <div class="section-label">Agent</div>
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-icon">&#x1F4CB;</div>
+          <span class="agent-card-name">Secretary</span>
+        </div>
+        <div class="agent-card-meta">
+          <span class="meta-pill skill">Gmail Automation</span>
+          <span class="meta-pill skill">Google Calendar</span>
+          <span class="meta-pill skill">Meeting Insights</span>
+          <span class="meta-pill mcp">memory</span>
+          <span class="meta-pill mcp">fetch</span>
+          <span class="meta-pill mcp">open-websearch</span>
+        </div>
+      </div>
+
+      <div class="tags">
+        <span class="tag">productivity</span>
+        <span class="tag">email</span>
+        <span class="tag">calendar</span>
+        <span class="tag">scheduling</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(idx) {
+      document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+      document.querySelectorAll('.option').forEach((o, i) => o.classList.toggle('active', i === idx));
+    }
+  </script>
+</body>
+</html>

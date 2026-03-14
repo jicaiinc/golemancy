@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API КЛЮЧ",
     "baseUrlOptional": "BASE URL (необязательно)",
     "hideKey": "Скрыть ключ",
-    "showKey": "Показать ключ"
+    "showKey": "Показать ключ",
+    "oauthSignIn": "Войти через {{provider}}",
+    "oauthConnected": "Подключено",
+    "oauthDisconnect": "Отключить",
+    "oauthPending": "Ожидание аутентификации в браузере...",
+    "oauthPendingHint": "Завершите вход в браузере, затем вернитесь сюда.",
+    "oauthCancel": "Отмена",
+    "oauthError": "Ошибка аутентификации",
+    "oauthOrApiKey": "Или использовать API Key",
+    "oauthNoApiFees": "БЕЗ ОПЛАТЫ API",
+    "oauthSubscriptionHint": "Использует вашу подписку ChatGPT Plus / Pro. Без дополнительных расходов на API.",
+    "oauthTokenExpiry": "Token обновляется автоматически. Истекает через {{minutes}} мин."
   },
   "threshold": {
     "tokens": "токенов"

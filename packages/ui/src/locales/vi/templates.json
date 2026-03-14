@@ -11,16 +11,35 @@
     "blankProject": "Blank Project",
     "blankProjectDescription": "Start from scratch with a default agent",
     "fromTemplate": "From Template",
-    "featured": "Featured"
+    "fromTemplateDescription": "Tác nhân, kỹ năng và công cụ được cấu hình sẵn",
+    "featured": "Featured",
+    "allCategories": "Tất cả",
+    "selectToPreview": "Chọn một mẫu để xem chi tiết"
   },
   "projects": {
     "writing-assistant": {
-      "name": "Writing Assistant",
-      "description": "AI writing expert for emails, blogs, social media, and all types of content"
+      "name": "Trợ Lý Viết Lách",
+      "description": "Chuyên gia viết lách AI cho email, blog, mạng xã hội và mọi loại nội dung"
     },
     "deep-research": {
-      "name": "Deep Research",
-      "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
-    }
+      "name": "Nghiên Cứu Chuyên Sâu",
+      "description": "Đội ngũ đa tác nhân cho nghiên cứu chuyên sâu, phân tích cạnh tranh và báo cáo xu hướng"
+    },
+    "smart-secretary": { "name": "Thư Ký Thông Minh", "description": "Quản lý email, lịch, công việc và luồng thông tin để bạn tập trung vào công việc cốt lõi" },
+    "translator": { "name": "Dịch Giả", "description": "Đối tác giao tiếp đa ngôn ngữ có nhận thức ngữ cảnh, không chỉ dịch từng từ" },
+    "knowledge-explorer": { "name": "Khám Phá Tri Thức", "description": "Thu thập thông tin, tổ chức kiến thức và hướng dẫn hành trình học tập của bạn" },
+    "life-manager": { "name": "Quản Lý Cuộc Sống", "description": "Lên kế hoạch du lịch, so sánh giá, gợi ý công thức nấu ăn và các công việc hàng ngày" },
+    "doc-hub": { "name": "Trung Tâm Tài Liệu", "description": "Trung tâm xử lý AI cho tài liệu PDF, Word, Excel và PowerPoint" },
+    "content-marketing": { "name": "Marketing Nội Dung", "description": "Quy trình nội dung hoàn chỉnh từ chọn chủ đề đến viết lách đến phân phối đa nền tảng" },
+    "social-media-ops": { "name": "Vận Hành Mạng Xã Hội", "description": "Trung tâm vận hành AI cho tài khoản mạng xã hội đa nền tảng" },
+    "seo-optimizer": { "name": "Tối Ưu SEO", "description": "SEO kỹ thuật, SEO nội dung và tối ưu tìm kiếm AI (GEO/AEO)" },
+    "sales-pipeline": { "name": "Quy Trình Bán Hàng", "description": "Trợ lý bán hàng toàn chu kỳ từ tìm kiếm khách hàng tiềm năng đến theo dõi giao dịch" },
+    "customer-service": { "name": "Dịch Vụ Khách Hàng", "description": "Hỗ trợ khách hàng tự động từ phân loại phiếu yêu cầu đến phản hồi thông minh" },
+    "financial-mgmt": { "name": "Quản Lý Tài Chính", "description": "Kế toán, khai thuế, quản lý hóa đơn và phân tích tài chính" },
+    "legal-compliance": { "name": "Pháp Lý và Tuân Thủ", "description": "Xem xét hợp đồng, đánh dấu rủi ro điều khoản và kiểm tra tuân thủ" },
+    "data-analytics": { "name": "Phân Tích Dữ Liệu", "description": "Phân tích toàn chu kỳ từ dữ liệu thô đến thông tin chi tiết trực quan" },
+    "product-mgmt": { "name": "Quản Lý Sản Phẩm", "description": "Phân tích yêu cầu, viết PRD, lập kế hoạch lộ trình và theo dõi tiến độ" },
+    "recruitment": { "name": "Tuyển Dụng", "description": "Viết mô tả công việc, sàng lọc hồ sơ, thiết kế phỏng vấn và đánh giá ứng viên" },
+    "academic-research": { "name": "Nghiên Cứu Học Thuật", "description": "Tìm kiếm tài liệu, phân tích bài báo, tạo giả thuyết, thiết kế thí nghiệm và hỗ trợ viết lách" }
   }
 }

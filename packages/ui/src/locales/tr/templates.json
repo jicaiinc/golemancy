@@ -11,16 +11,35 @@
     "blankProject": "Blank Project",
     "blankProjectDescription": "Start from scratch with a default agent",
     "fromTemplate": "From Template",
-    "featured": "Featured"
+    "fromTemplateDescription": "Önceden yapılandırılmış ajanlar, beceriler ve araçlar",
+    "featured": "Featured",
+    "allCategories": "Tümü",
+    "selectToPreview": "Ayrıntıları görmek için bir şablon seçin"
   },
   "projects": {
     "writing-assistant": {
-      "name": "Writing Assistant",
-      "description": "AI writing expert for emails, blogs, social media, and all types of content"
+      "name": "Yazma Asistanı",
+      "description": "E-posta, blog, sosyal medya ve her türlü içerik için AI yazma uzmanı"
     },
     "deep-research": {
-      "name": "Deep Research",
-      "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
-    }
+      "name": "Derinlemesine Araştırma",
+      "description": "Derinlemesine araştırma, rekabet analizi ve trend raporları için çoklu ajan ekibi"
+    },
+    "smart-secretary": { "name": "Akıllı Sekreter", "description": "E-postalarınızı, takviminizi, görevlerinizi ve bilgi akışınızı yönetin, böylece temel işlere odaklanabilirsiniz" },
+    "translator": { "name": "Çevirmen", "description": "Bağlam farkındalıklı çok dilli iletişim ortağı, sadece kelimesi kelimesine çeviri değil" },
+    "knowledge-explorer": { "name": "Bilgi Kaşifi", "description": "Bilgi toplayın, bilgiyi organize edin ve öğrenme yolculuğunuza rehberlik edin" },
+    "life-manager": { "name": "Hayat Yöneticisi", "description": "Seyahat planlama, fiyat karşılaştırma, tarif önerileri ve günlük yaşam görevleri" },
+    "doc-hub": { "name": "Belge Merkezi", "description": "PDF, Word, Excel ve PowerPoint belgeler için AI işleme merkezi" },
+    "content-marketing": { "name": "İçerik Pazarlaması", "description": "Konu seçiminden yazmaya ve çok platformlu dağıtıma kadar eksiksiz içerik boru hattı" },
+    "social-media-ops": { "name": "Sosyal Medya Operasyonları", "description": "Çok platformlu sosyal medya hesapları için AI operasyon merkezi" },
+    "seo-optimizer": { "name": "SEO Optimize Edici", "description": "Teknik SEO, içerik SEO ve AI arama optimizasyonu (GEO/AEO)" },
+    "sales-pipeline": { "name": "Satış Hattı", "description": "Potansiyel müşteri keşfinden anlaşma takibine kadar tam döngülü satış asistanı" },
+    "customer-service": { "name": "Müşteri Hizmetleri", "description": "Bilet sınıflandırmasından akıllı yanıtlara kadar otomatik müşteri desteği" },
+    "financial-mgmt": { "name": "Finansal Yönetim", "description": "Muhasebe, vergi beyannamesi, fatura yönetimi ve finansal analiz" },
+    "legal-compliance": { "name": "Hukuk ve Uyumluluk", "description": "Sözleşme inceleme, madde riski işaretleme ve uyumluluk kontrolleri" },
+    "data-analytics": { "name": "Veri Analitiği", "description": "Ham veriden görsel içgörülere tam döngülü analitik" },
+    "product-mgmt": { "name": "Ürün Yönetimi", "description": "Gereksinim analizi, PRD yazımı, yol haritası planlaması ve ilerleme takibi" },
+    "recruitment": { "name": "İşe Alım", "description": "İş tanımı yazımı, özgeçmiş tarama, mülakat tasarımı ve aday değerlendirme" },
+    "academic-research": { "name": "Akademik Araştırma", "description": "Literatür tarama, makale analizi, hipotez oluşturma, deney tasarımı ve yazım desteği" }
   }
 }

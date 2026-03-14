@@ -11,16 +11,35 @@
     "blankProject": "Blank Project",
     "blankProjectDescription": "Start from scratch with a default agent",
     "fromTemplate": "From Template",
-    "featured": "Featured"
+    "fromTemplateDescription": "Agents, compétences et outils préconfigurés",
+    "featured": "Featured",
+    "allCategories": "Tous",
+    "selectToPreview": "Sélectionnez un modèle pour voir les détails"
   },
   "projects": {
     "writing-assistant": {
-      "name": "Writing Assistant",
-      "description": "AI writing expert for emails, blogs, social media, and all types of content"
+      "name": "Assistant de Rédaction",
+      "description": "Expert AI en rédaction d'e-mails, blogs, réseaux sociaux et tous types de contenus"
     },
     "deep-research": {
-      "name": "Deep Research",
-      "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
-    }
+      "name": "Recherche Approfondie",
+      "description": "Équipe multi-agents pour la recherche approfondie, l'analyse concurrentielle et les rapports de tendances"
+    },
+    "smart-secretary": { "name": "Secrétaire Intelligent", "description": "Gérez vos e-mails, calendrier, tâches et flux d'informations pour vous concentrer sur l'essentiel" },
+    "translator": { "name": "Traducteur", "description": "Partenaire de communication multilingue sensible au contexte, pas seulement une traduction mot à mot" },
+    "knowledge-explorer": { "name": "Explorateur de Connaissances", "description": "Collectez des informations, organisez les connaissances et guidez votre parcours d'apprentissage" },
+    "life-manager": { "name": "Gestionnaire de Vie", "description": "Planification de voyages, comparaison de prix, suggestions de recettes et tâches du quotidien" },
+    "doc-hub": { "name": "Centre de Documents", "description": "Centre de traitement AI pour documents PDF, Word, Excel et PowerPoint" },
+    "content-marketing": { "name": "Marketing de Contenu", "description": "Pipeline de contenu complet de la sélection des sujets à la rédaction jusqu'à la distribution multi-plateforme" },
+    "social-media-ops": { "name": "Opérations Réseaux Sociaux", "description": "Centre d'opérations AI pour comptes de réseaux sociaux multi-plateformes" },
+    "seo-optimizer": { "name": "Optimiseur SEO", "description": "SEO technique, SEO de contenu et optimisation de recherche AI (GEO/AEO)" },
+    "sales-pipeline": { "name": "Pipeline de Vente", "description": "Assistant commercial cycle complet de la découverte des leads au suivi des opportunités" },
+    "customer-service": { "name": "Service Client", "description": "Support client automatisé de la classification des tickets aux réponses intelligentes" },
+    "financial-mgmt": { "name": "Gestion Financière", "description": "Comptabilité, déclarations fiscales, gestion des factures et analyse financière" },
+    "legal-compliance": { "name": "Juridique & Conformité", "description": "Révision de contrats, signalement des risques de clauses et vérifications de conformité" },
+    "data-analytics": { "name": "Analyse de Données", "description": "Analyse cycle complet des données brutes aux insights visuels" },
+    "product-mgmt": { "name": "Gestion de Produit", "description": "Analyse des exigences, rédaction de PRD, planification de roadmap et suivi de l'avancement" },
+    "recruitment": { "name": "Recrutement", "description": "Rédaction de fiches de poste, tri de CV, conception d'entretiens et évaluation des candidats" },
+    "academic-research": { "name": "Recherche Académique", "description": "Recherche bibliographique, analyse d'articles, génération d'hypothèses, conception d'expériences et aide à la rédaction" }
   }
 }

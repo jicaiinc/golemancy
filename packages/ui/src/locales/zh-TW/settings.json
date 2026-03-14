@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API 金鑰",
     "baseUrlOptional": "基礎 URL（選填）",
     "hideKey": "隱藏金鑰",
-    "showKey": "顯示金鑰"
+    "showKey": "顯示金鑰",
+    "oauthSignIn": "使用 {{provider}} 登入",
+    "oauthConnected": "已連線",
+    "oauthDisconnect": "中斷連線",
+    "oauthPending": "等待在瀏覽器中完成驗證...",
+    "oauthPendingHint": "在瀏覽器中完成登入後，返回此處。",
+    "oauthCancel": "取消",
+    "oauthError": "驗證失敗",
+    "oauthOrApiKey": "或使用 API 金鑰",
+    "oauthNoApiFees": "無 API 費用",
+    "oauthSubscriptionHint": "使用您的 ChatGPT Plus / Pro 訂閱，無額外 API 費用。",
+    "oauthTokenExpiry": "Token 自動更新，{{minutes}} 分鐘後到期。"
   },
   "threshold": {
     "tokens": "Token"

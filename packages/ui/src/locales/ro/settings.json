@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "CHEIE API",
     "baseUrlOptional": "BASE URL (opțional)",
     "hideKey": "Ascundere cheie",
-    "showKey": "Afișare cheie"
+    "showKey": "Afișare cheie",
+    "oauthSignIn": "Conectează-te cu {{provider}}",
+    "oauthConnected": "Conectat",
+    "oauthDisconnect": "Deconectare",
+    "oauthPending": "Se așteaptă autentificarea în browser...",
+    "oauthPendingHint": "Finalizați autentificarea în browser, apoi reveniți aici.",
+    "oauthCancel": "Anulare",
+    "oauthError": "Autentificare eșuată",
+    "oauthOrApiKey": "Sau utilizați API Key",
+    "oauthNoApiFees": "FĂRĂ TAXE API",
+    "oauthSubscriptionHint": "Folosește abonamentul dvs. ChatGPT Plus / Pro. Fără taxe API suplimentare.",
+    "oauthTokenExpiry": "Token-ul se reîmprospătează automat. Expiră în {{minutes}} min."
   },
   "threshold": {
     "tokens": "tokens"

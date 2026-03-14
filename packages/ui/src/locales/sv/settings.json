@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API-NYCKEL",
     "baseUrlOptional": "BASE URL (valfritt)",
     "hideKey": "Dölj nyckel",
-    "showKey": "Visa nyckel"
+    "showKey": "Visa nyckel",
+    "oauthSignIn": "Logga in med {{provider}}",
+    "oauthConnected": "Ansluten",
+    "oauthDisconnect": "Koppla från",
+    "oauthPending": "Väntar på autentisering i webbläsaren...",
+    "oauthPendingHint": "Slutför inloggningen i din webbläsare och återvänd hit sedan.",
+    "oauthCancel": "Avbryt",
+    "oauthError": "Autentisering misslyckades",
+    "oauthOrApiKey": "Eller använd API Key",
+    "oauthNoApiFees": "INGA API-AVGIFTER",
+    "oauthSubscriptionHint": "Använder din ChatGPT Plus / Pro-prenumeration. Inga extra API-avgifter.",
+    "oauthTokenExpiry": "Token förnyas automatiskt. Upphör om {{minutes}} min."
   },
   "threshold": {
     "tokens": "tokens"

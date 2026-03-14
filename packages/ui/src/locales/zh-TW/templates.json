@@ -11,16 +11,35 @@
     "blankProject": "Blank Project",
     "blankProjectDescription": "Start from scratch with a default agent",
     "fromTemplate": "From Template",
-    "featured": "Featured"
+    "fromTemplateDescription": "預配置的 Agent、技能和工具",
+    "featured": "Featured",
+    "allCategories": "全部",
+    "selectToPreview": "選擇模板以查看詳情"
   },
   "projects": {
     "writing-assistant": {
-      "name": "Writing Assistant",
-      "description": "AI writing expert for emails, blogs, social media, and all types of content"
+      "name": "寫作助手",
+      "description": "AI 寫作專家，勝任郵件、部落格、社群媒體等各類內容創作"
     },
     "deep-research": {
-      "name": "Deep Research",
-      "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
-    }
+      "name": "深度研究",
+      "description": "多 Agent 團隊協作，專注深度調研、競品分析和趨勢報告"
+    },
+    "smart-secretary": { "name": "智慧秘書", "description": "管理郵件、行事曆、待辦事項和資訊流，讓你專注於核心工作" },
+    "translator": { "name": "翻譯助手", "description": "具備上下文理解的多語言溝通夥伴，不只是逐字翻譯" },
+    "knowledge-explorer": { "name": "知識探索者", "description": "收集資訊、整理知識，引導你的學習旅程" },
+    "life-manager": { "name": "生活管家", "description": "旅遊規劃、比價、食譜推薦和日常生活事務處理" },
+    "doc-hub": { "name": "文件中樞", "description": "PDF、Word、Excel 和 PowerPoint 文件的 AI 處理中心" },
+    "content-marketing": { "name": "內容行銷", "description": "從選題到寫作再到多平台分發的完整內容流水線" },
+    "social-media-ops": { "name": "社群媒體運營", "description": "多平台社群媒體帳號的 AI 運營中心" },
+    "seo-optimizer": { "name": "SEO 優化師", "description": "技術 SEO、內容 SEO 和 AI 搜尋優化（GEO/AEO）" },
+    "sales-pipeline": { "name": "銷售流程", "description": "從線索發現到成交跟進的全周期銷售助手" },
+    "customer-service": { "name": "客戶服務", "description": "從工單分類到智慧回覆的自動化客戶支援" },
+    "financial-mgmt": { "name": "財務管理", "description": "記帳、報稅、發票管理和財務分析" },
+    "legal-compliance": { "name": "法務合規", "description": "合約審查、條款風險標注和合規檢查" },
+    "data-analytics": { "name": "數據分析", "description": "從原始數據到視覺化洞察的全周期分析" },
+    "product-mgmt": { "name": "產品管理", "description": "需求分析、PRD 寫作、路線圖規劃和進度追蹤" },
+    "recruitment": { "name": "招聘助手", "description": "職位描述撰寫、履歷篩選、面試設計和候選人評估" },
+    "academic-research": { "name": "學術研究", "description": "文獻檢索、論文分析、假設生成、實驗設計和寫作輔助" }
   }
 }

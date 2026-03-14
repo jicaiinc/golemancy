@@ -11,16 +11,35 @@
     "blankProject": "Blank Project",
     "blankProjectDescription": "Start from scratch with a default agent",
     "fromTemplate": "From Template",
-    "featured": "Featured"
+    "fromTemplateDescription": "Предварительно настроенные агенты, навыки и инструменты",
+    "featured": "Featured",
+    "allCategories": "Все",
+    "selectToPreview": "Выберите шаблон для просмотра деталей"
   },
   "projects": {
     "writing-assistant": {
-      "name": "Writing Assistant",
-      "description": "AI writing expert for emails, blogs, social media, and all types of content"
+      "name": "Помощник по Написанию",
+      "description": "AI-эксперт по написанию писем, блогов, постов в соцсетях и любого контента"
     },
     "deep-research": {
-      "name": "Deep Research",
-      "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
-    }
+      "name": "Глубокое Исследование",
+      "description": "Мульти-агентная команда для глубоких исследований, конкурентного анализа и отчётов о трендах"
+    },
+    "smart-secretary": { "name": "Умный Секретарь", "description": "Управляйте электронной почтой, календарём, задачами и потоком информации, чтобы сосредоточиться на главном" },
+    "translator": { "name": "Переводчик", "description": "Контекстно-ориентированный многоязычный партнёр по коммуникации, а не просто дословный перевод" },
+    "knowledge-explorer": { "name": "Исследователь Знаний", "description": "Собирайте информацию, организуйте знания и направляйте свой путь к обучению" },
+    "life-manager": { "name": "Менеджер Жизни", "description": "Планирование путешествий, сравнение цен, предложения рецептов и повседневные задачи" },
+    "doc-hub": { "name": "Центр Документов", "description": "AI центр обработки документов PDF, Word, Excel и PowerPoint" },
+    "content-marketing": { "name": "Контент-Маркетинг", "description": "Полный конвейер контента от выбора темы до написания и распространения на нескольких платформах" },
+    "social-media-ops": { "name": "Управление Соцсетями", "description": "AI центр операций для аккаунтов в социальных сетях на нескольких платформах" },
+    "seo-optimizer": { "name": "SEO-Оптимизатор", "description": "Техническое SEO, контентное SEO и оптимизация AI-поиска (GEO/AEO)" },
+    "sales-pipeline": { "name": "Воронка Продаж", "description": "Помощник по продажам полного цикла от поиска лидов до закрытия сделок" },
+    "customer-service": { "name": "Служба Поддержки", "description": "Автоматизированная поддержка клиентов от классификации заявок до умных ответов" },
+    "financial-mgmt": { "name": "Финансовый Менеджмент", "description": "Бухгалтерия, подача налоговой отчётности, управление счетами и финансовый анализ" },
+    "legal-compliance": { "name": "Юридика и Соответствие", "description": "Проверка контрактов, выявление рисков в пунктах и проверки на соответствие" },
+    "data-analytics": { "name": "Аналитика Данных", "description": "Аналитика полного цикла от сырых данных до визуальных выводов" },
+    "product-mgmt": { "name": "Управление Продуктом", "description": "Анализ требований, написание PRD, планирование дорожной карты и отслеживание прогресса" },
+    "recruitment": { "name": "Подбор Персонала", "description": "Составление описаний вакансий, скрининг резюме, разработка интервью и оценка кандидатов" },
+    "academic-research": { "name": "Академические Исследования", "description": "Поиск литературы, анализ статей, генерация гипотез, разработка экспериментов и помощь в написании" }
   }
 }

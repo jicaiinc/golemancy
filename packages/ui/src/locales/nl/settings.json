@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API KEY",
     "baseUrlOptional": "BASE URL (optioneel)",
     "hideKey": "Key Verbergen",
-    "showKey": "Key Tonen"
+    "showKey": "Key Tonen",
+    "oauthSignIn": "Inloggen met {{provider}}",
+    "oauthConnected": "Verbonden",
+    "oauthDisconnect": "Verbinding verbreken",
+    "oauthPending": "Wachten op authenticatie in de browser...",
+    "oauthPendingHint": "Voltooi het inloggen in uw browser en keer hier dan terug.",
+    "oauthCancel": "Annuleren",
+    "oauthError": "Authenticatie mislukt",
+    "oauthOrApiKey": "Of gebruik API Key",
+    "oauthNoApiFees": "GEEN API-KOSTEN",
+    "oauthSubscriptionHint": "Gebruikt uw ChatGPT Plus / Pro-abonnement. Geen extra API-kosten.",
+    "oauthTokenExpiry": "Token wordt automatisch vernieuwd. Verloopt over {{minutes}} min."
   },
   "threshold": {
     "tokens": "tokens"

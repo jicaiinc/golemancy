@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { PROJECT_TEMPLATES } from '@golemancy/shared'
@@ -20,6 +20,20 @@ const ICON_MAP: Record<string, string> = {
   wrench: '\uD83D\uDD27',
   palette: '\uD83C\uDFA8',
   beaker: '\u2697',
+  folder: '\uD83D\uDDC2',
+  search: '\uD83D\uDD0D',
+  house: '\uD83C\uDFE0',
+  page: '\uD83D\uDCC4',
+  megaphone: '\uD83D\uDCE2',
+  phone: '\uD83D\uDCF1',
+  briefcase: '\uD83D\uDCBC',
+  headset: '\uD83C\uDFA7',
+  money: '\uD83D\uDCB0',
+  scales: '\u2696',
+  chart: '\uD83D\uDCCA',
+  map: '\uD83D\uDDFA',
+  people: '\uD83D\uDC65',
+  graduation: '\uD83C\uDF93',
 }
 
 const CATEGORIES: TemplateCategory[] = ['starter', 'productivity', 'research', 'creative', 'development']
@@ -42,8 +56,17 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
   const { t } = useTranslation('templates')
   const icon = ICON_MAP[template.icon] ?? ICON_MAP['star']
 
+  const getSkillName = (refId: string) => template.skills.find(s => s.refId === refId)?.name ?? refId
+  const getMCPName = (refId: string) => template.mcpServers.find(m => m.refId === refId)?.name ?? refId
+  const getBuiltinTools = (tools?: Record<string, unknown>) => {
+    if (!tools) return []
+    return Object.entries(tools).filter(([, v]) => !!v).map(([k]) => k)
+  }
+  const getAgentName = (refId: string) => template.agents.find(a => a.refId === refId)?.name ?? refId
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 overflow-y-auto max-h-[260px] pr-1">
+      {/* Header */}
       <div className="flex items-center gap-3">
         <span className="text-[28px] shrink-0">{icon}</span>
         <div>
@@ -58,23 +81,82 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
         </div>
       </div>
 
+      {/* Description */}
       <p className="font-mono text-[11px] text-text-secondary leading-[18px]">
         {t(`projects.${template.id}.description`, { defaultValue: template.description })}
       </p>
 
-      <div>
-        <PixelBadge variant={CATEGORY_VARIANTS[template.category]}>
+      {/* Category + Stats */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <PixelBadge variant={CATEGORY_VARIANTS[template.category]} animated={false}>
           {t(`categories.${template.category}`, { defaultValue: template.category })}
         </PixelBadge>
+        <div className="flex gap-3 font-mono text-[10px] text-text-dim">
+          {template.agents.length > 0 && <span>{template.agents.length} Agents</span>}
+          {template.skills.length > 0 && <span>{template.skills.length} Skills</span>}
+          {template.mcpServers.length > 0 && <span>{template.mcpServers.length} MCP</span>}
+          {template.teams.length > 0 && <span>{template.teams.length} Teams</span>}
+          {template.cronJobs.length > 0 && <span>{template.cronJobs.length} Cron</span>}
+        </div>
       </div>
 
-      <div className="flex gap-4 font-mono text-[10px] text-text-dim">
-        {template.agents.length > 0 && <span>{template.agents.length} Agents</span>}
-        {template.skills.length > 0 && <span>{template.skills.length} Skills</span>}
-        {template.mcpServers.length > 0 && <span>{template.mcpServers.length} MCP</span>}
-        {template.teams.length > 0 && <span>{template.teams.length} Teams</span>}
-      </div>
+      {/* Agent Details */}
+      {template.agents.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <div className="font-pixel text-[8px] text-text-dim uppercase tracking-wider border-b border-border-dim pb-1">
+            Agents
+          </div>
+          {template.agents.map(agent => {
+            const skills = agent.skillRefs?.map(getSkillName) ?? []
+            const mcps = agent.mcpRefs?.map(getMCPName) ?? []
+            const tools = getBuiltinTools(agent.builtinTools)
+            return (
+              <div key={agent.refId} className="flex flex-col gap-0.5 pl-2 border-l-2 border-border-dim">
+                <span className="font-pixel text-[9px] text-text-primary">{agent.name}</span>
+                {skills.length > 0 && (
+                  <span className="font-mono text-[9px] text-text-dim">
+                    Skills: {skills.join(', ')}
+                  </span>
+                )}
+                {mcps.length > 0 && (
+                  <span className="font-mono text-[9px] text-text-dim">
+                    MCP: {mcps.join(', ')}
+                  </span>
+                )}
+                {tools.length > 0 && (
+                  <span className="font-mono text-[9px] text-text-dim">
+                    Tools: {tools.join(', ')}
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
 
+      {/* Teams */}
+      {template.teams.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <div className="font-pixel text-[8px] text-text-dim uppercase tracking-wider border-b border-border-dim pb-1">
+            Teams
+          </div>
+          {template.teams.map(team => {
+            const lead = team.members.find(m => !m.parentAgentRef)
+            const children = team.members.filter(m => m.parentAgentRef)
+            return (
+              <div key={team.refId} className="pl-2 border-l-2 border-border-dim">
+                <span className="font-pixel text-[9px] text-text-primary">{team.name}</span>
+                <div className="font-mono text-[9px] text-text-dim">
+                  {lead && <span>{getAgentName(lead.agentRef)}</span>}
+                  {children.length > 0 && <span> {'\u2192'} {children.map(c => getAgentName(c.agentRef)).join(', ')}</span>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Tags */}
       {template.tags.length > 0 && (
         <div className="flex gap-1 flex-wrap">
           {template.tags.map(tag => (
@@ -95,6 +177,13 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
   const { t } = useTranslation('templates')
   const [showTemplates, setShowTemplates] = useState(selectedTemplateId !== null)
   const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | null>(null)
+
+  const stats = useMemo(() => ({
+    templates: PROJECT_TEMPLATES.length,
+    agents: PROJECT_TEMPLATES.reduce((s, tmpl) => s + tmpl.agents.length, 0),
+    skills: PROJECT_TEMPLATES.reduce((s, tmpl) => s + tmpl.skills.length, 0),
+    mcp: PROJECT_TEMPLATES.reduce((s, tmpl) => s + tmpl.mcpServers.length, 0),
+  }), [])
 
   const filteredTemplates = categoryFilter
     ? PROJECT_TEMPLATES.filter(tmpl => tmpl.category === categoryFilter)
@@ -155,6 +244,9 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
             </span>
             <p className="font-mono text-[10px] text-text-dim leading-[14px]">
               {t('ui.fromTemplateDescription')}
+            </p>
+            <p className="font-mono text-[9px] text-accent-green/70 leading-[12px]">
+              {stats.templates} templates {'\u00B7'} {stats.agents} agents {'\u00B7'} {stats.skills} skills
             </p>
           </div>
         </button>

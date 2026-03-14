@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "KLUCZ API",
     "baseUrlOptional": "BASE URL (opcjonalnie)",
     "hideKey": "Ukryj klucz",
-    "showKey": "Pokaż klucz"
+    "showKey": "Pokaż klucz",
+    "oauthSignIn": "Zaloguj się przez {{provider}}",
+    "oauthConnected": "Połączono",
+    "oauthDisconnect": "Rozłącz",
+    "oauthPending": "Oczekiwanie na uwierzytelnienie w przeglądarce...",
+    "oauthPendingHint": "Zakończ logowanie w przeglądarce, a następnie wróć tutaj.",
+    "oauthCancel": "Anuluj",
+    "oauthError": "Uwierzytelnienie nie powiodło się",
+    "oauthOrApiKey": "Lub użyj API Key",
+    "oauthNoApiFees": "BEZ OPŁAT ZA API",
+    "oauthSubscriptionHint": "Korzysta z subskrypcji ChatGPT Plus / Pro. Brak dodatkowych opłat za API.",
+    "oauthTokenExpiry": "Token odnawia się automatycznie. Wygasa za {{minutes}} min."
   },
   "threshold": {
     "tokens": "tokenów"

@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API キー",
     "baseUrlOptional": "ベース URL（任意）",
     "hideKey": "キーを非表示",
-    "showKey": "キーを表示"
+    "showKey": "キーを表示",
+    "oauthSignIn": "{{provider}} でサインイン",
+    "oauthConnected": "接続済み",
+    "oauthDisconnect": "切断",
+    "oauthPending": "ブラウザでの認証を待機中...",
+    "oauthPendingHint": "ブラウザでログインを完了してから、ここに戻ってください。",
+    "oauthCancel": "キャンセル",
+    "oauthError": "認証失敗",
+    "oauthOrApiKey": "または API キーを使用",
+    "oauthNoApiFees": "API 料金なし",
+    "oauthSubscriptionHint": "ChatGPT Plus / Pro サブスクリプションを使用。追加の API 料金はありません。",
+    "oauthTokenExpiry": "Token は自動更新されます。{{minutes}} 分後に期限切れ。"
   },
   "threshold": {
     "tokens": "Token"

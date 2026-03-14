@@ -79,7 +79,18 @@
     "apiKeyInputLabel": "API 키",
     "baseUrlOptional": "기본 URL (선택사항)",
     "hideKey": "키 숨기기",
-    "showKey": "키 표시"
+    "showKey": "키 표시",
+    "oauthSignIn": "{{provider}}로 로그인",
+    "oauthConnected": "연결됨",
+    "oauthDisconnect": "연결 해제",
+    "oauthPending": "브라우저에서 인증 대기 중...",
+    "oauthPendingHint": "브라우저에서 로그인을 완료한 후 돌아오세요.",
+    "oauthCancel": "취소",
+    "oauthError": "인증 실패",
+    "oauthOrApiKey": "또는 API 키 사용",
+    "oauthNoApiFees": "API 요금 없음",
+    "oauthSubscriptionHint": "ChatGPT Plus / Pro 구독을 사용합니다. 추가 API 요금 없음.",
+    "oauthTokenExpiry": "Token이 자동 갱신됩니다. {{minutes}}분 후 만료."
   },
   "threshold": {
     "tokens": "Token"

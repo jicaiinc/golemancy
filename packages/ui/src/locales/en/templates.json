@@ -24,6 +24,22 @@
     "deep-research": {
       "name": "Deep Research",
       "description": "Multi-agent team for in-depth research, competitive analysis, and trend reports"
-    }
+    },
+    "smart-secretary": { "name": "Smart Secretary", "description": "Manage your emails, calendar, todos, and information flow so you can focus on core work" },
+    "translator": { "name": "Translator", "description": "Context-aware multilingual communication partner, not just word-by-word translation" },
+    "knowledge-explorer": { "name": "Knowledge Explorer", "description": "Gather information, organize knowledge, and guide your learning journey" },
+    "life-manager": { "name": "Life Manager", "description": "Travel planning, price comparison, recipe suggestions, and everyday life tasks" },
+    "doc-hub": { "name": "Document Hub", "description": "AI processing center for PDF, Word, Excel, and PowerPoint documents" },
+    "content-marketing": { "name": "Content Marketing", "description": "Complete content pipeline from topic selection to writing to multi-platform distribution" },
+    "social-media-ops": { "name": "Social Media Ops", "description": "AI operations center for multi-platform social media accounts" },
+    "seo-optimizer": { "name": "SEO Optimizer", "description": "Technical SEO, content SEO, and AI search optimization (GEO/AEO)" },
+    "sales-pipeline": { "name": "Sales Pipeline", "description": "Full-cycle sales assistant from lead discovery to deal follow-up" },
+    "customer-service": { "name": "Customer Service", "description": "Automated customer support from ticket classification to smart replies" },
+    "financial-mgmt": { "name": "Financial Management", "description": "Bookkeeping, tax filing, invoice management, and financial analysis" },
+    "legal-compliance": { "name": "Legal & Compliance", "description": "Contract review, clause risk flagging, and compliance checks" },
+    "data-analytics": { "name": "Data Analytics", "description": "Full-cycle analytics from raw data to visual insights" },
+    "product-mgmt": { "name": "Product Management", "description": "Requirements analysis, PRD writing, roadmap planning, and progress tracking" },
+    "recruitment": { "name": "Recruitment", "description": "Job description writing, resume screening, interview design, and candidate evaluation" },
+    "academic-research": { "name": "Academic Research", "description": "Literature search, paper analysis, hypothesis generation, experiment design, and writing assistance" }
   }
 }
