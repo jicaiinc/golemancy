@@ -113,6 +113,10 @@ export class GuardedSandbox implements Sandbox {
         cwd,
         env,
         stdio: ['ignore', 'pipe', 'pipe'],
+        // Windows: prevent Node.js from escaping quotes in the command string.
+        // Without this, commands like `cd "C:\path" && dir` get double-escaped
+        // and cmd.exe fails with "文件名、目录名或卷标语法不正确".
+        ...(isWin && { windowsVerbatimArguments: true }),
       })
 
       let stdout = ''
