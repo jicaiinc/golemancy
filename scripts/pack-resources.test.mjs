@@ -67,7 +67,11 @@ describe('pack-resources.mjs', { skip: !canRun && 'runtime/ or server/ not found
   })
 
   it('archive contains runtime/ and server/ directories', () => {
-    const listing = execFileSync('tar', ['tzf', ARCHIVE], { encoding: 'utf-8' })
+    // Archive has ~20k entries — use maxBuffer to avoid ENOBUFS
+    const listing = execFileSync('tar', ['tzf', ARCHIVE], {
+      encoding: 'utf-8',
+      maxBuffer: 50 * 1024 * 1024,
+    })
     assert.ok(listing.includes('runtime/'), 'Should contain runtime/')
     assert.ok(listing.includes('server/'), 'Should contain server/')
   })
