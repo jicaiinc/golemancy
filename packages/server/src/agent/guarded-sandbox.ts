@@ -15,7 +15,7 @@ const KILL_GRACE_MS = 5_000          // Grace period before SIGKILL
 
 // ── GuardedSandbox ──────────────────────────────────────────
 
-export interface GuardedSandboxOptions {
+interface GuardedSandboxOptions {
   config: SandboxConfig
   workspaceRoot: string
   timeoutMs?: number

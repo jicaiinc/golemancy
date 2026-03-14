@@ -11,7 +11,7 @@ const KILL_GRACE_MS = 5_000          // Grace period before SIGKILL
 
 // ── NativeSandbox ───────────────────────────────────────────
 
-export interface NativeSandboxOptions {
+interface NativeSandboxOptions {
   workspaceRoot: string
   timeoutMs?: number
   /** Runtime env vars (PATH override, pip/npm cache dirs) to inject into subprocess */

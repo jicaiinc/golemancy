@@ -343,7 +343,7 @@ describe('OnboardingPage — OAuth Provider (Codex)', () => {
       expiresAt: '2026-03-19T07:05:00.000Z',
     }
     const oauthConfig = {
-      flowType: 'authorization_code',
+      flowType: 'authorization_code' as const,
       clientId: 'app_test',
       authEndpoint: 'https://auth.openai.com/oauth/authorize',
       tokenEndpoint: 'https://auth.openai.com/oauth/token',
@@ -354,7 +354,7 @@ describe('OnboardingPage — OAuth Provider (Codex)', () => {
     // Server has the provider entry WITH oauth tokens (saved by OAuthManager)
     const serverProviderEntry = {
       name: 'OpenAI Codex',
-      sdkType: 'openai',
+      sdkType: 'openai' as const,
       models: ['gpt-5.3-codex'],
       oauthConfig,
       oauth: oauthTokens,
@@ -401,7 +401,7 @@ describe('OnboardingPage — OAuth Provider (Codex)', () => {
       expiresAt: '2026-03-19T07:05:00.000Z',
     }
     const oauthConfig = {
-      flowType: 'authorization_code',
+      flowType: 'authorization_code' as const,
       clientId: 'app_test',
       authEndpoint: 'https://auth.openai.com/oauth/authorize',
       tokenEndpoint: 'https://auth.openai.com/oauth/token',
@@ -415,11 +415,11 @@ describe('OnboardingPage — OAuth Provider (Codex)', () => {
       providers: {
         'openai-codex': {
           name: 'OpenAI Codex',
-          sdkType: 'openai',
+          sdkType: 'openai' as const,
           models: ['gpt-5.3-codex'],
           oauthConfig,
           oauth: oauthTokens,
-          testStatus: 'ok',
+          testStatus: 'ok' as const,
         },
       },
     })
@@ -462,11 +462,12 @@ describe('OnboardingPage — Project Step', () => {
     expect(screen.getByText('ICON')).toBeInTheDocument()
   })
 
-  it('shows Coming Soon for templates', () => {
+  it('renders template options in project step', () => {
     useAppStore.setState({
       settings: { ...emptySettings, onboardingStep: 2, providers: { test: { name: 'Test', sdkType: 'openai', models: ['gpt-4o'], testStatus: 'ok', apiKey: 'sk-test' } } },
     })
     renderOnboarding()
-    expect(screen.getByText('Coming Soon')).toBeInTheDocument()
+    // Template UI was added in place of "Coming Soon" — verify project step renders
+    expect(screen.getByText('Create Your First Project')).toBeInTheDocument()
   })
 })
