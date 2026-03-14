@@ -31,12 +31,20 @@ vi.mock('./builtin-tools/open-tools', () => ({
   createOpenTools: vi.fn().mockReturnValue({ OpenFile: {} }),
   buildOpenInstructions: vi.fn().mockReturnValue('## File Opening'),
 }))
+vi.mock('@golemancy/shared', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@golemancy/shared')>()
+  return {
+    ...actual,
+    isSandboxRuntimeSupported: vi.fn().mockReturnValue(true),
+  }
+})
 
 import { loadAgentTools } from './tools'
 import { loadAgentSkillTools } from './skills'
 import { loadAgentMcpTools } from './mcp'
 import { loadBuiltinTools } from './builtin-tools'
 import { createOpenTools, buildOpenInstructions } from './builtin-tools/open-tools'
+import { isSandboxRuntimeSupported } from '@golemancy/shared'
 import type { Agent, GlobalSettings, AgentId, ProjectId, IMCPService, IPermissionsConfigService, MCPServerConfig, TeamMember } from '@golemancy/shared'
 
 function makeAgent(overrides: Partial<Agent> = {}): Agent {
@@ -91,6 +99,7 @@ function makeMockMcpStorage(configs: MCPServerConfig[] = []): IMCPService {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  vi.mocked(isSandboxRuntimeSupported).mockReturnValue(true)
 })
 
 describe('loadAgentTools', () => {
@@ -217,6 +226,29 @@ describe('loadAgentTools', () => {
     expect(createOpenTools).toHaveBeenCalledWith({ workspaceRoot: '/tmp/test-project/workspace' })
     expect(result.tools).toHaveProperty('OpenFile')
     expect(result.instructions).toContain('File Opening')
+  })
+
+  it('skips open file tools in sandbox mode on unsupported platform (Windows)', async () => {
+    vi.mocked(isSandboxRuntimeSupported).mockReturnValue(false)
+    vi.mocked(createOpenTools).mockClear()
+    vi.mocked(loadBuiltinTools).mockResolvedValueOnce({
+      tools: { execute: {} as never },
+      actualMode: 'sandbox',
+      cleanup: vi.fn(),
+    })
+
+    const agent = makeAgent({ builtinTools: { bash: true } })
+    const result = await loadAgentTools({
+      agent,
+      projectId: 'proj-1',
+      settings: defaultSettings,
+      allAgents: [],
+      mcpStorage: makeMockMcpStorage(),
+      permissionsConfigStorage: makeMockPermissionsConfigStorage(),
+    })
+
+    expect(createOpenTools).not.toHaveBeenCalled()
+    expect(result.tools).not.toHaveProperty('OpenFile')
   })
 
   it('skips open file tools in non-sandbox modes', async () => {

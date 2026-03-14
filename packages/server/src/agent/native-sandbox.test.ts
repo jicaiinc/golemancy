@@ -192,6 +192,36 @@ describe('NativeSandbox', () => {
       // The command should be passed directly — no wrapping
       expect(spawn).toHaveBeenCalledWith('bash', ['-c', 'git status'], expect.any(Object))
     })
+
+    it('uses platform-appropriate shell (bash on Unix, cmd.exe on Windows)', async () => {
+      const { spawn } = await import('node:child_process')
+      const sandbox = makeSandbox()
+      await sandbox.executeCommand('echo test')
+
+      const spawnCall = vi.mocked(spawn).mock.calls[0]
+      if (process.platform === 'win32') {
+        // Windows: uses cmd.exe (or COMSPEC) with /c flag
+        expect(spawnCall[0]).toMatch(/cmd\.exe$/)
+        expect(spawnCall[1]).toEqual(['/c', 'echo test'])
+      } else {
+        // Unix: uses bash with -c flag
+        expect(spawnCall[0]).toBe('bash')
+        expect(spawnCall[1]).toEqual(['-c', 'echo test'])
+      }
+    })
+
+    it('merges runtimeEnv into process.env', async () => {
+      const { spawn } = await import('node:child_process')
+      const sandbox = new NativeSandbox({
+        workspaceRoot: WORKSPACE,
+        runtimeEnv: { MY_CUSTOM_VAR: 'custom-value' },
+      })
+      await sandbox.executeCommand('echo hello')
+
+      const spawnCall = vi.mocked(spawn).mock.calls[0]
+      const envArg = (spawnCall[2] as { env: Record<string, string> }).env
+      expect(envArg.MY_CUSTOM_VAR).toBe('custom-value')
+    })
   })
 
   // ── executeCommand: timeout ────────────────────────────────

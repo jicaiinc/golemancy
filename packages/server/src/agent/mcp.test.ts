@@ -11,8 +11,17 @@ vi.mock('./mcp-pool', () => ({
   mcpPool: mocks.mcpPool,
 }))
 
+vi.mock('@golemancy/shared', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@golemancy/shared')>()
+  return {
+    ...actual,
+    isSandboxRuntimeSupported: vi.fn(actual.isSandboxRuntimeSupported),
+  }
+})
+
 import { loadAgentMcpTools } from './mcp'
 import type { MCPServerConfig, ProjectId, ResolvedPermissionsConfig } from '@golemancy/shared'
+import { isSandboxRuntimeSupported } from '@golemancy/shared'
 import type { MCPLoadOptions } from './mcp'
 
 function makeServer(overrides: Partial<MCPServerConfig> = {}): MCPServerConfig {
@@ -51,6 +60,7 @@ describe('loadAgentMcpTools', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     mocks.getTools.mockResolvedValue({ tools: {} })
+    vi.mocked(isSandboxRuntimeSupported).mockReturnValue(true)  // default: platform supported
   })
 
   it('returns empty result for empty server list', async () => {
@@ -251,5 +261,127 @@ describe('loadAgentMcpTools', () => {
     await loadAgentMcpTools([makeServer({ transportType: 'stdio' })], options)
 
     expect(mocks.getTools).toHaveBeenCalledTimes(1)
+  })
+
+  // ── Windows Sandbox Warning Tests ─────────────────────
+
+  describe('Windows sandbox warning', () => {
+    it('warns about unsandboxed stdio servers when platform lacks OS sandbox', async () => {
+      vi.mocked(isSandboxRuntimeSupported).mockReturnValue(false)
+      mocks.getTools.mockResolvedValue({ tools: { tool: { execute: vi.fn() } } })
+
+      const options = makeOptions({
+        resolvedPermissions: {
+          mode: 'sandbox',
+          config: {
+            allowWrite: [],
+            denyRead: [],
+            denyWrite: [],
+            networkRestrictionsEnabled: false,
+            allowedDomains: [],
+            deniedDomains: [],
+            deniedCommands: [],
+            applyToMCP: false,
+          },
+        },
+      })
+
+      const result = await loadAgentMcpTools([
+        makeServer({ name: 'my-stdio', transportType: 'stdio' }),
+      ], options)
+
+      expect(result.warnings).toContainEqual(
+        expect.stringContaining('running without sandbox isolation'),
+      )
+      // Tools should still be loaded (not filtered)
+      expect(mocks.getTools).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not warn when platform supports OS sandbox', async () => {
+      vi.mocked(isSandboxRuntimeSupported).mockReturnValue(true)
+      mocks.getTools.mockResolvedValue({ tools: { tool: { execute: vi.fn() } } })
+
+      const options = makeOptions({
+        resolvedPermissions: {
+          mode: 'sandbox',
+          config: {
+            allowWrite: [],
+            denyRead: [],
+            denyWrite: [],
+            networkRestrictionsEnabled: false,
+            allowedDomains: [],
+            deniedDomains: [],
+            deniedCommands: [],
+            applyToMCP: true,
+          },
+        },
+      })
+
+      const result = await loadAgentMcpTools([
+        makeServer({ name: 'my-stdio', transportType: 'stdio' }),
+      ], options)
+
+      expect(result.warnings).not.toContainEqual(
+        expect.stringContaining('running without sandbox isolation'),
+      )
+    })
+
+    it('does not warn when there are no stdio servers', async () => {
+      vi.mocked(isSandboxRuntimeSupported).mockReturnValue(false)
+      mocks.getTools.mockResolvedValue({ tools: { tool: { execute: vi.fn() } } })
+
+      const options = makeOptions({
+        resolvedPermissions: {
+          mode: 'sandbox',
+          config: {
+            allowWrite: [],
+            denyRead: [],
+            denyWrite: [],
+            networkRestrictionsEnabled: false,
+            allowedDomains: [],
+            deniedDomains: [],
+            deniedCommands: [],
+            applyToMCP: false,
+          },
+        },
+      })
+
+      const result = await loadAgentMcpTools([
+        makeServer({ name: 'http-only', transportType: 'http', command: undefined, url: 'https://example.com' }),
+      ], options)
+
+      expect(result.warnings).not.toContainEqual(
+        expect.stringContaining('running without sandbox isolation'),
+      )
+    })
+
+    it('does not warn in non-sandbox mode even on unsupported platform', async () => {
+      vi.mocked(isSandboxRuntimeSupported).mockReturnValue(false)
+      mocks.getTools.mockResolvedValue({ tools: { tool: { execute: vi.fn() } } })
+
+      const options = makeOptions({
+        resolvedPermissions: {
+          mode: 'unrestricted',
+          config: {
+            allowWrite: [],
+            denyRead: [],
+            denyWrite: [],
+            networkRestrictionsEnabled: false,
+            allowedDomains: [],
+            deniedDomains: [],
+            deniedCommands: [],
+            applyToMCP: false,
+          },
+        },
+      })
+
+      const result = await loadAgentMcpTools([
+        makeServer({ name: 'my-stdio', transportType: 'stdio' }),
+      ], options)
+
+      expect(result.warnings).not.toContainEqual(
+        expect.stringContaining('running without sandbox isolation'),
+      )
+    })
   })
 })

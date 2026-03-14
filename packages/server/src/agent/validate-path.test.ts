@@ -455,22 +455,36 @@ describe('validatePath', () => {
     })
   })
 
-  // ── Case sensitivity (macOS) ───────────────────────────
-
   describe('case sensitivity', () => {
-    // These tests are platform-specific. On macOS (case-insensitive),
-    // .ENV should match denyRead pattern **/.env.
-    // On Linux (case-sensitive), .ENV would NOT match **/.env.
+    // isCaseInsensitiveFS() returns true for darwin AND win32.
+    // Since tests run on macOS (darwin), case-insensitive behavior is directly testable.
+    // Windows (win32) shares the same code path.
 
-    if (process.platform === 'darwin') {
-      it('matches .ENV against **/.env on macOS (case-insensitive)', () => {
+    if (process.platform === 'darwin' || process.platform === 'win32') {
+      it('matches .ENV against **/.env on case-insensitive FS (macOS/Windows)', () => {
         expect(() => validatePath(opts({ inputPath: 'config/.ENV' })))
           .toThrow(PathAccessError)
       })
 
-      it('matches .Env against **/.env on macOS', () => {
+      it('matches .Env against **/.env on case-insensitive FS', () => {
         expect(() => validatePath(opts({ inputPath: '.Env' })))
           .toThrow(PathAccessError)
+      })
+
+      it('matches .BASHRC against **/.bashrc mandatory deny (write, case-insensitive)', () => {
+        expect(() => validatePath(opts({
+          inputPath: '.BASHRC',
+          operation: 'write',
+          config: defaultConfig({ allowWrite: ['/workspace'] }),
+        }))).toThrow(PathAccessError)
+      })
+
+      it('matches .GIT/HOOKS/pre-commit against mandatory deny (write, case-insensitive)', () => {
+        expect(() => validatePath(opts({
+          inputPath: '.GIT/HOOKS/pre-commit',
+          operation: 'write',
+          config: defaultConfig({ allowWrite: ['/workspace'] }),
+        }))).toThrow(PathAccessError)
       })
     } else {
       it('does NOT match .ENV against **/.env on Linux (case-sensitive)', () => {
