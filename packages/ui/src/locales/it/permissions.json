@@ -15,6 +15,8 @@
       "name": "Sandbox",
       "subtitle": "Isolamento configurabile",
       "description": "Runtime sandbox con restrizioni configurabili su filesystem, rete e comandi.",
+      "subtitleWindows": "Protezione configurabile",
+      "descriptionWindows": "Protezione di file system, comandi e variabili d'ambiente con restrizioni configurabili.",
       "badge": "Consigliato"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 AVVISO WINDOWS",
-    "message": "Il runtime sandbox non è disponibile su Windows. È supportato solo il blocco dei comandi."
+    "message": "Il tuo progetto è protetto da restrizioni di file system, comandi e variabili d'ambiente. I server MCP di terze parti e i loro comandi possono aggirare queste protezioni su Windows."
   },
   "validation": {
     "removeProtocol": "Rimuovi protocollo, percorso o porta — solo il dominio",

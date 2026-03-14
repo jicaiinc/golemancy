@@ -83,7 +83,7 @@
     "warningTitle": "⚠ AVISO",
     "warningText": "Servidores MCP de terceiros podem acessar ou modificar arquivos no seu computador.",
     "enableSandboxHint": "Ative \"Aplicar ao MCP\" em Configurações > Permissões para executar servidores MCP em sandbox.",
-    "sandboxUnavailable": "O ambiente sandbox não está disponível nesta plataforma.",
+    "sandboxUnavailable": "Comandos de servidores MCP de terceiros podem contornar as proteções sandbox no Windows.",
     "assigned": "SERVIDORES MCP ATRIBUÍDOS",
     "noneAssigned": "Nenhum servidor MCP atribuído a este agente.",
     "addSection": "ADICIONAR SERVIDOR MCP",

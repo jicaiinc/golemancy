@@ -83,7 +83,7 @@
     "warningTitle": "⚠ 警告",
     "warningText": "第三方 MCP 伺服器可能會存取或修改你電腦上的檔案。",
     "enableSandboxHint": "在設定 > 權限中啟用「套用到 MCP」以對 MCP 伺服器進行沙盒隔離。",
-    "sandboxUnavailable": "沙盒執行環境在此平台不可用。",
+    "sandboxUnavailable": "第三方 MCP 伺服器命令可能會繞過沙盒保護（Windows）。",
     "assigned": "已指派 MCP 伺服器",
     "noneAssigned": "該 Agent 未指派 MCP 伺服器。",
     "addSection": "新增 MCP 伺服器",

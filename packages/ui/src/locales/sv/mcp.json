@@ -15,7 +15,7 @@
     "riskBadge": "VARNING",
     "riskMsg": "Tredjeparts MCP-servrar kan komma åt eller ändra filer på din dator.",
     "applyToMcpHint": "Aktivera \"Tillämpa på MCP\" i Inställningar > Behörigheter för att sandboxa MCP-servrar.",
-    "sandboxUnavailable": "Sandbox-runtime är inte tillgängligt på denna plattform."
+    "sandboxUnavailable": "Tredjepartskommandon från MCP-servrar kan kringgå sandbox-skyddet på Windows."
   },
   "import": {
     "invalidFormat": "Ogiltigt format: förväntade { mcpServers: { ... } }",

@@ -15,6 +15,8 @@
       "name": "Sandbox",
       "subtitle": "Konfigurovatelná izolace",
       "description": "Prostředí Sandbox s konfigurovatelným omezením souborového systému, sítě a příkazů.",
+      "subtitleWindows": "Konfigurovatelná ochrana",
+      "descriptionWindows": "Ochrana souborového systému, příkazů a proměnných prostředí s konfigurovatelnými omezeními.",
       "badge": "Doporučený"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 UPOZORNĚNÍ PRO WINDOWS",
-    "message": "Prostředí Sandbox není ve Windows dostupné. Je podporováno pouze blokování příkazů."
+    "message": "Váš projekt je chráněn omezeními souborového systému, příkazů a proměnných prostředí. Příkazy MCP serverů třetích stran mohou tato ochranná opatření ve Windows obejít."
   },
   "validation": {
     "removeProtocol": "Odstraňte protokol, cestu nebo port — pouze doména",

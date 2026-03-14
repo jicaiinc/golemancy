@@ -91,7 +91,7 @@
     "warningTitle": "⚠ OSTRZEŻENIE",
     "warningText": "Zewnętrzne serwery MCP mogą uzyskać dostęp do plików na komputerze lub je modyfikować.",
     "enableSandboxHint": "Włącz «Zastosuj do MCP» w Ustawienia > Uprawnienia, aby izolować serwery MCP.",
-    "sandboxUnavailable": "Środowisko Sandbox nie jest dostępne na tej platformie.",
+    "sandboxUnavailable": "Polecenia zewnętrznych serwerów MCP mogą ominąć zabezpieczenia sandbox w systemie Windows.",
     "assigned": "PRZYPISANE SERWERY MCP",
     "noneAssigned": "Ten agent nie ma przypisanych serwerów MCP.",
     "addSection": "DODAJ SERWER MCP",

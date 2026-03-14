@@ -15,6 +15,8 @@
       "name": "Sandbox",
       "subtitle": "Isolation configurable",
       "description": "Environnement sandbox avec restrictions configurables du système de fichiers, réseau et commandes.",
+      "subtitleWindows": "Protection configurable",
+      "descriptionWindows": "Protection du système de fichiers, des commandes et des variables d'environnement avec restrictions configurables.",
       "badge": "Recommandé"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 AVIS WINDOWS",
-    "message": "L'environnement sandbox n'est pas disponible sous Windows. Seul le blocage de commandes est pris en charge."
+    "message": "Votre projet est protégé par des restrictions de système de fichiers, de commandes et de variables d'environnement. Les serveurs MCP tiers et leurs commandes peuvent contourner ces protections sous Windows."
   },
   "validation": {
     "removeProtocol": "Supprimez le protocole, chemin ou port — uniquement le domaine",

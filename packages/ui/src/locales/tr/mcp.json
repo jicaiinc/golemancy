@@ -15,7 +15,7 @@
     "riskBadge": "UYARI",
     "riskMsg": "\u00dc\u00e7\u00fcnc\u00fc taraf MCP sunucular\u0131 bilgisayar\u0131n\u0131zdaki dosyalara eri\u015febilir veya de\u011fi\u015ftirebilir.",
     "applyToMcpHint": "MCP sunucular\u0131n\u0131 sandbox'a almak i\u00e7in Ayarlar > Permissions'ta \"Apply to MCP\"yi etkinle\u015ftirin.",
-    "sandboxUnavailable": "Sandbox runtime bu platformda kullan\u0131lam\u0131yor."
+    "sandboxUnavailable": "Üçüncü taraf MCP sunucu komutları Windows'ta sandbox korumalarını atlayabilir."
   },
   "import": {
     "invalidFormat": "Ge\u00e7ersiz format: { mcpServers: { ... } } bekleniyor",

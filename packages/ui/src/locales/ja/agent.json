@@ -83,7 +83,7 @@
     "warningTitle": "⚠ 警告",
     "warningText": "サードパーティ MCP サーバーがコンピューター上のファイルにアクセスまたは変更する可能性があります。",
     "enableSandboxHint": "設定 > 権限で「MCP に適用」を有効にして MCP サーバーをサンドボックス化してください。",
-    "sandboxUnavailable": "このプラットフォームではサンドボックスランタイムを利用できません。",
+    "sandboxUnavailable": "サードパーティの MCP サーバーコマンドは Windows でサンドボックス保護を回避する可能性があります。",
     "assigned": "割り当て済み MCP サーバー",
     "noneAssigned": "この Agent に MCP サーバーは割り当てられていません。",
     "addSection": "MCP サーバーを追加",

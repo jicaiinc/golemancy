@@ -15,6 +15,8 @@
       "name": "Sandbox",
       "subtitle": "Configureerbare isolatie",
       "description": "Sandbox-runtime met configureerbare bestands-, netwerk- en opdrachtbeperkingen.",
+      "subtitleWindows": "Configureerbare bescherming",
+      "descriptionWindows": "Bestandssysteem-, opdracht- en omgevingsvariabelenbescherming met configureerbare beperkingen.",
       "badge": "Aanbevolen"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 WINDOWS-MELDING",
-    "message": "Sandbox-runtime is niet beschikbaar op Windows. Alleen opdrachtblokkering wordt ondersteund."
+    "message": "Uw project wordt beschermd door bestandssysteem-, opdracht- en omgevingsvariabelenbeperkingen. MCP-servers van derden en hun opdrachten kunnen deze bescherming omzeilen op Windows."
   },
   "validation": {
     "removeProtocol": "Verwijder protocol, pad of poort — alleen het domein",

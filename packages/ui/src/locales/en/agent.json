@@ -83,7 +83,7 @@
     "warningTitle": "⚠ WARNING",
     "warningText": "Third-party MCP servers may access or modify files on your computer.",
     "enableSandboxHint": "Enable \"Apply to MCP\" in Settings > Permissions to sandbox MCP servers.",
-    "sandboxUnavailable": "Sandbox runtime is not available on this platform.",
+    "sandboxUnavailable": "Third-party MCP server commands may bypass sandbox protections on Windows.",
     "assigned": "ASSIGNED MCP SERVERS",
     "noneAssigned": "No MCP servers assigned to this agent.",
     "addSection": "ADD MCP SERVER",

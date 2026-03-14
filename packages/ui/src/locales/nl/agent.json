@@ -83,7 +83,7 @@
     "warningTitle": "⚠ WAARSCHUWING",
     "warningText": "MCP-servers van derden kunnen bestanden op uw computer openen of wijzigen.",
     "enableSandboxHint": "Schakel \"Toepassen op MCP\" in bij Instellingen > Machtigingen om MCP-servers te sandboxen.",
-    "sandboxUnavailable": "Sandbox-runtime is niet beschikbaar op dit platform.",
+    "sandboxUnavailable": "Opdrachten van MCP-servers van derden kunnen de sandbox-bescherming omzeilen op Windows.",
     "assigned": "TOEGEWEZEN MCP-SERVERS",
     "noneAssigned": "Geen MCP-servers toegewezen aan deze agent.",
     "addSection": "MCP-SERVER TOEVOEGEN",

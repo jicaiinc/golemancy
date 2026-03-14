@@ -83,7 +83,7 @@
     "warningTitle": "⚠ CẢNH BÁO",
     "warningText": "MCP server bên thứ ba có thể truy cập hoặc chỉnh sửa file trên máy tính của bạn.",
     "enableSandboxHint": "Bật \"Apply to MCP\" trong Cài đặt > Permissions để sandbox MCP server.",
-    "sandboxUnavailable": "Sandbox runtime không khả dụng trên nền tảng này.",
+    "sandboxUnavailable": "Các lệnh máy chủ MCP của bên thứ ba có thể vượt qua bảo vệ sandbox trên Windows.",
     "assigned": "MCP SERVER ĐÃ GÁN",
     "noneAssigned": "Chưa có MCP server nào được gán cho agent này.",
     "addSection": "THÊM MCP SERVER",

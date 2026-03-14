@@ -83,7 +83,7 @@
     "warningTitle": "⚠ AMARAN",
     "warningText": "Pelayan MCP pihak ketiga mungkin mengakses atau mengubah fail di komputer anda.",
     "enableSandboxHint": "Aktifkan \"Apply to MCP\" dalam Tetapan > Permissions untuk sandbox pelayan MCP.",
-    "sandboxUnavailable": "Sandbox runtime tidak tersedia di platform ini.",
+    "sandboxUnavailable": "Arahan pelayan MCP pihak ketiga mungkin memintas perlindungan sandbox di Windows.",
     "assigned": "PELAYAN MCP YANG DITETAPKAN",
     "noneAssigned": "Tiada pelayan MCP ditetapkan kepada agen ini.",
     "addSection": "TAMBAH PELAYAN MCP",

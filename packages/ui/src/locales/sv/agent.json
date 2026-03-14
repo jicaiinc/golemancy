@@ -83,7 +83,7 @@
     "warningTitle": "⚠ VARNING",
     "warningText": "Tredjepartsservrar för MCP kan komma åt eller ändra filer på din dator.",
     "enableSandboxHint": "Aktivera \"Tillämpa på MCP\" i Inställningar > Behörigheter för att sandboxa MCP-servrar.",
-    "sandboxUnavailable": "Sandbox-runtime är inte tillgängligt på denna plattform.",
+    "sandboxUnavailable": "Tredjepartskommandon från MCP-servrar kan kringgå sandbox-skyddet på Windows.",
     "assigned": "TILLDELADE MCP-SERVRAR",
     "noneAssigned": "Inga MCP-servrar tilldelade till denna agent.",
     "addSection": "LÄGG TILL MCP-SERVER",

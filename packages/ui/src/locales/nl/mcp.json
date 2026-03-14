@@ -15,7 +15,7 @@
     "riskBadge": "WAARSCHUWING",
     "riskMsg": "MCP-servers van derden kunnen bestanden op uw computer openen of wijzigen.",
     "applyToMcpHint": "Schakel \"Toepassen op MCP\" in bij Instellingen > Machtigingen om MCP-servers te sandboxen.",
-    "sandboxUnavailable": "Sandbox-runtime is niet beschikbaar op dit platform."
+    "sandboxUnavailable": "Opdrachten van MCP-servers van derden kunnen de sandbox-bescherming omzeilen op Windows."
   },
   "import": {
     "invalidFormat": "Ongeldig formaat: verwacht { mcpServers: { ... } }",

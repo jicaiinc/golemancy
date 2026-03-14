@@ -15,7 +15,7 @@
     "riskBadge": "AVISO",
     "riskMsg": "Servidores MCP de terceiros podem acessar ou modificar arquivos no seu computador.",
     "applyToMcpHint": "Ative \"Aplicar ao MCP\" em Configurações > Permissões para executar servidores MCP em sandbox.",
-    "sandboxUnavailable": "O ambiente sandbox não está disponível nesta plataforma."
+    "sandboxUnavailable": "Comandos de servidores MCP de terceiros podem contornar as proteções sandbox no Windows."
   },
   "import": {
     "invalidFormat": "Formato inválido: esperado { mcpServers: { ... } }",

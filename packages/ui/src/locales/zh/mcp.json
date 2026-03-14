@@ -15,7 +15,7 @@
     "riskBadge": "警告",
     "riskMsg": "第三方 MCP 服务器可能会访问或修改你电脑上的文件。",
     "applyToMcpHint": "在设置 > 权限中启用「应用到 MCP」以对 MCP 服务器进行沙盒隔离。",
-    "sandboxUnavailable": "沙盒运行时在此平台不可用。"
+    "sandboxUnavailable": "第三方 MCP 服务器命令可能会绕过沙盒保护（Windows）。"
   },
   "import": {
     "invalidFormat": "格式无效：期望 { mcpServers: { ... } }",

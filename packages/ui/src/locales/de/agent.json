@@ -83,7 +83,7 @@
     "warningTitle": "⚠ WARNUNG",
     "warningText": "MCP-Server von Drittanbietern können auf Dateien auf Ihrem Computer zugreifen oder diese ändern.",
     "enableSandboxHint": "Aktivieren Sie \"Auf MCP anwenden\" unter Einstellungen > Berechtigungen, um MCP-Server zu sandboxen.",
-    "sandboxUnavailable": "Sandbox-Runtime ist auf dieser Plattform nicht verfügbar.",
+    "sandboxUnavailable": "Drittanbieter-MCP-Serverbefehle können den Sandbox-Schutz unter Windows umgehen.",
     "assigned": "ZUGEWIESENE MCP-SERVER",
     "noneAssigned": "Keine MCP-Server diesem Agenten zugewiesen.",
     "addSection": "MCP-SERVER HINZUFÜGEN",

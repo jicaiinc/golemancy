@@ -83,7 +83,7 @@
     "warningTitle": "⚠ UYARI",
     "warningText": "Üçüncü taraf MCP sunucuları bilgisayarınızdaki dosyalara erişebilir veya değiştirebilir.",
     "enableSandboxHint": "MCP sunucularını sandbox'a almak için Ayarlar > Permissions'ta \"Apply to MCP\"yi etkinleştirin.",
-    "sandboxUnavailable": "Sandbox runtime bu platformda kullanılamıyor.",
+    "sandboxUnavailable": "Üçüncü taraf MCP sunucu komutları Windows'ta sandbox korumalarını atlayabilir.",
     "assigned": "ATANMIŞ MCP SUNUCULARI",
     "noneAssigned": "Bu ajana atanmış MCP sunucusu yok.",
     "addSection": "MCP SUNUCUSU EKLE",

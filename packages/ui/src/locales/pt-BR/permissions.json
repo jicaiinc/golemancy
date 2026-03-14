@@ -15,6 +15,8 @@
       "name": "Sandbox",
       "subtitle": "Isolamento configurável",
       "description": "Ambiente sandbox com restrições configuráveis de sistema de arquivos, rede e comandos.",
+      "subtitleWindows": "Proteção configurável",
+      "descriptionWindows": "Proteção de sistema de arquivos, comandos e variáveis de ambiente com restrições configuráveis.",
       "badge": "Recomendado"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 AVISO DO WINDOWS",
-    "message": "O ambiente sandbox não está disponível no Windows. Apenas o bloqueio de comandos é suportado."
+    "message": "Seu projeto é protegido por restrições de sistema de arquivos, comandos e variáveis de ambiente. Servidores MCP de terceiros e seus comandos podem contornar essas proteções no Windows."
   },
   "validation": {
     "removeProtocol": "Remova protocolo, caminho ou porta — apenas o domínio",

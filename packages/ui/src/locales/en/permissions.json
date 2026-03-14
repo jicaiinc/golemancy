@@ -14,9 +14,9 @@
     "sandbox": {
       "name": "Sandbox",
       "subtitle": "Configurable isolation",
-      "subtitleWindows": "Path & command restrictions",
+      "subtitleWindows": "Configurable protection",
       "description": "Sandbox runtime with configurable filesystem, network, and command restrictions.",
-      "descriptionWindows": "Filesystem path validation and command blocking. No OS-level sandbox or network restrictions.",
+      "descriptionWindows": "Filesystem, command, and environment protection with configurable restrictions.",
       "badge": "Recommended"
     },
     "unrestricted": {
@@ -95,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 WINDOWS NOTICE",
-    "message": "Sandbox runtime is not available on Windows. Filesystem path validation and command blocking are enforced, but OS-level sandbox isolation and network restrictions are not available."
+    "message": "Your project is protected by filesystem, command, and environment restrictions. Third-party MCP servers and their commands may bypass these protections on Windows."
   },
   "validation": {
     "removeProtocol": "Remove protocol, path, or port — just the domain",

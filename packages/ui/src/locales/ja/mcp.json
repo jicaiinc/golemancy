@@ -15,7 +15,7 @@
     "riskBadge": "警告",
     "riskMsg": "サードパーティ MCP サーバーがコンピューター上のファイルにアクセスまたは変更する可能性があります。",
     "applyToMcpHint": "設定 > 権限で「MCP に適用」を有効にして MCP サーバーをサンドボックス化してください。",
-    "sandboxUnavailable": "このプラットフォームではサンドボックスランタイムを利用できません。"
+    "sandboxUnavailable": "サードパーティの MCP サーバーコマンドは Windows でサンドボックス保護を回避する可能性があります。"
   },
   "import": {
     "invalidFormat": "無効な形式：{ mcpServers: { ... } } が必要です",

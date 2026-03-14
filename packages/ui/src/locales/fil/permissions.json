@@ -15,6 +15,8 @@
       "name": "Sandbox",
       "subtitle": "Maaaring i-configure na isolation",
       "description": "Sandbox runtime na may maaaring i-configure na filesystem, network, at command restrictions.",
+      "subtitleWindows": "Nako-configure na proteksyon",
+      "descriptionWindows": "Proteksyon sa filesystem, command, at environment variable na may nako-configure na mga paghihigpit.",
       "badge": "Inirerekomenda"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 PAUNAWA PARA SA WINDOWS",
-    "message": "Hindi available ang Sandbox runtime sa Windows. Command blocking lang ang sinusuportahan."
+    "message": "Ang iyong proyekto ay protektado ng mga paghihigpit sa filesystem, command, at environment variable. Ang mga third-party MCP server at kanilang mga command ay maaaring lampasan ang mga proteksyong ito sa Windows."
   },
   "validation": {
     "removeProtocol": "Alisin ang protocol, path, o port — domain lang",

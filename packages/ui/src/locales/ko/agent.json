@@ -83,7 +83,7 @@
     "warningTitle": "⚠ 경고",
     "warningText": "타사 MCP 서버가 컴퓨터의 파일에 접근하거나 수정할 수 있습니다.",
     "enableSandboxHint": "설정 > 권한에서 \"MCP에 적용\"을 활성화하여 MCP 서버를 샌드박스 처리하세요.",
-    "sandboxUnavailable": "이 플랫폼에서는 샌드박스 런타임을 사용할 수 없습니다.",
+    "sandboxUnavailable": "타사 MCP 서버 명령은 Windows에서 샌드박스 보호를 우회할 수 있습니다.",
     "assigned": "할당된 MCP 서버",
     "noneAssigned": "이 Agent에 할당된 MCP 서버가 없습니다.",
     "addSection": "MCP 서버 추가",

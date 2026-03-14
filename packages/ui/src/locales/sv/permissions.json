@@ -15,6 +15,8 @@
       "name": "Sandbox",
       "subtitle": "Konfigurerbar isolering",
       "description": "Sandbox-runtime med konfigurerbara begränsningar för filsystem, nätverk och kommandon.",
+      "subtitleWindows": "Konfigurerbart skydd",
+      "descriptionWindows": "Filsystem-, kommando- och miljövariabelskydd med konfigurerbara begränsningar.",
       "badge": "Rekommenderad"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 WINDOWS-MEDDELANDE",
-    "message": "Sandbox-runtime är inte tillgängligt på Windows. Bara kommandoblockerng stöds."
+    "message": "Ditt projekt skyddas av filsystem-, kommando- och miljövariabelbegränsningar. Tredjepartsservrar för MCP och deras kommandon kan kringgå dessa skydd på Windows."
   },
   "validation": {
     "removeProtocol": "Ta bort protokoll, sökväg eller port — bara domänen",

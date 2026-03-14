@@ -83,7 +83,7 @@
     "warningTitle": "⚠ PERINGATAN",
     "warningText": "MCP server pihak ketiga dapat mengakses atau mengubah file di komputer Anda.",
     "enableSandboxHint": "Aktifkan \"Apply to MCP\" di Pengaturan > Permissions untuk sandbox MCP server.",
-    "sandboxUnavailable": "Sandbox runtime tidak tersedia di platform ini.",
+    "sandboxUnavailable": "Perintah server MCP pihak ketiga dapat melewati perlindungan sandbox di Windows.",
     "assigned": "MCP SERVER YANG DITETAPKAN",
     "noneAssigned": "Belum ada MCP server yang ditetapkan ke agent ini.",
     "addSection": "TAMBAH MCP SERVER",

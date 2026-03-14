@@ -15,6 +15,8 @@
       "name": "Sandbox",
       "subtitle": "Isolasi yang dapat dikonfigurasi",
       "description": "Sandbox runtime dengan pembatasan filesystem, jaringan, dan perintah yang dapat dikonfigurasi.",
+      "subtitleWindows": "Perlindungan yang dapat dikonfigurasi",
+      "descriptionWindows": "Perlindungan sistem file, perintah, dan variabel lingkungan dengan pembatasan yang dapat dikonfigurasi.",
       "badge": "Direkomendasikan"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 PEMBERITAHUAN WINDOWS",
-    "message": "Sandbox runtime tidak tersedia di Windows. Hanya pemblokiran perintah yang didukung."
+    "message": "Proyek Anda dilindungi oleh pembatasan sistem file, perintah, dan variabel lingkungan. Server MCP pihak ketiga dan perintahnya dapat melewati perlindungan ini di Windows."
   },
   "validation": {
     "removeProtocol": "Hapus protokol, path, atau port — hanya domain saja",

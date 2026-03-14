@@ -83,7 +83,7 @@
     "warningTitle": "⚠ BABALA",
     "warningText": "Maaaring ma-access o mabago ng third-party MCP server ang mga file sa iyong computer.",
     "enableSandboxHint": "I-enable ang \"Apply to MCP\" sa Settings > Permissions para i-sandbox ang mga MCP server.",
-    "sandboxUnavailable": "Hindi available ang Sandbox runtime sa platform na ito.",
+    "sandboxUnavailable": "Ang mga command ng third-party MCP server ay maaaring lampasan ang mga proteksyon ng sandbox sa Windows.",
     "assigned": "MGA NAKA-ASSIGN NA MCP SERVER",
     "noneAssigned": "Walang MCP server na naka-assign sa agent na ito.",
     "addSection": "MAGDAGDAG NG MCP SERVER",

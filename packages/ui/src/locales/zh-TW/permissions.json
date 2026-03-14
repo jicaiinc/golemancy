@@ -15,6 +15,8 @@
       "name": "沙盒",
       "subtitle": "可設定隔離",
       "description": "沙盒執行環境，可設定檔案系統、網路和指令限制。",
+      "subtitleWindows": "可設定防護",
+      "descriptionWindows": "檔案系統、命令和環境變數防護，限制可設定。",
       "badge": "建議"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 WINDOWS 提示",
-    "message": "沙盒執行環境在 Windows 上不可用。僅支援指令封鎖。"
+    "message": "您的專案受到檔案系統、命令和環境變數限制的保護。第三方 MCP 伺服器及其命令可能會繞過這些保護（Windows）。"
   },
   "validation": {
     "removeProtocol": "請移除協定、路徑或連接埠 — 僅輸入網域",

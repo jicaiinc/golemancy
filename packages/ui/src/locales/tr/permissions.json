@@ -14,8 +14,10 @@
     "sandbox": {
       "name": "Sandbox",
       "subtitle": "Yap\u0131land\u0131r\u0131labilir izolasyon",
-      "description": "Yap\u0131land\u0131r\u0131labilir dosya sistemi, a\u011f ve komut k\u0131s\u0131tlamalar\u0131 ile sandbox runtime.",
-      "badge": "\u00d6nerilen"
+      "description": "Yapılandırılabilir dosya sistemi, ağ ve komut kısıtlamaları ile sandbox runtime.",
+      "subtitleWindows": "Yapılandırılabilir koruma",
+      "descriptionWindows": "Dosya sistemi, komut ve ortam değişkeni koruması, yapılandırılabilir kısıtlamalarla.",
+      "badge": "Önerilen"
     },
     "unrestricted": {
       "name": "Unrestricted",
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 WINDOWS B\u0130LD\u0130R\u0130M\u0130",
-    "message": "Sandbox runtime Windows'ta kullan\u0131lam\u0131yor. Yaln\u0131zca komut engelleme desteklenir."
+    "message": "Projeniz dosya sistemi, komut ve ortam değişkeni kısıtlamalarıyla korunmaktadır. Üçüncü taraf MCP sunucuları ve komutları Windows'ta bu korumaları atlayabilir."
   },
   "validation": {
     "removeProtocol": "Protokol\u00fc, yolu veya portu kald\u0131r\u0131n — yaln\u0131zca domain",

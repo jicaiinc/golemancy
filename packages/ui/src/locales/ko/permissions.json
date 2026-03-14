@@ -15,6 +15,8 @@
       "name": "샌드박스",
       "subtitle": "설정 가능한 격리",
       "description": "파일 시스템, 네트워크, 명령 제한을 설정할 수 있는 샌드박스 런타임.",
+      "subtitleWindows": "구성 가능한 보호",
+      "descriptionWindows": "파일 시스템, 명령어, 환경 변수 보호(제한 구성 가능).",
       "badge": "권장"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 WINDOWS 알림",
-    "message": "샌드박스 런타임은 Windows에서 사용할 수 없습니다. 명령 차단만 지원됩니다."
+    "message": "프로젝트는 파일 시스템, 명령어, 환경 변수 제한으로 보호됩니다. 타사 MCP 서버와 해당 명령은 Windows에서 이러한 보호를 우회할 수 있습니다."
   },
   "validation": {
     "removeProtocol": "프로토콜, 경로, 포트를 제거하세요 — 도메인만 입력",

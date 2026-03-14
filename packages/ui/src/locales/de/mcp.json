@@ -15,7 +15,7 @@
     "riskBadge": "WARNUNG",
     "riskMsg": "Drittanbieter-MCP-Server können auf Dateien auf Ihrem Computer zugreifen oder diese ändern.",
     "applyToMcpHint": "Aktivieren Sie \"Auf MCP anwenden\" unter Einstellungen > Berechtigungen, um MCP-Server zu sandboxen.",
-    "sandboxUnavailable": "Sandbox-Runtime ist auf dieser Plattform nicht verfügbar."
+    "sandboxUnavailable": "Drittanbieter-MCP-Serverbefehle können den Sandbox-Schutz unter Windows umgehen."
   },
   "import": {
     "invalidFormat": "Ungültiges Format: erwartet { mcpServers: { ... } }",

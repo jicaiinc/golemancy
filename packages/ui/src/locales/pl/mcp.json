@@ -17,7 +17,7 @@
     "riskBadge": "OSTRZEŻENIE",
     "riskMsg": "Zewnętrzne serwery MCP mogą uzyskać dostęp do plików na komputerze lub je modyfikować.",
     "applyToMcpHint": "Włącz «Zastosuj do MCP» w Ustawienia > Uprawnienia, aby izolować serwery MCP.",
-    "sandboxUnavailable": "Środowisko Sandbox nie jest dostępne na tej platformie."
+    "sandboxUnavailable": "Polecenia zewnętrznych serwerów MCP mogą ominąć zabezpieczenia sandbox w systemie Windows."
   },
   "import": {
     "invalidFormat": "Nieprawidłowy format: oczekiwane { mcpServers: { ... } }",

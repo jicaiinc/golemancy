@@ -15,7 +15,7 @@
     "riskBadge": "BABALA",
     "riskMsg": "Maaaring ma-access o mabago ng third-party MCP server ang mga file sa iyong computer.",
     "applyToMcpHint": "I-enable ang \"Apply to MCP\" sa Settings > Permissions para i-sandbox ang mga MCP server.",
-    "sandboxUnavailable": "Hindi available ang Sandbox runtime sa platform na ito."
+    "sandboxUnavailable": "Ang mga command ng third-party MCP server ay maaaring lampasan ang mga proteksyon ng sandbox sa Windows."
   },
   "import": {
     "invalidFormat": "Hindi valid ang format: inaasahan ang { mcpServers: { ... } }",

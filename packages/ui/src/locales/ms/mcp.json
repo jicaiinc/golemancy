@@ -15,7 +15,7 @@
     "riskBadge": "AMARAN",
     "riskMsg": "Pelayan MCP pihak ketiga mungkin mengakses atau mengubah fail di komputer anda.",
     "applyToMcpHint": "Aktifkan \"Apply to MCP\" dalam Tetapan > Permissions untuk sandbox pelayan MCP.",
-    "sandboxUnavailable": "Sandbox runtime tidak tersedia di platform ini."
+    "sandboxUnavailable": "Arahan pelayan MCP pihak ketiga mungkin memintas perlindungan sandbox di Windows."
   },
   "import": {
     "invalidFormat": "Format tidak sah: dijangka { mcpServers: { ... } }",

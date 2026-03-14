@@ -83,7 +83,7 @@
     "warningTitle": "⚠ 警告",
     "warningText": "第三方 MCP 服务器可能会访问或修改你电脑上的文件。",
     "enableSandboxHint": "在设置 > 权限中启用「应用到 MCP」以对 MCP 服务器进行沙盒隔离。",
-    "sandboxUnavailable": "沙盒运行时在此平台不可用。",
+    "sandboxUnavailable": "第三方 MCP 服务器命令可能会绕过沙盒保护（Windows）。",
     "assigned": "已分配 MCP 服务器",
     "noneAssigned": "该 Agent 未分配 MCP 服务器。",
     "addSection": "添加 MCP 服务器",

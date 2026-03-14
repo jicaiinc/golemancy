@@ -17,7 +17,7 @@
     "riskBadge": "VAROVÁNÍ",
     "riskMsg": "MCP servery třetích stran mohou přistupovat k souborům na vašem počítači nebo je měnit.",
     "applyToMcpHint": "Zapněte «Použít na MCP» v Nastavení > Oprávnění pro izolaci MCP serverů.",
-    "sandboxUnavailable": "Prostředí Sandbox není na této platformě dostupné."
+    "sandboxUnavailable": "Příkazy MCP serverů třetích stran mohou obejít ochranu sandboxu ve Windows."
   },
   "import": {
     "invalidFormat": "Neplatný formát: očekáváno { mcpServers: { ... } }",

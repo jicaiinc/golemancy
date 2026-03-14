@@ -83,7 +83,7 @@
     "warningTitle": "⚠ AVERTISSEMENT",
     "warningText": "Les serveurs MCP tiers peuvent accéder ou modifier des fichiers sur votre ordinateur.",
     "enableSandboxHint": "Activez « Appliquer au MCP » dans Paramètres > Permissions pour exécuter les serveurs MCP en sandbox.",
-    "sandboxUnavailable": "L'environnement sandbox n'est pas disponible sur cette plateforme.",
+    "sandboxUnavailable": "Les commandes des serveurs MCP tiers peuvent contourner les protections sandbox sous Windows.",
     "assigned": "SERVEURS MCP ASSIGNÉS",
     "noneAssigned": "Aucun serveur MCP assigné à cet agent.",
     "addSection": "AJOUTER UN SERVEUR MCP",

@@ -87,7 +87,7 @@
     "warningTitle": "⚠ AVERTISMENT",
     "warningText": "Serverele MCP terțe pot accesa sau modifica fișierele de pe computerul dumneavoastră.",
     "enableSandboxHint": "Activați \"Aplicare la MCP\" în Setări > Permisiuni pentru a izola serverele MCP în sandbox.",
-    "sandboxUnavailable": "Sandbox runtime nu este disponibil pe această platformă.",
+    "sandboxUnavailable": "Comenzile serverelor MCP terțe pot ocoli protecțiile sandbox pe Windows.",
     "assigned": "SERVERE MCP ATRIBUITE",
     "noneAssigned": "Niciun server MCP atribuit acestui agent.",
     "addSection": "ADĂUGARE SERVER MCP",
