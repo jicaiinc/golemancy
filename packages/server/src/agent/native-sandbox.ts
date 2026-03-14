@@ -61,7 +61,10 @@ export class NativeSandbox implements Sandbox {
 
   private spawnCommand(command: string): Promise<CommandResult> {
     return new Promise((resolve, reject) => {
-      const child = spawn('bash', ['-c', command], {
+      const isWin = process.platform === 'win32'
+      const shell = isWin ? (process.env.COMSPEC || 'cmd.exe') : 'bash'
+      const args = isWin ? ['/c', command] : ['-c', command]
+      const child = spawn(shell, args, {
         cwd: this.workspaceRoot,
         env: { ...process.env, ...this.runtimeEnv },
         stdio: ['ignore', 'pipe', 'pipe'],

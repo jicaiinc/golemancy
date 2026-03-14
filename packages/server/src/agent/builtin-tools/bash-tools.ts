@@ -10,7 +10,9 @@ import type {
   SupportedPlatform,
   IPermissionsConfigService,
 } from '@golemancy/shared'
+import { isSandboxRuntimeSupported } from '@golemancy/shared'
 import { AnthropicSandbox } from '../anthropic-sandbox'
+import { GuardedSandbox } from '../guarded-sandbox'
 import { NativeSandbox } from '../native-sandbox'
 import { SandboxUnavailableError } from '../errors'
 import { sandboxPool } from '../sandbox-pool'
@@ -54,6 +56,14 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
     case 'sandbox': {
       if (!options?.projectId) {
         throw new SandboxUnavailableError('projectId required for sandbox mode')
+      }
+      if (!isSandboxRuntimeSupported(process.platform as SupportedPlatform)) {
+        log.info({ projectId: options.projectId }, 'using GuardedSandbox (no OS sandbox)')
+        const workspaceDir = await ensureWorkspaceDir(options.projectId)
+        const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
+        const runtimeEnv = buildRuntimeEnv(options.projectId)
+        const sandbox = new GuardedSandbox({ config: sandboxConfig, workspaceRoot: workspaceDir, runtimeEnv: { ...runtimeEnv } })
+        return createBashTool({ sandbox, destination: workspaceDir })
       }
       try {
         const workspaceDir = await ensureWorkspaceDir(options.projectId)
@@ -186,9 +196,9 @@ async function ensureWorkspaceDir(projectId: string): Promise<string> {
 
 /**
  * Build the bash instructions block for injection into the agent's system prompt.
- * Content varies based on the actual permission mode and project context.
+ * Content varies based on the actual permission mode, project context, and platform.
  */
-export function buildBashInstructions(mode: PermissionMode, hasProject: boolean): string {
+export function buildBashInstructions(mode: PermissionMode, hasProject: boolean, platform?: SupportedPlatform): string {
   const lines: string[] = []
   lines.push('## Bash Environment')
   lines.push('')
@@ -211,10 +221,25 @@ export function buildBashInstructions(mode: PermissionMode, hasProject: boolean)
       break
 
     case 'sandbox':
-      lines.push('You are running in **sandbox** mode with OS-level isolation.')
-      if (hasProject) {
-        lines.push('Your working directory is the project workspace.')
-        lines.push('Filesystem and network access are governed by the project\'s permissions config.')
+      if (platform && !isSandboxRuntimeSupported(platform)) {
+        lines.push('You are running in **sandbox** mode with application-level guardrails.')
+        lines.push('Commands are checked against a blacklist and filesystem access is validated against permissions config.')
+        if (hasProject) {
+          lines.push('Your working directory is the project workspace.')
+        }
+        if (platform === 'win32') {
+          lines.push('')
+          lines.push('**Windows environment:**')
+          lines.push('- Shell: `cmd.exe` — use Windows commands (`dir`, `type`, `copy`, `move`, `mkdir`, `rmdir`)')
+          lines.push('- Use `/` for command switches (e.g. `dir /b`) and `\\` for path separators')
+          lines.push('- PowerShell cmdlets are also available if PowerShell is installed')
+        }
+      } else {
+        lines.push('You are running in **sandbox** mode with OS-level isolation.')
+        if (hasProject) {
+          lines.push('Your working directory is the project workspace.')
+          lines.push('Filesystem and network access are governed by the project\'s permissions config.')
+        }
       }
       lines.push('Python may be available if installed on the host system.')
       break
@@ -225,6 +250,13 @@ export function buildBashInstructions(mode: PermissionMode, hasProject: boolean)
         lines.push('Your working directory is the project workspace.')
       }
       lines.push('Exercise caution — avoid destructive operations on system files or directories outside the workspace.')
+      if (platform === 'win32') {
+        lines.push('')
+        lines.push('**Windows environment:**')
+        lines.push('- Shell: `cmd.exe` — use Windows commands (`dir`, `type`, `copy`, `move`, `mkdir`, `rmdir`)')
+        lines.push('- Use `/` for command switches (e.g. `dir /b`) and `\\` for path separators')
+        lines.push('- PowerShell cmdlets are also available if PowerShell is installed')
+      }
       lines.push('Python may be available if installed on the host system.')
       break
   }

@@ -84,8 +84,20 @@ export async function resolvePermissionsConfig(
     }),
   }
 
-  // Step 4: Platform check — only deniedCommands on unsupported platforms
+  // Step 4: Platform check — adjust sandbox config for unsupported platforms
   if (!isSandboxRuntimeSupported(platform) && configFile.mode === 'sandbox') {
+    if (platform === 'win32') {
+      // Windows: keep full path/command config, but no network enforcement or MCP sandboxing
+      log.debug({ projectId }, 'win32 sandbox: keeping path/command config, disabling network and MCP sandbox')
+      return {
+        mode: 'sandbox',
+        config: {
+          ...config,
+          networkRestrictionsEnabled: false,
+          applyToMCP: false,
+        },
+      }
+    }
     log.debug({ projectId }, 'platform does not support sandbox runtime, using deniedCommands only')
     return {
       mode: 'sandbox',

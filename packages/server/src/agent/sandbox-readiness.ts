@@ -29,45 +29,40 @@ export async function checkSandboxReadiness(
   const issues: SandboxReadinessIssue[] = []
   const platform = process.platform as SupportedPlatform
 
-  // 1. Platform support
+  // 1. Platform support — unsupported platforms use GuardedSandbox (software-only),
+  //    which doesn't need sandbox-runtime, ripgrep, or resources. Skip to workspace check.
   if (!isSandboxRuntimeSupported(platform)) {
-    issues.push({
-      component: 'platform',
-      message: `Sandbox mode is not supported on ${platform}`,
-      fix: 'Use macOS or Linux for sandbox mode, or switch to restricted mode',
-    })
-    // Early return — other checks are meaningless if platform isn't supported
-    return { available: false, issues }
-  }
+    log.debug({ platform }, 'platform uses GuardedSandbox — skipping OS sandbox checks')
+  } else {
+    // 2. sandbox-runtime package
+    const runtimeAvailable = checkSandboxRuntimePackage()
+    if (!runtimeAvailable) {
+      issues.push({
+        component: 'sandbox-runtime',
+        message: '@anthropic-ai/sandbox-runtime package is not available',
+        fix: 'Install @anthropic-ai/sandbox-runtime via pnpm',
+      })
+    }
 
-  // 2. sandbox-runtime package
-  const runtimeAvailable = checkSandboxRuntimePackage()
-  if (!runtimeAvailable) {
-    issues.push({
-      component: 'sandbox-runtime',
-      message: '@anthropic-ai/sandbox-runtime package is not available',
-      fix: 'Install @anthropic-ai/sandbox-runtime via pnpm',
-    })
-  }
+    // 3. Ripgrep binary
+    const rgPath = resolveRipgrepForCheck()
+    if (!rgPath) {
+      issues.push({
+        component: 'ripgrep',
+        message: 'ripgrep (rg) binary not found',
+        fix: 'Install ripgrep: brew install ripgrep (macOS) or apt install ripgrep (Linux)',
+      })
+    }
 
-  // 3. Ripgrep binary
-  const rgPath = resolveRipgrepForCheck()
-  if (!rgPath) {
-    issues.push({
-      component: 'ripgrep',
-      message: 'ripgrep (rg) binary not found',
-      fix: 'Install ripgrep: brew install ripgrep (macOS) or apt install ripgrep (Linux)',
-    })
-  }
-
-  // 4. Resources path (bundled runtime directory)
-  const runtimeDir = getBundledRuntimeDir()
-  if (!runtimeDir) {
-    issues.push({
-      component: 'resources-path',
-      message: 'Bundled runtime directory not configured (GOLEMANCY_RESOURCES_PATH not set)',
-      fix: 'Set GOLEMANCY_RESOURCES_PATH environment variable or run inside the Electron app',
-    })
+    // 4. Resources path (bundled runtime directory)
+    const runtimeDir = getBundledRuntimeDir()
+    if (!runtimeDir) {
+      issues.push({
+        component: 'resources-path',
+        message: 'Bundled runtime directory not configured (GOLEMANCY_RESOURCES_PATH not set)',
+        fix: 'Set GOLEMANCY_RESOURCES_PATH environment variable or run inside the Electron app',
+      })
+    }
   }
 
   // 5. Workspace directory (only if projectId provided)

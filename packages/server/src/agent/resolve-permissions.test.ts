@@ -161,25 +161,30 @@ describe('resolvePermissionsConfig', () => {
   })
 
   describe('platform awareness', () => {
-    it('strips sandbox config on win32 to deniedCommands only', async () => {
+    it('win32 + sandbox keeps full config with network/MCP disabled', async () => {
       const config = makeConfig({
         config: {
           ...makeConfig().config,
           allowWrite: ['{{workspaceDir}}'],
           denyRead: ['**/.env'],
+          denyWrite: ['**/.git/**'],
           deniedCommands: ['format'],
           applyToMCP: true,
+          networkRestrictionsEnabled: true,
         },
       })
       const storage = makeStorage({ getById: vi.fn().mockResolvedValue(config) })
 
       const result = await resolvePermissionsConfig(storage, projId, configId, '/workspace', 'win32')
 
-      // Win32 strips everything except deniedCommands
+      // Win32 keeps full path/command config
       expect(result.mode).toBe('sandbox')
-      expect(result.config.allowWrite).toEqual([])
-      expect(result.config.denyRead).toEqual([])
+      expect(result.config.allowWrite.length).toBeGreaterThan(0)
+      expect(result.config.denyRead).toEqual(['**/.env'])
+      expect(result.config.denyWrite).toEqual(['**/.git/**'])
       expect(result.config.deniedCommands).toEqual(['format'])
+      // But disables network restrictions and MCP sandboxing
+      expect(result.config.networkRestrictionsEnabled).toBe(false)
       expect(result.config.applyToMCP).toBe(false)
     })
 
@@ -226,14 +231,15 @@ describe('resolvePermissionsConfig', () => {
       expect(result.config.deniedCommands).toContain('sudo')
     })
 
-    it('uses platform-specific deniedCommands for win32', async () => {
+    it('uses platform-specific config for win32 with network/MCP disabled', async () => {
       const storage = makeStorage()
 
       const result = await resolvePermissionsConfig(storage, projId, undefined, '/workspace', 'win32')
 
-      // win32 sandbox mode → stripped to deniedCommands only
-      // Win32 default deniedCommands include 'format'
+      // Win32 keeps full config but disables network and MCP sandbox
       expect(result.config.deniedCommands).toContain('format')
+      expect(result.config.networkRestrictionsEnabled).toBe(false)
+      expect(result.config.applyToMCP).toBe(false)
     })
   })
 })

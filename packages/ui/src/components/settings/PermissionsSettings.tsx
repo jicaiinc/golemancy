@@ -263,8 +263,8 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
     {
       id: 'sandbox',
       name: t('modes.sandbox.name'),
-      subtitle: t('modes.sandbox.subtitle'),
-      description: t('modes.sandbox.description'),
+      subtitle: isWindows ? t('modes.sandbox.subtitleWindows') : t('modes.sandbox.subtitle'),
+      description: isWindows ? t('modes.sandbox.descriptionWindows') : t('modes.sandbox.description'),
       badge: { label: t('modes.sandbox.badge'), variant: 'success' },
     },
     {
@@ -664,6 +664,33 @@ function WindowsLimitedView({
         <p className="font-mono text-[11px] text-text-secondary">
           {t('windows.message')}
         </p>
+      </PixelCard>
+
+      <PixelCard>
+        <div className="font-pixel text-[9px] text-text-dim mb-3">{t('filesystem.sectionTitle')}</div>
+        <div className="flex flex-col gap-4">
+          <PathListEditor
+            label={t('filesystem.allowWrite')}
+            items={config.allowWrite}
+            onChange={items => onUpdate({ allowWrite: items })}
+            placeholder={t('filesystem.allowWritePlaceholder')}
+            helperText={t('filesystem.allowWriteHelper')}
+          />
+          <PathListEditor
+            label={t('filesystem.denyRead')}
+            items={config.denyRead}
+            onChange={items => onUpdate({ denyRead: items })}
+            placeholder={t('filesystem.denyReadPlaceholder')}
+            helperText={t('filesystem.denyReadHelper')}
+          />
+          <PathListEditor
+            label={t('filesystem.denyWrite')}
+            items={config.denyWrite}
+            onChange={items => onUpdate({ denyWrite: items })}
+            placeholder={t('filesystem.denyWritePlaceholder')}
+            helperText={t('filesystem.denyWriteHelper')}
+          />
+        </div>
       </PixelCard>
 
       <PixelCard>

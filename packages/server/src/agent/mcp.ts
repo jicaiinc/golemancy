@@ -72,6 +72,16 @@ export async function loadAgentMcpTools(
     'MCP sandbox decision',
   )
 
+  // ── Warn about unsandboxed stdio servers on unsupported platforms ──
+  if (mode === 'sandbox' && !isSandboxRuntimeSupported(platform)) {
+    const stdioServers = filtered.filter(s => s.transportType === 'stdio')
+    if (stdioServers.length > 0) {
+      const msg = `${stdioServers.length} MCP server(s) running without sandbox isolation (not available on this platform)`
+      log.warn({ platform, servers: stdioServers.map(s => s.name) }, msg)
+      warnings.push(msg)
+    }
+  }
+
   // ── Pool-based tool loading ─────────────────────────────
   const allTools: ToolSet = {}
 

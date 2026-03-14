@@ -66,6 +66,26 @@ const BUILTIN_DANGEROUS_PATTERNS: Array<{ regex: RegExp; description: string }> 
 
   // Python -c with dangerous imports
   { regex: /\bpython[23]?\b.*-c\s+.*\bimport\s+(os|subprocess|shutil)\b/, description: 'python inline with dangerous imports' },
+
+  // Windows: destructive file/directory deletion
+  { regex: /\bdel\b.*\/[sf]/i, description: 'Windows forced/recursive file delete' },
+  { regex: /\brd\b.*\/s/i, description: 'Windows recursive directory removal (rd)' },
+  { regex: /\brmdir\b.*\/s/i, description: 'Windows recursive directory removal (rmdir)' },
+  { regex: /\bRemove-Item\b.*-Recurse/i, description: 'PowerShell recursive delete' },
+  // Windows: disk operations
+  { regex: /\bformat\b\s+[a-zA-Z]:/i, description: 'Windows disk format' },
+  { regex: /\bdiskpart\b/i, description: 'Windows disk partition tool' },
+  // Windows: registry
+  { regex: /\breg\b\s+(delete|add)\b/i, description: 'Windows registry modification' },
+  // Windows: PowerShell download-execute
+  { regex: /\biex\b.*\biwr\b/i, description: 'PowerShell download-execute' },
+  { regex: /\bInvoke-Expression\b.*\bInvoke-WebRequest\b/i, description: 'PowerShell download-execute' },
+  { regex: /\biwr\b.*\|\s*\biex\b/i, description: 'PowerShell download-pipe-execute' },
+  // Windows: persistence & privilege escalation
+  { regex: /\bschtasks\b.*\/create\b/i, description: 'Windows scheduled task creation' },
+  { regex: /\brunas\b/i, description: 'Windows privilege escalation' },
+  // Windows: service control
+  { regex: /\bsc\b\s+(create|delete)\b/i, description: 'Windows service creation/deletion' },
 ]
 
 // ── Main Entry Point ───────────────────────────────────────

@@ -1,6 +1,6 @@
 import type { ToolSet } from 'ai'
 import type { Agent, AgentId, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IConversationService, IPermissionsConfigService, TeamMember } from '@golemancy/shared'
-import { DEFAULT_MEMORY_AUTO_LOAD } from '@golemancy/shared'
+import { DEFAULT_MEMORY_AUTO_LOAD, isSandboxRuntimeSupported } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -152,7 +152,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 
       // Bash instructions — inform agent about sandbox mode and filesystem layout
       if (agent.builtinTools?.bash !== false) {
-        const bashInstr = buildBashInstructions(builtinResult.actualMode, !!projectId)
+        const bashInstr = buildBashInstructions(builtinResult.actualMode, !!projectId, process.platform as SupportedPlatform)
         instructions = instructions ? instructions + '\n\n' + bashInstr : bashInstr
       }
 
@@ -177,7 +177,9 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   }
 
   // 5. Open file tool — sandbox-only: `open` is blocked by Seatbelt, so we provide IPC bypass
-  if (agent.builtinTools?.bash !== false && actualMode === 'sandbox' && projectId) {
+  //    Only on platforms with OS-level sandbox (GuardedSandbox doesn't block `open`)
+  if (agent.builtinTools?.bash !== false && actualMode === 'sandbox' && projectId
+    && isSandboxRuntimeSupported(process.platform as SupportedPlatform)) {
     const workspaceDir = getProjectPath(projectId) + '/workspace'
     const openTools = createOpenTools({ workspaceRoot: workspaceDir })
     Object.assign(tools, openTools)
