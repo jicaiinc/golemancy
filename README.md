@@ -5,8 +5,7 @@
 <h1 align="center">Golemancy</h1>
 
 <p align="center">
-  <strong>Summon an AI Team to Work for You</strong><br>
-  One person. The power of a full AI team.
+  <strong>Summon an AI Team to Work for You</strong>
 </p>
 
 <p align="center">

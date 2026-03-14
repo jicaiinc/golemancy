@@ -5,8 +5,7 @@
 <h1 align="center">Golemancy</h1>
 
 <p align="center">
-  <strong>召唤一支为你效力的 AI 团队</strong><br>
-  一个人，也能拥有一整支 AI 团队。
+  <strong>召唤一支为你效力的 AI 团队</strong>
 </p>
 
 <p align="center">
