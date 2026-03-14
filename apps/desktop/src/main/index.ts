@@ -4,6 +4,7 @@ import { homedir } from 'os'
 import { fork, type ChildProcess } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
+import { needsResourceExtraction, extractResources, createSetupWindow } from './setup'
 import { startUpdateChecker, getLatestUpdateInfo, openDownloadUrl } from './updater'
 
 const APP_VERSION: string = JSON.parse(
@@ -282,6 +283,21 @@ app.whenReady().then(async () => {
   if (process.platform === 'darwin' && app.dock) {
     const icon = getAppIcon()
     if (!icon.isEmpty()) app.dock.setIcon(icon)
+  }
+
+  // Windows archive mode: extract runtime/ + server/ on first launch or update
+  if (await needsResourceExtraction()) {
+    logger.info('First launch detected — extracting resources archive')
+    const setupWin = createSetupWindow()
+    await extractResources((progress) => {
+      const percent = progress.total > 0
+        ? Math.min(99, Math.round((progress.current / progress.total) * 100))
+        : 0
+      setupWin.webContents.send('setup:progress', { percent })
+    })
+    setupWin.webContents.send('setup:progress', { percent: 100 })
+    setupWin.close()
+    logger.info('Resources extracted, continuing startup')
   }
 
   try {
