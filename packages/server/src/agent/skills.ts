@@ -63,14 +63,24 @@ export async function loadAgentSkillTools(
     )
 
     // Wrap skill tool: replace sandbox paths with real absolute paths
+    // Type narrowing: createSkillTool always provides description + execute,
+    // but CoreTool types mark them as optional for generic compatibility.
+    if (!skill.execute) {
+      log.error({ projectId }, 'skill tool has no execute function')
+      await cleanup()
+      return null
+    }
+    const skillExecute = skill.execute
+    type SkillResult = { success: boolean; error?: string; skill?: { name: string; description: string; path: string }; instructions?: string; files?: string[] }
+
     const wrappedSkill = {
       ...skill,
-      description: skill.description.replace(
+      description: (skill.description ?? '').replace(
         /\nAfter loading a skill[^\n]*/,
         '',
       ),
-      execute: async (...args: Parameters<typeof skill.execute>) => {
-        const result = await skill.execute(...args)
+      execute: async (...args: Parameters<typeof skillExecute>) => {
+        const result = await skillExecute(...args) as SkillResult
         if (result?.success && result.skill?.path) {
           const absPath = pathMap.get(result.skill.path)
           if (absPath) {

@@ -14,7 +14,9 @@
     "sandbox": {
       "name": "Sandbox",
       "subtitle": "Configurable isolation",
+      "subtitleWindows": "Path & command restrictions",
       "description": "Sandbox runtime with configurable filesystem, network, and command restrictions.",
+      "descriptionWindows": "Filesystem path validation and command blocking. No OS-level sandbox or network restrictions.",
       "badge": "Recommended"
     },
     "unrestricted": {
@@ -93,7 +95,7 @@
   },
   "windows": {
     "notice": "\u26A0 WINDOWS NOTICE",
-    "message": "Sandbox runtime is not available on Windows. Only command blocking is supported."
+    "message": "Sandbox runtime is not available on Windows. Filesystem path validation and command blocking are enforced, but OS-level sandbox isolation and network restrictions are not available."
   },
   "validation": {
     "removeProtocol": "Remove protocol, path, or port — just the domain",

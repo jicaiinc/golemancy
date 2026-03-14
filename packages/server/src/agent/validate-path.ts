@@ -268,9 +268,9 @@ function findMatchingPattern(normalizedPath: string, patterns: string[]): string
 // ── Helpers ────────────────────────────────────────────────
 
 function isCaseInsensitiveFS(): boolean {
-  // macOS HFS+/APFS (default) is case-insensitive
+  // macOS HFS+/APFS (default) and Windows NTFS are case-insensitive
   // Linux ext4 is case-sensitive
-  return process.platform === 'darwin'
+  return process.platform === 'darwin' || process.platform === 'win32'
 }
 
 function isNodeError(e: unknown): e is NodeJS.ErrnoException {

@@ -6,6 +6,7 @@ import type { Sandbox, CommandResult } from 'bash-tool'
 import type { SandboxConfig } from '@golemancy/shared'
 import { validatePathAsync, type PathOperation } from './validate-path'
 import { checkCommandBlacklist, type CommandBlacklistConfig } from './check-command-blacklist'
+import { getSafeEnv } from './safe-env'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:anthropic-sandbox' })
@@ -35,26 +36,6 @@ export interface SandboxManagerHandle {
 const DEFAULT_TIMEOUT_MS = 120_000   // 120 seconds
 const MAX_OUTPUT_BYTES = 1_048_576   // 1 MB
 const KILL_GRACE_MS = 5_000          // Grace period before SIGKILL
-
-/**
- * Safe environment variable allowlist for sandboxed processes.
- * Only these variables are passed to child processes in sandbox mode.
- */
-const SAFE_ENV_KEYS = new Set([
-  'HOME', 'USER', 'LOGNAME', 'SHELL', 'PATH',
-  'LANG', 'LC_ALL', 'LC_CTYPE', 'TERM', 'COLORTERM',
-  'TZ', 'TMPDIR', 'XDG_RUNTIME_DIR',
-  'NODE_ENV', 'NODE_OPTIONS',
-  'SSL_CERT_FILE',
-])
-
-function getSafeEnv(): Record<string, string> {
-  const env: Record<string, string> = {}
-  for (const key of SAFE_ENV_KEYS) {
-    if (process.env[key]) env[key] = process.env[key]!
-  }
-  return env
-}
 
 // ── AnthropicSandbox ────────────────────────────────────────
 

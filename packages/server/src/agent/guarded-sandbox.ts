@@ -2,6 +2,10 @@ import { spawn } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { Sandbox, CommandResult } from 'bash-tool'
+import type { SandboxConfig } from '@golemancy/shared'
+import { validatePathAsync, type PathOperation } from './validate-path'
+import { checkCommandBlacklist, type CommandBlacklistConfig } from './check-command-blacklist'
+import { getSafeEnv } from './safe-env'
 
 // ── Constants ───────────────────────────────────────────────
 
@@ -9,9 +13,10 @@ const DEFAULT_TIMEOUT_MS = 120_000   // 120 seconds
 const MAX_OUTPUT_BYTES = 1_048_576   // 1 MB
 const KILL_GRACE_MS = 5_000          // Grace period before SIGKILL
 
-// ── NativeSandbox ───────────────────────────────────────────
+// ── GuardedSandbox ──────────────────────────────────────────
 
-interface NativeSandboxOptions {
+interface GuardedSandboxOptions {
+  config: SandboxConfig
   workspaceRoot: string
   timeoutMs?: number
   /** Runtime env vars (PATH override, pip/npm cache dirs) to inject into subprocess */
@@ -19,16 +24,19 @@ interface NativeSandboxOptions {
 }
 
 /**
- * No-isolation Sandbox implementation for Unrestricted mode.
- * Executes commands directly via bash without any sandboxing or path validation.
+ * Software-guarded Sandbox for platforms without OS-level sandbox support (e.g. Windows).
+ * Enforces command blacklist + path validation in-process, then spawns commands
+ * via the platform-native shell (cmd.exe on Windows, bash elsewhere).
  * Implements the bash-tool Sandbox interface.
  */
-export class NativeSandbox implements Sandbox {
+export class GuardedSandbox implements Sandbox {
+  private readonly config: SandboxConfig
   private readonly workspaceRoot: string
   private readonly timeoutMs: number
   private readonly runtimeEnv: Record<string, string>
 
-  constructor(options: NativeSandboxOptions) {
+  constructor(options: GuardedSandboxOptions) {
+    this.config = options.config
     this.workspaceRoot = options.workspaceRoot
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
     this.runtimeEnv = options.runtimeEnv ?? {}
@@ -37,27 +45,40 @@ export class NativeSandbox implements Sandbox {
   // ── Sandbox Interface ─────────────────────────────────────
 
   async executeCommand(command: string): Promise<CommandResult> {
+    this.checkBlacklist(command)
     return this.spawnCommand(command)
   }
 
   async readFile(filePath: string): Promise<string> {
-    const absolute = path.isAbsolute(filePath)
-      ? filePath
-      : path.resolve(this.workspaceRoot, filePath)
-    return fs.readFile(absolute, 'utf-8')
+    const validated = await this.validatePath(filePath, 'read')
+    return fs.readFile(validated, 'utf-8')
   }
 
   async writeFiles(files: Array<{ path: string; content: string | Buffer }>): Promise<void> {
     for (const file of files) {
-      const absolute = path.isAbsolute(file.path)
-        ? file.path
-        : path.resolve(this.workspaceRoot, file.path)
-      await fs.mkdir(path.dirname(absolute), { recursive: true })
-      await fs.writeFile(absolute, file.content)
+      const validated = await this.validatePath(file.path, 'write')
+      await fs.mkdir(path.dirname(validated), { recursive: true })
+      await fs.writeFile(validated, file.content)
     }
   }
 
   // ── Internal ──────────────────────────────────────────────
+
+  private checkBlacklist(command: string): void {
+    const blacklistConfig: CommandBlacklistConfig = {
+      deniedCommands: this.config.deniedCommands,
+    }
+    checkCommandBlacklist(command, blacklistConfig)
+  }
+
+  private async validatePath(inputPath: string, operation: PathOperation): Promise<string> {
+    return validatePathAsync({
+      inputPath,
+      workspaceRoot: this.workspaceRoot,
+      config: this.config.filesystem,
+      operation,
+    })
+  }
 
   private spawnCommand(command: string): Promise<CommandResult> {
     return new Promise((resolve, reject) => {
@@ -66,7 +87,7 @@ export class NativeSandbox implements Sandbox {
       const args = isWin ? ['/c', command] : ['-c', command]
       const child = spawn(shell, args, {
         cwd: this.workspaceRoot,
-        env: { ...process.env, ...this.runtimeEnv },
+        env: { ...getSafeEnv(), ...this.runtimeEnv },
         stdio: ['ignore', 'pipe', 'pipe'],
       })
 
