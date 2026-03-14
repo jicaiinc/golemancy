@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, type KeyboardEvent, type DragEvent, type ClipboardEvent } from 'react'
+import { useState, useRef, useCallback, useEffect, type KeyboardEvent, type DragEvent, type ClipboardEvent } from 'react'
 import type { FileUIPart } from 'ai'
 import type { TranscriptionId, ProjectId, ConversationId } from '@golemancy/shared'
 import { useTranslation } from 'react-i18next'
@@ -59,6 +59,22 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { isRecording, durationMs, analyser, startRecording, stopRecording, cancelRecording } = useAudioRecorder()
+
+  const prevRecordingStateRef = useRef<RecordingState>('idle')
+
+  // After voice recording/transcription finishes, auto-resize textarea and focus it
+  useEffect(() => {
+    const prev = prevRecordingStateRef.current
+    prevRecordingStateRef.current = recordingState
+
+    if (recordingState === 'idle' && prev !== 'idle' && textareaRef.current) {
+      const el = textareaRef.current
+      el.style.height = 'auto'
+      el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+      el.focus()
+      el.setSelectionRange(el.value.length, el.value.length)
+    }
+  }, [recordingState])
 
   const sttEnabled = useAppStore(s => s.settings?.speechToText?.enabled)
   const transcribeAudio = useAppStore(s => s.transcribeAudio)

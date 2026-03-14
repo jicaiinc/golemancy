@@ -271,7 +271,6 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
         case 'text':
           return (p as { text: string }).text.length > 0
         case 'reasoning':
-          return (p as { text: string }).text.length > 0
         case 'step-start':
         case 'dynamic-tool':
         case 'file':
