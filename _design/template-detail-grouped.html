@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Template Detail — Grouped Rows</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --void: #0B0E14;
+      --deep: #141820;
+      --surface: #1E2430;
+      --elevated: #2A3242;
+      --border-dim: #2E3A4E;
+      --border-bright: #4A5568;
+      --text-primary: #E8ECF1;
+      --text-secondary: #8B95A5;
+      --text-dim: #505A6A;
+      --accent-green: #4ADE80;
+      --accent-blue: #60A5FA;
+      --accent-amber: #FBBF24;
+      --accent-purple: #A78BFA;
+      --accent-cyan: #22D3EE;
+      --font-pixel: "Press Start 2P", monospace;
+      --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
+    }
+
+    body { background: var(--void); color: var(--text-primary); font-family: var(--font-mono); padding: 32px; }
+    h1 { font-family: var(--font-pixel); font-size: 12px; color: var(--accent-green); margin-bottom: 6px; }
+    .page-desc { font-size: 11px; color: var(--text-dim); margin-bottom: 28px; }
+    .scenario { margin-bottom: 36px; }
+    .scenario-title { font-family: var(--font-pixel); font-size: 9px; color: var(--accent-amber); margin-bottom: 4px; }
+    .scenario-desc { font-size: 10px; color: var(--text-dim); margin-bottom: 12px; }
+
+    .detail-panel {
+      background: var(--deep); border: 2px solid var(--border-dim);
+      padding: 16px; width: 560px; max-height: 340px; overflow-y: auto;
+    }
+    .detail-panel::-webkit-scrollbar { width: 4px; }
+    .detail-panel::-webkit-scrollbar-track { background: var(--deep); }
+    .detail-panel::-webkit-scrollbar-thumb { background: var(--border-bright); }
+
+    .tmpl-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .tmpl-icon { font-size: 28px; line-height: 1; }
+    .tmpl-name { font-family: var(--font-pixel); font-size: 11px; color: var(--text-primary); }
+    .tmpl-featured { font-family: var(--font-pixel); font-size: 7px; color: var(--accent-amber); margin-top: 2px; }
+    .tmpl-desc { font-size: 11px; color: var(--text-secondary); line-height: 18px; margin-bottom: 10px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 8px; font-family: var(--font-pixel); font-size: 8px; border: 2px solid;
+    }
+    .badge .dot { width: 6px; height: 6px; display: inline-block; }
+    .badge-info { background: rgba(96,165,250,0.15); color: var(--accent-blue); border-color: rgba(96,165,250,0.3); }
+    .badge-info .dot { background: var(--accent-blue); }
+    .badge-success { background: rgba(74,222,128,0.15); color: var(--accent-green); border-color: rgba(74,222,128,0.3); }
+    .badge-success .dot { background: var(--accent-green); }
+    .badge-paused { background: rgba(251,191,36,0.15); color: var(--accent-amber); border-color: rgba(251,191,36,0.3); }
+    .badge-paused .dot { background: var(--accent-amber); }
+    .badge-idle { background: var(--elevated); color: var(--text-secondary); border-color: rgba(139,149,165,0.3); }
+    .badge-idle .dot { background: var(--text-secondary); }
+
+    .stats-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+    .stat { font-size: 10px; color: var(--text-dim); }
+
+    /* Legend */
+    .legend { display: flex; gap: 14px; margin-bottom: 10px; font-size: 8px; color: var(--text-dim); }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 5px; height: 5px; display: inline-block; }
+    .legend-dot.skill { background: var(--accent-purple); }
+    .legend-dot.mcp { background: var(--accent-cyan); }
+    .legend-dot.tool { background: var(--accent-amber); }
+
+    .section-label {
+      font-family: var(--font-pixel); font-size: 8px; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 1px;
+      border-bottom: 1px solid var(--border-dim); padding-bottom: 4px; margin-bottom: 8px;
+    }
+
+    /* === Agent card === */
+    .agent-card {
+      background: var(--surface);
+      border: 2px solid var(--border-dim);
+      padding: 8px 10px;
+      margin-bottom: 6px;
+    }
+    .agent-card:last-child { margin-bottom: 0; }
+
+    .agent-card-name {
+      font-family: var(--font-pixel);
+      font-size: 8px;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    /* === Capability group row === */
+    .cap-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin-bottom: 4px;
+    }
+    .cap-group:last-child { margin-bottom: 0; }
+
+    /* Colored left bar */
+    .cap-bar {
+      width: 3px;
+      min-height: 16px;
+      flex-shrink: 0;
+      align-self: stretch;
+      margin-right: 6px;
+    }
+    .cap-bar.skill { background: var(--accent-purple); }
+    .cap-bar.mcp { background: var(--accent-cyan); }
+    .cap-bar.tool { background: var(--accent-amber); }
+
+    /* Tags within a group row */
+    .cap-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      flex: 1;
+      padding: 1px 0;
+    }
+
+    .cap-tag {
+      font-size: 8px;
+      font-family: var(--font-mono);
+      padding: 1px 5px;
+      border: 1px solid;
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 14px;
+    }
+    .cap-tag.skill {
+      color: var(--accent-purple);
+      border-color: rgba(167, 139, 250, 0.25);
+      background: rgba(167, 139, 250, 0.08);
+    }
+    .cap-tag.mcp {
+      color: var(--accent-cyan);
+      border-color: rgba(34, 211, 238, 0.25);
+      background: rgba(34, 211, 238, 0.08);
+    }
+    .cap-tag.tool {
+      color: var(--accent-amber);
+      border-color: rgba(251, 191, 36, 0.25);
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    /* Team */
+    .team-row {
+      padding: 6px 8px; background: var(--surface);
+      border: 1px solid var(--border-dim); margin-bottom: 6px;
+    }
+    .team-name { font-family: var(--font-pixel); font-size: 9px; color: var(--text-primary); }
+    .team-members { font-size: 9px; color: var(--text-secondary); margin-top: 2px; }
+    .team-arrow { color: var(--accent-green); }
+
+    .tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px; }
+    .tag { font-size: 9px; padding: 2px 6px; background: var(--elevated); color: var(--text-dim); border: 1px solid var(--border-dim); }
+  </style>
+</head>
+<body>
+
+<h1>Template Detail — Grouped Rows</h1>
+<p class="page-desc">
+  Agents in bordered cards, stacked vertically.<br>
+  Skills / MCP / Tools on separate rows with colored left bars.
+</p>
+
+<!-- ==================== 3 Agents ==================== -->
+<div class="scenario">
+  <div class="scenario-title">Scenario 1: 3 Agents (Deep Research)</div>
+
+  <div class="detail-panel">
+    <div class="tmpl-header">
+      <span class="tmpl-icon">&#x1F9ED;</span>
+      <div>
+        <div class="tmpl-name">Deep Research</div>
+        <div class="tmpl-featured">&#x2605; Featured</div>
+      </div>
+    </div>
+    <p class="tmpl-desc">Multi-agent team for in-depth research, competitive analysis, and trend reports</p>
+
+    <div class="stats-row">
+      <span class="badge badge-info"><span class="dot"></span>Research</span>
+      <span class="stat">3 Agents</span>
+      <span class="stat">4 Skills</span>
+      <span class="stat">3 MCP</span>
+      <span class="stat">1 Team</span>
+      <span class="stat">1 Cron</span>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot skill"></span> Skills</span>
+      <span class="legend-item"><span class="legend-dot mcp"></span> MCP</span>
+      <span class="legend-item"><span class="legend-dot tool"></span> Tools</span>
+    </div>
+
+    <div class="section-label">Agents</div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Research Lead</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">Research Outline</span>
+          <span class="cap-tag skill">Competitive Analysis</span>
+          <span class="cap-tag skill">Market Research</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">open-websearch</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">browser</span>
+          <span class="cap-tag tool">bash</span>
+          <span class="cap-tag tool">task</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Web Researcher</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">Deep Research Execution</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">open-websearch</span>
+          <span class="cap-tag mcp">playwright</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">browser</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Analyst</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">Competitive Analysis</span>
+          <span class="cap-tag skill">Market Research</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">sequential-thinking</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">bash</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top: 10px;">Teams</div>
+    <div class="team-row">
+      <div class="team-name">Research Team</div>
+      <div class="team-members">Research Lead <span class="team-arrow">&#x2192;</span> Web Researcher, Analyst</div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">research</span>
+      <span class="tag">analysis</span>
+      <span class="tag">competitive-intelligence</span>
+      <span class="tag">reports</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 4 Agents ==================== -->
+<div class="scenario">
+  <div class="scenario-title">Scenario 2: 4 Agents (Content Marketing)</div>
+
+  <div class="detail-panel">
+    <div class="tmpl-header">
+      <span class="tmpl-icon">&#x1F4E2;</span>
+      <div>
+        <div class="tmpl-name">Content Marketing</div>
+        <div class="tmpl-featured">&#x2605; Featured</div>
+      </div>
+    </div>
+    <p class="tmpl-desc">Complete content pipeline from topic selection to writing to multi-platform distribution</p>
+
+    <div class="stats-row">
+      <span class="badge badge-paused"><span class="dot"></span>Creative</span>
+      <span class="stat">4 Agents</span>
+      <span class="stat">6 Skills</span>
+      <span class="stat">4 MCP</span>
+      <span class="stat">1 Team</span>
+      <span class="stat">2 Cron</span>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot skill"></span> Skills</span>
+      <span class="legend-item"><span class="legend-dot mcp"></span> MCP</span>
+      <span class="legend-item"><span class="legend-dot tool"></span> Tools</span>
+    </div>
+
+    <div class="section-label">Agents</div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Content Director</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">AI Marketing Suite</span>
+          <span class="cap-tag skill">Content Strategy</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">open-websearch</span>
+          <span class="cap-tag mcp">memory</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">browser</span>
+          <span class="cap-tag tool">bash</span>
+          <span class="cap-tag tool">task</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Writer</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">Blog Writing</span>
+          <span class="cap-tag skill">Email Copywriting</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">fetch</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">browser</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">SEO Analyst</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">SEO Content Optimizer</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">open-websearch</span>
+          <span class="cap-tag mcp">playwright</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">bash</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Distributor</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">Social Distribution</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">fetch</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">browser</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top: 10px;">Teams</div>
+    <div class="team-row">
+      <div class="team-name">Content Team</div>
+      <div class="team-members">Content Director <span class="team-arrow">&#x2192;</span> Writer, SEO Analyst, Distributor</div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">marketing</span>
+      <span class="tag">content</span>
+      <span class="tag">seo</span>
+      <span class="tag">social-media</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 1 Agent ==================== -->
+<div class="scenario">
+  <div class="scenario-title">Scenario 3: 1 Agent (Smart Secretary)</div>
+
+  <div class="detail-panel">
+    <div class="tmpl-header">
+      <span class="tmpl-icon">&#x1F5C2;</span>
+      <div>
+        <div class="tmpl-name">Smart Secretary</div>
+        <div class="tmpl-featured">&#x2605; Featured</div>
+      </div>
+    </div>
+    <p class="tmpl-desc">Manage your emails, calendar, todos, and information flow so you can focus on core work</p>
+
+    <div class="stats-row">
+      <span class="badge badge-success"><span class="dot"></span>Productivity</span>
+      <span class="stat">1 Agent</span>
+      <span class="stat">3 Skills</span>
+      <span class="stat">3 MCP</span>
+      <span class="stat">2 Cron</span>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot skill"></span> Skills</span>
+      <span class="legend-item"><span class="legend-dot mcp"></span> MCP</span>
+      <span class="legend-item"><span class="legend-dot tool"></span> Tools</span>
+    </div>
+
+    <div class="section-label">Agent</div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Secretary</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">Gmail Automation</span>
+          <span class="cap-tag skill">Google Calendar</span>
+          <span class="cap-tag skill">Meeting Insights</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">memory</span>
+          <span class="cap-tag mcp">fetch</span>
+          <span class="cap-tag mcp">open-websearch</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">productivity</span>
+      <span class="tag">email</span>
+      <span class="tag">calendar</span>
+      <span class="tag">scheduling</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== Long names ==================== -->
+<div class="scenario">
+  <div class="scenario-title">Scenario 4: Long Names (Legal &amp; Compliance)</div>
+
+  <div class="detail-panel">
+    <div class="tmpl-header">
+      <span class="tmpl-icon">&#x2696;</span>
+      <div><div class="tmpl-name">Legal &amp; Compliance</div></div>
+    </div>
+    <p class="tmpl-desc">Contract review, clause risk flagging, and compliance checks</p>
+
+    <div class="stats-row">
+      <span class="badge badge-idle"><span class="dot"></span>Starter</span>
+      <span class="stat">2 Agents</span>
+      <span class="stat">4 Skills</span>
+      <span class="stat">4 MCP</span>
+      <span class="stat">1 Team</span>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot skill"></span> Skills</span>
+      <span class="legend-item"><span class="legend-dot mcp"></span> MCP</span>
+      <span class="legend-item"><span class="legend-dot tool"></span> Tools</span>
+    </div>
+
+    <div class="section-label">Agents</div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Legal Analyst</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">Contracts &amp; Proposals Manager</span>
+          <span class="cap-tag skill">GDPR Compliance Officer</span>
+          <span class="cap-tag skill">ISO 27001 Security Specialist</span>
+          <span class="cap-tag skill">Risk Management Specialist</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">open-websearch</span>
+          <span class="cap-tag mcp">sequential-thinking</span>
+          <span class="cap-tag mcp">memory</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">browser</span>
+          <span class="cap-tag tool">bash</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Legal Drafter</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">Contracts &amp; Proposals Manager</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">filesystem</span>
+          <span class="cap-tag mcp">memory</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar tool"></div>
+        <div class="cap-row">
+          <span class="cap-tag tool">memory</span>
+          <span class="cap-tag tool">bash</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top: 10px;">Teams</div>
+    <div class="team-row">
+      <div class="team-name">Legal Team</div>
+      <div class="team-members">Legal Analyst <span class="team-arrow">&#x2192;</span> Legal Drafter</div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">legal</span>
+      <span class="tag">compliance</span>
+      <span class="tag">contracts</span>
+      <span class="tag">risk</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== Many skills ==================== -->
+<div class="scenario">
+  <div class="scenario-title">Scenario 5: 6 Skills (Document Hub)</div>
+
+  <div class="detail-panel">
+    <div class="tmpl-header">
+      <span class="tmpl-icon">&#x1F4C4;</span>
+      <div>
+        <div class="tmpl-name">Document Hub</div>
+        <div class="tmpl-featured">&#x2605; Featured</div>
+      </div>
+    </div>
+    <p class="tmpl-desc">AI processing center for PDF, Word, Excel, and PowerPoint documents</p>
+
+    <div class="stats-row">
+      <span class="badge badge-success"><span class="dot"></span>Productivity</span>
+      <span class="stat">1 Agent</span>
+      <span class="stat">6 Skills</span>
+      <span class="stat">2 MCP</span>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot skill"></span> Skills</span>
+      <span class="legend-item"><span class="legend-dot mcp"></span> MCP</span>
+      <span class="legend-item"><span class="legend-dot tool"></span> Tools</span>
+    </div>
+
+    <div class="section-label">Agent</div>
+
+    <div class="agent-card">
+      <div class="agent-card-name">Doc Processor</div>
+      <div class="cap-group">
+        <div class="cap-bar skill"></div>
+        <div class="cap-row">
+          <span class="cap-tag skill">PDF Processing</span>
+          <span class="cap-tag skill">DOCX Processing</span>
+          <span class="cap-tag skill">XLSX Processing</span>
+          <span class="cap-tag skill">PPTX Processing</span>
+          <span class="cap-tag skill">Invoice Organizer</span>
+          <span class="cap-tag skill">File Organizer</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <div class="cap-bar mcp"></div>
+        <div class="cap-row">
+          <span class="cap-tag mcp">filesystem</span>
+          <span class="cap-tag mcp">memory</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">documents</span>
+      <span class="tag">pdf</span>
+      <span class="tag">office</span>
+      <span class="tag">processing</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

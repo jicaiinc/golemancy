@@ -51,18 +51,28 @@ interface TemplateSelectorProps {
   onSelect: (templateId: string | null) => void
 }
 
-/** Inventory item: skill (purple), mcp (cyan), or tool (amber) */
-function InvItem({ type, children }: { type: 'skill' | 'mcp' | 'tool'; children: string }) {
-  const colors = {
-    skill: 'text-accent-purple bg-accent-purple',
-    mcp: 'text-accent-cyan bg-accent-cyan',
-    tool: 'text-accent-amber bg-accent-amber',
-  }
-  const [textColor, dotColor] = colors[type].split(' ')
+/** A row of capability tags with a colored left bar */
+function CapGroup({ type, items }: { type: 'skill' | 'mcp' | 'tool'; items: string[] }) {
+  if (items.length === 0) return null
+  const barColor = { skill: 'bg-accent-purple', mcp: 'bg-accent-cyan', tool: 'bg-accent-amber' }[type]
+  const tagClass = {
+    skill: 'text-accent-purple border-accent-purple/25 bg-accent-purple/8',
+    mcp: 'text-accent-cyan border-accent-cyan/25 bg-accent-cyan/8',
+    tool: 'text-accent-amber border-accent-amber/25 bg-accent-amber/8',
+  }[type]
   return (
-    <div className={`flex items-center gap-1.5 font-mono text-[8px] leading-[14px] ${textColor} truncate`}>
-      <span className={`w-1 h-1 shrink-0 ${dotColor}`} />
-      <span className="truncate">{children}</span>
+    <div className="flex items-stretch gap-0 mb-1 last:mb-0">
+      <div className={`w-[3px] shrink-0 ${barColor} mr-1.5`} />
+      <div className="flex flex-wrap gap-[3px] py-px">
+        {items.map(name => (
+          <span
+            key={name}
+            className={`font-mono text-[8px] leading-[14px] px-[5px] py-px border max-w-[200px] truncate ${tagClass}`}
+          >
+            {name}
+          </span>
+        ))}
+      </div>
     </div>
   )
 }
@@ -81,7 +91,7 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
   const getAgentName = (refId: string) => template.agents.find(a => a.refId === refId)?.name ?? refId
 
   return (
-    <div className="flex flex-col gap-3 overflow-y-auto max-h-[260px] pr-1">
+    <div className="flex flex-col gap-3 overflow-y-auto max-h-[280px] pr-1">
       {/* Header */}
       <div className="flex items-center gap-3">
         <span className="text-[28px] shrink-0">{icon}</span>
@@ -129,30 +139,23 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
         </span>
       </div>
 
-      {/* Inventory Grid */}
+      {/* Agent cards */}
       {template.agents.length > 0 && (
         <>
           <div className="font-pixel text-[8px] text-text-dim uppercase tracking-wider border-b border-border-dim pb-1">
             Agents
           </div>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-1.5">
+          <div className="flex flex-col gap-1.5">
             {template.agents.map(agent => {
               const skills = agent.skillRefs?.map(getSkillName) ?? []
               const mcps = agent.mcpRefs?.map(getMCPName) ?? []
               const tools = getBuiltinTools(agent.builtinTools)
               return (
-                <div
-                  key={agent.refId}
-                  className="bg-surface border-2 border-border-dim p-2 hover:border-border-bright transition-colors"
-                >
-                  <div className="font-pixel text-[8px] text-text-primary mb-1.5 truncate">
-                    {agent.name}
-                  </div>
-                  <div className="flex flex-col gap-0.5">
-                    {skills.map(name => <InvItem key={`s-${name}`} type="skill">{name}</InvItem>)}
-                    {mcps.map(name => <InvItem key={`m-${name}`} type="mcp">{name}</InvItem>)}
-                    {tools.map(name => <InvItem key={`t-${name}`} type="tool">{name}</InvItem>)}
-                  </div>
+                <div key={agent.refId} className="bg-surface border-2 border-border-dim p-2">
+                  <div className="font-pixel text-[8px] text-text-primary mb-1.5">{agent.name}</div>
+                  <CapGroup type="skill" items={skills} />
+                  <CapGroup type="mcp" items={mcps} />
+                  <CapGroup type="tool" items={tools} />
                 </div>
               )
             })}
