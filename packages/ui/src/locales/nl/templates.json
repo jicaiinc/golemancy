@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Vooraf geconfigureerde agenten, vaardigheden en tools",
     "featured": "Featured",
     "allCategories": "Alle",
-    "selectToPreview": "Selecteer een sjabloon om details te zien"
+    "selectToPreview": "Selecteer een sjabloon om details te zien",
+    "statsLine": "{{templates}} sjablonen · {{agents}} agenten · {{skills}} vaardigheden",
+    "labelAgents": "Agenten",
+    "labelSkills": "Vaardigheden",
+    "labelTools": "Tools",
+    "labelTeams": "Teams",
+    "labelAutomations": "Automatiseringen",
+    "sectionAgents": "Agenten",
+    "sectionTeams": "Teams"
   },
   "projects": {
     "writing-assistant": {

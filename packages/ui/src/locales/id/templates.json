@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Agen, keterampilan & alat yang sudah dikonfigurasi",
     "featured": "Featured",
     "allCategories": "Semua",
-    "selectToPreview": "Pilih template untuk melihat detail"
+    "selectToPreview": "Pilih template untuk melihat detail",
+    "statsLine": "{{templates}} template · {{agents}} agen · {{skills}} keterampilan",
+    "labelAgents": "Agen",
+    "labelSkills": "Keterampilan",
+    "labelTools": "Alat",
+    "labelTeams": "Tim",
+    "labelAutomations": "Otomatisasi",
+    "sectionAgents": "Agen",
+    "sectionTeams": "Tim"
   },
   "projects": {
     "writing-assistant": {

@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Förkonfigurerade agenter, färdigheter och verktyg",
     "featured": "Featured",
     "allCategories": "Alla",
-    "selectToPreview": "Välj en mall för att se detaljer"
+    "selectToPreview": "Välj en mall för att se detaljer",
+    "statsLine": "{{templates}} mallar · {{agents}} agenter · {{skills}} färdigheter",
+    "labelAgents": "Agenter",
+    "labelSkills": "Färdigheter",
+    "labelTools": "Verktyg",
+    "labelTeams": "Team",
+    "labelAutomations": "Automatiseringar",
+    "sectionAgents": "Agenter",
+    "sectionTeams": "Team"
   },
   "projects": {
     "writing-assistant": {

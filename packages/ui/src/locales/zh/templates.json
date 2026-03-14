@@ -14,7 +14,15 @@
     "fromTemplateDescription": "预配置的 Agent、技能和工具",
     "featured": "Featured",
     "allCategories": "全部",
-    "selectToPreview": "选择模板以查看详情"
+    "selectToPreview": "选择模板以查看详情",
+    "statsLine": "{{templates}} 个模板 · {{agents}} 个 Agent · {{skills}} 个技能",
+    "labelAgents": "Agent",
+    "labelSkills": "技能",
+    "labelTools": "工具",
+    "labelTeams": "团队",
+    "labelAutomations": "自动化",
+    "sectionAgents": "Agent",
+    "sectionTeams": "团队"
   },
   "projects": {
     "writing-assistant": {

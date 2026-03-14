@@ -14,7 +14,15 @@
     "fromTemplateDescription": "事前設定済みのエージェント、スキル、ツール",
     "featured": "Featured",
     "allCategories": "すべて",
-    "selectToPreview": "テンプレートを選択して詳細を確認"
+    "selectToPreview": "テンプレートを選択して詳細を確認",
+    "statsLine": "{{templates}} テンプレート · {{agents}} エージェント · {{skills}} スキル",
+    "labelAgents": "エージェント",
+    "labelSkills": "スキル",
+    "labelTools": "ツール",
+    "labelTeams": "チーム",
+    "labelAutomations": "自動化",
+    "sectionAgents": "エージェント",
+    "sectionTeams": "チーム"
   },
   "projects": {
     "writing-assistant": {

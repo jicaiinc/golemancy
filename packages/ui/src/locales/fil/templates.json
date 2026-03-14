@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Mga pre-configured na ahente, kasanayan at kagamitan",
     "featured": "Featured",
     "allCategories": "Lahat",
-    "selectToPreview": "Pumili ng template para makita ang mga detalye"
+    "selectToPreview": "Pumili ng template para makita ang mga detalye",
+    "statsLine": "{{templates}} template · {{agents}} ahente · {{skills}} kasanayan",
+    "labelAgents": "Mga Ahente",
+    "labelSkills": "Mga Kasanayan",
+    "labelTools": "Mga Kagamitan",
+    "labelTeams": "Mga Koponan",
+    "labelAutomations": "Mga Automation",
+    "sectionAgents": "Mga Ahente",
+    "sectionTeams": "Mga Koponan"
   },
   "projects": {
     "writing-assistant": {

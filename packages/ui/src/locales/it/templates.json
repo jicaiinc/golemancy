@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Agenti, competenze e strumenti preconfigurati",
     "featured": "Featured",
     "allCategories": "Tutti",
-    "selectToPreview": "Seleziona un template per vedere i dettagli"
+    "selectToPreview": "Seleziona un template per vedere i dettagli",
+    "statsLine": "{{templates}} template · {{agents}} agenti · {{skills}} competenze",
+    "labelAgents": "Agenti",
+    "labelSkills": "Competenze",
+    "labelTools": "Strumenti",
+    "labelTeams": "Team",
+    "labelAutomations": "Automazioni",
+    "sectionAgents": "Agenti",
+    "sectionTeams": "Team"
   },
   "projects": {
     "writing-assistant": {

@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Vorkonfigurierte Agenten, Skills & Tools",
     "featured": "Featured",
     "allCategories": "Alle",
-    "selectToPreview": "Vorlage auswählen, um Details anzuzeigen"
+    "selectToPreview": "Vorlage auswählen, um Details anzuzeigen",
+    "statsLine": "{{templates}} Vorlagen · {{agents}} Agenten · {{skills}} Skills",
+    "labelAgents": "Agenten",
+    "labelSkills": "Skills",
+    "labelTools": "Tools",
+    "labelTeams": "Teams",
+    "labelAutomations": "Automatisierungen",
+    "sectionAgents": "Agenten",
+    "sectionTeams": "Teams"
   },
   "projects": {
     "writing-assistant": {

@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Tác nhân, kỹ năng và công cụ được cấu hình sẵn",
     "featured": "Featured",
     "allCategories": "Tất cả",
-    "selectToPreview": "Chọn một mẫu để xem chi tiết"
+    "selectToPreview": "Chọn một mẫu để xem chi tiết",
+    "statsLine": "{{templates}} mẫu · {{agents}} tác nhân · {{skills}} kỹ năng",
+    "labelAgents": "Tác nhân",
+    "labelSkills": "Kỹ năng",
+    "labelTools": "Công cụ",
+    "labelTeams": "Nhóm",
+    "labelAutomations": "Tự động hóa",
+    "sectionAgents": "Tác nhân",
+    "sectionTeams": "Nhóm"
   },
   "projects": {
     "writing-assistant": {

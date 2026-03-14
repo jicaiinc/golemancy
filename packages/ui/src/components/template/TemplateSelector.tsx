@@ -118,24 +118,24 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
           {t(`categories.${template.category}`, { defaultValue: template.category })}
         </PixelBadge>
         <div className="flex gap-3 font-mono text-[10px] text-text-dim">
-          {template.agents.length > 0 && <span>{template.agents.length} Agents</span>}
-          {template.skills.length > 0 && <span>{template.skills.length} Skills</span>}
+          {template.agents.length > 0 && <span>{template.agents.length} {t('ui.labelAgents')}</span>}
+          {template.skills.length > 0 && <span>{template.skills.length} {t('ui.labelSkills')}</span>}
           {template.mcpServers.length > 0 && <span>{template.mcpServers.length} MCP</span>}
-          {template.teams.length > 0 && <span>{template.teams.length} Teams</span>}
-          {template.cronJobs.length > 0 && <span>{template.cronJobs.length} Cron</span>}
+          {template.teams.length > 0 && <span>{template.teams.length} {t('ui.labelTeams')}</span>}
+          {template.cronJobs.length > 0 && <span>{template.cronJobs.length} {t('ui.labelAutomations')}</span>}
         </div>
       </div>
 
       {/* Legend */}
       <div className="flex gap-3.5 font-mono text-[8px] text-text-dim">
         <span className="flex items-center gap-1.5">
-          <span className="w-[5px] h-[5px] bg-accent-purple" /> Skills
+          <span className="w-[5px] h-[5px] bg-accent-purple" /> {t('ui.labelSkills')}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-[5px] h-[5px] bg-accent-cyan" /> MCP
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-[5px] h-[5px] bg-accent-amber" /> Tools
+          <span className="w-[5px] h-[5px] bg-accent-amber" /> {t('ui.labelTools')}
         </span>
       </div>
 
@@ -143,7 +143,7 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
       {template.agents.length > 0 && (
         <>
           <div className="font-pixel text-[8px] text-text-dim uppercase tracking-wider border-b border-border-dim pb-1">
-            Agents
+            {t('ui.sectionAgents')}
           </div>
           <div className="flex flex-col gap-1.5">
             {template.agents.map(agent => {
@@ -167,7 +167,7 @@ function TemplateDetail({ template }: { template: ProjectTemplate }) {
       {template.teams.length > 0 && (
         <>
           <div className="font-pixel text-[8px] text-text-dim uppercase tracking-wider border-b border-border-dim pb-1">
-            Teams
+            {t('ui.sectionTeams')}
           </div>
           {template.teams.map(team => {
             const lead = team.members.find(m => !m.parentAgentRef)
@@ -280,7 +280,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
               {t('ui.fromTemplateDescription')}
             </p>
             <p className="font-mono text-[9px] text-accent-green/70 leading-[12px]">
-              {stats.templates} templates {'\u00B7'} {stats.agents} agents {'\u00B7'} {stats.skills} skills
+              {t('ui.statsLine', { templates: stats.templates, agents: stats.agents, skills: stats.skills })}
             </p>
           </div>
         </button>

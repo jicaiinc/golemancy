@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Agenți, abilități și instrumente pre-configurate",
     "featured": "Featured",
     "allCategories": "Toate",
-    "selectToPreview": "Selectează un șablon pentru a vedea detaliile"
+    "selectToPreview": "Selectează un șablon pentru a vedea detaliile",
+    "statsLine": "{{templates}} șabloane · {{agents}} agenți · {{skills}} abilități",
+    "labelAgents": "Agenți",
+    "labelSkills": "Abilități",
+    "labelTools": "Instrumente",
+    "labelTeams": "Echipe",
+    "labelAutomations": "Automatizări",
+    "sectionAgents": "Agenți",
+    "sectionTeams": "Echipe"
   },
   "projects": {
     "writing-assistant": {

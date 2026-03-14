@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Попередньо налаштовані агенти, навички та інструменти",
     "featured": "Featured",
     "allCategories": "Усі",
-    "selectToPreview": "Оберіть шаблон для перегляду деталей"
+    "selectToPreview": "Оберіть шаблон для перегляду деталей",
+    "statsLine": "{{templates}} шаблонів · {{agents}} агентів · {{skills}} навичок",
+    "labelAgents": "Агенти",
+    "labelSkills": "Навички",
+    "labelTools": "Інструменти",
+    "labelTeams": "Команди",
+    "labelAutomations": "Автоматизації",
+    "sectionAgents": "Агенти",
+    "sectionTeams": "Команди"
   },
   "projects": {
     "writing-assistant": {

@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Wstępnie skonfigurowane agenty, umiejętności i narzędzia",
     "featured": "Featured",
     "allCategories": "Wszystkie",
-    "selectToPreview": "Wybierz szablon, aby zobaczyć szczegóły"
+    "selectToPreview": "Wybierz szablon, aby zobaczyć szczegóły",
+    "statsLine": "{{templates}} szablonów · {{agents}} agentów · {{skills}} umiejętności",
+    "labelAgents": "Agenty",
+    "labelSkills": "Umiejętności",
+    "labelTools": "Narzędzia",
+    "labelTeams": "Zespoły",
+    "labelAutomations": "Automatyzacje",
+    "sectionAgents": "Agenty",
+    "sectionTeams": "Zespoły"
   },
   "projects": {
     "writing-assistant": {

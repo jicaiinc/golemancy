@@ -14,7 +14,15 @@
     "fromTemplateDescription": "사전 구성된 에이전트, 스킬 및 도구",
     "featured": "Featured",
     "allCategories": "전체",
-    "selectToPreview": "템플릿을 선택하여 세부 정보 확인"
+    "selectToPreview": "템플릿을 선택하여 세부 정보 확인",
+    "statsLine": "{{templates}} 템플릿 · {{agents}} 에이전트 · {{skills}} 스킬",
+    "labelAgents": "에이전트",
+    "labelSkills": "스킬",
+    "labelTools": "도구",
+    "labelTeams": "팀",
+    "labelAutomations": "자동화",
+    "sectionAgents": "에이전트",
+    "sectionTeams": "팀"
   },
   "projects": {
     "writing-assistant": {

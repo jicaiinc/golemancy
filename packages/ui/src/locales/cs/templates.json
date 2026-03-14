@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Předkonfigurovaní agenti, dovednosti a nástroje",
     "featured": "Featured",
     "allCategories": "Vše",
-    "selectToPreview": "Vyberte šablonu pro zobrazení detailů"
+    "selectToPreview": "Vyberte šablonu pro zobrazení detailů",
+    "statsLine": "{{templates}} šablon · {{agents}} agentů · {{skills}} dovedností",
+    "labelAgents": "Agenti",
+    "labelSkills": "Dovednosti",
+    "labelTools": "Nástroje",
+    "labelTeams": "Týmy",
+    "labelAutomations": "Automatizace",
+    "sectionAgents": "Agenti",
+    "sectionTeams": "Týmy"
   },
   "projects": {
     "writing-assistant": {

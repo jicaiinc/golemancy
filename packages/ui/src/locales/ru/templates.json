@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Предварительно настроенные агенты, навыки и инструменты",
     "featured": "Featured",
     "allCategories": "Все",
-    "selectToPreview": "Выберите шаблон для просмотра деталей"
+    "selectToPreview": "Выберите шаблон для просмотра деталей",
+    "statsLine": "{{templates}} шаблонов · {{agents}} агентов · {{skills}} навыков",
+    "labelAgents": "Агенты",
+    "labelSkills": "Навыки",
+    "labelTools": "Инструменты",
+    "labelTeams": "Команды",
+    "labelAutomations": "Автоматизации",
+    "sectionAgents": "Агенты",
+    "sectionTeams": "Команды"
   },
   "projects": {
     "writing-assistant": {

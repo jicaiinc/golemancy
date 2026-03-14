@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Önceden yapılandırılmış ajanlar, beceriler ve araçlar",
     "featured": "Featured",
     "allCategories": "Tümü",
-    "selectToPreview": "Ayrıntıları görmek için bir şablon seçin"
+    "selectToPreview": "Ayrıntıları görmek için bir şablon seçin",
+    "statsLine": "{{templates}} şablon · {{agents}} ajan · {{skills}} beceri",
+    "labelAgents": "Ajanlar",
+    "labelSkills": "Beceriler",
+    "labelTools": "Araçlar",
+    "labelTeams": "Ekipler",
+    "labelAutomations": "Otomasyonlar",
+    "sectionAgents": "Ajanlar",
+    "sectionTeams": "Ekipler"
   },
   "projects": {
     "writing-assistant": {

@@ -14,7 +14,15 @@
     "fromTemplateDescription": "Ejen, kemahiran & alat yang telah dikonfigurasikan",
     "featured": "Featured",
     "allCategories": "Semua",
-    "selectToPreview": "Pilih templat untuk melihat butiran"
+    "selectToPreview": "Pilih templat untuk melihat butiran",
+    "statsLine": "{{templates}} templat · {{agents}} ejen · {{skills}} kemahiran",
+    "labelAgents": "Ejen",
+    "labelSkills": "Kemahiran",
+    "labelTools": "Alat",
+    "labelTeams": "Pasukan",
+    "labelAutomations": "Automasi",
+    "sectionAgents": "Ejen",
+    "sectionTeams": "Pasukan"
   },
   "projects": {
     "writing-assistant": {
