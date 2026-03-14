@@ -106,8 +106,11 @@ export class GuardedSandbox implements Sandbox {
       const args = isWin ? ['/c', command] : ['-c', command]
       const env = { ...getSafeEnv(), ...this.runtimeEnv }
       log.trace({ shell, cwd: this.workspaceRoot, hasPath: !!env.PATH, hasComspec: !!env.COMSPEC }, 'spawning child process')
+      // Normalize cwd on Windows — mixed separators (e.g. C:\foo/bar) can cause
+      // cmd.exe startup errors in Electron's forked server process
+      const cwd = isWin ? this.workspaceRoot.replace(/\//g, '\\') : this.workspaceRoot
       const child = spawn(shell, args, {
-        cwd: this.workspaceRoot,
+        cwd,
         env,
         stdio: ['ignore', 'pipe', 'pipe'],
       })
@@ -153,6 +156,12 @@ export class GuardedSandbox implements Sandbox {
             exitCode: 124,
           })
         } else {
+          if (code !== 0) {
+            log.info(
+              { exitCode: code, cwd, shell, command: command.slice(0, 200), stderr: stderr.slice(0, 200) },
+              'command exited with non-zero code',
+            )
+          }
           resolve({ stdout, stderr, exitCode: code ?? 1 })
         }
       })

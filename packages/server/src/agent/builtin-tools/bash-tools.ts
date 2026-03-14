@@ -1,4 +1,5 @@
 import nodeFs from 'node:fs/promises'
+import nodePath from 'node:path'
 import { createBashTool } from 'bash-tool'
 import { Bash, MountableFs, InMemoryFs, OverlayFs, ReadWriteFs } from 'just-bash'
 import type {
@@ -130,7 +131,7 @@ async function resolveEffectivePermissions(
 ): Promise<ResolvedPermissionsConfig | null> {
   if (!options?.projectId || !options.permissionsConfigStorage) return null
 
-  const workspaceDir = getProjectPath(options.projectId) + '/workspace'
+  const workspaceDir = nodePath.join(getProjectPath(options.projectId), 'workspace')
   const platform = process.platform as SupportedPlatform
 
   return resolvePermissionsConfig(
@@ -155,7 +156,7 @@ export async function createRestrictedBashTool(options?: BuiltinToolOptions) {
 
   if (options?.projectId) {
     const projectDir = getProjectPath(options.projectId)
-    const workspaceDir = projectDir + '/workspace'
+    const workspaceDir = nodePath.join(projectDir, 'workspace')
     await nodeFs.mkdir(workspaceDir, { recursive: true })
 
     const mountableFs = new MountableFs({
@@ -184,13 +185,13 @@ export async function createRestrictedBashTool(options?: BuiltinToolOptions) {
 // ── Helpers ────────────────────────────────────────────────
 
 async function ensureWorkspaceDir(projectId: string): Promise<string> {
-  const workspaceDir = getProjectPath(projectId) + '/workspace'
+  const workspaceDir = nodePath.join(getProjectPath(projectId), 'workspace')
   await nodeFs.mkdir(workspaceDir, { recursive: true })
 
   // Anchor package.json for Node.js runtime — DO NOT REMOVE.
   // Without this file, `npm install` walks up the directory tree and
   // installs packages into the user's home directory instead of workspace.
-  const pkgJsonPath = workspaceDir + '/package.json'
+  const pkgJsonPath = nodePath.join(workspaceDir, 'package.json')
   try {
     await nodeFs.access(pkgJsonPath)
   } catch {

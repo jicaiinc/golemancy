@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { Hono } from 'hono'
 import type { ProjectId, IMCPService, IAgentService, IProjectService, IPermissionsConfigService, MCPServerUpdateData, SupportedPlatform } from '@golemancy/shared'
 import { mcpPool } from '../agent/mcp-pool'
@@ -152,7 +153,7 @@ export function createMCPRoutes(deps: MCPRouteDeps) {
     const configId = project?.config.permissionsConfigId
 
     // Resolve permissions so test uses the same sandbox wrapping as runtime
-    const workspaceDir = getProjectPath(projectId) + '/workspace'
+    const workspaceDir = path.join(getProjectPath(projectId), 'workspace')
     let options: Parameters<typeof mcpPool.testConnection>[1]
     try {
       const platform = process.platform as SupportedPlatform

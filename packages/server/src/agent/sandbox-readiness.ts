@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import path from 'node:path'
 import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
 import type {
@@ -67,7 +68,7 @@ export async function checkSandboxReadiness(
 
   // 5. Workspace directory (only if projectId provided)
   if (projectId) {
-    const workspaceDir = getProjectPath(projectId) + '/workspace'
+    const workspaceDir = path.join(getProjectPath(projectId), 'workspace')
     try {
       fs.accessSync(workspaceDir, fs.constants.R_OK | fs.constants.W_OK)
     } catch {

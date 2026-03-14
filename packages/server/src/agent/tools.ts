@@ -1,3 +1,4 @@
+import path from 'node:path'
 import type { ToolSet } from 'ai'
 import type { Agent, AgentId, GlobalSettings, PermissionMode, PermissionsConfigId, ProjectId, ConversationId, SupportedPlatform, IMCPService, IConversationService, IPermissionsConfigService, TeamMember } from '@golemancy/shared'
 import { DEFAULT_MEMORY_AUTO_LOAD, isSandboxRuntimeSupported } from '@golemancy/shared'
@@ -105,7 +106,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     const mcpConfigs = await mcpStorage.resolveNames(projectId as ProjectId, agent.mcpServers)
     if (mcpConfigs.length > 0) {
       // Resolve permissions and workspace dir for MCP loading
-      const workspaceDir = getProjectPath(projectId) + '/workspace'
+      const workspaceDir = path.join(getProjectPath(projectId), 'workspace')
       let mcpOptions: Parameters<typeof loadAgentMcpTools>[1]
       if (permissionsConfigStorage) {
         try {
@@ -180,7 +181,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   //    Only on platforms with OS-level sandbox (GuardedSandbox doesn't block `open`)
   if (agent.builtinTools?.bash !== false && actualMode === 'sandbox' && projectId
     && isSandboxRuntimeSupported(process.platform as SupportedPlatform)) {
-    const workspaceDir = getProjectPath(projectId) + '/workspace'
+    const workspaceDir = path.join(getProjectPath(projectId), 'workspace')
     const openTools = createOpenTools({ workspaceRoot: workspaceDir })
     Object.assign(tools, openTools)
 
