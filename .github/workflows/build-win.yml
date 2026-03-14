@@ -107,10 +107,32 @@ jobs:
             });
           "
 
+      # Pack runtime/ + server/ into a single .tar.gz archive.
+      # NSIS installs 1 file instead of ~20,000 — bypasses Windows Defender
+      # per-file scanning bottleneck. Electron extracts on first launch.
+      - name: Pack resources (archive for fast install)
+        run: node scripts/pack-resources.mjs
+
+      - name: Verify archive
+        shell: pwsh
+        run: |
+          $archive = "apps/desktop/resources/resources-archive.tar.gz"
+          $meta = "apps/desktop/resources/resources-archive.json"
+          $config = "apps/desktop/electron-builder.win.yml"
+          foreach ($f in @($archive, $meta, $config)) {
+            if (!(Test-Path $f)) {
+              Write-Error "Missing: $f"
+              exit 1
+            }
+          }
+          $sizeMB = [math]::Round((Get-Item $archive).Length / 1MB, 1)
+          Write-Host "Archive: $sizeMB MB"
+          Get-Content $meta | Write-Host
+
       - name: Package (electron-builder)
         run: |
           cd apps/desktop
-          npx electron-builder --win --x64 --publish never
+          npx electron-builder --win --x64 --publish never --config electron-builder.win.yml
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
