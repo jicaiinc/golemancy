@@ -58,12 +58,23 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
         throw new SandboxUnavailableError('projectId required for sandbox mode')
       }
       if (!isSandboxRuntimeSupported(process.platform as SupportedPlatform)) {
-        log.info({ projectId: options.projectId }, 'using GuardedSandbox (no OS sandbox)')
-        const workspaceDir = await ensureWorkspaceDir(options.projectId)
-        const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
-        const runtimeEnv = buildRuntimeEnv(options.projectId)
-        const sandbox = new GuardedSandbox({ config: sandboxConfig, workspaceRoot: workspaceDir, runtimeEnv: { ...runtimeEnv } })
-        return createBashTool({ sandbox, destination: workspaceDir })
+        const platform = process.platform
+        log.info({ projectId: options.projectId, platform }, 'using GuardedSandbox (no OS sandbox)')
+        try {
+          const workspaceDir = await ensureWorkspaceDir(options.projectId)
+          const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
+          const runtimeEnv = buildRuntimeEnv(options.projectId)
+          log.debug(
+            { projectId: options.projectId, workspaceDir, platform, deniedCommands: sandboxConfig.deniedCommands.length },
+            'GuardedSandbox setup: workspace ready, config resolved',
+          )
+          const sandbox = new GuardedSandbox({ config: sandboxConfig, workspaceRoot: workspaceDir, runtimeEnv: { ...runtimeEnv } })
+          return createBashTool({ sandbox, destination: workspaceDir })
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err)
+          log.error({ err: message, projectId: options.projectId, platform }, 'GuardedSandbox setup failed')
+          throw new SandboxUnavailableError(`GuardedSandbox setup failed: ${message}`)
+        }
       }
       try {
         const workspaceDir = await ensureWorkspaceDir(options.projectId)

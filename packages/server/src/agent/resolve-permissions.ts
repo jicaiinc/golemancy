@@ -88,7 +88,10 @@ export async function resolvePermissionsConfig(
   if (!isSandboxRuntimeSupported(platform) && configFile.mode === 'sandbox') {
     if (platform === 'win32') {
       // Windows: keep full path/command config, but no network enforcement or MCP sandboxing
-      log.debug({ projectId }, 'win32 sandbox: keeping path/command config, disabling network and MCP sandbox')
+      log.info(
+        { projectId, deniedCommands: config.deniedCommands.length, allowWrite: config.allowWrite.length, denyRead: config.denyRead.length },
+        'win32 sandbox: keeping path/command config, disabling network and MCP sandbox',
+      )
       return {
         mode: 'sandbox',
         config: {

@@ -4,8 +4,11 @@ import path from 'node:path'
 import type { Sandbox, CommandResult } from 'bash-tool'
 import type { SandboxConfig } from '@golemancy/shared'
 import { validatePathAsync, type PathOperation } from './validate-path'
-import { checkCommandBlacklist, type CommandBlacklistConfig } from './check-command-blacklist'
+import { checkCommandBlacklist, CommandBlockedError, type CommandBlacklistConfig } from './check-command-blacklist'
 import { getSafeEnv } from './safe-env'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'agent:guarded-sandbox' })
 
 // ── Constants ───────────────────────────────────────────────
 
@@ -40,13 +43,29 @@ export class GuardedSandbox implements Sandbox {
     this.workspaceRoot = options.workspaceRoot
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
     this.runtimeEnv = options.runtimeEnv ?? {}
+    const isWin = process.platform === 'win32'
+    const shell = isWin ? (process.env.COMSPEC || 'cmd.exe') : 'bash'
+    log.info(
+      { workspaceRoot: this.workspaceRoot, shell, platform: process.platform, deniedCommands: this.config.deniedCommands.length },
+      'GuardedSandbox initialized',
+    )
   }
 
   // ── Sandbox Interface ─────────────────────────────────────
 
   async executeCommand(command: string): Promise<CommandResult> {
-    this.checkBlacklist(command)
-    return this.spawnCommand(command)
+    try {
+      this.checkBlacklist(command)
+    } catch (err) {
+      if (err instanceof CommandBlockedError) {
+        log.warn({ command: command.slice(0, 100), reason: err.reason }, 'command blocked by blacklist')
+      }
+      throw err
+    }
+    log.debug({ command: command.slice(0, 200) }, 'executing command')
+    const result = await this.spawnCommand(command)
+    log.debug({ exitCode: result.exitCode, stdoutLen: result.stdout.length, stderrLen: result.stderr.length }, 'command completed')
+    return result
   }
 
   async readFile(filePath: string): Promise<string> {
@@ -85,9 +104,11 @@ export class GuardedSandbox implements Sandbox {
       const isWin = process.platform === 'win32'
       const shell = isWin ? (process.env.COMSPEC || 'cmd.exe') : 'bash'
       const args = isWin ? ['/c', command] : ['-c', command]
+      const env = { ...getSafeEnv(), ...this.runtimeEnv }
+      log.trace({ shell, cwd: this.workspaceRoot, hasPath: !!env.PATH, hasComspec: !!env.COMSPEC }, 'spawning child process')
       const child = spawn(shell, args, {
         cwd: this.workspaceRoot,
-        env: { ...getSafeEnv(), ...this.runtimeEnv },
+        env,
         stdio: ['ignore', 'pipe', 'pipe'],
       })
 
@@ -138,6 +159,7 @@ export class GuardedSandbox implements Sandbox {
 
       child.on('error', (err) => {
         clearTimeout(timer)
+        log.error({ err: err.message, shell, cwd: this.workspaceRoot, command: command.slice(0, 100) }, 'child process spawn error')
         reject(err)
       })
     })
