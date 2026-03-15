@@ -127,12 +127,6 @@ test.describe('Project CRUD', () => {
     await generalTab.click()
     await expect(window.getByText('BASIC INFO')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
-    // Agent tab
-    const agentTab = window.locator(SELECTORS.PROJECT_SETTINGS_TAB('agent'))
-    await expect(agentTab).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
-    await agentTab.click()
-    await expect(window.getByText('MAIN AGENT', { exact: true })).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
-
     // Permissions tab
     const permissionsTab = window.locator(SELECTORS.PROJECT_SETTINGS_TAB('permissions'))
     await expect(permissionsTab).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })

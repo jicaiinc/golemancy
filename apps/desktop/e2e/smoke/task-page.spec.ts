@@ -1,7 +1,9 @@
 import { test, expect } from '../fixtures'
 import { SELECTORS, TIMEOUTS } from '../constants'
 
-test.describe('Task Page', () => {
+// TaskListPage is not currently routed in the app (no sidebar nav or route entry).
+// These tests are skipped until the task page is re-integrated into the navigation.
+test.describe.skip('Task Page', () => {
   let projectId: string
 
   test.beforeAll(async ({ helper }) => {

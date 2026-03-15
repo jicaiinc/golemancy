@@ -83,10 +83,15 @@ test.describe('Agent CRUD', () => {
     // Navigate to agent detail page
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
 
-    // Click "Delete Agent" — AgentDetailPage deletes immediately (no confirmation modal)
+    // Click "Delete Agent" to show confirmation
     const deleteBtn = window.getByRole('button', { name: 'Delete Agent' })
     await expect(deleteBtn).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     await deleteBtn.click()
+
+    // Click "Confirm" to actually delete
+    const confirmBtn = window.getByRole('button', { name: 'Confirm' })
+    await expect(confirmBtn).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await confirmBtn.click()
 
     // Wait for agent to be removed from store
     await helper.store.waitFor(

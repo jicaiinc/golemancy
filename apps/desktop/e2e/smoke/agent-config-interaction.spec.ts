@@ -28,14 +28,18 @@ test.describe('Agent Config Interaction — Auto-Save & Explicit Save', () => {
 
     // Create an MCP server via API
     mcpName = 'e2e-interaction-mcp'
-    await helper.apiPost(`/api/projects/${projectId}/mcp`, {
+    await helper.apiPost(`/api/projects/${projectId}/mcp-servers`, {
       name: mcpName,
       transportType: 'stdio',
       command: 'echo',
       args: ['hello'],
     })
 
-    // Navigate to agent detail page
+    // Force store refresh: clear project so selectProject re-runs on navigation
+    await window.evaluate(() => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) store.getState().clearProject()
+    })
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
     await expect(window.getByText('Config Interaction Agent')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
@@ -119,7 +123,8 @@ test.describe('Agent Config Interaction — Auto-Save & Explicit Save', () => {
   test('Model Config Tab: explicit save persists compactThreshold', async ({ window, helper }) => {
     // Switch to Model Config tab
     await window.locator('[data-testid="tab-model-config"]').click()
-    await expect(window.getByText('MODEL CONFIG')).toBeVisible({
+    // Verify Model Config section header (use exact to avoid matching tab button text)
+    await expect(window.getByText('MODEL CONFIG', { exact: true })).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 

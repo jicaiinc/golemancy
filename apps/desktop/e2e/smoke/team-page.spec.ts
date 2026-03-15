@@ -4,10 +4,9 @@ import { SELECTORS, TIMEOUTS } from '../constants'
 test.describe('Team Page', () => {
   let projectId: string
 
-  test.beforeAll(async ({ helper }) => {
+  test.beforeAll(async ({ helper, window }) => {
     await helper.goHome()
-    const project = await helper.createProjectViaApi('Team Page Test')
-    projectId = project.id
+    projectId = await helper.createProject('Team Page Test')
   })
 
   test('team list page renders with empty state', async ({ window, helper }) => {
@@ -66,7 +65,11 @@ test.describe('Team Page', () => {
       { agentId: agent.id },
     ])
 
-    // Navigate to teams page
+    // Force store refresh: clear project so selectProject re-runs on navigation
+    await window.evaluate(() => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) store.getState().clearProject()
+    })
     await helper.navigateTo(`/projects/${projectId}/teams`)
 
     // Wait for store to load teams

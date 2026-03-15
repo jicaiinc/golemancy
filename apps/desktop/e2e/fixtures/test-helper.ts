@@ -281,7 +281,11 @@ export class TestHelper {
     agentId: string,
     title = 'Test Conversation',
   ): Promise<{ id: string; [key: string]: any }> {
-    return this.apiPost(`/api/projects/${projectId}/conversations`, { agentId, title })
+    return this.apiPost(`/api/projects/${projectId}/conversations`, {
+      targetType: 'agent',
+      targetId: agentId,
+      title,
+    })
   }
 
   /** Save a message to a conversation via the API */

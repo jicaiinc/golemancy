@@ -17,19 +17,21 @@ test.describe('Permission Config UI', () => {
   })
 
   test('permission mode selector shows three modes', async ({ window }) => {
-    await expect(window.locator(SELECTORS.PERMISSION_MODE_SELECTOR)).toBeVisible({
+    // ExecutionModeCard renders as role="radiogroup"
+    const modeSelector = window.getByRole('radiogroup')
+    await expect(modeSelector).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
     // All three modes should be visible as options
-    await expect(window.getByText('Restricted')).toBeVisible()
-    await expect(window.getByText('Sandbox')).toBeVisible()
-    await expect(window.getByText('Unrestricted')).toBeVisible()
+    await expect(window.getByText('Restricted', { exact: true })).toBeVisible()
+    await expect(window.getByText('Sandbox', { exact: true })).toBeVisible()
+    await expect(window.getByText('Unrestricted', { exact: true })).toBeVisible()
   })
 
   test('selecting Sandbox mode shows config editor', async ({ window }) => {
     // Click Sandbox mode (may already be selected as default, but click to ensure)
-    const sandboxOption = window.locator(SELECTORS.PERMISSION_MODE_SELECTOR).getByText('Sandbox')
+    const sandboxOption = window.getByRole('radiogroup').getByText('Sandbox', { exact: true })
     await sandboxOption.click()
 
     // Handle sandbox unavailable modal if it appears (click "Enable Anyway")
@@ -39,7 +41,7 @@ test.describe('Permission Config UI', () => {
     }
 
     // Sandbox config editor sections should appear
-    await expect(window.getByText('FILESYSTEM')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await expect(window.getByText('FILESYSTEM PERMISSIONS')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
   })
 
   test('network restrictions toggle works', async ({ window }) => {
@@ -52,14 +54,14 @@ test.describe('Permission Config UI', () => {
     await window.locator(SELECTORS.NETWORK_RESTRICTIONS_TOGGLE).click()
 
     // When enabled, domain editors should appear
-    await expect(window.getByText('ALLOWED DOMAINS')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
-    await expect(window.getByText('DENIED DOMAINS')).toBeVisible()
+    await expect(window.getByText('ALLOWED DOMAINS', { exact: true })).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await expect(window.getByText('DENIED DOMAINS', { exact: true })).toBeVisible()
 
     // Toggle off
     await window.locator(SELECTORS.NETWORK_RESTRICTIONS_TOGGLE).click()
 
     // Domain editors should disappear
-    await expect(window.getByText('ALLOWED DOMAINS')).not.toBeVisible({ timeout: 3000 })
+    await expect(window.getByText('ALLOWED DOMAINS', { exact: true })).not.toBeVisible({ timeout: 3000 })
   })
 
   test('applyToMCP toggle is visible and clickable', async ({ window }) => {
@@ -89,12 +91,12 @@ test.describe('Permission Config UI', () => {
 
     // Select Restricted mode
     const restrictedOption = window
-      .locator(SELECTORS.PERMISSION_MODE_SELECTOR)
-      .getByText('Restricted')
+      .getByRole('radiogroup')
+      .getByText('Restricted', { exact: true })
     await restrictedOption.click()
 
     // Sandbox config editor should not be visible (Restricted has no config)
-    await expect(window.getByText('FILESYSTEM')).not.toBeVisible({ timeout: 3000 })
+    await expect(window.getByText('FILESYSTEM PERMISSIONS')).not.toBeVisible({ timeout: 3000 })
   })
 
   test('selecting Unrestricted mode shows confirmation modal', async ({ window, helper }) => {
@@ -106,7 +108,7 @@ test.describe('Permission Config UI', () => {
 
     // Click Unrestricted
     const unrestrictedOption = window
-      .locator(SELECTORS.PERMISSION_MODE_SELECTOR)
+      .getByRole('radiogroup')
       .getByText('Unrestricted')
     await unrestrictedOption.click()
 
@@ -131,7 +133,7 @@ test.describe('Permission Config UI', () => {
     })
 
     // Make sure sandbox mode is selected
-    const sandboxOption = window.locator(SELECTORS.PERMISSION_MODE_SELECTOR).getByText('Sandbox')
+    const sandboxOption = window.getByRole('radiogroup').getByText('Sandbox', { exact: true })
     await sandboxOption.click()
 
     // Handle sandbox unavailable modal if it appears
@@ -141,7 +143,7 @@ test.describe('Permission Config UI', () => {
     }
 
     // Wait for config management section
-    await expect(window.getByText('CONFIGURATION')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await expect(window.getByText('FILESYSTEM PERMISSIONS')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
     // Click "Save As" to create a named config
     await window.getByText('Save As').click()

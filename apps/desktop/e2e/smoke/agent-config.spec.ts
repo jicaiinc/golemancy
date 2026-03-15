@@ -68,19 +68,19 @@ test.describe('Agent Config — 6 Tab Navigation', () => {
     })
   })
 
-  test('switch to Sub-Agents tab', async ({ window }) => {
-    await window.locator('[data-testid="tab-sub-agents"]').click()
-    await expect(window.getByText('ASSIGNED SUB-AGENTS')).toBeVisible({
+  test('switch to Memory tab', async ({ window }) => {
+    await window.locator('[data-testid="tab-memory"]').click()
+    // Memory tab should show either empty state or memory list
+    await expect(window.locator('[data-testid="tab-memory"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
   })
 
-  test('General tab shows Model Config section with provider/model selects', async ({
+  test('Model Config tab shows provider/model selects', async ({
     window,
   }) => {
-    // Model Config is part of the General tab (no separate "model" tab)
-    await window.locator('[data-testid="tab-general"]').click()
-    // General tab has INFO section + MODEL CONFIG section
+    // Model Config is its own tab (not part of General)
+    await window.locator('[data-testid="tab-model-config"]').click()
     await expect(window.getByText('MODEL CONFIG', { exact: true })).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })

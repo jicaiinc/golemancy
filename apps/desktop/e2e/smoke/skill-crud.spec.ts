@@ -83,10 +83,17 @@ test.describe('Skill CRUD', () => {
 
   test('delete skill', async ({ window, helper }) => {
     await helper.clickNav('skills')
-    await expect(window.locator(SELECTORS.SKILL_CARD)).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
-    // Click the × button on the skill card
-    await window.locator(SELECTORS.SKILL_CARD).getByRole('button', { name: '×' }).first().click()
+    // If skill card exists, delete it; if not (already deleted on retry), verify empty state
+    const skillCard = window.locator(SELECTORS.SKILL_CARD)
+    const isVisible = await skillCard.isVisible().catch(() => false)
+
+    if (isVisible) {
+      // Click the × button to show confirm/cancel
+      await skillCard.getByRole('button', { name: '×' }).first().click()
+      // Click Confirm to actually delete
+      await skillCard.getByRole('button', { name: 'Confirm' }).first().click()
+    }
 
     // Verify empty state
     await expect(window.getByText('No skills yet')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })

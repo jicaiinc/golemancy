@@ -26,11 +26,11 @@ test.describe('Agent Advanced — Clone, Status Badge, MCP Warning', () => {
     })
 
     // Agent cards should be visible
-    const agentCards = window.locator('[data-testid^="agent-card-"]')
+    const agentCards = window.locator('[data-testid^="agent-item-"]')
     await expect(agentCards.first()).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
     // Look for idle status badge text on the agent card
-    const agentCard = window.locator(`[data-testid="agent-card-${agentId}"]`)
+    const agentCard = window.locator(`[data-testid="agent-item-${agentId}"]`)
     if (await agentCard.isVisible()) {
       // The status badge should show "idle" (case-insensitive)
       await expect(agentCard.getByText(/idle/i)).toBeVisible()
@@ -43,22 +43,18 @@ test.describe('Agent Advanced — Clone, Status Badge, MCP Warning', () => {
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    const agentCards = window.locator('[data-testid^="agent-card-"]')
+    const agentCards = window.locator('[data-testid^="agent-item-"]')
     await expect(agentCards.first()).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     const initialCount = await agentCards.count()
 
-    // Click clone button for the agent
+    // Hover over the agent card to reveal clone button, then click
+    const agentCard = window.locator(`[data-testid="agent-item-${agentId}"]`)
+    await agentCard.hover()
     const cloneBtn = window.locator(SELECTORS.AGENT_CLONE_BTN(agentId))
-    if (await cloneBtn.isVisible()) {
-      await cloneBtn.click()
+    await cloneBtn.click()
 
-      // Wait for a new agent card to appear
-      await expect(agentCards).toHaveCount(initialCount + 1, { timeout: TIMEOUTS.PAGE_LOAD })
-
-      // The cloned agent should be visible
-      const lastCard = agentCards.last()
-      await expect(lastCard).toBeVisible()
-    }
+    // Wait for a new agent card to appear
+    await expect(agentCards).toHaveCount(initialCount + 1, { timeout: TIMEOUTS.PAGE_LOAD })
   })
 
   test('MCP server shows security warning indicator', async ({ window, helper }) => {
@@ -70,8 +66,12 @@ test.describe('Agent Advanced — Clone, Status Badge, MCP Warning', () => {
       args: ['hello'],
     })
 
-    // Navigate to MCP page
-    await helper.clickNav('mcp')
+    // Force store refresh: clear project so selectProject re-runs on navigation
+    await window.evaluate(() => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) store.getState().clearProject()
+    })
+    await helper.navigateTo(`/projects/${projectId}/mcp-servers`)
     await expect(window.locator(SELECTORS.MCP_PAGE)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
@@ -94,14 +94,15 @@ test.describe('Agent Advanced — Clone, Status Badge, MCP Warning', () => {
     })
 
     // Click on the agent card to go to detail
-    const agentCard = window.locator(`[data-testid="agent-card-${agentId}"]`)
+    const agentCard = window.locator(`[data-testid="agent-item-${agentId}"]`)
     if (await agentCard.isVisible()) {
       await agentCard.click()
 
-      // Agent tabs should be visible
-      await expect(window.locator(SELECTORS.AGENT_TABS)).toBeVisible({
+      // Agent tabs should be visible (verify individual tab buttons exist)
+      await expect(window.locator('[data-testid="tab-general"]')).toBeVisible({
         timeout: TIMEOUTS.PAGE_LOAD,
       })
+      await expect(window.locator('[data-testid="tab-memory"]')).toBeVisible()
     }
   })
 })

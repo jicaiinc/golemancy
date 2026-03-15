@@ -77,8 +77,8 @@ test.describe('Template Full — Categories, Detail & UI Flow', () => {
     await window.getByText('Translator').first().click()
     await expect(window.locator(SELECTORS.PROJECT_NAME_INPUT)).toHaveValue('Translator')
 
-    // Switch to another template
-    await window.getByText('Doc Hub').first().click()
+    // Switch to another template (i18n display name is "Document Hub", raw name is "Doc Hub")
+    await window.getByText('Document Hub').first().click()
     await expect(window.locator(SELECTORS.PROJECT_NAME_INPUT)).toHaveValue('Doc Hub')
 
     await window.click(SELECTORS.CANCEL_BTN)
@@ -114,7 +114,7 @@ test.describe('Template Full — Categories, Detail & UI Flow', () => {
     })
 
     // At least 1 agent should exist (from template)
-    const agentCards = window.locator('[data-testid^="agent-card-"]')
+    const agentCards = window.locator('[data-testid^="agent-item-"]')
     await expect(agentCards.first()).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
   })
 })

@@ -24,14 +24,15 @@ test.describe('Chat Sidebar', () => {
     await helper.createConversationViaApi(projectId, agentId, 'Second Conversation')
     await helper.createConversationViaApi(projectId, agentId, 'Third Conversation')
 
-    // Re-fetch conversations in the store (API-created conversations aren't in Zustand yet)
-    await window.evaluate((pid: string) => {
+    // Force store refresh: clear project so selectProject re-runs on navigation
+    await window.evaluate(() => {
       const store = (window as any).__GOLEMANCY_STORE__
-      if (store) store.getState().loadConversations(pid)
-    }, projectId)
+      if (store) store.getState().clearProject()
+    })
+    await helper.navigateTo(`/projects/${projectId}/chat`)
 
-    // Wait for conversations to appear in the store
-    await helper.store.waitFor('state.conversations.length >= 3', TIMEOUTS.PAGE_LOAD)
+    // Wait for conversations to appear in the store (needs extra time for API fetch after clearProject)
+    await helper.store.waitFor('state.conversations.length >= 3', 30_000)
 
     // Expand chat history sidebar (defaults to collapsed)
     await window.evaluate(() => {

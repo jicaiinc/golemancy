@@ -28,7 +28,7 @@ test.describe('Template Selector', () => {
     await window.getByText('From Template').first().click()
 
     // Category filter and template list should appear
-    await expect(window.getByText('All')).toBeVisible()
+    await expect(window.locator(SELECTORS.TEMPLATE_CATEGORY_ALL)).toBeVisible()
     await expect(window.getByText('Writing Assistant')).toBeVisible()
     await expect(window.getByText('Deep Research')).toBeVisible()
 
@@ -70,7 +70,7 @@ test.describe('Template Selector', () => {
     await window.getByText('Blank Project').first().click()
 
     // Master-detail panel should collapse — category filter gone
-    await expect(window.getByText('All')).not.toBeVisible()
+    await expect(window.locator(SELECTORS.TEMPLATE_CATEGORY_ALL)).not.toBeVisible()
 
     // Description input should reappear (only shown for blank projects)
     await expect(window.locator(SELECTORS.PROJECT_DESC_INPUT)).toBeVisible()

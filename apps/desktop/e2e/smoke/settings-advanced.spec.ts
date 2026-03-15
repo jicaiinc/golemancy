@@ -24,32 +24,23 @@ test.describe('Settings Advanced — Theme, Language, API Key, Model, Speech', (
     await expect(generalTab).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     await generalTab.click()
 
-    // Look for theme-related UI elements
-    await expect(window.getByText('THEME')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    // Look for appearance section (theme cards are inside it)
+    await expect(window.getByText('APPEARANCE')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
     // Get current theme from store
-    const currentTheme = await helper.store.get<string>('theme')
+    const currentTheme = await helper.store.get<string>('themeMode')
     expect(currentTheme).toBeDefined()
 
-    // If there's a theme toggle/selector, try switching
-    // Theme auto-saves on click, so any change should reflect in store
-    const themeOptions = window.locator('[data-testid="tab-general"]')
-      .locator('..')
-      .locator('..')
-      .getByText(/light|dark|system/i)
-
-    const optionCount = await themeOptions.count()
-    if (optionCount > 1) {
-      // Click a different theme option
-      const otherOption = themeOptions.nth(1)
-      await otherOption.click()
+    // Theme cards show "Light", "Dark", "System" labels — try clicking Light
+    const lightBtn = window.getByText('Light', { exact: true })
+    if (await lightBtn.isVisible()) {
+      await lightBtn.click()
 
       // Give auto-save time to persist
       await window.waitForTimeout(500)
 
       // Verify theme changed in store
-      const newTheme = await helper.store.get<string>('theme')
-      // Theme should have changed (or at least the click didn't crash)
+      const newTheme = await helper.store.get<string>('themeMode')
       expect(newTheme).toBeDefined()
     }
 
@@ -69,14 +60,16 @@ test.describe('Settings Advanced — Theme, Language, API Key, Model, Speech', (
 
     await expect(window.getByText('LANGUAGE')).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
-    // Find the language selector
-    const languageSelect = window.locator('select').filter({
-      has: window.locator('option[value="en"]'),
-    }).first()
+    // Language uses PixelDropdown (not native select). Click the dropdown trigger
+    // which shows "English" (current language label), then select Japanese.
+    const languageTrigger = window.getByText('English', { exact: true })
+    if (await languageTrigger.isVisible()) {
+      await languageTrigger.click()
 
-    if (await languageSelect.isVisible()) {
-      // Switch to Japanese
-      await languageSelect.selectOption('ja')
+      // PixelDropdown renders a popover with items. Find and click Japanese (native name).
+      const jaOption = window.getByText('日本語')
+      await expect(jaOption).toBeVisible({ timeout: 3000 })
+      await jaOption.click()
 
       // Wait for i18n to update
       await window.waitForTimeout(1000)
@@ -85,14 +78,13 @@ test.describe('Settings Advanced — Theme, Language, API Key, Model, Speech', (
       await expect(window.locator('[data-testid="settings-form"]')).toBeVisible({
         timeout: TIMEOUTS.PAGE_LOAD,
       })
-
-      // Switch back to English
-      await languageSelect.selectOption('en')
-      await window.waitForTimeout(500)
     }
 
-    // Ensure we're back to English
+    // Ensure we're back to English via API
     await helper.apiPatch('/api/settings', { language: 'en' })
+    // Reload to apply English
+    await helper.navigateTo('/')
+    await helper.navigateTo('/settings')
   })
 
   // ===== API key masking =====
@@ -139,35 +131,32 @@ test.describe('Settings Advanced — Theme, Language, API Key, Model, Speech', (
     await helper.navigateTo('/')
     await helper.navigateTo('/settings')
 
-    // Click Speech tab
-    const speechTab = window.locator(SELECTORS.SPEECH_TAB)
-    if (await speechTab.isVisible().catch(() => false)) {
-      await speechTab.click()
+    // Click the Speech tab button (tab-speech), not the content div (speech-tab)
+    const speechTabBtn = window.locator('[data-testid="tab-speech"]')
+    await expect(speechTabBtn).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await speechTabBtn.click()
 
-      // Enable toggle should be visible
-      await expect(window.locator(SELECTORS.SPEECH_ENABLE_TOGGLE)).toBeVisible({
-        timeout: TIMEOUTS.PAGE_LOAD,
-      })
-    }
+    // Speech content area should appear with enable toggle
+    await expect(window.locator(SELECTORS.SPEECH_ENABLE_TOGGLE)).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
   })
 
   test('Speech tab shows configuration form', async ({ window, helper }) => {
     await helper.navigateTo('/')
     await helper.navigateTo('/settings')
 
-    const speechTab = window.locator(SELECTORS.SPEECH_TAB)
-    if (await speechTab.isVisible().catch(() => false)) {
-      await speechTab.click()
+    const speechTabBtn = window.locator('[data-testid="tab-speech"]')
+    await expect(speechTabBtn).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await speechTabBtn.click()
 
-      // The configuration area should be visible (even if STT is disabled)
-      await expect(window.locator(SELECTORS.SPEECH_ENABLE_TOGGLE)).toBeVisible({
-        timeout: TIMEOUTS.PAGE_LOAD,
-      })
+    // The configuration area should be visible (even if STT is disabled)
+    await expect(window.locator(SELECTORS.SPEECH_ENABLE_TOGGLE)).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
 
-      // Test button may be visible depending on whether STT is enabled
-      const testBtn = window.locator(SELECTORS.SPEECH_TEST_BTN)
-      // Just verify the tab doesn't crash — button visibility depends on state
-      await expect(window.locator(SELECTORS.SPEECH_ENABLE_TOGGLE)).toBeVisible()
-    }
+    // Test button may be visible depending on whether STT is enabled
+    // Just verify the tab doesn't crash — button visibility depends on state
+    await expect(window.locator(SELECTORS.SPEECH_TAB)).toBeVisible()
   })
 })

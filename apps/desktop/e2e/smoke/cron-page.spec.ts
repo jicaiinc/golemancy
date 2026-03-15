@@ -44,7 +44,7 @@ test.describe('Cron Jobs Page', () => {
     // Verify modal fields
     await expect(window.getByRole('heading', { name: 'New Automation' })).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     await expect(window.getByText('NAME', { exact: true })).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
-    await expect(window.getByText('AGENT', { exact: true })).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await expect(window.getByText('AGENT / TEAM', { exact: true })).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
     // Close modal
     await window.getByText('Cancel').click()

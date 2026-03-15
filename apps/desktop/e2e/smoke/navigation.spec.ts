@@ -35,9 +35,9 @@ test.describe('Navigation', () => {
       window.getByText('Start Chatting').or(window.getByText('No conversations')).first()
     ).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
-    // Navigate to tasks page
-    await helper.clickNav('tasks')
-    await expect(window.locator(SELECTORS.TASK_LIST_PAGE)).toBeVisible({
+    // Navigate to teams page (no 'tasks' nav item in sidebar)
+    await helper.clickNav('teams')
+    await expect(window.locator(SELECTORS.TEAM_LIST_PAGE)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 

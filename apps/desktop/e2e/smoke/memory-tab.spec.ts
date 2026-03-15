@@ -5,19 +5,21 @@ test.describe('Memory Tab', () => {
   let projectId: string
   let agentId: string
 
-  test.beforeAll(async ({ helper }) => {
+  test.beforeAll(async ({ helper, window }) => {
     await helper.goHome()
-    const project = await helper.createProjectViaApi('Memory Tab Test')
-    projectId = project.id
-    const agent = await helper.createAgentViaApi(projectId, 'Memory Agent')
-    agentId = agent.id
+    projectId = await helper.createProject('Memory Tab Test')
+
+    // Create agent via UI so it's in the store
+    await helper.navigateTo(`/projects/${projectId}/agents`)
+    await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    agentId = await helper.createAgent('Memory Agent')
   })
 
   test('memory tab shows empty state', async ({ window, helper }) => {
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
 
     // Click Memory tab
-    const memoryTab = window.getByRole('tab', { name: /memory/i })
+    const memoryTab = window.locator('[data-testid="tab-memory"]')
     await expect(memoryTab).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     await memoryTab.click()
 
@@ -34,7 +36,7 @@ test.describe('Memory Tab', () => {
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
 
     // Click Memory tab
-    const memoryTab = window.getByRole('tab', { name: /memory/i })
+    const memoryTab = window.locator('[data-testid="tab-memory"]')
     await memoryTab.click()
     await expect(window.locator(SELECTORS.MEMORY_ADD_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
@@ -59,7 +61,7 @@ test.describe('Memory Tab', () => {
   test('save button disabled when content is empty', async ({ window, helper }) => {
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
 
-    const memoryTab = window.getByRole('tab', { name: /memory/i })
+    const memoryTab = window.locator('[data-testid="tab-memory"]')
     await memoryTab.click()
     await expect(window.locator(SELECTORS.MEMORY_ADD_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
@@ -79,7 +81,7 @@ test.describe('Memory Tab', () => {
   test('cancel button closes the form', async ({ window, helper }) => {
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
 
-    const memoryTab = window.getByRole('tab', { name: /memory/i })
+    const memoryTab = window.locator('[data-testid="tab-memory"]')
     await memoryTab.click()
     await expect(window.locator(SELECTORS.MEMORY_ADD_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
@@ -100,8 +102,14 @@ test.describe('Memory Tab', () => {
       priority: 3,
     })
 
+    // Force store refresh: clear project so selectProject re-runs on navigation
+    await window.evaluate(() => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) store.getState().clearProject()
+    })
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
-    const memoryTab = window.getByRole('tab', { name: /memory/i })
+    const memoryTab = window.locator('[data-testid="tab-memory"]')
+    await expect(memoryTab).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     await memoryTab.click()
 
     // Memory card should be visible
@@ -117,8 +125,14 @@ test.describe('Memory Tab', () => {
     // Create a fresh memory
     const memory = await helper.createMemoryViaApi(projectId, agentId, 'Button test memory')
 
+    // Force store refresh: clear project so selectProject re-runs on navigation
+    await window.evaluate(() => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) store.getState().clearProject()
+    })
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
-    const memoryTab = window.getByRole('tab', { name: /memory/i })
+    const memoryTab = window.locator('[data-testid="tab-memory"]')
+    await expect(memoryTab).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
     await memoryTab.click()
 
     await expect(window.locator(SELECTORS.MEMORY_CARD(memory.id))).toBeVisible({
