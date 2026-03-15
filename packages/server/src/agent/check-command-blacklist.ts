@@ -119,7 +119,7 @@ export function checkCommandBlacklist(
   for (const { pattern, regex, simpleName } of deniedPatterns) {
     if (simpleName) {
       // Exact match for simple names (no wildcards)
-      if (firstToken === simpleName || firstToken.endsWith('/' + simpleName)) {
+      if (firstToken === simpleName || firstToken.endsWith('/' + simpleName) || firstToken.endsWith('\\' + simpleName)) {
         throw new CommandBlockedError(command, `Command '${simpleName}' is blocked`)
       }
     } else if (regex) {
@@ -137,7 +137,7 @@ export function checkCommandBlacklist(
     const segToken = extractCommandName(segTrimmed)
     for (const { pattern, regex, simpleName } of deniedPatterns) {
       if (simpleName) {
-        if (segToken === simpleName || segToken.endsWith('/' + simpleName)) {
+        if (segToken === simpleName || segToken.endsWith('/' + simpleName) || segToken.endsWith('\\' + simpleName)) {
           throw new CommandBlockedError(command, `Command '${simpleName}' is blocked (in subcommand)`)
         }
       } else if (regex) {

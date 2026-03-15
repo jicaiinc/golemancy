@@ -22,8 +22,9 @@ export async function getNodeRuntimeStatus(): Promise<NodeRuntimeStatus> {
     return { available: false, nodeVersion: null, npmVersion: null, binDir: null }
   }
 
-  const nodeBin = path.join(binDir, 'node')
-  const npmBin = path.join(binDir, 'npm')
+  const isWin = process.platform === 'win32'
+  const nodeBin = path.join(binDir, isWin ? 'node.exe' : 'node')
+  const npmBin = path.join(binDir, isWin ? 'npm.cmd' : 'npm')
 
   const [nodeVersion, npmVersion] = await Promise.all([
     getVersionOutput(nodeBin),
@@ -43,6 +44,8 @@ async function getVersionOutput(binary: string): Promise<string | null> {
     const child = spawn(binary, ['--version'], {
       stdio: ['ignore', 'pipe', 'ignore'],
       timeout: 5_000,
+      // .cmd/.bat files on Windows require shell to execute
+      ...(process.platform === 'win32' && { shell: true }),
     })
     let output = ''
     child.stdout?.on('data', (chunk: Buffer) => { output += chunk.toString() })

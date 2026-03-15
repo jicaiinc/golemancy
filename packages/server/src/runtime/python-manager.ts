@@ -12,6 +12,9 @@ import { logger } from '../logger'
 
 const log = logger.child({ component: 'runtime:python' })
 
+const PIP_BIN_NAME = process.platform === 'win32' ? 'pip.exe' : 'pip'
+const PYTHON_BIN_NAME = process.platform === 'win32' ? 'python.exe' : 'python'
+
 export interface PythonPackage {
   name: string
   version: string
@@ -43,7 +46,7 @@ export interface PythonEnvStatus {
  * Returns bundled path if available, otherwise 'python3' (system).
  */
 export function resolvePythonBinary(): string {
-  return getBundledPythonPath() ?? 'python3'
+  return getBundledPythonPath() ?? (process.platform === 'win32' ? 'python' : 'python3')
 }
 
 /**
@@ -107,7 +110,7 @@ export async function installPackages(
 ): Promise<string> {
   if (packages.length === 0) throw new Error('No packages specified')
 
-  const pipBin = path.join(getProjectPythonEnvBinPath(projectId), 'pip')
+  const pipBin = path.join(getProjectPythonEnvBinPath(projectId), PIP_BIN_NAME)
   log.info({ projectId, packages }, 'installing Python packages')
 
   const extraEnv: Record<string, string> = { PIP_CACHE_DIR: getPipCachePath() }
@@ -132,7 +135,7 @@ export async function uninstallPackage(
   projectId: string,
   packageName: string,
 ): Promise<string> {
-  const pipBin = path.join(getProjectPythonEnvBinPath(projectId), 'pip')
+  const pipBin = path.join(getProjectPythonEnvBinPath(projectId), PIP_BIN_NAME)
   log.info({ projectId, packageName }, 'uninstalling Python package')
 
   const result = await execCommand(pipBin, ['uninstall', '-y', packageName], {
@@ -152,7 +155,7 @@ export async function uninstallPackage(
  * Uses `pip list --format=json` for structured output.
  */
 export async function listPackages(projectId: string): Promise<PythonPackage[]> {
-  const pipBin = path.join(getProjectPythonEnvBinPath(projectId), 'pip')
+  const pipBin = path.join(getProjectPythonEnvBinPath(projectId), PIP_BIN_NAME)
 
   const result = await execCommand(pipBin, ['list', '--format=json'], {
     PIP_CACHE_DIR: getPipCachePath(),
@@ -184,7 +187,7 @@ export async function getPythonEnvStatus(projectId: string): Promise<PythonEnvSt
   // Get Python version
   let pythonVersion: string | null = null
   try {
-    const pythonBin = path.join(getProjectPythonEnvBinPath(projectId), 'python')
+    const pythonBin = path.join(getProjectPythonEnvBinPath(projectId), PYTHON_BIN_NAME)
     const versionResult = await execCommand(pythonBin, ['--version'])
     if (versionResult.exitCode === 0) {
       // Output: "Python 3.13.12"

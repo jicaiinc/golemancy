@@ -64,10 +64,17 @@ export class NativeSandbox implements Sandbox {
       const isWin = process.platform === 'win32'
       const shell = isWin ? (process.env.COMSPEC || 'cmd.exe') : 'bash'
       const args = isWin ? ['/c', command] : ['-c', command]
+      // Normalize cwd on Windows — mixed separators (e.g. C:\foo/bar) can cause
+      // cmd.exe startup errors in Electron's forked server process
+      const cwd = isWin ? this.workspaceRoot.replace(/\//g, '\\') : this.workspaceRoot
       const child = spawn(shell, args, {
-        cwd: this.workspaceRoot,
+        cwd,
         env: { ...process.env, ...this.runtimeEnv },
         stdio: ['ignore', 'pipe', 'pipe'],
+        // Windows: prevent Node.js from escaping quotes in the command string.
+        // Without this, commands like `cd "C:\path" && dir` get double-escaped
+        // and cmd.exe fails with "文件名、目录名或卷标语法不正确".
+        ...(isWin && { windowsVerbatimArguments: true }),
       })
 
       let stdout = ''

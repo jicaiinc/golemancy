@@ -12,6 +12,7 @@ import type {
   IPermissionsConfigService,
 } from '@golemancy/shared'
 import { isSandboxRuntimeSupported } from '@golemancy/shared'
+import { createNativeBashTools } from './native-bash-tools'
 import { AnthropicSandbox } from '../anthropic-sandbox'
 import { GuardedSandbox } from '../guarded-sandbox'
 import { NativeSandbox } from '../native-sandbox'
@@ -70,7 +71,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
             'GuardedSandbox setup: workspace ready, config resolved',
           )
           const sandbox = new GuardedSandbox({ config: sandboxConfig, workspaceRoot: workspaceDir, runtimeEnv: { ...runtimeEnv } })
-          return createBashTool({ sandbox, destination: workspaceDir })
+          return createNativeBashTools({ sandbox, workspaceDir, platform: platform as SupportedPlatform })
         } catch (err) {
           const message = err instanceof Error ? err.message : String(err)
           log.error({ err: message, projectId: options.projectId, platform }, 'GuardedSandbox setup failed')
@@ -101,7 +102,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
           sandboxManager: handle,
           runtimeEnv: { ...runtimeEnv },
         })
-        return createBashTool({ sandbox, destination: workspaceDir })
+        return createNativeBashTools({ sandbox, workspaceDir, platform: process.platform as SupportedPlatform })
       } catch (err) {
         // Wrap any sandbox setup failure as SandboxUnavailableError
         if (err instanceof SandboxUnavailableError) throw err
@@ -119,7 +120,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
         : {}
       log.debug({ workspaceDir, runtimeEnv, projectId: options?.projectId }, 'unrestricted mode: built runtime env')
       const sandbox = new NativeSandbox({ workspaceRoot: workspaceDir, runtimeEnv })
-      return createBashTool({ sandbox, destination: workspaceDir })
+      return createNativeBashTools({ sandbox, workspaceDir, platform: process.platform as SupportedPlatform })
     }
   }
 }
