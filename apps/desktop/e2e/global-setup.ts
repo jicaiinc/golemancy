@@ -2,6 +2,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import onboardingSetup from './onboarding-setup'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -111,4 +112,7 @@ export default async function globalSetup() {
 
   console.log(`[e2e] Test data dir: ${testDataDir}`)
   console.log(`[e2e] Providers configured: ${Object.keys(providers).join(', ') || 'none'}`)
+
+  // Set up onboarding data dir (empty providers → triggers onboarding flow)
+  onboardingSetup()
 }

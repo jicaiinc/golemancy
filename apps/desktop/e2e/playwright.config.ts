@@ -27,6 +27,13 @@ export default defineConfig({
       testDir: './ai',
       dependencies: ['server'],
     },
+    {
+      name: 'onboarding',
+      testDir: './onboarding',
+      // Independent from smoke/server/ai — no dependencies.
+      // Uses its own fixture (fixtures/onboarding.ts) which reads
+      // GOLEMANCY_ONBOARDING_DATA_DIR (empty providers → onboarding flow).
+    },
   ],
   globalSetup: './global-setup.ts',
   globalTeardown: './global-teardown.ts',

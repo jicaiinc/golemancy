@@ -80,6 +80,89 @@ export const SELECTORS = {
   WORKSPACE_FILE_TREE: '[data-testid="workspace-file-tree"]',
   WORKSPACE_PREVIEW: '[data-testid="workspace-preview"]',
 
+  // Chat (StatusBar)
+  CHAT_STOP_BTN: '[data-testid="chat-stop-btn"]',
+  CONTEXT_WINDOW_BTN: '[data-testid="context-window-btn"]',
+  CONTEXT_POPOVER: '[data-testid="context-popover"]',
+
+  // Team
+  TEAM_LIST_PAGE: '[data-testid="team-list-page"]',
+  CREATE_TEAM_BTN: '[data-testid="create-team-btn"]',
+  TEAM_EMPTY_STATE: '[data-testid="team-empty-state"]',
+  TEAM_CARD: (teamId: string) => `[data-testid="team-card-${teamId}"]`,
+  TEAM_CLONE_BTN: (teamId: string) => `[data-testid="team-clone-btn-${teamId}"]`,
+  TEAM_DETAIL_PAGE: '[data-testid="team-detail-page"]',
+  TEAM_NAME_INPUT: '[data-testid="team-name-input"]',
+  TEAM_DESC_INPUT: '[data-testid="team-desc-input"]',
+  TEAM_CREATE_BTN: '[data-testid="team-create-btn"]',
+  TEAM_CANCEL_BTN: '[data-testid="team-cancel-btn"]',
+
+  // Memory
+  MEMORY_ADD_BTN: '[data-testid="memory-add-btn"]',
+  MEMORY_ADD_FORM: '[data-testid="memory-add-form"]',
+  MEMORY_CONTENT_INPUT: '[data-testid="memory-content-input"]',
+  MEMORY_TAGS_INPUT: '[data-testid="memory-tags-input"]',
+  MEMORY_PINNED_CHECKBOX: '[data-testid="memory-pinned-checkbox"]',
+  MEMORY_SAVE_BTN: '[data-testid="memory-save-btn"]',
+  MEMORY_CANCEL_BTN: '[data-testid="memory-cancel-btn"]',
+  MEMORY_EMPTY_STATE: '[data-testid="memory-empty-state"]',
+  MEMORY_CARD: (memoryId: string) => `[data-testid="memory-card-${memoryId}"]`,
+  MEMORY_PIN_BTN: (memoryId: string) => `[data-testid="memory-pin-btn-${memoryId}"]`,
+  MEMORY_EDIT_BTN: (memoryId: string) => `[data-testid="memory-edit-btn-${memoryId}"]`,
+  MEMORY_DELETE_BTN: (memoryId: string) => `[data-testid="memory-delete-btn-${memoryId}"]`,
+
+  // Agent (extended)
+  AGENT_TABS: '[data-testid="agent-tabs"]',
+  AGENT_CLONE_BTN: (agentId: string) => `[data-testid="agent-clone-btn-${agentId}"]`,
+  SKILL_ASSIGNED: (skillId: string) => `[data-testid="skill-assigned-${skillId}"]`,
+  SKILL_ASSIGN_BTN: (skillId: string) => `[data-testid="skill-assign-btn-${skillId}"]`,
+  SKILL_REMOVE_BTN: (skillId: string) => `[data-testid="skill-remove-btn-${skillId}"]`,
+  MCP_ASSIGNED: (mcpName: string) => `[data-testid="mcp-assigned-${mcpName}"]`,
+  MCP_ASSIGN_BTN: (mcpName: string) => `[data-testid="mcp-assign-btn-${mcpName}"]`,
+  MCP_REMOVE_BTN: (mcpName: string) => `[data-testid="mcp-remove-btn-${mcpName}"]`,
+  TOOL_TOGGLE: (toolId: string) => `[data-testid="tool-toggle-${toolId}"]`,
+
+  // Project (extended)
+  PROJECT_CLONE_BTN: (projectId: string) => `[data-testid="project-clone-btn-${projectId}"]`,
+
+  // Onboarding
+  ONBOARDING_PAGE: '[data-testid="onboarding-page"]',
+  ONBOARDING_PROGRESS: '[data-testid="onboarding-progress"]',
+  ONBOARDING_SKIP_BTN: '[data-testid="onboarding-skip-btn"]',
+  ONBOARDING_BACK_BTN: '[data-testid="onboarding-back-btn"]',
+  ONBOARDING_NEXT_BTN: '[data-testid="onboarding-next-btn"]',
+  ONBOARDING_GET_STARTED_BTN: '[data-testid="onboarding-get-started-btn"]',
+  ONBOARDING_WELCOME_STEP: '[data-testid="onboarding-welcome-step"]',
+  ONBOARDING_PROVIDER_STEP: '[data-testid="onboarding-provider-step"]',
+  ONBOARDING_SPEECH_STEP: '[data-testid="onboarding-speech-step"]',
+  ONBOARDING_PROJECT_STEP: '[data-testid="onboarding-project-step"]',
+  ONBOARDING_COMPLETE_STEP: '[data-testid="onboarding-complete-step"]',
+  ONBOARDING_API_KEY_INPUT: '[data-testid="onboarding-api-key-input"]',
+  ONBOARDING_TEST_PROVIDER_BTN: '[data-testid="onboarding-test-provider-btn"]',
+  ONBOARDING_PROJECT_NAME_INPUT: '[data-testid="onboarding-project-name-input"]',
+  ONBOARDING_START_CHATTING_BTN: '[data-testid="onboarding-start-chatting-btn"]',
+  ONBOARDING_GO_DASHBOARD_BTN: '[data-testid="onboarding-go-dashboard-btn"]',
+
+  // Permissions
+  PERMISSIONS_SETTINGS: '[data-testid="permissions-settings"]',
+  PERMISSION_MODE_SELECTOR: '[data-testid="permission-mode-selector"]',
+  NETWORK_RESTRICTIONS_TOGGLE: '[data-testid="network-restrictions-toggle"]',
+  APPLY_TO_MCP_TOGGLE: '[data-testid="apply-to-mcp-toggle"]',
+
+  // Speech (Settings)
+  SPEECH_TAB: '[data-testid="speech-tab"]',
+  SPEECH_ENABLE_TOGGLE: '[data-testid="speech-enable-toggle"]',
+  SPEECH_TEST_BTN: '[data-testid="speech-test-btn"]',
+
+  // Template
+  TEMPLATE_SELECTOR: '[data-testid="template-selector"]',
+  TEMPLATE_BLANK_BTN: '[data-testid="template-blank-btn"]',
+  TEMPLATE_FROM_TEMPLATE_BTN: '[data-testid="template-from-template-btn"]',
+  TEMPLATE_CATEGORY_ALL: '[data-testid="template-category-all"]',
+  TEMPLATE_CATEGORY: (cat: string) => `[data-testid="template-category-${cat}"]`,
+  TEMPLATE_ITEM: (templateId: string) => `[data-testid="template-item-${templateId}"]`,
+  TEMPLATE_DETAIL_PANEL: '[data-testid="template-detail-panel"]',
+
   // Common
   SAVE_BTN: '[data-testid="save-btn"]',
   DELETE_BTN: '[data-testid="delete-btn"]',

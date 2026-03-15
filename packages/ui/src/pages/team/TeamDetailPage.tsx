@@ -37,7 +37,7 @@ export function TeamDetailPage() {
   }
 
   return (
-    <div className="flex-1 h-full flex flex-col">
+    <div className="flex-1 h-full flex flex-col" data-testid="team-detail-page">
       <TeamTopologyView team={team} />
     </div>
   )

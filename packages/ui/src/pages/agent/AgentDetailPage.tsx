@@ -100,7 +100,7 @@ export function AgentDetailPage() {
       </div>
 
       {/* Tabs */}
-      <PixelTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+      <PixelTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} data-testid="agent-tabs" />
 
       <div className="mt-4">
         {activeTab === 'general' && <GeneralAgentTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`) }} />}
@@ -313,12 +313,12 @@ function SkillsTab({ agent, onUpdate }: {
       {assigned.length > 0 ? (
         <div className="flex flex-col gap-2">
           {assigned.map(skill => (
-            <PixelCard key={skill.id} className="flex items-center gap-3">
+            <PixelCard key={skill.id} className="flex items-center gap-3" data-testid={`skill-assigned-${skill.id}`}>
               <div className="flex-1 min-w-0">
                 <div className="font-pixel text-[9px] text-accent-purple">{skill.name}</div>
                 <div className="text-[11px] text-text-secondary mt-0.5">{skill.description}</div>
               </div>
-              <PixelButton size="sm" variant="ghost" onClick={() => removeSkill(skill.id)}>
+              <PixelButton size="sm" variant="ghost" onClick={() => removeSkill(skill.id)} data-testid={`skill-remove-btn-${skill.id}`}>
                 &times;
               </PixelButton>
             </PixelCard>
@@ -339,6 +339,7 @@ function SkillsTab({ agent, onUpdate }: {
             {available.map(skill => (
               <button
                 key={skill.id}
+                data-testid={`skill-assign-btn-${skill.id}`}
                 className="flex items-center gap-3 p-2 text-left hover:bg-elevated/50 cursor-pointer transition-colors"
                 onClick={() => addSkill(skill.id)}
               >
@@ -412,6 +413,7 @@ function ToolsTab({ agent, onUpdate }: {
                   <div className="text-[11px] text-text-secondary mt-0.5">{tool.description}</div>
                 </div>
                 <button
+                  data-testid={`tool-toggle-${tool.id}`}
                   className={`w-10 h-5 border-2 transition-colors cursor-pointer ${
                     enabled && tool.available
                       ? 'bg-accent-green border-accent-green'
@@ -509,7 +511,7 @@ function MCPTab({ agent, onUpdate }: {
       {assigned.length > 0 ? (
         <div className="flex flex-col gap-2">
           {assigned.map(server => (
-            <PixelCard key={server.name} className="flex items-center gap-3">
+            <PixelCard key={server.name} className="flex items-center gap-3" data-testid={`mcp-assigned-${server.name}`}>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-pixel text-[9px] text-accent-cyan">{server.name}</span>
@@ -524,7 +526,7 @@ function MCPTab({ agent, onUpdate }: {
                   <div className="text-[11px] text-text-secondary mt-0.5">{server.description}</div>
                 )}
               </div>
-              <PixelButton size="sm" variant="ghost" onClick={() => removeServer(server.name)}>
+              <PixelButton size="sm" variant="ghost" onClick={() => removeServer(server.name)} data-testid={`mcp-remove-btn-${server.name}`}>
                 &times;
               </PixelButton>
             </PixelCard>
@@ -545,6 +547,7 @@ function MCPTab({ agent, onUpdate }: {
             {available.map(server => (
               <button
                 key={server.name}
+                data-testid={`mcp-assign-btn-${server.name}`}
                 className="flex items-center gap-3 p-2 text-left hover:bg-elevated/50 cursor-pointer transition-colors"
                 onClick={() => addServer(server.name)}
               >
@@ -699,7 +702,7 @@ function MemoryTab({ agent }: { agent: Agent }) {
   function renderCard(m: MemoryEntry, dimmed = false) {
     const isEditing = editingId === m.id
     return (
-      <PixelCard key={m.id} className={`!py-2 !px-3 ${dimmed ? 'opacity-85' : ''}`}>
+      <PixelCard key={m.id} className={`!py-2 !px-3 ${dimmed ? 'opacity-85' : ''}`} data-testid={`memory-card-${m.id}`}>
         {isEditing ? (
           <div className="flex flex-col gap-2">
             <PixelTextArea value={editContent} onChange={e => setEditContent(e.target.value)} rows={3} />
@@ -738,13 +741,13 @@ function MemoryTab({ agent }: { agent: Agent }) {
                   </>
                 ) : (
                   <>
-                    <PixelButton size="sm" variant="ghost" onClick={() => updateMemory(agent.id, m.id, { pinned: !m.pinned })}>
+                    <PixelButton size="sm" variant="ghost" onClick={() => updateMemory(agent.id, m.id, { pinned: !m.pinned })} data-testid={`memory-pin-btn-${m.id}`}>
                       {m.pinned ? t('memory.unpin') : t('memory.pin')}
                     </PixelButton>
-                    <PixelButton size="sm" variant="ghost" onClick={() => startEdit(m)}>
+                    <PixelButton size="sm" variant="ghost" onClick={() => startEdit(m)} data-testid={`memory-edit-btn-${m.id}`}>
                       {t('common:button.edit')}
                     </PixelButton>
-                    <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(m.id)}>
+                    <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(m.id)} data-testid={`memory-delete-btn-${m.id}`}>
                       &times;
                     </PixelButton>
                   </>
@@ -765,7 +768,7 @@ function MemoryTab({ agent }: { agent: Agent }) {
     <div>
       <div className="flex items-center justify-between mb-2">
         <div className="font-pixel text-[8px] text-text-dim">{t('memory.sectionTitle')}</div>
-        <PixelButton size="sm" variant="ghost" onClick={() => setShowAdd(!showAdd)}>
+        <PixelButton size="sm" variant="ghost" onClick={() => setShowAdd(!showAdd)} data-testid="memory-add-btn">
           {t('memory.addBtn')}
         </PixelButton>
       </div>
@@ -782,16 +785,18 @@ function MemoryTab({ agent }: { agent: Agent }) {
       )}
 
       {showAdd && (
-        <PixelCard className="mb-4">
+        <PixelCard className="mb-4" data-testid="memory-add-form">
           <div className="font-pixel text-[8px] text-text-dim mb-2">{t('memory.addTitle')}</div>
           <div className="flex flex-col gap-2">
             <PixelTextArea
+              data-testid="memory-content-input"
               value={newContent}
               onChange={e => setNewContent(e.target.value)}
               placeholder={t('memory.contentPlaceholder')}
               rows={3}
             />
             <PixelInput
+              data-testid="memory-tags-input"
               value={newTags}
               onChange={e => setNewTags(e.target.value)}
               placeholder={t('memory.tagsPlaceholder')}
@@ -802,15 +807,15 @@ function MemoryTab({ agent }: { agent: Agent }) {
                 <PriorityStars value={newPriority} onChange={setNewPriority} />
               </div>
               <label className="flex items-center gap-1 text-[10px] text-text-dim cursor-pointer">
-                <input type="checkbox" checked={newPinned} onChange={e => setNewPinned(e.target.checked)} />
+                <input type="checkbox" checked={newPinned} onChange={e => setNewPinned(e.target.checked)} data-testid="memory-pinned-checkbox" />
                 {t('memory.pinned')}
               </label>
             </div>
             <div className="flex gap-2">
-              <PixelButton size="sm" variant="primary" onClick={handleAdd} disabled={adding || !newContent.trim()}>
+              <PixelButton size="sm" variant="primary" onClick={handleAdd} disabled={adding || !newContent.trim()} data-testid="memory-save-btn">
                 {adding ? t('common:button.saving') : t('common:button.save')}
               </PixelButton>
-              <PixelButton size="sm" variant="ghost" onClick={() => setShowAdd(false)}>
+              <PixelButton size="sm" variant="ghost" onClick={() => setShowAdd(false)} data-testid="memory-cancel-btn">
                 {t('common:button.cancel')}
               </PixelButton>
             </div>
@@ -819,7 +824,7 @@ function MemoryTab({ agent }: { agent: Agent }) {
       )}
 
       {memories.length === 0 && !showAdd && (
-        <PixelCard variant="outlined" className="text-center py-8">
+        <PixelCard variant="outlined" className="text-center py-8" data-testid="memory-empty-state">
           <p className="text-[12px] text-text-dim">{t('memory.empty')}</p>
         </PixelCard>
       )}

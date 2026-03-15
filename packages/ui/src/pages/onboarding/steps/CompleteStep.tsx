@@ -37,7 +37,7 @@ export function CompleteStep({
   const { t } = useTranslation('onboarding')
 
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div className="flex flex-col items-center gap-8" data-testid="onboarding-complete-step">
       <div className="text-center">
         <h2 className="font-pixel text-[18px] text-accent-green mb-3">{t('complete.heading')}</h2>
         <p className="font-mono text-[12px] text-text-secondary">{t('complete.description')}</p>
@@ -73,10 +73,10 @@ export function CompleteStep({
 
       {/* CTAs */}
       <div className="flex gap-3">
-        <PixelButton variant="primary" size="lg" onClick={onStartChatting} disabled={!createdProjectId}>
+        <PixelButton variant="primary" size="lg" onClick={onStartChatting} disabled={!createdProjectId} data-testid="onboarding-start-chatting-btn">
           {t('button.startChatting')}
         </PixelButton>
-        <PixelButton variant="secondary" size="lg" onClick={onGoToDashboard} disabled={!createdProjectId}>
+        <PixelButton variant="secondary" size="lg" onClick={onGoToDashboard} disabled={!createdProjectId} data-testid="onboarding-go-dashboard-btn">
           {t('button.goToDashboard')}
         </PixelButton>
       </div>

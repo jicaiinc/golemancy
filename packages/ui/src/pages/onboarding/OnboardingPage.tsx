@@ -293,7 +293,7 @@ export function OnboardingPage() {
           <span className="font-pixel text-[9px] text-text-dim">{t('header.setup')}</span>
         </div>
         {step < TOTAL_STEPS - 1 && (
-          <PixelButton size="sm" variant="ghost" onClick={skipSetup}>
+          <PixelButton size="sm" variant="ghost" onClick={skipSetup} data-testid="onboarding-skip-btn">
             {t('header.skipSetup')}
           </PixelButton>
         )}
@@ -302,7 +302,7 @@ export function OnboardingPage() {
       {/* Progress */}
       <div className="px-6 pt-4">
         <div className="max-w-[720px] mx-auto">
-          <PixelProgress value={progress} />
+          <PixelProgress value={progress} data-testid="onboarding-progress" />
           <div className="flex justify-between mt-2">
             {STEPS.map((label, i) => (
               <span
@@ -402,6 +402,7 @@ export function OnboardingPage() {
         <div className="px-6 py-4 border-t-2 border-border-dim">
           <div className="max-w-[720px] mx-auto flex justify-between">
             <PixelButton
+              data-testid="onboarding-back-btn"
               variant="ghost"
               onClick={goBack}
               disabled={step === 0}
@@ -409,6 +410,7 @@ export function OnboardingPage() {
               {t('common:button.back')}
             </PixelButton>
             <PixelButton
+              data-testid="onboarding-next-btn"
               variant="primary"
               onClick={goNext}
               disabled={!canProceed() || saving}

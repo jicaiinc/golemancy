@@ -195,7 +195,7 @@ export function ProviderStep({
   const customProviderName = isCustomProvider ? selectedProvider!.split(':').slice(3).join(':') : null
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6" data-testid="onboarding-provider-step">
       <div className="text-center">
         <h2 className="font-pixel text-[14px] text-text-primary mb-2">{t('provider.heading')}</h2>
         <p className="font-mono text-[11px] text-text-dim">{t('provider.description')}</p>
@@ -372,6 +372,7 @@ export function ProviderStep({
               <div className="flex items-end gap-2">
                 <div className="flex-1">
                   <PixelInput
+                    data-testid="onboarding-api-key-input"
                     label={t('provider.labelApiKey')}
                     type={showKey ? 'text' : 'password'}
                     value={apiKey}
@@ -397,6 +398,7 @@ export function ProviderStep({
               {/* Test button */}
               <div className="flex items-center gap-2">
                 <PixelButton
+                  data-testid="onboarding-test-provider-btn"
                   size="sm"
                   variant={providerTestStatus === 'ok' ? 'ghost' : 'secondary'}
                   onClick={handleTest}

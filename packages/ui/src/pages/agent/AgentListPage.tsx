@@ -102,6 +102,7 @@ export function AgentListPage() {
                         {t(`statusLabel.${agent.status}`)}
                       </PixelBadge>
                       <button
+                        data-testid={`agent-clone-btn-${agent.id}`}
                         className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
                         title={t('list.clone')}
                         onClick={(e) => {

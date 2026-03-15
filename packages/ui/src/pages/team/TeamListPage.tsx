@@ -27,7 +27,7 @@ export function TeamListPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6" data-testid="team-list-page">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -36,14 +36,14 @@ export function TeamListPage() {
             {t('list.subtitle', { count: teams.length })}
           </p>
         </div>
-        <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
+        <PixelButton data-testid="create-team-btn" variant="primary" onClick={() => setShowCreate(true)}>
           {t('list.newBtn')}
         </PixelButton>
       </div>
 
       {/* Team grid */}
       {teams.length === 0 ? (
-        <PixelCard variant="outlined" className="text-center py-12">
+        <PixelCard variant="outlined" className="text-center py-12" data-testid="team-empty-state">
           <div className="font-arcade text-[20px] text-text-dim mb-4">{'&&'}</div>
           <p className="font-pixel text-[10px] text-text-secondary mb-4">{t('list.empty')}</p>
           <PixelButton variant="primary" onClick={() => setShowCreate(true)}>
@@ -63,6 +63,7 @@ export function TeamListPage() {
             return (
               <motion.div key={team.id} {...staggerItem} className="h-full">
                 <PixelCard
+                  data-testid={`team-card-${team.id}`}
                   variant="interactive"
                   className="relative overflow-hidden group h-full flex flex-col"
                   onClick={() => navigate(`/projects/${projectId}/teams/${team.id}`)}
@@ -71,6 +72,7 @@ export function TeamListPage() {
                     <div className="flex items-start gap-2">
                       <h3 className="font-pixel text-[10px] text-text-primary line-clamp-2 flex-1 min-w-0" title={team.name}>{team.name}</h3>
                       <button
+                        data-testid={`team-clone-btn-${team.id}`}
                         className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0 opacity-0 group-hover:opacity-100"
                         title={t('list.clone')}
                         onClick={(e) => {

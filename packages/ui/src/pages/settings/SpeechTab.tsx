@@ -488,10 +488,10 @@ export function SpeechTab() {
   const grouped = groupByDate(speechHistory)
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" data-testid="speech-tab">
       {/* Enable toggle — compact inline */}
       <div className="flex items-center gap-3 px-1">
-        <PixelToggle checked={stt.enabled} onChange={handleToggleEnabled} label={stt.enabled ? t('enable.enabled') : t('enable.disabled')} />
+        <PixelToggle checked={stt.enabled} onChange={handleToggleEnabled} label={stt.enabled ? t('enable.enabled') : t('enable.disabled')} data-testid="speech-enable-toggle" />
         <span className="font-pixel text-[8px] text-text-dim">{t('enable.sectionTitle')}</span>
       </div>
 
@@ -593,7 +593,7 @@ export function SpeechTab() {
 
                   {/* Test */}
                   <div className="flex items-center gap-2">
-                    <PixelButton size="sm" variant={testStatus === 'ok' ? 'ghost' : 'secondary'} onClick={runTest} disabled={testing}>
+                    <PixelButton size="sm" variant={testStatus === 'ok' ? 'ghost' : 'secondary'} onClick={runTest} disabled={testing} data-testid="speech-test-btn">
                       {testing ? '...' : testStatus === 'ok' ? t('test.retest') : t('test.test')}
                     </PixelButton>
                     {testing ? (

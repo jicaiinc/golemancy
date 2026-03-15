@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { execSync } from 'child_process'
+import onboardingTeardown from './onboarding-teardown'
 
 export default async function globalTeardown() {
   // Remove temp data directory
@@ -8,6 +9,9 @@ export default async function globalTeardown() {
     fs.rmSync(testDataDir, { recursive: true, force: true })
     console.log(`[e2e] Cleaned up test data dir: ${testDataDir}`)
   }
+
+  // Clean up onboarding data dir
+  onboardingTeardown()
 
   // Kill lingering server processes — match the exact server entry path
   try {

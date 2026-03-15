@@ -48,8 +48,8 @@ export function TeamCreateModal({ open, onClose }: Props) {
       size="md"
       footer={
         <>
-          <PixelButton variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
-          <PixelButton variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
+          <PixelButton data-testid="team-cancel-btn" variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
+          <PixelButton data-testid="team-create-btn" variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
             {saving ? t('common:button.creating') : t('create.createBtn')}
           </PixelButton>
         </>
@@ -57,6 +57,7 @@ export function TeamCreateModal({ open, onClose }: Props) {
     >
       <div className="flex flex-col gap-4">
         <PixelInput
+          data-testid="team-name-input"
           label={t('create.nameLabel')}
           placeholder={t('create.namePlaceholder')}
           value={name}
@@ -65,6 +66,7 @@ export function TeamCreateModal({ open, onClose }: Props) {
         />
 
         <PixelInput
+          data-testid="team-desc-input"
           label={t('create.descLabel')}
           placeholder={t('create.descPlaceholder')}
           value={description}

@@ -292,7 +292,7 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
   }))
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4" data-testid="permissions-settings">
       {/* Permission Mode Selector */}
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('section.permissionMode')}</div>
@@ -300,6 +300,7 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
           options={MODE_OPTIONS}
           value={mode}
           onChange={handleModeChange}
+          data-testid="permission-mode-selector"
         />
       </PixelCard>
 
@@ -583,6 +584,7 @@ function SandboxConfigEditor({
             checked={config.networkRestrictionsEnabled}
             onChange={checked => onUpdate({ networkRestrictionsEnabled: checked })}
             label={t('network.enableLabel')}
+            data-testid="network-restrictions-toggle"
           />
           <span className="font-mono text-[11px] text-text-dim">
             {config.networkRestrictionsEnabled
@@ -630,6 +632,7 @@ function SandboxConfigEditor({
             checked={config.applyToMCP}
             onChange={checked => onUpdate({ applyToMCP: checked })}
             label={t('mcp.applyLabel')}
+            data-testid="apply-to-mcp-toggle"
           />
           {!config.applyToMCP && (
             <span className="font-mono text-[11px] text-accent-amber">

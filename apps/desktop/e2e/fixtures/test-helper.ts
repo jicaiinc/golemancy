@@ -1,7 +1,14 @@
+import fs from 'fs'
+import path from 'path'
 import type { Page } from '@playwright/test'
 import { SELECTORS, TIMEOUTS } from '../constants'
 import { StoreBridge } from './store-bridge'
 import { ConsoleLogger } from './console-logger'
+
+export interface SSEEvent {
+  type: string
+  data: any
+}
 
 /**
  * Unified testing API that combines StoreBridge, ConsoleLogger, and DOM operations.
@@ -301,14 +308,14 @@ export class TestHelper {
     })
   }
 
-  /** Send a chat message via the SSE streaming API and return complete response */
+  /** Send a chat message via the SSE streaming API and return complete response + all SSE events */
   async sendChatViaApi(
     projectId: string,
     agentId: string,
     conversationId: string,
     message: string,
     timeout = TIMEOUTS.AI_RESPONSE,
-  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number } }> {
+  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
     const { baseUrl, token } = await this.getServerInfo()
 
     const result = await this.page.evaluate(
@@ -334,6 +341,7 @@ export class TestHelper {
           const decoder = new TextDecoder()
           let fullText = ''
           let usage = { inputTokens: 0, outputTokens: 0 }
+          const events: { type: string; data: any }[] = []
 
           while (true) {
             const { done, value } = await reader.read()
@@ -349,6 +357,7 @@ export class TestHelper {
 
               try {
                 const parsed = JSON.parse(data)
+                events.push({ type: parsed.type ?? 'unknown', data: parsed })
                 if (parsed.type === 'text-delta' && parsed.textDelta) {
                   fullText += parsed.textDelta
                 }
@@ -364,7 +373,7 @@ export class TestHelper {
             }
           }
 
-          return { response: fullText, usage }
+          return { response: fullText, usage, events }
         } finally {
           clearTimeout(timeoutId)
         }
@@ -373,6 +382,192 @@ export class TestHelper {
     )
 
     return result
+  }
+
+  // ===== Team API helpers =====
+
+  /** Create a team via the API */
+  async createTeamViaApi(
+    projectId: string,
+    name: string,
+    members: Array<{ agentId: string; parentAgentId?: string }> = [],
+  ): Promise<{ id: string; [key: string]: any }> {
+    return this.apiPost(`/api/projects/${projectId}/teams`, { name, description: '', members })
+  }
+
+  // ===== Memory API helpers =====
+
+  /** Create a memory entry for an agent via the API */
+  async createMemoryViaApi(
+    projectId: string,
+    agentId: string,
+    content: string,
+    opts: { pinned?: boolean; priority?: number; tags?: string[] } = {},
+  ): Promise<{ id: string; [key: string]: any }> {
+    return this.apiPost(`/api/projects/${projectId}/agents/${agentId}/memories`, { content, ...opts })
+  }
+
+  // ===== Agent config helpers =====
+
+  /** Assign a skill to an agent by patching skillIds */
+  async assignSkillToAgent(projectId: string, agentId: string, skillId: string): Promise<void> {
+    const agent = await this.apiGet(`/api/projects/${projectId}/agents/${agentId}`)
+    const currentSkills: string[] = agent.skillIds ?? []
+    if (!currentSkills.includes(skillId)) {
+      await this.apiPatch(`/api/projects/${projectId}/agents/${agentId}`, {
+        skillIds: [...currentSkills, skillId],
+      })
+    }
+  }
+
+  /** Assign an MCP server to an agent by patching mcpServers */
+  async assignMcpToAgent(projectId: string, agentId: string, mcpName: string): Promise<void> {
+    const agent = await this.apiGet(`/api/projects/${projectId}/agents/${agentId}`)
+    const currentMcp: string[] = agent.mcpServers ?? []
+    if (!currentMcp.includes(mcpName)) {
+      await this.apiPatch(`/api/projects/${projectId}/agents/${agentId}`, {
+        mcpServers: [...currentMcp, mcpName],
+      })
+    }
+  }
+
+  // ===== Team Chat =====
+
+  /** Send a team chat message via SSE and return complete response + events */
+  async createTeamChatViaApi(
+    projectId: string,
+    teamId: string,
+    message: string,
+    timeout = TIMEOUTS.SSE_CHAT,
+  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
+    // Create a conversation for the team first
+    const conv = await this.apiPost(`/api/projects/${projectId}/conversations`, {
+      targetType: 'team',
+      targetId: teamId,
+      title: 'Team Chat Test',
+    })
+
+    const { baseUrl, token } = await this.getServerInfo()
+
+    const result = await this.page.evaluate(
+      async ({ baseUrl, token, projectId, teamId, conversationId, message, timeout }) => {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+        try {
+          const res = await fetch(`${baseUrl}/api/projects/${projectId}/chat`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              targetType: 'team',
+              targetId: teamId,
+              conversationId,
+              messages: [{ id: `msg-${Date.now()}`, role: 'user', parts: [{ type: 'text', text: message }] }],
+            }),
+            signal: controller.signal,
+          })
+
+          if (!res.ok) throw new Error(`Chat API returned ${res.status}`)
+          if (!res.body) throw new Error('No response body')
+
+          const reader = res.body.getReader()
+          const decoder = new TextDecoder()
+          let fullText = ''
+          let usage = { inputTokens: 0, outputTokens: 0 }
+          const events: { type: string; data: any }[] = []
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            const chunk = decoder.decode(value, { stream: true })
+            const lines = chunk.split('\n')
+
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue
+              const data = line.slice(6).trim()
+              if (data === '[DONE]') continue
+
+              try {
+                const parsed = JSON.parse(data)
+                events.push({ type: parsed.type ?? 'unknown', data: parsed })
+                if (parsed.type === 'text-delta' && parsed.textDelta) {
+                  fullText += parsed.textDelta
+                }
+                if (parsed.type === 'usage' || parsed.type === 'finish') {
+                  if (parsed.usage) {
+                    usage.inputTokens = parsed.usage.promptTokens || parsed.usage.inputTokens || 0
+                    usage.outputTokens = parsed.usage.completionTokens || parsed.usage.outputTokens || 0
+                  }
+                }
+              } catch {
+                // skip unparseable lines
+              }
+            }
+          }
+
+          return { response: fullText, usage, events }
+        } finally {
+          clearTimeout(timeoutId)
+        }
+      },
+      { baseUrl, token, projectId, teamId, conversationId: conv.id, message, timeout },
+    )
+
+    return result
+  }
+
+  // ===== Project config =====
+
+  /** Set the project's default target (agent or team) */
+  async setProjectDefaultTarget(
+    projectId: string,
+    targetType: 'agent' | 'team',
+    targetId: string,
+  ): Promise<void> {
+    await this.apiPatch(`/api/projects/${projectId}`, {
+      defaultTargetType: targetType,
+      defaultTargetId: targetId,
+    })
+  }
+
+  // ===== Workspace file seeding =====
+
+  /** Write a file directly into a project's workspace directory (via Node.js fs) */
+  seedWorkspaceFile(projectId: string, relativePath: string, content: string): void {
+    const dataDir = process.env.GOLEMANCY_TEST_DATA_DIR
+    if (!dataDir) throw new Error('GOLEMANCY_TEST_DATA_DIR not set')
+    const filePath = path.join(dataDir, 'projects', projectId, 'workspace', relativePath)
+    fs.mkdirSync(path.dirname(filePath), { recursive: true })
+    fs.writeFileSync(filePath, content, 'utf-8')
+  }
+
+  // ===== Model tier helpers =====
+
+  /** Create an agent using the global default model (Tier A — cheapest) */
+  async createCheapAgent(
+    projectId: string,
+    name: string,
+    opts: { systemPrompt?: string; builtinTools?: Record<string, unknown>; compactThreshold?: number } = {},
+  ): Promise<{ id: string; [key: string]: any }> {
+    // Tier A uses global defaultModel (set in globalSetup — gemini-2.5-flash or claude-sonnet-4-5)
+    return this.createAgentViaApi(projectId, name, { ...opts })
+  }
+
+  /** Create an agent using a smarter model (Tier B) */
+  async createSmartAgent(
+    projectId: string,
+    name: string,
+    opts: { systemPrompt?: string; builtinTools?: Record<string, unknown>; compactThreshold?: number } = {},
+  ): Promise<{ id: string; [key: string]: any }> {
+    const hasGoogleKey = !!process.env.TEST_GOOGLE_API_KEY
+    const model = hasGoogleKey
+      ? { provider: 'google', model: 'gemini-2.5-pro' }
+      : { provider: 'anthropic', model: 'claude-sonnet-4-6' }
+    return this.createAgentViaApi(projectId, name, { ...opts, model })
   }
 
   // ===== Assertions =====

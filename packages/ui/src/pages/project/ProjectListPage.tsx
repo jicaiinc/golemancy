@@ -90,6 +90,7 @@ export function ProjectListPage() {
                       </p>
                     </div>
                     <button
+                      data-testid={`project-clone-btn-${project.id}`}
                       className="text-text-dim hover:text-accent-blue transition-colors p-1 shrink-0"
                       title={t('list.clone')}
                       onClick={(e) => {

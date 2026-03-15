@@ -79,7 +79,7 @@ export function SpeechStep({
   }, [sttApiKey, sttModel, sttLanguage, onTestSpeech, onUpdate, t])
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6" data-testid="onboarding-speech-step">
       <div className="text-center">
         <h2 className="font-pixel text-[14px] text-text-primary mb-2">{t('speech.heading')}</h2>
         <p className="font-mono text-[11px] text-text-dim">{t('speech.description')}</p>

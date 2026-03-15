@@ -241,10 +241,11 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" data-testid="template-selector">
       {/* Two creation mode options */}
       <div className="grid grid-cols-2 gap-3">
         <button
+          data-testid="template-blank-btn"
           onClick={handleBlankClick}
           className={`text-left p-4 border-2 cursor-pointer transition-colors ${
             !showTemplates
@@ -264,6 +265,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
         </button>
 
         <button
+          data-testid="template-from-template-btn"
           onClick={handleFromTemplateClick}
           className={`text-left p-4 border-2 cursor-pointer transition-colors ${
             showTemplates
@@ -302,6 +304,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
                 {/* Category filter header */}
                 <div className="flex gap-1 flex-wrap p-2 border-b-2 border-border-dim bg-deep">
                   <button
+                    data-testid="template-category-all"
                     onClick={() => setCategoryFilter(null)}
                     className={`px-1.5 py-0.5 font-pixel text-[7px] border cursor-pointer transition-colors ${
                       categoryFilter === null
@@ -314,6 +317,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
                   {activeCategories.map(cat => (
                     <button
                       key={cat}
+                      data-testid={`template-category-${cat}`}
                       onClick={() => setCategoryFilter(cat)}
                       className={`px-1.5 py-0.5 font-pixel text-[7px] border cursor-pointer transition-colors ${
                         categoryFilter === cat
@@ -334,6 +338,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
                     return (
                       <button
                         key={template.id}
+                        data-testid={`template-item-${template.id}`}
                         onClick={() => onSelect(template.id)}
                         className={`w-full flex items-center gap-2 px-2.5 py-2.5 border-b border-border-dim text-left cursor-pointer transition-colors ${
                           isSelected
@@ -355,7 +360,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
               </div>
 
               {/* Right: detail panel */}
-              <div className="p-4 bg-deep">
+              <div className="p-4 bg-deep" data-testid="template-detail-panel">
                 {selectedTemplate ? (
                   <TemplateDetail template={selectedTemplate} />
                 ) : (

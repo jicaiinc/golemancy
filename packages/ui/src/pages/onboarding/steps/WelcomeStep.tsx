@@ -22,7 +22,7 @@ export function WelcomeStep({ onGetStarted, onLanguageChange }: WelcomeStepProps
   }))
 
   return (
-    <div className="flex flex-col items-center justify-center gap-5 text-center min-h-[50vh]">
+    <div className="flex flex-col items-center justify-center gap-5 text-center min-h-[50vh]" data-testid="onboarding-welcome-step">
       <img src={logoSrc} alt="Golemancy" className="w-16 h-16" />
       <span className="font-pixel text-[9px] text-text-dim tracking-widest">
         {t('welcome.tagline')}
@@ -46,7 +46,7 @@ export function WelcomeStep({ onGetStarted, onLanguageChange }: WelcomeStepProps
         onSelect={onLanguageChange}
       />
       <div className="mt-2">
-        <PixelButton variant="primary" size="lg" onClick={onGetStarted}>
+        <PixelButton variant="primary" size="lg" onClick={onGetStarted} data-testid="onboarding-get-started-btn">
           {t('button.getStarted')}
         </PixelButton>
       </div>
