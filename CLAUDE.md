@@ -158,12 +158,63 @@ Tailwind CSS v4, CSS-first config in `packages/ui/src/styles/global.css`:
 
 Vitest: jsdom (UI), Node (server). Tests co-located (`*.test.{ts,tsx}`). UI setup: `packages/ui/src/test/setup.ts`.
 
-E2E: Playwright in `apps/desktop/e2e/`, 3 tiers:
+### E2E Testing
+
+Playwright + Electron，65 个文件，422 个用例。测试文件在 `apps/desktop/e2e/`。
+
+**完整用例目录**：`apps/desktop/e2e/test-catalog.md`（422 个用例按层级/模块/文件分类）
+**测试运行记录**：`apps/desktop/e2e/TEST-LOG.md`（每次测试更新）
+
+#### 4 个层级
+
+| 层级 | 文件数 | 需要 API Key | 说明 |
+|------|--------|-------------|------|
+| smoke | 26 | 否 | UI 渲染、交互、导航 |
+| server | 27 | 否* | API CRUD、数据验证 |
+| ai | 11 | 是 | AI 对话、工具调用、token 计量 |
+| onboarding | 1 | 否 | 独立 Electron 实例，空 data dir |
+
+> *server 层的 `code-execution.spec.ts` 需要 API key
+
+#### 运行方式（推荐单文件运行）
+
 ```bash
-pnpm --filter @golemancy/desktop test:e2e        # smoke + server (no API keys)
+# 1. 先 build（UI 代码没改就不用重复）
+pnpm --filter @golemancy/desktop exec electron-vite build --mode test
+
+# 2. 跑单个文件（推荐，30-60 秒，独立 Electron 实例）
+pnpm --filter @golemancy/desktop test:e2e:only -- e2e/smoke/team-page.spec.ts
+
+# 3. 按用例名匹配
+pnpm --filter @golemancy/desktop test:e2e:only -- -g "memory tab shows empty state"
+
+# 4. 按关键字跑一组相关测试
+pnpm --filter @golemancy/desktop test:e2e:only -- -g "Team"
+
+# 5. 按层级跑
+pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
+pnpm --filter @golemancy/desktop test:e2e:only -- --project=server
+pnpm --filter @golemancy/desktop test:e2e:only -- --project=onboarding
+
+# 6. 全量（不推荐日常使用，10+ 分钟）
+pnpm --filter @golemancy/desktop test:e2e        # smoke + server
 pnpm --filter @golemancy/desktop test:e2e:ai     # all tiers (needs API keys)
-pnpm --filter @golemancy/desktop test:e2e:smoke  # smoke only (fastest)
 ```
+
+#### 关键规则
+
+- **单文件运行优先** — 每个文件独立启动 Electron，无状态污染，快速反馈
+- **不要在日常开发中跑全量** — 全量跑会弹出多个 Electron 窗口、耗时长
+- **AI 测试用宽松断言** — `toContain`/regex，不精确匹配完整回复
+- **修改 UI 代码后需重新 build** — `electron-vite build --mode test`
+- **测试文件修改不需要 build** — 直接跑即可
+
+#### E2E 架构
+
+- Fixtures: `e2e/fixtures/`（electron.ts, test-helper.ts, store-bridge.ts, console-logger.ts, onboarding.ts）
+- Constants: `e2e/constants.ts`（SELECTORS, TIMEOUTS）
+- Config: `e2e/playwright.config.ts`（4 projects: smoke → server → ai + onboarding 独立）
+- Global setup/teardown: 创建临时 data dir，seed settings.json，清理进程
 
 E2E pitfalls: macOS GUI 不继承 PATH → `GOLEMANCY_FORK_EXEC_PATH`; Playwright 下 `app.getAppPath()` returns `out/main/` → `GOLEMANCY_ROOT_DIR`. Store exposed as `window.__GOLEMANCY_STORE__` (non-production).
 
