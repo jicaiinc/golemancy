@@ -285,25 +285,51 @@ app.whenReady().then(async () => {
     if (!icon.isEmpty()) app.dock.setIcon(icon)
   }
 
-  // Windows archive mode: extract runtime/ + server/ on first launch or update
-  if (await needsResourceExtraction()) {
+  // Windows archive mode: extract runtime/ + server/ on first launch or update.
+  // The setup window stays open through the entire first-launch flow (extraction +
+  // server startup) so the user always sees progress — closing it only once the
+  // main window is about to appear.
+  const needsSetup = await needsResourceExtraction()
+  let setupWin: BrowserWindow | null = null
+
+  if (needsSetup) {
     logger.info('First launch detected — extracting resources archive')
-    const setupWin = createSetupWindow()
+    setupWin = createSetupWindow()
+
+    // Phase 1: Extracting resources (0–90%)
+    setupWin.webContents.send('setup:status', { text: 'Extracting resources...' })
     await extractResources((progress) => {
       const percent = progress.total > 0
-        ? Math.min(99, Math.round((progress.current / progress.total) * 100))
+        ? Math.min(90, Math.round((progress.current / progress.total) * 90))
         : 0
-      setupWin.webContents.send('setup:progress', { percent })
+      setupWin!.webContents.send('setup:progress', { percent })
     })
-    setupWin.webContents.send('setup:progress', { percent: 100 })
-    setupWin.close()
-    logger.info('Resources extracted, continuing startup')
+    logger.info('Resources extracted, starting server')
+
+    // Phase 2: Starting server (90–95%)
+    setupWin.webContents.send('setup:progress', { percent: 90 })
+    setupWin.webContents.send('setup:status', { text: 'Starting server...' })
   }
 
   try {
+    // Start a slow progress animation during server startup (90→99%)
+    let serverProgressTimer: ReturnType<typeof setInterval> | null = null
+    if (setupWin) {
+      let serverPercent = 90
+      serverProgressTimer = setInterval(() => {
+        if (serverPercent < 99) {
+          serverPercent++
+          setupWin!.webContents.send('setup:progress', { percent: serverPercent })
+        }
+      }, 2000)
+    }
+
     await startServer()
     logger.info({ port: serverPort }, 'agent server ready')
+
+    if (serverProgressTimer) clearInterval(serverProgressTimer)
   } catch (err) {
+    if (setupWin) setupWin.close()
     // W5: Show dialog on server startup failure
     logger.error({ err }, 'failed to start agent server')
     dialog.showErrorBox(
@@ -312,6 +338,15 @@ app.whenReady().then(async () => {
     )
     app.quit()
     return
+  }
+
+  // Phase 3: Done — close setup window, show main window
+  if (setupWin) {
+    setupWin.webContents.send('setup:progress', { percent: 100 })
+    setupWin.webContents.send('setup:status', { text: 'Almost ready...' })
+    // Brief pause so the user sees 100% before the window switches
+    await new Promise((r) => setTimeout(r, 500))
+    setupWin.close()
   }
 
   createWindow()
