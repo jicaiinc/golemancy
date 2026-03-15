@@ -72,6 +72,14 @@ describe('checkCommandBlacklist', () => {
       expectBlocked('/usr/local/bin/sudo install')
     })
 
+    it('blocks Windows backslash path to denied command (C:\\Windows\\System32\\sudo)', () => {
+      expectBlocked('C:\\Windows\\System32\\sudo rm foo')
+    })
+
+    it('blocks Windows backslash path variant (C:\\Users\\bin\\su)', () => {
+      expectBlocked('C:\\Users\\bin\\su root')
+    })
+
     it('skips env var prefix (FOO=bar sudo)', () => {
       expectBlocked('FOO=bar sudo rm foo')
     })
@@ -100,6 +108,10 @@ describe('checkCommandBlacklist', () => {
   // ── Tier 2: Pipeline and subshell segments ─────────────
 
   describe('Tier 2 — pipeline/subshell segments', () => {
+    it('blocks Windows backslash path in subcommand (cmd && C:\\bin\\sudo rm)', () => {
+      expectBlocked('cmd /c && C:\\bin\\sudo rm foo')
+    })
+
     it('blocks sudo in pipe (ls | sudo tee)', () => {
       expectBlocked('ls | sudo tee /etc/config')
     })
