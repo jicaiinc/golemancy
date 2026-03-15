@@ -13,14 +13,23 @@ function BlinkingCursor() {
   )
 }
 
-/** Collapsible reasoning display — hidden when text is empty (e.g. OpenAI encrypted reasoning) */
+/** Reasoning display — collapsible when content is available, label-only when empty */
 function ReasoningDisplay({ text, state }: { text: string; state?: string }) {
   const { t } = useTranslation('chat')
   const [expanded, setExpanded] = useState(false)
 
-  // OpenAI reasoning models return reasoning parts with empty text (content is encrypted/hidden).
-  // Don't render an empty collapsible block — it confuses users.
-  if (!text) return null
+  if (!text) {
+    return (
+      <div className="my-1 border-2 border-border-dim bg-deep/50">
+        <div className="flex items-center gap-2 px-3 py-1.5">
+          <span className="text-[11px] font-mono text-accent-purple">
+            {t('message.reasoning')}
+          </span>
+          {state === 'streaming' && <BlinkingCursor />}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="my-1 border-2 border-border-dim bg-deep/50">
