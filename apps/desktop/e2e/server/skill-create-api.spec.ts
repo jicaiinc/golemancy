@@ -1,6 +1,6 @@
 import { test, expect } from '../fixtures'
 
-test.describe('Skill Markdown Import', () => {
+test.describe('Skill Create API', () => {
   let projectId: string
 
   test.beforeAll(async ({ helper }) => {

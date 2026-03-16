@@ -11,31 +11,39 @@ test.describe('AI Chat Flow', () => {
   test.skip(!hasApiKeys, 'AI tests require API keys in .env.e2e.local')
 
   let projectId: string
+  let agentId: string
 
-  test.beforeAll(async ({ helper, window }) => {
-    test.setTimeout(180_000) // generous timeout for setup with AI
+  test.beforeAll(async ({ helper }) => {
+    test.setTimeout(180_000)
 
-    // Create project and agent
     await helper.goHome()
-    projectId = await helper.createProject('AI Chat Flow Test')
-    await helper.clickNav('agents')
-    await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
+
+    // Create project and agent via API for reliability
+    const project = await helper.createProjectViaApi('AI Chat Flow Test')
+    projectId = project.id
+
+    const agent = await helper.createAgentViaApi(projectId, 'Flow Test Agent', {
+      systemPrompt: 'You are a helpful assistant. Keep responses brief and direct.',
     })
-    await helper.createAgent('Flow Test Agent')
+    agentId = agent.id
+
+    // Set as default target
+    await helper.apiPatch(`/api/projects/${projectId}`, {
+      defaultTargetType: 'agent',
+      defaultTargetId: agentId,
+    })
   })
 
   test('send message and receive real AI response', async ({ window, helper }) => {
     test.setTimeout(120_000)
 
-    // Navigate to chat
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    // Create conversation via API and navigate directly
+    const conv = await helper.createConversationViaApi(projectId, agentId, 'Basic Chat')
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-
-    // Start chat by clicking agent
-    await helper.startChatWithAgent('Flow Test Agent')
 
     // Send message
     await helper.sendChatMessage('What is 2+2? Reply with just the number.')
@@ -60,15 +68,15 @@ test.describe('AI Chat Flow', () => {
     await expect(assistantMsg).toBeVisible()
   })
 
-  test('thinking indicator appears while waiting for response', async ({ window, helper }) => {
+  test('input re-enabled after response completes', async ({ window, helper }) => {
     test.setTimeout(120_000)
 
-    // Navigate to chat and start fresh conversation
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    const conv = await helper.createConversationViaApi(projectId, agentId, 'Streaming Test')
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.startChatWithAgent('Flow Test Agent')
 
     // Send message
     await helper.sendChatMessage('Say hello')
@@ -84,12 +92,12 @@ test.describe('AI Chat Flow', () => {
   test('multi-turn conversation retains context', async ({ window, helper }) => {
     test.setTimeout(180_000)
 
-    // Navigate to chat and start conversation
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    const conv = await helper.createConversationViaApi(projectId, agentId, 'Multi-turn')
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.startChatWithAgent('Flow Test Agent')
 
     // First message: introduce a unique fact
     await helper.sendChatMessage(
@@ -113,13 +121,11 @@ test.describe('AI Chat Flow', () => {
   }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-    await helper.startChatWithAgent('Flow Test Agent')
+    const conv = await helper.createConversationViaApi(projectId, agentId, 'Streaming State')
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
 
     const chatInput = window.locator(SELECTORS.CHAT_INPUT)
+    await expect(chatInput).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
     // Before sending, input should be enabled
     await expect(chatInput).toBeEnabled()
@@ -128,7 +134,6 @@ test.describe('AI Chat Flow', () => {
     await helper.sendChatMessage('Count from 1 to 5, each on a new line.')
 
     // During streaming, input should be disabled
-    // Use a short timeout since this state may be brief
     await expect(chatInput).toBeDisabled({ timeout: 5000 })
 
     // Wait for streaming to complete
@@ -138,16 +143,16 @@ test.describe('AI Chat Flow', () => {
     await expect(chatInput).toBeEnabled({ timeout: 5000 })
   })
 
-  test('empty state shows agent cards for quick start', async ({ window, helper }) => {
+  test('empty state shows Start Chatting when default agent is set', async ({ window, helper }) => {
     test.setTimeout(60_000)
 
     await helper.navigateTo(`/projects/${projectId}/chat`)
 
-    // Verify empty state elements
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    // Verify empty state shows "Ready to chat" and "Start Chatting" button
+    await expect(
+      window.getByText('Ready to chat').or(window.getByText('Start Chatting')).first()
+    ).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await expect(window.getByText('QUICK START')).toBeVisible()
-    await expect(window.getByText('Flow Test Agent')).toBeVisible()
   })
 })

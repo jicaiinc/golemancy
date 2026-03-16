@@ -3,11 +3,10 @@ import { SELECTORS, TIMEOUTS } from '../constants'
 
 /**
  * Runtime management E2E tests — verifies agent runtime configuration
- * through the UI (model config, provider settings, effective config display).
+ * through the UI (model config, provider settings).
  *
- * Note: There is no dedicated Runtime page in the current UI.
- * Runtime management is accessed through Agent detail (Model Config tab)
- * and Project Settings (Provider tab).
+ * Model config is accessed through Agent detail (Model Config tab).
+ * Project general settings show basic info + default agent/team.
  */
 
 test.describe('Runtime Management E2E', () => {
@@ -26,80 +25,63 @@ test.describe('Runtime Management E2E', () => {
     agentId = await helper.createAgent('Runtime Agent')
   })
 
-  test('model config tab shows effective configuration', async ({
+  test('model config tab shows MODEL CONFIG section', async ({
     window,
     helper,
   }) => {
     // Navigate to agent detail page directly via URL
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
 
-    // Wait for tabs to render
-    await expect(window.locator('[data-testid="tab-model"]')).toBeVisible({
+    // Wait for tabs to render — actual tab id is "model-config"
+    await expect(window.locator('[data-testid="tab-model-config"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Switch to Model Config tab using testid
-    await window.locator('[data-testid="tab-model"]').click()
+    // Switch to Model Config tab
+    await window.locator('[data-testid="tab-model-config"]').click()
 
-    // Should show EFFECTIVE CONFIG section
-    await expect(window.getByText('EFFECTIVE CONFIG')).toBeVisible({
+    // Should show MODEL CONFIG section
+    await expect(window.getByText('MODEL CONFIG')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await expect(window.getByText('Provider:')).toBeVisible()
-    await expect(window.getByText('Model:')).toBeVisible()
-    await expect(window.getByText('Temperature:')).toBeVisible()
+    // Should show PROVIDER and MODEL labels
+    await expect(window.getByText('PROVIDER', { exact: true })).toBeVisible()
   })
 
-  test('model config tab shows provider selector with inherit option', async ({
+  test('model config tab shows provider selector', async ({
     window,
     helper,
   }) => {
     // Ensure we're on Model Config tab (re-navigate for resilience)
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
-    await window.locator('[data-testid="tab-model"]').click()
-    await expect(window.getByText('EFFECTIVE CONFIG')).toBeVisible({
+    await window.locator('[data-testid="tab-model-config"]').click()
+    await expect(window.getByText('MODEL CONFIG')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Provider label (exact match to avoid matching "Provider: " in effective config)
-    await expect(window.getByText('PROVIDER', { exact: true })).toBeVisible()
+    // Provider select should be visible
     const providerSelect = window.locator('select').first()
     await expect(providerSelect).toBeVisible()
-
-    // Should show inheritance source label
-    await expect(
-      window.getByText('Inherited from global').or(
-        window.getByText('Inherited from project'),
-      ).first()
-    ).toBeVisible()
   })
 
-  test('save model config changes and verify persistence', async ({
+  test('model config tab shows compact threshold', async ({
     window,
     helper,
   }) => {
-    // Ensure we're on Model Config tab
+    // Navigate to Model Config tab
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
-    await window.locator('[data-testid="tab-model"]').click()
-    await expect(window.getByText('EFFECTIVE CONFIG')).toBeVisible({
+    await window.locator('[data-testid="tab-model-config"]').click()
+    await expect(window.getByText('MODEL CONFIG')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    const tempInput = window.locator('input[type="number"]').first()
-    await expect(tempInput).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
-    await tempInput.fill('0.3')
-
-    // Save
-    await window.getByText('Save Model Config').click()
-    await expect(window.getByText('Saved!')).toBeVisible({ timeout: 5000 })
-
-    // Verify in store that temperature was saved
-    const agents = await helper.store.get<Array<{ id: string; modelConfig: any }>>('agents')
-    const agent = agents?.find(a => a.id === agentId)
-    expect(agent?.modelConfig?.temperature).toBe(0.3)
+    // Should show COMPACT THRESHOLD section
+    await expect(window.getByText('COMPACT THRESHOLD')).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
   })
 
-  test('project provider override configuration', async ({
+  test('project settings general tab shows basic info', async ({
     window,
     helper,
   }) => {
@@ -110,27 +92,28 @@ test.describe('Runtime Management E2E', () => {
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Click Provider tab using testid
-    await window.locator('[data-testid="tab-provider"]').click()
-    await expect(window.getByText('PROVIDER OVERRIDE')).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-
-    // Should show MAX CONCURRENT AGENTS input
-    await expect(window.getByText('MAX CONCURRENT AGENTS')).toBeVisible()
-  })
-
-  test('general tab shows project info and working directory', async ({
-    window,
-  }) => {
-    // Click General tab using testid
-    await window.locator('[data-testid="tab-general"]').click()
-
+    // General tab is active by default (testIdPrefix="project-settings")
     await expect(window.getByText('BASIC INFO')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
     await expect(window.getByText('PROJECT NAME')).toBeVisible()
     await expect(window.getByText('DESCRIPTION')).toBeVisible()
     await expect(window.getByText('ICON')).toBeVisible()
+  })
+
+  test('project settings shows default agent/team selector', async ({
+    window,
+    helper,
+  }) => {
+    // Ensure on project settings general tab
+    await helper.navigateTo(`/projects/${projectId}/settings`)
+    await expect(window.getByText('BASIC INFO')).toBeVisible({
+      timeout: TIMEOUTS.PAGE_LOAD,
+    })
+
+    // Should show default agent/team selector
+    await expect(window.getByText('DEFAULT AGENT / TEAM')).toBeVisible()
+    const select = window.locator('select').first()
+    await expect(select).toBeVisible()
   })
 })

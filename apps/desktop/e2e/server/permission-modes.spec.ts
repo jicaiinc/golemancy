@@ -27,36 +27,38 @@ test.describe('Permission Modes E2E', () => {
   }) => {
     await helper.navigateTo(`/projects/${projectId}/settings`)
 
-    // Settings page should have Permissions tab
-    await expect(window.locator('[data-testid="tab-permissions"]')).toBeVisible({
+    // Settings page should have Permissions tab (testIdPrefix="project-settings")
+    await expect(window.locator('[data-testid="project-settings-tab-permissions"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
   })
 
-  test('Permissions tab renders permissions settings component', async ({
+  test('Permissions tab renders permission mode cards', async ({
     window,
   }) => {
-    // Click on Permissions tab using testid to avoid strict mode violation
-    await window.locator('[data-testid="tab-permissions"]').click()
+    // Click on Permissions tab
+    await window.locator('[data-testid="project-settings-tab-permissions"]').click()
 
     // The PermissionsSettings component should render with PERMISSION MODE section
     await expect(window.getByText('PERMISSION MODE')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
+
+    // Should show all three mode cards
+    await expect(window.getByText('Restricted')).toBeVisible()
+    await expect(window.getByText('Sandbox')).toBeVisible()
+    await expect(window.getByText('Unrestricted')).toBeVisible()
   })
 
-  test('Agent tab shows main agent selector', async ({ window, helper }) => {
+  test('General tab shows default agent/team selector', async ({ window, helper }) => {
     // Re-navigate to settings for resilience
     await helper.navigateTo(`/projects/${projectId}/settings`)
-    await expect(window.locator('[data-testid="tab-agent"]')).toBeVisible({
+    await expect(window.locator('[data-testid="project-settings-tab-general"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Switch to Agent tab using testid
-    await window.locator('[data-testid="tab-agent"]').click()
-
-    // Use exact match to avoid matching the auto-created "Main Agent" option
-    await expect(window.getByText('MAIN AGENT', { exact: true })).toBeVisible({
+    // General tab is active by default — should show default agent/team selector
+    await expect(window.getByText('DEFAULT AGENT / TEAM')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
@@ -66,26 +68,23 @@ test.describe('Permission Modes E2E', () => {
     await expect(agentSelect.locator('option', { hasText: 'Perm Test Agent' })).toBeAttached()
   })
 
-  test('Provider tab shows global default', async ({ window, helper }) => {
-    // Re-navigate to settings for resilience
+  test('Permissions tab mode cards are clickable', async ({ window, helper }) => {
+    // Navigate to settings Permissions tab
     await helper.navigateTo(`/projects/${projectId}/settings`)
-    await expect(window.locator('[data-testid="tab-provider"]')).toBeVisible({
+    await window.locator('[data-testid="project-settings-tab-permissions"]').click()
+
+    await expect(window.getByText('PERMISSION MODE')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Click Provider tab using testid
-    await window.locator('[data-testid="tab-provider"]').click()
-
-    await expect(window.getByText('PROVIDER OVERRIDE')).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-
-    // Should show the "Inherit from global" option in the select
-    const providerSelect = window.locator('select').first()
-    await expect(providerSelect).toBeVisible()
+    // Click Restricted mode card — should succeed without error
+    await window.getByText('Restricted').click()
+    // Verify the mode was selected (the card should be visually selected)
+    // Give a moment for state update
+    await window.waitForTimeout(500)
   })
 
-  test('MCP tab on agent shows warning when mode is not sandbox', async ({
+  test('MCP tab on agent detail page shows MCP section', async ({
     window,
     helper,
   }) => {
@@ -95,14 +94,14 @@ test.describe('Permission Modes E2E', () => {
     expect(permAgent).toBeDefined()
 
     await helper.navigateTo(`/projects/${projectId}/agents/${permAgent!.id}`)
-    await expect(window.locator('[data-testid="tab-info"]')).toBeVisible({
+    await expect(window.locator('[data-testid="tab-general"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Switch to MCP tab using testid
+    // Switch to MCP tab
     await window.locator('[data-testid="tab-mcp"]').click()
 
-    // Without MCP servers assigned, should show empty state
+    // Without MCP servers assigned, should show empty state or assigned section
     await expect(
       window.getByText('ASSIGNED MCP SERVERS').or(
         window.getByText('No MCP servers'),

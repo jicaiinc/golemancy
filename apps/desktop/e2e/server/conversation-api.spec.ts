@@ -20,13 +20,15 @@ test.describe('Conversation API', () => {
 
   test('POST /conversations creates a conversation', async ({ helper }) => {
     const response = await helper.apiPostRaw(`/api/projects/${projectId}/conversations`, {
-      agentId,
+      targetType: 'agent',
+      targetId: agentId,
       title: 'Test Conversation',
     })
     expect(response.status()).toBe(201)
     const data = await response.json()
     expect(data.id).toBeDefined()
-    expect(data.agentId).toBe(agentId)
+    expect(data.targetId).toBe(agentId)
+    expect(data.targetType).toBe('agent')
     expect(data.title).toBe('Test Conversation')
     conversationId = data.id
   })
@@ -49,14 +51,14 @@ test.describe('Conversation API', () => {
     expect(Array.isArray(filtered)).toBe(true)
     expect(filtered.length).toBeGreaterThanOrEqual(1)
     for (const conv of filtered) {
-      expect(conv.agentId).toBe(agentId)
+      expect(conv.targetId).toBe(agentId)
     }
   })
 
   test('GET /conversations/:id returns single conversation', async ({ helper }) => {
     const conv = await helper.apiGet(`/api/projects/${projectId}/conversations/${conversationId}`)
     expect(conv.id).toBe(conversationId)
-    expect(conv.agentId).toBe(agentId)
+    expect(conv.targetId).toBe(agentId)
   })
 
   test('PATCH /conversations/:id updates title', async ({ helper }) => {
@@ -103,7 +105,9 @@ test.describe('Conversation API', () => {
     )
     expect(result.items).toBeDefined()
     expect(Array.isArray(result.items)).toBe(true)
-    expect(typeof result.hasMore).toBe('boolean')
+    expect(typeof result.total).toBe('number')
+    expect(typeof result.page).toBe('number')
+    expect(typeof result.pageSize).toBe('number')
     expect(result.items.length).toBeGreaterThanOrEqual(2)
   })
 

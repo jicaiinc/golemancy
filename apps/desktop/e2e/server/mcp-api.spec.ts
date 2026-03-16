@@ -13,7 +13,7 @@ test.describe('MCP API', () => {
   // ===== CRUD =====
 
   test('POST /mcp creates a stdio server', async ({ helper }) => {
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/mcp`, {
+    const response = await helper.apiPostRaw(`/api/projects/${projectId}/mcp-servers`, {
       name: 'test-stdio',
       transportType: 'stdio',
       command: 'echo',
@@ -27,7 +27,7 @@ test.describe('MCP API', () => {
   })
 
   test('POST /mcp creates an SSE server', async ({ helper }) => {
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/mcp`, {
+    const response = await helper.apiPostRaw(`/api/projects/${projectId}/mcp-servers`, {
       name: 'test-sse',
       transportType: 'sse',
       url: 'http://localhost:9999/sse',
@@ -40,7 +40,7 @@ test.describe('MCP API', () => {
   })
 
   test('GET /mcp lists both servers', async ({ helper }) => {
-    const list = await helper.apiGet(`/api/projects/${projectId}/mcp`)
+    const list = await helper.apiGet(`/api/projects/${projectId}/mcp-servers`)
     expect(Array.isArray(list)).toBe(true)
     const names = list.map((s: any) => s.name)
     expect(names).toContain('test-stdio')
@@ -48,7 +48,7 @@ test.describe('MCP API', () => {
   })
 
   test('GET /mcp/:name returns server by name', async ({ helper }) => {
-    const server = await helper.apiGet(`/api/projects/${projectId}/mcp/test-stdio`)
+    const server = await helper.apiGet(`/api/projects/${projectId}/mcp-servers/test-stdio`)
     expect(server.name).toBe('test-stdio')
     expect(server.transportType).toBe('stdio')
     expect(server.command).toBe('echo')
@@ -56,7 +56,7 @@ test.describe('MCP API', () => {
   })
 
   test('PATCH /mcp/:name updates description', async ({ helper }) => {
-    const updated = await helper.apiPatch(`/api/projects/${projectId}/mcp/test-stdio`, {
+    const updated = await helper.apiPatch(`/api/projects/${projectId}/mcp-servers/test-stdio`, {
       description: 'Updated stdio server description',
     })
     expect(updated.description).toBe('Updated stdio server description')
@@ -64,14 +64,14 @@ test.describe('MCP API', () => {
 
   test('POST /mcp/:name/test tests connectivity', async ({ helper }) => {
     // The dummy echo server won't be a real MCP — expect ok:false or an error field
-    const result = await helper.apiPost(`/api/projects/${projectId}/mcp/test-stdio/test`, {})
+    const result = await helper.apiPost(`/api/projects/${projectId}/mcp-servers/test-stdio/test`, {})
     expect(result).toHaveProperty('ok')
     // A fake echo command is not a valid MCP server, so ok should be false
     expect(result.ok).toBe(false)
   })
 
   test('POST /mcp with duplicate name returns 409', async ({ helper }) => {
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/mcp`, {
+    const response = await helper.apiPostRaw(`/api/projects/${projectId}/mcp-servers`, {
       name: 'test-stdio',
       transportType: 'stdio',
       command: 'echo',
@@ -81,7 +81,7 @@ test.describe('MCP API', () => {
   })
 
   test('DELETE /mcp/:name deletes unreferenced server', async ({ helper }) => {
-    const result = await helper.apiDelete(`/api/projects/${projectId}/mcp/test-stdio`)
+    const result = await helper.apiDelete(`/api/projects/${projectId}/mcp-servers/test-stdio`)
     expect(result.ok).toBe(true)
   })
 
@@ -91,7 +91,7 @@ test.describe('MCP API', () => {
       mcpServers: ['test-sse'],
     } as any)
 
-    const response = await helper.apiDeleteRaw(`/api/projects/${projectId}/mcp/test-sse`)
+    const response = await helper.apiDeleteRaw(`/api/projects/${projectId}/mcp-servers/test-sse`)
     expect(response.status()).toBe(409)
     const body = await response.json()
     expect(body.error).toBeDefined()

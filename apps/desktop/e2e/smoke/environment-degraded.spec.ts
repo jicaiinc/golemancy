@@ -25,7 +25,7 @@ test.describe('Environment Degraded Mode', () => {
     expect(status.node).toHaveProperty('available')
 
     // Python status should have basic structure
-    expect(status.python).toHaveProperty('available')
+    expect(status.python).toHaveProperty('exists')
   })
 
   test('app does not crash when navigating with missing runtimes', async ({ window, helper }) => {

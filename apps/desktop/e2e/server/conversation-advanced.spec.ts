@@ -35,7 +35,10 @@ test.describe('Conversation Advanced', () => {
       `/api/projects/${projectId}/conversations/${conv.id}/messages?page=1&pageSize=2`,
     )
     expect(result.items).toHaveLength(2)
-    expect(result.hasMore).toBe(true)
+    // PaginatedResult has total, page, pageSize (not hasMore)
+    expect(result.total).toBeGreaterThan(2)
+    expect(result.page).toBe(1)
+    expect(result.pageSize).toBe(2)
   })
 
   test('GET /messages page 2 returns different messages than page 1', async ({ helper }) => {
@@ -81,7 +84,8 @@ test.describe('Conversation Advanced', () => {
       `/api/projects/${projectId}/conversations/${conv.id}/messages?page=1&pageSize=10`,
     )
     expect(result.items.length).toBeLessThanOrEqual(10)
-    expect(result.hasMore).toBe(false)
+    // Last page: total items <= pageSize means all results fit on one page
+    expect(result.total).toBeLessThanOrEqual(result.pageSize)
   })
 
   // ===== Compact API =====

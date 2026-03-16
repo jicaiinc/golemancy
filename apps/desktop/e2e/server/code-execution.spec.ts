@@ -19,35 +19,39 @@ test.describe('Code Execution E2E', () => {
   test.skip(!hasApiKeys, 'Code execution tests require API keys in .env.e2e.local')
 
   let projectId: string
+  let agentId: string
 
-  test.beforeAll(async ({ helper, window }) => {
+  test.beforeAll(async ({ helper }) => {
     test.setTimeout(120_000)
 
     await helper.goHome()
-    projectId = await helper.createProject('Code Execution Test')
 
-    // Create agent with bash tool enabled (default)
-    await helper.navigateTo(`/projects/${projectId}/agents`)
-    await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
+    const project = await helper.createProjectViaApi('Code Execution Test')
+    projectId = project.id
+
+    // Create agent with bash tool enabled via API
+    const agent = await helper.createAgentViaApi(projectId, 'Code Runner', {
+      systemPrompt: 'You are a coding assistant. When asked to run code, use the bash tool to execute it. Keep responses brief.',
     })
-    await helper.createAgent(
-      'Code Runner',
-      'You are a coding assistant. When asked to run code, use the bash tool to execute it. Keep responses brief.',
-    )
+    agentId = agent.id
+
+    // Set as default target so chat page can use it
+    await helper.apiPatch(`/api/projects/${projectId}`, {
+      defaultTargetType: 'agent',
+      defaultTargetId: agentId,
+    })
   })
 
   test('execute echo command via bash tool', async ({ window, helper }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(
-      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
-    ).toBeVisible({
+    // Create conversation and navigate directly
+    const conv = await helper.createConversationViaApi(projectId, agentId, 'Echo Test')
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-
-    await helper.startChatWithAgent('Code Runner')
 
     // Ask for simple echo execution
     await helper.sendChatMessage(
@@ -63,14 +67,12 @@ test.describe('Code Execution E2E', () => {
   test('execute Python code and verify output', async ({ window, helper }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(
-      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
-    ).toBeVisible({
+    const conv = await helper.createConversationViaApi(projectId, agentId, 'Python Test')
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-
-    await helper.startChatWithAgent('Code Runner')
 
     // Ask to run Python code
     await helper.sendChatMessage(
@@ -89,14 +91,12 @@ test.describe('Code Execution E2E', () => {
   }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(
-      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
-    ).toBeVisible({
+    const conv = await helper.createConversationViaApi(projectId, agentId, 'Node Test')
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-
-    await helper.startChatWithAgent('Code Runner')
 
     // Ask to run Node.js code
     await helper.sendChatMessage(

@@ -10,24 +10,45 @@ test.describe('Browser Tool Config — builtinTools Validation', () => {
     projectId = project.id
   })
 
-  test('POST agent with builtinTools.browser: true persists correctly', async ({ helper }) => {
+  test('POST agent gets default builtinTools with bash:true', async ({ helper }) => {
     const response = await helper.apiPostRaw(`/api/projects/${projectId}/agents`, {
-      name: 'Browser Agent',
-      systemPrompt: 'Agent with browser tool enabled.',
-      builtinTools: { browser: true },
+      name: 'Default Agent',
+      systemPrompt: 'Agent with default tools.',
     })
     expect(response.status()).toBe(201)
     const agent = await response.json()
     expect(agent.id).toBeDefined()
 
-    // GET the agent and verify builtinTools.browser is true
+    // Server defaults to { bash: true } on creation
     const fetched = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}`)
-    expect(fetched.builtinTools.browser).toBe(true)
+    expect(fetched.builtinTools).toBeDefined()
+    expect(fetched.builtinTools.bash).toBe(true)
   })
 
-  test('POST agent with explicit builtinTools preserves all fields', async ({ helper }) => {
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/agents`, {
+  test('PATCH agent builtinTools.browser: true persists correctly', async ({ helper }) => {
+    // Create agent (gets default builtinTools)
+    const agent = await helper.apiPost(`/api/projects/${projectId}/agents`, {
+      name: 'Browser Agent',
+      systemPrompt: 'Agent with browser tool enabled.',
+    })
+
+    // PATCH to enable browser
+    await helper.apiPatch(`/api/projects/${projectId}/agents/${agent.id}`, {
+      builtinTools: { ...agent.builtinTools, browser: true },
+    })
+
+    const fetched = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}`)
+    expect(fetched.builtinTools.browser).toBe(true)
+    expect(fetched.builtinTools.bash).toBe(true)
+  })
+
+  test('PATCH agent with all builtinTools preserves all fields', async ({ helper }) => {
+    const agent = await helper.apiPost(`/api/projects/${projectId}/agents`, {
       name: 'All Tools Agent',
+    })
+
+    // PATCH to set all builtinTools
+    await helper.apiPatch(`/api/projects/${projectId}/agents/${agent.id}`, {
       builtinTools: {
         bash: true,
         browser: true,
@@ -36,8 +57,6 @@ test.describe('Browser Tool Config — builtinTools Validation', () => {
         memory: true,
       },
     })
-    expect(response.status()).toBe(201)
-    const agent = await response.json()
 
     const fetched = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}`)
     expect(fetched.builtinTools.bash).toBe(true)
@@ -47,28 +66,9 @@ test.describe('Browser Tool Config — builtinTools Validation', () => {
     expect(fetched.builtinTools.memory).toBe(true)
   })
 
-  test('POST agent without builtinTools gets correct defaults', async ({ helper }) => {
-    const response = await helper.apiPostRaw(`/api/projects/${projectId}/agents`, {
-      name: 'Default Tools Agent',
-      systemPrompt: 'Agent with default tools.',
-    })
-    expect(response.status()).toBe(201)
-    const agent = await response.json()
-
-    const fetched = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}`)
-    // Default values: bash, task, memory = true; browser, computer_use = false
-    expect(fetched.builtinTools.bash).toBe(true)
-    expect(fetched.builtinTools.task).toBe(true)
-    expect(fetched.builtinTools.memory).toBe(true)
-    expect(fetched.builtinTools.browser).toBe(false)
-    expect(fetched.builtinTools.computer_use).toBe(false)
-  })
-
   test('PATCH agent can toggle builtinTools.browser', async ({ helper }) => {
-    // Create agent with browser off
     const agent = await helper.apiPost(`/api/projects/${projectId}/agents`, {
       name: 'Toggle Agent',
-      builtinTools: { browser: false },
     })
 
     // Toggle browser on

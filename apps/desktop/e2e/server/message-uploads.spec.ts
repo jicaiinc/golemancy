@@ -36,10 +36,10 @@ test.describe('Message Uploads', () => {
     const messages = await helper.apiGet(
       `/api/projects/${projectId}/conversations/${conversationId}/messages`,
     )
-    expect(messages.length).toBeGreaterThan(0)
+    expect(messages.items.length).toBeGreaterThan(0)
 
     // The saved message should contain an upload reference in its parts
-    const userMsg = messages.find((m: any) => m.role === 'user')
+    const userMsg = messages.items.find((m: any) => m.role === 'user')
     expect(userMsg).toBeDefined()
 
     // Find the image part — after extraction, the image URL becomes a golemancy-upload: reference
@@ -77,8 +77,8 @@ test.describe('Message Uploads', () => {
 
     // Look for golemancy-upload: references in message parts
     let uploadFilename: string | null = null
-    for (const msg of messages) {
-      for (const part of msg.parts ?? []) {
+    for (const msg of messages.items) {
+      for (const part of (msg as any).parts ?? []) {
         const url = part.image ?? part.url ?? ''
         if (typeof url === 'string' && url.startsWith('golemancy-upload:')) {
           // Format: golemancy-upload:{mediaType}:{filename}

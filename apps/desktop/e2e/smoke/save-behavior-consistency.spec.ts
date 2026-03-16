@@ -78,23 +78,23 @@ test.describe('Save Behavior Consistency', () => {
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Toggle bash on
+    // bash is enabled by default — toggle it OFF
     const bashToggle = window.locator(SELECTORS.TOOL_TOGGLE('bash'))
     await expect(bashToggle).toBeVisible()
     await bashToggle.click()
 
-    // Wait for store to reflect the change (auto-save — no Save button click)
+    // Wait for store to reflect bash toggled off (auto-save — no Save button click)
     await helper.store.waitFor(
-      `state.agents.find(a => a.id === '${agentId}')?.builtinTools?.bash === true`,
+      `state.agents.find(a => a.id === '${agentId}')?.builtinTools?.bash === false`,
       TIMEOUTS.PAGE_LOAD,
     )
 
-    // Toggle bash back off
+    // Toggle bash back ON
     await bashToggle.click()
 
     // Wait for store to reflect the revert
     await helper.store.waitFor(
-      `state.agents.find(a => a.id === '${agentId}')?.builtinTools?.bash === false`,
+      `state.agents.find(a => a.id === '${agentId}')?.builtinTools?.bash === true`,
       TIMEOUTS.PAGE_LOAD,
     )
   })
@@ -103,10 +103,8 @@ test.describe('Save Behavior Consistency', () => {
     // Switch to General tab
     await window.locator('[data-testid="tab-general"]').click()
 
-    // Find and change the agent name
-    const nameInput = window.locator('input').filter({ hasText: '' }).first()
-    // Use the label to find the correct input
-    const nameField = window.locator('input[value="Save Test Agent"]')
+    // Find the agent name input by label
+    const nameField = window.getByLabel('AGENT NAME')
     await expect(nameField).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
 
     // Change the name
@@ -123,8 +121,9 @@ test.describe('Save Behavior Consistency', () => {
     // Name in store should still be the old value
     expect(agentBeforeSave.name).toBe('Save Test Agent')
 
-    // Now click Save
-    const saveBtn = window.getByRole('button', { name: /^Save$|^save$/i }).first()
+    // Now click Save (use testid for reliability)
+    const saveBtn = window.locator('[data-testid="save-btn"]')
+    await expect(saveBtn).toBeVisible()
     await saveBtn.click()
 
     // Wait for the saved indicator
@@ -169,11 +168,16 @@ test.describe('Save Behavior Consistency', () => {
     }, agentId)
     const originalThreshold = agentBefore?.compactThreshold
 
-    // Find and change the compact threshold input
-    const thresholdInput = window.locator('input[type="number"]').first()
+    // Find the compact threshold text input (type="text", not type="number")
+    const thresholdInput = window.locator('input[type="text"]').first()
     await expect(thresholdInput).toBeVisible()
-    const newValue = (originalThreshold ?? 50000) === 50000 ? '40000' : '50000'
+
+    // Focus and change the value
+    const newValue = (originalThreshold ?? 800000) === 800000 ? '400000' : '800000'
+    await thresholdInput.click()
     await thresholdInput.fill(newValue)
+    // Blur to apply the input
+    await thresholdInput.blur()
 
     // Wait — store should NOT have updated yet (explicit save required)
     await window.waitForTimeout(1000)
