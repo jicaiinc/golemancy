@@ -150,16 +150,18 @@ test.describe('Sandbox Code Runtime', () => {
   test('sandbox: ls command lists files', async ({ helper }) => {
     test.setTimeout(120_000)
 
+    // Seed a deterministic marker file so we can verify ls output
+    helper.seedWorkspaceFile(sandboxProjectId, 'test-marker.txt', 'marker content')
+
     const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Ls Test')
     const result = await helper.sendChatViaApi(
       sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: ls /tmp',
+      'Run: ls',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // ls should produce some output (even if just a listing)
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    // Response should contain the seeded file name
+    expect(result.response).toContain('test-marker.txt')
   })
 
   test('sandbox: python execution works', async ({ helper }) => {
@@ -191,14 +193,19 @@ test.describe('Sandbox Code Runtime', () => {
   test('sandbox: writeFile via bash creates a file', async ({ helper }) => {
     test.setTimeout(120_000)
 
+    const relativePath = 'sandbox-write-test.txt'
+    helper.removeWorkspaceFile(sandboxProjectId, relativePath)
+
     const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'WriteFile Test')
-    const result = await helper.sendChatViaApi(
+    await helper.sendChatViaApi(
       sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: echo "SANDBOX_WRITE_CONTENT_99" > /tmp/golemancy-sandbox-write.txt && echo "WRITE_SUCCESS"',
+      `Run: echo "SANDBOX_WRITE_CONTENT_99" > ${relativePath}`,
       TIMEOUTS.AI_RESPONSE,
     )
 
-    expect(result.response).toContain('WRITE_SUCCESS')
+    // Verify the file was actually created in the workspace
+    expect(helper.workspaceFileExists(sandboxProjectId, relativePath)).toBe(true)
+    expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('SANDBOX_WRITE_CONTENT_99')
   })
 
   test('sandbox: readFile via bash reads file content', async ({ helper }) => {
@@ -219,11 +226,11 @@ test.describe('Sandbox Code Runtime', () => {
   test('sandbox: denied command pattern is blocked', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    // Create a sandbox config that explicitly denies 'curl'
+    // Create a sandbox config that explicitly denies 'rm'
     const deniedConfig = await helper.apiPost(
       `/api/projects/${sandboxProjectId}/permissions-config`,
       {
-        title: 'Denied Curl Mode',
+        title: 'Denied Rm Mode',
         mode: 'sandbox',
         config: {
           allowWrite: ['{{workspaceDir}}'],
@@ -232,7 +239,7 @@ test.describe('Sandbox Code Runtime', () => {
           networkRestrictionsEnabled: false,
           allowedDomains: [],
           deniedDomains: [],
-          deniedCommands: ['curl'],
+          deniedCommands: ['rm'],
           applyToMCP: false,
         },
       },
@@ -247,27 +254,19 @@ test.describe('Sandbox Code Runtime', () => {
       permissionsConfigId: deniedConfig.id,
     })
 
+    // Seed a file that should survive the denied rm command
+    helper.seedWorkspaceFile(sandboxProjectId, 'deny-test-protected.txt', 'PROTECTED_CONTENT')
+
     const conv = await helper.createConversationViaApi(sandboxProjectId, deniedAgent.id, 'Denied Cmd Test')
-    const result = await helper.sendChatViaApi(
+    await helper.sendChatViaApi(
       sandboxProjectId, deniedAgent.id, conv.id,
-      'Run this command: curl http://example.com',
+      'Run this command: rm deny-test-protected.txt',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // The command should be blocked or refused
-    const lower = result.response.toLowerCase()
-    const isBlocked =
-      lower.includes('denied') ||
-      lower.includes('blocked') ||
-      lower.includes('not allowed') ||
-      lower.includes('cannot') ||
-      lower.includes('restricted') ||
-      lower.includes('permission') ||
-      lower.includes('error') ||
-      lower.includes('unable') ||
-      lower.includes('refuse') ||
-      lower.includes('rejected')
-    expect(isBlocked || !lower.includes('<!doctype')).toBe(true)
+    // The file should still exist because rm is denied
+    expect(helper.workspaceFileExists(sandboxProjectId, 'deny-test-protected.txt')).toBe(true)
+    expect(helper.readWorkspaceFile(sandboxProjectId, 'deny-test-protected.txt')).toBe('PROTECTED_CONTENT')
   })
 
   // ===== Restricted: blocks tools (1 test) =====
@@ -314,14 +313,21 @@ test.describe('Sandbox Code Runtime', () => {
     const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Timeout Test')
     const result = await helper.sendChatViaApi(
       sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: sleep 1 && echo TIMEOUT_SURVIVED',
+      'Run: sleep 120',
       120_000,
     )
 
-    // The command should either complete successfully or timeout gracefully
-    // Either way, the agent should produce a response
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    // The command should be killed/timed out
+    const lower = result.response.toLowerCase()
+    expect(
+      lower.includes('timeout') ||
+      lower.includes('timed out') ||
+      lower.includes('killed') ||
+      lower.includes('exceeded') ||
+      lower.includes('time limit') ||
+      lower.includes('terminated') ||
+      lower.includes('interrupt'),
+    ).toBe(true)
   })
 
   // ===== Large output truncation (1 test) =====
@@ -332,13 +338,18 @@ test.describe('Sandbox Code Runtime', () => {
     const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Large Output Test')
     const result = await helper.sendChatViaApi(
       sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: seq 1 500',
+      'Run: seq 1 10000',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // The agent should respond without crashing, even if output is truncated
-    expect(result.response).toBeTruthy()
-    // Should contain at least some numbers from the sequence
-    expect(result.response).toMatch(/\d+/)
+    // With 10000 lines, native-bash-tools truncates stdout at 30KB
+    // The tool result should contain the truncation marker
+    const hasToolTruncation = result.events.some(
+      e => e.type === 'tool_call' && JSON.stringify(e.data).includes('truncated'),
+    )
+    // Or the AI mentions truncation in its response
+    const lower = result.response.toLowerCase()
+    const aiMentionsTruncation = lower.includes('truncat') || lower.includes('omit') || lower.includes('cut off')
+    expect(hasToolTruncation || aiMentionsTruncation).toBe(true)
   })
 })

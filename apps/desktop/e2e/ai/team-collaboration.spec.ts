@@ -62,12 +62,11 @@ test.describe('Team Collaboration', () => {
       'What tools or team members do you have available? List them.',
     )
 
-    // The leader should mention its delegation tools or team member names
+    // The leader should mention its team member names
     const lower = response.toLowerCase()
     expect(
       lower.includes('researcher') ||
-      lower.includes('writer') ||
-      lower.includes('delegate'),
+      lower.includes('writer'),
     ).toBe(true)
   })
 
@@ -123,14 +122,10 @@ test.describe('Team Collaboration', () => {
 
     // The delegation should target the researcher (contains researcher's agent ID)
     const delegatedToResearcher = delegationEvents.some(
-      e => e.data.toolName.includes(researcherId),
-    )
-    // The delegation should NOT target the writer
-    const delegatedToWriter = delegationEvents.some(
-      e => e.data.toolName.includes(writerId),
+      e => String(e.data.toolName).includes(researcherId),
     )
 
-    // At least one of these should be true — the leader should prefer researcher for research
-    expect(delegatedToResearcher || !delegatedToWriter).toBe(true)
+    // Strict check: researcher must be among delegation targets for a research question
+    expect(delegatedToResearcher).toBe(true)
   })
 })

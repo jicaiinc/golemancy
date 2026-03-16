@@ -83,14 +83,8 @@ test.describe('Real MCP Tool Calls', () => {
       120_000,
     )
 
-    // example.com has a well-known title
-    const lower = result.response.toLowerCase()
-    const hasFetchResult =
-      lower.includes('example domain') ||
-      lower.includes('example') ||
-      lower.includes('illustrative') ||
-      lower.includes('iana')
-    expect(hasFetchResult).toBe(true)
+    // example.com has the well-known title "Example Domain"
+    expect(result.response).toContain('Example Domain')
   })
 
   test('memory MCP: agent can store and recall knowledge', async ({ helper }) => {
@@ -143,14 +137,14 @@ test.describe('Real MCP Tool Calls', () => {
       'Please use your memory tool to store this fact: "The secret passphrase is crystalline aurora".',
       120_000,
     )
-    expect(storeResult.response).toBeTruthy()
+    expect(storeResult.response.length).toBeGreaterThan(10)
+    expect(storeResult.response.toLowerCase()).not.toMatch(/error|failed|unable/i)
 
-    // Check that a tool call was made
+    // Check that at least one tool call was made
     const toolCalls = storeResult.events.filter(
       (e) => e.type === 'tool_call' || e.type === 'tool-call',
     )
-    // At least one tool call should have been attempted
-    expect(toolCalls.length).toBeGreaterThanOrEqual(0) // relaxed: tool call may not be captured as event type
+    expect(toolCalls.length).toBeGreaterThanOrEqual(1)
 
     // The response should indicate something was stored
     const lower = storeResult.response.toLowerCase()
@@ -162,11 +156,24 @@ test.describe('Real MCP Tool Calls', () => {
       lower.includes('created') ||
       lower.includes('memory')
     expect(hasStoreConfirmation).toBe(true)
+
+    // Round 2: recall the stored fact to verify it was actually persisted
+    const recallResult = await helper.sendChatViaApi(
+      projectId, agent.id, conv.id,
+      'Use your memory tool to recall: what is the secret passphrase?',
+      120_000,
+    )
+    expect(recallResult.response.toLowerCase()).toContain('crystalline aurora')
   })
 
   test('filesystem MCP: agent can list directory contents', async ({ helper }) => {
     test.skip(!npxAvailable, 'npx is required for filesystem MCP server')
     test.setTimeout(180_000)
+
+    // Seed a deterministic marker file in /tmp so we can verify the listing
+    const fs = await import('fs')
+    const markerPath = '/tmp/golemancy-fs-mcp-marker-e2e.txt'
+    fs.writeFileSync(markerPath, 'FS_MCP_MARKER', 'utf-8')
 
     // Register the filesystem MCP server with access to /tmp
     await helper.apiPost(`/api/projects/${projectId}/mcp-servers`, {
@@ -213,21 +220,10 @@ test.describe('Real MCP Tool Calls', () => {
       120_000,
     )
 
-    // The agent should produce some listing of /tmp contents
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(10)
+    // The response should contain the seeded marker file name
+    expect(result.response).toContain('golemancy-fs-mcp-marker-e2e')
 
-    // Should contain some indication of directory listing
-    const lower = result.response.toLowerCase()
-    const hasListingContent =
-      lower.includes('/tmp') ||
-      lower.includes('directory') ||
-      lower.includes('file') ||
-      lower.includes('folder') ||
-      lower.includes('contents') ||
-      lower.includes('found') ||
-      lower.includes('items') ||
-      lower.includes('listed')
-    expect(hasListingContent).toBe(true)
+    // Cleanup
+    fs.rmSync(markerPath, { force: true })
   })
 })
