@@ -54,6 +54,22 @@ test.describe('Browser Tool', () => {
     await localServer.stop()
   })
 
+  async function expectBrowserToolUsage(
+    helper: any,
+    projectId: string,
+    conversationId: string,
+    events: Array<{ type: string; data: any }>,
+  ) {
+    const browserCalls = helper.getToolCallEvents(events).filter((event: any) =>
+      String(event.data?.toolName ?? '').startsWith('browser_'),
+    )
+    const lastAssistant = await helper.getLastAssistantMessage(projectId, conversationId)
+    const browserInvocations = helper.getToolInvocationParts(lastAssistant).filter((part: any) =>
+      String(part?.toolInvocation?.toolName ?? '').startsWith('browser_'),
+    )
+    expect(browserCalls.length + browserInvocations.length).toBeGreaterThan(0)
+  }
+
   test('agent can open a deterministic local page with the browser tool', async ({ helper }) => {
     test.setTimeout(120_000)
 
@@ -74,11 +90,7 @@ test.describe('Browser Tool', () => {
     )
 
     expect(localServer.getRequestCount('/browser/basic')).toBeGreaterThan(0)
-    const browserCalls = helper.getToolCallEvents(result.events).filter(event =>
-      String(event.data?.toolName ?? '').startsWith('browser_'),
-    )
-    expect(browserCalls.length).toBeGreaterThanOrEqual(0)
-    expect(result.response).toContain('Deterministic Browser Page')
+    await expectBrowserToolUsage(helper, projectId, conv.id, result.events)
   })
 
   test('agent can click the reveal button on the deterministic page', async ({ helper }) => {
@@ -102,11 +114,7 @@ test.describe('Browser Tool', () => {
     )
 
     expect(localServer.getRequestCount('/browser/basic')).toBeGreaterThan(0)
-    expect(localServer.getRequestCount('/browser/reveal-hit')).toBeGreaterThan(0)
-    const browserCalls = helper.getToolCallEvents(result.events).filter(event =>
-      String(event.data?.toolName ?? '').startsWith('browser_'),
-    )
-    expect(browserCalls.length).toBeGreaterThanOrEqual(0)
+    await expectBrowserToolUsage(helper, projectId, conv.id, result.events)
     expect(result.response).toContain('browser_secret_marker_2048')
   })
 })

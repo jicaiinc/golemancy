@@ -11,6 +11,17 @@ export interface SSEEvent {
   data: any
 }
 
+interface ChatStreamResult {
+  response: string
+  usage: { inputTokens: number; outputTokens: number }
+  events: SSEEvent[]
+}
+
+interface SSEAccumulator extends ChatStreamResult {
+  buffer: string
+  eventDataLines: string[]
+}
+
 /**
  * Unified testing API that combines StoreBridge, ConsoleLogger, and DOM operations.
  */
@@ -19,6 +30,7 @@ export class TestHelper {
   readonly console: ConsoleLogger
   private serverInfoCache: { baseUrl: string; token: string } | null = null
   private defaultModelCache: { provider: string; model: string } | null = null
+  private readonly backgroundChatPromises = new Map<string, Promise<ChatStreamResult>>()
 
   constructor(private page: Page, logger: ConsoleLogger) {
     this.store = new StoreBridge(page)
@@ -37,56 +49,149 @@ export class TestHelper {
       .join('\n')
   }
 
-  private parseSSEPayload(rawText: string): { response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] } {
-    let fullText = ''
-    const usage = { inputTokens: 0, outputTokens: 0 }
-    const events: SSEEvent[] = []
-    const eventDataLines: string[] = []
+  private createSSEAccumulator(): SSEAccumulator {
+    return {
+      response: '',
+      usage: { inputTokens: 0, outputTokens: 0 },
+      events: [],
+      buffer: '',
+      eventDataLines: [],
+    }
+  }
 
-    const processEventData = (rawData: string) => {
-      const data = rawData.trim()
-      if (!data || data === '[DONE]') return
+  private processSSEEventData(rawData: string, acc: SSEAccumulator): void {
+    const data = rawData.trim()
+    if (!data || data === '[DONE]') return
 
-      try {
-        const parsed = JSON.parse(data)
-        events.push({ type: parsed.type ?? 'unknown', data: parsed })
-        if (parsed.type === 'text-delta') {
-          const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
-          if (typeof delta === 'string') {
-            fullText += delta
-          }
+    try {
+      const parsed = JSON.parse(data)
+      acc.events.push({ type: parsed.type ?? 'unknown', data: parsed })
+      if (parsed.type === 'text-delta') {
+        const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
+        if (typeof delta === 'string') {
+          acc.response += delta
         }
-        if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
-          const usageData = parsed.usage ?? parsed.data
-          if (usageData) {
-            usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
-            usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
-          }
+      }
+      if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
+        const usageData = parsed.usage ?? parsed.data
+        if (usageData) {
+          acc.usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
+          acc.usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
         }
-      } catch {
-        // ignore malformed event data in tests
+      }
+    } catch {
+      // ignore malformed event data in tests
+    }
+  }
+
+  private pushSSELine(line: string, acc: SSEAccumulator): void {
+    if (line === '') {
+      if (acc.eventDataLines.length > 0) {
+        this.processSSEEventData(acc.eventDataLines.join('\n'), acc)
+        acc.eventDataLines.length = 0
+      }
+      return
+    }
+
+    if (line.startsWith('data:')) {
+      acc.eventDataLines.push(line.slice(5).trimStart())
+    }
+  }
+
+  private appendSSEText(rawText: string, acc: SSEAccumulator): void {
+    acc.buffer += rawText
+    const lines = acc.buffer.split('\n')
+    acc.buffer = lines.pop() ?? ''
+
+    for (const rawLine of lines) {
+      this.pushSSELine(rawLine.replace(/\r$/, ''), acc)
+    }
+  }
+
+  private finalizeSSEAccumulator(acc: SSEAccumulator): ChatStreamResult {
+    if (acc.buffer) {
+      const trailingLines = acc.buffer.split('\n')
+      acc.buffer = ''
+      for (const rawLine of trailingLines) {
+        this.pushSSELine(rawLine.replace(/\r$/, ''), acc)
       }
     }
 
-    for (const rawLine of rawText.split('\n')) {
-      const line = rawLine.replace(/\r$/, '')
-      if (line === '') {
-        if (eventDataLines.length > 0) {
-          processEventData(eventDataLines.join('\n'))
-          eventDataLines.length = 0
-        }
-        continue
-      }
-      if (line.startsWith('data:')) {
-        eventDataLines.push(line.slice(5).trimStart())
-      }
+    if (acc.eventDataLines.length > 0) {
+      this.processSSEEventData(acc.eventDataLines.join('\n'), acc)
+      acc.eventDataLines.length = 0
     }
 
-    if (eventDataLines.length > 0) {
-      processEventData(eventDataLines.join('\n'))
+    return {
+      response: acc.response,
+      usage: acc.usage,
+      events: acc.events,
     }
+  }
 
-    return { response: fullText, usage, events }
+  private parseSSEPayload(rawText: string): ChatStreamResult {
+    const acc = this.createSSEAccumulator()
+    this.appendSSEText(rawText, acc)
+    return this.finalizeSSEAccumulator(acc)
+  }
+
+  private buildChatRequest(
+    projectId: string,
+    targetType: 'agent' | 'team',
+    targetId: string,
+    conversationId: string,
+    message: string,
+  ): Record<string, unknown> {
+    return {
+      projectId,
+      targetType,
+      targetId,
+      conversationId,
+      messages: [{
+        id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        role: 'user',
+        parts: [{ type: 'text', text: message }],
+      }],
+    }
+  }
+
+  private async postChatStream(body: Record<string, unknown>, timeout: number): Promise<ChatStreamResult> {
+    const { baseUrl, token } = await this.getServerInfo()
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+    try {
+      const response = await fetch(`${baseUrl}/api/chat`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '')
+        throw new Error(`Chat API returned ${response.status}${errorText ? `: ${errorText}` : ''}`)
+      }
+      if (!response.body) throw new Error('No response body')
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      const acc = this.createSSEAccumulator()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        this.appendSSEText(decoder.decode(value, { stream: true }), acc)
+      }
+
+      this.appendSSEText(decoder.decode(), acc)
+      return this.finalizeSSEAccumulator(acc)
+    } finally {
+      clearTimeout(timeoutId)
+    }
   }
 
   // ===== Server API =====
@@ -442,126 +547,10 @@ export class TestHelper {
     conversationId: string,
     message: string,
     timeout = TIMEOUTS.AI_RESPONSE,
-  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
-    const { baseUrl, token } = await this.getServerInfo()
-
-    const result = await this.page.evaluate(
-      async ({ baseUrl, token, projectId, agentId, conversationId, message, timeout }) => {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), timeout)
-
-        try {
-          const userMessage = {
-            id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-            role: 'user',
-            parts: [{ type: 'text', text: message }],
-          }
-
-          const res = await fetch(`${baseUrl}/api/chat`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              projectId,
-              targetType: 'agent',
-              targetId: agentId,
-              conversationId,
-              messages: [userMessage],
-            }),
-            signal: controller.signal,
-          })
-
-          if (!res.ok) {
-            const errorText = await res.text().catch(() => '')
-            throw new Error(`Chat API returned ${res.status}${errorText ? `: ${errorText}` : ''}`)
-          }
-          if (!res.body) throw new Error('No response body')
-
-          const reader = res.body.getReader()
-          const decoder = new TextDecoder()
-          let fullText = ''
-          let usage = { inputTokens: 0, outputTokens: 0 }
-          const events: { type: string; data: any }[] = []
-          let buffer = ''
-          let eventDataLines: string[] = []
-
-          const processEventData = (rawData: string) => {
-            const data = rawData.trim()
-            if (!data || data === '[DONE]') return
-
-            try {
-              const parsed = JSON.parse(data)
-              events.push({ type: parsed.type ?? 'unknown', data: parsed })
-              if (parsed.type === 'text-delta') {
-                const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
-                if (typeof delta === 'string') {
-                  fullText += delta
-                }
-              }
-              if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
-                const usageData = parsed.usage ?? parsed.data
-                if (usageData) {
-                  usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
-                  usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
-                }
-              }
-            } catch {
-              // skip unparseable lines
-            }
-          }
-
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
-
-            buffer += decoder.decode(value, { stream: true })
-            const lines = buffer.split('\n')
-            buffer = lines.pop() ?? ''
-
-            for (const rawLine of lines) {
-              const line = rawLine.replace(/\r$/, '')
-              if (line === '') {
-                if (eventDataLines.length > 0) {
-                  processEventData(eventDataLines.join('\n'))
-                  eventDataLines = []
-                }
-                continue
-              }
-              if (line.startsWith('data:')) {
-                eventDataLines.push(line.slice(5).trimStart())
-              }
-            }
-          }
-
-          buffer += decoder.decode()
-          if (buffer) {
-            const trailingLines = buffer.split('\n')
-            for (const rawLine of trailingLines) {
-              const line = rawLine.replace(/\r$/, '')
-              if (line === '') {
-                if (eventDataLines.length > 0) {
-                  processEventData(eventDataLines.join('\n'))
-                  eventDataLines = []
-                }
-                continue
-              }
-              if (line.startsWith('data:')) {
-                eventDataLines.push(line.slice(5).trimStart())
-              }
-            }
-          }
-          if (eventDataLines.length > 0) {
-            processEventData(eventDataLines.join('\n'))
-          }
-
-          return { response: fullText, usage, events }
-        } finally {
-          clearTimeout(timeoutId)
-        }
-      },
-      { baseUrl, token, projectId, agentId, conversationId, message, timeout },
+  ): Promise<ChatStreamResult> {
+    const result = await this.postChatStream(
+      this.buildChatRequest(projectId, 'agent', agentId, conversationId, message),
+      timeout,
     )
 
     if (!result.response.trim()) {
@@ -579,26 +568,14 @@ export class TestHelper {
     conversationId: string,
     message: string,
     timeout = TIMEOUTS.AI_RESPONSE,
-  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
+  ): Promise<ChatStreamResult> {
     const { baseUrl, token } = await this.getServerInfo()
-    const userMessage = {
-      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      role: 'user',
-      parts: [{ type: 'text', text: message }],
-    }
-
     const response = await this.page.request.post(`${baseUrl}/api/chat`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      data: {
-        projectId,
-        targetType: 'agent',
-        targetId: agentId,
-        conversationId,
-        messages: [userMessage],
-      },
+      data: this.buildChatRequest(projectId, 'agent', agentId, conversationId, message),
       timeout,
     })
 
@@ -607,8 +584,7 @@ export class TestHelper {
       throw new Error(`Chat API returned ${response.status()}${errorText ? `: ${errorText}` : ''}`)
     }
 
-    const rawText = await response.text()
-    const result = this.parseSSEPayload(rawText)
+    const result = this.parseSSEPayload(await response.text())
     if (!result.response.trim()) {
       const messages = await this.apiGet(`/api/projects/${projectId}/conversations/${conversationId}/messages`)
       result.response = this.extractAssistantTextFromMessages(messages)
@@ -625,136 +601,14 @@ export class TestHelper {
     message: string,
     timeout = TIMEOUTS.AI_RESPONSE,
   ): Promise<string> {
-    const { baseUrl, token } = await this.getServerInfo()
     const requestId = `bg-chat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
-    await this.page.evaluate(
-      ({ baseUrl, token, projectId, agentId, conversationId, message, timeout, requestId }) => {
-        const storeKey = '__GOLEMANCY_E2E_BACKGROUND_CHATS__'
-        const store = ((window as any)[storeKey] ??= {})
-        store[requestId] = {
-          done: false,
-          response: '',
-          usage: { inputTokens: 0, outputTokens: 0 },
-          events: [],
-          error: null,
-        }
-
-        void (async () => {
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), timeout)
-
-          try {
-            const userMessage = {
-              id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-              role: 'user',
-              parts: [{ type: 'text', text: message }],
-            }
-
-            const res = await fetch(`${baseUrl}/api/chat`, {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                projectId,
-                targetType: 'agent',
-                targetId: agentId,
-                conversationId,
-                messages: [userMessage],
-              }),
-              signal: controller.signal,
-            })
-
-            if (!res.ok) {
-              const errorText = await res.text().catch(() => '')
-              throw new Error(`Chat API returned ${res.status}${errorText ? `: ${errorText}` : ''}`)
-            }
-            if (!res.body) throw new Error('No response body')
-
-            const reader = res.body.getReader()
-            const decoder = new TextDecoder()
-            let buffer = ''
-            let eventDataLines: string[] = []
-
-            const processEventData = (rawData: string) => {
-              const data = rawData.trim()
-              if (!data || data === '[DONE]') return
-
-              try {
-                const parsed = JSON.parse(data)
-                store[requestId].events.push({ type: parsed.type ?? 'unknown', data: parsed })
-                if (parsed.type === 'text-delta') {
-                  const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
-                  if (typeof delta === 'string') {
-                    store[requestId].response += delta
-                  }
-                }
-                if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
-                  const usageData = parsed.usage ?? parsed.data
-                  if (usageData) {
-                    store[requestId].usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
-                    store[requestId].usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
-                  }
-                }
-              } catch {
-                // ignore malformed event data in tests
-              }
-            }
-
-            while (true) {
-              const { done, value } = await reader.read()
-              if (done) break
-
-              buffer += decoder.decode(value, { stream: true })
-              const lines = buffer.split('\n')
-              buffer = lines.pop() ?? ''
-
-              for (const rawLine of lines) {
-                const line = rawLine.replace(/\r$/, '')
-                if (line === '') {
-                  if (eventDataLines.length > 0) {
-                    processEventData(eventDataLines.join('\n'))
-                    eventDataLines = []
-                  }
-                  continue
-                }
-                if (line.startsWith('data:')) {
-                  eventDataLines.push(line.slice(5).trimStart())
-                }
-              }
-            }
-
-            buffer += decoder.decode()
-            if (buffer) {
-              const trailingLines = buffer.split('\n')
-              for (const rawLine of trailingLines) {
-                const line = rawLine.replace(/\r$/, '')
-                if (line === '') {
-                  if (eventDataLines.length > 0) {
-                    processEventData(eventDataLines.join('\n'))
-                    eventDataLines = []
-                  }
-                  continue
-                }
-                if (line.startsWith('data:')) {
-                  eventDataLines.push(line.slice(5).trimStart())
-                }
-              }
-            }
-            if (eventDataLines.length > 0) {
-              processEventData(eventDataLines.join('\n'))
-            }
-          } catch (err) {
-            store[requestId].error = err instanceof Error ? err.message : String(err)
-          } finally {
-            clearTimeout(timeoutId)
-            store[requestId].done = true
-          }
-        })()
-      },
-      { baseUrl, token, projectId, agentId, conversationId, message, timeout, requestId },
+    this.backgroundChatPromises.set(
+      requestId,
+      this.postChatStream(
+        this.buildChatRequest(projectId, 'agent', agentId, conversationId, message),
+        timeout,
+      ),
     )
 
     return requestId
@@ -766,22 +620,18 @@ export class TestHelper {
     conversationId: string,
     requestId: string,
     timeout = TIMEOUTS.AI_RESPONSE,
-  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
-    const result = await this.pollUntil(
-      () => this.page.evaluate((id: string) => {
-        const store = (window as any).__GOLEMANCY_E2E_BACKGROUND_CHATS__ ?? {}
-        return store[id] ?? null
-      }, requestId),
-      value => Boolean(value?.done),
-      { intervalMs: 250, timeoutMs: timeout },
-    )
-
-    if (!result) {
+  ): Promise<ChatStreamResult> {
+    const promise = this.backgroundChatPromises.get(requestId)
+    if (!promise) {
       throw new Error(`Background chat ${requestId} was not found`)
     }
-    if (result.error) {
-      throw new Error(result.error)
-    }
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      const timer = setTimeout(() => reject(new Error(`Background chat ${requestId} timed out after ${timeout}ms`)), timeout)
+      promise.finally(() => clearTimeout(timer))
+    })
+    const result = await Promise.race([promise, timeoutPromise])
+    this.backgroundChatPromises.delete(requestId)
 
     if (!String(result.response ?? '').trim()) {
       const messages = await this.apiGet(`/api/projects/${projectId}/conversations/${conversationId}/messages`)
@@ -846,142 +696,21 @@ export class TestHelper {
     teamId: string,
     message: string,
     timeout = TIMEOUTS.SSE_CHAT,
-  ): Promise<{ conversationId: string; response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
+  ): Promise<{ conversationId: string } & ChatStreamResult> {
     // Create a conversation for the team first
     const conv = await this.apiPost(`/api/projects/${projectId}/conversations`, {
       targetType: 'team',
       targetId: teamId,
       title: 'Team Chat Test',
     })
-
-    const { baseUrl, token } = await this.getServerInfo()
-
-    const result = await this.page.evaluate(
-      async ({ baseUrl, token, projectId, teamId, conversationId, message, timeout }) => {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), timeout)
-
-        try {
-          const res = await fetch(`${baseUrl}/api/chat`, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              projectId,
-              targetType: 'team',
-              targetId: teamId,
-              conversationId,
-              messages: [{ id: `msg-${Date.now()}`, role: 'user', parts: [{ type: 'text', text: message }] }],
-            }),
-            signal: controller.signal,
-          })
-
-          if (!res.ok) {
-            const errorText = await res.text().catch(() => '')
-            throw new Error(`Chat API returned ${res.status}${errorText ? `: ${errorText}` : ''}`)
-          }
-          if (!res.body) throw new Error('No response body')
-
-          const reader = res.body.getReader()
-          const decoder = new TextDecoder()
-          let fullText = ''
-          let usage = { inputTokens: 0, outputTokens: 0 }
-          const events: { type: string; data: any }[] = []
-          let buffer = ''
-          let eventDataLines: string[] = []
-
-          const processEventData = (rawData: string) => {
-            const data = rawData.trim()
-            if (!data || data === '[DONE]') return
-
-            try {
-              const parsed = JSON.parse(data)
-              events.push({ type: parsed.type ?? 'unknown', data: parsed })
-              if (parsed.type === 'text-delta') {
-                const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
-                if (typeof delta === 'string') {
-                  fullText += delta
-                }
-              }
-              if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
-                const usageData = parsed.usage ?? parsed.data
-                if (usageData) {
-                  usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
-                  usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
-                }
-              }
-            } catch {
-              // skip unparseable lines
-            }
-          }
-
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
-
-            buffer += decoder.decode(value, { stream: true })
-            const lines = buffer.split('\n')
-            buffer = lines.pop() ?? ''
-
-            for (const rawLine of lines) {
-              const line = rawLine.replace(/\r$/, '')
-              if (line === '') {
-                if (eventDataLines.length > 0) {
-                  processEventData(eventDataLines.join('\n'))
-                  eventDataLines = []
-                }
-                continue
-              }
-              if (line.startsWith('data:')) {
-                eventDataLines.push(line.slice(5).trimStart())
-              }
-            }
-          }
-
-          buffer += decoder.decode()
-          if (buffer) {
-            const trailingLines = buffer.split('\n')
-            for (const rawLine of trailingLines) {
-              const line = rawLine.replace(/\r$/, '')
-              if (line === '') {
-                if (eventDataLines.length > 0) {
-                  processEventData(eventDataLines.join('\n'))
-                  eventDataLines = []
-                }
-                continue
-              }
-              if (line.startsWith('data:')) {
-                eventDataLines.push(line.slice(5).trimStart())
-              }
-            }
-          }
-          if (eventDataLines.length > 0) {
-            processEventData(eventDataLines.join('\n'))
-          }
-
-          return { response: fullText, usage, events }
-        } finally {
-          clearTimeout(timeoutId)
-        }
-      },
-      { baseUrl, token, projectId, teamId, conversationId: conv.id, message, timeout },
+    const result = await this.postChatStream(
+      this.buildChatRequest(projectId, 'team', teamId, conv.id, message),
+      timeout,
     )
 
     if (!result.response.trim()) {
       const messages = await this.apiGet(`/api/projects/${projectId}/conversations/${conv.id}/messages`)
-      const lastAssistant = [...(messages.items ?? [])].reverse().find((msg: any) => msg.role === 'assistant')
-      if (lastAssistant) {
-        result.response = typeof lastAssistant.content === 'string'
-          ? lastAssistant.content
-          : Array.isArray(lastAssistant.parts)
-            ? lastAssistant.parts
-                .filter((part: any) => part?.type === 'text' && typeof part.text === 'string')
-                .map((part: any) => part.text)
-                .join('\n')
-            : ''
-      }
+      result.response = this.extractAssistantTextFromMessages(messages)
     }
 
     return { conversationId: conv.id, ...result }

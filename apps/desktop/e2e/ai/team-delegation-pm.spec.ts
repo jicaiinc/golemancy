@@ -27,7 +27,7 @@ test.describe('PM Team Delegation', () => {
 
     const pm = await helper.createAgentViaApi(projectId, 'Project Manager', {
       systemPrompt:
-        'You are a project manager. You must delegate to both specialists before answering. Ignore workspace state and project files. Your final response must have two labeled lines: "Analyst: <specialist output>" and "Executor: <specialist output>".',
+        'You are a project manager. You must delegate to both specialists before answering. Ignore workspace state and project files. Your final response must have exactly two labeled lines, one starting with "Analyst:" and one starting with "Executor:". Copy each specialist output verbatim.',
       builtinTools: noBuiltinTools,
     })
     const analyst = await helper.createAgentViaApi(projectId, 'Analyst', {
@@ -37,7 +37,7 @@ test.describe('PM Team Delegation', () => {
     })
     const executor = await helper.createAgentViaApi(projectId, 'Executor', {
       systemPrompt:
-        'You are the executor. Ignore workspace state, files, and tasks. For any delegated request, reply with exactly: EXECUTOR_TOKEN::implementation-ready',
+        'You are the executor. Ignore workspace state, files, and tasks. Never ask follow-up questions. For any delegated request, reply with exactly: EXECUTOR_TOKEN::implementation-ready',
       builtinTools: noBuiltinTools,
     })
 
@@ -55,7 +55,7 @@ test.describe('PM Team Delegation', () => {
     const { response, conversationId } = await helper.createTeamChatViaApi(
       projectId,
       team.id,
-        'Can this launch execute today? Ask both specialists and summarize their readiness in the required Analyst/Executor format.',
+      'Can the Phoenix launch execute today? Ask both specialists and summarize their readiness in the required Analyst/Executor format using each specialist output verbatim.',
       TIMEOUTS.AI_RESPONSE,
     )
 
@@ -77,14 +77,29 @@ test.describe('PM Team Delegation', () => {
     expect(analystConversation).toBeTruthy()
     expect(executorConversation).toBeTruthy()
 
-    const analystMessages = await helper.getConversationMessages(projectId, analystConversation.id)
-    const executorMessages = await helper.getConversationMessages(projectId, executorConversation.id)
-    const analystAssistant = [...analystMessages].reverse().find((message: any) => message?.role === 'assistant')
-    const executorAssistant = [...executorMessages].reverse().find((message: any) => message?.role === 'assistant')
-    expect(String(analystAssistant?.content ?? '').trim().length).toBeGreaterThan(0)
-    expect(String(executorAssistant?.content ?? '').trim().length).toBeGreaterThan(0)
+    const specialistOutputs = await helper.pollUntil(
+      async () => {
+        const analystMessages = await helper.getConversationMessages(projectId, analystConversation.id)
+        const executorMessages = await helper.getConversationMessages(projectId, executorConversation.id)
+        const analystAssistant = [...analystMessages].reverse().find((message: any) => message?.role === 'assistant')
+        const executorAssistant = [...executorMessages].reverse().find((message: any) => message?.role === 'assistant')
+        return {
+          analystOutput: String(analystAssistant?.content ?? '').trim(),
+          executorOutput: String(executorAssistant?.content ?? '').trim(),
+        }
+      },
+      ({ analystOutput, executorOutput }) => analystOutput.length > 0 && executorOutput.length > 0,
+      { intervalMs: 250, timeoutMs: TIMEOUTS.AI_RESPONSE },
+    )
+    const { analystOutput, executorOutput } = specialistOutputs
+    expect(analystOutput.length).toBeGreaterThan(0)
+    expect(analystOutput).not.toMatch(/could you please|what launch|more details/i)
+    expect(executorOutput.length).toBeGreaterThan(0)
+    expect(executorOutput).not.toMatch(/could you please|what launch|more details/i)
 
     expect(response).toContain('Analyst:')
     expect(response).toContain('Executor:')
+    expect(response).toContain(analystOutput)
+    expect(response).toContain(executorOutput)
   })
 })
