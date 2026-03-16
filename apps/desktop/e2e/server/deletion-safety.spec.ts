@@ -26,7 +26,7 @@ test.describe('Deletion Safety', () => {
     ])
     teamId = team.id
 
-    const cron = await helper.apiPost(`/api/projects/${projectId}/cronjobs`, {
+    const cron = await helper.apiPost(`/api/projects/${projectId}/cron-jobs`, {
       name: 'Orphan Test Cron',
       agentId: agent1Id,
       scheduleType: 'cron',
@@ -59,7 +59,7 @@ test.describe('Deletion Safety', () => {
     // agent1 already deleted in previous test
     // Cron references agent1 via agentId — GET should still return 200
     const cronResponse = await helper.apiGetRaw(
-      `/api/projects/${projectId}/cronjobs/${cronId}`,
+      `/api/projects/${projectId}/cron-jobs/${cronId}`,
     )
     expect(cronResponse.status()).toBe(200)
 
@@ -77,7 +77,7 @@ test.describe('Deletion Safety', () => {
 
     // Cron GET should still work (cron is independent of team)
     const cronResponse = await helper.apiGetRaw(
-      `/api/projects/${projectId}/cronjobs/${cronId}`,
+      `/api/projects/${projectId}/cron-jobs/${cronId}`,
     )
     expect(cronResponse.status()).toBe(200)
 
@@ -101,7 +101,7 @@ test.describe('Deletion Safety', () => {
     expect(agentResponse.status()).toBe(404)
 
     const cronResponse = await helper.apiGetRaw(
-      `/api/projects/${projectId}/cronjobs/${cronId}`,
+      `/api/projects/${projectId}/cron-jobs/${cronId}`,
     )
     expect(cronResponse.status()).toBe(404)
   })

@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test'
 import { SELECTORS, TIMEOUTS } from '../constants'
 import { StoreBridge } from './store-bridge'
 import { ConsoleLogger } from './console-logger'
+import type { PermissionsConfigFile } from '@golemancy/shared'
 
 export interface SSEEvent {
   type: string
@@ -17,6 +18,7 @@ export class TestHelper {
   readonly store: StoreBridge
   readonly console: ConsoleLogger
   private serverInfoCache: { baseUrl: string; token: string } | null = null
+  private defaultModelCache: { provider: string; model: string } | null = null
 
   constructor(private page: Page, logger: ConsoleLogger) {
     this.store = new StoreBridge(page)
@@ -269,10 +271,56 @@ export class TestHelper {
   async createAgentViaApi(
     projectId: string,
     name: string,
-    opts: { systemPrompt?: string; model?: { provider: string; model: string }; tools?: Record<string, unknown> } = {},
+    opts: {
+      description?: string
+      systemPrompt?: string
+      model?: { provider: string; model: string }
+      modelConfig?: { provider: string; model: string }
+      builtinTools?: Record<string, unknown>
+      compactThreshold?: number
+      mcpServers?: string[]
+      skillIds?: string[]
+      tools?: Record<string, unknown>
+    } = {},
   ): Promise<{ id: string; [key: string]: any }> {
-    const agent = await this.apiPost(`/api/projects/${projectId}/agents`, { name, ...opts })
+    const modelConfig = opts.modelConfig ?? opts.model ?? await this.getDefaultModelConfig()
+    const agent = await this.apiPost(`/api/projects/${projectId}/agents`, {
+      name,
+      description: opts.description ?? '',
+      systemPrompt: opts.systemPrompt ?? '',
+      modelConfig,
+      builtinTools: opts.builtinTools,
+      compactThreshold: opts.compactThreshold,
+      mcpServers: opts.mcpServers,
+      skillIds: opts.skillIds,
+      tools: opts.tools,
+    })
     return agent
+  }
+
+  private async getDefaultModelConfig(): Promise<{ provider: string; model: string }> {
+    if (this.defaultModelCache) return this.defaultModelCache
+
+    const settings = await this.apiGet('/api/settings')
+    const fallback = process.env.TEST_GOOGLE_API_KEY
+      ? { provider: 'google', model: 'gemini-2.5-flash' }
+      : { provider: 'anthropic', model: 'claude-sonnet-4-5' }
+
+    const defaultModel = settings?.defaultModel
+    if (
+      defaultModel &&
+      typeof defaultModel.provider === 'string' &&
+      typeof defaultModel.model === 'string'
+    ) {
+      this.defaultModelCache = {
+        provider: defaultModel.provider,
+        model: defaultModel.model,
+      }
+      return this.defaultModelCache
+    }
+
+    this.defaultModelCache = fallback
+    return this.defaultModelCache
   }
 
   /** Create a conversation via the API */
@@ -328,17 +376,32 @@ export class TestHelper {
         const timeoutId = setTimeout(() => controller.abort(), timeout)
 
         try {
-          const res = await fetch(`${baseUrl}/api/projects/${projectId}/chat`, {
+          const userMessage = {
+            id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            role: 'user',
+            parts: [{ type: 'text', text: message }],
+          }
+
+          const res = await fetch(`${baseUrl}/api/chat`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ agentId, conversationId, message }),
+            body: JSON.stringify({
+              projectId,
+              targetType: 'agent',
+              targetId: agentId,
+              conversationId,
+              messages: [userMessage],
+            }),
             signal: controller.signal,
           })
 
-          if (!res.ok) throw new Error(`Chat API returned ${res.status}`)
+          if (!res.ok) {
+            const errorText = await res.text().catch(() => '')
+            throw new Error(`Chat API returned ${res.status}${errorText ? `: ${errorText}` : ''}`)
+          }
           if (!res.body) throw new Error('No response body')
 
           const reader = res.body.getReader()
@@ -346,35 +409,76 @@ export class TestHelper {
           let fullText = ''
           let usage = { inputTokens: 0, outputTokens: 0 }
           const events: { type: string; data: any }[] = []
+          let buffer = ''
+          let eventDataLines: string[] = []
+
+          const processEventData = (rawData: string) => {
+            const data = rawData.trim()
+            if (!data || data === '[DONE]') return
+
+            try {
+              const parsed = JSON.parse(data)
+              events.push({ type: parsed.type ?? 'unknown', data: parsed })
+              if (parsed.type === 'text-delta') {
+                const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
+                if (typeof delta === 'string') {
+                  fullText += delta
+                }
+              }
+              if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
+                const usageData = parsed.usage ?? parsed.data
+                if (usageData) {
+                  usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
+                  usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
+                }
+              }
+            } catch {
+              // skip unparseable lines
+            }
+          }
 
           while (true) {
             const { done, value } = await reader.read()
             if (done) break
 
-            const chunk = decoder.decode(value, { stream: true })
-            const lines = chunk.split('\n')
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n')
+            buffer = lines.pop() ?? ''
 
-            for (const line of lines) {
-              if (!line.startsWith('data: ')) continue
-              const data = line.slice(6).trim()
-              if (data === '[DONE]') continue
-
-              try {
-                const parsed = JSON.parse(data)
-                events.push({ type: parsed.type ?? 'unknown', data: parsed })
-                if (parsed.type === 'text-delta' && parsed.textDelta) {
-                  fullText += parsed.textDelta
+            for (const rawLine of lines) {
+              const line = rawLine.replace(/\r$/, '')
+              if (line === '') {
+                if (eventDataLines.length > 0) {
+                  processEventData(eventDataLines.join('\n'))
+                  eventDataLines = []
                 }
-                if (parsed.type === 'usage' || parsed.type === 'finish') {
-                  if (parsed.usage) {
-                    usage.inputTokens = parsed.usage.promptTokens || parsed.usage.inputTokens || 0
-                    usage.outputTokens = parsed.usage.completionTokens || parsed.usage.outputTokens || 0
-                  }
-                }
-              } catch {
-                // skip unparseable lines
+                continue
+              }
+              if (line.startsWith('data:')) {
+                eventDataLines.push(line.slice(5).trimStart())
               }
             }
+          }
+
+          buffer += decoder.decode()
+          if (buffer) {
+            const trailingLines = buffer.split('\n')
+            for (const rawLine of trailingLines) {
+              const line = rawLine.replace(/\r$/, '')
+              if (line === '') {
+                if (eventDataLines.length > 0) {
+                  processEventData(eventDataLines.join('\n'))
+                  eventDataLines = []
+                }
+                continue
+              }
+              if (line.startsWith('data:')) {
+                eventDataLines.push(line.slice(5).trimStart())
+              }
+            }
+          }
+          if (eventDataLines.length > 0) {
+            processEventData(eventDataLines.join('\n'))
           }
 
           return { response: fullText, usage, events }
@@ -384,6 +488,21 @@ export class TestHelper {
       },
       { baseUrl, token, projectId, agentId, conversationId, message, timeout },
     )
+
+    if (!result.response.trim()) {
+      const messages = await this.apiGet(`/api/projects/${projectId}/conversations/${conversationId}/messages`)
+      const lastAssistant = [...(messages.items ?? [])].reverse().find((msg: any) => msg.role === 'assistant')
+      if (lastAssistant) {
+        result.response = typeof lastAssistant.content === 'string'
+          ? lastAssistant.content
+          : Array.isArray(lastAssistant.parts)
+            ? lastAssistant.parts
+                .filter((part: any) => part?.type === 'text' && typeof part.text === 'string')
+                .map((part: any) => part.text)
+                .join('\n')
+            : ''
+      }
+    }
 
     return result
   }
@@ -459,13 +578,14 @@ export class TestHelper {
         const timeoutId = setTimeout(() => controller.abort(), timeout)
 
         try {
-          const res = await fetch(`${baseUrl}/api/projects/${projectId}/chat`, {
+          const res = await fetch(`${baseUrl}/api/chat`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+              projectId,
               targetType: 'team',
               targetId: teamId,
               conversationId,
@@ -474,7 +594,10 @@ export class TestHelper {
             signal: controller.signal,
           })
 
-          if (!res.ok) throw new Error(`Chat API returned ${res.status}`)
+          if (!res.ok) {
+            const errorText = await res.text().catch(() => '')
+            throw new Error(`Chat API returned ${res.status}${errorText ? `: ${errorText}` : ''}`)
+          }
           if (!res.body) throw new Error('No response body')
 
           const reader = res.body.getReader()
@@ -482,35 +605,76 @@ export class TestHelper {
           let fullText = ''
           let usage = { inputTokens: 0, outputTokens: 0 }
           const events: { type: string; data: any }[] = []
+          let buffer = ''
+          let eventDataLines: string[] = []
+
+          const processEventData = (rawData: string) => {
+            const data = rawData.trim()
+            if (!data || data === '[DONE]') return
+
+            try {
+              const parsed = JSON.parse(data)
+              events.push({ type: parsed.type ?? 'unknown', data: parsed })
+              if (parsed.type === 'text-delta') {
+                const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
+                if (typeof delta === 'string') {
+                  fullText += delta
+                }
+              }
+              if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
+                const usageData = parsed.usage ?? parsed.data
+                if (usageData) {
+                  usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
+                  usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
+                }
+              }
+            } catch {
+              // skip unparseable lines
+            }
+          }
 
           while (true) {
             const { done, value } = await reader.read()
             if (done) break
 
-            const chunk = decoder.decode(value, { stream: true })
-            const lines = chunk.split('\n')
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n')
+            buffer = lines.pop() ?? ''
 
-            for (const line of lines) {
-              if (!line.startsWith('data: ')) continue
-              const data = line.slice(6).trim()
-              if (data === '[DONE]') continue
-
-              try {
-                const parsed = JSON.parse(data)
-                events.push({ type: parsed.type ?? 'unknown', data: parsed })
-                if (parsed.type === 'text-delta' && parsed.textDelta) {
-                  fullText += parsed.textDelta
+            for (const rawLine of lines) {
+              const line = rawLine.replace(/\r$/, '')
+              if (line === '') {
+                if (eventDataLines.length > 0) {
+                  processEventData(eventDataLines.join('\n'))
+                  eventDataLines = []
                 }
-                if (parsed.type === 'usage' || parsed.type === 'finish') {
-                  if (parsed.usage) {
-                    usage.inputTokens = parsed.usage.promptTokens || parsed.usage.inputTokens || 0
-                    usage.outputTokens = parsed.usage.completionTokens || parsed.usage.outputTokens || 0
-                  }
-                }
-              } catch {
-                // skip unparseable lines
+                continue
+              }
+              if (line.startsWith('data:')) {
+                eventDataLines.push(line.slice(5).trimStart())
               }
             }
+          }
+
+          buffer += decoder.decode()
+          if (buffer) {
+            const trailingLines = buffer.split('\n')
+            for (const rawLine of trailingLines) {
+              const line = rawLine.replace(/\r$/, '')
+              if (line === '') {
+                if (eventDataLines.length > 0) {
+                  processEventData(eventDataLines.join('\n'))
+                  eventDataLines = []
+                }
+                continue
+              }
+              if (line.startsWith('data:')) {
+                eventDataLines.push(line.slice(5).trimStart())
+              }
+            }
+          }
+          if (eventDataLines.length > 0) {
+            processEventData(eventDataLines.join('\n'))
           }
 
           return { response: fullText, usage, events }
@@ -520,6 +684,21 @@ export class TestHelper {
       },
       { baseUrl, token, projectId, teamId, conversationId: conv.id, message, timeout },
     )
+
+    if (!result.response.trim()) {
+      const messages = await this.apiGet(`/api/projects/${projectId}/conversations/${conv.id}/messages`)
+      const lastAssistant = [...(messages.items ?? [])].reverse().find((msg: any) => msg.role === 'assistant')
+      if (lastAssistant) {
+        result.response = typeof lastAssistant.content === 'string'
+          ? lastAssistant.content
+          : Array.isArray(lastAssistant.parts)
+            ? lastAssistant.parts
+                .filter((part: any) => part?.type === 'text' && typeof part.text === 'string')
+                .map((part: any) => part.text)
+                .join('\n')
+            : ''
+      }
+    }
 
     return result
   }
@@ -540,13 +719,125 @@ export class TestHelper {
 
   // ===== Workspace file seeding =====
 
-  /** Write a file directly into a project's workspace directory (via Node.js fs) */
-  seedWorkspaceFile(projectId: string, relativePath: string, content: string): void {
+  /** Get an absolute path inside the project's workspace directory */
+  getWorkspaceFilePath(projectId: string, relativePath = ''): string {
     const dataDir = process.env.GOLEMANCY_TEST_DATA_DIR
     if (!dataDir) throw new Error('GOLEMANCY_TEST_DATA_DIR not set')
-    const filePath = path.join(dataDir, 'projects', projectId, 'workspace', relativePath)
+    return path.join(dataDir, 'projects', projectId, 'workspace', relativePath)
+  }
+
+  /** Write a file directly into a project's workspace directory (via Node.js fs) */
+  seedWorkspaceFile(projectId: string, relativePath: string, content: string): void {
+    const filePath = this.getWorkspaceFilePath(projectId, relativePath)
     fs.mkdirSync(path.dirname(filePath), { recursive: true })
     fs.writeFileSync(filePath, content, 'utf-8')
+  }
+
+  /** Read a file directly from the project's workspace directory */
+  readWorkspaceFile(projectId: string, relativePath: string): string {
+    return fs.readFileSync(this.getWorkspaceFilePath(projectId, relativePath), 'utf-8')
+  }
+
+  /** Check whether a workspace file exists */
+  workspaceFileExists(projectId: string, relativePath: string): boolean {
+    return fs.existsSync(this.getWorkspaceFilePath(projectId, relativePath))
+  }
+
+  /** Delete a workspace file if it exists */
+  removeWorkspaceFile(projectId: string, relativePath: string): void {
+    const filePath = this.getWorkspaceFilePath(projectId, relativePath)
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath, { force: true })
+    }
+  }
+
+  /** Read an arbitrary file from disk if it exists */
+  readFileIfExists(filePath: string): string | null {
+    return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf-8') : null
+  }
+
+  /** Delete an arbitrary file if it exists */
+  removeFileIfExists(filePath: string): void {
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath, { force: true })
+    }
+  }
+
+  // ===== Permissions helpers =====
+
+  /** Create a permissions config via API */
+  async createPermissionsConfigViaApi(
+    projectId: string,
+    data: {
+      title: string
+      mode: PermissionsConfigFile['mode']
+      config: PermissionsConfigFile['config']
+    },
+  ): Promise<{ id: string; [key: string]: any }> {
+    return this.apiPost(`/api/projects/${projectId}/permissions-config`, data)
+  }
+
+  /** Assign a permissions config to a project */
+  async applyPermissionsConfig(projectId: string, permissionsConfigId: string): Promise<void> {
+    await this.apiPatch(`/api/projects/${projectId}`, { permissionsConfigId })
+  }
+
+  // ===== Generic polling =====
+
+  /** Poll an async function until a predicate passes or timeout is reached */
+  async pollUntil<T>(
+    fn: () => Promise<T>,
+    predicate: (value: T) => boolean,
+    opts: { intervalMs?: number; timeoutMs?: number } = {},
+  ): Promise<T> {
+    const intervalMs = opts.intervalMs ?? 500
+    const timeoutMs = opts.timeoutMs ?? 10_000
+    const start = Date.now()
+
+    while (Date.now() - start < timeoutMs) {
+      const value = await fn()
+      if (predicate(value)) return value
+      await new Promise(resolve => setTimeout(resolve, intervalMs))
+    }
+
+    return fn()
+  }
+
+  /** Filter captured SSE events down to tool-call events */
+  getToolCallEvents(
+    events: SSEEvent[],
+    toolName?: string,
+  ): SSEEvent[] {
+    return events.filter(event => {
+      if (
+        event.type !== 'tool_call' &&
+        event.type !== 'tool-call' &&
+        event.type !== 'tool-input-available'
+      ) {
+        return false
+      }
+      if (!toolName) return true
+      return event.data?.toolName === toolName
+    })
+  }
+
+  async getConversationMessages(projectId: string, conversationId: string): Promise<any[]> {
+    const response = await this.apiGet(`/api/projects/${projectId}/conversations/${conversationId}/messages`)
+    return Array.isArray(response?.items) ? response.items : []
+  }
+
+  async getLastAssistantMessage(projectId: string, conversationId: string): Promise<any | null> {
+    const messages = await this.getConversationMessages(projectId, conversationId)
+    return [...messages].reverse().find((message: any) => message?.role === 'assistant') ?? null
+  }
+
+  getToolInvocationParts(message: any, toolName?: string): any[] {
+    if (!Array.isArray(message?.parts)) return []
+    return message.parts.filter((part: any) => {
+      if (part?.type !== 'tool-invocation') return false
+      if (!toolName) return true
+      return part?.toolInvocation?.toolName === toolName
+    })
   }
 
   // ===== Model tier helpers =====
@@ -572,6 +863,23 @@ export class TestHelper {
       ? { provider: 'google', model: 'gemini-2.5-pro' }
       : { provider: 'anthropic', model: 'claude-sonnet-4-6' }
     return this.createAgentViaApi(projectId, name, { ...opts, model })
+  }
+
+  /** Create an agent using a model that is more reliable for tool calling. */
+  async createToolAgent(
+    projectId: string,
+    name: string,
+    opts: { systemPrompt?: string; builtinTools?: Record<string, unknown>; compactThreshold?: number } = {},
+  ): Promise<{ id: string; [key: string]: any }> {
+    const model = process.env.TEST_OPENAI_API_KEY
+      ? { provider: 'openai', model: 'gpt-4o' }
+      : process.env.TEST_ANTHROPIC_API_KEY
+        ? { provider: 'anthropic', model: 'claude-sonnet-4-5' }
+        : process.env.TEST_GOOGLE_API_KEY
+          ? { provider: 'google', model: 'gemini-2.5-pro' }
+          : undefined
+
+    return this.createAgentViaApi(projectId, name, { ...opts, ...(model ? { model } : {}) })
   }
 
   // ===== Assertions =====

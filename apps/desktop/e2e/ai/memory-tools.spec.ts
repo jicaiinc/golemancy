@@ -20,33 +20,47 @@ test.describe('Memory Tools', () => {
     projectId = project.id
   })
 
-  test('pinned memory is available in new conversations', async ({ helper }) => {
+  test('agent saves memory in one conversation and recalls it in a new conversation', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    // Create agent with memory tool enabled
-    const agent = await helper.createSmartAgent(projectId, 'Memory Recall Agent', {
-      systemPrompt: 'You are a helpful assistant. Always check your memory for relevant information before answering.',
+    const uniqueCode = `COBALT-${Date.now()}-ALPHA`
+
+    const agent = await helper.createToolAgent(projectId, 'Memory Recall Agent', {
+      systemPrompt:
+        'You are a helpful assistant. When the user asks you to remember something, use the memory tool immediately. When the user asks what you remember, search memory before answering.',
       builtinTools: { bash: false, browser: false, task: false, memory: true },
     })
 
-    // Add pinned memory via API
-    await helper.createMemoryViaApi(projectId, agent.id, 'The user\'s name is Golem', {
-      pinned: true,
-      priority: 5,
-    })
-
-    // Start a new conversation and ask about the name
-    const conv = await helper.createConversationViaApi(projectId, agent.id, 'Memory Test Conv')
-    const { response } = await helper.sendChatViaApi(
+    const rememberConv = await helper.createConversationViaApi(projectId, agent.id, 'Memory Save Conv')
+    const rememberResult = await helper.sendChatViaApi(
       projectId,
       agent.id,
-      conv.id,
-      'Do you remember my name? What is it?',
+      rememberConv.id,
+      `Remember this exact launch code in memory and confirm it back to me: ${uniqueCode}`,
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // The AI should reference "Golem" from the pinned memory
-    expect(response).toContain('Golem')
+    const saveToolCalls = helper.getToolCallEvents(rememberResult.events).filter(event =>
+      /memory/i.test(String(event.data?.toolName ?? '')),
+    )
+    expect(saveToolCalls.length).toBeGreaterThanOrEqual(1)
+    expect(rememberResult.response).toContain(uniqueCode)
+
+    const memories = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}/memories`)
+    expect(
+      memories.some((memory: any) => String(memory?.content ?? '').includes(uniqueCode)),
+    ).toBe(true)
+
+    const recallConv = await helper.createConversationViaApi(projectId, agent.id, 'Memory Recall Conv')
+    const recallResult = await helper.sendChatViaApi(
+      projectId,
+      agent.id,
+      recallConv.id,
+      'What exact launch code did I ask you to remember earlier?',
+      TIMEOUTS.AI_RESPONSE,
+    )
+
+    expect(recallResult.response).toContain(uniqueCode)
   })
 
   test('agent can save memory via MemorySave tool', async ({ helper }) => {

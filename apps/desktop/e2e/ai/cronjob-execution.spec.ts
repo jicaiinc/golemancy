@@ -48,7 +48,7 @@ test.describe('Cron Job Execution', () => {
     test.setTimeout(120_000)
 
     // Create a cron job
-    const job = await helper.apiPost(`/api/projects/${projectId}/cronjobs`, {
+    const job = await helper.apiPost(`/api/projects/${projectId}/cron-jobs`, {
       name: 'Manual Trigger Test',
       agentId,
       cronExpression: '0 0 1 1 *', // once a year — won't auto-fire
@@ -59,14 +59,14 @@ test.describe('Cron Job Execution', () => {
 
     // Manually trigger
     const triggerResult = await helper.apiPost(
-      `/api/projects/${projectId}/cronjobs/${job.id}/trigger`,
+      `/api/projects/${projectId}/cron-jobs/${job.id}/trigger`,
       {},
     )
     expect(triggerResult.ok).toBe(true)
 
     // Wait for the run to appear
     const runs = await pollUntil(
-      () => helper.apiGet(`/api/projects/${projectId}/cronjobs/${job.id}/runs`),
+      () => helper.apiGet(`/api/projects/${projectId}/cron-jobs/${job.id}/runs`),
       (r: any[]) => r.length > 0,
       2000,
       TIMEOUTS.CRON_EXECUTION,
@@ -80,7 +80,7 @@ test.describe('Cron Job Execution', () => {
     test.setTimeout(120_000)
 
     // Create and trigger a job
-    const job = await helper.apiPost(`/api/projects/${projectId}/cronjobs`, {
+    const job = await helper.apiPost(`/api/projects/${projectId}/cron-jobs`, {
       name: 'Run Completion Test',
       agentId,
       cronExpression: '0 0 1 1 *',
@@ -88,11 +88,11 @@ test.describe('Cron Job Execution', () => {
       instruction: 'Reply with OK',
     })
 
-    await helper.apiPost(`/api/projects/${projectId}/cronjobs/${job.id}/trigger`, {})
+    await helper.apiPost(`/api/projects/${projectId}/cron-jobs/${job.id}/trigger`, {})
 
     // Poll until run completes (not 'running' anymore)
     const runs = await pollUntil(
-      () => helper.apiGet(`/api/projects/${projectId}/cronjobs/${job.id}/runs`),
+      () => helper.apiGet(`/api/projects/${projectId}/cron-jobs/${job.id}/runs`),
       (r: any[]) => r.length > 0 && r[0].status !== 'running',
       2000,
       TIMEOUTS.CRON_EXECUTION,
@@ -107,7 +107,7 @@ test.describe('Cron Job Execution', () => {
     test.setTimeout(120_000)
 
     // Create and trigger a job
-    const job = await helper.apiPost(`/api/projects/${projectId}/cronjobs`, {
+    const job = await helper.apiPost(`/api/projects/${projectId}/cron-jobs`, {
       name: 'Conversation Messages Test',
       agentId,
       cronExpression: '0 0 1 1 *',
@@ -115,11 +115,11 @@ test.describe('Cron Job Execution', () => {
       instruction: 'Reply with CRON_MESSAGE_TEST',
     })
 
-    await helper.apiPost(`/api/projects/${projectId}/cronjobs/${job.id}/trigger`, {})
+    await helper.apiPost(`/api/projects/${projectId}/cron-jobs/${job.id}/trigger`, {})
 
     // Poll until run completes
     const runs = await pollUntil(
-      () => helper.apiGet(`/api/projects/${projectId}/cronjobs/${job.id}/runs`),
+      () => helper.apiGet(`/api/projects/${projectId}/cron-jobs/${job.id}/runs`),
       (r: any[]) => r.length > 0 && r[0].status !== 'running',
       2000,
       TIMEOUTS.CRON_EXECUTION,
@@ -146,7 +146,7 @@ test.describe('Cron Job Execution', () => {
   test('create cron job with every-minute schedule', async ({ helper }) => {
     test.setTimeout(180_000)
 
-    const job = await helper.apiPost(`/api/projects/${projectId}/cronjobs`, {
+    const job = await helper.apiPost(`/api/projects/${projectId}/cron-jobs`, {
       name: 'Every Minute Test',
       agentId,
       cronExpression: '* * * * *',
@@ -163,7 +163,7 @@ test.describe('Cron Job Execution', () => {
     test.setTimeout(180_000)
 
     // Find the every-minute job we just created
-    const jobs = await helper.apiGet(`/api/projects/${projectId}/cronjobs`)
+    const jobs = await helper.apiGet(`/api/projects/${projectId}/cron-jobs`)
     const everyMinuteJob = jobs.find(
       (j: { name: string; cronExpression: string }) =>
         j.name === 'Every Minute Test' && j.cronExpression === '* * * * *',
@@ -174,7 +174,7 @@ test.describe('Cron Job Execution', () => {
     await new Promise(r => setTimeout(r, 30_000))
 
     const runs = await pollUntil(
-      () => helper.apiGet(`/api/projects/${projectId}/cronjobs/${everyMinuteJob.id}/runs`),
+      () => helper.apiGet(`/api/projects/${projectId}/cron-jobs/${everyMinuteJob.id}/runs`),
       (r: any[]) => r.length > 0,
       3000,
       60_000, // poll up to 60s more after initial 30s wait
@@ -191,7 +191,7 @@ test.describe('Cron Job Execution', () => {
     test.setTimeout(120_000)
 
     // Find the every-minute job
-    const jobs = await helper.apiGet(`/api/projects/${projectId}/cronjobs`)
+    const jobs = await helper.apiGet(`/api/projects/${projectId}/cron-jobs`)
     const everyMinuteJob = jobs.find(
       (j: { name: string }) => j.name === 'Every Minute Test',
     )
@@ -199,7 +199,7 @@ test.describe('Cron Job Execution', () => {
 
     // Get runs
     const runs = await helper.apiGet(
-      `/api/projects/${projectId}/cronjobs/${everyMinuteJob.id}/runs`,
+      `/api/projects/${projectId}/cron-jobs/${everyMinuteJob.id}/runs`,
     )
 
     // Find a completed run with a conversation
@@ -218,13 +218,13 @@ test.describe('Cron Job Execution', () => {
     }
 
     // Cleanup: disable the cron job
-    await helper.apiPatch(`/api/projects/${projectId}/cronjobs/${everyMinuteJob.id}`, {
+    await helper.apiPatch(`/api/projects/${projectId}/cron-jobs/${everyMinuteJob.id}`, {
       enabled: false,
     })
 
     // Verify disabled
     const updated = await helper.apiGet(
-      `/api/projects/${projectId}/cronjobs/${everyMinuteJob.id}`,
+      `/api/projects/${projectId}/cron-jobs/${everyMinuteJob.id}`,
     )
     expect(updated.enabled).toBe(false)
   })
