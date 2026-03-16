@@ -34,8 +34,12 @@ test.describe('Edge Cases', () => {
     )
 
     // Should get a valid response (not an error about missing model)
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(result.response.length).toBeGreaterThan(10)
+    // Should not be an error message
+    const lower = result.response.toLowerCase()
+    expect(lower).not.toContain('error')
+    expect(lower).not.toContain('missing model')
+    expect(lower).not.toContain('no model')
   })
 
   test('workspace file created by bash appears in workspace API', async ({ helper }) => {
@@ -57,8 +61,12 @@ test.describe('Edge Cases', () => {
     // Check workspace API for the file
     const workspace = await helper.apiGet(`/api/projects/${projectId}/workspace`)
 
-    // Workspace should contain the file (may be nested or flat)
-    const hasFile = JSON.stringify(workspace).includes('workspace_e2e_test')
+    // Parse workspace entries and find the specific file by name
+    const entries: any[] = Array.isArray(workspace) ? workspace : (workspace.entries ?? workspace.files ?? [])
+    const hasFile = entries.some((entry: any) => {
+      const name = typeof entry === 'string' ? entry : (entry.name ?? entry.path ?? '')
+      return name.includes('workspace_e2e_test')
+    })
     expect(hasFile).toBe(true)
   })
 
@@ -118,19 +126,28 @@ test.describe('Edge Cases', () => {
       const conv = await helper.createConversationViaApi(projectId, agent.id, 'Fake Key Test')
 
       // Try to chat — should fail with an error, not crash
+      let chatSucceeded = false
       try {
-        await helper.sendChatViaApi(
+        const result = await helper.sendChatViaApi(
           projectId, agent.id, conv.id,
           'Hello.',
           30_000,
         )
-        // If we get here, the API didn't throw — check if the response indicates an error
-        // Some APIs return error in the SSE stream rather than throwing
-      } catch (error: any) {
+        // If we get here without throwing, check if response indicates an error
+        const lower = result.response.toLowerCase()
+        chatSucceeded = result.response.length > 0 &&
+          !lower.includes('error') &&
+          !lower.includes('invalid') &&
+          !lower.includes('unauthorized') &&
+          !lower.includes('401') &&
+          !lower.includes('403')
+      } catch {
         // Expected: the chat should fail with an error (401/403/invalid key)
-        // The important thing is it doesn't crash the server
-        expect(error.message).toBeTruthy()
+        chatSucceeded = false
       }
+
+      // The chat with a fake API key should NOT succeed
+      expect(chatSucceeded).toBe(false)
 
       // Verify the server is still responsive after the error
       const healthCheck = await helper.apiGet('/api/settings')

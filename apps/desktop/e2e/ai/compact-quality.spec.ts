@@ -74,7 +74,7 @@ test.describe('Compact Conversation Quality', () => {
       lower.includes('rust'),
       lower.includes('tokyo'),
     ].filter(Boolean).length
-    expect(factsRetained).toBeGreaterThanOrEqual(2)
+    expect(factsRetained).toBeGreaterThanOrEqual(3)
   })
 
   test('chat continues normally after compact', async ({ helper }) => {
@@ -148,7 +148,8 @@ test.describe('Compact Conversation Quality', () => {
 
     const compactRecord = await compactResponse.json()
     expect(compactRecord.id).toBeDefined()
-    expect(compactRecord.summary).toBeTruthy()
+    expect(typeof compactRecord.summary).toBe('string')
+    expect(compactRecord.summary.length).toBeGreaterThan(20)
     expect(compactRecord.trigger).toBe('manual')
 
     // Verify compact record is accessible via conversation API
@@ -158,14 +159,13 @@ test.describe('Compact Conversation Quality', () => {
     expect(Array.isArray(convData.compactRecords)).toBe(true)
     expect(convData.compactRecords.length).toBeGreaterThanOrEqual(1)
 
-    // The summary should contain some reference to the conversation content
+    // The summary should contain at least one original keyword from the conversation
     const summary = compactRecord.summary.toLowerCase()
-    const hasRelevantContent =
+    expect(
       summary.includes('butterfly') ||
-      summary.includes('code') ||
+      summary.includes('passphrase') ||
       summary.includes('meeting') ||
-      summary.includes('tuesday') ||
-      summary.length > 20 // at minimum, it's a non-trivial summary
-    expect(hasRelevantContent).toBe(true)
+      summary.includes('tuesday'),
+    ).toBe(true)
   })
 })
