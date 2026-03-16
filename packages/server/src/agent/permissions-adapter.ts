@@ -15,6 +15,7 @@ export function permissionsToSandboxConfig(pc: PermissionsConfig): SandboxConfig
     },
     network: {
       allowedDomains: pc.networkRestrictionsEnabled ? pc.allowedDomains : undefined,
+      deniedDomains: pc.networkRestrictionsEnabled ? pc.deniedDomains : undefined,
     },
     enablePython: true,
     deniedCommands: pc.deniedCommands,

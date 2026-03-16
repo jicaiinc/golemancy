@@ -72,9 +72,7 @@ test.describe('Real MCP Tool Calls', () => {
         },
       },
     )
-    await helper.apiPatch(`/api/projects/${projectId}`, {
-      permissionsConfigId: config.id,
-    })
+    await helper.applyPermissionsConfig(projectId, config.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Fetch Test')
     const result = await helper.sendChatViaApi(
@@ -131,9 +129,7 @@ test.describe('Real MCP Tool Calls', () => {
         },
       },
     )
-    await helper.apiPatch(`/api/projects/${projectId}`, {
-      permissionsConfigId: config.id,
-    })
+    await helper.applyPermissionsConfig(projectId, config.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Memory MCP Test')
 
@@ -202,9 +198,7 @@ test.describe('Real MCP Tool Calls', () => {
         },
       },
     )
-    await helper.apiPatch(`/api/projects/${projectId}`, {
-      permissionsConfigId: config.id,
-    })
+    await helper.applyPermissionsConfig(projectId, config.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'FS MCP Test')
     const result = await helper.sendChatViaApi(

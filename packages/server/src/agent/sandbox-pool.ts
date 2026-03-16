@@ -1,6 +1,7 @@
 import { fork, type ChildProcess } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
+import fs from 'node:fs'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import type {
@@ -391,8 +392,13 @@ export class SandboxPool {
     projectId: ProjectId,
     config: SandboxConfig,
   ): Promise<SandboxManagerHandle> {
-    const workerPath = path.join(import.meta.dirname, 'sandbox-worker.js')
-    const child = fork(workerPath, { serialization: 'json' })
+    const builtWorkerPath = path.join(import.meta.dirname, 'sandbox-worker.js')
+    const sourceWorkerPath = path.join(import.meta.dirname, 'sandbox-worker.ts')
+    const workerPath = fs.existsSync(builtWorkerPath) ? builtWorkerPath : sourceWorkerPath
+    const child = fork(workerPath, {
+      serialization: 'json',
+      ...(workerPath.endsWith('.ts') ? { execArgv: ['--import', 'tsx'] } : {}),
+    })
 
     // Wait for worker to initialize
     await new Promise<void>((resolve, reject) => {
@@ -492,7 +498,9 @@ function sandboxConfigToRuntimeConfig(config: SandboxConfig): Record<string, unk
       ...(config.network.allowedDomains !== undefined && {
         allowedDomains: config.network.allowedDomains,
       }),
-      deniedDomains: [],
+      ...(config.network.deniedDomains !== undefined && {
+        deniedDomains: config.network.deniedDomains,
+      }),
     },
     filesystem: {
       allowWrite: config.filesystem.allowWrite,

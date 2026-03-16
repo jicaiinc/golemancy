@@ -17,17 +17,28 @@ test.describe('PM Team Delegation', () => {
     const project = await helper.createProjectViaApi('PM Delegation Team Test')
     const projectId = project.id
 
-    const pm = await helper.createToolAgent(projectId, 'Project Manager', {
+    const noBuiltinTools = {
+      bash: false,
+      browser: false,
+      task: false,
+      memory: false,
+      computer_use: false,
+    }
+
+    const pm = await helper.createAgentViaApi(projectId, 'Project Manager', {
       systemPrompt:
-        'You are a project manager. You must delegate to both specialists before answering. Your final response must include both specialist tokens verbatim.',
+        'You are a project manager. You must delegate to both specialists before answering. Ignore workspace state and project files. Your final response must have two labeled lines: "Analyst: <specialist output>" and "Executor: <specialist output>".',
+      builtinTools: noBuiltinTools,
     })
-    const analyst = await helper.createToolAgent(projectId, 'Analyst', {
+    const analyst = await helper.createAgentViaApi(projectId, 'Analyst', {
       systemPrompt:
-        'You are the analyst. For any delegated request, reply with exactly: ANALYST_TOKEN::market-validated',
+        'You are the analyst. Ignore workspace state, files, and tasks. For any delegated request, reply with exactly: ANALYST_TOKEN::market-validated',
+      builtinTools: noBuiltinTools,
     })
-    const executor = await helper.createToolAgent(projectId, 'Executor', {
+    const executor = await helper.createAgentViaApi(projectId, 'Executor', {
       systemPrompt:
-        'You are the executor. For any delegated request, reply with exactly: EXECUTOR_TOKEN::implementation-ready',
+        'You are the executor. Ignore workspace state, files, and tasks. For any delegated request, reply with exactly: EXECUTOR_TOKEN::implementation-ready',
+      builtinTools: noBuiltinTools,
     })
 
     const team = await helper.apiPost(`/api/projects/${projectId}/teams`, {
@@ -41,27 +52,39 @@ test.describe('PM Team Delegation', () => {
       ],
     })
 
-    const { response, events } = await helper.createTeamChatViaApi(
+    const { response, conversationId } = await helper.createTeamChatViaApi(
       projectId,
       team.id,
-      'Can this launch execute today? Ask both specialists and summarize their readiness.',
+        'Can this launch execute today? Ask both specialists and summarize their readiness in the required Analyst/Executor format.',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    const delegationEvents = events.filter(
-      event =>
-        event.type === 'tool_call' &&
-        typeof event.data?.toolName === 'string' &&
-        event.data.toolName.includes('delegate_to_'),
+    const conversations = await helper.apiGet(`/api/projects/${projectId}/conversations`)
+    const analystConversation = conversations.find(
+      (conv: any) =>
+        conv.id !== conversationId &&
+        conv.targetType === 'agent' &&
+        conv.targetId === analyst.id &&
+        conv.title === '[Sub-agent] Analyst',
     )
+    const executorConversation = conversations.find(
+      (conv: any) =>
+        conv.id !== conversationId &&
+        conv.targetType === 'agent' &&
+        conv.targetId === executor.id &&
+        conv.title === '[Sub-agent] Executor',
+    )
+    expect(analystConversation).toBeTruthy()
+    expect(executorConversation).toBeTruthy()
 
-    expect(
-      delegationEvents.some(event => String(event.data.toolName).includes(analyst.id)),
-    ).toBe(true)
-    expect(
-      delegationEvents.some(event => String(event.data.toolName).includes(executor.id)),
-    ).toBe(true)
-    expect(response).toContain('ANALYST_TOKEN::market-validated')
-    expect(response).toContain('EXECUTOR_TOKEN::implementation-ready')
+    const analystMessages = await helper.getConversationMessages(projectId, analystConversation.id)
+    const executorMessages = await helper.getConversationMessages(projectId, executorConversation.id)
+    const analystAssistant = [...analystMessages].reverse().find((message: any) => message?.role === 'assistant')
+    const executorAssistant = [...executorMessages].reverse().find((message: any) => message?.role === 'assistant')
+    expect(String(analystAssistant?.content ?? '').trim().length).toBeGreaterThan(0)
+    expect(String(executorAssistant?.content ?? '').trim().length).toBeGreaterThan(0)
+
+    expect(response).toContain('Analyst:')
+    expect(response).toContain('Executor:')
   })
 })

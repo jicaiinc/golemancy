@@ -85,7 +85,13 @@ export function AgentDetailPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
             <h1 className="font-pixel text-[14px] text-text-primary">{agent.name}</h1>
-            <PixelBadge variant={statusBadgeVariant[agent.status]}>{t(`statusLabel.${agent.status}`)}</PixelBadge>
+            <PixelBadge
+              variant={statusBadgeVariant[agent.status]}
+              data-testid="agent-detail-status"
+              data-agent-status={agent.status}
+            >
+              {t(`statusLabel.${agent.status}`)}
+            </PixelBadge>
           </div>
           <p className="text-[13px] text-text-secondary mt-1">{agent.description}</p>
           <div className="flex items-center gap-3 mt-2 text-[11px] text-text-dim">

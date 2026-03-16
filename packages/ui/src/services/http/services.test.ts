@@ -392,6 +392,20 @@ describe('HttpSkillService', () => {
     expect(call[1].body).toBeInstanceOf(FormData)
   })
 
+  it('importZip() includes auth header when token is configured', async () => {
+    const mockFile = new File(['content'], 'test.zip', { type: 'application/zip' })
+    setAuthToken('token-123')
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ imported: [], count: 0 }),
+    })
+
+    await svc.importZip(PROJ, mockFile)
+
+    const call = mockFetch.mock.calls[0]
+    expect(call[1].headers).toEqual({ Authorization: 'Bearer token-123' })
+  })
+
   it('importZip() throws on error response', async () => {
     const mockFile = new File([''], 'bad.zip')
     mockFetch.mockResolvedValue({

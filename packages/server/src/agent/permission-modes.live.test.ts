@@ -10,6 +10,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { randomUUID } from 'node:crypto'
 import { generateText, tool } from 'ai'
 import { z } from 'zod'
 
@@ -19,6 +20,7 @@ import { CommandBlockedError } from './check-command-blacklist'
 import { PathAccessError } from './validate-path'
 import { resolveModel } from './model'
 import { runAgent } from './runtime'
+import { sandboxPool } from './sandbox-pool'
 import { describeWithApiKey } from '../test/live-settings'
 import {
   PassthroughSandboxManagerHandle,
@@ -30,7 +32,7 @@ import { homedir } from 'node:os'
 import { buildRuntimeEnv } from '../runtime/env-builder'
 import { getBundledPythonPath, getBundledNodeBinDir } from '../runtime/paths'
 import { initProjectPythonEnv, getPythonEnvStatus, removeProjectPythonEnv, resolvePythonBinary } from '../runtime/python-manager'
-import { DEFAULT_PERMISSIONS_CONFIG } from '@golemancy/shared'
+import { DEFAULT_PERMISSIONS_CONFIG, isSandboxRuntimeSupported } from '@golemancy/shared'
 import type { Agent, AgentId, ProjectId, ConversationId } from '@golemancy/shared'
 
 // ── Shared Setup ──────────────────────────────────────────────
@@ -45,6 +47,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (workspaceDir) await cleanupTestWorkspace(workspaceDir)
+  await sandboxPool.shutdown()
 })
 
 function createSandbox(overrides?: Parameters<typeof createTestSandboxConfig>[1]) {
@@ -59,6 +62,28 @@ function createSandbox(overrides?: Parameters<typeof createTestSandboxConfig>[1]
 function createNative() {
   return new NativeSandbox({
     workspaceRoot: workspaceDir,
+    timeoutMs: 10_000,
+  })
+}
+
+async function createRuntimeSandbox(overrides?: Parameters<typeof createTestSandboxConfig>[1]) {
+  const config = createTestSandboxConfig(workspaceDir, {
+    enablePython: true,
+    ...overrides,
+  })
+  const handle = await sandboxPool.getHandle(
+    `perm-live-${randomUUID()}` as ProjectId,
+    {
+      mode: 'sandbox',
+      sandbox: config,
+      usesDedicatedWorker: true,
+    },
+  )
+
+  return new AnthropicSandbox({
+    config,
+    workspaceRoot: workspaceDir,
+    sandboxManager: handle,
     timeoutMs: 10_000,
   })
 }
@@ -275,6 +300,49 @@ describe('C: Path validation', () => {
         `Expected write to '${filePath}' to be blocked by mandatory deny`,
       ).rejects.toThrow(PathAccessError)
     }
+  })
+})
+
+// ── Category C2: Runtime Network Enforcement ──────────────────
+
+describe('C2: runtime network enforcement (real sandbox runtime)', () => {
+  it('C2.1: allowlisted public domain is reachable', async () => {
+    if (!isSandboxRuntimeSupported(process.platform)) return
+
+    const sandbox = await createRuntimeSandbox({
+      deniedCommands: [],
+      network: {
+        allowedDomains: ['example.com'],
+        deniedDomains: [],
+      },
+    })
+
+    const result = await sandbox.executeCommand(
+      'curl -fsSL https://example.com',
+    )
+
+    expect(result.exitCode).toBe(0)
+    expect(result.stdout).toContain('Example Domain')
+  })
+
+  it('C2.2: denylist overrides allowlist for public domain', async () => {
+    if (!isSandboxRuntimeSupported(process.platform)) return
+
+    const sandbox = await createRuntimeSandbox({
+      deniedCommands: [],
+      network: {
+        allowedDomains: ['example.com'],
+        deniedDomains: ['example.com'],
+      },
+    })
+
+    const result = await sandbox.executeCommand(
+      'curl -fsSL https://example.com',
+    )
+
+    expect(result.exitCode).not.toBe(0)
+    expect(result.stdout).not.toContain('Example Domain')
+    expect(result.stderr).not.toContain('Example Domain')
   })
 })
 

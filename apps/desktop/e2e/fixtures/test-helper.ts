@@ -26,6 +26,69 @@ export class TestHelper {
     this.console.clear()
   }
 
+  private extractAssistantTextFromMessages(messagesResponse: any): string {
+    const lastAssistant = [...(messagesResponse.items ?? [])].reverse().find((msg: any) => msg.role === 'assistant')
+    if (!lastAssistant) return ''
+    if (typeof lastAssistant.content === 'string') return lastAssistant.content
+    if (!Array.isArray(lastAssistant.parts)) return ''
+    return lastAssistant.parts
+      .filter((part: any) => part?.type === 'text' && typeof part.text === 'string')
+      .map((part: any) => part.text)
+      .join('\n')
+  }
+
+  private parseSSEPayload(rawText: string): { response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] } {
+    let fullText = ''
+    const usage = { inputTokens: 0, outputTokens: 0 }
+    const events: SSEEvent[] = []
+    const eventDataLines: string[] = []
+
+    const processEventData = (rawData: string) => {
+      const data = rawData.trim()
+      if (!data || data === '[DONE]') return
+
+      try {
+        const parsed = JSON.parse(data)
+        events.push({ type: parsed.type ?? 'unknown', data: parsed })
+        if (parsed.type === 'text-delta') {
+          const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
+          if (typeof delta === 'string') {
+            fullText += delta
+          }
+        }
+        if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
+          const usageData = parsed.usage ?? parsed.data
+          if (usageData) {
+            usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
+            usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
+          }
+        }
+      } catch {
+        // ignore malformed event data in tests
+      }
+    }
+
+    for (const rawLine of rawText.split('\n')) {
+      const line = rawLine.replace(/\r$/, '')
+      if (line === '') {
+        if (eventDataLines.length > 0) {
+          processEventData(eventDataLines.join('\n'))
+          eventDataLines.length = 0
+        }
+        continue
+      }
+      if (line.startsWith('data:')) {
+        eventDataLines.push(line.slice(5).trimStart())
+      }
+    }
+
+    if (eventDataLines.length > 0) {
+      processEventData(eventDataLines.join('\n'))
+    }
+
+    return { response: fullText, usage, events }
+  }
+
   // ===== Server API =====
 
   /** Get server base URL and auth token from the Electron preload bridge */
@@ -109,6 +172,18 @@ export class TestHelper {
     return this.page.request.post(`${baseUrl}${path}`, {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       data: body,
+    })
+  }
+
+  /** Send an authenticated multipart POST and return raw response */
+  async apiPostMultipartRaw(
+    path: string,
+    multipart: Record<string, unknown>,
+  ) {
+    const { baseUrl, token } = await this.getServerInfo()
+    return this.page.request.post(`${baseUrl}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      multipart,
     })
   }
 
@@ -491,17 +566,226 @@ export class TestHelper {
 
     if (!result.response.trim()) {
       const messages = await this.apiGet(`/api/projects/${projectId}/conversations/${conversationId}/messages`)
-      const lastAssistant = [...(messages.items ?? [])].reverse().find((msg: any) => msg.role === 'assistant')
-      if (lastAssistant) {
-        result.response = typeof lastAssistant.content === 'string'
-          ? lastAssistant.content
-          : Array.isArray(lastAssistant.parts)
-            ? lastAssistant.parts
-                .filter((part: any) => part?.type === 'text' && typeof part.text === 'string')
-                .map((part: any) => part.text)
-                .join('\n')
-            : ''
-      }
+      result.response = this.extractAssistantTextFromMessages(messages)
+    }
+
+    return result
+  }
+
+  /** Send a chat message via buffered HTTP request and parse the final SSE payload. */
+  async sendChatViaApiBuffered(
+    projectId: string,
+    agentId: string,
+    conversationId: string,
+    message: string,
+    timeout = TIMEOUTS.AI_RESPONSE,
+  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
+    const { baseUrl, token } = await this.getServerInfo()
+    const userMessage = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      role: 'user',
+      parts: [{ type: 'text', text: message }],
+    }
+
+    const response = await this.page.request.post(`${baseUrl}/api/chat`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: {
+        projectId,
+        targetType: 'agent',
+        targetId: agentId,
+        conversationId,
+        messages: [userMessage],
+      },
+      timeout,
+    })
+
+    if (!response.ok()) {
+      const errorText = await response.text().catch(() => '')
+      throw new Error(`Chat API returned ${response.status()}${errorText ? `: ${errorText}` : ''}`)
+    }
+
+    const rawText = await response.text()
+    const result = this.parseSSEPayload(rawText)
+    if (!result.response.trim()) {
+      const messages = await this.apiGet(`/api/projects/${projectId}/conversations/${conversationId}/messages`)
+      result.response = this.extractAssistantTextFromMessages(messages)
+    }
+
+    return result
+  }
+
+  /** Start a chat stream in the page context without waiting for completion. */
+  async startChatViaApiInBackground(
+    projectId: string,
+    agentId: string,
+    conversationId: string,
+    message: string,
+    timeout = TIMEOUTS.AI_RESPONSE,
+  ): Promise<string> {
+    const { baseUrl, token } = await this.getServerInfo()
+    const requestId = `bg-chat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+
+    await this.page.evaluate(
+      ({ baseUrl, token, projectId, agentId, conversationId, message, timeout, requestId }) => {
+        const storeKey = '__GOLEMANCY_E2E_BACKGROUND_CHATS__'
+        const store = ((window as any)[storeKey] ??= {})
+        store[requestId] = {
+          done: false,
+          response: '',
+          usage: { inputTokens: 0, outputTokens: 0 },
+          events: [],
+          error: null,
+        }
+
+        void (async () => {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), timeout)
+
+          try {
+            const userMessage = {
+              id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+              role: 'user',
+              parts: [{ type: 'text', text: message }],
+            }
+
+            const res = await fetch(`${baseUrl}/api/chat`, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                projectId,
+                targetType: 'agent',
+                targetId: agentId,
+                conversationId,
+                messages: [userMessage],
+              }),
+              signal: controller.signal,
+            })
+
+            if (!res.ok) {
+              const errorText = await res.text().catch(() => '')
+              throw new Error(`Chat API returned ${res.status}${errorText ? `: ${errorText}` : ''}`)
+            }
+            if (!res.body) throw new Error('No response body')
+
+            const reader = res.body.getReader()
+            const decoder = new TextDecoder()
+            let buffer = ''
+            let eventDataLines: string[] = []
+
+            const processEventData = (rawData: string) => {
+              const data = rawData.trim()
+              if (!data || data === '[DONE]') return
+
+              try {
+                const parsed = JSON.parse(data)
+                store[requestId].events.push({ type: parsed.type ?? 'unknown', data: parsed })
+                if (parsed.type === 'text-delta') {
+                  const delta = parsed.delta ?? parsed.textDelta ?? parsed.text
+                  if (typeof delta === 'string') {
+                    store[requestId].response += delta
+                  }
+                }
+                if (parsed.type === 'usage' || parsed.type === 'finish' || parsed.type === 'data-usage') {
+                  const usageData = parsed.usage ?? parsed.data
+                  if (usageData) {
+                    store[requestId].usage.inputTokens = usageData.promptTokens || usageData.inputTokens || 0
+                    store[requestId].usage.outputTokens = usageData.completionTokens || usageData.outputTokens || 0
+                  }
+                }
+              } catch {
+                // ignore malformed event data in tests
+              }
+            }
+
+            while (true) {
+              const { done, value } = await reader.read()
+              if (done) break
+
+              buffer += decoder.decode(value, { stream: true })
+              const lines = buffer.split('\n')
+              buffer = lines.pop() ?? ''
+
+              for (const rawLine of lines) {
+                const line = rawLine.replace(/\r$/, '')
+                if (line === '') {
+                  if (eventDataLines.length > 0) {
+                    processEventData(eventDataLines.join('\n'))
+                    eventDataLines = []
+                  }
+                  continue
+                }
+                if (line.startsWith('data:')) {
+                  eventDataLines.push(line.slice(5).trimStart())
+                }
+              }
+            }
+
+            buffer += decoder.decode()
+            if (buffer) {
+              const trailingLines = buffer.split('\n')
+              for (const rawLine of trailingLines) {
+                const line = rawLine.replace(/\r$/, '')
+                if (line === '') {
+                  if (eventDataLines.length > 0) {
+                    processEventData(eventDataLines.join('\n'))
+                    eventDataLines = []
+                  }
+                  continue
+                }
+                if (line.startsWith('data:')) {
+                  eventDataLines.push(line.slice(5).trimStart())
+                }
+              }
+            }
+            if (eventDataLines.length > 0) {
+              processEventData(eventDataLines.join('\n'))
+            }
+          } catch (err) {
+            store[requestId].error = err instanceof Error ? err.message : String(err)
+          } finally {
+            clearTimeout(timeoutId)
+            store[requestId].done = true
+          }
+        })()
+      },
+      { baseUrl, token, projectId, agentId, conversationId, message, timeout, requestId },
+    )
+
+    return requestId
+  }
+
+  /** Wait for a previously started background chat stream to complete. */
+  async waitForBackgroundChat(
+    projectId: string,
+    conversationId: string,
+    requestId: string,
+    timeout = TIMEOUTS.AI_RESPONSE,
+  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
+    const result = await this.pollUntil(
+      () => this.page.evaluate((id: string) => {
+        const store = (window as any).__GOLEMANCY_E2E_BACKGROUND_CHATS__ ?? {}
+        return store[id] ?? null
+      }, requestId),
+      value => Boolean(value?.done),
+      { intervalMs: 250, timeoutMs: timeout },
+    )
+
+    if (!result) {
+      throw new Error(`Background chat ${requestId} was not found`)
+    }
+    if (result.error) {
+      throw new Error(result.error)
+    }
+
+    if (!String(result.response ?? '').trim()) {
+      const messages = await this.apiGet(`/api/projects/${projectId}/conversations/${conversationId}/messages`)
+      result.response = this.extractAssistantTextFromMessages(messages)
     }
 
     return result
@@ -562,7 +846,7 @@ export class TestHelper {
     teamId: string,
     message: string,
     timeout = TIMEOUTS.SSE_CHAT,
-  ): Promise<{ response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
+  ): Promise<{ conversationId: string; response: string; usage: { inputTokens: number; outputTokens: number }; events: SSEEvent[] }> {
     // Create a conversation for the team first
     const conv = await this.apiPost(`/api/projects/${projectId}/conversations`, {
       targetType: 'team',
@@ -700,7 +984,7 @@ export class TestHelper {
       }
     }
 
-    return result
+    return { conversationId: conv.id, ...result }
   }
 
   // ===== Project config =====
@@ -724,6 +1008,13 @@ export class TestHelper {
     const dataDir = process.env.GOLEMANCY_TEST_DATA_DIR
     if (!dataDir) throw new Error('GOLEMANCY_TEST_DATA_DIR not set')
     return path.join(dataDir, 'projects', projectId, 'workspace', relativePath)
+  }
+
+  /** Get an absolute path inside the project's skill directory */
+  getSkillFilePath(projectId: string, skillId: string, relativePath = ''): string {
+    const dataDir = process.env.GOLEMANCY_TEST_DATA_DIR
+    if (!dataDir) throw new Error('GOLEMANCY_TEST_DATA_DIR not set')
+    return path.join(dataDir, 'projects', projectId, 'skills', skillId, relativePath)
   }
 
   /** Write a file directly into a project's workspace directory (via Node.js fs) */
@@ -756,6 +1047,16 @@ export class TestHelper {
     return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf-8') : null
   }
 
+  /** Read a file from a skill directory if it exists */
+  readSkillFile(projectId: string, skillId: string, relativePath: string): string {
+    return fs.readFileSync(this.getSkillFilePath(projectId, skillId, relativePath), 'utf-8')
+  }
+
+  /** Check whether a skill file exists */
+  skillFileExists(projectId: string, skillId: string, relativePath: string): boolean {
+    return fs.existsSync(this.getSkillFilePath(projectId, skillId, relativePath))
+  }
+
   /** Delete an arbitrary file if it exists */
   removeFileIfExists(filePath: string): void {
     if (fs.existsSync(filePath)) {
@@ -779,7 +1080,9 @@ export class TestHelper {
 
   /** Assign a permissions config to a project */
   async applyPermissionsConfig(projectId: string, permissionsConfigId: string): Promise<void> {
-    await this.apiPatch(`/api/projects/${projectId}`, { permissionsConfigId })
+    await this.apiPatch(`/api/projects/${projectId}`, {
+      config: { permissionsConfigId },
+    })
   }
 
   // ===== Generic polling =====

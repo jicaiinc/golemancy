@@ -52,6 +52,7 @@ const TEST_CONFIG: SandboxConfig = {
   },
   network: {
     allowedDomains: ['github.com'],
+    deniedDomains: ['localhost'],
   },
   enablePython: false,
   deniedCommands: ['sudo *'],
@@ -312,7 +313,7 @@ describe('SandboxPool', () => {
         expect.objectContaining({
           network: {
             allowedDomains: TEST_CONFIG.network.allowedDomains,
-            deniedDomains: [],
+            deniedDomains: TEST_CONFIG.network.deniedDomains,
           },
           filesystem: expect.objectContaining({
             allowWrite: TEST_CONFIG.filesystem.allowWrite,

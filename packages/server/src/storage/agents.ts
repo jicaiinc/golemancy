@@ -55,7 +55,8 @@ export class FileAgentStorage implements IAgentService {
 
   async create(
     projectId: ProjectId,
-    data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>,
+    data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>
+      & Partial<Pick<Agent, 'skillIds' | 'tools' | 'mcpServers' | 'builtinTools' | 'compactThreshold'>>,
   ): Promise<Agent> {
     const id = generateId('agent')
     log.debug({ projectId, agentId: id }, 'creating agent')
@@ -66,10 +67,10 @@ export class FileAgentStorage implements IAgentService {
       projectId,
       ...data,
       status: 'idle',
-      skillIds: [],
-      tools: [],
-      mcpServers: [],
-      builtinTools: { bash: true },
+      skillIds: data.skillIds ?? [],
+      tools: data.tools ?? [],
+      mcpServers: data.mcpServers ?? [],
+      builtinTools: data.builtinTools ?? { bash: true },
       createdAt: now,
       updatedAt: now,
     }

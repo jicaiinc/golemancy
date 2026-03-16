@@ -7,7 +7,7 @@ function renderBrowserPage() {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Golemancy Browser Test</title>
+    <title>Deterministic Browser Page</title>
   </head>
   <body>
     <main>

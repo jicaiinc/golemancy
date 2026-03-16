@@ -69,16 +69,16 @@ test.describe('Memory Persistence', () => {
       const projectId = project.id
       const agent = await helper.createToolAgent(projectId, 'Memory Persistence Agent', {
         systemPrompt:
-          'You are a helpful assistant. Save important facts with memory tools immediately. When asked what you remember, search memory before answering.',
+          'You are a helpful assistant. Save important facts with memory tools immediately. Pinned memories loaded into context are reliable facts. When the user asks for a remembered code, return the exact code only.',
         builtinTools: { bash: false, browser: false, task: false, memory: true },
       })
 
       const rememberConv = await helper.createConversationViaApi(projectId, agent.id, 'Before Restart')
-      const rememberResult = await helper.sendChatViaApi(
+      const rememberResult = await helper.sendChatViaApiBuffered(
         projectId,
         agent.id,
         rememberConv.id,
-        `Remember this exact code in your memory and confirm it: ${persistedCode}`,
+        `Use your memory tool to remember this exact code and then confirm with only the code: ${persistedCode}`,
         TIMEOUTS.AI_RESPONSE,
       )
 
@@ -89,9 +89,15 @@ test.describe('Memory Persistence', () => {
       expect(rememberResult.response).toContain(persistedCode)
 
       const memoriesBeforeRestart = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}/memories`)
-      expect(
-        memoriesBeforeRestart.some((memory: any) => String(memory?.content ?? '').includes(persistedCode)),
-      ).toBe(true)
+      const persistedMemory = memoriesBeforeRestart.find((memory: any) =>
+        String(memory?.content ?? '').includes(persistedCode),
+      )
+      expect(persistedMemory).toBeTruthy()
+
+      await helper.apiPatch(
+        `/api/projects/${projectId}/agents/${agent.id}/memories/${persistedMemory.id}`,
+        { pinned: true, priority: 5 },
+      )
 
       await firstSession.app.close()
       firstSession = null
@@ -100,16 +106,19 @@ test.describe('Memory Persistence', () => {
       const helperAfterRestart = secondSession.helper
 
       const memoriesAfterRestart = await helperAfterRestart.apiGet(`/api/projects/${projectId}/agents/${agent.id}/memories`)
-      expect(
-        memoriesAfterRestart.some((memory: any) => String(memory?.content ?? '').includes(persistedCode)),
-      ).toBe(true)
+      const restartedMemory = memoriesAfterRestart.find((memory: any) =>
+        String(memory?.content ?? '').includes(persistedCode),
+      )
+      expect(restartedMemory).toBeTruthy()
+      expect(restartedMemory.pinned).toBe(true)
+      expect(restartedMemory.priority).toBe(5)
 
       const recallConv = await helperAfterRestart.createConversationViaApi(projectId, agent.id, 'After Restart')
-      const recallResult = await helperAfterRestart.sendChatViaApi(
+      const recallResult = await helperAfterRestart.sendChatViaApiBuffered(
         projectId,
         agent.id,
         recallConv.id,
-        'What exact code did I ask you to remember before the app restart?',
+        'What exact code did I ask you to remember before the app restart? Return only the exact code.',
         TIMEOUTS.AI_RESPONSE,
       )
 

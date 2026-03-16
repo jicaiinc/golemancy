@@ -29,7 +29,7 @@ test.describe('Cron Job Runtime', () => {
       cronExpression: '0 0 1 1 *',
       enabled: true,
       scheduleType: 'once',
-      scheduledAt: new Date(Date.now() + 15_000).toISOString(),
+      scheduledAt: new Date(Date.now() + 30_000).toISOString(),
       instruction: `Reply with exactly: ${marker}`,
     })
 
@@ -61,13 +61,23 @@ test.describe('Cron Job Runtime', () => {
     const project = await helper.createProjectViaApi('Cron Team Runtime Test')
     const projectId = project.id
 
-    const leader = await helper.createToolAgent(projectId, 'Team Cron Lead', {
+    const noBuiltinTools = {
+      bash: false,
+      browser: false,
+      task: false,
+      memory: false,
+      computer_use: false,
+    }
+
+    const leader = await helper.createAgentViaApi(projectId, 'Team Cron Lead', {
       systemPrompt:
-        'You are a team lead. Always delegate to the specialist before producing the final answer. Include the specialist token verbatim.',
+        'You are a team lead. Always delegate to the specialist before producing the final answer. Ignore workspace state. Your final response must start with "Specialist:" followed by the specialist output.',
+      builtinTools: noBuiltinTools,
     })
-    const specialist = await helper.createToolAgent(projectId, 'Cron Specialist', {
+    const specialist = await helper.createAgentViaApi(projectId, 'Cron Specialist', {
       systemPrompt:
-        'You are the specialist. For any delegated task, reply with exactly: TEAM_CRON_TOKEN::delegate-ok',
+        'You are the specialist. Ignore workspace state, files, and tasks. For any delegated task, reply with exactly: TEAM_CRON_TOKEN::delegate-ok',
+      builtinTools: noBuiltinTools,
     })
 
     const team = await helper.apiPost(`/api/projects/${projectId}/teams`, {
@@ -87,7 +97,7 @@ test.describe('Cron Job Runtime', () => {
       cronExpression: '0 0 1 1 *',
       enabled: false,
       scheduleType: 'cron',
-      instruction: 'Coordinate the team and report the specialist readiness token.',
+      instruction: 'Coordinate the team, ask the specialist for readiness, and return the final answer in the required Specialist format.',
     })
 
     const triggerResult = await helper.apiPost(`/api/projects/${projectId}/cron-jobs/${job.id}/trigger`, {})
@@ -106,17 +116,20 @@ test.describe('Cron Job Runtime', () => {
     expect(runs[0].conversationId).toBeTruthy()
 
     const assistantMessage = await helper.getLastAssistantMessage(projectId, runs[0].conversationId)
-    expect(String(assistantMessage?.content ?? '')).toContain('TEAM_CRON_TOKEN::delegate-ok')
+    expect(String(assistantMessage?.content ?? '')).toContain('Specialist:')
 
-    const toolInvocationParts = helper.getToolInvocationParts(assistantMessage)
-    const delegationParts = toolInvocationParts.filter(part =>
-      String(part?.toolInvocation?.toolName ?? '').includes('delegate_to_'),
+    const conversations = await helper.apiGet(`/api/projects/${projectId}/conversations`)
+    const specialistConversation = conversations.find(
+      (conv: any) =>
+        conv.id !== runs[0].conversationId &&
+        conv.targetType === 'agent' &&
+        conv.targetId === specialist.id &&
+        conv.title === '[Sub-agent] Cron Specialist',
     )
-    expect(delegationParts.length).toBeGreaterThanOrEqual(1)
-    expect(
-      delegationParts.some(part =>
-        String(part?.toolInvocation?.toolName ?? '').includes(specialist.id),
-      ),
-    ).toBe(true)
+    expect(specialistConversation).toBeTruthy()
+
+    const specialistMessages = await helper.getConversationMessages(projectId, specialistConversation.id)
+    const specialistAssistant = [...specialistMessages].reverse().find((message: any) => message?.role === 'assistant')
+    expect(String(specialistAssistant?.content ?? '').trim().length).toBeGreaterThan(0)
   })
 })

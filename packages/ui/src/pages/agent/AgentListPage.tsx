@@ -98,7 +98,12 @@ export function AgentListPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start gap-2">
                       <h3 className="font-pixel text-[10px] text-text-primary line-clamp-2 flex-1 min-w-0" title={agent.name}>{agent.name}</h3>
-                      <PixelBadge variant={statusBadgeVariant[agent.status]} className="shrink-0">
+                      <PixelBadge
+                        variant={statusBadgeVariant[agent.status]}
+                        className="shrink-0"
+                        data-testid={`agent-list-status-${agent.id}`}
+                        data-agent-status={agent.status}
+                      >
                         {t(`statusLabel.${agent.status}`)}
                       </PixelBadge>
                       <button

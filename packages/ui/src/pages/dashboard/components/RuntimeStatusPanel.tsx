@@ -24,7 +24,7 @@ export function RuntimeStatusPanel({ status, showProject, onOpenChat, onOpenCron
   ]
 
   return (
-    <PixelCard variant="default">
+    <PixelCard variant="default" data-testid="runtime-status-panel">
       <h3 className="font-pixel text-[10px] text-text-secondary mb-3">{t('runtimePanel.title')}</h3>
       <PixelTabs tabs={tabs} activeTab={tab} onTabChange={setTab} />
 
