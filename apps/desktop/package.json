@@ -44,12 +44,10 @@
   "devDependencies": {
     "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4.1.0",
-    "@types/adm-zip": "^0.5.7",
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.0.0",
-    "adm-zip": "^0.5.16",
     "electron": "^40.0.0",
     "electron-builder": "^26.7.0",
     "electron-vite": "^5.0.0",
