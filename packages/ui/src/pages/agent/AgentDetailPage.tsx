@@ -11,14 +11,14 @@ import {
 } from '../../components'
 
 // --- Status helpers ---
-const statusBadgeVariant: Record<AgentStatus, 'idle' | 'running' | 'error' | 'paused'> = {
-  idle: 'idle', running: 'running', error: 'error', paused: 'paused',
+const statusBadgeVariant: Record<AgentStatus, 'idle' | 'running' | 'error'> = {
+  idle: 'idle', running: 'running', error: 'error',
 }
 const statusBarColor: Record<AgentStatus, string> = {
-  idle: 'bg-text-secondary', running: 'bg-accent-green', error: 'bg-accent-red', paused: 'bg-accent-amber',
+  idle: 'bg-text-secondary', running: 'bg-accent-green', error: 'bg-accent-red',
 }
 const statusAnimation: Record<AgentStatus, string> = {
-  idle: '', running: 'animate-[pixel-pulse_1s_steps(2)_infinite]', error: 'animate-[pixel-shake_0.3s_steps(3)_infinite]', paused: 'animate-[pixel-blink_2s_steps(2)_infinite]',
+  idle: '', running: 'animate-[pixel-pulse_1s_steps(2)_infinite]', error: 'animate-[pixel-shake_0.3s_steps(3)_infinite]',
 }
 
 export function AgentDetailPage() {
@@ -75,11 +75,15 @@ export function AgentDetailPage() {
 
       <div className="flex items-start gap-4 mb-6">
         <div className="relative">
-          <div className={`absolute -top-1 -left-1 -right-1 h-1 ${statusBarColor[agent.status]} ${statusAnimation[agent.status]}`} />
+          <div
+            data-testid="agent-detail-status-bar"
+            data-agent-status={agent.status}
+            className={`absolute -top-1 -left-1 -right-1 h-1 ${statusBarColor[agent.status]} ${statusAnimation[agent.status]}`}
+          />
           <PixelAvatar
             size="xl"
             initials={agent.name}
-            status={agent.status === 'running' ? 'online' : agent.status === 'error' ? 'error' : agent.status === 'paused' ? 'paused' : 'offline'}
+            status={agent.status === 'running' ? 'online' : agent.status === 'error' ? 'error' : 'offline'}
           />
         </div>
         <div className="flex-1 min-w-0">

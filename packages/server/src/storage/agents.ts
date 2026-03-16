@@ -36,6 +36,7 @@ export class FileAgentStorage implements IAgentService {
 
     return {
       ...agent,
+      status: raw.status === 'paused' ? 'idle' : agent.status,
       skillIds: agent.skillIds ?? raw.skills?.map((s: { id: string }) => s.id) ?? [],
       mcpServers,
       builtinTools: agent.builtinTools ?? { bash: true },

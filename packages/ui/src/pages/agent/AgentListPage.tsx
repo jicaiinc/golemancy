@@ -13,21 +13,18 @@ const statusBarColor: Record<AgentStatus, string> = {
   idle: 'bg-text-secondary',
   running: 'bg-accent-green',
   error: 'bg-accent-red',
-  paused: 'bg-accent-amber',
 }
 
 const statusAnimation: Record<AgentStatus, string> = {
   idle: '',
   running: 'animate-[pixel-pulse_1s_steps(2)_infinite]',
   error: 'animate-[pixel-shake_0.3s_steps(3)_infinite]',
-  paused: 'animate-[pixel-blink_2s_steps(2)_infinite]',
 }
 
-const statusBadgeVariant: Record<AgentStatus, 'idle' | 'running' | 'error' | 'paused'> = {
+const statusBadgeVariant: Record<AgentStatus, 'idle' | 'running' | 'error'> = {
   idle: 'idle',
   running: 'running',
   error: 'error',
-  paused: 'paused',
 }
 
 export function AgentListPage() {
@@ -87,13 +84,17 @@ export function AgentListPage() {
                 onClick={() => navigate(`/projects/${projectId}/agents/${agent.id}`)}
               >
                 {/* Status bar - 4px colored top bar */}
-                <div className={`absolute top-0 left-0 right-0 h-1 ${statusBarColor[agent.status]} ${statusAnimation[agent.status]}`} />
+                <div
+                  data-testid={`agent-list-status-bar-${agent.id}`}
+                  data-agent-status={agent.status}
+                  className={`absolute top-0 left-0 right-0 h-1 ${statusBarColor[agent.status]} ${statusAnimation[agent.status]}`}
+                />
 
                 <div className="flex items-start gap-3 mt-1">
                   <PixelAvatar
                     size="md"
                     initials={agent.name}
-                    status={agent.status === 'running' ? 'online' : agent.status === 'error' ? 'error' : agent.status === 'paused' ? 'paused' : 'offline'}
+                    status={agent.status === 'running' ? 'online' : agent.status === 'error' ? 'error' : 'offline'}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start gap-2">

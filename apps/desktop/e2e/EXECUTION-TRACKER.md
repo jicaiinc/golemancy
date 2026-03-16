@@ -1,6 +1,6 @@
 # E2E Execution Tracker
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ## Status Legend
 
@@ -45,7 +45,10 @@ Last updated: 2026-03-16
 | `TEAM-001` | Team collaboration | PM delegates to two members and combines outputs | Yes | `e2e/ai/team-delegation-pm.spec.ts` | `passed` | Passed after switching to real sub-agent conversation assertions and requiring the PM to return labeled Analyst/Executor summary lines |
 | `CRON-001` | Cron | one-time cron triggers agent and creates run history | Mixed | `e2e/server/cronjob-once-runtime.spec.ts` | `passed` | Passed twice after widening the once-schedule lead time from 15s to 30s |
 | `CRON-002` | Cron | cron targets team and produces delegated run | Mixed | `e2e/server/cronjob-once-runtime.spec.ts` | `passed` | Passed after switching to real specialist sub-agent conversation assertions and requiring the team lead to return a labeled Specialist summary |
-| `STATE-001` | Agent status | `idle -> running -> idle` visible in UI/dashboard | Mixed | `e2e/smoke/agent-status.spec.ts` | `passed` | Passed with a background bash run, agent-list status text, and dashboard activity visibility |
+| `STATE-001` | Agent status | `idle -> running -> idle` syncs across agent list, agent detail, and dashboard | Mixed | `e2e/smoke/agent-status.spec.ts` | `passed` | Passed with background bash execution plus explicit status badge/status-bar assertions on list and detail, and runtime panel visibility on dashboard |
+| `STATE-002` | Agent status | stale `running` status resets to `idle` after app relaunch | Mixed | `e2e/smoke/agent-status-relaunch.spec.ts` | `passed` | Passed with persisted `status='running'` before shutdown, then verified startup cleanup resets both UI and stored agent record to `idle` |
+| `STATE-003` | Agent status | deterministic `error` state is visible in UI/dashboard | Mixed | `e2e/smoke/agent-status.spec.ts` | `passed` | Passed after wiring chat failures to persist an error assistant message, mark the agent `error`, and expose failed chats as `error` in dashboard recent activity |
+| `STATE-004` | Agent status | dead `paused` state is removed from the agent status surface | Mixed | shared/ui/server status cleanup | `passed` | Resolved by removing `paused` from `AgentStatus`, updating UI mappings, and normalizing legacy persisted `paused` agents back to `idle` |
 | `SKILL-001` | Skill import | import `.zip` skill with bundled `scripts/` and assets | Mixed | `e2e/server/skills-import-zip.spec.ts` + `e2e/smoke/skills-import-zip.spec.ts` + `e2e/ai/skill-package-execution.spec.ts` | `passed` | Server import, UI upload, bundled asset extraction, and agent-side script execution all passed after fixing UI auth |
 | `SKILL-002` | Skill import | import `.zip` skill without `scripts/` and execute successfully | Mixed | `e2e/server/skills-import-zip.spec.ts` + `e2e/ai/skill-package-execution.spec.ts` | `passed` | Packaged skill without scripts imported cleanly and agent recalled deterministic marker via skill tool |
 
@@ -76,3 +79,5 @@ Last updated: 2026-03-16
 | `F-014` | Loopback hosts were a poor allowlist probe for macOS sandbox-runtime and the AI E2E also hit CA-certificate noise with `curl` | Public-domain probes (`example.com`) plus `curl -k` are more reliable for AI E2E; runtime allow/deny is now also covered by server live tests |
 | `F-015` | `FileAgentStorage.create()` was overwriting create-time `builtinTools`, `mcpServers`, `skillIds`, and related optional fields with hardcoded defaults | New agents silently lost non-default capabilities such as `browser`, which made browser E2E look like a model/tool bug when it was really a create-time persistence bug |
 | `F-016` | Page-context SSE fetches were less stable after Electron relaunch and occasionally aborted the body stream even when the server-side chat completed | Buffered HTTP chat requests are a more reliable transport for relaunch-sensitive scenarios such as memory persistence and browser-tool E2E |
+| `F-017` | Agent `paused` was a dead state: it existed in shared/UI types, but there was no server/runtime path that set it | Resolved by removing it from the agent status surface and normalizing legacy data to `idle` |
+| `F-018` | Chat failures previously did not map to a persisted/displayed agent `error` state: chat routes emitted only `running -> idle`, and dashboard recent chat rows were hard-coded to `success` | Resolved by persisting chat error messages with metadata, marking the agent `error`, and deriving recent-chat status from the last message metadata |

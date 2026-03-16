@@ -21,7 +21,6 @@ const statusDotColor: Record<AgentStatus, string> = {
   idle: 'bg-text-dim',
   running: 'bg-accent-green',
   error: 'bg-accent-red',
-  paused: 'bg-accent-amber',
 }
 
 export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {

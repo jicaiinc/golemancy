@@ -7,6 +7,7 @@ import {
 import type {
   AgentId, ProjectId, ConversationId, MessageId, TeamId, TargetType, CompactRecord, Message, TeamMember,
   IAgentService, IProjectService, IConversationService, ISettingsService, IMCPService, IPermissionsConfigService, ITeamService,
+  AgentStatus,
 } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS, resolveAgentId } from '@golemancy/shared'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
@@ -134,86 +135,114 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     // Get project config for permissions config reference
     const project = await deps.projectStorage.getById(projectId as ProjectId)
-
-    // Get global settings for model resolution
-    const settings = await deps.settingsStorage.get()
-    const resolved = await resolveModel(settings, agent.modelConfig, deps.oauthManager)
-
-    log.debug({
-      projectId, agentId, conversationId, messageCount: messages.length,
-      provider: agent.modelConfig.provider,
-      model: agent.modelConfig.model,
-      useInstructionsParam: resolved.useInstructionsParam ?? false,
-    }, 'starting chat stream')
-
-    // --- Agent status lifecycle: mark running ---
     const chatConvId = conversationId ?? 'ephemeral'
-    try {
+    let chatMarkedRunning = false
+
+    const setAgentStatus = async (status: AgentStatus) => {
+      await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status })
+      if (deps.wsManager) {
+        deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status })
+      }
+    }
+
+    const markChatRunning = async () => {
       if (deps.activeChatRegistry) {
         deps.activeChatRegistry.register(chatConvId, { agentId, projectId })
       }
-      await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'running' })
+      chatMarkedRunning = true
+      await setAgentStatus('running')
       if (deps.wsManager) {
-        deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'running' })
         deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:chat_started', projectId, agentId: agentId as AgentId, conversationId: conversationId as ConversationId | undefined })
       }
-    } catch (err) {
-      log.warn({ err, agentId }, 'failed to set agent running status')
     }
 
-    const markChatEnded = async () => {
+    const persistErrorMessage = async (errorMessage: string) => {
+      if (!conversationId) return
+      try {
+        await deps.conversationStorage.saveMessage(
+          projectId as ProjectId,
+          conversationId as ConversationId,
+          {
+            id: generateId('msg'),
+            role: 'assistant',
+            parts: [{ type: 'text', text: errorMessage }],
+            content: errorMessage,
+            provider: agent.modelConfig.provider,
+            model: agent.modelConfig.model,
+            metadata: { status: 'error', error: errorMessage },
+          },
+        )
+      } catch (persistErr) {
+        log.warn({ err: persistErr, conversationId }, 'failed to persist chat error message')
+      }
+    }
+
+    const markChatEnded = async (finalStatus: AgentStatus = 'idle') => {
       try {
         if (deps.activeChatRegistry) {
           deps.activeChatRegistry.unregister(chatConvId)
           const remaining = deps.activeChatRegistry.countByAgent(agentId!)
           if (remaining === 0) {
-            await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'idle' })
-            if (deps.wsManager) {
-              deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'idle' })
-            }
+            await setAgentStatus(finalStatus)
           }
-        } else {
-          await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status: 'idle' })
-          if (deps.wsManager) {
-            deps.wsManager.emit(`project:${projectId}`, { event: 'agent:status_changed', agentId: agentId as AgentId, status: 'idle' })
-          }
+        } else if (chatMarkedRunning || finalStatus === 'error') {
+          await setAgentStatus(finalStatus)
         }
-        if (deps.wsManager) {
+        if (deps.wsManager && chatMarkedRunning) {
           deps.wsManager.emit(`project:${projectId}`, { event: 'runtime:chat_ended', projectId, agentId: agentId as AgentId, conversationId: conversationId as ConversationId | undefined })
         }
       } catch (err) {
-        log.warn({ err, agentId }, 'failed to set agent idle status')
+        log.warn({ err, agentId, finalStatus }, 'failed to finalize agent chat status')
       }
     }
 
-    // Save user's latest message before streaming (extract base64 uploads to disk)
-    if (conversationId) {
+    try {
+      // Get global settings for model resolution
+      const settings = await deps.settingsStorage.get()
+      const resolved = await resolveModel(settings, agent.modelConfig, deps.oauthManager)
+
+      log.debug({
+        projectId, agentId, conversationId, messageCount: messages.length,
+        provider: agent.modelConfig.provider,
+        model: agent.modelConfig.model,
+        useInstructionsParam: resolved.useInstructionsParam ?? false,
+      }, 'starting chat stream')
+
+      // --- Agent status lifecycle: mark running ---
       try {
-        const lastUserMsg = messages.filter(m => m.role === 'user').at(-1)
-        if (lastUserMsg) {
-          const extractedParts = await extractUploads(projectId, lastUserMsg.parts)
-          // Update in-place so the extracted references are used for AI rehydration below
-          lastUserMsg.parts = extractedParts as UIMessage['parts']
-          await deps.conversationStorage.saveMessage(
-            projectId as ProjectId,
-            conversationId as ConversationId,
-            {
-              id: lastUserMsg.id as MessageId,
-              role: 'user',
-              parts: extractedParts,
-              content: extractTextContent(lastUserMsg.parts),
-            },
-          )
-        }
+        await markChatRunning()
       } catch (err) {
-        log.error({ err, conversationId }, 'failed to save user message')
+        log.warn({ err, agentId }, 'failed to set agent running status')
       }
-    }
 
-    // Load all tools via unified entry point (skills, MCP, built-in, sub-agents)
-    const allAgents = (teamMembers && teamMembers.length > 0)
-      ? await deps.agentStorage.list(projectId as ProjectId)
-      : []
+      // Save user's latest message before streaming (extract base64 uploads to disk)
+      if (conversationId) {
+        try {
+          const lastUserMsg = messages.filter(m => m.role === 'user').at(-1)
+          if (lastUserMsg) {
+            const extractedParts = await extractUploads(projectId, lastUserMsg.parts)
+            // Update in-place so the extracted references are used for AI rehydration below
+            lastUserMsg.parts = extractedParts as UIMessage['parts']
+            await deps.conversationStorage.saveMessage(
+              projectId as ProjectId,
+              conversationId as ConversationId,
+              {
+                id: lastUserMsg.id as MessageId,
+                role: 'user',
+                parts: extractedParts,
+                content: extractTextContent(lastUserMsg.parts),
+              },
+            )
+          }
+        } catch (err) {
+          log.error({ err, conversationId }, 'failed to save user message')
+        }
+      }
+
+      // Load all tools via unified entry point (skills, MCP, built-in, sub-agents)
+      const allAgents = (teamMembers && teamMembers.length > 0)
+        ? await deps.agentStorage.list(projectId as ProjectId)
+        : []
 
     // Late-bound writer reference — assigned inside createUIMessageStream execute(),
     // but sub-agent tools only invoke during streaming so writer is always available.
@@ -524,7 +553,14 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       },
     })
 
-    return createUIMessageStreamResponse({ stream })
+      return createUIMessageStreamResponse({ stream })
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      log.error({ err, projectId, agentId, conversationId }, 'chat route failed')
+      await persistErrorMessage(errorMessage)
+      await markChatEnded('error')
+      throw err
+    }
   })
 
   return app

@@ -4,7 +4,7 @@ import type { AgentModelConfig } from './settings'
 // Re-export for backward compatibility
 export type { MCPTransportType, MCPServerConfig } from './mcp'
 
-export type AgentStatus = 'idle' | 'running' | 'paused' | 'error'
+export type AgentStatus = 'idle' | 'running' | 'error'
 
 export interface ToolCallSchema {
   id: ToolId

@@ -9,10 +9,9 @@ interface OverviewPanelProps {
   recentChats: DashboardRecentChat[]
 }
 
-const statusToAvatar: Record<string, 'online' | 'offline' | 'paused' | 'error'> = {
+const statusToAvatar: Record<string, 'online' | 'offline' | 'error'> = {
   running: 'online',
   idle: 'offline',
-  paused: 'paused',
   error: 'error',
 }
 
