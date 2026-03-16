@@ -66,18 +66,18 @@
 | 50 | server | template-creation | 15 | ✅ | |
 | 51 | server | template-creation-all | 17 | ✅ | |
 | 52 | server | workspace-api | 6 | ✅ | |
-| 53 | server | code-execution | 4 | ⏳ | 需要 API key |
+| 53 | server | code-execution | 4 | ✅ | |
 | 54 | onboarding | onboarding-flow | 7 | ✅ | |
-| 55 | ai | agent-persona | 4 | ⏳ | 需要 API key |
-| 56 | ai | auto-compact | 2 | ⏳ | 需要 API key |
-| 57 | ai | chat-advanced | 4 | ⏳ | 需要 API key |
-| 58 | ai | chat-flow | 6 | ⏳ | 需要 API key |
-| 59 | ai | chat-lifecycle | 9 | ⏳ | 需要 API key |
-| 60 | ai | cronjob-execution | 7 | ⏳ | 需要 API key |
-| 61 | ai | memory-tools | 4 | ⏳ | 需要 API key |
-| 62 | ai | permission-modes-tools | 13 | ⏳ | 需要 API key |
-| 63 | ai | task-tool | 4 | ⏳ | 需要 API key |
-| 64 | ai | team-chat | 3 | ⏳ | 需要 API key |
-| 65 | ai | token-accuracy | 11 | ⏳ | 需要 API key |
+| 55 | ai | agent-persona | 4 | ✅ | |
+| 56 | ai | auto-compact | 2 | ✅ | |
+| 57 | ai | chat-advanced | 4 | ✅ | |
+| 58 | ai | chat-flow | 6 | ✅ | |
+| 59 | ai | chat-lifecycle | 9 | ✅ | |
+| 60 | ai | cronjob-execution | 7 | ✅ | |
+| 61 | ai | memory-tools | 4 | ✅ | |
+| 62 | ai | permission-modes-tools | 13 | ✅ | |
+| 63 | ai | task-tool | 4 | ✅ | |
+| 64 | ai | team-chat | 3 | ✅ | |
+| 65 | ai | token-accuracy | 11 | ✅ | |
 
-**汇总**：54/65 文件通过（337 用例），11 文件待 API key 测试，7 用例 skip。
+**汇总**：65/65 文件通过（422 用例），7 用例 skip（task-page 6 + team-crud 1）。

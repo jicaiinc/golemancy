@@ -170,15 +170,14 @@ test.describe('Cron Job Execution', () => {
     )
     expect(everyMinuteJob).toBeTruthy()
 
-    // Wait ~70 seconds for the scheduler to fire
-    await new Promise(r => setTimeout(r, 70_000))
+    // Poll for scheduled run — cron fires every minute, start checking after 30s
+    await new Promise(r => setTimeout(r, 30_000))
 
-    // Check for runs
     const runs = await pollUntil(
       () => helper.apiGet(`/api/projects/${projectId}/cronjobs/${everyMinuteJob.id}/runs`),
       (r: any[]) => r.length > 0,
-      2000,
-      30_000, // additional 30s polling after the 70s wait
+      3000,
+      60_000, // poll up to 60s more after initial 30s wait
     )
 
     expect(runs.length).toBeGreaterThan(0)

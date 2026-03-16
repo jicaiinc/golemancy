@@ -178,12 +178,15 @@ Playwright + Electron，65 个文件，422 个用例。测试文件在 `apps/des
 
 #### 运行方式（推荐单文件运行）
 
+`test:e2e:only` 内置 `--no-deps`，跑单文件时不会触发依赖链（不会先跑全部 smoke/server）。
+
 ```bash
 # 1. 先 build（UI 代码没改就不用重复）
 pnpm --filter @golemancy/desktop exec electron-vite build --mode test
 
-# 2. 跑单个文件（推荐，30-60 秒，独立 Electron 实例）
+# 2. 跑单个文件（推荐，只弹 1 个 Electron 窗口，30-60 秒）
 pnpm --filter @golemancy/desktop test:e2e:only -- e2e/smoke/team-page.spec.ts
+pnpm --filter @golemancy/desktop test:e2e:only -- --project=ai e2e/ai/task-tool.spec.ts
 
 # 3. 按用例名匹配
 pnpm --filter @golemancy/desktop test:e2e:only -- -g "memory tab shows empty state"
@@ -191,15 +194,17 @@ pnpm --filter @golemancy/desktop test:e2e:only -- -g "memory tab shows empty sta
 # 4. 按关键字跑一组相关测试
 pnpm --filter @golemancy/desktop test:e2e:only -- -g "Team"
 
-# 5. 按层级跑
+# 5. 按层级跑（单层，不触发依赖）
 pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 pnpm --filter @golemancy/desktop test:e2e:only -- --project=server
 pnpm --filter @golemancy/desktop test:e2e:only -- --project=onboarding
 
-# 6. 全量（不推荐日常使用，10+ 分钟）
+# 6. 全量（CI 用，不推荐日常使用，10+ 分钟，大量弹窗）
 pnpm --filter @golemancy/desktop test:e2e        # smoke + server
 pnpm --filter @golemancy/desktop test:e2e:ai     # all tiers (needs API keys)
 ```
+
+> **⚠️ 重要**：`test:e2e:only` 已包含 `--no-deps`。**绝对不要**用 `--project=ai` 不带 `--no-deps` 跑单文件，否则会先跑全部 smoke + server（53 个文件的依赖链 = 大量弹窗）。
 
 #### 关键规则
 
