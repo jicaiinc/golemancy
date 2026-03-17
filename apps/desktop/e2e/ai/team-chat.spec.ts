@@ -46,7 +46,7 @@ test.describe('Team Chat', () => {
   test('team chat triggers sub-agent delegation via tool call', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const { response, events } = await helper.createTeamChatViaApi(
+    const { response, conversationId } = await helper.createTeamChatViaApi(
       projectId,
       teamId,
       'What is 2+2?',
@@ -55,11 +55,19 @@ test.describe('Team Chat', () => {
     // Response should exist
     expect(response.length).toBeGreaterThan(0)
 
-    // Verify delegation happened: look for tool_call events with delegate_to_ in the name
-    const delegationEvents = events.filter(
-      e => e.type === 'tool_call' && typeof e.data?.toolName === 'string' && e.data.toolName.includes('delegate_to_'),
+    const conversations = await helper.apiGet(`/api/projects/${projectId}/conversations`)
+    const subAgentConversation = conversations.find(
+      (conv: any) =>
+        conv.id !== conversationId &&
+        conv.targetType === 'agent' &&
+        conv.targetId === researcherId &&
+        conv.title === '[Sub-agent] Researcher',
     )
-    expect(delegationEvents.length).toBeGreaterThanOrEqual(1)
+    expect(subAgentConversation).toBeTruthy()
+
+    const subAgentMessages = await helper.getConversationMessages(projectId, subAgentConversation.id)
+    const subAgentAssistant = [...subAgentMessages].reverse().find((message: any) => message?.role === 'assistant')
+    expect(String(subAgentAssistant?.content ?? '').trim().length).toBeGreaterThan(0)
   })
 
   test('team chat returns a meaningful response', async ({ helper }) => {

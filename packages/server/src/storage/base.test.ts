@@ -3,18 +3,29 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { createTmpDir } from '../test/helpers'
 import { readJson, writeJson, deleteFile, listJsonFiles, deleteDir } from './base'
+import { markProjectDeleted, resetProjectDeletionStateForTests } from '../project-deletion'
 
 describe('storage/base', () => {
   let dir: string
   let cleanup: () => Promise<void>
+  let oldDataDir: string | undefined
 
   beforeEach(async () => {
     const tmp = await createTmpDir()
     dir = tmp.dir
     cleanup = tmp.cleanup
+    oldDataDir = process.env.GOLEMANCY_DATA_DIR
+    process.env.GOLEMANCY_DATA_DIR = dir
+    resetProjectDeletionStateForTests()
   })
 
   afterEach(async () => {
+    resetProjectDeletionStateForTests()
+    if (oldDataDir === undefined) {
+      delete process.env.GOLEMANCY_DATA_DIR
+    } else {
+      process.env.GOLEMANCY_DATA_DIR = oldDataDir
+    }
     await cleanup()
   })
 
@@ -60,6 +71,13 @@ describe('storage/base', () => {
       await writeJson(filePath, { v: 2 })
       const result = await readJson<{ v: number }>(filePath)
       expect(result).toEqual({ v: 2 })
+    })
+
+    it('rejects writes for deleted projects', async () => {
+      const filePath = path.join(dir, 'projects', 'proj-deleted', 'agents', 'agent-1.json')
+      markProjectDeleted('proj-deleted')
+
+      await expect(writeJson(filePath, { name: 'blocked' })).rejects.toThrow('has been deleted')
     })
   })
 

@@ -27,8 +27,13 @@ export function buildBrowserInstructions(): string {
     '## Browser',
     '',
     'You can control a browser to interact with web pages.',
-    'Available actions: navigate to URLs, click elements, type text, take screenshots, and read page content.',
-    'Use screenshots to verify visual state when needed.',
+    'Primary browser tools: browser_navigate, browser_snapshot, browser_click, browser_type, browser_fill, browser_screenshot.',
+    'If you want a single entry point, use browser_command. It can execute navigate, snapshot, click, and many other browser actions.',
+    'When the user gives you a URL or asks about page content, do not answer from prior knowledge. Use browser_navigate first.',
+    'After navigation, use browser_snapshot to inspect the page structure before clicking or typing.',
+    'Use browser_click only with a ref taken from the latest browser_snapshot output.',
+    'Both http:// and https:// URLs are supported, including local development URLs such as localhost or 127.0.0.1.',
+    'Use browser_screenshot only when visual layout matters; prefer browser_snapshot for content and structure.',
   ].join('\n')
 }
 

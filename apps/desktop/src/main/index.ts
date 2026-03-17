@@ -299,9 +299,9 @@ app.whenReady().then(async () => {
     // Phase 1: Extracting resources (0–90%)
     setupWin.webContents.send('setup:status', { text: 'Extracting resources...' })
     await extractResources((progress) => {
-      const percent = progress.total > 0
-        ? Math.min(90, Math.round((progress.current / progress.total) * 90))
-        : 0
+      const ESTIMATED_FILES = 20000
+      const total = progress.total > 0 ? progress.total : ESTIMATED_FILES
+      const percent = Math.min(90, Math.round((progress.current / total) * 90))
       setupWin!.webContents.send('setup:progress', { percent })
     })
     logger.info('Resources extracted, starting server')

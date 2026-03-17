@@ -389,6 +389,19 @@ describe('Chat routes', () => {
       const body = await res.json()
       expect(body.error).toContain('API key')
       expect(body.code).toBe('API_KEY_MISSING')
+      expect(mocks.agentStorage.update).toHaveBeenCalledWith(
+        projId,
+        agentId,
+        { status: 'error' },
+      )
+      expect(mocks.conversationStorage.saveMessage).toHaveBeenCalledWith(
+        projId,
+        convId,
+        expect.objectContaining({
+          role: 'assistant',
+          metadata: expect.objectContaining({ status: 'error' }),
+        }),
+      )
     })
 
     it('returns 500 with generic error when resolveModel throws a plain Error', async () => {
@@ -405,6 +418,19 @@ describe('Chat routes', () => {
       expect(res.status).toBe(500)
       const body = await res.json()
       expect(body.error).toBe('Internal Server Error')
+      expect(mocks.agentStorage.update).toHaveBeenCalledWith(
+        projId,
+        agentId,
+        { status: 'error' },
+      )
+      expect(mocks.conversationStorage.saveMessage).toHaveBeenCalledWith(
+        projId,
+        convId,
+        expect.objectContaining({
+          role: 'assistant',
+          metadata: expect.objectContaining({ status: 'error' }),
+        }),
+      )
     })
   })
 })

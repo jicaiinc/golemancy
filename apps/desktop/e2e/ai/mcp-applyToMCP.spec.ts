@@ -29,8 +29,8 @@ async function setupApplyToMcpProject(
   const project = await helper.createProjectViaApi(`applyToMCP ${opts.suffix}`)
   const projectId = project.id
 
-  const startupMarkerPath = path.join(os.tmpdir(), `golemancy-mcp-startup-${opts.suffix}.txt`)
-  const targetFilePath = path.join(os.tmpdir(), `golemancy-mcp-target-${opts.suffix}.txt`)
+  const startupMarkerPath = path.join(os.homedir(), `.golemancy-mcp-startup-${opts.suffix}.txt`)
+  const targetFilePath = path.join(os.homedir(), `.golemancy-mcp-target-${opts.suffix}.txt`)
   helper.removeFileIfExists(startupMarkerPath)
   helper.removeFileIfExists(targetFilePath)
 
@@ -112,6 +112,8 @@ test.describe('MCP applyToMCP Sandbox Wrapping', () => {
     )
     expect(helper.readFileIfExists(setup.startupMarkerPath)).toBeNull()
     expect(helper.readFileIfExists(setup.targetFilePath)).toBeNull()
+    helper.removeFileIfExists(setup.startupMarkerPath)
+    helper.removeFileIfExists(setup.targetFilePath)
   })
 
   test('applyToMCP=false leaves stdio MCP unwrapped and allows host side effects', async ({ helper }) => {
@@ -137,5 +139,7 @@ test.describe('MCP applyToMCP Sandbox Wrapping', () => {
     )
     expect(helper.readFileIfExists(setup.startupMarkerPath)).toBe('startup-ok')
     expect(helper.readFileIfExists(setup.targetFilePath)).toBe(marker)
+    helper.removeFileIfExists(setup.startupMarkerPath)
+    helper.removeFileIfExists(setup.targetFilePath)
   })
 })

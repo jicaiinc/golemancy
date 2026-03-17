@@ -36,6 +36,7 @@ export async function instantiateProjectTemplate(
   try {
     // Create directory structure
     await fs.mkdir(path.join(projectDir, 'agents'), { recursive: true })
+    await fs.mkdir(path.join(projectDir, 'data'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'skills'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'teams'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'cronjobs'), { recursive: true })

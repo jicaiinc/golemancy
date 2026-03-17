@@ -14,7 +14,7 @@ import type {
   ITaskService, ISkillService, IMCPService, ISettingsService, ICronJobService, IDashboardService,
   IPermissionsConfigService, IGlobalDashboardService, IWorkspaceService, IMemoryService, ITeamService,
 } from '@golemancy/shared'
-import { fetchJson } from './base'
+import { fetchJson, getAuthToken } from './base'
 
 export class HttpProjectService implements IProjectService {
   constructor(private baseUrl: string) {}
@@ -201,9 +201,11 @@ export class HttpSkillService implements ISkillService {
   async importZip(projectId: ProjectId, file: File) {
     const formData = new FormData()
     formData.append('file', file)
+    const authToken = getAuthToken()
     const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/skills/import-zip`, {
       method: 'POST',
       body: formData,
+      headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
     })
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Failed to import zip' }))

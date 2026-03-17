@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { Project, ProjectId } from '@golemancy/shared'
 import { createTestApp, makeRequest, type MockStorage } from '../test/route-helpers'
 import type { Hono } from 'hono'
+import { isProjectBlocked } from '../project-deletion'
 
 const projId = 'proj-1' as ProjectId
 
@@ -101,6 +102,16 @@ describe('Projects routes', () => {
       const body = await res.json()
       expect(body.ok).toBe(true)
       expect(mocks.projectStorage.delete).toHaveBeenCalledWith(projId)
+      expect(isProjectBlocked(projId)).toBe(true)
+    })
+
+    it('clears deletion marker when delete fails', async () => {
+      vi.mocked(mocks.projectStorage.delete).mockRejectedValue(new Error('delete failed'))
+
+      const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}`)
+
+      expect(res.status).toBe(500)
+      expect(isProjectBlocked(projId)).toBe(false)
     })
   })
 })

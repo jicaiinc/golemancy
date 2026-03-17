@@ -3,6 +3,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { createTmpDir } from '../test/helpers'
 import type { ProjectId } from '@golemancy/shared'
+import { markProjectDeleted, resetProjectDeletionStateForTests } from '../project-deletion'
 
 const state = vi.hoisted(() => ({ tmpDir: '' }))
 
@@ -26,10 +27,12 @@ describe('ProjectDbManager', () => {
     state.tmpDir = tmp.dir
     cleanup = tmp.cleanup
     manager = new ProjectDbManager()
+    resetProjectDeletionStateForTests()
   })
 
   afterEach(async () => {
     manager.closeAll()
+    resetProjectDeletionStateForTests()
     await cleanup()
   })
 
@@ -58,13 +61,60 @@ describe('ProjectDbManager', () => {
     expect(fs.existsSync(path.join(state.tmpDir, 'projects', 'proj-bbb', 'data', 'data.db'))).toBe(true)
   })
 
+  it('creates missing data directory on first access', () => {
+    const id = 'proj-missing-dir' as ProjectId
+    expect(fs.existsSync(path.join(state.tmpDir, 'projects', id, 'data'))).toBe(false)
+
+    manager.getProjectDb(id)
+
+    expect(fs.existsSync(path.join(state.tmpDir, 'projects', id, 'data', 'data.db'))).toBe(true)
+  })
+
+  it('throws when project has been deleted', () => {
+    markProjectDeleted('proj-deleted')
+    expect(() => manager.getProjectDb('proj-deleted' as ProjectId)).toThrow()
+  })
+
+  it('closeProject closes and removes single project from cache', () => {
+    const id = 'proj-single' as ProjectId
+    const db1 = manager.getProjectDb(id)
+    manager.closeProject(id)
+
+    expect(() => (db1 as any).$client.prepare('select 1').get()).toThrow()
+    expect((manager as any).cache.has(id)).toBe(false)
+  })
+
+  it('closeProject does not affect other projects', () => {
+    const dbA = manager.getProjectDb('proj-a' as ProjectId)
+    const dbB = manager.getProjectDb('proj-b' as ProjectId)
+    manager.closeProject('proj-a' as ProjectId)
+
+    // proj-b should still return the same cached instance
+    expect(manager.getProjectDb('proj-b' as ProjectId)).toBe(dbB)
+    // proj-a should return a new instance
+    expect(manager.getProjectDb('proj-a' as ProjectId)).not.toBe(dbA)
+  })
+
+  it('closeProject is a no-op for unknown project', () => {
+    expect(() => manager.closeProject('proj-unknown' as ProjectId)).not.toThrow()
+  })
+
+  it('keeps cache entry when close fails', () => {
+    const id = 'proj-close-fails' as ProjectId
+    const fakeDb = { $client: { close: vi.fn(() => { throw new Error('boom') }) } }
+    ;(manager as any).cache.set(id, fakeDb)
+
+    manager.closeProject(id)
+
+    expect((manager as any).cache.get(id)).toBe(fakeDb)
+  })
+
   it('closeAll clears the cache', () => {
     const db1 = manager.getProjectDb('proj-close' as ProjectId)
     manager.closeAll()
 
-    // After closeAll, a new call should return a different instance
-    const db2 = manager.getProjectDb('proj-close' as ProjectId)
-    expect(db2).not.toBe(db1)
+    expect(() => (db1 as any).$client.prepare('select 1').get()).toThrow()
+    expect((manager as any).cache.size).toBe(0)
   })
 
   it('closeAll does not throw even if databases are already closed', () => {

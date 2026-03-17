@@ -186,6 +186,9 @@ export function buildMemoryContextInstructions(data: {
   lines.push(`- Auto-load limit: ${maxAutoLoad}`)
   lines.push(`- Auto-loaded: ${autoLoaded.length}/${maxAutoLoad} (sorted by priority DESC, then recency)`)
   lines.push(`- Not in context: ${notLoaded} (use MemorySearch to access)`)
+  lines.push('- The pinned and auto-loaded memories below are already in your context for this conversation.')
+  lines.push('- Treat them as facts you currently remember. If the user asks about them, answer directly from them.')
+  lines.push('- Use MemorySearch only when the needed memory is not listed below or when you need to verify/update a memory.')
 
   if (pinned.length > 0) {
     lines.push('')

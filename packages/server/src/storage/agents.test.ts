@@ -81,6 +81,30 @@ describe('FileAgentStorage', () => {
       expect(agent.skillIds).toEqual([])
       expect(agent.tools).toEqual([])
     })
+
+    it('preserves optional tool and config fields passed at create time', async () => {
+      const agent = await storage.create(projId, {
+        name: 'Browser Agent',
+        description: 'Uses browser and memory',
+        systemPrompt: 'Use your tools.',
+        modelConfig: { provider: 'openai', model: 'gpt-4o' },
+        builtinTools: { bash: false, browser: true, memory: true, task: false },
+        mcpServers: ['fetcher'],
+        skillIds: ['skill-1'],
+        compactThreshold: 777,
+      })
+
+      expect(agent.builtinTools).toEqual({ bash: false, browser: true, memory: true, task: false })
+      expect(agent.mcpServers).toEqual(['fetcher'])
+      expect(agent.skillIds).toEqual(['skill-1'])
+      expect(agent.compactThreshold).toBe(777)
+
+      const reloaded = await storage.getById(projId, agent.id)
+      expect(reloaded?.builtinTools).toEqual({ bash: false, browser: true, memory: true, task: false })
+      expect(reloaded?.mcpServers).toEqual(['fetcher'])
+      expect(reloaded?.skillIds).toEqual(['skill-1'])
+      expect(reloaded?.compactThreshold).toBe(777)
+    })
   })
 
   describe('getById', () => {

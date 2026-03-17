@@ -35,6 +35,8 @@ export interface FilesystemConfig {
 export interface NetworkConfig {
   /** Allowed domain patterns (supports wildcards like "*.github.com"). undefined = all allowed (no proxy). */
   allowedDomains?: string[]
+  /** Denied domain patterns (takes precedence over allowedDomains when supported by runtime). */
+  deniedDomains?: string[]
 }
 
 // ── Sandbox Config ─────────────────────────────────────────

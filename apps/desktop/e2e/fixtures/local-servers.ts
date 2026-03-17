@@ -7,7 +7,7 @@ function renderBrowserPage() {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Golemancy Browser Test</title>
+    <title>Deterministic Browser Page</title>
   </head>
   <body>
     <main>
@@ -52,7 +52,7 @@ export class LocalHttpTestServer {
     },
   }
 
-  async start(): Promise<void> {
+  async start(host = '127.0.0.1'): Promise<void> {
     if (this.server) return
 
     this.server = http.createServer((req, res) => {
@@ -72,7 +72,7 @@ export class LocalHttpTestServer {
 
     await new Promise<void>((resolve, reject) => {
       this.server!.once('error', reject)
-      this.server!.listen(0, '127.0.0.1', () => {
+      this.server!.listen(0, host, () => {
         const address = this.server!.address()
         if (!address || typeof address === 'string') {
           reject(new Error('failed to bind local test server'))
@@ -84,7 +84,7 @@ export class LocalHttpTestServer {
     })
   }
 
-  url(pathname: string, host: '127.0.0.1' | 'localhost' = '127.0.0.1'): string {
+  url(pathname: string, host = '127.0.0.1'): string {
     if (!this.port) throw new Error('local test server not started')
     return `http://${host}:${this.port}${pathname}`
   }

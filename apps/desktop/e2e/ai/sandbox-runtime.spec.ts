@@ -1,3 +1,4 @@
+import os from 'node:os'
 import { test, expect } from '../fixtures'
 import { TIMEOUTS } from '../constants'
 
@@ -25,6 +26,29 @@ test.describe('Sandbox Code Runtime', () => {
   let unrestrictedAgentId: string
   let unrestrictedConfigId: string
 
+  async function runBashCommand(
+    helper: any,
+    projectId: string,
+    agentId: string,
+    title: string,
+    commandPrompt: string,
+    timeout = TIMEOUTS.AI_RESPONSE,
+    requireToolCall = true,
+  ) {
+    const conv = await helper.createConversationViaApi(projectId, agentId, title)
+    const result = await helper.sendChatViaApi(
+      projectId,
+      agentId,
+      conv.id,
+      commandPrompt,
+      timeout,
+    )
+    if (requireToolCall) {
+      expect(helper.getToolCallEvents(result.events, 'bash').length).toBeGreaterThan(0)
+    }
+    return result
+  }
+
   test.beforeAll(async ({ helper }) => {
     test.setTimeout(180_000)
     await helper.goHome()
@@ -33,9 +57,9 @@ test.describe('Sandbox Code Runtime', () => {
     const sandboxProject = await helper.createProjectViaApi('Sandbox Runtime Test')
     sandboxProjectId = sandboxProject.id
 
-    const sandboxAgent = await helper.createCheapAgent(sandboxProjectId, 'Sandbox Bash Agent', {
+    const sandboxAgent = await helper.createToolAgent(sandboxProjectId, 'Sandbox Bash Agent', {
       systemPrompt:
-        'When asked to run a command, use the bash tool. Keep responses brief. Only show the command output.',
+        'When asked to run a command, you must use the bash tool. Execute the exact command. Keep responses brief.',
       builtinTools: { bash: true, browser: false, task: false, memory: false },
     })
     sandboxAgentId = sandboxAgent.id
@@ -59,17 +83,15 @@ test.describe('Sandbox Code Runtime', () => {
     )
     sandboxConfigId = sboxConfig.id
 
-    await helper.apiPatch(`/api/projects/${sandboxProjectId}`, {
-      permissionsConfigId: sandboxConfigId,
-    })
+    await helper.applyPermissionsConfig(sandboxProjectId, sandboxConfigId)
 
     // ===== Restricted project =====
     const restrictedProject = await helper.createProjectViaApi('Restricted Runtime Test')
     restrictedProjectId = restrictedProject.id
 
-    const restrictedAgent = await helper.createCheapAgent(restrictedProjectId, 'Restricted Bash Agent', {
+    const restrictedAgent = await helper.createToolAgent(restrictedProjectId, 'Restricted Bash Agent', {
       systemPrompt:
-        'When asked to run a command, use the bash tool. Keep responses brief.',
+        'When asked to run a command, you must use the bash tool. Execute the exact command. Keep responses brief.',
       builtinTools: { bash: true, browser: false, task: false, memory: false },
     })
     restrictedAgentId = restrictedAgent.id
@@ -93,17 +115,15 @@ test.describe('Sandbox Code Runtime', () => {
     )
     restrictedConfigId = restrictConfig.id
 
-    await helper.apiPatch(`/api/projects/${restrictedProjectId}`, {
-      permissionsConfigId: restrictedConfigId,
-    })
+    await helper.applyPermissionsConfig(restrictedProjectId, restrictedConfigId)
 
     // ===== Unrestricted project =====
     const unrestrictedProject = await helper.createProjectViaApi('Unrestricted Runtime Test')
     unrestrictedProjectId = unrestrictedProject.id
 
-    const unrestrictedAgent = await helper.createCheapAgent(unrestrictedProjectId, 'Unrestricted Bash Agent', {
+    const unrestrictedAgent = await helper.createToolAgent(unrestrictedProjectId, 'Unrestricted Bash Agent', {
       systemPrompt:
-        'When asked to run a command, use the bash tool. Keep responses brief. Only show the command output.',
+        'When asked to run a command, you must use the bash tool. Execute the exact command. Keep responses brief.',
       builtinTools: { bash: true, browser: false, task: false, memory: false },
     })
     unrestrictedAgentId = unrestrictedAgent.id
@@ -127,91 +147,103 @@ test.describe('Sandbox Code Runtime', () => {
     )
     unrestrictedConfigId = unrestrictConfig.id
 
-    await helper.apiPatch(`/api/projects/${unrestrictedProjectId}`, {
-      permissionsConfigId: unrestrictedConfigId,
-    })
+    await helper.applyPermissionsConfig(unrestrictedProjectId, unrestrictedConfigId)
   })
 
   // ===== Sandbox: basic commands (5 tests) =====
 
-  test('sandbox: bash echo outputs expected text', async ({ helper }) => {
+  test('sandbox: bash can write an echo marker inside workspace', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Echo Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, sandboxAgentId, conv.id,
-      'Run this command: echo SANDBOX_ECHO_MARKER_42',
-      TIMEOUTS.AI_RESPONSE,
+    const relativePath = 'sandbox-echo.txt'
+    helper.removeWorkspaceFile(sandboxProjectId, relativePath)
+    await runBashCommand(
+      helper,
+      sandboxProjectId,
+      sandboxAgentId,
+      'Echo Test',
+      `Run this command exactly: echo SANDBOX_ECHO_MARKER_42 > ${relativePath} && cat ${relativePath}`,
     )
-
-    expect(result.response).toContain('SANDBOX_ECHO_MARKER_42')
+    expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('SANDBOX_ECHO_MARKER_42')
   })
 
-  test('sandbox: ls command lists files', async ({ helper }) => {
+  test('sandbox: ls command can inspect workspace contents', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Ls Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: ls /tmp',
-      TIMEOUTS.AI_RESPONSE,
+    const seedFile = 'ls-visible-marker.txt'
+    const outputFile = 'ls-output.txt'
+    helper.seedWorkspaceFile(sandboxProjectId, seedFile, 'visible')
+    helper.removeWorkspaceFile(sandboxProjectId, outputFile)
+    await runBashCommand(
+      helper,
+      sandboxProjectId,
+      sandboxAgentId,
+      'Ls Test',
+      `Run this command exactly: ls > ${outputFile}`,
     )
-
-    // ls should produce some output (even if just a listing)
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(helper.readWorkspaceFile(sandboxProjectId, outputFile)).toContain(seedFile)
   })
 
   test('sandbox: python execution works', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Python Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, sandboxAgentId, conv.id,
-      'Run this command: python3 -c "print(7 * 6)"',
-      TIMEOUTS.AI_RESPONSE,
+    const relativePath = 'python-result.txt'
+    helper.removeWorkspaceFile(sandboxProjectId, relativePath)
+    await runBashCommand(
+      helper,
+      sandboxProjectId,
+      sandboxAgentId,
+      'Python Test',
+      `Run this command exactly: python3 -c "print(7 * 6)" > ${relativePath}`,
     )
-
-    expect(result.response).toContain('42')
+    expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('42')
   })
 
   test('sandbox: node execution works', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Node Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, sandboxAgentId, conv.id,
-      'Run this command: node -e "console.log(100 + 23)"',
-      TIMEOUTS.AI_RESPONSE,
+    const relativePath = 'node-result.txt'
+    helper.removeWorkspaceFile(sandboxProjectId, relativePath)
+    await runBashCommand(
+      helper,
+      sandboxProjectId,
+      sandboxAgentId,
+      'Node Test',
+      `Run this command exactly: node -e "console.log(100 + 23)" > ${relativePath}`,
     )
-
-    expect(result.response).toContain('123')
+    expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('123')
   })
 
   test('sandbox: writeFile via bash creates a file', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'WriteFile Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: echo "SANDBOX_WRITE_CONTENT_99" > /tmp/golemancy-sandbox-write.txt && echo "WRITE_SUCCESS"',
-      TIMEOUTS.AI_RESPONSE,
+    const relativePath = 'sandbox-write.txt'
+    helper.removeWorkspaceFile(sandboxProjectId, relativePath)
+    await runBashCommand(
+      helper,
+      sandboxProjectId,
+      sandboxAgentId,
+      'WriteFile Test',
+      `Run this command exactly: echo "SANDBOX_WRITE_CONTENT_99" > ${relativePath}`,
     )
-
-    expect(result.response).toContain('WRITE_SUCCESS')
+    expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('SANDBOX_WRITE_CONTENT_99')
   })
 
   test('sandbox: readFile via bash reads file content', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'ReadFile Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: echo "SANDBOX_READ_CONTENT_77" > /tmp/golemancy-sandbox-read.txt && cat /tmp/golemancy-sandbox-read.txt',
-      TIMEOUTS.AI_RESPONSE,
+    const sourcePath = 'read-source.txt'
+    const copyPath = 'read-copy.txt'
+    helper.seedWorkspaceFile(sandboxProjectId, sourcePath, 'SANDBOX_READ_CONTENT_77')
+    helper.removeWorkspaceFile(sandboxProjectId, copyPath)
+    await runBashCommand(
+      helper,
+      sandboxProjectId,
+      sandboxAgentId,
+      'ReadFile Test',
+      `Run this command exactly: cat ${sourcePath} > ${copyPath}`,
     )
-
-    expect(result.response).toContain('SANDBOX_READ_CONTENT_77')
+    expect(helper.readWorkspaceFile(sandboxProjectId, copyPath).trim()).toBe('SANDBOX_READ_CONTENT_77')
   })
 
   // ===== Sandbox: denied commands in subcommand (1 test) =====
@@ -239,22 +271,24 @@ test.describe('Sandbox Code Runtime', () => {
     )
 
     // Create a separate agent with this config
-    const deniedAgent = await helper.createCheapAgent(sandboxProjectId, 'Denied Cmd Agent', {
-      systemPrompt: 'When asked to run a command, use the bash tool. Keep responses brief.',
+    const deniedAgent = await helper.createToolAgent(sandboxProjectId, 'Denied Cmd Agent', {
+      systemPrompt: 'When asked to run a command, you must use the bash tool. Execute the exact command. Keep responses brief.',
       builtinTools: { bash: true },
     })
-    await helper.apiPatch(`/api/projects/${sandboxProjectId}/agents/${deniedAgent.id}`, {
-      permissionsConfigId: deniedConfig.id,
-    })
+    await helper.applyPermissionsConfig(sandboxProjectId, deniedConfig.id)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, deniedAgent.id, 'Denied Cmd Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, deniedAgent.id, conv.id,
-      'Run this command: curl http://example.com',
+    const blockedPath = 'curl-should-not-exist.txt'
+    helper.removeWorkspaceFile(sandboxProjectId, blockedPath)
+    const result = await runBashCommand(
+      helper,
+      sandboxProjectId,
+      deniedAgent.id,
+      'Denied Cmd Test',
+      `Run this command exactly: curl -fsSL http://example.com > ${blockedPath}`,
       TIMEOUTS.AI_RESPONSE,
+      false,
     )
 
-    // The command should be blocked or refused
     const lower = result.response.toLowerCase()
     const isBlocked =
       lower.includes('denied') ||
@@ -267,25 +301,27 @@ test.describe('Sandbox Code Runtime', () => {
       lower.includes('unable') ||
       lower.includes('refuse') ||
       lower.includes('rejected')
+    expect(helper.workspaceFileExists(sandboxProjectId, blockedPath)).toBe(false)
     expect(isBlocked || !lower.includes('<!doctype')).toBe(true)
   })
 
-  // ===== Restricted: blocks tools (1 test) =====
+  // ===== Restricted: virtual isolation (1 test) =====
 
-  test('restricted: blocks bash tool execution', async ({ helper }) => {
+  test('restricted: host writes outside the virtual workspace do not happen', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(
-      restrictedProjectId, restrictedAgentId, 'Restricted Block Test',
-    )
-    const result = await helper.sendChatViaApi(
-      restrictedProjectId, restrictedAgentId, conv.id,
-      'Run this command: echo RESTRICTED_SHOULD_NOT_APPEAR',
+    const hostPath = `${os.tmpdir()}/golemancy-restricted-runtime-host.txt`
+    helper.removeFileIfExists(hostPath)
+    await runBashCommand(
+      helper,
+      restrictedProjectId,
+      restrictedAgentId,
+      'Restricted Block Test',
+      `Run this command exactly: echo RESTRICTED_SHOULD_NOT_APPEAR > ${hostPath}`,
       TIMEOUTS.AI_RESPONSE,
+      false,
     )
-
-    // In restricted mode, bash should not execute
-    expect(result.response).not.toContain('RESTRICTED_SHOULD_NOT_APPEAR')
+    expect(helper.readFileIfExists(hostPath)).toBeNull()
   })
 
   // ===== Unrestricted: allows all (1 test) =====
@@ -293,17 +329,18 @@ test.describe('Sandbox Code Runtime', () => {
   test('unrestricted: allows all commands including rm', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(
-      unrestrictedProjectId, unrestrictedAgentId, 'Unrestricted All Test',
-    )
-    const result = await helper.sendChatViaApi(
-      unrestrictedProjectId, unrestrictedAgentId, conv.id,
-      'Run: echo "UNRESTRICTED_FULL_ACCESS" > /tmp/golemancy-unrestricted-test.txt && cat /tmp/golemancy-unrestricted-test.txt && rm /tmp/golemancy-unrestricted-test.txt && echo "CLEANUP_DONE"',
+    const relativePath = 'unrestricted-delete.txt'
+    helper.seedWorkspaceFile(unrestrictedProjectId, relativePath, 'UNRESTRICTED_FULL_ACCESS')
+    await runBashCommand(
+      helper,
+      unrestrictedProjectId,
+      unrestrictedAgentId,
+      'Unrestricted All Test',
+      `Use bash to run this safe workspace-only test command: rm ${relativePath}. The file is a disposable test file inside the project workspace and should be deleted.`,
       TIMEOUTS.AI_RESPONSE,
+      false,
     )
-
-    expect(result.response).toContain('UNRESTRICTED_FULL_ACCESS')
-    expect(result.response).toContain('CLEANUP_DONE')
+    expect(helper.workspaceFileExists(unrestrictedProjectId, relativePath)).toBe(false)
   })
 
   // ===== Timeout handling (1 test) =====
@@ -311,17 +348,17 @@ test.describe('Sandbox Code Runtime', () => {
   test('sandbox: long-running command is handled gracefully', async ({ helper }) => {
     test.setTimeout(180_000)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Timeout Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: sleep 1 && echo TIMEOUT_SURVIVED',
+    const relativePath = 'timeout-survived.txt'
+    helper.removeWorkspaceFile(sandboxProjectId, relativePath)
+    await runBashCommand(
+      helper,
+      sandboxProjectId,
+      sandboxAgentId,
+      'Timeout Test',
+      `Run this command exactly: sleep 1 && echo TIMEOUT_SURVIVED > ${relativePath}`,
       120_000,
     )
-
-    // The command should either complete successfully or timeout gracefully
-    // Either way, the agent should produce a response
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('TIMEOUT_SURVIVED')
   })
 
   // ===== Large output truncation (1 test) =====
@@ -329,16 +366,15 @@ test.describe('Sandbox Code Runtime', () => {
   test('sandbox: large output is handled without crash', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(sandboxProjectId, sandboxAgentId, 'Large Output Test')
-    const result = await helper.sendChatViaApi(
-      sandboxProjectId, sandboxAgentId, conv.id,
-      'Run: seq 1 500',
-      TIMEOUTS.AI_RESPONSE,
+    const relativePath = 'large-output-tail.txt'
+    helper.removeWorkspaceFile(sandboxProjectId, relativePath)
+    await runBashCommand(
+      helper,
+      sandboxProjectId,
+      sandboxAgentId,
+      'Large Output Test',
+      `Run this command exactly: seq 1 500 && echo 500 > ${relativePath}`,
     )
-
-    // The agent should respond without crashing, even if output is truncated
-    expect(result.response).toBeTruthy()
-    // Should contain at least some numbers from the sequence
-    expect(result.response).toMatch(/\d+/)
+    expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('500')
   })
 })

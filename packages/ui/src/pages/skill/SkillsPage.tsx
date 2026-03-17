@@ -109,10 +109,13 @@ export function SkillsPage() {
 
       {/* Import status */}
       {importStatus && (
-        <div className="mb-4">
+        <div className="mb-4" data-testid="skill-import-status" data-status-type={importStatus.type}>
           <PixelCard className={importStatus.type === 'error' ? 'bg-accent-red/10 border-accent-red' : 'bg-accent-green/10 border-accent-green'}>
             <div className="flex items-center justify-between">
-              <span className={`text-[12px] ${importStatus.type === 'error' ? 'text-accent-red' : 'text-accent-green'}`}>
+              <span
+                data-testid="skill-import-status-message"
+                className={`text-[12px] ${importStatus.type === 'error' ? 'text-accent-red' : 'text-accent-green'}`}
+              >
                 {importStatus.message}
               </span>
               <PixelButton size="sm" variant="ghost" onClick={() => setImportStatus(null)}>&times;</PixelButton>

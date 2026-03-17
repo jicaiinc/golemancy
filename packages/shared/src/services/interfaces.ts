@@ -28,7 +28,11 @@ export interface IProjectService {
 export interface IAgentService {
   list(projectId: ProjectId): Promise<Agent[]>
   getById(projectId: ProjectId, id: AgentId): Promise<Agent | null>
-  create(projectId: ProjectId, data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>): Promise<Agent>
+  create(
+    projectId: ProjectId,
+    data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>
+      & Partial<Pick<Agent, 'skillIds' | 'tools' | 'mcpServers' | 'builtinTools' | 'compactThreshold'>>,
+  ): Promise<Agent>
   update(projectId: ProjectId, id: AgentId, data: Partial<Agent>): Promise<Agent>
   delete(projectId: ProjectId, id: AgentId): Promise<void>
   clone(projectId: ProjectId, id: AgentId, newName: string): Promise<Agent>

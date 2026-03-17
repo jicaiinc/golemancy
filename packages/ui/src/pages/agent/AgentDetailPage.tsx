@@ -11,14 +11,14 @@ import {
 } from '../../components'
 
 // --- Status helpers ---
-const statusBadgeVariant: Record<AgentStatus, 'idle' | 'running' | 'error' | 'paused'> = {
-  idle: 'idle', running: 'running', error: 'error', paused: 'paused',
+const statusBadgeVariant: Record<AgentStatus, 'idle' | 'running' | 'error'> = {
+  idle: 'idle', running: 'running', error: 'error',
 }
 const statusBarColor: Record<AgentStatus, string> = {
-  idle: 'bg-text-secondary', running: 'bg-accent-green', error: 'bg-accent-red', paused: 'bg-accent-amber',
+  idle: 'bg-text-secondary', running: 'bg-accent-green', error: 'bg-accent-red',
 }
 const statusAnimation: Record<AgentStatus, string> = {
-  idle: '', running: 'animate-[pixel-pulse_1s_steps(2)_infinite]', error: 'animate-[pixel-shake_0.3s_steps(3)_infinite]', paused: 'animate-[pixel-blink_2s_steps(2)_infinite]',
+  idle: '', running: 'animate-[pixel-pulse_1s_steps(2)_infinite]', error: 'animate-[pixel-shake_0.3s_steps(3)_infinite]',
 }
 
 export function AgentDetailPage() {
@@ -75,17 +75,27 @@ export function AgentDetailPage() {
 
       <div className="flex items-start gap-4 mb-6">
         <div className="relative">
-          <div className={`absolute -top-1 -left-1 -right-1 h-1 ${statusBarColor[agent.status]} ${statusAnimation[agent.status]}`} />
+          <div
+            data-testid="agent-detail-status-bar"
+            data-agent-status={agent.status}
+            className={`absolute -top-1 -left-1 -right-1 h-1 ${statusBarColor[agent.status]} ${statusAnimation[agent.status]}`}
+          />
           <PixelAvatar
             size="xl"
             initials={agent.name}
-            status={agent.status === 'running' ? 'online' : agent.status === 'error' ? 'error' : agent.status === 'paused' ? 'paused' : 'offline'}
+            status={agent.status === 'running' ? 'online' : agent.status === 'error' ? 'error' : 'offline'}
           />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
             <h1 className="font-pixel text-[14px] text-text-primary">{agent.name}</h1>
-            <PixelBadge variant={statusBadgeVariant[agent.status]}>{t(`statusLabel.${agent.status}`)}</PixelBadge>
+            <PixelBadge
+              variant={statusBadgeVariant[agent.status]}
+              data-testid="agent-detail-status"
+              data-agent-status={agent.status}
+            >
+              {t(`statusLabel.${agent.status}`)}
+            </PixelBadge>
           </div>
           <p className="text-[13px] text-text-secondary mt-1">{agent.description}</p>
           <div className="flex items-center gap-3 mt-2 text-[11px] text-text-dim">

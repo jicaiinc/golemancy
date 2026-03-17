@@ -573,8 +573,13 @@ export class DashboardService implements IDashboardService {
       }
 
       // Recent conversations (as "chat" completed items) — include title
-      const chatRows = db.all<{ id: string; target_type: string; target_id: string; title: string; last_message_at: string | null; total_tokens: number }>(
+      const chatRows = db.all<{ id: string; target_type: string; target_id: string; title: string; last_message_at: string | null; total_tokens: number; last_status: string | null }>(
         sql`SELECT c.id, c.target_type, c.target_id, c.title, c.last_message_at,
+                   COALESCE((
+                     SELECT json_extract(m3.metadata, '$.status') FROM messages m3
+                     WHERE m3.conversation_id = c.id
+                     ORDER BY m3.created_at DESC LIMIT 1
+                   ), 'success') as last_status,
                    COALESCE((SELECT SUM(total) FROM (
                      SELECT (input_tokens + output_tokens) as total FROM token_records WHERE conversation_id = c.id
                      UNION ALL
@@ -594,7 +599,7 @@ export class DashboardService implements IDashboardService {
           agentName: agentMap.get(row.target_id) ?? 'Unknown',
           title: row.title || '',
           completedAt: row.last_message_at!,
-          status: 'success',
+          status: row.last_status === 'error' ? 'error' : 'success',
           totalTokens: row.total_tokens,
         })
       }

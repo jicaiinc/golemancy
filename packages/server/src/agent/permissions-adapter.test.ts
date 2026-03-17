@@ -71,6 +71,15 @@ describe('permissionsToSandboxConfig', () => {
       expect(result.network.allowedDomains).toEqual(['api.github.com', 'npmjs.org'])
     })
 
+    it('passes deniedDomains through when networkRestrictionsEnabled=true', () => {
+      const pc = makePermissionsConfig({
+        networkRestrictionsEnabled: true,
+        deniedDomains: ['localhost', '*.internal.example'],
+      })
+      const result = permissionsToSandboxConfig(pc)
+      expect(result.network.deniedDomains).toEqual(['localhost', '*.internal.example'])
+    })
+
     it('sets allowedDomains to undefined when networkRestrictionsEnabled=false', () => {
       const pc = makePermissionsConfig({
         networkRestrictionsEnabled: false,
@@ -78,6 +87,15 @@ describe('permissionsToSandboxConfig', () => {
       })
       const result = permissionsToSandboxConfig(pc)
       expect(result.network.allowedDomains).toBeUndefined()
+    })
+
+    it('sets deniedDomains to undefined when networkRestrictionsEnabled=false', () => {
+      const pc = makePermissionsConfig({
+        networkRestrictionsEnabled: false,
+        deniedDomains: ['localhost'],
+      })
+      const result = permissionsToSandboxConfig(pc)
+      expect(result.network.deniedDomains).toBeUndefined()
     })
 
     it('sets allowedDomains to undefined when networkRestrictionsEnabled=false even with non-empty allowedDomains', () => {
@@ -208,6 +226,7 @@ describe('permissionsToSandboxConfig', () => {
       const result = permissionsToSandboxConfig(pc)
 
       expect(result.network.allowedDomains).toEqual(['api.anthropic.com', 'npmjs.org'])
+      expect(result.network.deniedDomains).toEqual([])
     })
   })
 })

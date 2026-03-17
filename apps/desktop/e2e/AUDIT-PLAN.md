@@ -1,6 +1,6 @@
 # E2E Coverage Audit And Expansion Plan
 
-> Updated: 2026-03-16
+> Updated: 2026-03-17
 > Scope: `apps/desktop/e2e` plus related product/runtime capabilities
 
 ## Ground Truth
@@ -104,10 +104,11 @@ Environment expectations:
 | Project | Project create/edit/delete/clone/default target | Partial | strong | `project-crud`, `project-advanced`, `project-agent-lifecycle` | No major gap | Non-AI E2E | Keep | Maintain |
 | Agent | Agent create/edit/delete/clone/detail tabs | Yes | strong | `agent-crud`, `agent-advanced`, `agent-clone` | No major gap | Non-AI E2E | Keep | Maintain |
 | Agent | Agent default model / compact threshold persistence | Yes | medium | `agent-config-interaction`, `save-behavior-consistency`, `runtime-management` | Mostly config persistence, not behavior-level validation | Non-AI E2E + AI E2E | P2 | Add compact threshold effect validation tied to chat behavior |
-| Agent status | Idle badge visible | Yes | medium | `agent-advanced`, dashboard smoke | Only idle is covered well | Non-AI E2E | P1 | Keep |
-| Agent status | Running state appears during chat | Yes | weak | runtime-status API structure only | Missing UI and state-transition assertions | AI E2E + Non-AI E2E | P0 | Add live running state test with chat in flight |
-| Agent status | Error state appears on failed execution | Yes | missing | None end-to-end | No explicit end-to-end error-state coverage | AI E2E + Non-AI E2E | P0 | Add invalid provider / invalid MCP / tool error -> status transition assertions |
-| Agent status | Paused state behavior | Yes | missing | None | `paused` exists in type/UI but not covered in E2E | Non-AI E2E + Integration | P1 | Audit whether paused is reachable; test or remove dead state |
+| Agent status | Idle badge visible | Yes | strong | `agent-advanced`, `smoke/agent-status` | Idle now asserted on both badge and status bar DOM in list/detail views | Non-AI E2E | Keep | Maintain |
+| Agent status | Running state appears during chat | Yes | strong | `smoke/agent-status`, runtime-status API structure | List/detail/dashboard running state is now covered with in-flight chat assertions and DOM hooks | AI E2E + Non-AI E2E | Keep | Maintain |
+| Agent status | Stale running state resets after relaunch | Yes | strong | `smoke/agent-status-relaunch` | Startup cleanup is now proven through UI and persisted storage after Electron relaunch | Non-AI E2E | Keep | Maintain |
+| Agent status | Error state appears on failed execution | Yes | strong | `smoke/agent-status`, `server/routes/chat.test.ts` | Chat failures now persist error state and dashboard recent chat status | AI E2E + Non-AI E2E | Keep | Maintain |
+| Agent status | Paused state behavior | Yes | strong | shared/ui/server status cleanup | Dead state was removed from `AgentStatus`; legacy persisted `paused` values normalize to `idle` | Non-AI E2E + Integration | Keep | Maintain |
 | Chat | Basic chat send/stream/disable input/delete | Yes | strong | `chat-flow`, `chat-lifecycle`, `chat-ui`, `chat-navigation` | No major gap | AI E2E + Non-AI E2E | Keep | Maintain |
 | Chat | Stop button interrupts stream safely | Yes | medium | `chat-advanced` | Good start, but no regression matrix across tools/team | AI E2E | P2 | Extend to tool-heavy response |
 | Chat | Tool call block renders for tool usage | Yes | medium | `chat-advanced` with bash | Only bash is explicitly covered in UI | AI E2E | P1 | Add MCP/task/memory/browser tool-call display coverage |
