@@ -86,6 +86,16 @@ Take input and produce bullet points.`
     const skillId = data.imported[0].id
     const skill = await helper.apiGet(`/api/projects/${projectId}/skills/${skillId}`)
     expect(skill.instructions).toContain('Use the helper script')
+
+    // Verify the script asset was actually extracted to the filesystem
+    const fs = await import('fs')
+    const path = await import('path')
+    const dataDir = process.env.GOLEMANCY_TEST_DATA_DIR
+    expect(dataDir, 'GOLEMANCY_TEST_DATA_DIR must be set').toBeDefined()
+    const scriptPath = path.join(dataDir!, 'projects', projectId, 'skills', skillId, 'scripts', 'helper.py')
+    expect(fs.existsSync(scriptPath), `Expected extracted asset at ${scriptPath}`).toBe(true)
+    const scriptContent = fs.readFileSync(scriptPath, 'utf-8')
+    expect(scriptContent).toContain('print("hello")')
   })
 
   test('empty ZIP returns 0 imported', async ({ helper, window }) => {

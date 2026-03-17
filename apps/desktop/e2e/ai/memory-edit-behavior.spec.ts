@@ -81,8 +81,10 @@ test.describe('Memory Edit Behavior', () => {
       content: `The user's project name is ${betaCode}`,
     })
 
-    // Verify the memory was updated via API
-    const updated = await helper.apiGet(`/api/projects/${projectId}/agents/${agentId}/memories/${memory.id}`)
+    // Verify the memory was updated via API (no GET /:id route — use list + find)
+    const allMemories = await helper.apiGet(`/api/projects/${projectId}/agents/${agentId}/memories`)
+    const updated = allMemories.find((m: any) => m.id === memory.id)
+    expect(updated).toBeDefined()
     expect(String(updated?.content ?? '')).toContain(betaCode)
     expect(String(updated?.content ?? '')).not.toContain(originalCode)
 

@@ -254,7 +254,24 @@ AI 层 51 个失败中，部分为 test bug（如 chat-flow 的 UI selector）�
 | A13 | `server/project-agent-lifecycle.spec.ts` | 5 | `defaultAgentId` → `defaultTargetType`+`defaultTargetId`；`conv.agentId` → `conv.targetId` | ✅ |
 | A14 | `server/skill-api.spec.ts` | 2 | `createAgentViaApi` 不能设 `skillIds`，改为先创建后 PATCH | ✅ |
 
-**Phase A 完成后预期**：~56 个失败→通过，通过率 76% → ~88%
+**Phase A 完成**：14/14 项修复 ✅
+
+---
+
+### Phase A2：测试可信度修复（6 项）
+
+修复"绿灯但不验证核心行为"的测试——这些比红灯更危险，因为会给予虚假信心。
+
+| # | 优先级 | 文件 | 问题 | 修复内容 | 状态 |
+|---|--------|------|------|---------|------|
+| T1 | P0 | `ai/mcp-http-sse.spec.ts` | 虚假覆盖：文件名和标题暗示 MCP 传输层测试，实际只测 config CRUD | rename describe 为 "Config Persistence"；删除误导性 `test.fixme` 桩；顶部添加 COVERAGE GAP 注释 | ✅ |
+| T2 | P0 | `ai/mcp-tools.spec.ts` | 伪覆盖：memory 测试在同一对话中 store+recall，passphrase 在上下文中，不需要 MCP 工具 | 拆为两个独立对话 storeConv/recallConv；两阶段均断言 `countToolCalls() >= 1`；所有测试添加 tool_call 事件验证 | ✅ |
+| T3 | P0 | `ai/template-e2e.spec.ts` | 空洞断言：connectivity 只检查 `typeof ok === 'boolean'`（true/false 都过）；writing/secretary 只检查 `length > 20` | connectivity: 添加 uvx skip + `ok === true`；writing: 改用产品 tagline 提示 + 内容关键词断言；secretary: 改用邮件摘要提示 + 信息提取断言；delegation: 添加 `toContain('tokyo')` | ✅ |
+| T4 | P1 | `ai/memory-edit-behavior.spec.ts` | 调用不存在的 API：`GET /memories/:id`（路由不存在，只有 list/create/patch/delete） | 替换为 `GET /memories` + `find(m => m.id === id)` | ✅ |
+| T5 | P2 | `server/template-mcp-validation.spec.ts` | 一致性偏好当 CI 硬门禁：命名/版本不一致导致测试失败阻塞构建 | 一致性检查降级为 `test.info().annotations` 警告；仅结构正确性（agent count）保留硬断言 | ✅ |
+| T6 | P3 | `server/skill-import.spec.ts` | 标题与断言脱节：测试名称声称"extracts assets alongside skill"但仅验证 skill 创建 | 添加文件系统验证：检查 `scripts/helper.py` 实际被解压到 `{dataDir}/projects/{pid}/skills/{sid}/scripts/` | ✅ |
+
+**Phase A2 完成**：6/6 项修复 ✅
 
 ---
 
@@ -289,11 +306,12 @@ AI 层 51 个失败中，部分为 test bug（如 chat-flow 的 UI selector）�
 
 ### 进度追踪
 
-| 阶段 | 总项数 | 已完成 | 进度 | 预期通过率 |
-|------|--------|--------|------|-----------|
-| Phase A（修 test bug） | 14 | 0 | 0% | → 88% |
-| Phase B（补新测试） | 8 | 0 | 0% | → 93% |
+| 阶段 | 总项数 | 已完成 | 进度 | 说明 |
+|------|--------|--------|------|------|
+| Phase A（修 test bug） | 14 | 14 | 100% | 测试代码与产品行为对齐 |
+| Phase A2（修可信度） | 6 | 6 | 100% | 消除虚假覆盖/伪覆盖/空洞断言 |
+| Phase B（补新测试） | 8 | 0 | 0% | 填补功能覆盖缺口 |
 | Phase C（重跑验证） | 3 | 0 | 0% | 最终确认 |
-| **总计** | **25** | **0** | **0%** | |
+| **总计** | **31** | **20** | **65%** | |
 
 > 剩余 ~7% 失败来自：已确认 product bug(6 个) + AI 不确定性(~30 个) + 环境依赖(~8 个)，不属于测试补全范围。

@@ -7,7 +7,22 @@ const hasApiKeys = !!(
   process.env.TEST_ANTHROPIC_API_KEY
 )
 
-test.describe('MCP HTTP & SSE Transport', () => {
+/**
+ * MCP HTTP/SSE config persistence and test-endpoint validation.
+ *
+ * COVERAGE GAP: No test in this file exercises actual MCP protocol behavior
+ * (initialize handshake, tools/list, tools/call). The local test server does
+ * not implement the MCP spec. These tests verify only that config records with
+ * transportType 'http'/'sse' can be stored, retrieved, and that the
+ * test-connectivity endpoint returns a structured failure when pointed at a
+ * non-MCP server.
+ *
+ * Real MCP transport testing requires either:
+ * - A dedicated MCP-compliant test fixture server, or
+ * - An integration test against a known MCP server (e.g., mcp-server-fetch).
+ */
+
+test.describe('MCP HTTP/SSE Config Persistence', () => {
   test.skip(!hasApiKeys, 'AI tests require API keys in .env.e2e.local')
 
   let projectId: string
@@ -17,10 +32,9 @@ test.describe('MCP HTTP & SSE Transport', () => {
     test.setTimeout(180_000)
     await helper.goHome()
 
-    const project = await helper.createProjectViaApi('MCP HTTP SSE Transport')
+    const project = await helper.createProjectViaApi('MCP HTTP SSE Config')
     projectId = project.id
 
-    // Start local server to act as a mock MCP endpoint
     localServer = new LocalHttpTestServer()
     await localServer.start()
   })
@@ -29,7 +43,7 @@ test.describe('MCP HTTP & SSE Transport', () => {
     await localServer?.stop()
   })
 
-  test('can create MCP server config with HTTP transport type', async ({ helper }) => {
+  test('POST /mcp-servers persists HTTP transport config', async ({ helper }) => {
     test.setTimeout(60_000)
 
     const mcpServer = await helper.apiPost(`/api/projects/${projectId}/mcp-servers`, {
@@ -39,17 +53,16 @@ test.describe('MCP HTTP & SSE Transport', () => {
       description: 'Test HTTP MCP transport config',
     })
 
-    expect(mcpServer).toBeDefined()
-    expect(mcpServer.name).toBeDefined()
     expect(mcpServer.name).toBe('http-mcp-test')
     expect(mcpServer.transportType).toBe('http')
 
-    // Verify via GET that the config persists
+    // Verify persistence via GET
     const fetched = await helper.apiGet(`/api/projects/${projectId}/mcp-servers/http-mcp-test`)
     expect(fetched.transportType).toBe('http')
+    expect(fetched.url).toBe(localServer.url('/mcp/http'))
   })
 
-  test('can create MCP server config with SSE transport type', async ({ helper }) => {
+  test('POST /mcp-servers persists SSE transport config', async ({ helper }) => {
     test.setTimeout(60_000)
 
     const mcpServer = await helper.apiPost(`/api/projects/${projectId}/mcp-servers`, {
@@ -59,20 +72,18 @@ test.describe('MCP HTTP & SSE Transport', () => {
       description: 'Test SSE MCP transport config',
     })
 
-    expect(mcpServer).toBeDefined()
-    expect(mcpServer.name).toBeDefined()
     expect(mcpServer.name).toBe('sse-mcp-test')
     expect(mcpServer.transportType).toBe('sse')
 
-    // Verify via GET
     const fetched = await helper.apiGet(`/api/projects/${projectId}/mcp-servers/sse-mcp-test`)
     expect(fetched.transportType).toBe('sse')
+    expect(fetched.url).toBe(localServer.url('/mcp/sse'))
   })
 
-  test('HTTP transport connectivity test returns a result', async ({ helper }) => {
+  test('test-connectivity endpoint returns structured failure for non-MCP server', async ({ helper }) => {
     test.setTimeout(60_000)
 
-    // Ensure http-mcp-test exists (created in earlier test or recreate)
+    // Ensure config exists
     try {
       await helper.apiGet(`/api/projects/${projectId}/mcp-servers/http-mcp-test`)
     } catch {
@@ -101,30 +112,19 @@ test.describe('MCP HTTP & SSE Transport', () => {
     })
     await helper.applyPermissionsConfig(projectId, config.id)
 
-    // Test connectivity — the local server doesn't implement MCP protocol,
-    // so it will fail, but the endpoint should return a structured response
+    // Local server doesn't implement MCP protocol — verify structured error response
     const result = await helper.apiPost(
       `/api/projects/${projectId}/mcp-servers/http-mcp-test/test`,
       {},
     )
 
-    // The test endpoint should return a result object (ok: true/false)
     expect(result).toBeDefined()
     expect(typeof result.ok).toBe('boolean')
-    // Our mock server doesn't implement MCP protocol, so expect failure
+    // Non-MCP server → connectivity MUST fail. ok:true here would mean a bug.
     expect(result.ok).toBe(false)
-  })
-
-  test.fixme('HTTP transport MCP tool call via AI agent', async () => {
-    // Full MCP HTTP protocol compliance requires implementing the MCP spec
-    // (initialize handshake, tools/list, tools/call) over HTTP streaming.
-    // Local HTTP test server does not implement this protocol.
-    // Needs a dedicated MCP HTTP test fixture or a real MCP HTTP server.
-  })
-
-  test.fixme('SSE transport MCP tool call via AI agent', async () => {
-    // Full MCP SSE protocol compliance requires implementing SSE-based
-    // MCP message framing. Local HTTP test server does not support this.
-    // Needs a dedicated MCP SSE test fixture.
+    // Should include an error description
+    if (result.error) {
+      expect(typeof result.error).toBe('string')
+    }
   })
 })
