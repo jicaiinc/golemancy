@@ -56,6 +56,9 @@ test.describe('Memory Tab', () => {
     await expect(window.locator(SELECTORS.MEMORY_PINNED_CHECKBOX)).toBeVisible()
     await expect(window.locator(SELECTORS.MEMORY_SAVE_BTN)).toBeVisible()
     await expect(window.locator(SELECTORS.MEMORY_CANCEL_BTN)).toBeVisible()
+
+    // Close form to avoid leaking showAdd state to next test
+    await window.click(SELECTORS.MEMORY_CANCEL_BTN)
   })
 
   test('save button disabled when content is empty', async ({ window, helper }) => {
@@ -76,6 +79,9 @@ test.describe('Memory Tab', () => {
     // Type content → should become enabled
     await window.fill(SELECTORS.MEMORY_CONTENT_INPUT, 'Test memory')
     await expect(window.locator(SELECTORS.MEMORY_SAVE_BTN)).toBeEnabled()
+
+    // Close form to avoid leaking showAdd state to next test
+    await window.click(SELECTORS.MEMORY_CANCEL_BTN)
   })
 
   test('cancel button closes the form', async ({ window, helper }) => {

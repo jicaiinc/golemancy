@@ -141,8 +141,9 @@ test.describe('Save Behavior Consistency', () => {
 
     expect(agentAfterSave.name).toBe('Save Test Agent Renamed')
 
-    // Rename back for other tests
-    await nameField.fill('Save Test Agent')
+    // Rename back for other tests — re-query since value changed
+    const renamedField = window.locator('input[value="Save Test Agent Renamed"]')
+    await renamedField.fill('Save Test Agent')
     await saveBtn.click()
     await helper.store.waitFor(
       `state.agents.find(a => a.id === '${agentId}')?.name === 'Save Test Agent'`,
