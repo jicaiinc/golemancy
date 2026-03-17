@@ -10,6 +10,7 @@ const log = logger.child({ component: 'routes:projects' })
 interface ProjectRouteDeps {
   projectStorage: IProjectService
   settingsStorage: ISettingsService
+  onBeforeDelete?: (id: ProjectId) => Promise<void>
 }
 
 export function createProjectRoutes(deps: ProjectRouteDeps) {
@@ -110,6 +111,7 @@ export function createProjectRoutes(deps: ProjectRouteDeps) {
   app.delete('/:id', async (c) => {
     const id = c.req.param('id') as ProjectId
     log.debug({ projectId: id }, 'deleting project')
+    if (deps.onBeforeDelete) await deps.onBeforeDelete(id)
     await storage.delete(id)
     return c.json({ ok: true })
   })

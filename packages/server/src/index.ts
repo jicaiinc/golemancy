@@ -33,6 +33,7 @@ import { sandboxPool } from './agent/sandbox-pool'
 import { mcpPool } from './agent/mcp-pool'
 import { OAuthManager } from './auth/oauth-manager'
 import { initOpenToolsIPC } from './agent/builtin-tools/open-tools'
+import type { ProjectId } from '@golemancy/shared'
 import { logger } from './logger'
 
 async function main() {
@@ -79,6 +80,16 @@ async function main() {
   const settingsStorage = new FileSettingsStorage()
   const oauthManager = new OAuthManager(settingsStorage)
 
+  const onProjectDeleting = async (id: ProjectId) => {
+    // Close SQLite database connection first (prevents EPERM on Windows due to file locks)
+    dbManager.closeProject(id)
+    // Tear down sandbox worker and MCP connections
+    await Promise.allSettled([
+      sandboxPool.removeProject(id),
+      mcpPool.invalidateProject(id),
+    ])
+  }
+
   const deps: ServerDependencies = {
     projectStorage,
     agentStorage,
@@ -100,6 +111,7 @@ async function main() {
     wsManager,
     activeChatRegistry,
     oauthManager,
+    onProjectDeleting,
   }
 
   // SEC-07: Generate auth token for IPC-based authentication

@@ -58,6 +58,31 @@ describe('ProjectDbManager', () => {
     expect(fs.existsSync(path.join(state.tmpDir, 'projects', 'proj-bbb', 'data', 'data.db'))).toBe(true)
   })
 
+  it('closeProject closes and removes single project from cache', () => {
+    const id = 'proj-single' as ProjectId
+    const db1 = manager.getProjectDb(id)
+    manager.closeProject(id)
+
+    // After closeProject, a new call should return a different instance
+    const db2 = manager.getProjectDb(id)
+    expect(db2).not.toBe(db1)
+  })
+
+  it('closeProject does not affect other projects', () => {
+    const dbA = manager.getProjectDb('proj-a' as ProjectId)
+    const dbB = manager.getProjectDb('proj-b' as ProjectId)
+    manager.closeProject('proj-a' as ProjectId)
+
+    // proj-b should still return the same cached instance
+    expect(manager.getProjectDb('proj-b' as ProjectId)).toBe(dbB)
+    // proj-a should return a new instance
+    expect(manager.getProjectDb('proj-a' as ProjectId)).not.toBe(dbA)
+  })
+
+  it('closeProject is a no-op for unknown project', () => {
+    expect(() => manager.closeProject('proj-unknown' as ProjectId)).not.toThrow()
+  })
+
   it('closeAll clears the cache', () => {
     const db1 = manager.getProjectDb('proj-close' as ProjectId)
     manager.closeAll()

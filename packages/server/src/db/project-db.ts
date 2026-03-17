@@ -27,6 +27,18 @@ export class ProjectDbManager {
     return db
   }
 
+  closeProject(projectId: ProjectId) {
+    const db = this.cache.get(projectId)
+    if (!db) return
+    try {
+      ;(db as any)._.session.client.close()
+      log.debug({ projectId }, 'closed project database')
+    } catch {
+      log.warn({ projectId }, 'failed to close project database')
+    }
+    this.cache.delete(projectId)
+  }
+
   closeAll() {
     for (const [projectId, db] of this.cache) {
       try {

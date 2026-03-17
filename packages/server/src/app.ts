@@ -5,7 +5,7 @@ import { pinoLogger } from 'hono-pino'
 import type {
   IProjectService, IAgentService, IConversationService, ITaskService,
   ISkillService, ISettingsService, IDashboardService, IGlobalDashboardService, ICronJobService,
-  IMCPService, IPermissionsConfigService, ITeamService,
+  IMCPService, IPermissionsConfigService, ITeamService, ProjectId,
 } from '@golemancy/shared'
 import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
 import type { TokenRecordStorage } from './storage/token-records'
@@ -59,6 +59,7 @@ export interface ServerDependencies {
   wsManager?: WebSocketManager
   activeChatRegistry?: ActiveChatRegistry
   oauthManager?: OAuthManager
+  onProjectDeleting?: (id: ProjectId) => Promise<void>
 }
 
 export function createApp(deps: ServerDependencies, authToken?: string) {
@@ -117,6 +118,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
   app.route('/api/projects', createProjectRoutes({
     projectStorage: deps.projectStorage,
     settingsStorage: deps.settingsStorage,
+    onBeforeDelete: deps.onProjectDeleting,
   }))
   app.route('/api/projects/:projectId/agents', createAgentRoutes({
     agentStorage: deps.agentStorage,
