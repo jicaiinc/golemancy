@@ -82,6 +82,7 @@ export class FileProjectStorage implements IProjectService {
 
     const projectDir = path.join(this.projectsDir, id)
     await fs.mkdir(path.join(projectDir, 'agents'), { recursive: true })
+    await fs.mkdir(path.join(projectDir, 'data'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'tasks'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'workspace'), { recursive: true })
     await fs.mkdir(path.join(projectDir, 'skills'), { recursive: true })

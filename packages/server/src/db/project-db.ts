@@ -4,6 +4,7 @@ import type { ProjectId } from '@golemancy/shared'
 import { createDatabase, type AppDatabase } from './client'
 import { migrateDatabase } from './migrate'
 import { getProjectDbPath } from '../utils/paths'
+import { assertProjectNotDeleted } from '../project-deletion'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'db:project' })
@@ -12,12 +13,13 @@ export class ProjectDbManager {
   private cache = new Map<string, AppDatabase>()
 
   getProjectDb = (projectId: ProjectId): AppDatabase => {
+    assertProjectNotDeleted(projectId)
+
     const existing = this.cache.get(projectId)
     if (existing) return existing
 
     const dbPath = getProjectDbPath(projectId)
-    const dir = path.dirname(dbPath)
-    fs.mkdirSync(dir, { recursive: true })
+    fs.mkdirSync(path.dirname(dbPath), { recursive: true })
 
     log.debug({ projectId, dbPath }, 'opening project database')
     const db = createDatabase(dbPath)
@@ -30,26 +32,33 @@ export class ProjectDbManager {
   closeProject(projectId: ProjectId) {
     const db = this.cache.get(projectId)
     if (!db) return
-    try {
-      ;(db as any)._.session.client.close()
-      log.debug({ projectId }, 'closed project database')
-    } catch {
-      log.warn({ projectId }, 'failed to close project database')
+    if (this.closeDb(projectId, db)) {
+      this.cache.delete(projectId)
     }
-    this.cache.delete(projectId)
   }
 
   closeAll() {
     for (const [projectId, db] of this.cache) {
-      try {
-        // Access the underlying better-sqlite3 instance to close it
-        // drizzle wraps it but doesn't expose a close method directly
-        ;(db as any)._.session.client.close()
-        log.debug({ projectId }, 'closed project database')
-      } catch {
-        log.warn({ projectId }, 'failed to close project database')
+      if (this.closeDb(projectId, db)) {
+        this.cache.delete(projectId)
       }
     }
-    this.cache.clear()
+  }
+
+  /** Close the underlying better-sqlite3 connection (drizzle doesn't expose close directly) */
+  private closeDb(projectId: string, db: AppDatabase): boolean {
+    try {
+      const client = (db as any).$client as { close?: () => void } | undefined
+      if (!client?.close) {
+        log.warn({ projectId }, 'project database client does not expose close()')
+        return false
+      }
+      client.close()
+      log.debug({ projectId }, 'closed project database')
+      return true
+    } catch {
+      log.warn({ projectId }, 'failed to close project database')
+      return false
+    }
   }
 }

@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import type { IProjectService, ISettingsService, ProjectId } from '@golemancy/shared'
 import { getProjectTemplate } from '@golemancy/shared'
 import { instantiateProjectTemplate } from '../storage/template-instantiate'
+import { clearProjectDeletion, markProjectDeleted, markProjectDeleting } from '../project-deletion'
 import { initProjectPythonEnv } from '../runtime/python-manager'
 import { logger } from '../logger'
 
@@ -111,9 +112,16 @@ export function createProjectRoutes(deps: ProjectRouteDeps) {
   app.delete('/:id', async (c) => {
     const id = c.req.param('id') as ProjectId
     log.debug({ projectId: id }, 'deleting project')
-    if (deps.onBeforeDelete) await deps.onBeforeDelete(id)
-    await storage.delete(id)
-    return c.json({ ok: true })
+    markProjectDeleting(id)
+    try {
+      if (deps.onBeforeDelete) await deps.onBeforeDelete(id)
+      await storage.delete(id)
+      markProjectDeleted(id)
+      return c.json({ ok: true })
+    } catch (err) {
+      clearProjectDeletion(id)
+      throw err
+    }
   })
 
   return app

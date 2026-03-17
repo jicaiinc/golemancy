@@ -44,6 +44,7 @@ export async function cloneProject(sourceId: ProjectId, newName: string): Promis
   try {
     // Create directory structure
     await fs.mkdir(path.join(targetDir, 'agents'), { recursive: true })
+    await fs.mkdir(path.join(targetDir, 'data'), { recursive: true })
     await fs.mkdir(path.join(targetDir, 'skills'), { recursive: true })
     await fs.mkdir(path.join(targetDir, 'teams'), { recursive: true })
     await fs.mkdir(path.join(targetDir, 'cronjobs'), { recursive: true })

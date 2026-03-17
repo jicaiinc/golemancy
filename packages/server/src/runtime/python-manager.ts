@@ -8,6 +8,7 @@ import {
   getProjectPythonEnvBinPath,
   getPipCachePath,
 } from './paths'
+import { assertProjectNotDeleted, isProjectBlocked } from '../project-deletion'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'runtime:python' })
@@ -58,6 +59,8 @@ export function resolvePythonBinary(): string {
  * @throws Error if Python binary not found or venv creation fails
  */
 export async function initProjectPythonEnv(projectId: string): Promise<void> {
+  assertProjectNotDeleted(projectId)
+
   const venvPath = getProjectPythonEnvPath(projectId)
   const pythonBin = resolvePythonBinary()
 
@@ -72,6 +75,11 @@ export async function initProjectPythonEnv(projectId: string): Promise<void> {
       `Failed to create Python venv: ${result.stderr}\n` +
       `Python binary: ${pythonBin}\nVenv path: ${venvPath}`
     )
+  }
+
+  if (isProjectBlocked(projectId)) {
+    await removeProjectPythonEnv(projectId)
+    throw new Error(`Project ${projectId} was deleted during Python venv creation`)
   }
 
   log.info({ projectId }, 'Python venv created')

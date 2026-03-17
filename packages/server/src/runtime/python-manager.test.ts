@@ -50,6 +50,7 @@ import {
   getPythonEnvStatus,
 } from './python-manager'
 import { getBundledPythonPath } from './paths'
+import { markProjectDeleted, resetProjectDeletionStateForTests } from '../project-deletion'
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -74,6 +75,7 @@ function createMockChild(
 
 beforeEach(() => {
   vi.clearAllMocks()
+  resetProjectDeletionStateForTests()
   mockMkdir.mockResolvedValue(undefined)
   mockRm.mockResolvedValue(undefined)
   mockAccess.mockResolvedValue(undefined)
@@ -122,6 +124,12 @@ describe('initProjectPythonEnv', () => {
   it('succeeds when exit code is 0', async () => {
     mockSpawn.mockImplementation(() => createMockChild())
     await expect(initProjectPythonEnv('proj-abc123')).resolves.toBeUndefined()
+  })
+
+  it('refuses to create a venv for a deleted project', async () => {
+    markProjectDeleted('proj-abc123')
+    await expect(initProjectPythonEnv('proj-abc123')).rejects.toThrow('has been deleted')
+    expect(mockSpawn).not.toHaveBeenCalled()
   })
 })
 

@@ -35,6 +35,7 @@ import { OAuthManager } from './auth/oauth-manager'
 import { initOpenToolsIPC } from './agent/builtin-tools/open-tools'
 import type { ProjectId } from '@golemancy/shared'
 import { logger } from './logger'
+import { removeProjectPythonEnv } from './runtime/python-manager'
 
 async function main() {
   const startTime = Date.now()
@@ -85,6 +86,7 @@ async function main() {
     dbManager.closeProject(id)
     // Tear down sandbox worker and MCP connections
     await Promise.allSettled([
+      removeProjectPythonEnv(id),
       sandboxPool.removeProject(id),
       mcpPool.invalidateProject(id),
     ])

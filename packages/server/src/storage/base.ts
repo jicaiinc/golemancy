@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
+import { assertProjectPathWritable } from '../project-deletion'
 
 export function isNodeError(e: unknown): e is NodeJS.ErrnoException {
   return e instanceof Error && 'code' in e
@@ -17,6 +18,7 @@ export async function readJson<T>(filePath: string): Promise<T | null> {
 }
 
 export async function writeJson<T>(filePath: string, data: T): Promise<void> {
+  assertProjectPathWritable(filePath)
   const dir = path.dirname(filePath)
   await fs.mkdir(dir, { recursive: true })
   const tmpPath = path.join(dir, `.${path.basename(filePath)}.${randomUUID()}.tmp`)
