@@ -135,4 +135,70 @@ test.describe('Agent Status Transitions', () => {
     )
     expect(stuckChats.length).toBe(0)
   })
+
+  // B7: Multi-agent concurrent running status
+
+  test('two agents running concurrently both appear in runningChats', async ({ helper }) => {
+    test.setTimeout(180_000)
+
+    const agentA = await helper.createToolAgent(projectId, 'Concurrent Agent A', {
+      systemPrompt:
+        'You are a test assistant. When asked to write something long, write a detailed essay of at least 500 words.',
+    })
+    const agentB = await helper.createToolAgent(projectId, 'Concurrent Agent B', {
+      systemPrompt:
+        'You are a test assistant. When asked to write something long, write a detailed essay of at least 500 words.',
+    })
+
+    const convA = await helper.createConversationViaApi(projectId, agentA.id, 'concurrent A')
+    const convB = await helper.createConversationViaApi(projectId, agentB.id, 'concurrent B')
+
+    // Fire both chats concurrently WITHOUT awaiting
+    const chatAPromise = helper.sendChatViaApi(
+      projectId, agentA.id, convA.id,
+      'Write a very detailed and long essay about the history of astronomy, at least 500 words.',
+      TIMEOUTS.AI_RESPONSE,
+    )
+    const chatBPromise = helper.sendChatViaApi(
+      projectId, agentB.id, convB.id,
+      'Write a very detailed and long essay about the history of architecture, at least 500 words.',
+      TIMEOUTS.AI_RESPONSE,
+    )
+
+    // Poll until we see at least 2 running chats simultaneously
+    let caughtBothRunning = false
+    await helper.pollUntil(
+      () => helper.apiGet(`/api/projects/${projectId}/dashboard/runtime-status`),
+      (status: any) => {
+        const chats = status?.runningChats ?? []
+        if (chats.length >= 2) {
+          caughtBothRunning = true
+          return true
+        }
+        return false
+      },
+      { intervalMs: 300, timeoutMs: 30_000 },
+    )
+
+    // Wait for both chats to finish
+    await Promise.allSettled([chatAPromise, chatBPromise])
+
+    expect(caughtBothRunning).toBe(true)
+  })
+
+  test('after concurrent chats complete, runningChats is empty', async ({ helper }) => {
+    test.setTimeout(60_000)
+
+    // After previous test, both chats should have completed
+    const finalStatus = await helper.pollUntil(
+      () => helper.apiGet(`/api/projects/${projectId}/dashboard/runtime-status`),
+      (status: any) => {
+        const chats = status?.runningChats ?? []
+        return chats.length === 0
+      },
+      { intervalMs: 500, timeoutMs: 15_000 },
+    )
+
+    expect((finalStatus?.runningChats ?? []).length).toBe(0)
+  })
 })
