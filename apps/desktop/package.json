@@ -23,7 +23,7 @@
     "dev": "bash scripts/patch-electron-name.sh && electron-vite dev",
     "build": "electron-vite build",
     "test:e2e": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts --project=smoke --project=server",
-    "test:e2e:ai": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts",
+    "test:e2e:all": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts",
     "test:e2e:smoke": "electron-vite build --mode test && npx playwright test --config=e2e/playwright.config.ts --project=smoke",
     "test:e2e:only": "npx playwright test --config=e2e/playwright.config.ts --no-deps",
     "download-runtime": "bash ../../scripts/download-runtime.sh",

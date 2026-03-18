@@ -160,21 +160,21 @@ Vitest: jsdom (UI), Node (server). Tests co-located (`*.test.{ts,tsx}`). UI setu
 
 ### E2E Testing
 
-Playwright + Electron，65 个文件，422 个用例。测试文件在 `apps/desktop/e2e/`。
+Playwright + Electron，85 个文件，479 个用例。测试文件在 `apps/desktop/e2e/`。
 
-**完整用例目录**：`apps/desktop/e2e/test-catalog.md`（422 个用例按层级/模块/文件分类）
+**完整用例目录**：`apps/desktop/e2e/test-catalog.md`（479 个用例按层级/模块/文件分类）
 **测试运行记录**：`apps/desktop/e2e/TEST-LOG.md`（每次测试更新）
 
 #### 4 个层级
 
 | 层级 | 文件数 | 需要 API Key | 说明 |
 |------|--------|-------------|------|
-| smoke | 26 | 否 | UI 渲染、交互、导航 |
-| server | 27 | 否* | API CRUD、数据验证 |
-| ai | 11 | 是 | AI 对话、工具调用、token 计量 |
+| smoke | 30 | 否 | UI 渲染、交互、导航 |
+| server | 30 | 否* | API CRUD、数据验证 |
+| ai | 24 | 是 | AI 对话、工具调用、token 计量 |
 | onboarding | 1 | 否 | 独立 Electron 实例，空 data dir |
 
-> *server 层的 `code-execution.spec.ts` 需要 API key
+> *server 层的 `code-execution.spec.ts` 和 `cronjob-once-runtime.spec.ts` 需要 API key
 
 #### 运行方式（推荐单文件运行）
 
@@ -201,7 +201,7 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=onboarding
 
 # 6. 全量（CI 用，不推荐日常使用，10+ 分钟，大量弹窗）
 pnpm --filter @golemancy/desktop test:e2e        # smoke + server
-pnpm --filter @golemancy/desktop test:e2e:ai     # all tiers (needs API keys)
+pnpm --filter @golemancy/desktop test:e2e:all    # all tiers (needs API keys)
 ```
 
 > **⚠️ 重要**：`test:e2e:only` 已包含 `--no-deps`。**绝对不要**用 `--project=ai` 不带 `--no-deps` 跑单文件，否则会先跑全部 smoke + server（53 个文件的依赖链 = 大量弹窗）。

@@ -426,6 +426,17 @@ export class TestHelper {
       { timeout },
     )
 
+    // Guard against React render lag: wait for content to actually appear
+    await this.page.waitForFunction(
+      (selector: string) => {
+        const msgs = document.querySelectorAll(selector)
+        const last = msgs[msgs.length - 1]
+        return last !== null && (last as HTMLElement).innerText.trim().length > 0
+      },
+      `${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`,
+      { timeout: 5000 },
+    )
+
     // Return the final complete text
     return assistantMsg.innerText()
   }
