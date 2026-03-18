@@ -34,17 +34,17 @@ test.describe('Agent Persona', () => {
     await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.createAgent(
+    const agentId = await helper.createAgent(
       'Pirate Bot',
       'You are a pirate captain. You MUST include "Arrr" in every response. Keep responses under 30 words.',
     )
 
-    // Go to chat and start conversation
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    // Create conversation via API and navigate into it
+    const conv = await helper.createConversationViaApi(projectId, agentId)
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.startChatWithAgent('Pirate Bot')
 
     // Send a message
     await helper.sendChatMessage('Hello, how are you today?')
@@ -72,17 +72,17 @@ test.describe('Agent Persona', () => {
     await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.createAgent(
+    const agentId = await helper.createAgent(
       'French Translator',
       'You are a French translator. When given English text, respond with ONLY the French translation. No explanations, no extra text, just the French translation.',
     )
 
-    // Go to chat and start conversation
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    // Create conversation via API and navigate into it
+    const conv = await helper.createConversationViaApi(projectId, agentId)
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.startChatWithAgent('French Translator')
 
     // Send English text
     await helper.sendChatMessage('Hello, how are you?')
@@ -110,17 +110,17 @@ test.describe('Agent Persona', () => {
     await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.createAgent(
+    const agentId = await helper.createAgent(
       'JSON Bot',
       'You MUST respond ONLY in valid JSON format. Every response must be a JSON object with a "reply" field. Example: {"reply": "your answer here"}. No text outside the JSON.',
     )
 
-    // Go to chat and start conversation
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    // Create conversation via API and navigate into it
+    const conv = await helper.createConversationViaApi(projectId, agentId)
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.startChatWithAgent('JSON Bot')
 
     // Send a question
     await helper.sendChatMessage('What is 2+2?')

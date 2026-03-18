@@ -40,11 +40,11 @@ test.describe('Chat Advanced', () => {
   test('Stop button interrupts streaming and re-enables input', async ({ window, helper }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    const conv = await helper.createConversationViaApi(projectId, cheapAgentId)
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.startChatWithAgent('Chat Adv Agent')
 
     // Send a message that triggers a long response
     await helper.sendChatMessage(
@@ -68,11 +68,11 @@ test.describe('Chat Advanced', () => {
   test('tool call block appears in chat when bash tool is used', async ({ window, helper }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(window.getByText('Start a conversation')).toBeVisible({
+    const conv = await helper.createConversationViaApi(projectId, bashAgentId)
+    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
+    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.startChatWithAgent('Bash Agent')
 
     // Ask to run a simple command
     await helper.sendChatMessage('Run this bash command: echo GOLEMANCY_TEST_MARKER')
