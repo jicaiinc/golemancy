@@ -80,9 +80,12 @@ test.describe('Settings Advanced — Theme, Language, API Key, Model, Speech', (
       })
     }
 
-    // Ensure we're back to English via API
+    // Ensure we're back to English: patch server, then reload settings in browser
     await helper.apiPatch('/api/settings', { language: 'en' })
-    // Reload to apply English
+    await window.evaluate(async () => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) await store.getState().loadSettings()
+    })
     await helper.navigateTo('/')
     await helper.navigateTo('/settings')
   })

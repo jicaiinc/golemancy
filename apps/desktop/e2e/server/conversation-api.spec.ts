@@ -20,13 +20,14 @@ test.describe('Conversation API', () => {
 
   test('POST /conversations creates a conversation', async ({ helper }) => {
     const response = await helper.apiPostRaw(`/api/projects/${projectId}/conversations`, {
-      agentId,
+      targetType: 'agent',
+      targetId: agentId,
       title: 'Test Conversation',
     })
     expect(response.status()).toBe(201)
     const data = await response.json()
     expect(data.id).toBeDefined()
-    expect(data.agentId).toBe(agentId)
+    expect(data.targetId).toBe(agentId)
     expect(data.title).toBe('Test Conversation')
     conversationId = data.id
   })
@@ -49,14 +50,14 @@ test.describe('Conversation API', () => {
     expect(Array.isArray(filtered)).toBe(true)
     expect(filtered.length).toBeGreaterThanOrEqual(1)
     for (const conv of filtered) {
-      expect(conv.agentId).toBe(agentId)
+      expect(conv.targetId).toBe(agentId)
     }
   })
 
   test('GET /conversations/:id returns single conversation', async ({ helper }) => {
     const conv = await helper.apiGet(`/api/projects/${projectId}/conversations/${conversationId}`)
     expect(conv.id).toBe(conversationId)
-    expect(conv.agentId).toBe(agentId)
+    expect(conv.targetId).toBe(agentId)
   })
 
   test('PATCH /conversations/:id updates title', async ({ helper }) => {
@@ -103,18 +104,18 @@ test.describe('Conversation API', () => {
     )
     expect(result.items).toBeDefined()
     expect(Array.isArray(result.items)).toBe(true)
-    expect(typeof result.hasMore).toBe('boolean')
+    expect(result.total).toBeGreaterThanOrEqual(2)
     expect(result.items.length).toBeGreaterThanOrEqual(2)
   })
 
-  test('GET messages returns oldest first', async ({ helper }) => {
+  test('GET messages returns newest first', async ({ helper }) => {
     const result = await helper.apiGet(
       `/api/projects/${projectId}/conversations/${conversationId}/messages`,
     )
     const items = result.items as Array<{ role: string }>
-    // First message should be user, second assistant (by insert order)
-    expect(items[0].role).toBe('user')
-    expect(items[1].role).toBe('assistant')
+    // API returns desc(createdAt) — newest (assistant) first, oldest (user) last
+    expect(items[0].role).toBe('assistant')
+    expect(items[1].role).toBe('user')
   })
 
   test('GET /messages/search finds saved message via FTS5', async ({ helper }) => {

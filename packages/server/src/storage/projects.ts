@@ -112,6 +112,9 @@ export class FileProjectStorage implements IProjectService {
       updatedAt: new Date().toISOString(),
     }
 
+    // Strip legacy field so normalize() won't re-populate cleared defaults
+    delete (updated as unknown as Record<string, unknown>).defaultAgentId
+
     await writeJson(this.projectJsonPath(id), updated)
     return updated
   }

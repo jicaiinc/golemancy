@@ -44,6 +44,25 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     return c.json(conversations)
   })
 
+  // FTS5 message search — must be before /:id to prevent shadowing
+  app.get('/messages/search', async (c) => {
+    const projectId = c.req.param('projectId') as ProjectId
+    const q = c.req.query('q') ?? ''
+    const page = parseInt(c.req.query('page') ?? '1', 10)
+    const pageSize = parseInt(c.req.query('pageSize') ?? '20', 10)
+    log.debug({ projectId, page, pageSize }, 'searching messages')
+    const result = await storage.searchMessages(projectId, q, { page, pageSize })
+    log.debug({ projectId, resultCount: result.items.length, total: result.total }, 'search results')
+    const baseUrl = getBaseUrl(c)
+    return c.json({
+      ...result,
+      items: result.items.map(m => ({
+        ...m,
+        parts: resolveUploadsForClient(projectId, baseUrl, m.parts),
+      })),
+    })
+  })
+
   app.get('/:id', async (c) => {
     const projectId = c.req.param('projectId') as ProjectId
     const convId = c.req.param('id') as ConversationId
@@ -125,25 +144,6 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
     const pageSize = Math.min(100, Math.max(1, parseInt(c.req.query('pageSize') ?? '50', 10) || 50))
     log.debug({ projectId, conversationId: convId, page, pageSize }, 'listing messages')
     const result = await storage.getMessages(projectId, convId, { page, pageSize })
-    const baseUrl = getBaseUrl(c)
-    return c.json({
-      ...result,
-      items: result.items.map(m => ({
-        ...m,
-        parts: resolveUploadsForClient(projectId, baseUrl, m.parts),
-      })),
-    })
-  })
-
-  // FTS5 message search — resolve upload references to HTTP URLs
-  app.get('/messages/search', async (c) => {
-    const projectId = c.req.param('projectId') as ProjectId
-    const q = c.req.query('q') ?? ''
-    const page = parseInt(c.req.query('page') ?? '1', 10)
-    const pageSize = parseInt(c.req.query('pageSize') ?? '20', 10)
-    log.debug({ projectId, page, pageSize }, 'searching messages')
-    const result = await storage.searchMessages(projectId, q, { page, pageSize })
-    log.debug({ projectId, resultCount: result.items.length, total: result.total }, 'search results')
     const baseUrl = getBaseUrl(c)
     return c.json({
       ...result,

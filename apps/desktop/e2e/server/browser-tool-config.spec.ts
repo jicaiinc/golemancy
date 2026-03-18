@@ -47,7 +47,7 @@ test.describe('Browser Tool Config — builtinTools Validation', () => {
     expect(fetched.builtinTools.memory).toBe(true)
   })
 
-  test('POST agent without builtinTools gets correct defaults', async ({ helper }) => {
+  test('POST agent without builtinTools gets storage defaults (bash only)', async ({ helper }) => {
     const response = await helper.apiPostRaw(`/api/projects/${projectId}/agents`, {
       name: 'Default Tools Agent',
       systemPrompt: 'Agent with default tools.',
@@ -56,12 +56,13 @@ test.describe('Browser Tool Config — builtinTools Validation', () => {
     const agent = await response.json()
 
     const fetched = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}`)
-    // Default values: bash, task, memory = true; browser, computer_use = false
+    // Default stored value is only { bash: true }; task/memory/browser/computer_use
+    // are not persisted unless explicitly set (runtime fills them via BUILTIN_TOOL_DEFAULTS)
     expect(fetched.builtinTools.bash).toBe(true)
-    expect(fetched.builtinTools.task).toBe(true)
-    expect(fetched.builtinTools.memory).toBe(true)
-    expect(fetched.builtinTools.browser).toBe(false)
-    expect(fetched.builtinTools.computer_use).toBe(false)
+    expect(fetched.builtinTools.task).toBeUndefined()
+    expect(fetched.builtinTools.memory).toBeUndefined()
+    expect(fetched.builtinTools.browser).toBeUndefined()
+    expect(fetched.builtinTools.computer_use).toBeUndefined()
   })
 
   test('PATCH agent can toggle builtinTools.browser', async ({ helper }) => {

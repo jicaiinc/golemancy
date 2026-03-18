@@ -16,7 +16,7 @@ test.describe('Conversation Advanced', () => {
 
   // ===== Message Pagination =====
 
-  test('GET /messages with small pageSize returns limited results and hasMore=true', async ({ helper }) => {
+  test('GET /messages with small pageSize returns limited results and total exceeds page', async ({ helper }) => {
     const conv = await helper.apiPost(`/api/projects/${projectId}/conversations`, {
       targetType: 'agent',
       targetId: agentId,
@@ -35,7 +35,7 @@ test.describe('Conversation Advanced', () => {
       `/api/projects/${projectId}/conversations/${conv.id}/messages?page=1&pageSize=2`,
     )
     expect(result.items).toHaveLength(2)
-    expect(result.hasMore).toBe(true)
+    expect(result.total).toBeGreaterThan(2) // 5 messages total, page has 2
   })
 
   test('GET /messages page 2 returns different messages than page 1', async ({ helper }) => {
@@ -65,7 +65,7 @@ test.describe('Conversation Advanced', () => {
     expect(page1.items[0].id).not.toBe(page2.items[0].id)
   })
 
-  test('GET /messages last page has hasMore=false', async ({ helper }) => {
+  test('GET /messages last page has total within pageSize', async ({ helper }) => {
     const conv = await helper.apiPost(`/api/projects/${projectId}/conversations`, {
       targetType: 'agent',
       targetId: agentId,
@@ -81,7 +81,7 @@ test.describe('Conversation Advanced', () => {
       `/api/projects/${projectId}/conversations/${conv.id}/messages?page=1&pageSize=10`,
     )
     expect(result.items.length).toBeLessThanOrEqual(10)
-    expect(result.hasMore).toBe(false)
+    expect(result.total).toBeLessThanOrEqual(10) // all fit in one page
   })
 
   // ===== Compact API =====

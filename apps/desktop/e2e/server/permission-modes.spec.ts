@@ -27,8 +27,8 @@ test.describe('Permission Modes E2E', () => {
   }) => {
     await helper.navigateTo(`/projects/${projectId}/settings`)
 
-    // Settings page should have Permissions tab
-    await expect(window.locator('[data-testid="tab-permissions"]')).toBeVisible({
+    // Settings page should have Permissions tab (testIdPrefix="project-settings")
+    await expect(window.locator('[data-testid="project-settings-tab-permissions"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
   })
@@ -37,53 +37,21 @@ test.describe('Permission Modes E2E', () => {
     window,
   }) => {
     // Click on Permissions tab using testid to avoid strict mode violation
-    await window.locator('[data-testid="tab-permissions"]').click()
+    await window.locator('[data-testid="project-settings-tab-permissions"]').click()
 
     // The PermissionsSettings component should render with PERMISSION MODE section
-    await expect(window.getByText('PERMISSION MODE')).toBeVisible({
+    await expect(window.locator('[data-testid="permissions-settings"]').getByText('PERMISSION MODE')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
   })
 
-  test('Agent tab shows main agent selector', async ({ window, helper }) => {
-    // Re-navigate to settings for resilience
-    await helper.navigateTo(`/projects/${projectId}/settings`)
-    await expect(window.locator('[data-testid="tab-agent"]')).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
+  // Removed: "Agent tab shows main agent selector" — ProjectSettingsPage only has
+  // "general" and "permissions" tabs. There is no "agent" tab; the main agent
+  // selector (DEFAULT AGENT/TEAM) lives in the General tab.
 
-    // Switch to Agent tab using testid
-    await window.locator('[data-testid="tab-agent"]').click()
-
-    // Use exact match to avoid matching the auto-created "Main Agent" option
-    await expect(window.getByText('MAIN AGENT', { exact: true })).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-
-    // Should show the agent we created in the select dropdown options
-    const agentSelect = window.locator('select').first()
-    await expect(agentSelect).toBeVisible()
-    await expect(agentSelect.locator('option', { hasText: 'Perm Test Agent' })).toBeAttached()
-  })
-
-  test('Provider tab shows global default', async ({ window, helper }) => {
-    // Re-navigate to settings for resilience
-    await helper.navigateTo(`/projects/${projectId}/settings`)
-    await expect(window.locator('[data-testid="tab-provider"]')).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-
-    // Click Provider tab using testid
-    await window.locator('[data-testid="tab-provider"]').click()
-
-    await expect(window.getByText('PROVIDER OVERRIDE')).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-
-    // Should show the "Inherit from global" option in the select
-    const providerSelect = window.locator('select').first()
-    await expect(providerSelect).toBeVisible()
-  })
+  // Removed: "Provider tab shows global default" — ProjectSettingsPage only has
+  // "general" and "permissions" tabs. There is no "provider" tab; provider
+  // override configuration was removed from project settings.
 
   test('MCP tab on agent shows warning when mode is not sandbox', async ({
     window,
@@ -95,7 +63,7 @@ test.describe('Permission Modes E2E', () => {
     expect(permAgent).toBeDefined()
 
     await helper.navigateTo(`/projects/${projectId}/agents/${permAgent!.id}`)
-    await expect(window.locator('[data-testid="tab-info"]')).toBeVisible({
+    await expect(window.locator('[data-testid="tab-general"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 

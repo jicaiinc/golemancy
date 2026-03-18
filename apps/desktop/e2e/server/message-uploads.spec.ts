@@ -33,9 +33,10 @@ test.describe('Message Uploads', () => {
     })
 
     // Retrieve the conversation messages to find the upload reference
-    const messages = await helper.apiGet(
+    const messagesPage = await helper.apiGet(
       `/api/projects/${projectId}/conversations/${conversationId}/messages`,
     )
+    const messages = messagesPage.items
     expect(messages.length).toBeGreaterThan(0)
 
     // The saved message should contain an upload reference in its parts
@@ -71,13 +72,14 @@ test.describe('Message Uploads', () => {
     // Try to GET a valid upload filename pattern
     // The hash of our red pixel PNG is deterministic
     // We need to find the actual filename from the messages
-    const messages = await helper.apiGet(
+    const messagesPage2 = await helper.apiGet(
       `/api/projects/${projectId}/conversations/${conversationId}/messages`,
     )
+    const messages2 = messagesPage2.items
 
     // Look for golemancy-upload: references in message parts
     let uploadFilename: string | null = null
-    for (const msg of messages) {
+    for (const msg of messages2) {
       for (const part of msg.parts ?? []) {
         const url = part.image ?? part.url ?? ''
         if (typeof url === 'string' && url.startsWith('golemancy-upload:')) {

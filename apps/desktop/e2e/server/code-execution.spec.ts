@@ -31,23 +31,40 @@ test.describe('Code Execution E2E', () => {
     await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    await helper.createAgent(
+    const agentId = await helper.createAgent(
       'Code Runner',
       'You are a coding assistant. When asked to run code, use the bash tool to execute it. Keep responses brief.',
     )
+
+    // Set as default agent so chat page shows "Start Chatting"
+    await helper.apiPatch(`/api/projects/${projectId}`, {
+      defaultTargetType: 'agent',
+      defaultTargetId: agentId,
+    })
+    // Force store to re-fetch project with the new default
+    await window.evaluate(() => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) store.getState().clearProject()
+    })
   })
+
+  /** Navigate to chat and ensure the input is ready (handles empty state or existing conversation) */
+  async function ensureChatReady(window: any, helper: any) {
+    await helper.navigateTo(`/projects/${projectId}/chat`)
+    const chatInput = window.locator(SELECTORS.CHAT_INPUT)
+    // If chat input is already visible (existing conversation), we're ready
+    if (await chatInput.isVisible().catch(() => false)) return
+    // Otherwise click "Start Chatting" to open a new conversation
+    const startBtn = window.getByText('Start Chatting')
+    await expect(startBtn).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+    await startBtn.click()
+    await expect(chatInput).toBeVisible({ timeout: TIMEOUTS.PAGE_LOAD })
+  }
 
   test('execute echo command via bash tool', async ({ window, helper }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(
-      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
-    ).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-
-    await helper.startChatWithAgent('Code Runner')
+    await ensureChatReady(window, helper)
 
     // Ask for simple echo execution
     await helper.sendChatMessage(
@@ -63,14 +80,7 @@ test.describe('Code Execution E2E', () => {
   test('execute Python code and verify output', async ({ window, helper }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(
-      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
-    ).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-
-    await helper.startChatWithAgent('Code Runner')
+    await ensureChatReady(window, helper)
 
     // Ask to run Python code
     await helper.sendChatMessage(
@@ -89,14 +99,7 @@ test.describe('Code Execution E2E', () => {
   }) => {
     test.setTimeout(120_000)
 
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-    await expect(
-      window.getByText('Start Chatting').or(window.getByText('No Main Agent')).first()
-    ).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-
-    await helper.startChatWithAgent('Code Runner')
+    await ensureChatReady(window, helper)
 
     // Ask to run Node.js code
     await helper.sendChatMessage(
