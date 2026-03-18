@@ -45,7 +45,7 @@ test.describe('Template MCP Validation', () => {
     const settings = await helper.apiGet('/api/settings')
     if (!settings.defaultModel) {
       await helper.apiPatch('/api/settings', {
-        defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-5' },
+        defaultModel: { provider: 'openai', model: 'gpt-5-mini' },
       })
     }
 

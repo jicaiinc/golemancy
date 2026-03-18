@@ -14,7 +14,7 @@ test.describe('Template Creation — All Templates', () => {
     const settings = await helper.apiGet('/api/settings')
     if (!settings.defaultModel) {
       await helper.apiPatch('/api/settings', {
-        defaultModel: { provider: 'anthropic', model: 'claude-sonnet-4-20250514' },
+        defaultModel: { provider: 'openai', model: 'gpt-5-mini' },
       })
     }
   })

@@ -495,7 +495,7 @@ export class TestHelper {
     const settings = await this.apiGet('/api/settings')
     const fallback = process.env.TEST_GOOGLE_API_KEY
       ? { provider: 'google', model: 'gemini-2.5-flash' }
-      : { provider: 'anthropic', model: 'claude-sonnet-4-5' }
+      : { provider: 'openai', model: 'gpt-5-mini' }
 
     const defaultModel = settings?.defaultModel
     if (
@@ -891,7 +891,7 @@ export class TestHelper {
     name: string,
     opts: { systemPrompt?: string; builtinTools?: Record<string, unknown>; compactThreshold?: number } = {},
   ): Promise<{ id: string; [key: string]: any }> {
-    // Tier A uses global defaultModel (set in globalSetup — gemini-2.5-flash or claude-sonnet-4-5)
+    // Tier A uses global defaultModel (set in globalSetup — gemini-2.5-flash or gpt-5-mini)
     return this.createAgentViaApi(projectId, name, { ...opts })
   }
 
@@ -904,7 +904,7 @@ export class TestHelper {
     const hasGoogleKey = !!process.env.TEST_GOOGLE_API_KEY
     const model = hasGoogleKey
       ? { provider: 'google', model: 'gemini-2.5-pro' }
-      : { provider: 'anthropic', model: 'claude-sonnet-4-6' }
+      : { provider: 'openai', model: 'gpt-5-mini' }
     return this.createAgentViaApi(projectId, name, { ...opts, model })
   }
 
@@ -915,9 +915,9 @@ export class TestHelper {
     opts: { systemPrompt?: string; builtinTools?: Record<string, unknown>; compactThreshold?: number } = {},
   ): Promise<{ id: string; [key: string]: any }> {
     const model = process.env.TEST_OPENAI_API_KEY
-      ? { provider: 'openai', model: 'gpt-4o' }
+      ? { provider: 'openai', model: 'gpt-5-mini' }
       : process.env.TEST_ANTHROPIC_API_KEY
-        ? { provider: 'anthropic', model: 'claude-sonnet-4-5' }
+        ? { provider: 'anthropic', model: 'claude-haiku-4-5' }
         : process.env.TEST_GOOGLE_API_KEY
           ? { provider: 'google', model: 'gemini-2.5-pro' }
           : undefined

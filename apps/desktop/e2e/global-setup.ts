@@ -66,7 +66,7 @@ export default async function globalSetup() {
       name: 'OpenAI',
       sdkType: 'openai',
       apiKey: openaiKey || 'sk-test-dummy-key',
-      models: ['gpt-4o', 'gpt-4o-mini'],
+      models: ['gpt-5-mini'],
       testStatus: 'ok',
     },
   }
@@ -87,7 +87,7 @@ export default async function globalSetup() {
     // Use Google Gemini Flash when available (fastest/cheapest for tests)
     defaultModel: googleKey
       ? { provider: 'google', model: 'gemini-2.5-flash' }
-      : { provider: 'anthropic', model: 'claude-sonnet-4-5' },
+      : { provider: 'openai', model: 'gpt-5-mini' },
     theme: 'dark' as const,
   }
 

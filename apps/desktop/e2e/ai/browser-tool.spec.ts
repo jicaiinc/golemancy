@@ -13,11 +13,11 @@ test.describe('Browser Tool', () => {
 
   const localServer = new LocalHttpTestServer()
   const browserModel = process.env.TEST_OPENAI_API_KEY
-    ? { provider: 'openai', model: 'gpt-4o' }
+    ? { provider: 'openai', model: 'gpt-5-mini' }
     : process.env.TEST_GOOGLE_API_KEY
       ? { provider: 'google', model: 'gemini-2.5-pro' }
       : process.env.TEST_ANTHROPIC_API_KEY
-        ? { provider: 'anthropic', model: 'claude-sonnet-4-5' }
+        ? { provider: 'anthropic', model: 'claude-haiku-4-5' }
         : undefined
   let projectId: string
   let agentId: string
