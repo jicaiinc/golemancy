@@ -17,7 +17,7 @@ test.describe('Template Selector', () => {
     await expect(window.getByText('Writing Assistant')).not.toBeVisible()
 
     // Close modal
-    await window.click(SELECTORS.CANCEL_BTN)
+    await window.locator(SELECTORS.CANCEL_BTN).evaluate(el => (el as HTMLElement).click())
   })
 
   test('clicking From Template shows master-detail panel', async ({ window }) => {
@@ -36,7 +36,7 @@ test.describe('Template Selector', () => {
     await expect(window.getByText('Select a template to see details')).toBeVisible()
 
     // Close modal
-    await window.click(SELECTORS.CANCEL_BTN)
+    await window.locator(SELECTORS.CANCEL_BTN).evaluate(el => (el as HTMLElement).click())
   })
 
   test('selecting a template shows detail and auto-fills name', async ({ window }) => {
@@ -54,7 +54,7 @@ test.describe('Template Selector', () => {
     await expect(window.locator(SELECTORS.PROJECT_NAME_INPUT)).toHaveValue('Writing Assistant')
 
     // Close modal
-    await window.click(SELECTORS.CANCEL_BTN)
+    await window.locator(SELECTORS.CANCEL_BTN).evaluate(el => (el as HTMLElement).click())
   })
 
   test('switching back to blank collapses template panel', async ({ window }) => {
@@ -76,6 +76,6 @@ test.describe('Template Selector', () => {
     await expect(window.locator(SELECTORS.PROJECT_DESC_INPUT)).toBeVisible()
 
     // Close modal
-    await window.click(SELECTORS.CANCEL_BTN)
+    await window.locator(SELECTORS.CANCEL_BTN).evaluate(el => (el as HTMLElement).click())
   })
 })
