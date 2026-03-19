@@ -10,14 +10,16 @@ export const DESKTOP_DIR = path.resolve(ROOT_DIR, 'apps/desktop')
 // This ensures app.getAppPath() returns apps/desktop/ — needed for correct server path resolution.
 export const MAIN_ENTRY = DESKTOP_DIR
 
+const TIMEOUT_MULTIPLIER = process.platform === 'win32' ? 2 : 1
+
 export const TIMEOUTS = {
-  APP_LAUNCH: 30_000,
-  APP_READY: 15_000,
-  PAGE_LOAD: 10_000,
-  AI_RESPONSE: 60_000,
-  TOOL_EXECUTION: 30_000,
-  CRON_EXECUTION: 90_000,
-  SSE_CHAT: 60_000,
+  APP_LAUNCH: 30_000 * TIMEOUT_MULTIPLIER,
+  APP_READY: 15_000 * TIMEOUT_MULTIPLIER,
+  PAGE_LOAD: 10_000 * TIMEOUT_MULTIPLIER,
+  AI_RESPONSE: 60_000 * TIMEOUT_MULTIPLIER,
+  TOOL_EXECUTION: 30_000 * TIMEOUT_MULTIPLIER,
+  CRON_EXECUTION: 90_000 * TIMEOUT_MULTIPLIER,
+  SSE_CHAT: 60_000 * TIMEOUT_MULTIPLIER,
 } as const
 
 export const SELECTORS = {

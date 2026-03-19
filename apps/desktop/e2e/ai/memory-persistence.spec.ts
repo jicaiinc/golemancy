@@ -1,7 +1,7 @@
-import { execSync } from 'child_process'
 import { test, expect, _electron, type ElectronApplication, type Page } from '@playwright/test'
 import { MAIN_ENTRY, ROOT_DIR, TIMEOUTS } from '../constants'
 import { ConsoleLogger, TestHelper } from '../fixtures'
+import { getNodePath } from '../fixtures/platform'
 
 const hasApiKeys = !!(
   process.env.TEST_GOOGLE_API_KEY ||
@@ -21,7 +21,7 @@ async function launchSession(): Promise<Session> {
     throw new Error('GOLEMANCY_TEST_DATA_DIR not set')
   }
 
-  const nodePath = execSync('which node', { encoding: 'utf-8' }).trim()
+  const nodePath = getNodePath()
   const app = await _electron.launch({
     args: [MAIN_ENTRY],
     env: {

@@ -1,6 +1,6 @@
-import { execSync } from 'child_process'
 import { test as base, _electron, type ElectronApplication, type Page } from '@playwright/test'
 import { MAIN_ENTRY, ROOT_DIR, TIMEOUTS } from '../constants'
+import { getNodePath } from './platform'
 
 export type OnboardingFixtures = {
   electronApp: ElectronApplication
@@ -19,9 +19,7 @@ export const onboardingFixtures = base.extend<object, OnboardingFixtures>({
       throw new Error('GOLEMANCY_ONBOARDING_DATA_DIR not set – did globalSetup run?')
     }
 
-    // Note: execSync('which node') is safe — no user input, hardcoded command.
-    // This is needed because macOS GUI processes don't inherit shell PATH.
-    const nodePath = execSync('which node', { encoding: 'utf-8' }).trim()
+    const nodePath = getNodePath()
 
     const app = await _electron.launch({
       args: [MAIN_ENTRY],

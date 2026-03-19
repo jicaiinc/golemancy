@@ -1,22 +1,12 @@
-import { execFileSync } from 'child_process'
 import { test, expect } from '../fixtures'
 import { TIMEOUTS } from '../constants'
+import { hasCommand } from '../fixtures/platform'
 
 const hasApiKeys = !!(
   process.env.TEST_GOOGLE_API_KEY ||
   process.env.TEST_OPENAI_API_KEY ||
   process.env.TEST_ANTHROPIC_API_KEY
 )
-
-/** Check if a command is available in PATH */
-function hasCommand(cmd: string): boolean {
-  try {
-    execFileSync('which', [cmd], { encoding: 'utf-8', timeout: 5000 })
-    return true
-  } catch {
-    return false
-  }
-}
 
 const npxAvailable = hasCommand('npx')
 const uvxAvailable = hasCommand('uvx')

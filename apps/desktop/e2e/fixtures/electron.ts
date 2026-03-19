@@ -1,6 +1,6 @@
-import { execSync } from 'child_process'
 import { test as base, _electron, type ElectronApplication, type Page } from '@playwright/test'
 import { MAIN_ENTRY, ROOT_DIR, SELECTORS, TIMEOUTS } from '../constants'
+import { getNodePath } from './platform'
 
 export type ElectronFixtures = {
   electronApp: ElectronApplication
@@ -20,7 +20,7 @@ export const electronFixtures = base.extend<object, ElectronFixtures>({
 
     // Resolve absolute path to node — Electron GUI processes on macOS
     // don't inherit shell PATH, so bare 'node' would fail in fork().
-    const nodePath = execSync('which node', { encoding: 'utf-8' }).trim()
+    const nodePath = getNodePath()
 
     const app = await _electron.launch({
       args: [MAIN_ENTRY],

@@ -1,6 +1,6 @@
 import fs from 'fs'
-import { execSync } from 'child_process'
 import onboardingTeardown from './onboarding-teardown'
+import { killLingeringServers } from './fixtures/platform'
 
 export default async function globalTeardown() {
   // Remove temp data directory
@@ -13,10 +13,6 @@ export default async function globalTeardown() {
   // Clean up onboarding data dir
   onboardingTeardown()
 
-  // Kill lingering server processes — match the exact server entry path
-  try {
-    execSync("pkill -f 'packages/server/src/index\\.ts'", { stdio: 'ignore' })
-  } catch {
-    // No matching processes — expected
-  }
+  // Kill lingering server processes (cross-platform)
+  killLingeringServers()
 }
