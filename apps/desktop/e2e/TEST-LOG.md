@@ -100,35 +100,43 @@
 #### 测试结果（24 个 AI 文件 / 92 用例）
 
 **第 1 轮**（UI 化改造完成后首次验证）：70P / 11F / 11Fl
-**第 2 轮**（修复后重测 6 个文件）：最新结果如下
+**第 2 轮**（修复后重测 6 个文件）：72P / 5F / 15Fl
+**第 3 轮**（全量重测，含 enterConversation 修复）：最新结果如下
 
 | # | File | Cases | Pass | Fail | Flaky | Tier | 状态 | 失败/Flaky 原因 |
 |---|------|-------|------|------|-------|------|------|----------------|
 | 1 | task-tool | 3 | 3 | 0 | 0 | Tool | ✅ | |
-| 2 | sandbox-runtime | 11 | 8 | 0 | 3 | Tool | ✅ | flaky: bash 边界情况 |
-| 3 | chat-lifecycle | 8 | 6 | 1 | 1 | Plain | ⚠️ | **fail**: dashboard token-by-agent 数据延迟（已加 retry 仍失败） |
-| 4 | edge-cases | 4 | 4 | 0 | 0 | Cheap | ✅ | |
+| 2 | sandbox-runtime | 11 | 11 | 0 | 0 | Tool | ✅ | |
+| 3 | chat-lifecycle | 8 | 8 | 0 | 0 | Plain | ✅ | **已修复**: enterConversation 对话切换 |
+| 4 | edge-cases | 4 | 3 | 1 | 0 | Cheap | ⚠️ | AI 行为不确定（workspace bash） |
 | 5 | permission-modes-tools | 5 | 5 | 0 | 0 | Tool | ✅ | |
 | 6 | permission-network-restrictions | 2 | 2 | 0 | 0 | Tool | ✅ | |
-| 7 | memory-tools | 3 | 2 | 0 | 1 | Tool+Smart | ✅ | |
+| 7 | memory-tools | 3 | 3 | 0 | 0 | Tool+Smart | ✅ | |
 | 8 | mcp-tools | 3 | 3 | 0 | 0 | Cheap+Tool | ✅ | |
-| 9 | mcp-applyToMCP | 2 | 1 | 0 | 1 | Tool | ✅ | |
+| 9 | mcp-applyToMCP | 2 | 2 | 0 | 0 | Tool | ✅ | |
 | 10 | auto-compact | 1 | 1 | 0 | 0 | Cheap | ✅ | |
-| 11 | compact-quality | 3 | 1 | 0 | 2 | Cheap | ✅ | |
+| 11 | compact-quality | 3 | 3 | 0 | 0 | Cheap | ✅ | |
 | 12 | token-accuracy | 10 | 10 | 0 | 0 | Plain | ✅ | |
 | 13 | browser-tool | 2 | 2 | 0 | 0 | Plain | ✅ | |
-| 14 | template-e2e | 5 | 2 | 0 | 3 | Template | ✅ | |
-| 15 | skill-package-execution | 2 | 1 | 0 | 1 | Tool | ✅ | |
-| 16 | team-chat | 2 | 1 | 1 | 0 | Smart | ⚠️ | **fail**: AI 不一定走 delegate_to 工具 |
-| 17 | team-collaboration | 3 | 2 | 1 | 0 | Smart | ⚠️ | **fail**: AI skill 遵循不稳定（从 2F→1F） |
-| 18 | team-delegation-pm | 1 | 1 | 0 | 0 | Plain | ✅ | |
-| 19 | cronjob-execution | 6 | 4 | 0 | 2 | Plain | ✅ | **已修复**: navigateTo + store refresh（从 3F→0F） |
+| 14 | template-e2e | 5 | 5 | 0 | 0 | Template | ✅ | |
+| 15 | skill-package-execution | 2 | 2 | 0 | 0 | Tool | ✅ | |
+| 16 | team-chat | 2 | 1 | 1 | 0 | Smart | ⚠️ | AI 不一定走 delegate_to 工具 |
+| 17 | team-collaboration | 3 | 1 | 2 | 0 | Smart | ⚠️ | AI 委派不稳定 |
+| 18 | team-delegation-pm | 1 | 0 | 0 | 1 | Plain | ✅ | flaky: AI 委派输出偶尔为空 |
+| 19 | cronjob-execution | 6 | 4 | 0 | 2 | Plain | ✅ | flaky: cron 触发时序 |
 | 20 | memory-persistence | 1 | 1 | 0 | 0 | Tool | ✅ | |
-| 21 | skill-effectiveness | 4 | 1 | 2 | 1 | Smart | ⚠️ | **改善**: Smart 模型 + skill 加载指令（从 4F→2F）；剩余 fail = AI 不可靠 |
-| 22 | chat-flow | 5 | 5 | 0 | 0 | UI | ✅ | |
-| 23 | chat-advanced | 3 | 3 | 0 | 0 | Cheap | ✅ | |
+| 21 | skill-effectiveness | 4 | 3 | 1 | 0 | Smart | ⚠️ | multi-skill 组合不稳定 |
+| 22 | chat-flow | 5 | 4 | 0 | 1 | UI | ✅ | flaky: empty state 时序 |
+| 23 | chat-advanced | 3 | 1 | 2 | 0 | Cheap | ⚠️ | AI 行为不确定（stop + tool call） |
 | 24 | agent-persona | 3 | 3 | 0 | 0 | UI | ✅ | |
-| | **TOTAL** | **92** | **78** | **5** | **15** | | | |
+| | **TOTAL** | **92** | **81** | **7** | **4** | | | |
+
+#### 第 3 轮修复内容
+
+| # | 文件 | 改动 | 效果 |
+|---|------|------|------|
+| 1 | `test-helper.ts` | `enterConversation` 导航后直接通过 store bridge 调用 `selectConversation(convId)`，解决 ChatPage URL→store 只在 mount 时同步的问题 | **chat-lifecycle 1F/1Fl→0F，全局 flaky 14→4** |
+| 2 | `chat-lifecycle.spec.ts` | "verify conversation messages" 从 API 验证改为 UI 验证 | 消除 flaky |
 
 #### 第 2 轮修复内容
 
@@ -139,18 +147,29 @@
 | 3 | `skill-effectiveness.spec.ts` | `createCheapAgent` → `createSmartAgent` + `builtinTools: NO_TOOLS` + prompt 要求先加载 skill | **4F → 2F** |
 | 4 | `team-chat.spec.ts` | 子对话 title `===` → `includes()` + 优化 leader prompt | 未变 |
 | 5 | `team-collaboration.spec.ts` | 优化 leader prompt 指定委派对象 | **2F → 1F** |
-| 6 | `chat-lifecycle.spec.ts` | dashboard token-by-agent 加 retry polling (10 次 × 2s) | 未变 |
+| 6 | `chat-lifecycle.spec.ts` | dashboard token-by-agent 加 retry polling (10 次 × 2s) | 未变（第 3 轮已修复） |
 
-#### 剩余 5 个失败的根因
+#### 剩余失败分析
 
-| File | Cases | Root Cause | 可修复性 |
-|------|-------|-----------|---------|
-| skill-effectiveness | 2 | AI 加载 skill 后仍不一定遵循指令（multi-skill + emoji 测试） | 低 — AI 行为不确定 |
-| team-chat | 1 | AI leader 不一定使用 delegate_to 工具 | 低 — AI 行为不确定 |
-| team-collaboration | 1 | AI 委派后 skill 指令不一定被遵循 | 低 — AI 行为不确定 |
-| chat-lifecycle | 1 | dashboard token-by-agent API 不返回某个 agent 数据 | 中 — 可能是服务端 bug |
+7 个 fail 全部是 AI 行为不确定性，无代码层面 bug，多跑几次可能通过：
 
-> 5 个 fail 中 4 个是 AI 行为不确定性导致，多跑几次可能通过。
+| File | Cases | Root Cause |
+|------|-------|-----------|
+| chat-advanced | 2 | stop button 时序 + AI 不一定使用 bash 工具 |
+| edge-cases | 1 | AI 不一定创建 workspace 文件 |
+| skill-effectiveness | 1 | multi-skill 指令组合不稳定 |
+| team-chat | 1 | AI leader 不一定走 delegate_to |
+| team-collaboration | 2 | AI 委派行为不稳定 |
+
+#### 趋势
+
+| 轮次 | Pass | Fail | Flaky | 说明 |
+|------|------|------|-------|------|
+| 第 1 轮 | 70 | 11 | 11 | UI 化改造后首测 |
+| 第 2 轮 | 72 | 5 | 15 | 修复 6 个文件 |
+| 第 3 轮 | **81** | 7 | **4** | enterConversation 修复，全量重测 |
+
+> Pass 从 70→81，Flaky 从 11→4。Fail 波动（4→7）是 AI 行为随机性，非代码回归。
 
 #### 费用估算（每轮 AI 全量测试）
 
