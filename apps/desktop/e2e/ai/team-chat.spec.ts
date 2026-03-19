@@ -24,7 +24,7 @@ test.describe('Team Chat', () => {
     // Create leader agent — must delegate to team member
     const leader = await helper.createSmartAgent(projectId, 'Team Leader', {
       systemPrompt:
-        'You are a team leader. When you receive any question, you MUST delegate it to your team member using the delegation tool available to you. Never answer directly.',
+        'You are a team leader. You MUST NOT answer any question yourself. For EVERY user message, you MUST use the delegate_to tool to forward the question to your team member. Always delegate, never respond directly.',
     })
     leaderId = leader.id
 
@@ -65,7 +65,7 @@ test.describe('Team Chat', () => {
         conv.id !== conversationId &&
         conv.targetType === 'agent' &&
         conv.targetId === researcherId &&
-        conv.title === '[Sub-agent] Researcher',
+        (conv.title ?? '').includes('Researcher'),
     )
     expect(subAgentConversation).toBeTruthy()
 

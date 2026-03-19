@@ -26,7 +26,7 @@ test.describe('Team Collaboration', () => {
     // Create leader agent — must delegate to team members (Tier B for stronger reasoning)
     const leader = await helper.createSmartAgent(projectId, 'Team Leader', {
       systemPrompt:
-        'You are a team leader. Always delegate questions to your team members using the delegation tools. Never answer directly.',
+        'You are a team leader. You MUST NOT answer any question yourself. For EVERY user message, you MUST use the delegate_to tool to forward it to the appropriate team member. If the question is about research or facts, delegate to Researcher. If the question is about writing, delegate to Writer. Always delegate, never respond directly.',
     })
     leaderId = leader.id
 

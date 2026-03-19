@@ -929,7 +929,7 @@ export class TestHelper {
     const hasGoogleKey = !!process.env.TEST_GOOGLE_API_KEY
     const model = hasGoogleKey
       ? { provider: 'google', model: 'gemini-2.5-pro' }
-      : { provider: 'openai', model: 'gpt-5-mini' }
+      : { provider: 'openai', model: 'gpt-5.4' }
     return this.createAgentViaApi(projectId, name, { ...opts, model })
   }
 

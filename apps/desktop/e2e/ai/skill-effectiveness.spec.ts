@@ -7,6 +7,16 @@ const hasApiKeys = !!(
   process.env.TEST_ANTHROPIC_API_KEY
 )
 
+// Disable non-skill built-in tools so the model focuses on skill instructions.
+// Keep bash: false etc., but the `skill` tool is always available when skillIds is set.
+const NO_TOOLS = { bash: false, browser: false, computer_use: false, task: false, memory: false }
+
+// System prompt that instructs the model to always load skills first
+const SKILL_SYSTEM_PROMPT =
+  'You are a helpful assistant. IMPORTANT: You have a "skill" tool available. ' +
+  'Before answering ANY question, you MUST first call the skill tool to load ALL available skills. ' +
+  'After loading skills, follow their instructions precisely for every response.'
+
 test.describe('Skill Instruction Effectiveness', () => {
   test.skip(!hasApiKeys, 'AI tests require API keys in .env.e2e.local')
 
@@ -23,7 +33,6 @@ test.describe('Skill Instruction Effectiveness', () => {
   test('JSON format skill: agent responds in JSON', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    // Create a skill that enforces JSON output
     const skill = await helper.apiPost(`/api/projects/${projectId}/skills`, {
       name: 'JSON Output',
       description: 'Forces JSON output format',
@@ -31,20 +40,20 @@ test.describe('Skill Instruction Effectiveness', () => {
         'You MUST respond ONLY in valid JSON format. Every response must be a JSON object with a "answer" field containing your response. Example: {"answer": "your response here"}. Never include text outside the JSON object.',
     })
 
-    // Create agent and assign the skill
-    const agent = await helper.createCheapAgent(projectId, 'JSON Skill Agent', {
-      systemPrompt: 'You are a helpful assistant. Follow all skill instructions precisely.',
+    const agent = await helper.createSmartAgent(projectId, 'JSON Skill Agent', {
+      systemPrompt: SKILL_SYSTEM_PROMPT,
+      builtinTools: NO_TOOLS,
     })
     await helper.assignSkillToAgent(projectId, agent.id, skill.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'JSON Skill Test')
     await helper.enterConversation(projectId, conv.id)
     const response = await helper.sendAndWaitForResponse(
-      'What is the capital of France?',
+      'Load all available skills first, then answer: What is the capital of France?',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // Response should contain JSON structure
+    // Response should contain JSON structure (skill instructs JSON format)
     expect(response).toContain('{')
     expect(response).toContain('}')
     expect(response.toLowerCase()).toMatch(/answer|paris/i)
@@ -53,7 +62,6 @@ test.describe('Skill Instruction Effectiveness', () => {
   test('French language skill: agent responds in French', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    // Create a skill that forces French responses
     const skill = await helper.apiPost(`/api/projects/${projectId}/skills`, {
       name: 'French Only',
       description: 'Respond only in French',
@@ -61,20 +69,19 @@ test.describe('Skill Instruction Effectiveness', () => {
         'You MUST respond ONLY in French. No matter what language the user writes in, always reply in French. Never use English or any other language in your responses.',
     })
 
-    // Create agent and assign the skill
-    const agent = await helper.createCheapAgent(projectId, 'French Skill Agent', {
-      systemPrompt: 'You are a helpful assistant. Follow all skill instructions precisely.',
+    const agent = await helper.createSmartAgent(projectId, 'French Skill Agent', {
+      systemPrompt: SKILL_SYSTEM_PROMPT,
+      builtinTools: NO_TOOLS,
     })
     await helper.assignSkillToAgent(projectId, agent.id, skill.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'French Skill Test')
     await helper.enterConversation(projectId, conv.id)
     const response = await helper.sendAndWaitForResponse(
-      'What is 2+2?',
+      'Load all available skills first, then answer: What is 2+2?',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // Response should contain French words
     const lower = response.toLowerCase()
     const hasFrench =
       lower.includes('quatre') ||
@@ -96,7 +103,6 @@ test.describe('Skill Instruction Effectiveness', () => {
   test('multiple skills combine: agent follows both instructions', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    // Create two skills: one for format, one for content
     const bulletSkill = await helper.apiPost(`/api/projects/${projectId}/skills`, {
       name: 'Bullet Points',
       description: 'Respond in bullet points',
@@ -111,9 +117,9 @@ test.describe('Skill Instruction Effectiveness', () => {
         'Limit your responses to a maximum of 3 bullet points or items. Be extremely concise.',
     })
 
-    // Create agent and assign both skills
-    const agent = await helper.createCheapAgent(projectId, 'Multi Skill Agent', {
-      systemPrompt: 'You are a helpful assistant. Follow all skill instructions precisely.',
+    const agent = await helper.createSmartAgent(projectId, 'Multi Skill Agent', {
+      systemPrompt: SKILL_SYSTEM_PROMPT,
+      builtinTools: NO_TOOLS,
     })
     await helper.assignSkillToAgent(projectId, agent.id, bulletSkill.id)
     await helper.assignSkillToAgent(projectId, agent.id, briefSkill.id)
@@ -121,29 +127,26 @@ test.describe('Skill Instruction Effectiveness', () => {
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Multi Skill Test')
     await helper.enterConversation(projectId, conv.id)
     const response = await helper.sendAndWaitForResponse(
-      'List benefits of exercise.',
+      'Load all available skills first, then answer: List benefits of exercise.',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // Should use bullet point format (contains dashes or bullet chars)
     const hasBullets =
       response.includes('- ') ||
       response.includes('• ') ||
       response.includes('* ')
     expect(hasBullets).toBe(true)
 
-    // Should be brief (roughly 3 items or fewer)
     const bulletLines = response
       .split('\n')
       .filter((line) => /^[\s]*[-•*]/.test(line))
-    expect(bulletLines.length).toBeLessThanOrEqual(5) // allow some leeway
+    expect(bulletLines.length).toBeLessThanOrEqual(5)
     expect(bulletLines.length).toBeGreaterThanOrEqual(1)
   })
 
   test('removing skill changes agent behavior', async ({ helper }) => {
     test.setTimeout(180_000)
 
-    // Create a distinctive skill
     const emojiSkill = await helper.apiPost(`/api/projects/${projectId}/skills`, {
       name: 'Emoji Master',
       description: 'Use lots of emojis',
@@ -151,9 +154,9 @@ test.describe('Skill Instruction Effectiveness', () => {
         'You MUST include at least 5 different emojis in every single response. Put emojis at the start, middle, and end of your response.',
     })
 
-    // Create agent with the skill
-    const agent = await helper.createCheapAgent(projectId, 'Emoji Skill Agent', {
-      systemPrompt: 'You are a helpful assistant. Follow all skill instructions precisely. Keep responses under 50 words.',
+    const agent = await helper.createSmartAgent(projectId, 'Emoji Skill Agent', {
+      systemPrompt: SKILL_SYSTEM_PROMPT + ' Keep responses under 50 words.',
+      builtinTools: NO_TOOLS,
     })
     await helper.assignSkillToAgent(projectId, agent.id, emojiSkill.id)
 
@@ -161,20 +164,19 @@ test.describe('Skill Instruction Effectiveness', () => {
     const conv1 = await helper.createConversationViaApi(projectId, agent.id, 'With Emoji Skill')
     await helper.enterConversation(projectId, conv1.id)
     const response1 = await helper.sendAndWaitForResponse(
-      'Say hello.',
+      'Load all available skills first, then: Say hello.',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // Count emoji-like characters (basic emoji detection)
     const emojiPattern = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu
     const emojisWithSkill = response1.match(emojiPattern) ?? []
 
-    // Now remove the skill
+    // Remove the skill
     await helper.apiPatch(`/api/projects/${projectId}/agents/${agent.id}`, {
       skillIds: [],
     })
 
-    // Second chat: without skill — should have fewer emojis
+    // Second chat: without skill — no skill tool available, should have fewer emojis
     const conv2 = await helper.createConversationViaApi(projectId, agent.id, 'Without Emoji Skill')
     await helper.enterConversation(projectId, conv2.id)
     const response2 = await helper.sendAndWaitForResponse(
@@ -184,10 +186,7 @@ test.describe('Skill Instruction Effectiveness', () => {
 
     const emojisWithoutSkill = response2.match(emojiPattern) ?? []
 
-    // With the skill, there should be more emojis than without
-    // We use a relaxed assertion: with-skill should have at least some emojis
     expect(emojisWithSkill.length).toBeGreaterThanOrEqual(2)
-    // And without-skill should have fewer (or at most equal, in edge cases)
     expect(emojisWithoutSkill.length).toBeLessThan(emojisWithSkill.length + 3)
   })
 })

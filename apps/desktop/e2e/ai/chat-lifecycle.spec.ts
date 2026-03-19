@@ -156,9 +156,17 @@ test.describe('Chat Lifecycle', () => {
   test('dashboard shows independent token counts for each agent', async ({ helper }) => {
     test.setTimeout(60_000)
 
-    const tokenByAgent = await helper.apiGet(
-      `/api/projects/${projectId}/dashboard/token-by-agent`,
-    )
+    // Token data may be written asynchronously — poll until both agents appear
+    let tokenByAgent: any[] = []
+    for (let attempt = 0; attempt < 10; attempt++) {
+      tokenByAgent = await helper.apiGet(
+        `/api/projects/${projectId}/dashboard/token-by-agent`,
+      )
+      if (!Array.isArray(tokenByAgent)) tokenByAgent = []
+      const ids = tokenByAgent.map((a: { agentId: string }) => a.agentId)
+      if (ids.includes(primaryAgentId) && ids.includes(secondaryAgentId)) break
+      await new Promise(r => setTimeout(r, 2000))
+    }
 
     expect(Array.isArray(tokenByAgent)).toBe(true)
 

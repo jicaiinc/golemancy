@@ -57,8 +57,12 @@ test.describe('Cron Job Execution', () => {
     })
     expect(job.id).toBeTruthy()
 
-    // Navigate to crons page and click trigger button in UI
-    await helper.clickNav('crons')
+    // Refresh store so ProjectLayout recognizes the API-created project
+    await helper.page.evaluate(async () => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) await store.getState().loadProjects()
+    })
+    await helper.navigateTo(`/projects/${projectId}/cron`)
     await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
     await window.click(SELECTORS.CRON_TRIGGER_BTN)
 
@@ -86,8 +90,12 @@ test.describe('Cron Job Execution', () => {
       instruction: 'Reply with OK',
     })
 
-    // Trigger via UI
-    await helper.clickNav('crons')
+    // Refresh store so ProjectLayout recognizes the API-created project
+    await helper.page.evaluate(async () => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) await store.getState().loadProjects()
+    })
+    await helper.navigateTo(`/projects/${projectId}/cron`)
     await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
     await window.click(SELECTORS.CRON_TRIGGER_BTN)
 
@@ -116,8 +124,12 @@ test.describe('Cron Job Execution', () => {
       instruction: 'Reply with CRON_MESSAGE_TEST',
     })
 
-    // Trigger via UI
-    await helper.clickNav('crons')
+    // Refresh store so ProjectLayout recognizes the API-created project
+    await helper.page.evaluate(async () => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) await store.getState().loadProjects()
+    })
+    await helper.navigateTo(`/projects/${projectId}/cron`)
     await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
     await window.click(SELECTORS.CRON_TRIGGER_BTN)
 
