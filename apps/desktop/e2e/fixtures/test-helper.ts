@@ -970,6 +970,12 @@ export class TestHelper {
       { timeout: TIMEOUTS.PAGE_LOAD },
     )
     await this.navigateTo(`/projects/${projectId}/chat?conv=${conversationId}`)
+    // ChatPage's URL→store sync only runs on mount ([] deps to avoid circular updates).
+    // For mid-lifecycle navigation, call selectConversation directly via store bridge.
+    await this.page.evaluate(async (convId: string) => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) await store.getState().selectConversation(convId)
+    }, conversationId)
     await this.page.waitForSelector(SELECTORS.CHAT_INPUT, {
       state: 'visible',
       timeout: TIMEOUTS.PAGE_LOAD * 2,
