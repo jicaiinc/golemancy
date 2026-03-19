@@ -45,6 +45,7 @@ test.describe('Permission Config UI', () => {
   })
 
   test('network restrictions toggle works', async ({ window }) => {
+    test.skip(process.platform === 'win32', 'Sandbox config not available on Windows')
     // Ensure we're in Sandbox mode with config visible
     await expect(window.locator(SELECTORS.NETWORK_RESTRICTIONS_TOGGLE)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
@@ -65,6 +66,7 @@ test.describe('Permission Config UI', () => {
   })
 
   test('applyToMCP toggle is visible and clickable', async ({ window }) => {
+    test.skip(process.platform === 'win32', 'Sandbox config not available on Windows')
     await expect(window.locator(SELECTORS.APPLY_TO_MCP_TOGGLE)).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })

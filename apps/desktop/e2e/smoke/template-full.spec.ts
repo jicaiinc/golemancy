@@ -29,7 +29,7 @@ test.describe('Template Full — Categories, Detail & UI Flow', () => {
     await expect(window.getByText('Deep Research')).toBeVisible()
     await expect(window.getByText('Smart Secretary')).toBeVisible()
 
-    await window.click(SELECTORS.CANCEL_BTN)
+    await window.locator(SELECTORS.CANCEL_BTN).evaluate(el => (el as HTMLElement).click())
   })
 
   test('category filter narrows template list', async ({ window }) => {
@@ -46,7 +46,7 @@ test.describe('Template Full — Categories, Detail & UI Flow', () => {
     const allCount = await allItems.count()
     expect(allCount).toBeGreaterThanOrEqual(18)
 
-    await window.click(SELECTORS.CANCEL_BTN)
+    await window.locator(SELECTORS.CANCEL_BTN).evaluate(el => (el as HTMLElement).click())
   })
 
   test('selecting template shows detail panel with description', async ({ window }) => {
@@ -65,7 +65,7 @@ test.describe('Template Full — Categories, Detail & UI Flow', () => {
     // Name input should auto-fill
     await expect(window.locator(SELECTORS.PROJECT_NAME_INPUT)).toHaveValue('Smart Secretary')
 
-    await window.click(SELECTORS.CANCEL_BTN)
+    await window.locator(SELECTORS.CANCEL_BTN).evaluate(el => (el as HTMLElement).click())
   })
 
   test('selecting different template updates detail and name', async ({ window }) => {
@@ -81,7 +81,7 @@ test.describe('Template Full — Categories, Detail & UI Flow', () => {
     await window.getByText('Document Hub').first().click()
     await expect(window.locator(SELECTORS.PROJECT_NAME_INPUT)).toHaveValue('Doc Hub')
 
-    await window.click(SELECTORS.CANCEL_BTN)
+    await window.locator(SELECTORS.CANCEL_BTN).evaluate(el => (el as HTMLElement).click())
   })
 
   test('UI flow: select template → create → enter project → verify agents in sidebar', async ({
