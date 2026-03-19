@@ -93,66 +93,64 @@
 | Method | Tier | Google Key | OpenAI Key | Anthropic Key |
 |--------|------|-----------|-----------|--------------|
 | `createCheapAgent` | A | global default (gemini-2.5-flash) | global default (gpt-5-mini) | — |
-| `createSmartAgent` | B | gemini-2.5-pro | gpt-5-mini | — |
+| `createSmartAgent` | B | gemini-2.5-pro | **gpt-5.4** | — |
 | `createToolAgent` | Tool | gemini-2.5-pro (fallback) | gpt-5-mini (priority) | claude-haiku-4-5 |
 | `createAgentViaApi` | Plain | = global default | = global default | — |
 
-用户期望变更：Smart → "Gemini 3 Pro"（备用 GPT-5）。待确认 model ID：
-- `gemini-3-pro-preview` 已下线 (2026-03-09)；继任 = `gemini-3.1-pro-preview`
-- `gemini-2.5-pro` = 最新稳定版
-- `gpt-5.4` (2026-03-05) = 最新 OpenAI 旗舰；`gpt-5-mini` = 当前值
-
 #### 测试结果（24 个 AI 文件 / 92 用例）
 
-| # | File | Cases | Pass | Fail | Flaky | Tier | Fail/Flaky 原因 |
-|---|------|-------|------|------|-------|------|----------------|
-| 1 | task-tool | 3 | 3 | 0 | 0 | Tool | |
-| 2 | sandbox-runtime | 11 | 8 | 0 | 3 | Tool | flaky: bash 边界情况 |
-| 3 | chat-lifecycle | 8 | 7 | 1 | 0 | Plain | dashboard token-by-agent 数据延迟 |
-| 4 | edge-cases | 4 | 4 | 0 | 0 | Cheap | |
-| 5 | permission-modes-tools | 5 | 5 | 0 | 0 | Tool | |
-| 6 | permission-network-restrictions | 2 | 2 | 0 | 0 | Tool | |
-| 7 | memory-tools | 3 | 2 | 0 | 1 | Tool+Smart | |
-| 8 | mcp-tools | 3 | 3 | 0 | 0 | Cheap+Tool | |
-| 9 | mcp-applyToMCP | 2 | 1 | 0 | 1 | Tool | |
-| 10 | auto-compact | 1 | 1 | 0 | 0 | Cheap | |
-| 11 | compact-quality | 3 | 1 | 0 | 2 | Cheap | |
-| 12 | token-accuracy | 10 | 10 | 0 | 0 | Plain | |
-| 13 | browser-tool | 2 | 2 | 0 | 0 | Plain | |
-| 14 | template-e2e | 5 | 2 | 0 | 3 | Template | |
-| 15 | skill-package-execution | 2 | 1 | 0 | 1 | Tool | |
-| 16 | team-chat | 2 | 1 | 1 | 0 | Smart | sub-agent title 精确匹配失败 |
-| 17 | team-collaboration | 3 | 1 | 2 | 0 | Smart | AI 委派行为不稳定 |
-| 18 | team-delegation-pm | 1 | 1 | 0 | 0 | Plain | |
-| 19 | cronjob-execution | 6 | 3 | 3 | 0 | Plain | `clickNav('crons')` 拼写错误 |
-| 20 | memory-persistence | 1 | 1 | 0 | 0 | Tool | |
-| 21 | skill-effectiveness | 4 | 0 | 4 | 0 | Cheap | model 太弱，不遵循 skill |
-| 22 | chat-flow | 5 | 5 | 0 | 0 | UI | 原本就是 UI 测试 |
-| 23 | chat-advanced | 3 | 3 | 0 | 0 | Cheap | 原本就是 UI 测试 |
-| 24 | agent-persona | 3 | 3 | 0 | 0 | UI | 原本就是 UI 测试 |
-| | **TOTAL** | **92** | **70** | **11** | **11** | | |
+**第 1 轮**（UI 化改造完成后首次验证）：70P / 11F / 11Fl
+**第 2 轮**（修复后重测 6 个文件）：最新结果如下
 
-#### 11 个失败用例修复计划
+| # | File | Cases | Pass | Fail | Flaky | Tier | 状态 | 失败/Flaky 原因 |
+|---|------|-------|------|------|-------|------|------|----------------|
+| 1 | task-tool | 3 | 3 | 0 | 0 | Tool | ✅ | |
+| 2 | sandbox-runtime | 11 | 8 | 0 | 3 | Tool | ✅ | flaky: bash 边界情况 |
+| 3 | chat-lifecycle | 8 | 6 | 1 | 1 | Plain | ⚠️ | **fail**: dashboard token-by-agent 数据延迟（已加 retry 仍失败） |
+| 4 | edge-cases | 4 | 4 | 0 | 0 | Cheap | ✅ | |
+| 5 | permission-modes-tools | 5 | 5 | 0 | 0 | Tool | ✅ | |
+| 6 | permission-network-restrictions | 2 | 2 | 0 | 0 | Tool | ✅ | |
+| 7 | memory-tools | 3 | 2 | 0 | 1 | Tool+Smart | ✅ | |
+| 8 | mcp-tools | 3 | 3 | 0 | 0 | Cheap+Tool | ✅ | |
+| 9 | mcp-applyToMCP | 2 | 1 | 0 | 1 | Tool | ✅ | |
+| 10 | auto-compact | 1 | 1 | 0 | 0 | Cheap | ✅ | |
+| 11 | compact-quality | 3 | 1 | 0 | 2 | Cheap | ✅ | |
+| 12 | token-accuracy | 10 | 10 | 0 | 0 | Plain | ✅ | |
+| 13 | browser-tool | 2 | 2 | 0 | 0 | Plain | ✅ | |
+| 14 | template-e2e | 5 | 2 | 0 | 3 | Template | ✅ | |
+| 15 | skill-package-execution | 2 | 1 | 0 | 1 | Tool | ✅ | |
+| 16 | team-chat | 2 | 1 | 1 | 0 | Smart | ⚠️ | **fail**: AI 不一定走 delegate_to 工具 |
+| 17 | team-collaboration | 3 | 2 | 1 | 0 | Smart | ⚠️ | **fail**: AI skill 遵循不稳定（从 2F→1F） |
+| 18 | team-delegation-pm | 1 | 1 | 0 | 0 | Plain | ✅ | |
+| 19 | cronjob-execution | 6 | 4 | 0 | 2 | Plain | ✅ | **已修复**: navigateTo + store refresh（从 3F→0F） |
+| 20 | memory-persistence | 1 | 1 | 0 | 0 | Tool | ✅ | |
+| 21 | skill-effectiveness | 4 | 1 | 2 | 1 | Smart | ⚠️ | **改善**: Smart 模型 + skill 加载指令（从 4F→2F）；剩余 fail = AI 不可靠 |
+| 22 | chat-flow | 5 | 5 | 0 | 0 | UI | ✅ | |
+| 23 | chat-advanced | 3 | 3 | 0 | 0 | Cheap | ✅ | |
+| 24 | agent-persona | 3 | 3 | 0 | 0 | UI | ✅ | |
+| | **TOTAL** | **92** | **78** | **5** | **15** | | | |
 
-**Group A — 简单修复（7 个）：**
+#### 第 2 轮修复内容
 
-| File | Cases | Root Cause | Fix |
-|------|-------|-----------|-----|
-| cronjob-execution | 3 | `clickNav('crons')` 但 UI testId 是 `cron`（无 s） | 改为 `clickNav('cron')`（第 61、90、120 行） |
-| skill-effectiveness | 4 | `createCheapAgent`（gemini-2.5-flash）太弱 | 改用 `createSmartAgent` |
+| # | 文件 | 改动 | 效果 |
+|---|------|------|------|
+| 1 | `test-helper.ts` | `createSmartAgent` 备用模型 `gpt-5-mini` → `gpt-5.4` | — |
+| 2 | `cronjob-execution.spec.ts` | `clickNav('crons')` → `navigateTo` + store `loadProjects()` | **3F → 0F** |
+| 3 | `skill-effectiveness.spec.ts` | `createCheapAgent` → `createSmartAgent` + `builtinTools: NO_TOOLS` + prompt 要求先加载 skill | **4F → 2F** |
+| 4 | `team-chat.spec.ts` | 子对话 title `===` → `includes()` + 优化 leader prompt | 未变 |
+| 5 | `team-collaboration.spec.ts` | 优化 leader prompt 指定委派对象 | **2F → 1F** |
+| 6 | `chat-lifecycle.spec.ts` | dashboard token-by-agent 加 retry polling (10 次 × 2s) | 未变 |
 
-**Group B — 中等（2 个）：**
+#### 剩余 5 个失败的根因
 
-| File | Cases | Root Cause | Fix |
-|------|-------|-----------|-----|
-| team-chat | 1 | 子对话 title `=== '[Sub-agent] Researcher'` 精确匹配 | 改用 `includes()` |
-| chat-lifecycle | 1 | dashboard token-by-agent 可能有写入延迟 | 加 polling/retry |
+| File | Cases | Root Cause | 可修复性 |
+|------|-------|-----------|---------|
+| skill-effectiveness | 2 | AI 加载 skill 后仍不一定遵循指令（multi-skill + emoji 测试） | 低 — AI 行为不确定 |
+| team-chat | 1 | AI leader 不一定使用 delegate_to 工具 | 低 — AI 行为不确定 |
+| team-collaboration | 1 | AI 委派后 skill 指令不一定被遵循 | 低 — AI 行为不确定 |
+| chat-lifecycle | 1 | dashboard token-by-agent API 不返回某个 agent 数据 | 中 — 可能是服务端 bug |
 
-**Group C — AI 行为（2 个，难以根治）：**
-
-| File | Cases | Root Cause | Fix |
-|------|-------|-----------|-----|
-| team-collaboration | 2 | AI 不一定走委派 + 不一定遵循 skill 指令 | 优化 prompt，接受 flaky |
+> 5 个 fail 中 4 个是 AI 行为不确定性导致，多跑几次可能通过。
 
 #### 费用估算（每轮 AI 全量测试）
 
