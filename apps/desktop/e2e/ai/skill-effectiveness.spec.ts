@@ -38,16 +38,16 @@ test.describe('Skill Instruction Effectiveness', () => {
     await helper.assignSkillToAgent(projectId, agent.id, skill.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'JSON Skill Test')
-    const result = await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'What is the capital of France?',
       TIMEOUTS.AI_RESPONSE,
     )
 
     // Response should contain JSON structure
-    expect(result.response).toContain('{')
-    expect(result.response).toContain('}')
-    expect(result.response.toLowerCase()).toMatch(/answer|paris/i)
+    expect(response).toContain('{')
+    expect(response).toContain('}')
+    expect(response.toLowerCase()).toMatch(/answer|paris/i)
   })
 
   test('French language skill: agent responds in French', async ({ helper }) => {
@@ -68,14 +68,14 @@ test.describe('Skill Instruction Effectiveness', () => {
     await helper.assignSkillToAgent(projectId, agent.id, skill.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'French Skill Test')
-    const result = await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'What is 2+2?',
       TIMEOUTS.AI_RESPONSE,
     )
 
     // Response should contain French words
-    const lower = result.response.toLowerCase()
+    const lower = response.toLowerCase()
     const hasFrench =
       lower.includes('quatre') ||
       lower.includes('est') ||
@@ -119,21 +119,21 @@ test.describe('Skill Instruction Effectiveness', () => {
     await helper.assignSkillToAgent(projectId, agent.id, briefSkill.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Multi Skill Test')
-    const result = await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'List benefits of exercise.',
       TIMEOUTS.AI_RESPONSE,
     )
 
     // Should use bullet point format (contains dashes or bullet chars)
     const hasBullets =
-      result.response.includes('- ') ||
-      result.response.includes('• ') ||
-      result.response.includes('* ')
+      response.includes('- ') ||
+      response.includes('• ') ||
+      response.includes('* ')
     expect(hasBullets).toBe(true)
 
     // Should be brief (roughly 3 items or fewer)
-    const bulletLines = result.response
+    const bulletLines = response
       .split('\n')
       .filter((line) => /^[\s]*[-•*]/.test(line))
     expect(bulletLines.length).toBeLessThanOrEqual(5) // allow some leeway
@@ -159,15 +159,15 @@ test.describe('Skill Instruction Effectiveness', () => {
 
     // First chat: with skill — should have emojis
     const conv1 = await helper.createConversationViaApi(projectId, agent.id, 'With Emoji Skill')
-    const result1 = await helper.sendChatViaApi(
-      projectId, agent.id, conv1.id,
+    await helper.enterConversation(projectId, conv1.id)
+    const response1 = await helper.sendAndWaitForResponse(
       'Say hello.',
       TIMEOUTS.AI_RESPONSE,
     )
 
     // Count emoji-like characters (basic emoji detection)
     const emojiPattern = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu
-    const emojisWithSkill = result1.response.match(emojiPattern) ?? []
+    const emojisWithSkill = response1.match(emojiPattern) ?? []
 
     // Now remove the skill
     await helper.apiPatch(`/api/projects/${projectId}/agents/${agent.id}`, {
@@ -176,13 +176,13 @@ test.describe('Skill Instruction Effectiveness', () => {
 
     // Second chat: without skill — should have fewer emojis
     const conv2 = await helper.createConversationViaApi(projectId, agent.id, 'Without Emoji Skill')
-    const result2 = await helper.sendChatViaApi(
-      projectId, agent.id, conv2.id,
+    await helper.enterConversation(projectId, conv2.id)
+    const response2 = await helper.sendAndWaitForResponse(
       'Say hello.',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    const emojisWithoutSkill = result2.response.match(emojiPattern) ?? []
+    const emojisWithoutSkill = response2.match(emojiPattern) ?? []
 
     // With the skill, there should be more emojis than without
     // We use a relaxed assertion: with-skill should have at least some emojis

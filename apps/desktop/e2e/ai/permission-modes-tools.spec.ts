@@ -101,10 +101,8 @@ test.describe('Permission Modes & Tools', () => {
     await helper.applyPermissionsConfig(projectId, restrictedConfigId)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'restricted host isolation')
-    await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse(
       `Use bash to write "RESTRICTED_BLOCKED" to the file ${hostPath}.`,
       TIMEOUTS.AI_RESPONSE,
     )
@@ -119,10 +117,8 @@ test.describe('Permission Modes & Tools', () => {
     await helper.applyPermissionsConfig(projectId, sandboxConfigId)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'sandbox allowed write')
-    await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse(
       `Use bash to run: echo SANDBOX_ALLOWED > ${relativePath} && cat ${relativePath}`,
       TIMEOUTS.AI_RESPONSE,
     )
@@ -138,10 +134,8 @@ test.describe('Permission Modes & Tools', () => {
     await helper.applyPermissionsConfig(projectId, sandboxConfigId)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'sandbox denied command')
-    await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse(
       `Use bash to run: rm ${relativePath}`,
       TIMEOUTS.AI_RESPONSE,
     )
@@ -159,10 +153,8 @@ test.describe('Permission Modes & Tools', () => {
     await helper.applyPermissionsConfig(projectId, unrestrictedConfigId)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'unrestricted delete')
-    await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse(
       `Use bash to run: rm ${relativePath}`,
       TIMEOUTS.AI_RESPONSE,
     )
@@ -179,10 +171,8 @@ test.describe('Permission Modes & Tools', () => {
 
     await helper.applyPermissionsConfig(projectId, restrictedConfigId)
     let conv = await helper.createConversationViaApi(projectId, agentId, 'mode switch restricted')
-    await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse(
       `Use bash to write "ONE" to ${restrictedHostPath}.`,
       TIMEOUTS.AI_RESPONSE,
     )
@@ -190,10 +180,8 @@ test.describe('Permission Modes & Tools', () => {
 
     await helper.applyPermissionsConfig(projectId, sandboxConfigId)
     conv = await helper.createConversationViaApi(projectId, agentId, 'mode switch sandbox')
-    await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse(
       `Use bash to write "TWO" to ${relativePath}.`,
       TIMEOUTS.AI_RESPONSE,
     )

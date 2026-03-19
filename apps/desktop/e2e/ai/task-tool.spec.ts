@@ -33,16 +33,15 @@ test.describe('Task Tool — Agent Creates Tasks', () => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'Task Create Test')
-    const result = await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       "Create a task titled 'E2E Test Task'",
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // The agent should have responded (may mention the task was created)
-    expect(result.response).toBeTruthy()
+    // The agent should have responded and tool call should be visible
+    expect(response).toBeTruthy()
+    expect(await helper.hasToolCall()).toBe(true)
 
     // Verify the task was actually created via API
     const tasks = await helper.apiGet(`/api/projects/${projectId}/tasks`)
@@ -56,33 +55,29 @@ test.describe('Task Tool — Agent Creates Tasks', () => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'Task List Test')
-    const result = await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'List all current tasks. Show their titles.',
       TIMEOUTS.AI_RESPONSE,
     )
 
     // Should mention the previously created task
-    expect(result.response).toBeTruthy()
-    expect(result.response).toContain('E2E Test Task')
+    expect(response).toBeTruthy()
+    expect(response).toContain('E2E Test Task')
   })
 
   test('agent can update a task status', async ({ helper }) => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'Task Update Test')
-    const result = await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       "Mark the task titled 'E2E Test Task' as completed.",
       TIMEOUTS.AI_RESPONSE,
     )
 
     // The agent should confirm the update
-    expect(result.response).toBeTruthy()
+    expect(response).toBeTruthy()
 
     // Verify task was updated via API
     const tasks = await helper.apiGet(`/api/projects/${projectId}/tasks`)

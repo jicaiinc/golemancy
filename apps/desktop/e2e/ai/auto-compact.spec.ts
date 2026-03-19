@@ -36,6 +36,7 @@ test.describe('Auto Compact', () => {
       targetId: agentId,
       title: 'Auto Compact Trigger',
     })
+    await helper.enterConversation(projectId, conv.id)
 
     // Questions designed to generate longer responses to build up context quickly
     const questions = [
@@ -46,37 +47,25 @@ test.describe('Auto Compact', () => {
       'What are microservices and how do they compare to monolithic architecture?',
     ]
 
-    let compactEventFound = false
-
-    // Send multiple rounds; check each for compact events
-    for (let i = 0; i < questions.length; i++) {
-      const result = await helper.sendChatViaApi(
-        projectId, agentId, conv.id,
-        questions[i],
-        TIMEOUTS.AI_RESPONSE,
-      )
-
-      // Check if any compact-related event appeared
-      const hasCompact = result.events.some(
-        (e) => e.type.includes('compact') || (e.data?.type && String(e.data.type).includes('compact')),
-      )
-
-      if (hasCompact) {
-        compactEventFound = true
-        break
-      }
+    // Send multiple rounds via UI; after each, check for compact-boundary in DOM
+    for (const question of questions) {
+      await helper.sendAndWaitForResponse(question, TIMEOUTS.AI_RESPONSE)
     }
 
     // Auto-compact should have triggered by now (5000 token threshold)
-    // If not triggered via events, check compact records via API
-    if (!compactEventFound) {
+    // Check for compact-boundary in DOM or via API fallback
+    let compactFound = false
+    try {
+      await helper.waitForCompactBoundary(5_000)
+      compactFound = true
+    } catch {
+      // DOM check failed — fallback to API
       const convData = await helper.apiGet(
         `/api/projects/${projectId}/conversations/${conv.id}`,
       )
-      // compactRecords is attached by the GET route
-      compactEventFound = Array.isArray(convData.compactRecords) && convData.compactRecords.length > 0
+      compactFound = Array.isArray(convData.compactRecords) && convData.compactRecords.length > 0
     }
 
-    expect(compactEventFound).toBe(true)
+    expect(compactFound).toBe(true)
   })
 })

@@ -46,7 +46,7 @@ test.describe('Team Chat', () => {
   test('team chat triggers sub-agent delegation via tool call', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const { response, conversationId } = await helper.createTeamChatViaApi(
+    const { response, conversationId } = await helper.sendTeamChatViaUi(
       projectId,
       teamId,
       'What is 2+2?',
@@ -55,6 +55,10 @@ test.describe('Team Chat', () => {
     // Response should exist
     expect(response.length).toBeGreaterThan(0)
 
+    // Sub-agent display should be visible in DOM
+    expect(await helper.hasToolCall()).toBe(true)
+
+    // Verify sub-agent conversation was created via API
     const conversations = await helper.apiGet(`/api/projects/${projectId}/conversations`)
     const subAgentConversation = conversations.find(
       (conv: any) =>
@@ -73,7 +77,7 @@ test.describe('Team Chat', () => {
   test('team chat returns a meaningful response', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const { response } = await helper.createTeamChatViaApi(
+    const { response } = await helper.sendTeamChatViaUi(
       projectId,
       teamId,
       'What is the capital of France? Reply in one word.',

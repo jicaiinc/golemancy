@@ -36,17 +36,12 @@ test.describe('Sandbox Code Runtime', () => {
     requireToolCall = true,
   ) {
     const conv = await helper.createConversationViaApi(projectId, agentId, title)
-    const result = await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
-      commandPrompt,
-      timeout,
-    )
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(commandPrompt, timeout)
     if (requireToolCall) {
-      expect(helper.getToolCallEvents(result.events, 'bash').length).toBeGreaterThan(0)
+      expect(await helper.hasToolCall('bash')).toBe(true)
     }
-    return result
+    return { response }
   }
 
   test.beforeAll(async ({ helper }) => {

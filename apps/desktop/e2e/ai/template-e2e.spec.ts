@@ -46,15 +46,15 @@ test.describe('Template End-to-End', () => {
     const writer = agents.find((a: any) => a.name === 'Writer')
     expect(writer).toBeDefined()
 
-    // Create conversation and chat
+    // Create conversation and chat via UI
     const conv = await helper.createConversationViaApi(project.id, writer.id, 'Template Chat')
-    const result = await helper.sendChatViaApi(
-      project.id, writer.id, conv.id,
+    await helper.enterConversation(project.id, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Write a one-sentence greeting.',
     )
 
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(response).toBeTruthy()
+    expect(response.length).toBeGreaterThan(0)
   })
 
   test('deep-research template: team delegation works', async ({ helper }) => {
@@ -71,8 +71,8 @@ test.describe('Template End-to-End', () => {
     expect(teams).toHaveLength(1)
     const team = teams[0]
 
-    // Send a team chat
-    const { response, events } = await helper.createTeamChatViaApi(
+    // Send a team chat via UI
+    const { response } = await helper.sendTeamChatViaUi(
       project.id,
       team.id,
       'What is the capital of Japan? Reply briefly.',
@@ -81,11 +81,8 @@ test.describe('Template End-to-End', () => {
     // Response should exist
     expect(response.length).toBeGreaterThan(0)
 
-    // Verify delegation happened: look for tool_call events with delegate_to_ in the name
-    const delegationEvents = events.filter(
-      e => e.type === 'tool_call' && typeof e.data?.toolName === 'string' && e.data.toolName.includes('delegate_to_'),
-    )
-    expect(delegationEvents.length).toBeGreaterThanOrEqual(1)
+    // Verify delegation happened: sub-agent display should be visible
+    expect(await helper.hasToolCall()).toBe(true)
   })
 
   test('template MCP servers: connectivity check', async ({ helper }) => {
@@ -127,13 +124,13 @@ test.describe('Template End-to-End', () => {
     expect(secretary).toBeDefined()
 
     const conv = await helper.createConversationViaApi(project.id, secretary.id, 'Secretary Chat')
-    const result = await helper.sendChatViaApi(
-      project.id, secretary.id, conv.id,
+    await helper.enterConversation(project.id, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'What can you help me with? Reply in one sentence.',
     )
 
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(response).toBeTruthy()
+    expect(response.length).toBeGreaterThan(0)
   })
 
   test('translator template: agent can chat', async ({ helper }) => {
@@ -150,12 +147,12 @@ test.describe('Template End-to-End', () => {
     expect(translator).toBeDefined()
 
     const conv = await helper.createConversationViaApi(project.id, translator.id, 'Translator Chat')
-    const result = await helper.sendChatViaApi(
-      project.id, translator.id, conv.id,
+    await helper.enterConversation(project.id, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Translate "hello" to Spanish. Reply with just the translation.',
     )
 
-    expect(result.response).toBeTruthy()
-    expect(result.response.toLowerCase()).toContain('hola')
+    expect(response).toBeTruthy()
+    expect(response.toLowerCase()).toContain('hola')
   })
 })

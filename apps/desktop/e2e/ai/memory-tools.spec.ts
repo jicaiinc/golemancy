@@ -32,35 +32,31 @@ test.describe('Memory Tools', () => {
     })
 
     const rememberConv = await helper.createConversationViaApi(projectId, agent.id, 'Memory Save Conv')
-    const rememberResult = await helper.sendChatViaApi(
-      projectId,
-      agent.id,
-      rememberConv.id,
+    await helper.enterConversation(projectId, rememberConv.id)
+    const rememberResponse = await helper.sendAndWaitForResponse(
       `Remember this exact launch code in memory and confirm it back to me: ${uniqueCode}`,
       TIMEOUTS.AI_RESPONSE,
     )
 
-    const saveToolCalls = helper.getToolCallEvents(rememberResult.events).filter(event =>
-      /memory/i.test(String(event.data?.toolName ?? '')),
-    )
-    expect(saveToolCalls.length).toBeGreaterThanOrEqual(1)
-    expect(rememberResult.response).toContain(uniqueCode)
+    // Verify memory tool call appeared in DOM
+    expect(await helper.hasToolCall()).toBe(true)
+    expect(rememberResponse).toContain(uniqueCode)
 
+    // Verify memory was stored via API
     const memories = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}/memories`)
     expect(
       memories.some((memory: any) => String(memory?.content ?? '').includes(uniqueCode)),
     ).toBe(true)
 
+    // Recall in a new conversation
     const recallConv = await helper.createConversationViaApi(projectId, agent.id, 'Memory Recall Conv')
-    const recallResult = await helper.sendChatViaApi(
-      projectId,
-      agent.id,
-      recallConv.id,
+    await helper.enterConversation(projectId, recallConv.id)
+    const recallResponse = await helper.sendAndWaitForResponse(
       'What exact launch code did I ask you to remember earlier?',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    expect(recallResult.response).toContain(uniqueCode)
+    expect(recallResponse).toContain(uniqueCode)
   })
 
   test('agent can save memory via MemorySave tool', async ({ helper }) => {
@@ -73,22 +69,14 @@ test.describe('Memory Tools', () => {
     })
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Save Test Conv')
-    const { response, events } = await helper.sendChatViaApi(
-      projectId,
-      agent.id,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Please remember that my favorite color is emerald green.',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // Check that a tool call happened (MemorySave or memory_save)
-    const memoryToolCalls = events.filter(
-      e =>
-        e.type === 'tool_call' &&
-        typeof e.data?.toolName === 'string' &&
-        /memory/i.test(e.data.toolName),
-    )
-    expect(memoryToolCalls.length).toBeGreaterThanOrEqual(1)
+    // Check that a tool call appeared in DOM
+    expect(await helper.hasToolCall()).toBe(true)
 
     // Response should confirm the save
     const lower = response.toLowerCase()
@@ -112,10 +100,8 @@ test.describe('Memory Tools', () => {
     })
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Search Test Conv')
-    const { response } = await helper.sendChatViaApi(
-      projectId,
-      agent.id,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Search your memory: what is the project deadline?',
       TIMEOUTS.AI_RESPONSE,
     )

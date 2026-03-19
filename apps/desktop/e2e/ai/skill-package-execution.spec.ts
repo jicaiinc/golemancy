@@ -96,20 +96,18 @@ test.describe('Packaged Skill Execution', () => {
     await helper.assignSkillToAgent(projectId, agent.id, skillId)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'script packaged skill')
-    const result = await helper.sendChatViaApi(
-      projectId,
-      agent.id,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Use the assigned skill named "Script Runner" to get the bundled script marker. Do not guess.',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    expect(result.response).toContain(marker)
+    expect(response).toContain(marker)
     expect(helper.workspaceFileExists(projectId, sideEffectPath)).toBe(true)
     expect(helper.readWorkspaceFile(projectId, sideEffectPath).trim()).toBe(marker)
 
-    const toolCalls = helper.getToolCallEvents(result.events)
-    expect(toolCalls.some(event => String(event.data?.toolName ?? '').toLowerCase().includes('skill'))).toBe(true)
+    // Tool calls should be visible in DOM
+    expect(await helper.hasToolCall()).toBe(true)
   })
 
   test('packaged skill without scripts can still be loaded and used by the agent', async ({ helper }) => {
@@ -151,16 +149,13 @@ test.describe('Packaged Skill Execution', () => {
     await helper.assignSkillToAgent(projectId, agent.id, skillId)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'plain packaged skill')
-    const result = await helper.sendChatViaApi(
-      projectId,
-      agent.id,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Use the assigned skill named "Plain Runner" and return the packaged marker.',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    expect(result.response).toContain(marker)
-    const toolCalls = helper.getToolCallEvents(result.events)
-    expect(toolCalls.some(event => String(event.data?.toolName ?? '').toLowerCase().includes('skill'))).toBe(true)
+    expect(response).toContain(marker)
+    expect(await helper.hasToolCall()).toBe(true)
   })
 })

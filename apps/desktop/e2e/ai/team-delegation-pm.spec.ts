@@ -52,7 +52,7 @@ test.describe('PM Team Delegation', () => {
       ],
     })
 
-    const { response, conversationId } = await helper.createTeamChatViaApi(
+    const { response, conversationId } = await helper.sendTeamChatViaUi(
       projectId,
       team.id,
       'Can the Phoenix launch execute today? Ask both specialists and summarize their readiness in the required Analyst/Executor format using each specialist output verbatim.',

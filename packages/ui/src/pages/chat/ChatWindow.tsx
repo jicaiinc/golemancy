@@ -402,7 +402,7 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-4 py-3">
         {messages.length === 0 && !isBusy ? (
-          <div className="flex items-center justify-center h-full">
+          <div data-testid="chat-empty-prompt" className="flex items-center justify-center h-full">
             <p className="text-[12px] text-text-dim font-mono">
               {t('window.startConversation')}
             </p>
@@ -421,14 +421,14 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
 
             {/* Compacting indicator */}
             {(compacting || externalCompacting) && (
-              <div className="my-3 border-2 border-accent-purple/50 bg-accent-purple/5 px-3 py-2">
+              <div data-testid="chat-compacting" className="my-3 border-2 border-accent-purple/50 bg-accent-purple/5 px-3 py-2">
                 <PixelSpinner size="sm" label={t('window.compacting')} />
               </div>
             )}
 
             {/* Thinking indicator */}
             {showThinking && !compacting && !externalCompacting && (
-              <div className="flex items-start my-2">
+              <div data-testid="chat-thinking" className="flex items-start my-2">
                 <div className="px-3 py-2 border-2 border-border-dim bg-surface">
                   <PixelSpinner size="sm" label={t('window.thinking')} />
                 </div>

@@ -427,15 +427,30 @@ export class TestHelper {
     )
 
     // Guard against React render lag: wait for content to actually appear
-    await this.page.waitForFunction(
-      (selector: string) => {
-        const msgs = document.querySelectorAll(selector)
-        const last = msgs[msgs.length - 1]
-        return last !== null && (last as HTMLElement).innerText.trim().length > 0
-      },
-      `${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`,
-      { timeout: 5000 },
-    )
+    try {
+      await this.page.waitForFunction(
+        (selector: string) => {
+          const msgs = document.querySelectorAll(selector)
+          const last = msgs[msgs.length - 1]
+          return last !== null && (last as HTMLElement).innerText.trim().length > 0
+        },
+        `${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`,
+        { timeout },
+      )
+    } catch (e) {
+      // Debug: dump assistant message DOM state on timeout
+      const debug = await this.page.evaluate((sel: string) => {
+        const msgs = document.querySelectorAll(sel)
+        return Array.from(msgs).map((el, i) => ({
+          index: i,
+          innerText: (el as HTMLElement).innerText.substring(0, 200),
+          innerHTML: (el as HTMLElement).innerHTML.substring(0, 500),
+          childCount: el.children.length,
+        }))
+      }, `${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`)
+      console.error('[waitForResponse] assistant messages at timeout:', JSON.stringify(debug, null, 2))
+      throw e
+    }
 
     // Return the final complete text
     return assistantMsg.innerText()
@@ -923,6 +938,91 @@ export class TestHelper {
           : undefined
 
     return this.createAgentViaApi(projectId, name, { ...opts, ...(model ? { model } : {}) })
+  }
+
+  // ===== UI Chat helpers (for AI E2E tests) =====
+
+  /** Navigate to a conversation page and wait for chat input to be visible */
+  async enterConversation(projectId: string, conversationId: string): Promise<void> {
+    // Ensure the store's project list is fresh so ProjectLayout doesn't redirect
+    await this.page.evaluate(async () => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) await store.getState().loadProjects()
+    })
+    await this.page.waitForFunction(
+      (pid: string) => {
+        const store = (window as any).__GOLEMANCY_STORE__
+        if (!store) return false
+        const state = store.getState()
+        return !state.projectsLoading && state.projects.some((p: any) => p.id === pid)
+      },
+      projectId,
+      { timeout: TIMEOUTS.PAGE_LOAD },
+    )
+    await this.navigateTo(`/projects/${projectId}/chat?conv=${conversationId}`)
+    await this.page.waitForSelector(SELECTORS.CHAT_INPUT, {
+      state: 'visible',
+      timeout: TIMEOUTS.PAGE_LOAD * 2,
+    })
+  }
+
+  /** Send a message via UI and wait for the assistant response */
+  async sendAndWaitForResponse(message: string, timeout = TIMEOUTS.AI_RESPONSE): Promise<string> {
+    await this.sendChatMessage(message)
+    return this.waitForResponse(timeout)
+  }
+
+  /** Wait for a specific tool call to appear in the DOM */
+  async waitForToolCall(toolName: string, timeout = TIMEOUTS.AI_RESPONSE): Promise<void> {
+    await this.page.waitForSelector(SELECTORS.TOOL_CALL_BY_NAME(toolName), {
+      state: 'visible',
+      timeout,
+    })
+  }
+
+  /** Check if a tool call is visible in the DOM */
+  async hasToolCall(toolName?: string): Promise<boolean> {
+    const selector = toolName ? SELECTORS.TOOL_CALL_BY_NAME(toolName) : SELECTORS.TOOL_CALL
+    return this.page.locator(selector).first().isVisible().catch(() => false)
+  }
+
+  /** Wait for a compact boundary marker to appear */
+  async waitForCompactBoundary(timeout = TIMEOUTS.AI_RESPONSE): Promise<void> {
+    await this.page.waitForSelector(SELECTORS.COMPACT_BOUNDARY, {
+      state: 'visible',
+      timeout,
+    })
+  }
+
+  /** Wait for a sub-agent display to appear */
+  async waitForSubAgentDisplay(agentName?: string, timeout = TIMEOUTS.AI_RESPONSE): Promise<void> {
+    const selector = agentName ? SELECTORS.SUB_AGENT_BY_NAME(agentName) : SELECTORS.SUB_AGENT_DISPLAY
+    await this.page.waitForSelector(selector, {
+      state: 'visible',
+      timeout,
+    })
+  }
+
+  /** Get the count of visible assistant messages */
+  async getAssistantMessageCount(): Promise<number> {
+    return this.page.locator(`${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`).count()
+  }
+
+  /** Create a team conversation, navigate to it, and send a message via UI */
+  async sendTeamChatViaUi(
+    projectId: string,
+    teamId: string,
+    message: string,
+    timeout = TIMEOUTS.AI_RESPONSE,
+  ): Promise<{ conversationId: string; response: string }> {
+    const conv = await this.apiPost(`/api/projects/${projectId}/conversations`, {
+      targetType: 'team',
+      targetId: teamId,
+      title: 'Team Chat Test',
+    })
+    await this.enterConversation(projectId, conv.id)
+    const response = await this.sendAndWaitForResponse(message, timeout)
+    return { conversationId: conv.id, response }
   }
 
   // ===== Assertions =====

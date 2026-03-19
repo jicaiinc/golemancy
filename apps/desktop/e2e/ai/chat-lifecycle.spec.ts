@@ -34,26 +34,25 @@ test.describe('Chat Lifecycle', () => {
 
   // ===== Chat lifecycle (5 tests) =====
 
-  test('create conversation and send message via API', async ({ helper }) => {
+  test('create conversation and send message', async ({ helper }) => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, primaryAgentId, 'Lifecycle Test')
     expect(conv.id).toBeTruthy()
 
-    const result = await helper.sendChatViaApi(
-      projectId, primaryAgentId, conv.id,
-      'Say hello in one word.',
-    )
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse('Say hello in one word.')
 
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(response).toBeTruthy()
+    expect(response.length).toBeGreaterThan(0)
   })
 
   test('verify conversation messages contain user and assistant', async ({ helper }) => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, primaryAgentId, 'Messages Test')
-    await helper.sendChatViaApi(projectId, primaryAgentId, conv.id, 'Reply with OK.')
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse('Reply with OK.')
 
     const messages = await helper.apiGet(
       `/api/projects/${projectId}/conversations/${conv.id}/messages`,
@@ -71,7 +70,8 @@ test.describe('Chat Lifecycle', () => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, primaryAgentId, 'Status Test')
-    await helper.sendChatViaApi(projectId, primaryAgentId, conv.id, 'Reply with OK.')
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse('Reply with OK.')
 
     // After chat completes, runtime-status should not show this chat as running
     const status = await helper.apiGet(
@@ -111,7 +111,8 @@ test.describe('Chat Lifecycle', () => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, primaryAgentId, 'Delete Test')
-    await helper.sendChatViaApi(projectId, primaryAgentId, conv.id, 'Reply with OK.')
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse('Reply with OK.')
 
     // Delete the conversation
     const deleteResult = await helper.apiDelete(
@@ -132,26 +133,24 @@ test.describe('Chat Lifecycle', () => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, primaryAgentId, 'Primary Chat')
-    const result = await helper.sendChatViaApi(
-      projectId, primaryAgentId, conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'What is 1+1? Reply with just the number.',
     )
 
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(response).toBeTruthy()
+    expect(response.length).toBeGreaterThan(0)
   })
 
   test('chat with secondary agent', async ({ helper }) => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, secondaryAgentId, 'Secondary Chat')
-    const result = await helper.sendChatViaApi(
-      projectId, secondaryAgentId, conv.id,
-      'Say hello.',
-    )
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse('Say hello.')
 
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(response).toBeTruthy()
+    expect(response.length).toBeGreaterThan(0)
   })
 
   test('dashboard shows independent token counts for each agent', async ({ helper }) => {

@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures'
-import { TIMEOUTS } from '../constants'
+import { SELECTORS, TIMEOUTS } from '../constants'
 
 const hasApiKeys = !!(
   process.env.TEST_GOOGLE_API_KEY ||
@@ -44,7 +44,7 @@ test.describe('Cron Job Execution', () => {
 
   // ===== Manual trigger (3 tests) =====
 
-  test('create and manually trigger cron job', async ({ helper }) => {
+  test('create and manually trigger cron job', async ({ helper, window }) => {
     test.setTimeout(120_000)
 
     // Create a cron job
@@ -57,12 +57,10 @@ test.describe('Cron Job Execution', () => {
     })
     expect(job.id).toBeTruthy()
 
-    // Manually trigger
-    const triggerResult = await helper.apiPost(
-      `/api/projects/${projectId}/cron-jobs/${job.id}/trigger`,
-      {},
-    )
-    expect(triggerResult.ok).toBe(true)
+    // Navigate to crons page and click trigger button in UI
+    await helper.clickNav('crons')
+    await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
+    await window.click(SELECTORS.CRON_TRIGGER_BTN)
 
     // Wait for the run to appear
     const runs = await pollUntil(
@@ -76,7 +74,7 @@ test.describe('Cron Job Execution', () => {
     expect(runs[0].triggeredBy).toBe('manual')
   })
 
-  test('verify cron job run completed successfully', async ({ helper }) => {
+  test('verify cron job run completed successfully', async ({ helper, window }) => {
     test.setTimeout(120_000)
 
     // Create and trigger a job
@@ -88,7 +86,10 @@ test.describe('Cron Job Execution', () => {
       instruction: 'Reply with OK',
     })
 
-    await helper.apiPost(`/api/projects/${projectId}/cron-jobs/${job.id}/trigger`, {})
+    // Trigger via UI
+    await helper.clickNav('crons')
+    await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
+    await window.click(SELECTORS.CRON_TRIGGER_BTN)
 
     // Poll until run completes (not 'running' anymore)
     const runs = await pollUntil(
@@ -103,7 +104,7 @@ test.describe('Cron Job Execution', () => {
     expect(runs[0].conversationId).toBeTruthy()
   })
 
-  test('verify triggered conversation has messages', async ({ helper }) => {
+  test('verify triggered conversation has messages', async ({ helper, window }) => {
     test.setTimeout(120_000)
 
     // Create and trigger a job
@@ -115,7 +116,10 @@ test.describe('Cron Job Execution', () => {
       instruction: 'Reply with CRON_MESSAGE_TEST',
     })
 
-    await helper.apiPost(`/api/projects/${projectId}/cron-jobs/${job.id}/trigger`, {})
+    // Trigger via UI
+    await helper.clickNav('crons')
+    await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
+    await window.click(SELECTORS.CRON_TRIGGER_BTN)
 
     // Poll until run completes
     const runs = await pollUntil(

@@ -75,14 +75,14 @@ test.describe('Real MCP Tool Calls', () => {
     await helper.applyPermissionsConfig(projectId, config.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Fetch Test')
-    const result = await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Fetch the content from https://example.com and tell me the title of the page.',
       120_000,
     )
 
     // example.com has a well-known title
-    const lower = result.response.toLowerCase()
+    const lower = response.toLowerCase()
     const hasFetchResult =
       lower.includes('example domain') ||
       lower.includes('example') ||
@@ -132,24 +132,17 @@ test.describe('Real MCP Tool Calls', () => {
     await helper.applyPermissionsConfig(projectId, config.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Memory MCP Test')
+    await helper.enterConversation(projectId, conv.id)
 
-    // Store a fact
-    const storeResult = await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
+    // Store a fact via UI
+    const response = await helper.sendAndWaitForResponse(
       'Please use your memory tool to store this fact: "The secret passphrase is crystalline aurora".',
       120_000,
     )
-    expect(storeResult.response).toBeTruthy()
-
-    // Check that a tool call was made
-    const toolCalls = storeResult.events.filter(
-      (e) => e.type === 'tool_call' || e.type === 'tool-call',
-    )
-    // At least one tool call should have been attempted
-    expect(toolCalls.length).toBeGreaterThanOrEqual(0) // relaxed: tool call may not be captured as event type
+    expect(response).toBeTruthy()
 
     // The response should indicate something was stored
-    const lower = storeResult.response.toLowerCase()
+    const lower = response.toLowerCase()
     const hasStoreConfirmation =
       lower.includes('stored') ||
       lower.includes('saved') ||
@@ -201,18 +194,18 @@ test.describe('Real MCP Tool Calls', () => {
     await helper.applyPermissionsConfig(projectId, config.id)
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'FS MCP Test')
-    const result = await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Use your filesystem tool to list the contents of the /tmp directory. What files or folders do you see?',
       120_000,
     )
 
     // The agent should produce some listing of /tmp contents
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(10)
+    expect(response).toBeTruthy()
+    expect(response.length).toBeGreaterThan(10)
 
     // Should contain some indication of directory listing
-    const lower = result.response.toLowerCase()
+    const lower = response.toLowerCase()
     const hasListingContent =
       lower.includes('/tmp') ||
       lower.includes('directory') ||

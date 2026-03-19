@@ -74,19 +74,14 @@ test.describe('Memory Persistence', () => {
       })
 
       const rememberConv = await helper.createConversationViaApi(projectId, agent.id, 'Before Restart')
-      const rememberResult = await helper.sendChatViaApiBuffered(
-        projectId,
-        agent.id,
-        rememberConv.id,
+      await helper.enterConversation(projectId, rememberConv.id)
+      const rememberResponse = await helper.sendAndWaitForResponse(
         `Use your memory tool to remember this exact code and then confirm with only the code: ${persistedCode}`,
         TIMEOUTS.AI_RESPONSE,
       )
 
-      const saveToolCalls = helper.getToolCallEvents(rememberResult.events).filter(event =>
-        /memory/i.test(String(event.data?.toolName ?? '')),
-      )
-      expect(saveToolCalls.length).toBeGreaterThanOrEqual(1)
-      expect(rememberResult.response).toContain(persistedCode)
+      expect(await helper.hasToolCall()).toBe(true)
+      expect(rememberResponse).toContain(persistedCode)
 
       const memoriesBeforeRestart = await helper.apiGet(`/api/projects/${projectId}/agents/${agent.id}/memories`)
       const persistedMemory = memoriesBeforeRestart.find((memory: any) =>
@@ -114,15 +109,13 @@ test.describe('Memory Persistence', () => {
       expect(restartedMemory.priority).toBe(5)
 
       const recallConv = await helperAfterRestart.createConversationViaApi(projectId, agent.id, 'After Restart')
-      const recallResult = await helperAfterRestart.sendChatViaApiBuffered(
-        projectId,
-        agent.id,
-        recallConv.id,
+      await helperAfterRestart.enterConversation(projectId, recallConv.id)
+      const recallResponse = await helperAfterRestart.sendAndWaitForResponse(
         'What exact code did I ask you to remember before the app restart? Return only the exact code.',
         TIMEOUTS.AI_RESPONSE,
       )
 
-      expect(recallResult.response).toContain(persistedCode)
+      expect(recallResponse).toContain(persistedCode)
     } finally {
       await secondSession?.app.close().catch(() => {})
       await firstSession?.app.close().catch(() => {})

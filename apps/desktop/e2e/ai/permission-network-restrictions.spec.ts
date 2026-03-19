@@ -102,14 +102,12 @@ test.describe('Permission Network Restrictions', () => {
 
     await helper.applyPermissionsConfig(projectId, allowConfigId)
     const conv = await helper.createConversationViaApi(projectId, agentId, 'network allowed')
-    const result = await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
       'Use bash to run exactly this command and report the output: curl -kfsSL https://example.com',
       TIMEOUTS.AI_RESPONSE,
     )
-    expect(result.response).toContain('Example Domain')
+    expect(response).toContain('Example Domain')
   })
 
   test('sandbox blocks requests to denylisted domains even if allowlisted', async ({ helper }) => {
@@ -118,16 +116,14 @@ test.describe('Permission Network Restrictions', () => {
     localServer.resetRequestCounts()
     await helper.applyPermissionsConfig(projectId, denyConfigId)
     const conv = await helper.createConversationViaApi(projectId, agentId, 'network blocked')
+    await helper.enterConversation(projectId, conv.id)
     const url = localServer.url('/network/blocked', testHost!)
-    const result = await helper.sendChatViaApi(
-      projectId,
-      agentId,
-      conv.id,
+    const response = await helper.sendAndWaitForResponse(
       `Use bash to run exactly this command and report the output: curl -fsSL ${url}`,
       TIMEOUTS.AI_RESPONSE,
     )
 
     expect(localServer.getRequestCount('/network/blocked')).toBe(0)
-    expect(result.response).not.toContain('BLOCKED_NETWORK_MARKER')
+    expect(response).not.toContain('BLOCKED_NETWORK_MARKER')
   })
 })

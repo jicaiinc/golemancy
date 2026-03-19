@@ -13,7 +13,6 @@ test.describe('Token Accuracy', () => {
   let projectId: string
   let agentId: string
   let conversationId: string
-  const tokenUsages: Array<{ inputTokens: number; outputTokens: number }> = []
 
   test.beforeAll(async ({ helper }) => {
     test.setTimeout(300_000) // 5 minutes for 3 AI calls in setup
@@ -30,8 +29,9 @@ test.describe('Token Accuracy', () => {
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'Token Test Conv')
     conversationId = conv.id
+    await helper.enterConversation(projectId, conv.id)
 
-    // Send 3 chat messages and record token usage
+    // Send 3 chat messages via UI
     const prompts = [
       'What is 2+2? Reply briefly.',
       'What is the capital of France? One word.',
@@ -39,10 +39,7 @@ test.describe('Token Accuracy', () => {
     ]
 
     for (const prompt of prompts) {
-      const result = await helper.sendChatViaApi(
-        projectId, agentId, conversationId, prompt, TIMEOUTS.AI_RESPONSE,
-      )
-      tokenUsages.push(result.usage)
+      await helper.sendAndWaitForResponse(prompt, TIMEOUTS.AI_RESPONSE)
     }
   })
 

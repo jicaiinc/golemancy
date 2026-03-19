@@ -80,6 +80,17 @@ export const SELECTORS = {
   WORKSPACE_FILE_TREE: '[data-testid="workspace-file-tree"]',
   WORKSPACE_PREVIEW: '[data-testid="workspace-preview"]',
 
+  // Chat (AI response elements)
+  TOOL_CALL: '[data-testid="tool-call"]',
+  TOOL_CALL_BY_NAME: (name: string) => `[data-testid="tool-call"][data-tool-name="${name}"]`,
+  SUB_AGENT_DISPLAY: '[data-testid="sub-agent-display"]',
+  SUB_AGENT_BY_NAME: (name: string) => `[data-testid="sub-agent-display"][data-agent-name="${name}"]`,
+  COMPACT_BOUNDARY: '[data-testid="compact-boundary"]',
+  CHAT_THINKING: '[data-testid="chat-thinking"]',
+  CHAT_COMPACTING: '[data-testid="chat-compacting"]',
+  CHAT_EMPTY_PROMPT: '[data-testid="chat-empty-prompt"]',
+  CHAT_EMPTY_STATE_PAGE: '[data-testid="chat-empty-state"]',
+
   // Chat (StatusBar)
   CHAT_STOP_BTN: '[data-testid="chat-stop-btn"]',
   CONTEXT_WINDOW_BTN: '[data-testid="context-window-btn"]',

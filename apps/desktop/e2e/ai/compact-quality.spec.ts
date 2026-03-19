@@ -31,42 +31,40 @@ test.describe('Compact Conversation Quality', () => {
     test.setTimeout(180_000)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'Context Preservation')
+    await helper.enterConversation(projectId, conv.id)
 
-    // Build up context with several facts
-    await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    // Build up context with several facts via UI
+    await helper.sendAndWaitForResponse(
       'Remember: my dog is named Pixel and he is a golden retriever.',
       TIMEOUTS.AI_RESPONSE,
     )
-
-    await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    await helper.sendAndWaitForResponse(
       'Remember: my favorite programming language is Rust.',
       TIMEOUTS.AI_RESPONSE,
     )
-
-    await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    await helper.sendAndWaitForResponse(
       'Remember: I live in Tokyo, Japan.',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // Trigger manual compact
+    // Trigger manual compact (API is fine for this action)
     const compactResponse = await helper.apiPostRaw(
       `/api/projects/${projectId}/conversations/${conv.id}/compact`,
       {},
     )
     expect(compactResponse.status()).toBe(201)
 
-    // Ask about the facts after compaction
-    const result = await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    // Re-enter conversation to pick up compact state
+    await helper.enterConversation(projectId, conv.id)
+
+    // Ask about the facts after compaction via UI
+    const response = await helper.sendAndWaitForResponse(
       'What is my dog\'s name and breed? Where do I live? What is my favorite programming language?',
       TIMEOUTS.AI_RESPONSE,
     )
 
     // The AI should still know the key facts from the compacted context
-    const lower = result.response.toLowerCase()
+    const lower = response.toLowerCase()
     expect(lower).toContain('pixel')
     // At least one more fact should be retained
     const factsRetained = [
@@ -81,36 +79,36 @@ test.describe('Compact Conversation Quality', () => {
     test.setTimeout(180_000)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'Continue After Compact')
+    await helper.enterConversation(projectId, conv.id)
 
-    // Have a conversation
-    await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    // Have a conversation via UI
+    await helper.sendAndWaitForResponse(
       'Hello! Let us talk about space exploration.',
       TIMEOUTS.AI_RESPONSE,
     )
-
-    await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    await helper.sendAndWaitForResponse(
       'What was the first moon landing year?',
       TIMEOUTS.AI_RESPONSE,
     )
 
-    // Compact
+    // Compact (API action)
     const compactResponse = await helper.apiPostRaw(
       `/api/projects/${projectId}/conversations/${conv.id}/compact`,
       {},
     )
     expect(compactResponse.status()).toBe(201)
 
-    // Continue the conversation — should work seamlessly
-    const result = await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    // Re-enter conversation to pick up compact state
+    await helper.enterConversation(projectId, conv.id)
+
+    // Continue the conversation via UI — should work seamlessly
+    const response = await helper.sendAndWaitForResponse(
       'And what about the Mars rovers? Name one.',
       TIMEOUTS.AI_RESPONSE,
     )
 
     // Should produce a coherent response about Mars rovers
-    const lower = result.response.toLowerCase()
+    const lower = response.toLowerCase()
     const hasMarsRover =
       lower.includes('curiosity') ||
       lower.includes('perseverance') ||
@@ -125,16 +123,14 @@ test.describe('Compact Conversation Quality', () => {
     test.setTimeout(180_000)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'Summary Storage')
+    await helper.enterConversation(projectId, conv.id)
 
-    // Build some conversation content
-    await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    // Build some conversation content via UI
+    await helper.sendAndWaitForResponse(
       'The secret code word is "butterfly garden". Please acknowledge.',
       TIMEOUTS.AI_RESPONSE,
     )
-
-    await helper.sendChatViaApi(
-      projectId, agentId, conv.id,
+    await helper.sendAndWaitForResponse(
       'Also remember that the meeting is scheduled for next Tuesday at 3pm.',
       TIMEOUTS.AI_RESPONSE,
     )

@@ -14,7 +14,7 @@ export function ChatEmptyState({ onNewChat, canNewChat, chatHistoryExpanded, onT
   const { t } = useTranslation('chat')
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-void">
+    <div data-testid="chat-empty-state" className="flex-1 flex flex-col min-h-0 bg-void">
       {/* Header with toggle */}
       {onToggleChatHistory && (
         <div className="flex items-center gap-2 px-4 py-3 border-b-2 border-border-dim bg-deep">

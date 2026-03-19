@@ -178,7 +178,7 @@ function SubAgentDisplay({ state, chatStatus, task, usage }: SubAgentDisplayProp
   const runningTools = isRunning ? state.toolCalls.filter(tc => tc.state === 'running').length : 0
 
   return (
-    <div className="my-2 border-2 border-border-dim bg-deep">
+    <div data-testid="sub-agent-display" data-agent-name={state.agentName} className="my-2 border-2 border-border-dim bg-deep">
       {/* Header */}
       <button
         className="w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer hover:bg-elevated/50 transition-colors"
@@ -292,7 +292,7 @@ function TaskToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallDisp
   const taskList = output && Array.isArray(output) ? output as Array<Record<string, unknown>> : null
 
   return (
-    <div className="my-2 border-2 border-border-dim bg-deep">
+    <div data-testid="tool-call" data-tool-name={toolInvocation.toolName} className="my-2 border-2 border-border-dim bg-deep">
       {/* Header — always visible */}
       <button
         className="w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer hover:bg-elevated/50 transition-colors"
@@ -410,7 +410,7 @@ export function ToolCallDisplay({ toolInvocation, chatStatus, usage }: ToolCallD
   }
 
   return (
-    <div className="my-2 border-2 border-border-dim bg-deep">
+    <div data-testid="tool-call" data-tool-name={toolInvocation.toolName} className="my-2 border-2 border-border-dim bg-deep">
       {/* Header — always visible */}
       <button
         className="w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer hover:bg-elevated/50 transition-colors"

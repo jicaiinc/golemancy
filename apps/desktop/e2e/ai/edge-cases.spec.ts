@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures'
-import { TIMEOUTS } from '../constants'
+import { SELECTORS, TIMEOUTS } from '../constants'
 
 const hasApiKeys = !!(
   process.env.TEST_GOOGLE_API_KEY ||
@@ -28,14 +28,12 @@ test.describe('Edge Cases', () => {
     })
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Default Model Test')
-    const result = await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
-      'Say hello.',
-    )
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse('Say hello.')
 
     // Should get a valid response (not an error about missing model)
-    expect(result.response).toBeTruthy()
-    expect(result.response.length).toBeGreaterThan(0)
+    expect(response).toBeTruthy()
+    expect(response.length).toBeGreaterThan(0)
   })
 
   test('workspace file created by bash appears in workspace API', async ({ helper }) => {
@@ -49,8 +47,8 @@ test.describe('Edge Cases', () => {
     })
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Bash Workspace Test')
-    await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
+    await helper.enterConversation(projectId, conv.id)
+    await helper.sendAndWaitForResponse(
       'Run this bash command: echo "e2e_workspace_test_content" > workspace_e2e_test.txt',
     )
 
@@ -71,25 +69,24 @@ test.describe('Edge Cases', () => {
     })
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Long Chat Test')
+    await helper.enterConversation(projectId, conv.id)
 
-    // Send 10 numbered messages
+    // Send 10 numbered messages via UI
     for (let i = 1; i <= 10; i++) {
-      await helper.sendChatViaApi(
-        projectId, agent.id, conv.id,
+      await helper.sendAndWaitForResponse(
         `Message number ${i}: The secret word for message ${i} is "ALPHA${i}".`,
       )
     }
 
     // Ask about an earlier message
-    const result = await helper.sendChatViaApi(
-      projectId, agent.id, conv.id,
+    const response = await helper.sendAndWaitForResponse(
       'What was the secret word for message number 3? Reply with just the word.',
     )
 
-    expect(result.response).toContain('ALPHA3')
+    expect(response).toContain('ALPHA3')
   })
 
-  test('error API key: chat returns error not crash', async ({ helper }) => {
+  test('error API key: chat returns error not crash', async ({ helper, window }) => {
     test.setTimeout(60_000)
 
     // Add a custom provider with a fake API key
@@ -116,21 +113,20 @@ test.describe('Edge Cases', () => {
       })
 
       const conv = await helper.createConversationViaApi(projectId, agent.id, 'Fake Key Test')
+      await helper.enterConversation(projectId, conv.id)
 
-      // Try to chat — should fail with an error, not crash
-      try {
-        await helper.sendChatViaApi(
-          projectId, agent.id, conv.id,
-          'Hello.',
-          30_000,
-        )
-        // If we get here, the API didn't throw — check if the response indicates an error
-        // Some APIs return error in the SSE stream rather than throwing
-      } catch (error: any) {
-        // Expected: the chat should fail with an error (401/403/invalid key)
-        // The important thing is it doesn't crash the server
-        expect(error.message).toBeTruthy()
-      }
+      // Try to chat via UI — should show an error, not crash
+      await helper.sendChatMessage('Hello.')
+
+      // Wait for the chat input to re-enable (error or response completes)
+      await window.waitForFunction(
+        (selector: string) => {
+          const input = document.querySelector(selector) as HTMLTextAreaElement | null
+          return input !== null && !input.disabled
+        },
+        SELECTORS.CHAT_INPUT,
+        { timeout: 30_000 },
+      )
 
       // Verify the server is still responsive after the error
       const healthCheck = await helper.apiGet('/api/settings')

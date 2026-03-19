@@ -102,11 +102,9 @@ test.describe('MCP applyToMCP Sandbox Wrapping', () => {
       setup.agentId,
       'applyToMCP wrapped runtime',
     )
+    await helper.enterConversation(setup.projectId, conv.id)
     const marker = 'APPLY_TO_MCP_WRAPPED'
-    await helper.sendChatViaApi(
-      setup.projectId,
-      setup.agentId,
-      conv.id,
+    await helper.sendAndWaitForResponse(
       `Use the write_marker MCP tool to write "${marker}" to "${setup.targetFilePath}". Then tell me the result.`,
       TIMEOUTS.AI_RESPONSE,
     )
@@ -129,11 +127,9 @@ test.describe('MCP applyToMCP Sandbox Wrapping', () => {
       setup.agentId,
       'applyToMCP bypass runtime',
     )
+    await helper.enterConversation(setup.projectId, conv.id)
     const marker = 'APPLY_TO_MCP_BYPASS'
-    await helper.sendChatViaApi(
-      setup.projectId,
-      setup.agentId,
-      conv.id,
+    await helper.sendAndWaitForResponse(
       `Use the write_marker MCP tool to write "${marker}" to "${setup.targetFilePath}". Then tell me the result.`,
       TIMEOUTS.AI_RESPONSE,
     )

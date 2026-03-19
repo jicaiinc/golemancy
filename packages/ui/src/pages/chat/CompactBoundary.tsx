@@ -16,7 +16,7 @@ export function CompactBoundary({ compact }: CompactBoundaryProps) {
     n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n)
 
   return (
-    <div className="my-3 border-2 border-accent-purple/50 bg-accent-purple/5">
+    <div data-testid="compact-boundary" className="my-3 border-2 border-accent-purple/50 bg-accent-purple/5">
       <button
         className="w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer hover:bg-accent-purple/10 transition-colors"
         onClick={() => setExpanded(!expanded)}

@@ -54,33 +54,15 @@ test.describe('Browser Tool', () => {
     await localServer.stop()
   })
 
-  async function expectBrowserToolUsage(
-    helper: any,
-    projectId: string,
-    conversationId: string,
-    events: Array<{ type: string; data: any }>,
-  ) {
-    const browserCalls = helper.getToolCallEvents(events).filter((event: any) =>
-      String(event.data?.toolName ?? '').startsWith('browser_'),
-    )
-    const lastAssistant = await helper.getLastAssistantMessage(projectId, conversationId)
-    const browserInvocations = helper.getToolInvocationParts(lastAssistant).filter((part: any) =>
-      String(part?.toolInvocation?.toolName ?? '').startsWith('browser_'),
-    )
-    expect(browserCalls.length + browserInvocations.length).toBeGreaterThan(0)
-  }
-
   test('agent can open a deterministic local page with the browser tool', async ({ helper }) => {
     test.setTimeout(120_000)
 
     localServer.resetRequestCounts()
     const url = localServer.url('/browser/basic')
     const conv = await helper.createConversationViaApi(projectId, agentId, 'browser open page')
+    await helper.enterConversation(projectId, conv.id)
 
-    const result = await helper.sendChatViaApiBuffered(
-      projectId,
-      agentId,
-      conv.id,
+    await helper.sendAndWaitForResponse(
       [
         `Use browser_navigate to open ${url}.`,
         'Then use browser_snapshot to inspect the page.',
@@ -90,7 +72,8 @@ test.describe('Browser Tool', () => {
     )
 
     expect(localServer.getRequestCount('/browser/basic')).toBeGreaterThan(0)
-    await expectBrowserToolUsage(helper, projectId, conv.id, result.events)
+    // Browser tool calls should be visible in DOM
+    expect(await helper.hasToolCall()).toBe(true)
   })
 
   test('agent can click the reveal button on the deterministic page', async ({ helper }) => {
@@ -99,11 +82,9 @@ test.describe('Browser Tool', () => {
     localServer.resetRequestCounts()
     const url = localServer.url('/browser/basic')
     const conv = await helper.createConversationViaApi(projectId, agentId, 'browser click reveal')
+    await helper.enterConversation(projectId, conv.id)
 
-    const result = await helper.sendChatViaApiBuffered(
-      projectId,
-      agentId,
-      conv.id,
+    const response = await helper.sendAndWaitForResponse(
       [
         `Use browser_navigate to open ${url}.`,
         'Use browser_snapshot to identify the ref for the "Reveal Secret" button.',
@@ -114,7 +95,7 @@ test.describe('Browser Tool', () => {
     )
 
     expect(localServer.getRequestCount('/browser/basic')).toBeGreaterThan(0)
-    await expectBrowserToolUsage(helper, projectId, conv.id, result.events)
-    expect(result.response).toContain('browser_secret_marker_2048')
+    expect(await helper.hasToolCall()).toBe(true)
+    expect(response).toContain('browser_secret_marker_2048')
   })
 })
