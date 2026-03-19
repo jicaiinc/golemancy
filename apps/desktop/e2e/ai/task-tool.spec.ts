@@ -12,6 +12,7 @@ test.describe('Task Tool — Agent Creates Tasks', () => {
 
   let projectId: string
   let agentId: string
+  let createConvId: string
 
   test.beforeAll(async ({ helper }) => {
     test.setTimeout(180_000)
@@ -20,10 +21,10 @@ test.describe('Task Tool — Agent Creates Tasks', () => {
     const project = await helper.createProjectViaApi('Task Tool Test')
     projectId = project.id
 
-    // Create a cheap agent with task tool enabled
-    const agent = await helper.createCheapAgent(projectId, 'Task Agent', {
+    // Create a tool-reliable agent with task tool enabled
+    const agent = await helper.createToolAgent(projectId, 'Task Agent', {
       systemPrompt:
-        'You have a task tool. When asked to create a task, use the task tool to create it with the exact title given. Do not explain, just create the task.',
+        'You have a task tool. When asked to create a task, use the task tool to create it with the exact subject given. Do not explain, just create the task.',
       builtinTools: { task: true, bash: false, browser: false, computer_use: false, memory: false },
     })
     agentId = agent.id
@@ -33,9 +34,10 @@ test.describe('Task Tool — Agent Creates Tasks', () => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, agentId, 'Task Create Test')
+    createConvId = conv.id
     await helper.enterConversation(projectId, conv.id)
     const response = await helper.sendAndWaitForResponse(
-      "Create a task titled 'E2E Test Task'",
+      "Create a task with subject 'E2E Test Task'",
       TIMEOUTS.AI_RESPONSE,
     )
 
@@ -43,21 +45,20 @@ test.describe('Task Tool — Agent Creates Tasks', () => {
     expect(response).toBeTruthy()
     expect(await helper.hasToolCall()).toBe(true)
 
-    // Verify the task was actually created via API
-    const tasks = await helper.apiGet(`/api/projects/${projectId}/tasks`)
-    const taskTitles: string[] = (Array.isArray(tasks) ? tasks : tasks.tasks ?? []).map(
-      (t: any) => t.title ?? t.name ?? '',
-    )
-    expect(taskTitles.some((title: string) => title.includes('E2E Test Task'))).toBe(true)
+    // Verify the task was actually created via API (task field is "subject", not "title")
+    const tasks = await helper.apiGet(`/api/projects/${projectId}/tasks?conversationId=${conv.id}`)
+    const taskList = Array.isArray(tasks) ? tasks : tasks.tasks ?? []
+    const subjects: string[] = taskList.map((t: any) => t.subject ?? '')
+    expect(subjects.some((s: string) => s.includes('E2E Test Task'))).toBe(true)
   })
 
   test('agent can list tasks', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(projectId, agentId, 'Task List Test')
-    await helper.enterConversation(projectId, conv.id)
+    // Use the SAME conversation so the agent can see the previously created task
+    await helper.enterConversation(projectId, createConvId)
     const response = await helper.sendAndWaitForResponse(
-      'List all current tasks. Show their titles.',
+      'List all current tasks. Show their subjects.',
       TIMEOUTS.AI_RESPONSE,
     )
 
@@ -69,10 +70,10 @@ test.describe('Task Tool — Agent Creates Tasks', () => {
   test('agent can update a task status', async ({ helper }) => {
     test.setTimeout(120_000)
 
-    const conv = await helper.createConversationViaApi(projectId, agentId, 'Task Update Test')
-    await helper.enterConversation(projectId, conv.id)
+    // Use the SAME conversation so the agent can see and update the task
+    await helper.enterConversation(projectId, createConvId)
     const response = await helper.sendAndWaitForResponse(
-      "Mark the task titled 'E2E Test Task' as completed.",
+      "Mark the task with subject 'E2E Test Task' as completed.",
       TIMEOUTS.AI_RESPONSE,
     )
 
@@ -80,10 +81,10 @@ test.describe('Task Tool — Agent Creates Tasks', () => {
     expect(response).toBeTruthy()
 
     // Verify task was updated via API
-    const tasks = await helper.apiGet(`/api/projects/${projectId}/tasks`)
+    const tasks = await helper.apiGet(`/api/projects/${projectId}/tasks?conversationId=${createConvId}`)
     const taskList = Array.isArray(tasks) ? tasks : tasks.tasks ?? []
     const updatedTask = taskList.find(
-      (t: any) => (t.title ?? t.name ?? '').includes('E2E Test Task'),
+      (t: any) => (t.subject ?? '').includes('E2E Test Task'),
     )
     // Task should exist and ideally be marked completed
     expect(updatedTask).toBeTruthy()

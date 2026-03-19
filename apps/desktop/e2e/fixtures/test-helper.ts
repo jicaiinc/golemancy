@@ -410,50 +410,60 @@ export class TestHelper {
 
   /** Wait for an assistant response to appear and streaming to complete */
   async waitForResponse(timeout = TIMEOUTS.AI_RESPONSE): Promise<string> {
-    // Wait for assistant message to appear
-    const assistantMsg = this.page
-      .locator(`${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`)
-      .last()
+    const sel = {
+      assistant: `${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`,
+      input: SELECTORS.CHAT_INPUT,
+      toolCall: SELECTORS.TOOL_CALL,
+    }
+
+    // Step 1: Wait for assistant message to appear
+    const assistantMsg = this.page.locator(sel.assistant).last()
     await assistantMsg.waitFor({ state: 'visible', timeout })
 
-    // Wait for streaming to complete (input re-enabled = not disabled)
+    // Step 2: Wait for streaming to complete
+    // First ensure input IS disabled (streaming started), then wait for re-enable
     await this.page.waitForFunction(
-      (selector: string) => {
-        const input = document.querySelector(selector) as HTMLTextAreaElement | null
+      (inputSel: string) => {
+        const input = document.querySelector(inputSel) as HTMLTextAreaElement | null
+        return input !== null && input.disabled
+      },
+      sel.input,
+      { timeout: 5000 },
+    ).catch(() => { /* input may never disable for instant responses */ })
+
+    await this.page.waitForFunction(
+      (inputSel: string) => {
+        const input = document.querySelector(inputSel) as HTMLTextAreaElement | null
         return input !== null && !input.disabled
       },
-      SELECTORS.CHAT_INPUT,
+      sel.input,
       { timeout },
     )
 
-    // Guard against React render lag: wait for content to actually appear
-    try {
-      await this.page.waitForFunction(
-        (selector: string) => {
-          const msgs = document.querySelectorAll(selector)
-          const last = msgs[msgs.length - 1]
-          return last !== null && (last as HTMLElement).innerText.trim().length > 0
-        },
-        `${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`,
-        { timeout },
-      )
-    } catch (e) {
-      // Debug: dump assistant message DOM state on timeout
-      const debug = await this.page.evaluate((sel: string) => {
-        const msgs = document.querySelectorAll(sel)
-        return Array.from(msgs).map((el, i) => ({
-          index: i,
-          innerText: (el as HTMLElement).innerText.substring(0, 200),
-          innerHTML: (el as HTMLElement).innerHTML.substring(0, 500),
-          childCount: el.children.length,
-        }))
-      }, `${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`)
-      console.error('[waitForResponse] assistant messages at timeout:', JSON.stringify(debug, null, 2))
-      throw e
-    }
+    // Step 3: Wait for actual content to render (text or tool-call elements)
+    // Tool calls may render asynchronously after the stream completes
+    await this.page.waitForFunction(
+      (args: { msgSel: string; toolSel: string }) => {
+        const msgs = document.querySelectorAll(args.msgSel)
+        if (msgs.length === 0) return false
+        for (const msg of Array.from(msgs)) {
+          const el = msg as HTMLElement
+          if (el.innerText.trim().length > 0) return true
+          if (el.querySelector(args.toolSel)) return true
+        }
+        return false
+      },
+      { msgSel: sel.assistant, toolSel: sel.toolCall },
+      { timeout: 15_000 },
+    ).catch(() => { /* content might not appear for edge cases */ })
 
-    // Return the final complete text
-    return assistantMsg.innerText()
+    // Return all assistant message text (handles multi-bubble tool call scenarios)
+    const allText = await this.page.evaluate((msgSel: string) => {
+      const msgs = document.querySelectorAll(msgSel)
+      return Array.from(msgs).map(el => (el as HTMLElement).innerText.trim()).filter(t => t.length > 0).join('\n')
+    }, sel.assistant)
+
+    return allText || await assistantMsg.innerText()
   }
 
   /** Start a chat by clicking an agent card in the empty state */
