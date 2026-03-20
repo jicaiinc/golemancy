@@ -197,6 +197,19 @@ jobs:
       # which bundles the archive instead of raw resource directories.
       # macOS: Signed with Developer ID certificate + notarized via notarytool.
       # Note: matrix.platform is from a trusted strategy matrix, not user input.
+      - name: Verify signing credentials (macOS)
+        if: matrix.platform == 'mac'
+        run: |
+          echo "CSC_LINK length: ${#CSC_LINK}"
+          echo "CSC_KEY_PASSWORD set: $([ -n "$CSC_KEY_PASSWORD" ] && echo 'yes' || echo 'NO')"
+          echo "APPLE_ID set: $([ -n "$APPLE_ID" ] && echo 'yes' || echo 'NO')"
+          echo "APPLE_TEAM_ID: $APPLE_TEAM_ID"
+        env:
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: NDX2ZZ8U2R
+
       - name: Package (electron-builder)
         run: |
           cd apps/desktop
@@ -205,6 +218,7 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           CSC_LINK: ${{ matrix.platform == 'mac' && secrets.MAC_CSC_LINK || '' }}
           CSC_KEY_PASSWORD: ${{ matrix.platform == 'mac' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
+          DEBUG: ${{ matrix.platform == 'mac' && 'electron-builder,electron-osx-sign*' || '' }}
           APPLE_ID: ${{ matrix.platform == 'mac' && secrets.APPLE_ID || '' }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ matrix.platform == 'mac' && secrets.APPLE_APP_SPECIFIC_PASSWORD || '' }}
           APPLE_TEAM_ID: ${{ matrix.platform == 'mac' && 'NDX2ZZ8U2R' || '' }}
