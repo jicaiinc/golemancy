@@ -19,19 +19,19 @@
   }
 }
 
-/* === Light theme (warm parchment) === */
+/* === Light theme (clean light) === */
 :root {
-  --color-void: #F5F3EE;
-  --color-deep: #EBE8E1;
-  --color-surface: #DEDBD4;
-  --color-elevated: #D1CEC7;
+  --color-void: #FFFFFF;
+  --color-deep: #F7F7F8;
+  --color-surface: #F0F0F2;
+  --color-elevated: #E8E8EB;
 
-  --color-border-dim: #C4C0B8;
-  --color-border-bright: #9E9A91;
+  --color-border-dim: #DCDCE0;
+  --color-border-bright: #B5B5BC;
 
-  --color-text-primary: #1A1612;
-  --color-text-secondary: #6B6560;
-  --color-text-dim: #A09A92;
+  --color-text-primary: #1A1A1F;
+  --color-text-secondary: #5C5C66;
+  --color-text-dim: #9494A0;
 
   --color-accent-green: #2D7A4F;
   --color-accent-emerald: #1E8C5E;

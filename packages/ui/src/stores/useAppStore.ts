@@ -797,7 +797,7 @@ export const useAppStore = create<AppState>()(
       // --- UI state ---
       sidebarCollapsed: false,
       chatHistoryExpanded: false,
-      themeMode: 'dark' as ThemeMode,
+      themeMode: 'system' as ThemeMode,
       updateInfo: null,
       skippedVersion: null,
       updateNotificationsEnabled: true,
