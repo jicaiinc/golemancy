@@ -197,6 +197,13 @@ jobs:
       # which bundles the archive instead of raw resource directories.
       # macOS: Signed with Developer ID certificate + notarized via notarytool.
       # Note: matrix.platform is from a trusted strategy matrix, not user input.
+      - name: Install Apple intermediate certificate (macOS)
+        if: matrix.platform == 'mac'
+        run: |
+          curl -sO https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
+          sudo security import DeveloperIDG2CA.cer -k /Library/Keychains/System.keychain -T /usr/bin/codesign
+          echo "✓ Apple Developer ID G2 intermediate certificate installed"
+
       - name: Verify signing credentials (macOS)
         if: matrix.platform == 'mac'
         run: |

@@ -107,6 +107,12 @@ jobs:
             });
           "
 
+      - name: Install Apple intermediate certificate
+        run: |
+          curl -sO https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
+          sudo security import DeveloperIDG2CA.cer -k /Library/Keychains/System.keychain -T /usr/bin/codesign
+          echo "✓ Apple Developer ID G2 intermediate certificate installed"
+
       - name: Verify signing credentials
         run: |
           echo "CSC_LINK length: ${#CSC_LINK}"
