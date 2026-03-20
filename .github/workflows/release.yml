@@ -227,7 +227,10 @@ jobs:
       - name: Verify code signature (macOS)
         if: matrix.platform == 'mac'
         run: |
-          APP=$(find apps/desktop/release/mac-* -name "*.app" -maxdepth 1 | head -1)
+          DMG=$(ls apps/desktop/release/*.dmg | head -1)
+          echo "Mounting: $DMG"
+          MOUNT_DIR=$(hdiutil attach "$DMG" -nobrowse | tail -1 | awk '{print $NF}')
+          APP=$(find "$MOUNT_DIR" -name "*.app" -maxdepth 1 | head -1)
           echo "Verifying: $APP"
           codesign --verify --deep --strict "$APP"
           echo "✓ Code signature valid"
@@ -235,6 +238,7 @@ jobs:
           echo "✓ Gatekeeper assessment passed"
           xcrun stapler validate "$APP"
           echo "✓ Stapler validation passed"
+          hdiutil detach "$MOUNT_DIR"
 
       - name: Verify Linux packages
         if: matrix.platform == 'linux'
