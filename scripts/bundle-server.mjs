@@ -583,6 +583,23 @@ const PRUNE_DIR_NAMES = new Set([
   'examples',
 ])
 
+function shouldPruneForTargetPlatform(fullPath) {
+  const normalized = fullPath.replaceAll('\\', '/')
+
+  if (process.platform === 'darwin') {
+    if (
+      normalized.includes('/@anthropic-ai/sandbox-runtime/dist/vendor/seccomp/')
+      || normalized.includes('/@anthropic-ai/sandbox-runtime/vendor/seccomp/')
+      || normalized.includes('/@anthropic-ai/sandbox-runtime/dist/vendor/seccomp-src/')
+      || normalized.includes('/@anthropic-ai/sandbox-runtime/vendor/seccomp-src/')
+    ) {
+      return true
+    }
+  }
+
+  return false
+}
+
 /**
  * Recursively prune unnecessary files from a directory.
  * Returns the count of removed items.
@@ -598,6 +615,12 @@ async function pruneDir(dirPath) {
 
   for (const entry of entries) {
     const fullPath = join(dirPath, entry.name)
+
+    if (shouldPruneForTargetPlatform(fullPath)) {
+      await rm(fullPath, { recursive: true, force: true })
+      removed++
+      continue
+    }
 
     if (entry.isDirectory()) {
       if (PRUNE_DIR_NAMES.has(entry.name)) {
@@ -619,10 +642,13 @@ async function pruneDir(dirPath) {
 }
 
 /**
- * Recursively find and preserve executable permissions on binary files.
- * (.node native addons, rg binary, etc.)
+ * macOS notarization is sensitive to "executable-looking" files inside
+ * Contents/Resources. Clear stray executable bits from text/data files while
+ * preserving actual CLI entry points and native executables.
  */
-async function preserveBinaryPermissions(dirPath) {
+async function normalizeExecutablePermissions(dirPath) {
+  if (process.platform === 'win32') return
+
   let entries
   try {
     entries = await readdir(dirPath, { withFileTypes: true })
@@ -634,22 +660,44 @@ async function preserveBinaryPermissions(dirPath) {
     const fullPath = join(dirPath, entry.name)
 
     if (entry.isDirectory()) {
-      await preserveBinaryPermissions(fullPath)
+      await normalizeExecutablePermissions(fullPath)
     } else if (entry.isFile()) {
-      if (
-        entry.name.endsWith('.node') ||
-        entry.name === 'rg' ||
-        entry.name === 'apply-seccomp'
-      ) {
-        try {
-          const fileStat = await stat(fullPath)
-          if (!(fileStat.mode & 0o111)) {
-            await chmod(fullPath, fileStat.mode | 0o755)
-            console.log(`  Fixed permissions: ${fullPath}`)
+      try {
+        const fileStat = await stat(fullPath)
+        const hasExecBit = Boolean(fileStat.mode & 0o111)
+        const shouldInspect = hasExecBit || entry.name === 'rg' || entry.name === 'apply-seccomp'
+
+        if (!shouldInspect) continue
+
+        const bytes = await readFile(fullPath, { encoding: null })
+        const isShebangScript = bytes.length >= 2 && bytes[0] === 0x23 && bytes[1] === 0x21
+
+        let isNativeExecutable = false
+        if (!isShebangScript) {
+          try {
+            const fileType = execFileSync('file', ['-b', fullPath], {
+              encoding: 'utf-8',
+              stdio: ['ignore', 'pipe', 'ignore'],
+            })
+            isNativeExecutable = (
+              (fileType.includes('Mach-O') && fileType.includes('executable'))
+              || (fileType.includes('ELF') && fileType.includes('executable'))
+            )
+          } catch {
+            // Best-effort only — if file(1) is unavailable, leave permissions unchanged.
+            continue
           }
-        } catch {
-          // Ignore permission errors
         }
+
+        const shouldBeExecutable = isShebangScript || isNativeExecutable
+
+        if (shouldBeExecutable && !hasExecBit) {
+          await chmod(fullPath, fileStat.mode | 0o755)
+        } else if (!shouldBeExecutable && hasExecBit) {
+          await chmod(fullPath, fileStat.mode & ~0o111)
+        }
+      } catch {
+        // Ignore permission and classification errors
       }
     }
   }
@@ -1000,7 +1048,7 @@ process.exit(errors.length > 0 ? 1 : 0);
   const removedCount = await pruneDir(OUT_NODE_MODULES)
   console.log(`  Removed ${removedCount} unnecessary files/directories`)
 
-  await preserveBinaryPermissions(OUT_NODE_MODULES)
+  await normalizeExecutablePermissions(OUT_NODE_MODULES)
 
   console.log('\nServer bundle complete.')
 }

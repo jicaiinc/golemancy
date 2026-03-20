@@ -117,11 +117,13 @@ jobs:
         run: |
           echo "CSC_LINK length: ${#CSC_LINK}"
           echo "CSC_KEY_PASSWORD set: $([ -n "$CSC_KEY_PASSWORD" ] && echo 'yes' || echo 'NO')"
+          echo "CSC_NAME: $CSC_NAME"
           echo "APPLE_ID set: $([ -n "$APPLE_ID" ] && echo 'yes' || echo 'NO')"
           echo "APPLE_TEAM_ID: $APPLE_TEAM_ID"
         env:
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_NAME: Jicai, Inc. (NDX2ZZ8U2R)
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: NDX2ZZ8U2R
 
@@ -133,6 +135,7 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_NAME: Jicai, Inc. (NDX2ZZ8U2R)
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: NDX2ZZ8U2R

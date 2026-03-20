@@ -60,6 +60,68 @@ verify_sha256() {
   echo "  SHA256 verified ✓"
 }
 
+prune_path() {
+  local path="$1"
+  if [ -e "$path" ] || [ -L "$path" ]; then
+    rm -rf "$path"
+  fi
+}
+
+normalize_unix_runtime_permissions() {
+  local dir="$1"
+
+  find "$dir" -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) -print0 | while IFS= read -r -d '' file; do
+    case "$file" in
+      "$dir/bin/"*)
+        continue
+        ;;
+      *.dylib|*.so|*.so.*)
+        continue
+        ;;
+    esac
+
+    if head -c 2 "$file" 2>/dev/null | grep -q '^#!'; then
+      continue
+    fi
+
+    chmod a-x "$file"
+  done
+}
+
+prune_node_runtime() {
+  local node_dir="$1"
+
+  # Keep the actual runtime (`bin/node`) plus npm/corepack shims, but drop
+  # headers, manpages, and release notes that only expand the notarization surface.
+  prune_path "${node_dir}/include"
+  prune_path "${node_dir}/share"
+  rm -f "${node_dir}/CHANGELOG.md" "${node_dir}/README.md"
+
+  normalize_unix_runtime_permissions "$node_dir"
+}
+
+prune_python_runtime() {
+  local python_dir="$1"
+
+  # Keep python + pip intact, but remove developer/demo content that is not
+  # needed in production and commonly introduces extra signed resources.
+  prune_path "${python_dir}/share"
+  prune_path "${python_dir}/lib/tk9.0/demos"
+  prune_path "${python_dir}/lib/python3.13/turtledemo"
+  prune_path "${python_dir}/lib/python3.13/idlelib"
+  prune_path "${python_dir}/lib/python3.13/config-3.13-darwin"
+
+  rm -f \
+    "${python_dir}/bin/idle3" \
+    "${python_dir}/bin/idle3.13" \
+    "${python_dir}/bin/pydoc3" \
+    "${python_dir}/bin/pydoc3.13" \
+    "${python_dir}/bin/python3-config" \
+    "${python_dir}/bin/python3.13-config"
+
+  normalize_unix_runtime_permissions "$python_dir"
+}
+
 # ── Python download ──
 
 download_python() {
@@ -119,6 +181,7 @@ download_python() {
     echo "Python ${PYTHON_VERSION} installed successfully (Windows)"
     "${python_dir}/python.exe" --version
   elif [ -x "${python_dir}/bin/python3.13" ]; then
+    prune_python_runtime "${python_dir}"
     echo "Python ${PYTHON_VERSION} installed successfully"
     "${python_dir}/bin/python3.13" --version
   else
@@ -208,6 +271,7 @@ download_node() {
     echo "Node.js ${NODE_VERSION} installed successfully (Windows)"
     "${node_dir}/node.exe" --version
   elif [ -x "${node_dir}/bin/node" ]; then
+    prune_node_runtime "${node_dir}"
     echo "Node.js ${NODE_VERSION} installed successfully"
     "${node_dir}/bin/node" --version
   else
