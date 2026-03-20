@@ -236,9 +236,9 @@ jobs:
           echo "✓ Code signature valid"
           spctl -a -t exec -vvv "$APP"
           echo "✓ Gatekeeper assessment passed"
-          xcrun stapler validate "$APP"
-          echo "✓ Stapler validation passed"
           hdiutil detach "$MOUNT_DIR"
+          xcrun stapler validate "$DMG"
+          echo "✓ Stapler validation passed"
 
       - name: Verify Linux packages
         if: matrix.platform == 'linux'
