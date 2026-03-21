@@ -160,11 +160,9 @@ jobs:
           echo "✓ Code signature valid"
           spctl -a -t exec -vvv "$APP"
           echo "✓ Gatekeeper assessment passed"
+          xcrun stapler validate "$APP"
+          echo "✓ Notarization ticket stapled"
           hdiutil detach /tmp/golemancy-verify
-          xcrun stapler staple "$DMG"
-          echo "✓ DMG stapled"
-          xcrun stapler validate "$DMG"
-          echo "✓ Stapler validation passed"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
