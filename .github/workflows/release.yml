@@ -253,14 +253,14 @@ jobs:
         run: |
           DMG=$(ls apps/desktop/release/*.dmg | head -1)
           echo "Mounting: $DMG"
-          MOUNT_DIR=$(hdiutil attach "$DMG" -nobrowse | tail -1 | awk '{print $NF}')
-          APP=$(find "$MOUNT_DIR" -name "*.app" -maxdepth 1 | head -1)
+          hdiutil attach "$DMG" -nobrowse -mountpoint /tmp/golemancy-verify
+          APP=$(find /tmp/golemancy-verify -name "*.app" -maxdepth 1 | head -1)
           echo "Verifying: $APP"
           codesign --verify --deep --strict "$APP"
           echo "✓ Code signature valid"
           spctl -a -t exec -vvv "$APP"
           echo "✓ Gatekeeper assessment passed"
-          hdiutil detach "$MOUNT_DIR"
+          hdiutil detach /tmp/golemancy-verify
           xcrun stapler validate "$DMG"
           echo "✓ Stapler validation passed"
 
