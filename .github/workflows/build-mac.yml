@@ -161,6 +161,8 @@ jobs:
           spctl -a -t exec -vvv "$APP"
           echo "✓ Gatekeeper assessment passed"
           hdiutil detach /tmp/golemancy-verify
+          xcrun stapler staple "$DMG"
+          echo "✓ DMG stapled"
           xcrun stapler validate "$DMG"
           echo "✓ Stapler validation passed"
 
