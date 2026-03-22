@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig, OAuthFlowStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
@@ -50,8 +50,30 @@ function BadgeDot() {
 const VALID_TABS = new Set(['general', 'providers', 'speech', 'about'])
 
 export function GlobalSettingsPage() {
+  const settings = useAppStore(s => s.settings)
+
+  if (!settings) return null
+
+  return (
+    <GlobalLayout>
+      <GlobalSettingsContent />
+    </GlobalLayout>
+  )
+}
+
+interface GlobalSettingsContentProps {
+  showPageTitle?: boolean
+  containerClassName?: string
+}
+
+export function GlobalSettingsContent({
+  showPageTitle = true,
+  containerClassName = 'max-w-[1000px] mx-auto p-8',
+}: GlobalSettingsContentProps = {}) {
   const { t } = useTranslation('settings')
-  const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
 
@@ -61,14 +83,31 @@ export function GlobalSettingsPage() {
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab)
+    const nextSearchParams = new URLSearchParams(searchParams)
+
     // Keep URL in sync — remove param when going back to default tab
     if (tab === 'general') {
-      searchParams.delete('tab')
+      nextSearchParams.delete('tab')
     } else {
-      searchParams.set('tab', tab)
+      nextSearchParams.set('tab', tab)
     }
-    setSearchParams(searchParams, { replace: true })
-  }, [searchParams, setSearchParams])
+    const nextSearch = nextSearchParams.toString()
+
+    navigate(
+      {
+        pathname: location.pathname,
+        search: nextSearch ? `?${nextSearch}` : '',
+      },
+      {
+        replace: true,
+        state: location.state,
+      },
+    )
+  }, [location.pathname, location.state, navigate, searchParams])
+
+  useEffect(() => {
+    setActiveTab(initialTab)
+  }, [initialTab])
 
   const updateInfo = useAppStore(s => s.updateInfo)
   const skippedVersion = useAppStore(s => s.skippedVersion)
@@ -85,23 +124,22 @@ export function GlobalSettingsPage() {
   ]
 
   return (
-    <GlobalLayout>
-      <div data-testid="settings-form" className="max-w-[1000px] mx-auto p-8">
-        {/* Page heading */}
-        <h2 className="font-pixel text-[12px] text-text-primary mb-6">{t('page.title')}</h2>
+    <div data-testid="settings-form" className={containerClassName}>
+      {showPageTitle && (
+        <h2 className="mb-6 font-pixel text-[12px] text-text-primary">{t('page.title')}</h2>
+      )}
 
-        <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={handleTabChange} />
+      <PixelTabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 
-        <div className="mt-4">
-          {activeTab === 'general' && <GeneralTab />}
-          {activeTab === 'providers' && (
-            <ProvidersTab settings={settings} onUpdate={updateSettings} />
-          )}
-          {activeTab === 'speech' && <SpeechTab />}
-          {activeTab === 'about' && <AboutTab />}
-        </div>
+      <div className="mt-4">
+        {activeTab === 'general' && <GeneralTab />}
+        {activeTab === 'providers' && (
+          <ProvidersTab settings={settings} onUpdate={updateSettings} />
+        )}
+        {activeTab === 'speech' && <SpeechTab />}
+        {activeTab === 'about' && <AboutTab />}
       </div>
-    </GlobalLayout>
+    </div>
   )
 }
 

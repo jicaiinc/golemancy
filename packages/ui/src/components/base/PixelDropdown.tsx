@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { dropdownTransition } from '../../lib/motion'
 
 interface DropdownItem {
-  label: string
+  label: ReactNode
   value: string
   selected?: boolean
 }

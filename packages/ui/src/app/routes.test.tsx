@@ -1,10 +1,11 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { AppRoutes } from './routes'
 import { useAppStore } from '../stores'
 import { configureServices } from '../services/container'
 import type { ServiceContainer } from '../services/container'
 import type { GlobalSettings, ProjectId } from '@golemancy/shared'
+import { ServiceProvider } from '../services'
 
 // Mock motion/react to avoid animation issues in tests
 vi.mock('motion/react', () => {
@@ -81,6 +82,7 @@ describe('RootRedirect — Onboarding Detection', () => {
     configureServices(createTestServices())
     // Ensure electronAPI is not available
     delete (window as any).electronAPI
+    window.history.replaceState(null, '', '#/')
   })
 
   it('shows onboarding when all three conditions are met (fresh install)', () => {
@@ -179,5 +181,39 @@ describe('RootRedirect — Onboarding Detection', () => {
     })
     render(<AppRoutes />)
     expect(screen.queryByTestId('onboarding-page')).not.toBeInTheDocument()
+  })
+
+  it('opens global settings as an overlay and returns to the background page when closed', async () => {
+    useAppStore.setState({
+      settings: { ...emptySettings, onboardingCompleted: true },
+      projects: [],
+      projectsLoading: false,
+    })
+
+    render(
+      <ServiceProvider>
+        <AppRoutes />
+      </ServiceProvider>,
+    )
+
+    expect(screen.getByText('All Projects')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation menu' }))
+    fireEvent.click(screen.getByText('Settings'))
+
+    await waitFor(() => expect(window.location.hash).toBe('#/settings'))
+    expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument()
+    expect(screen.getByText('All Projects')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByText('Providers'))
+
+    await waitFor(() => expect(window.location.hash).toBe('#/settings?tab=providers'))
+    expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument()
+    expect(screen.getByText('All Projects')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+    await waitFor(() => expect(window.location.hash).toBe('#/'))
+    expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument()
   })
 })
