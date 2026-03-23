@@ -207,11 +207,18 @@ async function ensureWorkspaceDir(projectId: string): Promise<string> {
 
 // ── Instructions ─────────────────────────────────────────
 
+/** Runtime availability info, resolved from bundled runtime detection. */
+export interface BashRuntimeInfo {
+  hasBundledPython: boolean
+  hasBundledNode: boolean
+}
+
 /**
  * Build the bash instructions block for injection into the agent's system prompt.
- * Content varies based on the actual permission mode, project context, and platform.
+ * Content varies based on the actual permission mode, project context, platform,
+ * and available bundled runtimes.
  */
-export function buildBashInstructions(mode: PermissionMode, hasProject: boolean, platform?: SupportedPlatform): string {
+export function buildBashInstructions(mode: PermissionMode, hasProject: boolean, platform?: SupportedPlatform, runtime?: BashRuntimeInfo): string {
   const lines: string[] = []
   lines.push('## Bash Environment')
   lines.push('')
@@ -254,7 +261,7 @@ export function buildBashInstructions(mode: PermissionMode, hasProject: boolean,
           lines.push('Filesystem and network access are governed by the project\'s permissions config.')
         }
       }
-      lines.push('Python may be available if installed on the host system.')
+      appendRuntimeLines(lines, runtime)
       break
 
     case 'unrestricted':
@@ -270,11 +277,22 @@ export function buildBashInstructions(mode: PermissionMode, hasProject: boolean,
         lines.push('- Use `/` for command switches (e.g. `dir /b`) and `\\` for path separators')
         lines.push('- PowerShell cmdlets are also available if PowerShell is installed')
       }
-      lines.push('Python may be available if installed on the host system.')
+      appendRuntimeLines(lines, runtime)
       break
   }
 
   return lines.join('\n')
+}
+
+function appendRuntimeLines(lines: string[], runtime?: BashRuntimeInfo): void {
+  if (runtime?.hasBundledPython) {
+    lines.push('Python is available with pip pre-installed. Use `pip install` to add packages as needed.')
+  } else {
+    lines.push('Python may be available if installed on the host system.')
+  }
+  if (runtime?.hasBundledNode) {
+    lines.push('Node.js is available with npm pre-installed.')
+  }
 }
 
 // ── Public API ─────────────────────────────────────────────

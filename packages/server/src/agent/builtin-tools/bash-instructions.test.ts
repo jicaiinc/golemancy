@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { buildBashInstructions } from './bash-tools'
+import type { BashRuntimeInfo } from './bash-tools'
+
+const BUNDLED: BashRuntimeInfo = { hasBundledPython: true, hasBundledNode: true }
+const NO_BUNDLED: BashRuntimeInfo = { hasBundledPython: false, hasBundledNode: false }
 
 describe('buildBashInstructions', () => {
   // ── Restricted mode ─────────────────────────────────────
@@ -53,6 +57,29 @@ describe('buildBashInstructions', () => {
       const result = buildBashInstructions('sandbox', true)
       expect(result).toContain('OS-level isolation')
     })
+
+    it('says Python is available when bundled', () => {
+      const result = buildBashInstructions('sandbox', true, 'darwin', BUNDLED)
+      expect(result).toContain('Python is available with pip pre-installed')
+      expect(result).toContain('pip install')
+      expect(result).not.toContain('may be available')
+    })
+
+    it('says Python may be available when not bundled', () => {
+      const result = buildBashInstructions('sandbox', true, 'darwin', NO_BUNDLED)
+      expect(result).toContain('may be available')
+      expect(result).not.toContain('pip pre-installed')
+    })
+
+    it('mentions Node.js when bundled', () => {
+      const result = buildBashInstructions('sandbox', true, 'darwin', BUNDLED)
+      expect(result).toContain('Node.js is available with npm pre-installed')
+    })
+
+    it('omits Node.js when not bundled', () => {
+      const result = buildBashInstructions('sandbox', true, 'darwin', NO_BUNDLED)
+      expect(result).not.toContain('Node.js')
+    })
   })
 
   // ── Unrestricted mode ───────────────────────────────────
@@ -73,6 +100,22 @@ describe('buildBashInstructions', () => {
     it('omits Windows guidance on darwin', () => {
       const result = buildBashInstructions('unrestricted', true, 'darwin')
       expect(result).not.toContain('cmd.exe')
+    })
+
+    it('says Python is available when bundled', () => {
+      const result = buildBashInstructions('unrestricted', true, 'darwin', BUNDLED)
+      expect(result).toContain('Python is available with pip pre-installed')
+      expect(result).not.toContain('may be available')
+    })
+
+    it('says Python may be available when not bundled', () => {
+      const result = buildBashInstructions('unrestricted', true, 'darwin', NO_BUNDLED)
+      expect(result).toContain('may be available')
+    })
+
+    it('mentions Node.js when bundled', () => {
+      const result = buildBashInstructions('unrestricted', true, 'darwin', BUNDLED)
+      expect(result).toContain('Node.js is available with npm pre-installed')
     })
   })
 })
