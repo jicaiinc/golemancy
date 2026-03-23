@@ -216,6 +216,7 @@ async function main() {
       teamStorage,
       tokenRecordStorage,
       wsManager,
+      activeChatRegistry,
       oauthManager,
     })
     cronScheduler.start({

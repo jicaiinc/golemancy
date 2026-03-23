@@ -2,6 +2,11 @@ appId: ai.golemancy
 productName: Golemancy
 copyright: Copyright © 2026 Jicai, Inc.
 
+publish:
+  provider: github
+  owner: jicaiinc
+  repo: golemancy
+
 directories:
   output: release
   buildResources: resources/build

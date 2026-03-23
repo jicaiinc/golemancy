@@ -24,10 +24,17 @@
     "upToDate": "You're up to date — v{{version}}",
     "available": "UPDATE AVAILABLE",
     "newVersion": "v{{current}} → v{{latest}}",
+    "checking": "Checking for updates...",
+    "downloading": "Downloading update... {{percent}}%",
+    "downloaded": "An updated version of Golemancy v{{version}} is available.",
+    "seeChangelog": "See changelog",
+    "restart": "Restart",
+    "restartConfirm": "There are {{count}} active AI sessions. Restart anyway?",
     "download": "Download for {{platform}}",
     "downloadGeneric": "Download",
-    "skip": "Skip this version",
-    "skipped": "v{{version}} available (skipped)"
+    "checkNow": "Check now",
+    "retryCheck": "Retry",
+    "error": "Update check failed: {{message}}"
   },
   "general": {
     "appearance": "APPEARANCE",

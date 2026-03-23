@@ -5,7 +5,7 @@ import { fork, type ChildProcess } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
 import { needsResourceExtraction, extractResources, createSetupWindow } from './setup'
-import { startUpdateChecker, getLatestUpdateInfo, openDownloadUrl } from './updater'
+import { initAutoUpdater, getUpdateState, checkForUpdatesNow, quitAndInstall, openReleaseUrl } from './updater'
 
 const APP_VERSION: string = JSON.parse(
   readFileSync(
@@ -199,6 +199,20 @@ function buildAppMenu(): void {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
 
+async function queryActiveChatCount(): Promise<number> {
+  if (!serverPort || !serverToken) return 0
+  try {
+    const res = await fetch(`http://127.0.0.1:${serverPort}/api/active-chats/count`, {
+      headers: { Authorization: `Bearer ${serverToken}` },
+    })
+    if (!res.ok) return 0
+    const data = await res.json() as { count: number }
+    return data.count
+  } catch {
+    return 0
+  }
+}
+
 function createWindow(options?: { projectId?: string }): void {
   const win = new BrowserWindow({
     width: 1280,
@@ -255,11 +269,11 @@ function createWindow(options?: { projectId?: string }): void {
     )
   }
 
-  // Send cached update info to new windows after page loads
+  // Send cached update state to new windows after page loads
   win.webContents.once('did-finish-load', () => {
-    const cached = getLatestUpdateInfo()
-    if (cached) {
-      win.webContents.send('update:available', cached)
+    const updateState = getUpdateState()
+    if (updateState.status !== 'idle') {
+      win.webContents.send('update:state', updateState)
     }
   })
 }
@@ -351,13 +365,23 @@ app.whenReady().then(async () => {
 
   createWindow()
 
-  // Start update checker (packaged builds, or dev with GOLEMANCY_DEV_UPDATE_CHECK=1)
-  console.log('[updater] app.isPackaged=%s, GOLEMANCY_DEV_UPDATE_CHECK=%s', app.isPackaged, process.env.GOLEMANCY_DEV_UPDATE_CHECK)
-  if (app.isPackaged || process.env.GOLEMANCY_DEV_UPDATE_CHECK) {
-    startUpdateChecker(APP_VERSION)
-  }
-  ipcMain.handle('update:open-download', (_event, url: string) => {
-    return openDownloadUrl(url)
+  // Auto-updater (packaged builds, or dev mock with GOLEMANCY_DEV_UPDATE_CHECK=1)
+  initAutoUpdater()
+
+  ipcMain.handle('update:open-release', (_event, version: string) => {
+    openReleaseUrl(version)
+  })
+  ipcMain.handle('update:check-now', () => {
+    checkForUpdatesNow()
+  })
+  ipcMain.handle('update:restart-and-install', async () => {
+    const count = await queryActiveChatCount()
+    if (count > 0) return { blocked: true, activeChatCount: count }
+    quitAndInstall()
+    return { blocked: false, activeChatCount: 0 }
+  })
+  ipcMain.handle('update:force-restart', () => {
+    quitAndInstall()
   })
 
   ipcMain.handle('window:open', (_event, projectId?: string) => {

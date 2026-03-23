@@ -302,6 +302,19 @@ jobs:
             Write-Host "✓ $($file.Name) — $sizeMB MB"
           }
 
+      # ── Tag arch-specific update metadata (macOS) ──
+      # Both arm64 and x64 builds generate latest-mac.yml.
+      # Rename to latest-mac-{arch}.yml to avoid collision when artifacts merge.
+      # The release job combines them into a single latest-mac.yml.
+      - name: Tag update metadata with arch (macOS)
+        if: matrix.platform == 'mac'
+        run: |
+          cd apps/desktop/release
+          if [ -f latest-mac.yml ]; then
+            mv latest-mac.yml "latest-mac-${{ matrix.arch }}.yml"
+            echo "Renamed latest-mac.yml → latest-mac-${{ matrix.arch }}.yml"
+          fi
+
       # ── Upload artifacts for release job ──
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -314,6 +327,8 @@ jobs:
             apps/desktop/release/*.rpm
             apps/desktop/release/*.exe
             apps/desktop/release/*.msi
+            apps/desktop/release/*.yml
+            apps/desktop/release/*.blockmap
           if-no-files-found: error
           retention-days: 3
 
@@ -333,6 +348,34 @@ jobs:
 
       - name: List release files
         run: ls -lhR artifacts/
+
+      # Merge arch-specific latest-mac-{arch}.yml into a single latest-mac.yml.
+      # electron-updater reads the files array to find the matching architecture.
+      - name: Merge macOS update metadata
+        run: |
+          cd artifacts
+          python3 -c "
+          import yaml, os
+          arm64 = 'latest-mac-arm64.yml'
+          x64 = 'latest-mac-x64.yml'
+          if os.path.exists(arm64) and os.path.exists(x64):
+              with open(arm64) as f: a = yaml.safe_load(f)
+              with open(x64) as f: b = yaml.safe_load(f)
+              a['files'] = a.get('files', []) + b.get('files', [])
+              with open('latest-mac.yml', 'w') as f:
+                  yaml.dump(a, f, default_flow_style=False, allow_unicode=True)
+              os.remove(arm64)
+              os.remove(x64)
+              print('Merged latest-mac.yml with both architectures')
+          elif os.path.exists(arm64):
+              os.rename(arm64, 'latest-mac.yml')
+              print('Only arm64 metadata found, renamed to latest-mac.yml')
+          elif os.path.exists(x64):
+              os.rename(x64, 'latest-mac.yml')
+              print('Only x64 metadata found, renamed to latest-mac.yml')
+          else:
+              print('No macOS update metadata found (expected for non-mac builds)')
+          "
 
       - name: Generate checksums
         run: |

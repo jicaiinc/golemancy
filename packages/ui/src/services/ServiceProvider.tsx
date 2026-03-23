@@ -35,8 +35,8 @@ export function ServiceProvider({ children }: { children: ReactNode }) {
   const [container] = useState<ServiceContainer>(initServices)
 
   useEffect(() => {
-    const cleanup = window.electronAPI?.onUpdateAvailable?.((info) => {
-      useAppStore.getState().setUpdateInfo(info)
+    const cleanup = window.electronAPI?.onUpdateState?.((state) => {
+      useAppStore.getState().setUpdateState(state)
     })
     return () => cleanup?.()
   }, [])

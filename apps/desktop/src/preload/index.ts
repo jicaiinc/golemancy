@@ -28,11 +28,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   requestMicrophoneAccess: () => ipcRenderer.invoke('media:requestMicrophoneAccess'),
   getAppVersion: () => appVersion,
   getPlatformLabel: () => getPlatformLabel(),
-  onUpdateAvailable: (callback: (info: { version: string; downloadUrl: string }) => void) => {
-    const handler = (_e: Electron.IpcRendererEvent, info: { version: string; downloadUrl: string }) => callback(info)
-    ipcRenderer.on('update:available', handler)
-    return () => { ipcRenderer.removeListener('update:available', handler) }
+  onUpdateState: (callback: (state: { status: string; version: string | null; releaseUrl: string | null; downloadProgress: number | null; error: string | null; isLinuxFallback: boolean }) => void) => {
+    const handler = (_e: Electron.IpcRendererEvent, state: Parameters<typeof callback>[0]) => callback(state)
+    ipcRenderer.on('update:state', handler)
+    return () => { ipcRenderer.removeListener('update:state', handler) }
   },
-  openDownloadUrl: (url: string) => ipcRenderer.invoke('update:open-download', url),
+  openReleaseUrl: (version: string) => ipcRenderer.invoke('update:open-release', version),
+  checkForUpdatesNow: () => ipcRenderer.invoke('update:check-now'),
+  restartAndInstall: () => ipcRenderer.invoke('update:restart-and-install') as Promise<{ blocked: boolean; activeChatCount: number }>,
+  forceRestartAndInstall: () => ipcRenderer.invoke('update:force-restart'),
   openExternalUrl: (url: string) => ipcRenderer.invoke('shell:openExternal', url),
 })

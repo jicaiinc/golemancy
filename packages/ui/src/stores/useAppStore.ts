@@ -88,8 +88,7 @@ interface UISlice {
   sidebarCollapsed: boolean
   chatHistoryExpanded: boolean
   themeMode: ThemeMode
-  updateInfo: { version: string; downloadUrl: string } | null
-  skippedVersion: string | null
+  updateState: UpdateState | null
   updateNotificationsEnabled: boolean
   chatFilterShowCron: boolean
   chatFilterShowSubAgent: boolean
@@ -207,8 +206,7 @@ interface UIActions {
   toggleSidebar(): void
   toggleChatHistory(): void
   setTheme(mode: ThemeMode): void
-  setUpdateInfo(info: { version: string; downloadUrl: string } | null): void
-  skipVersion(version: string): void
+  setUpdateState(state: UpdateState | null): void
   setUpdateNotifications(enabled: boolean): void
   setChatFilter(key: 'chatFilterShowCron' | 'chatFilterShowSubAgent', value: boolean): void
 }
@@ -798,8 +796,7 @@ export const useAppStore = create<AppState>()(
       sidebarCollapsed: false,
       chatHistoryExpanded: false,
       themeMode: 'system' as ThemeMode,
-      updateInfo: null,
-      skippedVersion: null,
+      updateState: null,
       updateNotificationsEnabled: true,
       chatFilterShowCron: true,
       chatFilterShowSubAgent: false,
@@ -817,12 +814,8 @@ export const useAppStore = create<AppState>()(
         applyThemeToDOM(mode)
       },
 
-      setUpdateInfo(info) {
-        set({ updateInfo: info })
-      },
-
-      skipVersion(version: string) {
-        set({ skippedVersion: version })
+      setUpdateState(state) {
+        set({ updateState: state })
       },
 
       setUpdateNotifications(enabled: boolean) {
@@ -1024,7 +1017,6 @@ export const useAppStore = create<AppState>()(
         sidebarCollapsed: state.sidebarCollapsed,
         chatHistoryExpanded: state.chatHistoryExpanded,
         themeMode: state.themeMode,
-        skippedVersion: state.skippedVersion,
         updateNotificationsEnabled: state.updateNotificationsEnabled,
         chatFilterShowCron: state.chatFilterShowCron,
         chatFilterShowSubAgent: state.chatFilterShowSubAgent,

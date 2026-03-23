@@ -38,6 +38,7 @@
   "dependencies": {
     "@golemancy/shared": "workspace:*",
     "@golemancy/ui": "workspace:*",
+    "electron-updater": "^6.8.3",
     "pino": "^10.3.1",
     "pino-roll": "^4.0.0"
   },

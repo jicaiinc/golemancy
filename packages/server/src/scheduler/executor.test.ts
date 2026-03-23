@@ -155,6 +155,8 @@ function createMockDeps(overrides: Partial<ExecutorDeps> = {}): ExecutorDeps {
     } as unknown as ExecutorDeps['wsManager'],
     activeChatRegistry: {
       countByAgent: vi.fn().mockReturnValue(0),
+      register: vi.fn(),
+      unregister: vi.fn(),
     } as unknown as ExecutorDeps['activeChatRegistry'],
     ...overrides,
   }
@@ -389,6 +391,8 @@ describe('CronJobExecutor', () => {
       deps = createMockDeps({
         activeChatRegistry: {
           countByAgent: vi.fn().mockReturnValue(2),
+          register: vi.fn(),
+          unregister: vi.fn(),
         } as unknown as ExecutorDeps['activeChatRegistry'],
       })
       executor = new CronJobExecutor(deps)

@@ -115,6 +115,11 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     return c.json({ status: 'ok', timestamp: new Date().toISOString() })
   })
 
+  app.get('/api/active-chats/count', (c) => {
+    const count = deps.activeChatRegistry?.size ?? 0
+    return c.json({ count })
+  })
+
   app.route('/api/projects', createProjectRoutes({
     projectStorage: deps.projectStorage,
     settingsStorage: deps.settingsStorage,

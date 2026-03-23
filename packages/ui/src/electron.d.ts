@@ -1,3 +1,12 @@
+interface UpdateState {
+  status: 'idle' | 'checking' | 'available' | 'downloading' | 'downloaded' | 'error'
+  version: string | null
+  releaseUrl: string | null
+  downloadProgress: number | null
+  error: string | null
+  isLinuxFallback: boolean
+}
+
 interface ElectronAPI {
   getServerPort: () => number | null
   getServerBaseUrl: () => string | null
@@ -7,8 +16,11 @@ interface ElectronAPI {
   requestMicrophoneAccess: () => Promise<string>
   getAppVersion: () => string | null
   getPlatformLabel: () => string | null
-  onUpdateAvailable: (callback: (info: { version: string; downloadUrl: string }) => void) => () => void
-  openDownloadUrl: (url: string) => Promise<void>
+  onUpdateState: (callback: (state: UpdateState) => void) => () => void
+  openReleaseUrl: (version: string) => Promise<void>
+  checkForUpdatesNow: () => Promise<void>
+  restartAndInstall: () => Promise<{ blocked: boolean; activeChatCount: number }>
+  forceRestartAndInstall: () => Promise<void>
   openExternalUrl: (url: string) => Promise<void>
 }
 

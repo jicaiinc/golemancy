@@ -109,10 +109,11 @@ export function GlobalSettingsContent({
     setActiveTab(initialTab)
   }, [initialTab])
 
-  const updateInfo = useAppStore(s => s.updateInfo)
-  const skippedVersion = useAppStore(s => s.skippedVersion)
+  const updateState = useAppStore(s => s.updateState)
   const notificationsEnabled = useAppStore(s => s.updateNotificationsEnabled)
-  const showBadge = updateInfo != null && updateInfo.version !== skippedVersion && notificationsEnabled
+  const showBadge = updateState != null
+    && (updateState.status === 'downloaded' || updateState.status === 'available')
+    && notificationsEnabled
 
   if (!settings) return null
 
@@ -890,21 +891,32 @@ function AboutTab() {
   const appVersion = window.electronAPI?.getAppVersion() ?? '0.1.0'
   const platformLabel = window.electronAPI?.getPlatformLabel()
 
-  const updateInfo = useAppStore(s => s.updateInfo)
-  const skippedVersion = useAppStore(s => s.skippedVersion)
+  const updateState = useAppStore(s => s.updateState)
   const notificationsEnabled = useAppStore(s => s.updateNotificationsEnabled)
-  const skipVersion = useAppStore(s => s.skipVersion)
   const setUpdateNotifications = useAppStore(s => s.setUpdateNotifications)
 
-  const isSkipped = updateInfo != null && updateInfo.version === skippedVersion
+  const status = updateState?.status ?? 'idle'
 
-  function handleDownload() {
-    if (!updateInfo) return
-    if (window.electronAPI?.openDownloadUrl) {
-      window.electronAPI.openDownloadUrl(updateInfo.downloadUrl)
-    } else {
-      window.open(updateInfo.downloadUrl, '_blank')
+  async function handleRestart() {
+    const result = await window.electronAPI?.restartAndInstall()
+    if (result?.blocked) {
+      const confirmed = window.confirm(
+        t('update.restartConfirm', { count: result.activeChatCount }),
+      )
+      if (confirmed) {
+        window.electronAPI?.forceRestartAndInstall()
+      }
     }
+  }
+
+  function handleOpenRelease() {
+    if (updateState?.version) {
+      window.electronAPI?.openReleaseUrl(updateState.version)
+    }
+  }
+
+  function handleCheckNow() {
+    window.electronAPI?.checkForUpdatesNow()
   }
 
   return (
@@ -947,38 +959,69 @@ function AboutTab() {
           <span className="text-[12px] text-text-primary">{t('update.checkForUpdates')}</span>
         </label>
 
-        {/* Update card */}
-        {updateInfo ? (
-          <div className={`p-3 border-2 ${isSkipped ? 'border-border-dim' : 'border-accent-green'}`}>
-            {isSkipped ? (
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] text-text-dim">
-                  {t('update.skipped', { version: updateInfo.version })}
-                </span>
-                <PixelButton size="sm" variant="ghost" onClick={handleDownload}>
-                  {platformLabel ? t('update.download', { platform: platformLabel }) : t('update.downloadGeneric')}
-                </PixelButton>
-              </div>
-            ) : (
-              <>
-                <div className="font-pixel text-[9px] text-accent-green mb-2">{t('update.available')}</div>
-                <div className="text-[12px] text-text-primary mb-3">
-                  {t('update.newVersion', { current: appVersion, latest: updateInfo.version })}
-                </div>
-                <div className="flex gap-2">
-                  <PixelButton size="sm" variant="primary" onClick={handleDownload}>
-                    {platformLabel ? t('update.download', { platform: platformLabel }) : t('update.downloadGeneric')}
-                  </PixelButton>
-                  <PixelButton size="sm" variant="ghost" onClick={() => skipVersion(updateInfo.version)}>
-                    {t('update.skip')}
-                  </PixelButton>
-                </div>
-              </>
-            )}
+        {/* Update status */}
+        {status === 'checking' && (
+          <div className="text-[12px] text-text-secondary">{t('update.checking')}</div>
+        )}
+
+        {status === 'downloading' && (
+          <div className="p-3 border-2 border-border-dim">
+            <div className="text-[12px] text-text-secondary mb-2">
+              {t('update.downloading', { percent: updateState?.downloadProgress ?? 0 })}
+            </div>
+            <div className="w-full h-2 bg-deep border border-border-dim">
+              <div
+                className="h-full bg-accent-blue transition-[width] duration-300"
+                style={{ width: `${updateState?.downloadProgress ?? 0}%` }}
+              />
+            </div>
           </div>
-        ) : (
-          <div className="text-[12px] text-text-dim">
-            {t('update.upToDate', { version: appVersion })}
+        )}
+
+        {status === 'downloaded' && (
+          <div className="p-3 border-2 border-accent-green">
+            <div className="text-[12px] text-text-primary mb-3">
+              {t('update.downloaded', { version: updateState?.version })}
+              {' '}
+              <button onClick={handleOpenRelease} className="text-accent-blue hover:underline">
+                {t('update.seeChangelog')}
+              </button>
+            </div>
+            <PixelButton size="sm" variant="primary" onClick={handleRestart}>
+              {t('update.restart')}
+            </PixelButton>
+          </div>
+        )}
+
+        {status === 'available' && updateState?.isLinuxFallback && (
+          <div className="p-3 border-2 border-accent-green">
+            <div className="font-pixel text-[9px] text-accent-green mb-2">{t('update.available')}</div>
+            <div className="text-[12px] text-text-primary mb-3">
+              {t('update.newVersion', { current: appVersion, latest: updateState.version })}
+            </div>
+            <PixelButton size="sm" variant="primary" onClick={handleOpenRelease}>
+              {platformLabel ? t('update.download', { platform: platformLabel }) : t('update.downloadGeneric')}
+            </PixelButton>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div className="p-3 border-2 border-accent-red">
+            <div className="text-[12px] text-accent-red mb-2">
+              {t('update.error', { message: updateState?.error ?? 'Unknown error' })}
+            </div>
+            <PixelButton size="sm" variant="ghost" onClick={handleCheckNow}>
+              {t('update.retryCheck')}
+            </PixelButton>
+          </div>
+        )}
+
+        {status === 'idle' && (
+          <div className="flex items-center gap-3">
+            <span className="text-[12px] text-text-dim">{t('update.upToDate', { version: appVersion })}</span>
+            <PixelButton size="sm" variant="ghost" onClick={handleCheckNow}>
+              {t('update.checkNow')}
+            </PixelButton>
           </div>
         )}
       </PixelCard>

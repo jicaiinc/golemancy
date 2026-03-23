@@ -90,6 +90,7 @@ export class CronJobExecutor {
       log.warn({ err, agentId }, 'failed to set agent running status for cron')
     }
 
+    let registeredConversationId: string | undefined
     try {
       // 2. Load agent config
       const agent = await this.deps.agentStorage.getById(projectId, agentId)
@@ -110,6 +111,8 @@ export class CronJobExecutor {
         `[Cron] ${cronJob.name} — ${timestamp}`,
       )
       const conversationId = conv.id
+      registeredConversationId = conversationId
+      this.deps.activeChatRegistry?.register(conversationId, { agentId: agentId as string, projectId: projectId as string })
 
       // Update run with conversationId
       await this.deps.cronJobRunStorage.updateStatus(projectId, run.id, 'running', { conversationId })
@@ -267,12 +270,18 @@ export class CronJobExecutor {
         nextRunAt: nextRun?.toISOString(),
       })
 
+      // --- Active chat lifecycle: unregister before idle check ---
+      if (registeredConversationId) this.deps.activeChatRegistry?.unregister(registeredConversationId)
+
       // --- Agent status lifecycle: mark idle ---
       await this.markAgentIdle(projectId, agentId, cronJob.id, conversationId)
 
       log.info({ cronJobId: cronJob.id, durationMs, conversationId }, 'cron job executed successfully')
       return { ...run, status: 'success', durationMs, conversationId }
     } catch (err) {
+      // --- Active chat lifecycle: unregister immediately to avoid leaking on subsequent errors ---
+      if (registeredConversationId) this.deps.activeChatRegistry?.unregister(registeredConversationId)
+
       const durationMs = Date.now() - startTime
       const errorMessage = err instanceof Error ? err.message : String(err)
 

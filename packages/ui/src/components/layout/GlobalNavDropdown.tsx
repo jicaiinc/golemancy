@@ -9,10 +9,11 @@ export function GlobalNavDropdown() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const updateInfo = useAppStore(s => s.updateInfo)
-  const skippedVersion = useAppStore(s => s.skippedVersion)
+  const updateState = useAppStore(s => s.updateState)
   const notificationsEnabled = useAppStore(s => s.updateNotificationsEnabled)
-  const showBadge = updateInfo != null && updateInfo.version !== skippedVersion && notificationsEnabled
+  const showBadge = updateState != null
+    && (updateState.status === 'downloaded' || updateState.status === 'available')
+    && notificationsEnabled
 
   const items = [
     { label: t('global.allProjects'), value: '/', selected: location.pathname === '/' },
