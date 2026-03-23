@@ -35,11 +35,8 @@ apps/desktop/electron-builder.win.yml
 /_logs/
 /_content-ops/
 
-# Internal docs / design / requirements (local-only)
+# Internal docs (local-only)
 /_design/
 /_docs/
 /_requirement/
-/_team/
-/__guidelines/
-/_golden-memory/
 /_test-agent-sdk/
