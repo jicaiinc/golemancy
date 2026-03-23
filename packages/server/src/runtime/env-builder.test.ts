@@ -16,7 +16,7 @@ vi.mock('../logger', () => ({
 }))
 
 import { buildRuntimeEnv, buildMCPRuntimeEnv } from './env-builder'
-import { getBundledNodeBinDir } from './paths'
+import { getBundledNodeBinDir, getBundledCertFilePath } from './paths'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -86,6 +86,20 @@ describe('buildRuntimeEnv', () => {
   it('sets npm_config_cache to shared cache', () => {
     const result = buildRuntimeEnv('proj-abc123')
     expect(result.npm_config_cache).toBe('/data/runtime/cache/npm')
+  })
+
+  it('sets PIP_USE_DEPRECATED when bundled cert is available', () => {
+    vi.mocked(getBundledCertFilePath).mockReturnValue('/bundled/python/certifi/cacert.pem')
+    const result = buildRuntimeEnv('proj-abc123')
+    expect(result.SSL_CERT_FILE).toBe('/bundled/python/certifi/cacert.pem')
+    expect(result.PIP_USE_DEPRECATED).toBe('legacy-certs')
+  })
+
+  it('does not set PIP_USE_DEPRECATED when bundled cert is not available', () => {
+    vi.mocked(getBundledCertFilePath).mockReturnValue(null)
+    const result = buildRuntimeEnv('proj-abc123')
+    expect(result.SSL_CERT_FILE).toBeUndefined()
+    expect(result.PIP_USE_DEPRECATED).toBeUndefined()
   })
 
 })

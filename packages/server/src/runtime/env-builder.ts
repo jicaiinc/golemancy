@@ -26,6 +26,8 @@ export interface RuntimeEnvVars {
   npm_config_cache: string
   /** CA certificate bundle for OpenSSL (Python, curl, git, etc.) */
   SSL_CERT_FILE?: string
+  /** Force pip to use certifi + OpenSSL instead of truststore (macOS sandbox workaround) */
+  PIP_USE_DEPRECATED?: string
 }
 
 /**
@@ -64,6 +66,13 @@ export function buildRuntimeEnv(projectId: string, basePath?: string): RuntimeEn
   // Covers pip, requests, urllib, curl, git — anything using OpenSSL.
   const certFile = getBundledCertFilePath()
   if (certFile) env.SSL_CERT_FILE = certFile
+
+  // Force pip to use certifi + OpenSSL instead of truststore.
+  // pip 24.2+ defaults to truststore, which on macOS uses SecureTransport.
+  // SecureTransport needs com.apple.trustd.agent, which is blocked by Seatbelt
+  // sandbox → SSLCertVerificationError('OSStatus -26276').
+  // With legacy-certs, pip falls back to certifi and SSL_CERT_FILE works.
+  if (certFile) env.PIP_USE_DEPRECATED = 'legacy-certs'
 
   log.debug({ projectId, env }, 'built runtime env')
 
