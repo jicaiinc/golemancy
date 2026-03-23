@@ -1,5 +1,6 @@
 import { app, BrowserWindow, shell } from 'electron'
-import { autoUpdater } from 'electron-updater'
+import pkg from 'electron-updater'
+const { autoUpdater } = pkg
 import { logger } from './logger'
 
 const GITHUB_REPO = 'jicaiinc/golemancy'
