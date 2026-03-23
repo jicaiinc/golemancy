@@ -34,3 +34,12 @@ apps/desktop/electron-builder.win.yml
 /apps/desktop/golemancy-desktop-0.1.0.tgz
 /_logs/
 /_content-ops/
+
+# Internal docs / design / requirements (local-only)
+/_design/
+/_docs/
+/_requirement/
+/_team/
+/__guidelines/
+/_golden-memory/
+/_test-agent-sdk/
