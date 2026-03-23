@@ -114,3 +114,88 @@ describe('getProjectTemplate', () => {
     expect(getProjectTemplate('')).toBeUndefined()
   })
 })
+
+// ── MCP Catalog ─────────────────────────────────────────────
+
+/**
+ * Canonical specification for every MCP server used across templates.
+ * Key = MCP name (must equal refId). Value = expected command + args.
+ */
+const MCP_CATALOG: Record<string, { command: string; args: string[] }> = {
+  'open-websearch': { command: 'npx', args: ['-y', 'open-websearch'] },
+  'fetch': { command: 'uvx', args: ['mcp-server-fetch'] },
+  'playwright': { command: 'npx', args: ['-y', '@playwright/mcp', '--headless'] },
+  'memory': { command: 'npx', args: ['-y', '@modelcontextprotocol/server-memory'] },
+  'sequential-thinking': { command: 'npx', args: ['-y', '@modelcontextprotocol/server-sequential-thinking'] },
+  'filesystem': { command: 'npx', args: ['-y', '@modelcontextprotocol/server-filesystem', '{{workspaceDir}}'] },
+  'git': { command: 'uvx', args: ['mcp-server-git'] },
+}
+
+describe('MCP server static validation', () => {
+  it('all mcpServers have required fields', () => {
+    for (const template of PROJECT_TEMPLATES) {
+      for (const mcp of template.mcpServers) {
+        expect(mcp.name, `[${template.id}] mcp.name missing`).toBeTruthy()
+        expect(mcp.transportType, `[${template.id}/${mcp.name}] transportType missing`).toBeTruthy()
+        if (mcp.transportType === 'stdio') {
+          expect(mcp.command, `[${template.id}/${mcp.name}] stdio mcp missing command`).toBeTruthy()
+          expect(mcp.args?.length, `[${template.id}/${mcp.name}] stdio mcp missing args`).toBeGreaterThan(0)
+        }
+      }
+    }
+  })
+
+  it('all mcpServer names are in MCP_CATALOG', () => {
+    for (const template of PROJECT_TEMPLATES) {
+      for (const mcp of template.mcpServers) {
+        expect(
+          mcp.name in MCP_CATALOG,
+          `[${template.id}] MCP "${mcp.name}" not in MCP_CATALOG — add it or fix the name`,
+        ).toBe(true)
+      }
+    }
+  })
+
+  it('mcpServer command and args match catalog spec', () => {
+    for (const template of PROJECT_TEMPLATES) {
+      for (const mcp of template.mcpServers) {
+        const spec = MCP_CATALOG[mcp.name]
+        if (!spec) continue
+        expect(mcp.command, `[${template.id}/${mcp.name}] command mismatch`).toBe(spec.command)
+        expect(mcp.args, `[${template.id}/${mcp.name}] args mismatch`).toEqual(spec.args)
+      }
+    }
+  })
+
+  it('mcpServer name equals refId within each template', () => {
+    for (const template of PROJECT_TEMPLATES) {
+      for (const mcp of template.mcpServers) {
+        expect(
+          mcp.name,
+          `[${template.id}] refId="${mcp.refId}" but name="${mcp.name}" — should be equal`,
+        ).toBe(mcp.refId)
+      }
+    }
+  })
+
+  it('mcpServer names are unique within each template', () => {
+    for (const template of PROJECT_TEMPLATES) {
+      const names = template.mcpServers.map(m => m.name)
+      expect(new Set(names).size, `[${template.id}] duplicate MCP names`).toBe(names.length)
+    }
+  })
+
+  it('all mcpServers have description (warning only)', () => {
+    const missing: string[] = []
+    for (const template of PROJECT_TEMPLATES) {
+      for (const mcp of template.mcpServers) {
+        if (!mcp.description) {
+          missing.push(`${template.id}/${mcp.name}`)
+        }
+      }
+    }
+    if (missing.length > 0) {
+      console.warn(`[MCP] Missing description on: ${missing.join(', ')}`)
+    }
+  })
+})

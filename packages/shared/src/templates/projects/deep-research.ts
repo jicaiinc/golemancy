@@ -422,7 +422,7 @@ For each finding, record:
       description: 'Free web search without API keys',
       transportType: 'stdio',
       command: 'npx',
-      args: ['open-websearch@latest'],
+      args: ['-y', 'open-websearch'],
     },
     {
       refId: 'playwright',
@@ -430,7 +430,7 @@ For each finding, record:
       description: 'Browser automation for web scraping and data collection',
       transportType: 'stdio',
       command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-playwright', '--headless'],
+      args: ['-y', '@playwright/mcp', '--headless'],
     },
     {
       refId: 'sequential-thinking',

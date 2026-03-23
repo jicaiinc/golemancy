@@ -922,7 +922,7 @@ Your manuscripts and reports should be:
 - **Reproducible** — Methods described in sufficient detail for replication by independent researchers
 - **Accessible** — Written clearly enough for researchers in adjacent fields to understand the core contributions`,
       skillRefs: ['scientific-writing', 'hypothesis-generation', 'statistical-analysis', 'scientific-visualization'],
-      mcpRefs: ['open-websearch', 'mcp-server-fetch', 'sequential-thinking', 'memory', 'filesystem'],
+      mcpRefs: ['open-websearch', 'fetch', 'sequential-thinking', 'memory', 'filesystem'],
       builtinTools: { memory: true, browser: true, bash: true },
     },
     {
@@ -961,7 +961,7 @@ Your manuscripts and reports should be:
 - Maintain a running reading list to avoid duplicating effort across review sessions
 - When sources conflict, present both sides with context about sample sizes, methodology quality, and recency`,
       skillRefs: ['arxiv-database', 'pubmed-database', 'literature-review'],
-      mcpRefs: ['open-websearch', 'mcp-server-fetch', 'memory'],
+      mcpRefs: ['open-websearch', 'fetch', 'memory'],
       builtinTools: { memory: true, browser: true },
     },
     {
@@ -1048,8 +1048,8 @@ Your manuscripts and reports should be:
       args: ['-y', 'open-websearch'],
     },
     {
-      refId: 'mcp-server-fetch',
-      name: 'mcp-server-fetch',
+      refId: 'fetch',
+      name: 'fetch',
       description: 'Web page fetch for paper access',
       transportType: 'stdio',
       command: 'uvx',

@@ -852,7 +852,7 @@ Google rich results: ONLY government and healthcare sites. Existing FAQ on comme
 - Always consider search intent: informational, navigational, transactional, commercial investigation
 - Technical recommendations include specific implementation steps, not just "fix this"`,
       skillRefs: ['claude-seo', 'geo-seo', 'seo-audit', 'programmatic-seo', 'ai-seo', 'schema-markup'],
-      mcpRefs: ['open-websearch', 'mcp-server-fetch', 'playwright', 'sequential-thinking', 'memory'],
+      mcpRefs: ['open-websearch', 'fetch', 'playwright', 'sequential-thinking', 'memory'],
       builtinTools: { memory: true, browser: true, bash: true },
     },
     {
@@ -874,7 +874,7 @@ Google rich results: ONLY government and healthcare sites. Existing FAQ on comme
 4. Optimize on-page — meta tags, headers, image alt text, internal links
 5. Add schema markup — appropriate structured data for the content type`,
       skillRefs: ['claude-seo', 'seo-audit', 'schema-markup'],
-      mcpRefs: ['open-websearch', 'mcp-server-fetch'],
+      mcpRefs: ['open-websearch', 'fetch'],
       builtinTools: { memory: true, browser: true },
     },
   ],
@@ -902,8 +902,8 @@ Google rich results: ONLY government and healthcare sites. Existing FAQ on comme
       args: ['-y', 'open-websearch'],
     },
     {
-      refId: 'mcp-server-fetch',
-      name: 'mcp-server-fetch',
+      refId: 'fetch',
+      name: 'fetch',
       description: 'Fetch and parse web page content',
       transportType: 'stdio',
       command: 'uvx',

@@ -991,7 +991,7 @@ Every content brief you create must include:
 - Show over tell — Concrete examples beat abstract advice
 - Honest over sensational — Never fabricate statistics`,
       skillRefs: ['copywriting', 'content-creator'],
-      mcpRefs: ['open-websearch', 'mcp-server-fetch'],
+      mcpRefs: ['open-websearch', 'fetch'],
       builtinTools: { memory: true, browser: true },
     },
     {
@@ -1158,7 +1158,7 @@ Track per platform:
 - **Conversion**: Sign-ups, downloads, purchases attributed
 - **Efficiency**: Time spent per platform vs. results generated`,
       skillRefs: ['social-content'],
-      mcpRefs: ['playwright', 'mcp-server-fetch'],
+      mcpRefs: ['playwright', 'fetch'],
       builtinTools: { memory: true, browser: true },
     },
   ],
@@ -1188,8 +1188,8 @@ Track per platform:
       args: ['-y', 'open-websearch'],
     },
     {
-      refId: 'mcp-server-fetch',
-      name: 'mcp-server-fetch',
+      refId: 'fetch',
+      name: 'fetch',
       description: 'Fetch and extract content from web URLs',
       transportType: 'stdio',
       command: 'uvx',

@@ -381,7 +381,7 @@ You are a HubSpot CRM automation specialist. You help sales teams automate their
 - Provide context — Always explain the "why" behind strategic decisions
 - Celebrate wins — Recognize what's working before diving into what needs improvement`,
       skillRefs: ['cold-email', 'sales-enablement', 'lead-research-assistant'],
-      mcpRefs: ['open-websearch', 'mcp-server-fetch', 'memory'],
+      mcpRefs: ['open-websearch', 'fetch', 'memory'],
       builtinTools: { memory: true, browser: true },
     },
     {
@@ -433,7 +433,7 @@ For each qualified prospect, deliver:
 - Inferred pain points relevant to our solution
 - Recommended outreach angle`,
       skillRefs: ['lead-research-assistant'],
-      mcpRefs: ['open-websearch', 'mcp-server-fetch', 'playwright'],
+      mcpRefs: ['open-websearch', 'fetch', 'playwright'],
       builtinTools: { memory: true, browser: true },
     },
     {
@@ -525,13 +525,15 @@ From strongest to weakest:
     {
       refId: 'open-websearch',
       name: 'open-websearch',
+      description: 'Free web search for lead and market research',
       transportType: 'stdio',
       command: 'npx',
       args: ['-y', 'open-websearch'],
     },
     {
-      refId: 'mcp-server-fetch',
-      name: 'mcp-server-fetch',
+      refId: 'fetch',
+      name: 'fetch',
+      description: 'Fetch web content for reference and research',
       transportType: 'stdio',
       command: 'uvx',
       args: ['mcp-server-fetch'],
