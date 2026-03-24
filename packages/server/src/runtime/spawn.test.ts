@@ -251,6 +251,31 @@ describe('toWinSpawn', () => {
       expect(result.args).toEqual(['run'])
     })
 
+    it('resolves relative .cmd path to absolute for cmd.exe', () => {
+      delete process.env.COMSPEC
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockImplementation((p) =>
+        p.toString() === 'C:\\project\\workspace\\bin\\tool.cmd',
+      )
+      const result = toWinSpawn('./bin/tool', ['--flag'], undefined, 'C:\\project\\workspace')
+      expect(result.command).toBe('cmd.exe')
+      // Should be resolved to absolute path with backslashes, not raw ./bin/tool
+      expect(result.args[0]).toBe('/c')
+      expect(result.args[1]).toMatch(/^C:\\/)
+      expect(result.args[1]).not.toContain('/')
+      expect(result.args[2]).toBe('--flag')
+    })
+
+    it('normalizes forward slashes in absolute .cmd path', () => {
+      delete process.env.COMSPEC
+      mockExistsSync.mockImplementation((p) =>
+        p.toString().endsWith('.cmd'),
+      )
+      const result = toWinSpawn('C:/tools/launcher', ['run'], undefined)
+      expect(result.command).toBe('cmd.exe')
+      expect(result.args[1]).toBe('C:\\tools\\launcher')
+    })
+
     it('uses COMSPEC when wrapping', () => {
       process.env.COMSPEC = 'C:\\Windows\\system32\\cmd.exe'
       process.env.PATHEXT = '.CMD'

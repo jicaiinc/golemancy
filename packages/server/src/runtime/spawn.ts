@@ -75,9 +75,18 @@ export function toWinSpawn(command: string, args: string[], pathEnv?: string, cw
     return { command, args }
   }
 
+  // For path-based commands, resolve to absolute and normalize separators.
+  // cmd.exe can't handle forward-slash relative paths (./bin/tool fails,
+  // .\bin\tool or absolute path works).
+  let cmdCommand = command
+  if (command.includes('/') || command.includes('\\')) {
+    cmdCommand = path.isAbsolute(command) ? command : path.resolve(cwd || '', command)
+    cmdCommand = cmdCommand.replace(/\//g, '\\')
+  }
+
   return {
     command: process.env.COMSPEC || 'cmd.exe',
-    args: ['/c', command, ...args],
+    args: ['/c', cmdCommand, ...args],
   }
 }
 
