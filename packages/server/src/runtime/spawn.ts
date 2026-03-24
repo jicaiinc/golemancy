@@ -63,13 +63,15 @@ export function toShellCommand(command: string): ShellCommandResult {
  * @param args     The arguments array
  * @param pathEnv  Optional PATH override (e.g., from buildMCPRuntimeEnv).
  *                 Falls back to process.env.PATH.
+ * @param cwd      Optional working directory for resolving relative commands
+ *                 (e.g., ./bin/tool). Falls back to server process cwd.
  */
-export function toWinSpawn(command: string, args: string[], pathEnv?: string): WinSpawnResult {
+export function toWinSpawn(command: string, args: string[], pathEnv?: string, cwd?: string): WinSpawnResult {
   if (process.platform !== 'win32') {
     return { command, args }
   }
 
-  if (resolveWindowsCommand(command, pathEnv) !== 'cmd-wrap') {
+  if (resolveWindowsCommand(command, pathEnv, cwd) !== 'cmd-wrap') {
     return { command, args }
   }
 
@@ -89,9 +91,10 @@ export function toWinSpawn(command: string, args: string[], pathEnv?: string): W
  * Uses synchronous fs checks — acceptable because this only runs at
  * MCP server startup (infrequent, one-time cost per server).
  *
+ * @param cwd  Working directory for resolving relative paths.
  * @internal Exported for testing only.
  */
-export function resolveWindowsCommand(command: string, pathEnv?: string): 'direct' | 'cmd-wrap' {
+export function resolveWindowsCommand(command: string, pathEnv?: string, cwd?: string): 'direct' | 'cmd-wrap' {
   const ext = path.extname(command).toLowerCase()
 
   // ── 1. Explicit extension — judge directly ──────────────
@@ -101,7 +104,9 @@ export function resolveWindowsCommand(command: string, pathEnv?: string): 'direc
 
   // ── 2. Path with separators — check specific location ───
   if (path.isAbsolute(command) || command.includes('\\') || command.includes('/')) {
-    return resolveAtPath(command)
+    // Resolve relative paths against the transport cwd, not the server process cwd
+    const resolved = path.isAbsolute(command) ? command : path.resolve(cwd || '', command)
+    return resolveAtPath(resolved)
   }
 
   // ── 3. Bare command — resolve on PATH using PATHEXT ─────

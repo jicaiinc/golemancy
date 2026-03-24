@@ -126,6 +126,22 @@ describe('resolveWindowsCommand', () => {
       )
       expect(resolveWindowsCommand('C:\\tools\\mytool')).toBe('direct')
     })
+
+    it('resolves relative path against provided cwd', () => {
+      mockExistsSync.mockImplementation((p) => {
+        const s = p.toString()
+        // .exe exists at the transport cwd, not the server process cwd
+        return s === 'C:\\project\\workspace\\bin\\tool.exe'
+      })
+      expect(resolveWindowsCommand('./bin/tool', undefined, 'C:\\project\\workspace')).toBe('direct')
+    })
+
+    it('resolves relative path as cmd-wrap when only .cmd at cwd', () => {
+      mockExistsSync.mockImplementation((p) =>
+        p.toString() === 'C:\\project\\workspace\\bin\\tool.cmd',
+      )
+      expect(resolveWindowsCommand('./bin/tool', undefined, 'C:\\project\\workspace')).toBe('cmd-wrap')
+    })
   })
 
   describe('bare command — PATH + PATHEXT resolution', () => {

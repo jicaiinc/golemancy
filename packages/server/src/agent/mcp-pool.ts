@@ -531,8 +531,10 @@ export class MCPPool {
       // Windows: wrap through cmd.exe for .cmd/.bat script compatibility.
       // @ai-sdk/mcp's StdioMCPTransport hardcodes shell: false, so commands
       // like "npx" (actually npx.cmd) fail with ENOENT without this.
-      // Pass the runtime-augmented PATH so resolution finds bundled binaries.
-      const resolved = toWinSpawn(effectiveCommand, effectiveArgs, mcpRuntimeEnv.PATH)
+      // Use the same effective PATH/PATHEXT the transport will run with
+      // (server.env can override bundled runtime PATH).
+      const effectivePath = server.env?.PATH ?? mcpRuntimeEnv.PATH
+      const resolved = toWinSpawn(effectiveCommand, effectiveArgs, effectivePath, effectiveCwd)
       if (resolved.command !== effectiveCommand) {
         log.info(
           { name: server.name, original: effectiveCommand, resolved: resolved.command },
