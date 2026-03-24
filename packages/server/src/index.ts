@@ -36,10 +36,20 @@ import { initOpenToolsIPC } from './agent/builtin-tools/open-tools'
 import type { ProjectId } from '@golemancy/shared'
 import { logger } from './logger'
 import { removeProjectPythonEnv } from './runtime/python-manager'
+import { getBundledNodeBinDir } from './runtime/paths'
 
 async function main() {
   const startTime = Date.now()
   logger.info({ node: process.version, platform: process.platform, arch: process.arch, pid: process.pid }, 'server starting')
+
+  // Prepend bundled Node.js bin dir to process.env.PATH early, so that all
+  // subprocess spawns (including @ai-sdk/mcp's StdioTransport which overwrites
+  // custom env.PATH with process.env.PATH) can find npx/node/npm.
+  const bundledNodeBin = getBundledNodeBinDir()
+  if (bundledNodeBin && !process.env.PATH?.includes(bundledNodeBin)) {
+    process.env.PATH = [bundledNodeBin, process.env.PATH ?? ''].join(path.delimiter)
+    logger.info({ bundledNodeBin }, 'prepended bundled node bin to process.env.PATH')
+  }
 
   const port = parseInt(process.env.PORT ?? '3883', 10)
 
