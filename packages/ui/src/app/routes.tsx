@@ -1,4 +1,5 @@
-import { HashRouter, Routes, Route, useLocation } from 'react-router'
+import { useEffect } from 'react'
+import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router'
 import type { Location as RouterLocation } from 'react-router'
 import { ProjectLayout } from './layouts/ProjectLayout'
 import { useAppStore } from '../stores'
@@ -71,8 +72,20 @@ function renderAppRoutes() {
 
 function RoutedApp() {
   const location = useLocation()
+  const navigate = useNavigate()
   const state = location.state as RouteLocationState | null
   const backgroundLocation = state?.backgroundLocation
+
+  // Cmd+, / Ctrl+, from Electron menu → open Settings overlay
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onMenuOpenSettings?.(() => {
+      const alreadyOpen = /^#\/settings(?:[?#]|$)/.test(window.location.hash)
+      if (!alreadyOpen) {
+        navigate('/settings', { state: { backgroundLocation: location } })
+      }
+    })
+    return () => cleanup?.()
+  })
 
   return (
     <>

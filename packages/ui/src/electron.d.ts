@@ -22,6 +22,7 @@ interface ElectronAPI {
   restartAndInstall: () => Promise<{ blocked: boolean; activeChatCount: number }>
   forceRestartAndInstall: () => Promise<void>
   openExternalUrl: (url: string) => Promise<void>
+  onMenuOpenSettings: (callback: () => void) => () => void
 }
 
 interface Window {

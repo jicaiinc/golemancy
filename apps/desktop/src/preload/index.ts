@@ -38,4 +38,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   restartAndInstall: () => ipcRenderer.invoke('update:restart-and-install') as Promise<{ blocked: boolean; activeChatCount: number }>,
   forceRestartAndInstall: () => ipcRenderer.invoke('update:force-restart'),
   openExternalUrl: (url: string) => ipcRenderer.invoke('shell:openExternal', url),
+  onMenuOpenSettings: (callback: () => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('menu:open-settings', handler)
+    return () => { ipcRenderer.removeListener('menu:open-settings', handler) }
+  },
 })

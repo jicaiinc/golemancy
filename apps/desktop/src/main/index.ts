@@ -154,6 +154,14 @@ function buildAppMenu(): void {
       submenu: [
         { label: 'About Golemancy', click: showAbout },
         { type: 'separator' },
+        {
+          label: 'Settings…',
+          accelerator: 'CommandOrControl+,',
+          click: () => {
+            BrowserWindow.getFocusedWindow()?.webContents.send('menu:open-settings')
+          },
+        },
+        { type: 'separator' },
         { label: 'Hide Golemancy', role: 'hide' },
         { role: 'hideOthers' },
         { role: 'unhide' },
@@ -182,19 +190,19 @@ function buildAppMenu(): void {
     },
   ]
 
-  // Add View menu in development mode only
+  // View menu: fullscreen always available; dev tools only in development
+  const viewSubmenu: Electron.MenuItemConstructorOptions[] = [
+    { role: 'togglefullscreen' },
+  ]
   if (!app.isPackaged) {
-    template.splice(2, 0, {
-      label: 'View',
-      submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' },
-      ],
-    })
+    viewSubmenu.unshift(
+      { role: 'reload' },
+      { role: 'forceReload' },
+      { role: 'toggleDevTools' },
+      { type: 'separator' },
+    )
   }
+  template.splice(2, 0, { label: 'View', submenu: viewSubmenu })
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
