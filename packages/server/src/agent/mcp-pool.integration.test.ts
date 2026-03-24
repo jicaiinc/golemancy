@@ -31,6 +31,7 @@ vi.mock('./sandbox-pool', () => ({
 // Platform-specific behavior is tested in runtime/spawn.test.ts.
 vi.mock('../runtime/spawn', () => ({
   toWinSpawn: (command: string, args: string[]) => ({ command, args }),
+  normalizeCwd: (cwd: string) => cwd,
 }))
 
 import { MCPPool } from './mcp-pool'

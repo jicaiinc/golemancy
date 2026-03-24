@@ -24,10 +24,12 @@ vi.mock('./sandbox-pool', () => ({
   },
 }))
 
-// Pass through toWinSpawn so pool tests stay platform-independent.
-// Platform-specific behavior is tested in runtime/spawn.test.ts.
+// Default: pass through toWinSpawn so pool tests stay platform-independent.
+// Individual tests can override via mockToWinSpawn.mockImplementationOnce().
+const mockToWinSpawn = vi.fn((command: string, args: string[]) => ({ command, args }))
 vi.mock('../runtime/spawn', () => ({
-  toWinSpawn: (command: string, args: string[]) => ({ command, args }),
+  toWinSpawn: (...fnArgs: unknown[]) => mockToWinSpawn(...fnArgs),
+  normalizeCwd: (cwd: string) => cwd,
 }))
 
 import { MCPPool } from './mcp-pool'
@@ -273,6 +275,25 @@ describe('MCPPool', () => {
       expect(mocks.StdioTransport).toHaveBeenCalledWith(expect.objectContaining({
         command: '/usr/bin/mcp',
         args: ['--verbose'],
+      }))
+    })
+
+    it('passes Windows-wrapped command to stdio transport', async () => {
+      // Simulate toWinSpawn detecting a .cmd command on Windows
+      mockToWinSpawn.mockImplementationOnce((cmd: string, args: string[]) => ({
+        command: 'cmd.exe',
+        args: ['/c', cmd, ...args],
+      }))
+      mocks.mockToolsFn.mockResolvedValue({ tool: {} })
+
+      await pool.getTools(
+        makeServer({ command: 'npx', args: ['-y', 'open-websearch'] }),
+        makeOptions(),
+      )
+
+      expect(mocks.StdioTransport).toHaveBeenCalledWith(expect.objectContaining({
+        command: 'cmd.exe',
+        args: ['/c', 'npx', '-y', 'open-websearch'],
       }))
     })
 

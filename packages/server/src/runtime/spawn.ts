@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs'
+import path from 'node:path'
 import type { SpawnOptions } from 'node:child_process'
 
 // ── Types ─────────────────────────────────────────────────
@@ -47,34 +49,90 @@ export function toShellCommand(command: string): ShellCommandResult {
 /**
  * Transform a command + args for Windows spawn compatibility.
  *
- * On Windows, commands like "npx", "npm", "corepack" are .cmd batch
- * scripts that cannot be spawned with `shell: false`. This wraps them
- * via `cmd.exe /c` so they resolve through the shell.
+ * On Windows, Node.js `spawn()` with `shell: false` uses CreateProcessW
+ * which only resolves `.exe` and `.com` files. Commands that are actually
+ * `.cmd`/`.bat` batch scripts (like `npx`, `npm`) fail with ENOENT.
+ *
+ * This function resolves the command against PATH + PATHEXT to determine
+ * whether the first matching file is a `.cmd`/`.bat` script. If so, it
+ * wraps via `cmd.exe /c`. Otherwise, returns unchanged.
  *
  * On non-Windows platforms, returns the input unchanged.
  *
- * Designed for callers that cannot pass `shell: true` to spawn()
- * (e.g., @ai-sdk/mcp's StdioMCPTransport hardcodes shell: false).
- *
- * Note: does NOT set windowsVerbatimArguments — the args array
- * should be escaped normally by Node.js, unlike toShellCommand()
- * which receives a pre-built command string.
+ * @param command  The command to spawn (e.g., "npx", "node", "/path/to/bin")
+ * @param args     The arguments array
+ * @param pathEnv  Optional PATH override (e.g., from buildMCPRuntimeEnv).
+ *                 Falls back to process.env.PATH.
  */
-export function toWinSpawn(command: string, args: string[]): WinSpawnResult {
+export function toWinSpawn(command: string, args: string[], pathEnv?: string): WinSpawnResult {
   if (process.platform !== 'win32') {
     return { command, args }
   }
 
-  // .exe files are real PE executables — they spawn fine without shell
-  if (/\.exe$/i.test(command)) {
+  if (resolveWindowsCommand(command, pathEnv) !== 'cmd-wrap') {
     return { command, args }
   }
 
-  // Wrap through cmd.exe /c to handle .cmd/.bat scripts and PATH resolution
   return {
     command: process.env.COMSPEC || 'cmd.exe',
     args: ['/c', command, ...args],
   }
+}
+
+/**
+ * Determine whether a command needs cmd.exe wrapping on Windows.
+ *
+ * Simulates the Windows shell resolution order (PATH directories × PATHEXT
+ * extensions) to find the first matching file. If it's a `.cmd`/`.bat`
+ * script, returns 'cmd-wrap'; otherwise 'direct'.
+ *
+ * Uses synchronous fs checks — acceptable because this only runs at
+ * MCP server startup (infrequent, one-time cost per server).
+ *
+ * @internal Exported for testing only.
+ */
+export function resolveWindowsCommand(command: string, pathEnv?: string): 'direct' | 'cmd-wrap' {
+  const ext = path.extname(command).toLowerCase()
+
+  // ── 1. Explicit extension — judge directly ──────────────
+  if (ext) {
+    return (ext === '.cmd' || ext === '.bat') ? 'cmd-wrap' : 'direct'
+  }
+
+  // ── 2. Path with separators — check specific location ───
+  if (path.isAbsolute(command) || command.includes('\\') || command.includes('/')) {
+    return resolveAtPath(command)
+  }
+
+  // ── 3. Bare command — resolve on PATH using PATHEXT ─────
+  const pathDirs = (pathEnv ?? process.env.PATH ?? '').split(path.delimiter)
+  const pathExtList = (process.env.PATHEXT || '.COM;.EXE;.BAT;.CMD')
+    .split(';')
+    .filter(Boolean)
+
+  for (const dir of pathDirs) {
+    if (!dir) continue
+    for (const pext of pathExtList) {
+      if (existsSync(path.join(dir, command + pext))) {
+        const lowerExt = pext.toLowerCase()
+        return (lowerExt === '.cmd' || lowerExt === '.bat') ? 'cmd-wrap' : 'direct'
+      }
+    }
+  }
+
+  // Not found anywhere — wrap as fallback (will fail either way,
+  // but cmd.exe gives a better error message than raw ENOENT)
+  return 'cmd-wrap'
+}
+
+/** Check a specific path (with separators) for .exe/.com vs .cmd/.bat variants. */
+function resolveAtPath(command: string): 'direct' | 'cmd-wrap' {
+  // Try spawn-resolvable extensions first
+  if (existsSync(command + '.exe') || existsSync(command + '.com')) return 'direct'
+  if (existsSync(command + '.cmd') || existsSync(command + '.bat')) return 'cmd-wrap'
+  // File might exist as-is (extensionless binary) — let spawn try
+  if (existsSync(command)) return 'direct'
+  return 'cmd-wrap'
 }
 
 // ── normalizeCwd ──────────────────────────────────────────

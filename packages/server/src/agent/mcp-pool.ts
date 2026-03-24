@@ -14,7 +14,7 @@ import type { MCPLoadOptions } from './mcp'
 import { sandboxPool } from './sandbox-pool'
 import { permissionsToSandboxConfig } from './permissions-adapter'
 import { buildMCPRuntimeEnv } from '../runtime/env-builder'
-import { toWinSpawn } from '../runtime/spawn'
+import { toWinSpawn, normalizeCwd } from '../runtime/spawn'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:mcp-pool' })
@@ -521,10 +521,18 @@ export class MCPPool {
         }
       }
 
+      // Inject bundled Node.js env (PATH, npm cache) for stdio MCP servers.
+      // Computed before toWinSpawn so command resolution uses the same PATH.
+      const mcpRuntimeEnv = buildMCPRuntimeEnv()
+      const transportEnv = Object.keys(mcpRuntimeEnv).length > 0 || server.env
+        ? { ...process.env, ...mcpRuntimeEnv, ...server.env } as Record<string, string>
+        : undefined
+
       // Windows: wrap through cmd.exe for .cmd/.bat script compatibility.
       // @ai-sdk/mcp's StdioMCPTransport hardcodes shell: false, so commands
       // like "npx" (actually npx.cmd) fail with ENOENT without this.
-      const resolved = toWinSpawn(effectiveCommand, effectiveArgs)
+      // Pass the runtime-augmented PATH so resolution finds bundled binaries.
+      const resolved = toWinSpawn(effectiveCommand, effectiveArgs, mcpRuntimeEnv.PATH)
       if (resolved.command !== effectiveCommand) {
         log.info(
           { name: server.name, original: effectiveCommand, resolved: resolved.command },
@@ -534,25 +542,23 @@ export class MCPPool {
       effectiveCommand = resolved.command
       effectiveArgs = resolved.args
 
+      // Normalize cwd on Windows — mixed separators (e.g. C:\foo/bar)
+      // cause cmd.exe startup errors in Electron's forked server process.
+      const transportCwd = effectiveCwd ? normalizeCwd(effectiveCwd) : effectiveCwd
+
       log.info(
-        { name: server.name, command: effectiveCommand, args: effectiveArgs, cwd: effectiveCwd },
+        { name: server.name, command: effectiveCommand, args: effectiveArgs, cwd: transportCwd },
         'starting stdio MCP server',
       )
 
       const stderrCapture = new StderrCapture()
       const { Experimental_StdioMCPTransport } = await import('@ai-sdk/mcp/mcp-stdio')
 
-      // Inject bundled Node.js env (PATH, npm cache) for stdio MCP servers
-      const mcpRuntimeEnv = buildMCPRuntimeEnv()
-      const transportEnv = Object.keys(mcpRuntimeEnv).length > 0 || server.env
-        ? { ...process.env, ...mcpRuntimeEnv, ...server.env } as Record<string, string>
-        : undefined
-
       const transport = new Experimental_StdioMCPTransport({
         command: effectiveCommand,
         args: effectiveArgs,
         env: transportEnv,
-        cwd: effectiveCwd,
+        cwd: transportCwd,
         stderr: 'pipe',
       })
 

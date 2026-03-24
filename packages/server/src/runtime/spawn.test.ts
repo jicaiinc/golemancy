@@ -1,7 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { toShellCommand, toWinSpawn, normalizeCwd } from './spawn'
+import { toShellCommand, toWinSpawn, normalizeCwd, resolveWindowsCommand } from './spawn'
 
-// ── Helpers ───────────────────────────────────────────────
+// ── Mock fs.existsSync ────────────────────────────────────
+
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual<typeof import('node:fs')>('node:fs')
+  return { ...actual, existsSync: vi.fn(() => false) }
+})
+
+import { existsSync } from 'node:fs'
+const mockExistsSync = vi.mocked(existsSync)
+
+// ── Platform helpers ──────────────────────────────────────
 
 const originalPlatform = process.platform
 
@@ -9,11 +19,11 @@ function setPlatform(platform: string): void {
   Object.defineProperty(process, 'platform', { value: platform, writable: true, configurable: true })
 }
 
-// ── Tests ─────────────────────────────────────────────────
-
 afterEach(() => {
   Object.defineProperty(process, 'platform', { value: originalPlatform, writable: true, configurable: true })
   delete process.env.COMSPEC
+  delete process.env.PATHEXT
+  mockExistsSync.mockReset()
 })
 
 // ── toShellCommand ────────────────────────────────────────
@@ -66,48 +76,172 @@ describe('toShellCommand', () => {
   })
 })
 
+// ── resolveWindowsCommand ─────────────────────────────────
+
+describe('resolveWindowsCommand', () => {
+  describe('explicit extension', () => {
+    it('returns cmd-wrap for .cmd', () => {
+      expect(resolveWindowsCommand('npx.cmd')).toBe('cmd-wrap')
+    })
+
+    it('returns cmd-wrap for .bat', () => {
+      expect(resolveWindowsCommand('build.bat')).toBe('cmd-wrap')
+    })
+
+    it('returns cmd-wrap for .CMD (case insensitive)', () => {
+      expect(resolveWindowsCommand('NPX.CMD')).toBe('cmd-wrap')
+    })
+
+    it('returns direct for .exe', () => {
+      expect(resolveWindowsCommand('node.exe')).toBe('direct')
+    })
+
+    it('returns direct for .EXE (case insensitive)', () => {
+      expect(resolveWindowsCommand('NODE.EXE')).toBe('direct')
+    })
+
+    it('returns direct for .com', () => {
+      expect(resolveWindowsCommand('tool.com')).toBe('direct')
+    })
+  })
+
+  describe('path with separators', () => {
+    it('returns direct when .exe variant exists', () => {
+      mockExistsSync.mockImplementation((p) =>
+        p.toString().endsWith('.exe'),
+      )
+      expect(resolveWindowsCommand('C:\\tools\\mytool')).toBe('direct')
+    })
+
+    it('returns cmd-wrap when only .cmd variant exists', () => {
+      mockExistsSync.mockImplementation((p) =>
+        p.toString().endsWith('.cmd'),
+      )
+      expect(resolveWindowsCommand('C:\\tools\\mytool')).toBe('cmd-wrap')
+    })
+
+    it('returns direct when file exists without extension', () => {
+      mockExistsSync.mockImplementation((p) =>
+        p.toString() === 'C:\\tools\\mytool',
+      )
+      expect(resolveWindowsCommand('C:\\tools\\mytool')).toBe('direct')
+    })
+  })
+
+  describe('bare command — PATH + PATHEXT resolution', () => {
+    const testPath = 'C:\\bundled\\node;C:\\system'
+
+    it('returns direct when .exe is found first in PATHEXT order', () => {
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockImplementation((p) => {
+        const s = p.toString()
+        // Both exist in same dir, but .EXE comes before .CMD in PATHEXT
+        return s === 'C:\\bundled\\node\\npx.EXE' || s === 'C:\\bundled\\node\\npx.CMD'
+      })
+      expect(resolveWindowsCommand('npx', testPath)).toBe('direct')
+    })
+
+    it('returns cmd-wrap when .cmd is found first in PATHEXT order', () => {
+      // Custom PATHEXT where .CMD comes before .EXE
+      process.env.PATHEXT = '.CMD;.EXE'
+      mockExistsSync.mockImplementation((p) => {
+        const s = p.toString()
+        return s === 'C:\\bundled\\node\\npx.CMD' || s === 'C:\\bundled\\node\\npx.EXE'
+      })
+      expect(resolveWindowsCommand('npx', testPath)).toBe('cmd-wrap')
+    })
+
+    it('returns cmd-wrap when only .cmd exists (standard npx case)', () => {
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockImplementation((p) =>
+        p.toString() === 'C:\\bundled\\node\\npx.CMD',
+      )
+      expect(resolveWindowsCommand('npx', testPath)).toBe('cmd-wrap')
+    })
+
+    it('returns direct when only .exe exists (node case)', () => {
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockImplementation((p) =>
+        p.toString() === 'C:\\bundled\\node\\node.EXE',
+      )
+      expect(resolveWindowsCommand('node', testPath)).toBe('direct')
+    })
+
+    it('respects PATH directory order — first dir wins', () => {
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockImplementation((p) => {
+        const s = p.toString()
+        // dir1 has .cmd, dir2 has .exe — dir1 wins
+        return s === 'C:\\bundled\\node\\tool.CMD' || s === 'C:\\system\\tool.EXE'
+      })
+      expect(resolveWindowsCommand('tool', testPath)).toBe('cmd-wrap')
+    })
+
+    it('falls through to second PATH dir when first has no match', () => {
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockImplementation((p) =>
+        p.toString() === 'C:\\system\\tool.EXE',
+      )
+      expect(resolveWindowsCommand('tool', testPath)).toBe('direct')
+    })
+
+    it('returns cmd-wrap when command not found anywhere (fallback)', () => {
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockReturnValue(false)
+      expect(resolveWindowsCommand('unknown', testPath)).toBe('cmd-wrap')
+    })
+
+    it('uses default PATHEXT when env var is unset', () => {
+      delete process.env.PATHEXT
+      mockExistsSync.mockImplementation((p) =>
+        p.toString() === 'C:\\bundled\\node\\npx.CMD',
+      )
+      // Default PATHEXT includes .CMD, so it should find npx.CMD
+      expect(resolveWindowsCommand('npx', testPath)).toBe('cmd-wrap')
+    })
+  })
+})
+
 // ── toWinSpawn ────────────────────────────────────────────
 
 describe('toWinSpawn', () => {
   describe('on win32', () => {
     beforeEach(() => setPlatform('win32'))
 
-    it('wraps bare command through cmd.exe /c', () => {
+    it('wraps .cmd command through cmd.exe /c', () => {
       delete process.env.COMSPEC
-      const result = toWinSpawn('npx', ['-y', 'open-websearch'])
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockImplementation((p) =>
+        p.toString().endsWith('npx.CMD'),
+      )
+      const result = toWinSpawn('npx', ['-y', 'open-websearch'], 'C:\\bundled\\node')
       expect(result.command).toBe('cmd.exe')
       expect(result.args).toEqual(['/c', 'npx', '-y', 'open-websearch'])
     })
 
-    it('wraps commands without extension (npm, corepack)', () => {
-      delete process.env.COMSPEC
-      const result = toWinSpawn('npm', ['install', 'express'])
-      expect(result.command).toBe('cmd.exe')
-      expect(result.args).toEqual(['/c', 'npm', 'install', 'express'])
+    it('does NOT wrap .exe command (node)', () => {
+      process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
+      mockExistsSync.mockImplementation((p) =>
+        p.toString().endsWith('node.EXE'),
+      )
+      const result = toWinSpawn('node', ['server.js'], 'C:\\bundled\\node')
+      expect(result.command).toBe('node')
+      expect(result.args).toEqual(['server.js'])
     })
 
-    it('does NOT wrap commands ending in .exe', () => {
-      const result = toWinSpawn('uv.exe', ['run', 'server'])
-      expect(result.command).toBe('uv.exe')
-      expect(result.args).toEqual(['run', 'server'])
+    it('does NOT wrap explicit .exe path', () => {
+      const result = toWinSpawn('C:\\tools\\uv.exe', ['run'], 'C:\\bundled\\node')
+      expect(result.command).toBe('C:\\tools\\uv.exe')
+      expect(result.args).toEqual(['run'])
     })
 
-    it('does NOT wrap commands ending in .EXE (case insensitive)', () => {
-      const result = toWinSpawn('C:\\tools\\MyTool.EXE', ['--flag'])
-      expect(result.command).toBe('C:\\tools\\MyTool.EXE')
-      expect(result.args).toEqual(['--flag'])
-    })
-
-    it('wraps commands with empty args', () => {
-      delete process.env.COMSPEC
-      const result = toWinSpawn('npx', [])
-      expect(result.command).toBe('cmd.exe')
-      expect(result.args).toEqual(['/c', 'npx'])
-    })
-
-    it('uses COMSPEC when set', () => {
+    it('uses COMSPEC when wrapping', () => {
       process.env.COMSPEC = 'C:\\Windows\\system32\\cmd.exe'
-      const result = toWinSpawn('npx', ['-y', 'server'])
+      process.env.PATHEXT = '.CMD'
+      mockExistsSync.mockImplementation((p) =>
+        p.toString().endsWith('npx.CMD'),
+      )
+      const result = toWinSpawn('npx', ['-y', 'server'], 'C:\\bundled\\node')
       expect(result.command).toBe('C:\\Windows\\system32\\cmd.exe')
     })
   })
