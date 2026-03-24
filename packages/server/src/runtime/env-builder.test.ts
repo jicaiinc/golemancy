@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.mock('./paths', () => ({
   getBundledCertFilePath: vi.fn(() => null),
   getBundledNodeBinDir: vi.fn(() => null),
+  getBundledUvBinDir: vi.fn(() => null),
   getProjectPythonEnvPath: vi.fn((id: string) => `/data/projects/${id}/runtime/python-env`),
   getProjectPythonEnvBinPath: vi.fn((id: string) => `/data/projects/${id}/runtime/python-env/bin`),
   getPipCachePath: vi.fn(() => '/data/runtime/cache/pip'),
@@ -16,7 +17,7 @@ vi.mock('../logger', () => ({
 }))
 
 import { buildRuntimeEnv, buildMCPRuntimeEnv } from './env-builder'
-import { getBundledNodeBinDir, getBundledCertFilePath } from './paths'
+import { getBundledNodeBinDir, getBundledUvBinDir, getBundledCertFilePath } from './paths'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -43,11 +44,23 @@ describe('buildRuntimeEnv', () => {
     const pathParts = result.PATH.split(':')
     expect(pathParts[0]).toBe('/data/projects/proj-abc123/runtime/python-env/bin')
     expect(pathParts[1]).toBe('/bundled/node/bin')
-    expect(pathParts[2]).toBe('/usr/bin')
+    expect(pathParts).toContain('/usr/bin')
   })
 
-  it('does not include node bin when not available', () => {
+  it('appends bundled uv bin after node bin when available', () => {
+    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
+    vi.mocked(getBundledUvBinDir).mockReturnValue('/bundled/uv')
+    const result = buildRuntimeEnv('proj-abc123', '/usr/bin')
+    const pathParts = result.PATH.split(':')
+    expect(pathParts[0]).toBe('/data/projects/proj-abc123/runtime/python-env/bin')
+    expect(pathParts[1]).toBe('/bundled/node/bin')
+    expect(pathParts[2]).toBe('/bundled/uv')
+    expect(pathParts[3]).toBe('/usr/bin')
+  })
+
+  it('does not include node or uv bin when not available', () => {
     vi.mocked(getBundledNodeBinDir).mockReturnValue(null)
+    vi.mocked(getBundledUvBinDir).mockReturnValue(null)
     const result = buildRuntimeEnv('proj-abc123', '/usr/bin')
     const pathParts = result.PATH.split(':')
     expect(pathParts[0]).toBe('/data/projects/proj-abc123/runtime/python-env/bin')
@@ -105,8 +118,9 @@ describe('buildRuntimeEnv', () => {
 })
 
 describe('buildMCPRuntimeEnv', () => {
-  it('returns empty object when bundled Node not available', () => {
+  it('returns empty object when no bundled runtimes available', () => {
     vi.mocked(getBundledNodeBinDir).mockReturnValue(null)
+    vi.mocked(getBundledUvBinDir).mockReturnValue(null)
     const result = buildMCPRuntimeEnv('/usr/bin')
     expect(result).toEqual({})
   })
@@ -115,6 +129,21 @@ describe('buildMCPRuntimeEnv', () => {
     vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
     const result = buildMCPRuntimeEnv('/usr/bin')
     expect(result.PATH).toBe('/bundled/node/bin:/usr/bin')
+  })
+
+  it('returns PATH with both node and uv when both available', () => {
+    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
+    vi.mocked(getBundledUvBinDir).mockReturnValue('/bundled/uv')
+    const result = buildMCPRuntimeEnv('/usr/bin')
+    expect(result.PATH).toBe('/bundled/node/bin:/bundled/uv:/usr/bin')
+  })
+
+  it('returns PATH with uv only when node not available', () => {
+    vi.mocked(getBundledNodeBinDir).mockReturnValue(null)
+    vi.mocked(getBundledUvBinDir).mockReturnValue('/bundled/uv')
+    const result = buildMCPRuntimeEnv('/usr/bin')
+    expect(result.PATH).toBe('/bundled/uv:/usr/bin')
+    expect(result).not.toHaveProperty('npm_config_cache')
   })
 
   it('includes npm cache when bundled node available', () => {

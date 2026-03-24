@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import { serve } from '@hono/node-server'
@@ -36,19 +37,64 @@ import { initOpenToolsIPC } from './agent/builtin-tools/open-tools'
 import type { ProjectId } from '@golemancy/shared'
 import { logger } from './logger'
 import { removeProjectPythonEnv } from './runtime/python-manager'
-import { getBundledNodeBinDir } from './runtime/paths'
+import { getBundledNodeBinDir, getBundledUvBinDir, getBundledPythonPath } from './runtime/paths'
 
 async function main() {
   const startTime = Date.now()
   logger.info({ node: process.version, platform: process.platform, arch: process.arch, pid: process.pid }, 'server starting')
 
-  // Prepend bundled Node.js bin dir to process.env.PATH early, so that all
-  // subprocess spawns (including @ai-sdk/mcp's StdioTransport which overwrites
-  // custom env.PATH with process.env.PATH) can find npx/node/npm.
+  // macOS/Linux GUI apps inherit a truncated PATH (/usr/bin:/bin:/usr/sbin:/sbin).
+  // Resolve the user's login shell PATH and merge missing entries so that
+  // user-installed tools (uvx, uv, cargo, etc.) are available to MCP servers
+  // and subprocess spawns (including @ai-sdk/mcp which overwrites custom
+  // env.PATH with process.env.PATH).
+  if (process.platform !== 'win32') {
+    try {
+      const shell = process.env.SHELL || '/bin/sh'
+      const output = execFileSync(shell, ['-ilc', 'printf "%s" "$PATH"'], {
+        encoding: 'utf-8',
+        timeout: 5000,
+      })
+      const shellPath = output.split('\n').pop()?.trim()
+      if (shellPath) {
+        const currentEntries = new Set((process.env.PATH ?? '').split(path.delimiter))
+        const newEntries = shellPath.split(path.delimiter).filter(e => e && !currentEntries.has(e))
+        if (newEntries.length > 0) {
+          process.env.PATH = [process.env.PATH ?? '', ...newEntries].join(path.delimiter)
+          logger.info({ count: newEntries.length }, 'augmented PATH with login shell entries')
+        }
+      }
+    } catch (err) {
+      logger.warn({ err }, 'failed to resolve login shell PATH')
+    }
+  }
+
+  // Prepend bundled runtime bin dirs to process.env.PATH so that all subprocess
+  // spawns (including @ai-sdk/mcp which overwrites custom env.PATH with
+  // process.env.PATH) can find bundled binaries.
+  // Final PATH order: bundledUvBin → bundledNodeBin → shellPath → original GUI PATH
   const bundledNodeBin = getBundledNodeBinDir()
   if (bundledNodeBin && !process.env.PATH?.includes(bundledNodeBin)) {
     process.env.PATH = [bundledNodeBin, process.env.PATH ?? ''].join(path.delimiter)
     logger.info({ bundledNodeBin }, 'prepended bundled node bin to process.env.PATH')
+  }
+
+  const bundledUvBin = getBundledUvBinDir()
+  if (bundledUvBin && !process.env.PATH?.includes(bundledUvBin)) {
+    process.env.PATH = [bundledUvBin, process.env.PATH ?? ''].join(path.delimiter)
+    logger.info({ bundledUvBin }, 'prepended bundled uv bin to process.env.PATH')
+  }
+
+  // Configure uv to use bundled Python and isolate its cache
+  const bundledPython = getBundledPythonPath()
+  if (bundledPython && !process.env.UV_PYTHON) {
+    process.env.UV_PYTHON = bundledPython
+    process.env.UV_PYTHON_DOWNLOADS = 'never'
+    logger.info({ bundledPython }, 'set UV_PYTHON to bundled Python (downloads disabled)')
+  }
+  if (!process.env.UV_CACHE_DIR) {
+    process.env.UV_CACHE_DIR = path.join(getDataDir(), 'runtime', 'cache', 'uv')
+    logger.info({ uvCacheDir: process.env.UV_CACHE_DIR }, 'set UV_CACHE_DIR')
   }
 
   const port = parseInt(process.env.PORT ?? '3883', 10)

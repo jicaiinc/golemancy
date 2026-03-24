@@ -6,6 +6,7 @@ set -euo pipefail
 PYTHON_VERSION="3.13.12"
 PYTHON_RELEASE="20260203"
 NODE_VERSION="22.22.0"
+UV_VERSION="0.11.0"
 
 # ── Output directory ──
 
@@ -280,6 +281,92 @@ download_node() {
   fi
 }
 
+# ── uv download ──
+
+download_uv() {
+  local platform="$1"
+  local uv_dir="${RUNTIME_DIR}/uv"
+
+  # Idempotent: skip if both uv and uvx already present (unless --force)
+  if [ "$FORCE_DOWNLOAD" = true ]; then
+    echo "Force mode: removing existing uv runtime..."
+    rm -rf "${uv_dir}"
+  elif [ -f "${uv_dir}/uv.exe" ] && [ -f "${uv_dir}/uvx.exe" ]; then
+    echo "uv ${UV_VERSION} already present, skipping (use --force to re-download)"
+    return 0
+  elif [ -x "${uv_dir}/uv" ] && [ -x "${uv_dir}/uvx" ]; then
+    echo "uv ${UV_VERSION} already present, skipping (use --force to re-download)"
+    return 0
+  fi
+
+  # Map platform to uv triple (same convention as python-build-standalone)
+  local triple
+  case "$platform" in
+    darwin-arm64) triple="aarch64-apple-darwin" ;;
+    darwin-x64)   triple="x86_64-apple-darwin" ;;
+    linux-x64)    triple="x86_64-unknown-linux-gnu" ;;
+    win32-x64)    triple="x86_64-pc-windows-msvc" ;;
+    *) echo "ERROR: No uv binary for platform: $platform"; exit 1 ;;
+  esac
+
+  # SHA256 verification
+  local expected_sha256
+  case "$platform" in
+    darwin-arm64) expected_sha256="0c0f32c6a3473c5928aff96c3233715edfc79290e892f255cac93710cde7b91a" ;;
+    darwin-x64)   expected_sha256="31aaec764166af8885cf99321fd6ed24fef80225a6f26ed1ae8ce04111688a7e" ;;
+    linux-x64)    expected_sha256="cc0fbb42b3642125f600a55b0b095bea65cddaadb94c6ea2b6ba5d79c5825089" ;;
+    win32-x64)    expected_sha256="e21d00b172df83531564a95e75a2bdc0c59b471dbb3515f0c1b4d6ef657dc451" ;;
+  esac
+
+  echo "Downloading uv ${UV_VERSION} for ${platform}..."
+
+  local tmpfile
+  mkdir -p "${uv_dir}"
+
+  if [ "$platform" = "win32-x64" ]; then
+    # Windows: .zip format (flat — uv.exe, uvx.exe at root)
+    local filename="uv-${triple}.zip"
+    local url="https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/${filename}"
+    echo "  URL: ${url}"
+
+    tmpfile="$(mktemp)"
+    curl -fSL --progress-bar -o "$tmpfile" "$url"
+
+    verify_sha256 "$tmpfile" "$expected_sha256"
+
+    echo "Extracting uv to ${uv_dir}..."
+    unzip -q "$tmpfile" -d "$uv_dir"
+    rm -f "$tmpfile"
+  else
+    # Unix: .tar.gz format (top-level uv-{triple}/ directory)
+    local filename="uv-${triple}.tar.gz"
+    local url="https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/${filename}"
+    echo "  URL: ${url}"
+
+    tmpfile="$(mktemp)"
+    curl -fSL --progress-bar -o "$tmpfile" "$url"
+
+    verify_sha256 "$tmpfile" "$expected_sha256"
+
+    # Extract with --strip-components=1 (removes uv-{triple}/ prefix)
+    echo "Extracting uv to ${uv_dir}..."
+    tar xzf "$tmpfile" --strip-components=1 -C "${uv_dir}"
+    rm -f "$tmpfile"
+  fi
+
+  # Verify
+  if [ -f "${uv_dir}/uv.exe" ]; then
+    echo "uv ${UV_VERSION} installed successfully (Windows)"
+    "${uv_dir}/uv.exe" --version
+  elif [ -x "${uv_dir}/uv" ]; then
+    echo "uv ${UV_VERSION} installed successfully"
+    "${uv_dir}/uv" --version
+  else
+    echo "ERROR: uv binary not found after extraction"
+    exit 1
+  fi
+}
+
 # ── Argument parsing ──
 
 OVERRIDE_ARCH=""
@@ -330,6 +417,8 @@ main() {
   download_python "$platform"
   echo ""
   download_node "$platform"
+  echo ""
+  download_uv "$platform"
 
   echo ""
   echo "All runtimes downloaded successfully."

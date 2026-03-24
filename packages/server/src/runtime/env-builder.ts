@@ -2,6 +2,7 @@ import { delimiter } from 'node:path'
 import {
   getBundledCertFilePath,
   getBundledNodeBinDir,
+  getBundledUvBinDir,
   getProjectPythonEnvPath,
   getProjectPythonEnvBinPath,
   getPipCachePath,
@@ -52,7 +53,11 @@ export function buildRuntimeEnv(projectId: string, basePath?: string): RuntimeEn
   const nodeBinDir = getBundledNodeBinDir()
   if (nodeBinDir) pathParts.push(nodeBinDir)
 
-  // 3. Original PATH
+  // 3. Bundled uv bin (uv, uvx)
+  const uvBinDir = getBundledUvBinDir()
+  if (uvBinDir) pathParts.push(uvBinDir)
+
+  // 4. Original PATH
   pathParts.push(currentPath)
 
   const env: RuntimeEnvVars = {
@@ -81,22 +86,29 @@ export function buildRuntimeEnv(projectId: string, basePath?: string): RuntimeEn
 
 /**
  * Build environment for MCP server subprocess.
- * Only injects bundled Node.js PATH and npm config (no Python venv).
+ * Injects bundled Node.js and uv PATH, plus npm config (no Python venv).
  *
  * Used by: mcp-pool.ts buildTransport()
  *
  * @param basePath - Base PATH to extend (defaults to process.env.PATH)
- * @returns Partial env vars to merge, or empty object if no bundled Node
+ * @returns Partial env vars to merge, or empty object if no bundled runtimes
  */
 export function buildMCPRuntimeEnv(basePath?: string): Record<string, string> {
   const nodeBinDir = getBundledNodeBinDir()
-  if (!nodeBinDir) return {}
+  const uvBinDir = getBundledUvBinDir()
+
+  if (!nodeBinDir && !uvBinDir) return {}
 
   const currentPath = basePath ?? process.env.PATH ?? ''
-  const env = {
-    PATH: [nodeBinDir, currentPath].join(delimiter),
-    npm_config_cache: getNpmCachePath(),
+  const pathParts: string[] = []
+  if (nodeBinDir) pathParts.push(nodeBinDir)
+  if (uvBinDir) pathParts.push(uvBinDir)
+  pathParts.push(currentPath)
+
+  const env: Record<string, string> = {
+    PATH: pathParts.join(delimiter),
   }
+  if (nodeBinDir) env.npm_config_cache = getNpmCachePath()
 
   log.debug({ env }, 'built MCP runtime env')
 

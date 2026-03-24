@@ -211,6 +211,7 @@ async function ensureWorkspaceDir(projectId: string): Promise<string> {
 export interface BashRuntimeInfo {
   hasBundledPython: boolean
   hasBundledNode: boolean
+  hasBundledUv: boolean
 }
 
 /**
@@ -292,6 +293,9 @@ function appendRuntimeLines(lines: string[], runtime?: BashRuntimeInfo): void {
   }
   if (runtime?.hasBundledNode) {
     lines.push('Node.js is available with npm pre-installed.')
+  }
+  if (runtime?.hasBundledUv) {
+    lines.push('uv is available with uvx pre-installed. Use `uvx` to run Python-based CLI tools without manual installation.')
   }
 }
 

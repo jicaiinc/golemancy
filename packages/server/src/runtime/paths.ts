@@ -107,6 +107,25 @@ export function getBundledCertFilePath(): string | null {
   }
 }
 
+/**
+ * Path to bundled uv bin directory (contains uv, uvx).
+ *
+ * Resolution order:
+ * 1. GOLEMANCY_UV_PATH env var → dirname (points to binary, we want dir)
+ * 2. {bundledRuntimeDir}/uv/              (all platforms — binaries at root)
+ * 3. null (not available — caller falls back to system `uv`)
+ */
+export function getBundledUvBinDir(): string | null {
+  if (process.env.GOLEMANCY_UV_PATH) {
+    return path.dirname(process.env.GOLEMANCY_UV_PATH)
+  }
+  const runtimeDir = getBundledRuntimeDir()
+  if (runtimeDir) {
+    return path.join(runtimeDir, 'uv')
+  }
+  return null
+}
+
 // ── Per-Project Runtime Paths (read-write, ~/.golemancy/projects/{id}/) ──
 
 /**

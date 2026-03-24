@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { buildBashInstructions } from './bash-tools'
 import type { BashRuntimeInfo } from './bash-tools'
 
-const BUNDLED: BashRuntimeInfo = { hasBundledPython: true, hasBundledNode: true }
-const NO_BUNDLED: BashRuntimeInfo = { hasBundledPython: false, hasBundledNode: false }
+const BUNDLED: BashRuntimeInfo = { hasBundledPython: true, hasBundledNode: true, hasBundledUv: true }
+const NO_BUNDLED: BashRuntimeInfo = { hasBundledPython: false, hasBundledNode: false, hasBundledUv: false }
 
 describe('buildBashInstructions', () => {
   // ── Restricted mode ─────────────────────────────────────
@@ -80,6 +80,16 @@ describe('buildBashInstructions', () => {
       const result = buildBashInstructions('sandbox', true, 'darwin', NO_BUNDLED)
       expect(result).not.toContain('Node.js')
     })
+
+    it('mentions uv when bundled', () => {
+      const result = buildBashInstructions('sandbox', true, 'darwin', BUNDLED)
+      expect(result).toContain('uv is available with uvx pre-installed')
+    })
+
+    it('omits uv when not bundled', () => {
+      const result = buildBashInstructions('sandbox', true, 'darwin', NO_BUNDLED)
+      expect(result).not.toContain('uvx')
+    })
   })
 
   // ── Unrestricted mode ───────────────────────────────────
@@ -116,6 +126,11 @@ describe('buildBashInstructions', () => {
     it('mentions Node.js when bundled', () => {
       const result = buildBashInstructions('unrestricted', true, 'darwin', BUNDLED)
       expect(result).toContain('Node.js is available with npm pre-installed')
+    })
+
+    it('mentions uv when bundled', () => {
+      const result = buildBashInstructions('unrestricted', true, 'darwin', BUNDLED)
+      expect(result).toContain('uv is available with uvx pre-installed')
     })
   })
 })

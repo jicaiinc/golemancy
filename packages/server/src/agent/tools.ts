@@ -17,7 +17,7 @@ import { buildBrowserInstructions } from './builtin-tools/browser-tools'
 import { createOpenTools, buildOpenInstructions } from './builtin-tools/open-tools'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
-import { getBundledPythonPath, getBundledNodeBinDir } from '../runtime/paths'
+import { getBundledPythonPath, getBundledNodeBinDir, getBundledUvBinDir } from '../runtime/paths'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:tools' })
@@ -157,6 +157,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         const bashInstr = buildBashInstructions(builtinResult.actualMode, !!projectId, process.platform as SupportedPlatform, {
           hasBundledPython: !!getBundledPythonPath(),
           hasBundledNode: !!getBundledNodeBinDir(),
+          hasBundledUv: !!getBundledUvBinDir(),
         })
         instructions = instructions ? instructions + '\n\n' + bashInstr : bashInstr
       }

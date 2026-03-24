@@ -3,6 +3,7 @@ export type { RuntimeEnvVars } from './env-builder'
 export {
   getBundledPythonPath,
   getBundledNodeBinDir,
+  getBundledUvBinDir,
   getBundledRuntimeDir,
   getProjectRuntimeDir,
   getProjectPythonEnvPath,

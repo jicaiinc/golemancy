@@ -9,6 +9,7 @@ beforeEach(() => {
   delete process.env.GOLEMANCY_RESOURCES_PATH
   delete process.env.GOLEMANCY_PYTHON_PATH
   delete process.env.GOLEMANCY_NODE_PATH
+  delete process.env.GOLEMANCY_UV_PATH
   delete process.env.GOLEMANCY_DATA_DIR
   // Reset module cache so env vars are re-read
   vi.resetModules()
@@ -82,6 +83,30 @@ describe('paths', () => {
       const { getBundledNodeBinDir } = await importPaths()
       expect(getBundledNodeBinDir()).toBe(
         path.join('/app/resources', 'runtime', 'node', 'bin'),
+      )
+    })
+  })
+
+  // ── getBundledUvBinDir ────────────────────────────────────
+
+  describe('getBundledUvBinDir', () => {
+    it('returns null when no env vars set', async () => {
+      const { getBundledUvBinDir } = await importPaths()
+      expect(getBundledUvBinDir()).toBeNull()
+    })
+
+    it('returns dirname of GOLEMANCY_UV_PATH when set (highest priority)', async () => {
+      process.env.GOLEMANCY_UV_PATH = '/custom/uv/uv'
+      process.env.GOLEMANCY_RESOURCES_PATH = '/app/resources'
+      const { getBundledUvBinDir } = await importPaths()
+      expect(getBundledUvBinDir()).toBe('/custom/uv')
+    })
+
+    it('returns bundled path from resources when only GOLEMANCY_RESOURCES_PATH set', async () => {
+      process.env.GOLEMANCY_RESOURCES_PATH = '/app/resources'
+      const { getBundledUvBinDir } = await importPaths()
+      expect(getBundledUvBinDir()).toBe(
+        path.join('/app/resources', 'runtime', 'uv'),
       )
     })
   })

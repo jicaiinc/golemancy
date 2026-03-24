@@ -2,7 +2,7 @@
  * Preflight check before electron-builder packaging.
  *
  * Validates that ALL required artifacts exist and are correct:
- *   1. Bundled runtimes (Node.js + Python) from download-runtime.sh
+ *   1. Bundled runtimes (Node.js + Python + uv) from download-runtime.sh
  *   2. Server bundle from bundle-server.mjs
  *   3. Electron-vite build output (main + preload + renderer)
  *   4. Build resources (icons, entitlements)
@@ -121,6 +121,31 @@ async function main() {
     await checkExecutable(
       join(runtimeDir, 'python/bin/python3.13'),
       'Bundled Python runtime',
+      runtimeFix,
+    )
+  }
+
+  // uv runtime
+  if (isWin) {
+    await checkFile(
+      join(runtimeDir, 'uv/uv.exe'),
+      'Bundled uv runtime (uv)',
+      runtimeFix,
+    )
+    await checkFile(
+      join(runtimeDir, 'uv/uvx.exe'),
+      'Bundled uv runtime (uvx)',
+      runtimeFix,
+    )
+  } else {
+    await checkExecutable(
+      join(runtimeDir, 'uv/uv'),
+      'Bundled uv runtime (uv)',
+      runtimeFix,
+    )
+    await checkExecutable(
+      join(runtimeDir, 'uv/uvx'),
+      'Bundled uv runtime (uvx)',
       runtimeFix,
     )
   }
