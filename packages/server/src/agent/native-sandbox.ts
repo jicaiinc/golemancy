@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { Sandbox, CommandResult } from 'bash-tool'
+import { toShellCommand, normalizeCwd } from '../runtime/spawn'
 
 // ── Constants ───────────────────────────────────────────────
 
@@ -61,20 +62,12 @@ export class NativeSandbox implements Sandbox {
 
   private spawnCommand(command: string): Promise<CommandResult> {
     return new Promise((resolve, reject) => {
-      const isWin = process.platform === 'win32'
-      const shell = isWin ? (process.env.COMSPEC || 'cmd.exe') : 'bash'
-      const args = isWin ? ['/c', command] : ['-c', command]
-      // Normalize cwd on Windows — mixed separators (e.g. C:\foo/bar) can cause
-      // cmd.exe startup errors in Electron's forked server process
-      const cwd = isWin ? this.workspaceRoot.replace(/\//g, '\\') : this.workspaceRoot
+      const { shell, args, spawnOptions } = toShellCommand(command)
       const child = spawn(shell, args, {
-        cwd,
+        cwd: normalizeCwd(this.workspaceRoot),
         env: { ...process.env, ...this.runtimeEnv },
         stdio: ['ignore', 'pipe', 'pipe'],
-        // Windows: prevent Node.js from escaping quotes in the command string.
-        // Without this, commands like `cd "C:\path" && dir` get double-escaped
-        // and cmd.exe fails with "文件名、目录名或卷标语法不正确".
-        ...(isWin && { windowsVerbatimArguments: true }),
+        ...spawnOptions,
       })
 
       let stdout = ''

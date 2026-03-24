@@ -24,6 +24,12 @@ vi.mock('./sandbox-pool', () => ({
   },
 }))
 
+// Pass through toWinSpawn so pool tests stay platform-independent.
+// Platform-specific behavior is tested in runtime/spawn.test.ts.
+vi.mock('../runtime/spawn', () => ({
+  toWinSpawn: (command: string, args: string[]) => ({ command, args }),
+}))
+
 import { MCPPool } from './mcp-pool'
 import type { MCPServerConfig, ProjectId } from '@golemancy/shared'
 import type { MCPLoadOptions } from './mcp'

@@ -14,6 +14,7 @@ import type { MCPLoadOptions } from './mcp'
 import { sandboxPool } from './sandbox-pool'
 import { permissionsToSandboxConfig } from './permissions-adapter'
 import { buildMCPRuntimeEnv } from '../runtime/env-builder'
+import { toWinSpawn } from '../runtime/spawn'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:mcp-pool' })
@@ -519,6 +520,19 @@ export class MCPPool {
           )
         }
       }
+
+      // Windows: wrap through cmd.exe for .cmd/.bat script compatibility.
+      // @ai-sdk/mcp's StdioMCPTransport hardcodes shell: false, so commands
+      // like "npx" (actually npx.cmd) fail with ENOENT without this.
+      const resolved = toWinSpawn(effectiveCommand, effectiveArgs)
+      if (resolved.command !== effectiveCommand) {
+        log.info(
+          { name: server.name, original: effectiveCommand, resolved: resolved.command },
+          'Windows: wrapped MCP command through cmd.exe for .cmd compatibility',
+        )
+      }
+      effectiveCommand = resolved.command
+      effectiveArgs = resolved.args
 
       log.info(
         { name: server.name, command: effectiveCommand, args: effectiveArgs, cwd: effectiveCwd },

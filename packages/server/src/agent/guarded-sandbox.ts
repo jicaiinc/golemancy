@@ -6,6 +6,7 @@ import type { SandboxConfig } from '@golemancy/shared'
 import { validatePathAsync, type PathOperation } from './validate-path'
 import { checkCommandBlacklist, CommandBlockedError, type CommandBlacklistConfig } from './check-command-blacklist'
 import { getSafeEnv } from './safe-env'
+import { toShellCommand, normalizeCwd } from '../runtime/spawn'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:guarded-sandbox' })
@@ -43,10 +44,8 @@ export class GuardedSandbox implements Sandbox {
     this.workspaceRoot = options.workspaceRoot
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
     this.runtimeEnv = options.runtimeEnv ?? {}
-    const isWin = process.platform === 'win32'
-    const shell = isWin ? (process.env.COMSPEC || 'cmd.exe') : 'bash'
     log.info(
-      { workspaceRoot: this.workspaceRoot, shell, platform: process.platform, deniedCommands: this.config.deniedCommands.length },
+      { workspaceRoot: this.workspaceRoot, shell: process.platform === 'win32' ? 'cmd.exe' : 'bash', platform: process.platform, deniedCommands: this.config.deniedCommands.length },
       'GuardedSandbox initialized',
     )
   }
@@ -101,22 +100,15 @@ export class GuardedSandbox implements Sandbox {
 
   private spawnCommand(command: string): Promise<CommandResult> {
     return new Promise((resolve, reject) => {
-      const isWin = process.platform === 'win32'
-      const shell = isWin ? (process.env.COMSPEC || 'cmd.exe') : 'bash'
-      const args = isWin ? ['/c', command] : ['-c', command]
+      const { shell, args, spawnOptions } = toShellCommand(command)
       const env = { ...getSafeEnv(), ...this.runtimeEnv }
-      log.trace({ shell, cwd: this.workspaceRoot, hasPath: !!env.PATH, hasComspec: !!env.COMSPEC }, 'spawning child process')
-      // Normalize cwd on Windows — mixed separators (e.g. C:\foo/bar) can cause
-      // cmd.exe startup errors in Electron's forked server process
-      const cwd = isWin ? this.workspaceRoot.replace(/\//g, '\\') : this.workspaceRoot
+      const cwd = normalizeCwd(this.workspaceRoot)
+      log.trace({ shell, cwd, hasPath: !!env.PATH, hasComspec: !!env.COMSPEC }, 'spawning child process')
       const child = spawn(shell, args, {
         cwd,
         env,
         stdio: ['ignore', 'pipe', 'pipe'],
-        // Windows: prevent Node.js from escaping quotes in the command string.
-        // Without this, commands like `cd "C:\path" && dir` get double-escaped
-        // and cmd.exe fails with "文件名、目录名或卷标语法不正确".
-        ...(isWin && { windowsVerbatimArguments: true }),
+        ...spawnOptions,
       })
 
       let stdout = ''

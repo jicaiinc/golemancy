@@ -25,3 +25,4 @@ export {
 export type { PythonPackage, PythonEnvStatus } from './python-manager'
 export { getNodeRuntimeStatus } from './node-manager'
 export type { NodeRuntimeStatus } from './node-manager'
+export { toShellCommand, toWinSpawn, normalizeCwd } from './spawn'
