@@ -44,7 +44,7 @@ export class CronJobExecutor {
 
   async execute(cronJob: CronJob, triggeredBy: 'schedule' | 'manual'): Promise<CronJobRun> {
     const abortController = new AbortController()
-    const controllerKey = `${cronJob.projectId}:${cronJob.id}`
+    const controllerKey = `${cronJob.projectId}:${cronJob.id}:${Date.now()}`
     this.runningControllers.set(controllerKey, abortController)
 
     const startTime = Date.now()

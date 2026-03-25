@@ -626,7 +626,7 @@ export class MCPPool {
     }
   }
 
-  /** Poll for process exit, SIGKILL after timeout. */
+  /** Poll for process exit, force kill after timeout. */
   private async waitForProcessExit(pid: number, timeoutMs: number): Promise<void> {
     const deadline = Date.now() + timeoutMs
     const interval = 100
@@ -638,9 +638,16 @@ export class MCPPool {
       }
       await new Promise(r => setTimeout(r, interval))
     }
-    // Timeout — force kill
+    // Timeout — force kill (use taskkill /T on Windows to kill the process tree,
+    // since stdio MCP servers are wrapped through cmd.exe and the actual server
+    // is a child of that wrapper process)
     try {
-      process.kill(pid, 'SIGKILL')
+      if (process.platform === 'win32') {
+        const { spawnSync } = await import('node:child_process')
+        spawnSync('taskkill', ['/T', '/F', '/PID', String(pid)], { stdio: 'ignore' })
+      } else {
+        process.kill(pid, 'SIGKILL')
+      }
     } catch {
       // Already exited
     }
