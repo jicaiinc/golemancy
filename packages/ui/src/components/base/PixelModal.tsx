@@ -41,11 +41,11 @@ export function PixelModal({ open, onClose, title, children, footer, size = 'md'
 
           {/* Modal */}
           <motion.div
-            className={`relative w-full ${sizeClasses[size]} mx-4 bg-surface border-2 border-border-bright shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3),4px_4px_0_0_rgba(0,0,0,0.5)]`}
+            className={`relative w-full ${sizeClasses[size]} mx-4 max-h-[90vh] flex flex-col bg-surface border-2 border-border-bright shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3),4px_4px_0_0_rgba(0,0,0,0.5)]`}
             {...modalTransition}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b-2 border-border-dim">
+            <div className="flex items-center justify-between px-4 py-3 border-b-2 border-border-dim shrink-0">
               <h2 className="font-pixel text-[12px] text-text-primary">{title}</h2>
               <button
                 onClick={onClose}
@@ -56,13 +56,13 @@ export function PixelModal({ open, onClose, title, children, footer, size = 'md'
             </div>
 
             {/* Body */}
-            <div className="p-4">
+            <div className="p-4 overflow-y-auto min-h-0">
               {children}
             </div>
 
             {/* Footer */}
             {footer && (
-              <div className="flex items-center justify-end gap-2 px-4 py-3 border-t-2 border-border-dim">
+              <div className="flex items-center justify-end gap-2 px-4 py-3 border-t-2 border-border-dim shrink-0">
                 {footer}
               </div>
             )}
