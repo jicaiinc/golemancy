@@ -7,6 +7,7 @@ interface ActiveEntry {
   agentId: string
   projectId: string
   startedAt: string
+  abortController?: AbortController
 }
 
 /**
@@ -16,12 +17,13 @@ interface ActiveEntry {
 export class ActiveChatRegistry {
   private entries = new Map<string, ActiveEntry>()
 
-  register(conversationId: string, info: { agentId: string; projectId: string }) {
+  register(conversationId: string, info: { agentId: string; projectId: string; abortController?: AbortController }) {
     this.entries.set(conversationId, {
       conversationId,
       agentId: info.agentId,
       projectId: info.projectId,
       startedAt: new Date().toISOString(),
+      abortController: info.abortController,
     })
     log.debug({ conversationId, agentId: info.agentId, total: this.entries.size }, 'registered active chat')
   }
@@ -47,6 +49,21 @@ export class ActiveChatRegistry {
       if (entry.projectId === projectId) result.push(entry)
     }
     return result
+  }
+
+  /** Abort all active chats for a project. Returns the number of aborted chats. */
+  abortProject(projectId: string): number {
+    let count = 0
+    for (const entry of this.entries.values()) {
+      if (entry.projectId === projectId && entry.abortController) {
+        entry.abortController.abort()
+        count++
+      }
+    }
+    if (count > 0) {
+      log.info({ projectId, abortedCount: count }, 'aborted active chats for project')
+    }
+    return count
   }
 
   /** Get all active entries. */

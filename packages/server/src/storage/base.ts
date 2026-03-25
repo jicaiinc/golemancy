@@ -70,10 +70,27 @@ export async function listJsonFiles<T>(dirPath: string): Promise<T[]> {
   }
 }
 
+const RETRY_CODES = new Set(['EBUSY', 'EPERM', 'EACCES'])
+const DELETE_DIR_MAX_RETRIES = 5
+const DELETE_DIR_BASE_DELAY_MS = 200
+
 export async function deleteDir(dirPath: string): Promise<void> {
-  try {
-    await fs.rm(dirPath, { recursive: true, force: true })
-  } catch (e) {
-    if (isNodeError(e) && e.code !== 'ENOENT') throw e
+  for (let attempt = 0; attempt <= DELETE_DIR_MAX_RETRIES; attempt++) {
+    try {
+      await fs.rm(dirPath, { recursive: true, force: true })
+      return
+    } catch (e) {
+      if (isNodeError(e) && e.code === 'ENOENT') return
+      if (
+        attempt < DELETE_DIR_MAX_RETRIES
+        && isNodeError(e)
+        && RETRY_CODES.has(e.code ?? '')
+      ) {
+        const delay = DELETE_DIR_BASE_DELAY_MS * 2 ** attempt
+        await new Promise(r => setTimeout(r, delay))
+        continue
+      }
+      throw e
+    }
   }
 }

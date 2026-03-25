@@ -137,10 +137,22 @@ async function main() {
   const settingsStorage = new FileSettingsStorage()
   const oauthManager = new OAuthManager(settingsStorage)
 
+  // Expose executor so onProjectDeleting can abort running cron jobs
+  let cronExecutor: CronJobExecutor | undefined
+
   const onProjectDeleting = async (id: ProjectId) => {
-    // Close SQLite database connection first (prevents EPERM on Windows due to file locks)
+    // 1. Abort: cancel active chats, scheduled cron jobs, and running cron executions
+    activeChatRegistry.abortProject(id as string)
+    cronScheduler.removeProjectJobs(id as string)
+    cronExecutor?.abortProject(id as string)
+
+    // 2. Grace period: let abort signals propagate and streams wind down
+    await new Promise(r => setTimeout(r, 500))
+
+    // 3. Close SQLite database (WAL checkpoint happens inside closeDb)
     dbManager.closeProject(id)
-    // Tear down sandbox worker and MCP connections
+
+    // 4. Tear down child processes (all awaitable now)
     await Promise.allSettled([
       removeProjectPythonEnv(id),
       sandboxPool.removeProject(id),
@@ -258,7 +270,7 @@ async function main() {
     })
 
     // Start cron scheduler after server is ready
-    const executor = new CronJobExecutor({
+    cronExecutor = new CronJobExecutor({
       agentStorage,
       conversationStorage: deps.conversationStorage as SqliteConversationStorage,
       settingsStorage: deps.settingsStorage as FileSettingsStorage,
@@ -277,7 +289,7 @@ async function main() {
     })
     cronScheduler.start({
       cronJobStorage: deps.cronJobStorage as FileCronJobStorage,
-      executor,
+      executor: cronExecutor,
     })
   })
 }

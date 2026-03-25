@@ -329,7 +329,9 @@ describe('Sandbox integration — hot-reload and crash recovery', () => {
       expect(mockChildren.length).toBe(2)
 
       // Removing one project doesn't affect the other
-      await pool.removeProject(PROJECT_ID)
+      const removePromise = pool.removeProject(PROJECT_ID)
+      vi.advanceTimersByTime(5_001)
+      await removePromise
       expect(pool.getWorkerCount()).toBe(1)
     })
 

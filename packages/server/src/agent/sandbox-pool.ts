@@ -173,8 +173,8 @@ export class WorkerSandboxManagerHandle implements SandboxManagerHandle {
     })
   }
 
-  destroy(): void {
-    if (this.destroyed) return
+  destroy(): Promise<void> {
+    if (this.destroyed) return Promise.resolve()
     this.destroyed = true
 
     // Reject all pending requests
@@ -184,20 +184,41 @@ export class WorkerSandboxManagerHandle implements SandboxManagerHandle {
     }
     this.pendingRequests.clear()
 
-    // Send graceful shutdown, force kill after grace period
+    // Send graceful shutdown
     try {
       this.child.send({ type: 'shutdown' } satisfies SandboxWorkerRequest)
     } catch {
       // Child may already be disconnected
     }
 
-    setTimeout(() => {
-      if (this.child.connected) {
-        this.child.kill('SIGKILL')
-      }
-    }, WORKER_KILL_GRACE_MS)
-
+    // Remove from pool immediately (synchronous) so no new requests can be routed
     this.onDestroy()
+
+    // Wait for process to actually exit (releases file handles on Windows)
+    return new Promise<void>((resolve) => {
+      const onExit = () => {
+        clearTimeout(killTimer)
+        resolve()
+      }
+
+      this.child.once('exit', onExit)
+
+      const killTimer = setTimeout(() => {
+        this.child.off('exit', onExit)
+        try {
+          if (this.child.connected) {
+            if (process.platform === 'win32') {
+              spawnSync('taskkill', ['/T', '/F', '/PID', String(this.child.pid)], { stdio: 'ignore' })
+            } else {
+              this.child.kill('SIGKILL')
+            }
+          }
+        } catch {
+          // Already exited
+        }
+        resolve()
+      }, WORKER_KILL_GRACE_MS)
+    })
   }
 
   // ── Internal ──────────────────────────────────────────────
@@ -343,7 +364,7 @@ export class SandboxPool {
   async removeProject(projectId: ProjectId): Promise<void> {
     const state = this.projectWorkers.get(projectId)
     if (state) {
-      state.handle.destroy()
+      await state.handle.destroy()
       // destroy() calls onDestroy which removes from map
     }
   }

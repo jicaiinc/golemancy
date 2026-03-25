@@ -51,6 +51,22 @@ export class CronScheduler {
     }
   }
 
+  /** Remove all scheduled jobs for a project (used during project deletion). */
+  removeProjectJobs(projectId: string): number {
+    let count = 0
+    for (const [cronJobId, entry] of this.entries) {
+      if (entry.cronJob.projectId === projectId) {
+        entry.cron.stop()
+        this.entries.delete(cronJobId)
+        count++
+      }
+    }
+    if (count > 0) {
+      log.info({ projectId, removedCount: count }, 'removed all project jobs from scheduler')
+    }
+    return count
+  }
+
   private scheduleJob(cronJob: CronJob) {
     try {
       let cron: Cron

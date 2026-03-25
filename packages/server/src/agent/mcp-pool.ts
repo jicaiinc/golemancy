@@ -58,6 +58,8 @@ class StderrCapture {
 interface BuildTransportResult {
   transport: Parameters<typeof createMCPClient>[0]['transport']
   stderrCapture: StderrCapture | null
+  /** Mutable ref — pid is set after transport.start() is called by createMCPClient. */
+  pidRef: { pid?: number }
 }
 
 // ── Pool Constants ──────────────────────────────────────────────
@@ -160,6 +162,8 @@ interface MCPPoolEntry {
   lastUsedAt: number
   /** Connection creation promise — used to deduplicate concurrent connect attempts */
   connectPromise: Promise<MCPGetToolsResult> | null
+  /** PID of the spawned child process (stdio transport only) — used to wait for exit */
+  pid?: number
 }
 
 // ── Sandbox Helpers (moved from mcp.ts) ────────────────────────
@@ -446,6 +450,7 @@ export class MCPPool {
       entry.status = 'active'
       entry.lastUsedAt = Date.now()
       entry.connectPromise = null
+      entry.pid = result.pidRef.pid
 
       log.info(
         { projectId, serverName: server.name, toolCount: Object.keys(rawTools).length },
@@ -564,18 +569,22 @@ export class MCPPool {
         stderr: 'pipe',
       })
 
-      // Intercept start() to capture stderr from the spawned child process.
+      // Intercept start() to capture stderr and PID from the spawned child process.
       // The private `process` field is set inside start() after spawn().
+      const pidRef: { pid?: number } = {}
       if (typeof transport.start === 'function') {
         const originalStart = transport.start.bind(transport)
         transport.start = async function (this: typeof transport) {
           await originalStart()
           const proc = (this as unknown as { process?: ChildProcess }).process
-          if (proc) stderrCapture.attach(proc)
+          if (proc) {
+            stderrCapture.attach(proc)
+            pidRef.pid = proc.pid
+          }
         }
       }
 
-      return { transport, stderrCapture }
+      return { transport, stderrCapture, pidRef }
     }
 
     if (server.transportType === 'http' || server.transportType === 'sse') {
@@ -596,6 +605,7 @@ export class MCPPool {
           headers: server.headers,
         },
         stderrCapture: null,
+        pidRef: {},
       }
     }
 
@@ -608,6 +618,31 @@ export class MCPPool {
       await entry.client.close()
     } catch {
       // Ignore close errors (process may already be dead)
+    }
+
+    // Wait for the child process to actually exit (prevents EBUSY on Windows)
+    if (entry.pid) {
+      await this.waitForProcessExit(entry.pid, 5000)
+    }
+  }
+
+  /** Poll for process exit, SIGKILL after timeout. */
+  private async waitForProcessExit(pid: number, timeoutMs: number): Promise<void> {
+    const deadline = Date.now() + timeoutMs
+    const interval = 100
+    while (Date.now() < deadline) {
+      try {
+        process.kill(pid, 0) // Check if process still alive
+      } catch {
+        return // Process has exited
+      }
+      await new Promise(r => setTimeout(r, interval))
+    }
+    // Timeout — force kill
+    try {
+      process.kill(pid, 'SIGKILL')
+    } catch {
+      // Already exited
     }
   }
 

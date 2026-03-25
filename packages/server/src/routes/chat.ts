@@ -138,6 +138,15 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     const chatConvId = conversationId ?? 'ephemeral'
     let chatMarkedRunning = false
 
+    // AbortController for this chat — allows project deletion to abort in-flight streams.
+    // Forward the request signal so that client disconnect also aborts.
+    const chatAbortController = new AbortController()
+    if (c.req.raw.signal.aborted) {
+      chatAbortController.abort()
+    } else {
+      c.req.raw.signal.addEventListener('abort', () => chatAbortController.abort(), { once: true })
+    }
+
     const setAgentStatus = async (status: AgentStatus) => {
       await deps.agentStorage.update(projectId as ProjectId, agentId as AgentId, { status })
       if (deps.wsManager) {
@@ -147,7 +156,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     const markChatRunning = async () => {
       if (deps.activeChatRegistry) {
-        deps.activeChatRegistry.register(chatConvId, { agentId, projectId })
+        deps.activeChatRegistry.register(chatConvId, { agentId, projectId, abortController: chatAbortController })
       }
       chatMarkedRunning = true
       await setAgentStatus('running')
@@ -359,7 +368,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
               messages: compactInputs.allModelMsgs,
               resolved,
               systemPrompt: agent.systemPrompt,
-              signal: c.req.raw.signal,
+              signal: chatAbortController.signal,
               onProgress: (info) => {
                 writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'progress', generatedChars: info.generatedChars } })
               },
@@ -414,7 +423,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           messages: modelMessages,
           tools: hasTools ? allTools : undefined,
           stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
-          abortSignal: c.req.raw.signal,
+          abortSignal: chatAbortController.signal,
           onStepFinish: ({ usage, finishReason, toolCalls }) => {
             stepIndex++
             lastFinishReason = finishReason

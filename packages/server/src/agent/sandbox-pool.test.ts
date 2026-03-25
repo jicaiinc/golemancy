@@ -450,7 +450,10 @@ describe('SandboxPool', () => {
       await p1
 
       expect(pool.getWorkerCount()).toBe(1)
-      await pool.removeProject(PROJECT_ID)
+      const removePromise = pool.removeProject(PROJECT_ID)
+      // destroy() waits for process exit or kill timer — advance past grace period
+      vi.advanceTimersByTime(5_001)
+      await removePromise
       expect(pool.getWorkerCount()).toBe(0)
     })
 
@@ -475,7 +478,10 @@ describe('SandboxPool', () => {
 
       expect(pool.getWorkerCount()).toBe(2)
 
-      await pool.shutdown()
+      const shutdownPromise = pool.shutdown()
+      // destroy() waits for process exit or kill timer — advance past grace period
+      vi.advanceTimersByTime(5_001)
+      await shutdownPromise
       expect(pool.getWorkerCount()).toBe(0)
     })
 

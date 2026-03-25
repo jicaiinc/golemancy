@@ -48,10 +48,17 @@ export class ProjectDbManager {
   /** Close the underlying better-sqlite3 connection (drizzle doesn't expose close directly) */
   private closeDb(projectId: string, db: AppDatabase): boolean {
     try {
-      const client = (db as any).$client as { close?: () => void } | undefined
+      const client = (db as any).$client as { close?: () => void; pragma?: (sql: string) => unknown } | undefined
       if (!client?.close) {
         log.warn({ projectId }, 'project database client does not expose close()')
         return false
+      }
+      // Flush WAL to main database file before closing — prevents EBUSY on Windows
+      // when the directory is deleted while -wal/-shm files are still held open.
+      try {
+        client.pragma?.('wal_checkpoint(TRUNCATE)')
+      } catch (err) {
+        log.warn({ projectId, err }, 'WAL checkpoint failed before close')
       }
       client.close()
       log.debug({ projectId }, 'closed project database')

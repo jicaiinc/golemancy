@@ -38,9 +38,15 @@ export interface ExecutorDeps {
 }
 
 export class CronJobExecutor {
+  private runningControllers = new Map<string, AbortController>()
+
   constructor(private deps: ExecutorDeps) {}
 
   async execute(cronJob: CronJob, triggeredBy: 'schedule' | 'manual'): Promise<CronJobRun> {
+    const abortController = new AbortController()
+    const controllerKey = `${cronJob.projectId}:${cronJob.id}`
+    this.runningControllers.set(controllerKey, abortController)
+
     const startTime = Date.now()
     const projectId = cronJob.projectId
 
@@ -112,7 +118,7 @@ export class CronJobExecutor {
       )
       const conversationId = conv.id
       registeredConversationId = conversationId
-      this.deps.activeChatRegistry?.register(conversationId, { agentId: agentId as string, projectId: projectId as string })
+      this.deps.activeChatRegistry?.register(conversationId, { agentId: agentId as string, projectId: projectId as string, abortController })
 
       // Update run with conversationId
       await this.deps.cronJobRunStorage.updateStatus(projectId, run.id, 'running', { conversationId })
@@ -173,6 +179,7 @@ export class CronJobExecutor {
         messages: modelMessages,
         tools: hasTools ? allTools : undefined,
         stopWhen: hasTools ? stepCountIs(10) : undefined,
+        abortSignal: abortController.signal,
         onAbort: async ({ steps }) => {
           // Sum usage from completed steps (matches chat.ts pattern)
           let abortInput = 0, abortOutput = 0
@@ -276,9 +283,11 @@ export class CronJobExecutor {
       // --- Agent status lifecycle: mark idle ---
       await this.markAgentIdle(projectId, agentId, cronJob.id, conversationId)
 
+      this.runningControllers.delete(controllerKey)
       log.info({ cronJobId: cronJob.id, durationMs, conversationId }, 'cron job executed successfully')
       return { ...run, status: 'success', durationMs, conversationId }
     } catch (err) {
+      this.runningControllers.delete(controllerKey)
       // --- Active chat lifecycle: unregister immediately to avoid leaking on subsequent errors ---
       if (registeredConversationId) this.deps.activeChatRegistry?.unregister(registeredConversationId)
 
@@ -304,6 +313,16 @@ export class CronJobExecutor {
 
       log.error({ cronJobId: cronJob.id, err, durationMs }, 'cron job execution failed')
       return { ...run, status: 'error', durationMs, error: errorMessage }
+    }
+  }
+
+  /** Abort all running cron executions for a project. */
+  abortProject(projectId: string): void {
+    for (const [key, controller] of this.runningControllers) {
+      if (key.startsWith(`${projectId}:`)) {
+        controller.abort()
+        this.runningControllers.delete(key)
+      }
     }
   }
 
