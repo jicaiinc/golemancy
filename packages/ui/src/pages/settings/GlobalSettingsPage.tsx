@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
+import { useDocumentTitle } from '../../hooks'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig, OAuthFlowStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
@@ -50,6 +51,7 @@ function BadgeDot() {
 const VALID_TABS = new Set(['general', 'providers', 'speech', 'about'])
 
 export function GlobalSettingsPage() {
+  useDocumentTitle('Settings – Golemancy')
   const settings = useAppStore(s => s.settings)
 
   if (!settings) return null

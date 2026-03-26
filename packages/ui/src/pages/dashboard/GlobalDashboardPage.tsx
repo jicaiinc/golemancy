@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { useDocumentTitle } from '../../hooks'
 import type {
   DashboardSummary, DashboardTokenTrend, DashboardTokenByModel, DashboardTokenByAgent,
   RuntimeStatus, TimeRange, ProjectId, ConversationId, CronJobId,
@@ -114,6 +115,7 @@ function GlobalTokenTrendChart({ data, timeRange }: { data: DashboardTokenTrend[
 // --- Main Global Dashboard Page ---
 export function GlobalDashboardPage() {
   const { t } = useTranslation('dashboard')
+  useDocumentTitle('Dashboard – Golemancy')
   const navigate = useNavigate()
   const { addListener } = useWs()
 

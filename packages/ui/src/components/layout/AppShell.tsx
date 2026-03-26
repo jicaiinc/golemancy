@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { TopBar } from './TopBar'
 import { ProjectSidebar } from './ProjectSidebar'
 import { useAppStore } from '../../stores'
+import { useDocumentTitle } from '../../hooks'
 
 interface AppShellProps {
   children: ReactNode
@@ -9,6 +10,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const currentProject = useAppStore(s => s.projects.find(p => p.id === s.currentProjectId))
+  useDocumentTitle(currentProject ? `${currentProject.name} – Golemancy` : 'Golemancy')
 
   return (
     <div data-testid="app-shell" className="flex flex-col h-screen w-full bg-void">

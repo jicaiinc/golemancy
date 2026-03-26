@@ -170,6 +170,21 @@ function buildAppMenu(): void {
       ],
     },
     {
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Project',
+          accelerator: 'CommandOrControl+N',
+          click: () => createWindow({ action: 'create' }),
+        },
+        {
+          label: 'New Window',
+          accelerator: 'CommandOrControl+Shift+N',
+          click: () => createWindow(),
+        },
+      ],
+    },
+    {
       label: 'Edit',
       submenu: [
         { role: 'undo' },
@@ -221,11 +236,11 @@ async function queryActiveChatCount(): Promise<number> {
   }
 }
 
-function createWindow(options?: { projectId?: string }): void {
+function createWindow(options?: { projectId?: string; action?: 'create' }): void {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
-    minWidth: 960,
+    minWidth: 640,
     minHeight: 640,
     backgroundColor: '#0B0E14',
     icon: getIconPath(),
@@ -265,15 +280,21 @@ function createWindow(options?: { projectId?: string }): void {
     return { action: 'deny' }
   })
 
+  const hash = options?.projectId
+    ? `/projects/${options.projectId}`
+    : options?.action === 'create'
+      ? '/?create=true'
+      : undefined
+
   if (process.env['ELECTRON_RENDERER_URL']) {
-    const url = options?.projectId
-      ? `${process.env['ELECTRON_RENDERER_URL']}#/projects/${options.projectId}`
+    const url = hash
+      ? `${process.env['ELECTRON_RENDERER_URL']}#${hash}`
       : process.env['ELECTRON_RENDERER_URL']
     win.loadURL(url)
   } else {
     win.loadFile(
       join(__dirname, '../renderer/index.html'),
-      options?.projectId ? { hash: `/projects/${options.projectId}` } : undefined,
+      hash ? { hash } : undefined,
     )
   }
 

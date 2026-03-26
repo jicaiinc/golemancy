@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
@@ -9,6 +9,7 @@ import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { ProjectCreateModal } from './ProjectCreateModal'
 import { relativeTime } from '../../lib/time'
 import { getCloneName } from '../../lib/clone-name'
+import { useDocumentTitle } from '../../hooks'
 
 const iconMap: Record<string, string> = {
   pickaxe: '⛏',
@@ -23,11 +24,22 @@ const iconMap: Record<string, string> = {
 
 export function ProjectListPage() {
   const { t } = useTranslation('project')
+  useDocumentTitle('All Projects – Golemancy')
   const projects = useAppStore(s => s.projects)
   const projectsLoading = useAppStore(s => s.projectsLoading)
   const cloneProject = useAppStore(s => s.cloneProject)
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [showCreate, setShowCreate] = useState(false)
+
+  // Auto-open create modal when navigated with ?create=true (from File → New Project menu)
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setShowCreate(true)
+      searchParams.delete('create')
+      setSearchParams(searchParams, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (projectsLoading) {
     return (
