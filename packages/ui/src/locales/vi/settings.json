@@ -41,7 +41,10 @@
     "light": "Sáng",
     "dark": "Tối",
     "system": "Hệ thống",
-    "language": "NGÔN NGỮ"
+    "language": "NGÔN NGỮ",
+    "telemetry": "BÁO CÁO SỰ CỐ",
+    "telemetryLabel": "Gửi báo cáo sự cố",
+    "telemetryDescription": "Giúp cải thiện Golemancy bằng cách tự động gửi báo cáo sự cố và dữ liệu lỗi. Báo cáo bao gồm thông báo lỗi và stack trace. Nội dung hội thoại không được thu thập."
   },
   "defaultModel": {
     "sectionTitle": "MODEL MẶC ĐỌNH",

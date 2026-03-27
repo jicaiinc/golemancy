@@ -41,7 +41,10 @@
     "light": "Ljust",
     "dark": "Mörkt",
     "system": "System",
-    "language": "SPRÅK"
+    "language": "SPRÅK",
+    "telemetry": "KRASCHRAPPORTER",
+    "telemetryLabel": "Skicka kraschrapporter",
+    "telemetryDescription": "Hjälp till att förbättra Golemancy genom att automatiskt skicka kraschrapporter och feldata. Rapporter innehåller felmeddelanden och stackspår. Konversationsinnehåll samlas inte in."
   },
   "defaultModel": {
     "sectionTitle": "STANDARDMODELL",

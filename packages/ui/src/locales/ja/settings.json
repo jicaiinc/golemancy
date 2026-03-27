@@ -41,7 +41,10 @@
     "light": "ライト",
     "dark": "ダーク",
     "system": "システム",
-    "language": "言語"
+    "language": "言語",
+    "telemetry": "クラッシュレポート",
+    "telemetryLabel": "クラッシュレポートを送信する",
+    "telemetryDescription": "クラッシュレポートとエラーデータを自動送信して、Golemancyの改善にご協力ください。レポートにはエラーメッセージとスタックトレースが含まれます。会話内容は収集されません。"
   },
   "defaultModel": {
     "sectionTitle": "デフォルトモデル",

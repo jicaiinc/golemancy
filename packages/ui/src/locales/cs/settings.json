@@ -41,7 +41,10 @@
     "light": "Světlý",
     "dark": "Tmavý",
     "system": "Systémový",
-    "language": "JAZYK"
+    "language": "JAZYK",
+    "telemetry": "HLÁŠENÍ O PÁDECH",
+    "telemetryLabel": "Odesílat hlášení o pádech",
+    "telemetryDescription": "Pomozte vylepšit Golemancy automatickým odesíláním hlášení o pádech a chybách. Hlášení zahrnují chybové zprávy a zásobníky volání. Obsah konverzací se neshromažďuje."
   },
   "defaultModel": {
     "sectionTitle": "VÝCHOZÍ MODEL",

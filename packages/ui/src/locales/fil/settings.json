@@ -41,7 +41,10 @@
     "light": "Maliwanag",
     "dark": "Madilim",
     "system": "System",
-    "language": "WIKA"
+    "language": "WIKA",
+    "telemetry": "PAG-UULAT NG CRASH",
+    "telemetryLabel": "Magpadala ng mga ulat ng crash",
+    "telemetryDescription": "Tulungang mapabuti ang Golemancy sa pamamagitan ng awtomatikong pagpapadala ng mga ulat ng crash at data ng error. Kasama sa mga ulat ang mga mensahe ng error at stack trace. Walang nilalaman ng pag-uusap ang kinokolekta."
   },
   "defaultModel": {
     "sectionTitle": "DEFAULT MODEL",

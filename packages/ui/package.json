@@ -7,7 +7,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./styles": "./src/styles/global.css"
+    "./styles": "./src/styles/global.css",
+    "./lib/error-reporting": "./src/lib/error-reporting.ts"
   },
   "scripts": {
     "build": "vite build",

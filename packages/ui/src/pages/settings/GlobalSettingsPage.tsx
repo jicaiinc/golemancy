@@ -896,6 +896,8 @@ function AboutTab() {
   const updateState = useAppStore(s => s.updateState)
   const notificationsEnabled = useAppStore(s => s.updateNotificationsEnabled)
   const setUpdateNotifications = useAppStore(s => s.setUpdateNotifications)
+  const telemetryEnabled = useAppStore(s => s.settings?.telemetryEnabled ?? true)
+  const updateSettings = useAppStore(s => s.updateSettings)
 
   const status = updateState?.status ?? 'idle'
 
@@ -1027,6 +1029,23 @@ function AboutTab() {
           </div>
         )}
       </PixelCard>
+
+      {/* Crash Reporting */}
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('general.telemetry')}</div>
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={telemetryEnabled}
+            onChange={(e) => updateSettings({ telemetryEnabled: e.target.checked })}
+            className="mt-0.5 accent-accent-green"
+          />
+          <div>
+            <div className="text-[12px] text-text-primary">{t('general.telemetryLabel')}</div>
+            <div className="text-[11px] text-text-dim mt-1">{t('general.telemetryDescription')}</div>
+          </div>
+        </label>
+      </PixelCard>
     </div>
   )
 }
@@ -1037,7 +1056,6 @@ function GeneralTab() {
   const themeMode = useAppStore(s => s.themeMode)
   const setTheme = useAppStore(s => s.setTheme)
   const updateSettings = useAppStore(s => s.updateSettings)
-
   async function handleThemeChange(mode: ThemeMode) {
     setTheme(mode)
     await updateSettings({ theme: mode })
@@ -1101,6 +1119,7 @@ function GeneralTab() {
           onSelect={value => { i18n.changeLanguage(value); updateSettings({ language: value }) }}
         />
       </PixelCard>
+
     </div>
   )
 }

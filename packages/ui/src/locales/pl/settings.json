@@ -41,7 +41,10 @@
     "light": "Jasny",
     "dark": "Ciemny",
     "system": "Systemowy",
-    "language": "JĘZYK"
+    "language": "JĘZYK",
+    "telemetry": "RAPORTY O AWARIACH",
+    "telemetryLabel": "Wysyłaj raporty o awariach",
+    "telemetryDescription": "Pomóż ulepszyć Golemancy, automatycznie wysyłając raporty o awariach i dane o błędach. Raporty zawierają komunikaty o błędach i ślady stosu. Treści rozmów nie są zbierane."
   },
   "defaultModel": {
     "sectionTitle": "MODEL DOMYŚLNY",

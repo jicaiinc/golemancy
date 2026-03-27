@@ -6,6 +6,22 @@ import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
 import { needsResourceExtraction, extractResources, createSetupWindow } from './setup'
 import { initAutoUpdater, getUpdateState, checkForUpdatesNow, quitAndInstall, openReleaseUrl } from './updater'
+import { initSentry, setTelemetryEnabled } from './sentry'
+
+initSentry()
+
+// Monitor-only: logs without suppressing default crash-and-exit behavior
+process.on('uncaughtExceptionMonitor', (error) => {
+  logger.fatal({ err: error }, 'uncaught exception in main process')
+  logger.flush()
+})
+
+// Intentionally intercepts to keep the Electron window alive for the user.
+// Unlike uncaughtExceptionMonitor, there is no "monitor" variant for rejections.
+process.on('unhandledRejection', (reason) => {
+  logger.fatal({ err: reason }, 'unhandled rejection in main process')
+  logger.flush()
+})
 
 const APP_VERSION: string = JSON.parse(
   readFileSync(
@@ -370,6 +386,16 @@ app.whenReady().then(async () => {
     await startServer()
     logger.info({ port: serverPort }, 'agent server ready')
 
+    // Monitor server process after successful startup
+    if (serverProcess) {
+      serverProcess.on('exit', (code, signal) => {
+        if (!isQuitting) {
+          logger.error({ code, signal }, 'server process exited unexpectedly')
+        }
+        serverProcess = null
+      })
+    }
+
     if (serverProgressTimer) clearInterval(serverProgressTimer)
   } catch (err) {
     if (setupWin) setupWin.close()
@@ -438,6 +464,14 @@ app.whenReady().then(async () => {
     return shell.openPath(resolved)
   })
 
+  ipcMain.on('renderer:error', (_event, payload) => {
+    logger.error({ rendererError: payload }, 'renderer error')
+  })
+
+  ipcMain.on('telemetry:set', (_event, enabled: boolean) => {
+    setTelemetryEnabled(enabled)
+  })
+
   ipcMain.handle('shell:openExternal', async (_event, url: string) => {
     // Security: only allow https URLs (OAuth endpoints, etc.)
     if (!url.startsWith('https://')) {
@@ -464,4 +498,12 @@ app.on('before-quit', (e) => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('render-process-gone', (_event, _webContents, details) => {
+  logger.error({ reason: details.reason, exitCode: details.exitCode }, 'renderer process gone')
+})
+
+app.on('child-process-gone', (_event, details) => {
+  logger.error({ type: details.type, reason: details.reason, exitCode: details.exitCode }, 'child process gone')
 })

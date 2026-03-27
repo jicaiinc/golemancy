@@ -7,6 +7,7 @@ import { useAppStore } from '../../stores'
 import { useCurrentProject, usePermissionMode } from '../../hooks'
 import { getServices } from '../../services/container'
 import { PixelSpinner, StatusBar } from '../../components'
+import { captureError } from '../../lib/error-reporting'
 import { ChatSidebar } from './ChatSidebar'
 import { ChatWindow } from './ChatWindow'
 import { ChatEmptyState } from './ChatEmptyState'
@@ -117,7 +118,7 @@ export function ChatPage() {
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
-        console.error('Manual compact failed:', err)
+        captureError(err, { component: 'ChatPage', action: 'compact' })
       }
     } finally {
       compactAbortRef.current = null

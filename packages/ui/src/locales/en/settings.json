@@ -41,7 +41,10 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System",
-    "language": "LANGUAGE"
+    "language": "LANGUAGE",
+    "telemetry": "CRASH REPORTING",
+    "telemetryLabel": "Send crash reports",
+    "telemetryDescription": "Help improve Golemancy by automatically sending crash reports and error data. Reports include error messages and stack traces. No conversation content is collected."
   },
   "defaultModel": {
     "sectionTitle": "DEFAULT MODEL",

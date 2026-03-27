@@ -41,7 +41,10 @@
     "light": "Hell",
     "dark": "Dunkel",
     "system": "System",
-    "language": "SPRACHE"
+    "language": "SPRACHE",
+    "telemetry": "ABSTURZMELDUNGEN",
+    "telemetryLabel": "Absturzberichte senden",
+    "telemetryDescription": "Helfen Sie, Golemancy zu verbessern, indem Sie automatisch Absturzberichte und Fehlerdaten senden. Berichte enthalten Fehlermeldungen und Stack-Traces. Gesprächsinhalte werden nicht erfasst."
   },
   "defaultModel": {
     "sectionTitle": "STANDARDMODELL",

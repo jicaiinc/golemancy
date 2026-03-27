@@ -8,6 +8,7 @@
 import { Chat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import type { UIMessage, ChatTransport } from 'ai'
+import { captureError } from './error-reporting'
 import type { ConversationId, AgentId, TeamId, ProjectId, Message, TargetType } from '@golemancy/shared'
 
 /** Convert app Message[] → UIMessage[] for Chat constructor. */
@@ -55,7 +56,7 @@ export function getOrCreateChat(config: ChatInstanceConfig): Chat<UIMessage> {
     messages: messagesToUIMessages(config.initialMessages),
     transport,
     onError: (error) => {
-      console.error('[Chat]', config.conversationId, error)
+      captureError(error, { component: 'Chat', conversationId: config.conversationId })
     },
   })
 

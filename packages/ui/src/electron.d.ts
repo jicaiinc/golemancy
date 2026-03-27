@@ -23,6 +23,8 @@ interface ElectronAPI {
   forceRestartAndInstall: () => Promise<void>
   openExternalUrl: (url: string) => Promise<void>
   onMenuOpenSettings: (callback: () => void) => () => void
+  reportError: (payload: { type: string; message: string; stack?: string }) => void
+  setTelemetryEnabled: (enabled: boolean) => void
 }
 
 interface Window {

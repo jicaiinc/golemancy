@@ -41,7 +41,10 @@
     "light": "Chiaro",
     "dark": "Scuro",
     "system": "Sistema",
-    "language": "LINGUA"
+    "language": "LINGUA",
+    "telemetry": "SEGNALAZIONI DI CRASH",
+    "telemetryLabel": "Invia segnalazioni di crash",
+    "telemetryDescription": "Aiuta a migliorare Golemancy inviando automaticamente segnalazioni di crash e dati di errore. Le segnalazioni includono messaggi di errore e stack trace. Nessun contenuto delle conversazioni viene raccolto."
   },
   "defaultModel": {
     "sectionTitle": "MODELLO PREDEFINITO",

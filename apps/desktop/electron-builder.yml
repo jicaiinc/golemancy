@@ -16,6 +16,7 @@ afterPack: ../../scripts/electron-builder-after-pack.mjs
 
 files:
   - out/**/*
+  - "!out/**/*.map"
   - package.json
 
 extraResources:

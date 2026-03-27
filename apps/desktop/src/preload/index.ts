@@ -43,4 +43,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('menu:open-settings', handler)
     return () => { ipcRenderer.removeListener('menu:open-settings', handler) }
   },
+  reportError: (payload: { type: string; message: string; stack?: string }) =>
+    ipcRenderer.send('renderer:error', payload),
+  setTelemetryEnabled: (enabled: boolean) => ipcRenderer.send('telemetry:set', enabled),
 })

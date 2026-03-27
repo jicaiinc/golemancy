@@ -8,6 +8,7 @@ import type {
 } from '@golemancy/shared'
 import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { getServices } from '../../services/container'
+import { captureError } from '../../lib/error-reporting'
 import { useWs } from '../../providers/WebSocketProvider'
 import { PixelCard, PixelSpinner, PixelTabs } from '../../components'
 import { TimeRangeSelector, TokenSummaryCards, TokenBreakdownTable, RuntimeStatusPanel } from './components'
@@ -156,7 +157,7 @@ export function GlobalDashboardPage() {
       setTokenTrend(trend)
       setRuntimeStatus(runtime)
     } catch (err) {
-      console.error('Failed to load global dashboard:', err)
+      captureError(err, { component: 'GlobalDashboardPage' })
     } finally {
       setLoading(false)
     }

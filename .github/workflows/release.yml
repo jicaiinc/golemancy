@@ -111,6 +111,21 @@ jobs:
       # ── Step 2: Build Electron app (main + preload + renderer) ──
       - name: Build (electron-vite)
         run: pnpm --filter @golemancy/desktop build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: jicai
+          SENTRY_PROJECT: golemancy-desktop
+
+      # ── Step 2.5: Upload source maps for main/preload (Sentry) ──
+      - name: Upload source maps (Sentry)
+        if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+        run: |
+          npx sentry-cli sourcemaps upload \
+            --org jicai --project golemancy-desktop \
+            --release "$(node -p "require('./apps/desktop/package.json').version")" \
+            apps/desktop/out/main apps/desktop/out/preload
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       # ── Step 3: Bundle server code + production dependencies ──
       - name: Bundle server

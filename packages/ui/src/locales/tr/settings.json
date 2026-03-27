@@ -41,7 +41,10 @@
     "light": "Açık",
     "dark": "Koyu",
     "system": "Sistem",
-    "language": "DİL"
+    "language": "DİL",
+    "telemetry": "ÇÖKME RAPORLARI",
+    "telemetryLabel": "Çökme raporları gönder",
+    "telemetryDescription": "Çökme raporlarını ve hata verilerini otomatik olarak göndererek Golemancy'yi iyileştirmeye yardımcı olun. Raporlar hata mesajlarını ve yığın izlerini içerir. Sohbet içerikleri toplanmaz."
   },
   "defaultModel": {
     "sectionTitle": "VARSAYILAN MODEL",

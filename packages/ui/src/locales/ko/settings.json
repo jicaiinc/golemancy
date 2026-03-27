@@ -41,7 +41,10 @@
     "light": "라이트",
     "dark": "다크",
     "system": "시스템",
-    "language": "언어"
+    "language": "언어",
+    "telemetry": "충돌 보고",
+    "telemetryLabel": "충돌 보고서 전송",
+    "telemetryDescription": "충돌 보고서와 오류 데이터를 자동으로 전송하여 Golemancy 개선에 도움을 주세요. 보고서에는 오류 메시지와 스택 트레이스가 포함됩니다. 대화 내용은 수집되지 않습니다."
   },
   "defaultModel": {
     "sectionTitle": "기본 모델",

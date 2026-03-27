@@ -38,12 +38,14 @@
   "dependencies": {
     "@golemancy/shared": "workspace:*",
     "@golemancy/ui": "workspace:*",
+    "@sentry/electron": "^7.10.0",
     "electron-updater": "^6.8.3",
     "pino": "^10.3.1",
     "pino-roll": "^4.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
+    "@sentry/vite-plugin": "^5.1.1",
     "@tailwindcss/postcss": "^4.1.0",
     "@types/adm-zip": "^0.5.7",
     "@types/node": "^20.0.0",

@@ -41,7 +41,10 @@
     "light": "浅色",
     "dark": "深色",
     "system": "跟随系统",
-    "language": "语言"
+    "language": "语言",
+    "telemetry": "崩溃报告",
+    "telemetryLabel": "发送崩溃报告",
+    "telemetryDescription": "通过自动发送崩溃报告和错误数据帮助改进 Golemancy。报告包含错误消息和堆栈跟踪。不会收集对话内容。"
   },
   "defaultModel": {
     "sectionTitle": "默认模型",

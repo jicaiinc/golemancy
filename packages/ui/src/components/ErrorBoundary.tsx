@@ -1,6 +1,7 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react'
 import { Translation } from 'react-i18next'
 import { PixelButton } from './base'
+import { captureError } from '../lib/error-reporting'
 
 interface Props {
   children: ReactNode
@@ -19,7 +20,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('[ErrorBoundary]', error, info.componentStack)
+    captureError(error, { component: 'ErrorBoundary', componentStack: info.componentStack ?? undefined })
   }
 
   handleReset = () => {

@@ -63,6 +63,7 @@ export interface GlobalSettings {
   speechToText?: SpeechToTextSettings
   onboardingCompleted?: boolean
   onboardingStep?: number
+  telemetryEnabled?: boolean
 }
 
 export interface ProjectConfig {

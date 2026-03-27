@@ -41,7 +41,10 @@
     "light": "Luminos",
     "dark": "Întunecat",
     "system": "Sistem",
-    "language": "LIMBĂ"
+    "language": "LIMBĂ",
+    "telemetry": "RAPOARTE DE EROARE",
+    "telemetryLabel": "Trimite rapoarte de eroare",
+    "telemetryDescription": "Ajutați la îmbunătățirea Golemancy prin trimiterea automată a rapoartelor de eroare. Rapoartele includ mesaje de eroare și urme de stivă. Conținutul conversațiilor nu este colectat."
   },
   "defaultModel": {
     "sectionTitle": "MODEL IMPLICIT",

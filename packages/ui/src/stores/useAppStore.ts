@@ -17,6 +17,7 @@ import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import i18next from 'i18next'
 import { getServices } from '../services'
 import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
+import { captureError } from '../lib/error-reporting'
 
 // --- Theme helper ---
 function applyThemeToDOM(mode: ThemeMode): void {
@@ -790,6 +791,9 @@ export const useAppStore = create<AppState>()(
         if (data.language) {
           i18next.changeLanguage(data.language)
         }
+        if (data.telemetryEnabled !== undefined) {
+          window.electronAPI?.setTelemetryEnabled(data.telemetryEnabled)
+        }
       },
 
       // --- UI state ---
@@ -863,7 +867,7 @@ export const useAppStore = create<AppState>()(
             dashboardRuntimeStatus: runtimeStatus,
           })
         } catch (err) {
-          console.error('Failed to load dashboard:', err)
+          captureError(err, { component: 'dashboard' })
         } finally {
           set({ dashboardLoading: false })
         }
