@@ -258,7 +258,7 @@ function DetailPanel({
           {hasMemory ? (
             <button
               className="font-mono text-[9px] text-accent-amber hover:underline cursor-pointer"
-              onClick={() => navigate(`/projects/${projectId}/agents/${agent.id}`, { state: { tab: 'memory' } })}
+              onClick={() => navigate(`/projects/${projectId}/agents/${agent.id}?tab=memory`)}
             >
               {memoryCount !== null ? t('topology.memoryCount', { count: memoryCount }) : t('topology.memoryEnabled')}
               {' \u2192'}

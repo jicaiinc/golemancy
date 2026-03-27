@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 export { useDocumentTitle } from './useDocumentTitle'
+export { useTabParam } from './useTabParam'
 import type { PermissionMode, PermissionsConfigId } from '@golemancy/shared'
 import { isSandboxRuntimeSupported, type SupportedPlatform } from '@golemancy/shared'
 import { useAppStore } from '../stores'

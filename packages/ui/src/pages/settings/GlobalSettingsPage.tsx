@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate, useSearchParams } from 'react-router'
-import { useDocumentTitle } from '../../hooks'
+import { useDocumentTitle, useTabParam } from '../../hooks'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig, OAuthFlowStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
@@ -48,7 +47,7 @@ function BadgeDot() {
   return <span className="inline-block w-2 h-2 bg-accent-green ml-1.5" />
 }
 
-const VALID_TABS = new Set(['general', 'providers', 'speech', 'about'])
+const VALID_TABS = ['general', 'providers', 'speech', 'about'] as const
 
 export function GlobalSettingsPage() {
   useDocumentTitle('Settings – Golemancy')
@@ -73,43 +72,10 @@ export function GlobalSettingsContent({
   containerClassName = 'max-w-[1000px] mx-auto p-8',
 }: GlobalSettingsContentProps = {}) {
   const { t } = useTranslation('settings')
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
   const settings = useAppStore(s => s.settings)
   const updateSettings = useAppStore(s => s.updateSettings)
 
-  const tabFromUrl = searchParams.get('tab')
-  const initialTab = tabFromUrl && VALID_TABS.has(tabFromUrl) ? tabFromUrl : 'general'
-  const [activeTab, setActiveTab] = useState(initialTab)
-
-  const handleTabChange = useCallback((tab: string) => {
-    setActiveTab(tab)
-    const nextSearchParams = new URLSearchParams(searchParams)
-
-    // Keep URL in sync — remove param when going back to default tab
-    if (tab === 'general') {
-      nextSearchParams.delete('tab')
-    } else {
-      nextSearchParams.set('tab', tab)
-    }
-    const nextSearch = nextSearchParams.toString()
-
-    navigate(
-      {
-        pathname: location.pathname,
-        search: nextSearch ? `?${nextSearch}` : '',
-      },
-      {
-        replace: true,
-        state: location.state,
-      },
-    )
-  }, [location.pathname, location.state, navigate, searchParams])
-
-  useEffect(() => {
-    setActiveTab(initialTab)
-  }, [initialTab])
+  const [activeTab, handleTabChange] = useTabParam(VALID_TABS)
 
   const updateState = useAppStore(s => s.updateState)
   const notificationsEnabled = useAppStore(s => s.updateNotificationsEnabled)

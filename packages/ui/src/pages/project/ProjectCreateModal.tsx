@@ -111,7 +111,7 @@ export function ProjectCreateModal({ open, onClose }: Props) {
             <PixelButton
               size="sm"
               variant="ghost"
-              onClick={() => { onClose(); navigate('/settings') }}
+              onClick={() => { onClose(); navigate('/settings?tab=providers') }}
             >
               {t('create.goToSettings')}
             </PixelButton>

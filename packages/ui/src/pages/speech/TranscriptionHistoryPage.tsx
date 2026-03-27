@@ -516,7 +516,7 @@ export function TranscriptionHistoryPage() {
               <PixelButton
                 size="sm"
                 variant="secondary"
-                onClick={() => void navigate('/settings')}
+                onClick={() => void navigate('/settings?tab=speech')}
               >
                 {t('speech:empty.settingsBtn')}
               </PixelButton>

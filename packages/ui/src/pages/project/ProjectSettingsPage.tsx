@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router'
+import { useTabParam } from '../../hooks'
 import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, ProjectId, Team, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
@@ -28,7 +29,7 @@ export function ProjectSettingsPage() {
   const teams = useAppStore(s => s.teams)
   const navigate = useNavigate()
 
-  const [activeTab, setActiveTab] = useState('general')
+  const [activeTab, setActiveTab] = useTabParam(['general', 'permissions'])
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('pickaxe')
