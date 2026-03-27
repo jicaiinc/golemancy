@@ -113,7 +113,7 @@ jobs:
         run: pnpm --filter @golemancy/desktop build
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: jicai
+          SENTRY_ORG: jicai-inc
           SENTRY_PROJECT: golemancy-desktop
 
       # ── Step 2.5: Upload source maps for main/preload (Sentry) ──
@@ -122,7 +122,7 @@ jobs:
         shell: bash
         run: |
           pnpm dlx @sentry/cli sourcemaps upload \
-            --org jicai --project golemancy-desktop \
+            --org jicai-inc --project golemancy-desktop \
             --release "$(node -p "require('./apps/desktop/package.json').version")" \
             apps/desktop/out/main apps/desktop/out/preload
         env:

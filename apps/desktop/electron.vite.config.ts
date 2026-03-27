@@ -22,7 +22,7 @@ export default defineConfig({
       react(),
       ...(sentryEnabled
         ? [sentryVitePlugin({
-            org: process.env.SENTRY_ORG || 'jicai',
+            org: process.env.SENTRY_ORG || 'jicai-inc',
             project: process.env.SENTRY_PROJECT || 'golemancy-desktop',
             authToken: process.env.SENTRY_AUTH_TOKEN,
             release: { name: appVersion },
