@@ -23,7 +23,10 @@
     "modalTitle": "Cipta Projek Baharu",
     "createBtn": "Cipta Projek",
     "namePlaceholder": "Projek Hebat Saya",
-    "descPlaceholder": "Apakah projek ini?"
+    "descPlaceholder": "Apakah projek ini?",
+    "errorGeneric": "Gagal mencipta projek",
+    "noDefaultModel": "Model lalai mesti dikonfigurasi sebelum mencipta dari templat.",
+    "goToSettings": "Ke Tetapan"
   },
   "settings": {
     "title": "Tetapan Projek",

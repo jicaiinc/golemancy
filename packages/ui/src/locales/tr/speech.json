@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "SA\u011eLAYICI",
+    "customSummary": "\u00d6zel",
     "typeLabel": "T\u00dcR",
     "customType": "\u00d6zel (OpenAI Uyumlu)",
     "apiKeyLabel": "API KEY",

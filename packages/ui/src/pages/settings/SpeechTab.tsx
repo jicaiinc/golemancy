@@ -508,7 +508,7 @@ export function SpeechTab() {
             {/* Config summary when collapsed */}
             <span className="ml-auto flex items-center gap-2">
               <span className="font-mono text-[10px] text-text-dim">
-                {stt.providerType === 'openai' ? 'OpenAI' : 'Custom'} / {stt.model}
+                {stt.providerType === 'openai' ? 'OpenAI' : t('provider.customSummary')} / {stt.model}
               </span>
               {testStatus === 'ok' && <span className="w-1.5 h-1.5 bg-accent-green rounded-full" />}
               {testStatus === 'error' && <span className="w-1.5 h-1.5 bg-accent-red rounded-full" />}

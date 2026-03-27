@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "INTEGRIERTE WERKZEUGE",
     "comingSoon": "DEMNÄCHST",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computerbedienung",
+    "taskName": "Aufgabe",
+    "memoryName": "Gedächtnis",
     "customSection": "BENUTZERDEFINIERTE WERKZEUGE",
     "bashDesc": "Bash-Befehle ausführen, Dateien lesen und schreiben",
     "browserDesc": "Webbrowser für Automatisierung steuern",

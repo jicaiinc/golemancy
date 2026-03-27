@@ -46,6 +46,7 @@
     "labelBaseUrl": "BASE URL",
     "labelName": "НАЗВАНИЕ",
     "labelSdkType": "ТИП SDK",
+    "customPlaceholder": "Мой провайдер",
     "statusConnected": "Подключено",
     "statusFailed": "Ошибка",
     "statusConnecting": "Подключение...",

@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "프로바이더",
+    "customSummary": "커스텀",
     "typeLabel": "유형",
     "customType": "커스텀 (OpenAI 호환)",
     "apiKeyLabel": "API 키",

@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "HERRAMIENTAS INTEGRADAS",
     "comingSoon": "PRÓXIMAMENTE",
+    "bashName": "Bash",
+    "browserName": "Navegador",
+    "computerUseName": "Uso del Ordenador",
+    "taskName": "Tarea",
+    "memoryName": "Memoria",
     "customSection": "HERRAMIENTAS PERSONALIZADAS",
     "bashDesc": "Ejecutar comandos bash, leer y escribir archivos",
     "browserDesc": "Controlar navegador web para automatización",

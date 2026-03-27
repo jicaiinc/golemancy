@@ -46,6 +46,7 @@
     "labelBaseUrl": "BASE URL",
     "labelName": "NÁZEV",
     "labelSdkType": "TYP SDK",
+    "customPlaceholder": "Můj poskytovatel",
     "statusConnected": "Připojeno",
     "statusFailed": "Chyba",
     "statusConnecting": "Připojování...",

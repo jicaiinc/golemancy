@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "內建工具",
     "comingSoon": "即將推出",
+    "bashName": "Bash",
+    "browserName": "瀏覽器",
+    "computerUseName": "電腦操控",
+    "taskName": "任務",
+    "memoryName": "記憶",
     "customSection": "自訂工具",
     "bashDesc": "執行 Bash 指令，讀寫檔案",
     "browserDesc": "控制瀏覽器進行自動化操作",

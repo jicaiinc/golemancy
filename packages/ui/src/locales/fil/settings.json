@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "I-download para sa {{platform}}",
     "downloadGeneric": "I-download",
-    "skip": "Laktawan ang bersyon na ito",
-    "skipped": "v{{version}} available (nilaktawan)"
+    "checking": "Sinusuri ang mga update...",
+    "downloading": "Dina-download ang update... {{percent}}%",
+    "downloaded": "Available na ang updated na bersyon ng Golemancy v{{version}}.",
+    "seeChangelog": "Tingnan ang changelog",
+    "restart": "I-restart",
+    "restartConfirm": "May {{count}} aktibong AI session. I-restart pa rin?",
+    "checkNow": "Suriin ngayon",
+    "retryCheck": "Subukan Muli",
+    "error": "Nabigo ang pagsusuri ng update: {{message}}"
   },
   "general": {
     "appearance": "HITSURA",
@@ -56,7 +63,8 @@
     "nameLabel": "PANGALAN",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "URI NG SDK",
-    "empty": "Walang naka-configure na provider. I-click ang \"+ Magdagdag ng Provider\" para magsimula."
+    "empty": "Walang naka-configure na provider. I-click ang \"+ Magdagdag ng Provider\" para magsimula.",
+    "customPlaceholder": "Aking Provider"
   },
   "provider": {
     "testing": "Tine-test...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "BASE URL (opsyonal)",
     "hideKey": "Itago ang Key",
     "showKey": "Ipakita ang Key",
+    "oauthSectionTitle": "MAG-SIGN IN",
+    "oauthActive": "Aktibo",
     "oauthSignIn": "Mag-sign in sa {{provider}}",
     "oauthConnected": "Nakakonekta",
     "oauthDisconnect": "I-disconnect",

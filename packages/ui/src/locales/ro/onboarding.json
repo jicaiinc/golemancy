@@ -46,6 +46,7 @@
     "labelBaseUrl": "BASE URL",
     "labelName": "NUME",
     "labelSdkType": "TIP SDK",
+    "customPlaceholder": "Furnizorul meu",
     "statusConnected": "Conectat",
     "statusFailed": "Eșuat",
     "statusConnecting": "Se conectează...",

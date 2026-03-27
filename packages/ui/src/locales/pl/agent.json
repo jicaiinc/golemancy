@@ -80,6 +80,11 @@
   "tools": {
     "builtinSection": "WBUDOWANE NARZĘDZIA",
     "comingSoon": "WKRÓTCE",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "NIESTANDARDOWE NARZĘDZIA",
     "bashDesc": "Wykonywanie poleceń Bash, odczyt i zapis plików",
     "browserDesc": "Sterowanie przeglądarką w celu automatyzacji",

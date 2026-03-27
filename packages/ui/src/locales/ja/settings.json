@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "{{platform}} 版をダウンロード",
     "downloadGeneric": "ダウンロード",
-    "skip": "このバージョンをスキップ",
-    "skipped": "v{{version}} が利用可能（スキップ済み）"
+    "checking": "アップデートを確認中...",
+    "downloading": "ダウンロード中... {{percent}}%",
+    "downloaded": "Golemancy v{{version}} の新バージョンが利用可能です。",
+    "seeChangelog": "変更履歴を確認",
+    "restart": "再起動",
+    "restartConfirm": "{{count}} 件の AI セッションが実行中です。それでも再起動しますか？",
+    "checkNow": "今すぐ確認",
+    "retryCheck": "再試行",
+    "error": "アップデートの確認に失敗しました：{{message}}"
   },
   "general": {
     "appearance": "外観",
@@ -56,7 +63,8 @@
     "nameLabel": "名前",
     "baseUrlLabel": "ベース URL",
     "sdkTypeLabel": "SDK タイプ",
-    "empty": "プロバイダーが設定されていません。「+ プロバイダーを追加」をクリックして始めましょう。"
+    "empty": "プロバイダーが設定されていません。「+ プロバイダーを追加」をクリックして始めましょう。",
+    "customPlaceholder": "マイプロバイダー"
   },
   "provider": {
     "testing": "テスト中...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "ベース URL（任意）",
     "hideKey": "キーを非表示",
     "showKey": "キーを表示",
+    "oauthSectionTitle": "サインイン",
+    "oauthActive": "接続中",
     "oauthSignIn": "{{provider}} でサインイン",
     "oauthConnected": "接続済み",
     "oauthDisconnect": "切断",

@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "내장 도구",
     "comingSoon": "출시 예정",
+    "bashName": "Bash",
+    "browserName": "브라우저",
+    "computerUseName": "컴퓨터 제어",
+    "taskName": "태스크",
+    "memoryName": "메모리",
     "customSection": "커스텀 도구",
     "bashDesc": "Bash 명령 실행, 파일 읽기/쓰기",
     "browserDesc": "웹 브라우저 제어 및 자동화",

@@ -23,7 +23,10 @@
     "modalTitle": "建立新專案",
     "createBtn": "建立專案",
     "namePlaceholder": "我的超棒專案",
-    "descPlaceholder": "這個專案是做什麼的？"
+    "descPlaceholder": "這個專案是做什麼的？",
+    "errorGeneric": "建立專案失敗",
+    "noDefaultModel": "從範本建立前，請先設定預設模型。",
+    "goToSettings": "前往設定"
   },
   "settings": {
     "title": "專案設定",

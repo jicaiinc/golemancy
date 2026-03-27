@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "MGA BUILT-IN NA TOOL",
     "comingSoon": "PAPARATING NA",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "MGA CUSTOM NA TOOL",
     "bashDesc": "Mag-execute ng bash commands, magbasa at magsulat ng mga file",
     "browserDesc": "Kontrolin ang web browser para sa automation",

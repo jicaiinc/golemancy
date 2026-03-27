@@ -389,11 +389,11 @@ function ToolsTab({ agent, onUpdate }: {
 }) {
   const { t } = useTranslation('agent')
   const builtinToolDefs = [
-    { id: 'bash', name: 'Bash', description: t('tools.bashDesc'), available: true },
-    { id: 'browser', name: 'Browser', description: t('tools.browserDesc'), available: true },
-    { id: 'computer_use', name: 'Computer Use', description: t('tools.computerUseDesc'), available: false },
-    { id: 'task', name: 'Task', description: t('tools.taskDesc'), available: true },
-    { id: 'memory', name: 'Memory', description: t('tools.memoryDesc'), available: true },
+    { id: 'bash', name: t('tools.bashName'), description: t('tools.bashDesc'), available: true },
+    { id: 'browser', name: t('tools.browserName'), description: t('tools.browserDesc'), available: true },
+    { id: 'computer_use', name: t('tools.computerUseName'), description: t('tools.computerUseDesc'), available: false },
+    { id: 'task', name: t('tools.taskName'), description: t('tools.taskDesc'), available: true },
+    { id: 'memory', name: t('tools.memoryName'), description: t('tools.memoryDesc'), available: true },
   ] as const
 
   async function toggleBuiltinTool(toolId: string) {

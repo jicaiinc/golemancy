@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "{{platform}} 버전 다운로드",
     "downloadGeneric": "다운로드",
-    "skip": "이 버전 건너뛰기",
-    "skipped": "v{{version}} 사용 가능 (건너뜀)"
+    "checking": "업데이트 확인 중...",
+    "downloading": "다운로드 중... {{percent}}%",
+    "downloaded": "Golemancy v{{version}} 업데이트가 준비되었습니다.",
+    "seeChangelog": "변경 내역 확인",
+    "restart": "재시작",
+    "restartConfirm": "{{count}}개의 활성 AI 세션이 있습니다. 그래도 재시작하시겠습니까?",
+    "checkNow": "지금 확인",
+    "retryCheck": "재시도",
+    "error": "업데이트 확인 실패: {{message}}"
   },
   "general": {
     "appearance": "외관",
@@ -56,7 +63,8 @@
     "nameLabel": "이름",
     "baseUrlLabel": "기본 URL",
     "sdkTypeLabel": "SDK 유형",
-    "empty": "프로바이더가 설정되지 않았습니다. \"+ 프로바이더 추가\"를 클릭하여 시작하세요."
+    "empty": "프로바이더가 설정되지 않았습니다. \"+ 프로바이더 추가\"를 클릭하여 시작하세요.",
+    "customPlaceholder": "나의 프로바이더"
   },
   "provider": {
     "testing": "테스트 중...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "기본 URL (선택사항)",
     "hideKey": "키 숨기기",
     "showKey": "키 표시",
+    "oauthSectionTitle": "로그인",
+    "oauthActive": "활성",
     "oauthSignIn": "{{provider}}로 로그인",
     "oauthConnected": "연결됨",
     "oauthDisconnect": "연결 해제",

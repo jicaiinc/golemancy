@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "Muat turun untuk {{platform}}",
     "downloadGeneric": "Muat turun",
-    "skip": "Langkau versi ini",
-    "skipped": "v{{version}} tersedia (dilangkau)"
+    "checking": "Menyemak kemaskini...",
+    "downloading": "Memuat turun kemaskini... {{percent}}%",
+    "downloaded": "Versi terbaru Golemancy v{{version}} tersedia.",
+    "seeChangelog": "Lihat changelog",
+    "restart": "Mulakan Semula",
+    "restartConfirm": "Terdapat {{count}} sesi AI aktif. Mulakan semula tetap?",
+    "checkNow": "Semak sekarang",
+    "retryCheck": "Cuba Semula",
+    "error": "Semakan kemaskini gagal: {{message}}"
   },
   "general": {
     "appearance": "PENAMPILAN",
@@ -56,7 +63,8 @@
     "nameLabel": "NAMA",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "JENIS SDK",
-    "empty": "Tiada provider dikonfigurasi. Klik \"+ Tambah Provider\" untuk bermula."
+    "empty": "Tiada provider dikonfigurasi. Klik \"+ Tambah Provider\" untuk bermula.",
+    "customPlaceholder": "Provider Saya"
   },
   "provider": {
     "testing": "Menguji...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "BASE URL (pilihan)",
     "hideKey": "Sembunyikan Key",
     "showKey": "Tunjukkan Key",
+    "oauthSectionTitle": "LOG MASUK",
+    "oauthActive": "Aktif",
     "oauthSignIn": "Log masuk dengan {{provider}}",
     "oauthConnected": "Disambungkan",
     "oauthDisconnect": "Putuskan sambungan",

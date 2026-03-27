@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "Downloaden voor {{platform}}",
     "downloadGeneric": "Downloaden",
-    "skip": "Deze versie overslaan",
-    "skipped": "v{{version}} beschikbaar (overgeslagen)"
+    "checking": "Controleren op updates...",
+    "downloading": "Update downloaden... {{percent}}%",
+    "downloaded": "Een bijgewerkte versie van Golemancy v{{version}} is beschikbaar.",
+    "seeChangelog": "Bekijk changelog",
+    "restart": "Herstarten",
+    "restartConfirm": "Er zijn {{count}} actieve AI-sessies. Toch herstarten?",
+    "checkNow": "Nu controleren",
+    "retryCheck": "Opnieuw proberen",
+    "error": "Update-controle mislukt: {{message}}"
   },
   "general": {
     "appearance": "UITERLIJK",
@@ -56,7 +63,8 @@
     "nameLabel": "NAAM",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "SDK-TYPE",
-    "empty": "Geen providers geconfigureerd. Klik op \"+ Provider Toevoegen\" om te beginnen."
+    "empty": "Geen providers geconfigureerd. Klik op \"+ Provider Toevoegen\" om te beginnen.",
+    "customPlaceholder": "Mijn Provider"
   },
   "provider": {
     "testing": "Testen...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "BASE URL (optioneel)",
     "hideKey": "Key Verbergen",
     "showKey": "Key Tonen",
+    "oauthSectionTitle": "INLOGGEN",
+    "oauthActive": "Actief",
     "oauthSignIn": "Inloggen met {{provider}}",
     "oauthConnected": "Verbonden",
     "oauthDisconnect": "Verbinding verbreken",

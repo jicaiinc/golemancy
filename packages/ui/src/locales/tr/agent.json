@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "YERLEŞİK ARAÇLAR",
     "comingSoon": "YAKINDA",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "ÖZEL ARAÇLAR",
     "bashDesc": "Bash komutlarını çalıştır, dosya oku ve yaz",
     "browserDesc": "Otomasyon için web tarayıcısını kontrol et",

@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "FOURNISSEUR",
+    "customSummary": "Personnalisé",
     "typeLabel": "TYPE",
     "customType": "Personnalisé (Compatible OpenAI)",
     "apiKeyLabel": "API KEY",

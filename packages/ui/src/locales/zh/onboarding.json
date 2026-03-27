@@ -46,6 +46,7 @@
     "labelBaseUrl": "基础 URL",
     "labelName": "名称",
     "labelSdkType": "SDK 类型",
+    "customPlaceholder": "我的供应商",
     "statusConnected": "已连接",
     "statusFailed": "失败",
     "statusConnecting": "连接中...",

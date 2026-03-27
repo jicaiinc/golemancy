@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "PROVIDER",
+    "customSummary": "Anpassad",
     "typeLabel": "TYP",
     "customType": "Anpassad (OpenAI-kompatibel)",
     "apiKeyLabel": "API-NYCKEL",

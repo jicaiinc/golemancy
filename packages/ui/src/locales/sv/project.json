@@ -23,7 +23,10 @@
     "modalTitle": "Skapa nytt projekt",
     "createBtn": "Skapa projekt",
     "namePlaceholder": "Mitt fantastiska projekt",
-    "descPlaceholder": "Vad handlar detta projekt om?"
+    "descPlaceholder": "Vad handlar detta projekt om?",
+    "errorGeneric": "Det gick inte att skapa projektet",
+    "noDefaultModel": "Standardmodell måste konfigureras innan du skapar från mall.",
+    "goToSettings": "Gå till inställningar"
   },
   "settings": {
     "title": "Projektinställningar",

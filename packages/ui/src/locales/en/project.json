@@ -23,7 +23,10 @@
     "modalTitle": "Create New Project",
     "createBtn": "Create Project",
     "namePlaceholder": "My Awesome Project",
-    "descPlaceholder": "What is this project about?"
+    "descPlaceholder": "What is this project about?",
+    "errorGeneric": "Failed to create project",
+    "noDefaultModel": "Default model must be configured before creating from template.",
+    "goToSettings": "Go to Settings"
   },
   "settings": {
     "title": "Project Settings",

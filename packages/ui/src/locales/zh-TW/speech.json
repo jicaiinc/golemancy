@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "供應商",
+    "customSummary": "自訂",
     "typeLabel": "類型",
     "customType": "自訂（OpenAI 相容）",
     "apiKeyLabel": "API 金鑰",

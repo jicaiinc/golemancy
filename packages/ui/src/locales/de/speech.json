@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "PROVIDER",
+    "customSummary": "Benutzerdefiniert",
     "typeLabel": "TYP",
     "customType": "Benutzerdefiniert (OpenAI-kompatibel)",
     "apiKeyLabel": "API KEY",

@@ -23,7 +23,10 @@
     "modalTitle": "新規プロジェクト作成",
     "createBtn": "プロジェクトを作成",
     "namePlaceholder": "マイプロジェクト",
-    "descPlaceholder": "このプロジェクトについて"
+    "descPlaceholder": "このプロジェクトについて",
+    "errorGeneric": "プロジェクトの作成に失敗しました",
+    "noDefaultModel": "テンプレートから作成する前に、デフォルトモデルを設定してください。",
+    "goToSettings": "設定へ"
   },
   "settings": {
     "title": "プロジェクト設定",

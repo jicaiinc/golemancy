@@ -23,7 +23,10 @@
     "modalTitle": "Créer un Nouveau Projet",
     "createBtn": "Créer le Projet",
     "namePlaceholder": "Mon Super Projet",
-    "descPlaceholder": "De quoi traite ce projet ?"
+    "descPlaceholder": "De quoi traite ce projet ?",
+    "errorGeneric": "Échec de la création du projet",
+    "noDefaultModel": "Le modèle par défaut doit être configuré avant de créer depuis un modèle.",
+    "goToSettings": "Aller aux Paramètres"
   },
   "settings": {
     "title": "Paramètres du Projet",

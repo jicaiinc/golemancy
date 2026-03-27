@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "Скачать для {{platform}}",
     "downloadGeneric": "Скачать",
-    "skip": "Пропустить эту версию",
-    "skipped": "v{{version}} доступна (пропущена)"
+    "checking": "Проверка обновлений...",
+    "downloading": "Загрузка обновления... {{percent}}%",
+    "downloaded": "Доступна обновлённая версия Golemancy v{{version}}.",
+    "seeChangelog": "Смотреть changelog",
+    "restart": "Перезапустить",
+    "restartConfirm": "Активно {{count}} AI-сессий. Всё равно перезапустить?",
+    "checkNow": "Проверить сейчас",
+    "retryCheck": "Повторить",
+    "error": "Ошибка проверки обновлений: {{message}}"
   },
   "general": {
     "appearance": "ОФОРМЛЕНИЕ",
@@ -56,7 +63,8 @@
     "nameLabel": "НАЗВАНИЕ",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "ТИП SDK",
-    "empty": "Провайдеры не настроены. Нажмите «+ Добавить провайдера», чтобы начать."
+    "empty": "Провайдеры не настроены. Нажмите «+ Добавить провайдера», чтобы начать.",
+    "customPlaceholder": "Мой провайдер"
   },
   "provider": {
     "testing": "Тестирование...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "BASE URL (необязательно)",
     "hideKey": "Скрыть ключ",
     "showKey": "Показать ключ",
+    "oauthSectionTitle": "ВХОД",
+    "oauthActive": "Активно",
     "oauthSignIn": "Войти через {{provider}}",
     "oauthConnected": "Подключено",
     "oauthDisconnect": "Отключить",

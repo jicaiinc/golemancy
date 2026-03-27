@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "OUTILS INTÉGRÉS",
     "comingSoon": "BIENTÔT DISPONIBLE",
+    "bashName": "Bash",
+    "browserName": "Navigateur",
+    "computerUseName": "Contrôle Ordinateur",
+    "taskName": "Tâche",
+    "memoryName": "Mémoire",
     "customSection": "OUTILS PERSONNALISÉS",
     "bashDesc": "Exécuter des commandes bash, lire et écrire des fichiers",
     "browserDesc": "Contrôler un navigateur web pour l'automatisation",

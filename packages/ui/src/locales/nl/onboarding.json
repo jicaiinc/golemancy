@@ -46,6 +46,7 @@
     "labelBaseUrl": "BASE URL",
     "labelName": "NAAM",
     "labelSdkType": "SDK-TYPE",
+    "customPlaceholder": "Mijn Provider",
     "statusConnected": "Verbonden",
     "statusFailed": "Mislukt",
     "statusConnecting": "Verbinden...",

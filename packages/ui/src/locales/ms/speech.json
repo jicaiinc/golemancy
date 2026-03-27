@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "PROVIDER",
+    "customSummary": "Tersuai",
     "typeLabel": "JENIS",
     "customType": "Tersuai (Serasi OpenAI)",
     "apiKeyLabel": "API KEY",

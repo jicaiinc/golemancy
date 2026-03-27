@@ -76,6 +76,11 @@
   "tools": {
     "builtinSection": "INSTRUMENTE INTEGRATE",
     "comingSoon": "ÎN CURÂND",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "INSTRUMENTE PERSONALIZATE",
     "bashDesc": "Executare comenzi bash, citire și scriere fișiere",
     "browserDesc": "Control browser web pentru automatizare",

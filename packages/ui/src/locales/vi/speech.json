@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "PROVIDER",
+    "customSummary": "T\u00f9y ch\u1ec9nh",
     "typeLabel": "LO\u1ea0I",
     "customType": "T\u00f9y ch\u1ec9nh (T\u01b0\u01a1ng th\u00edch OpenAI)",
     "apiKeyLabel": "API KEY",

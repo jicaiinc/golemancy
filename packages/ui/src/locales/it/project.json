@@ -23,7 +23,10 @@
     "modalTitle": "Crea Nuovo Progetto",
     "createBtn": "Crea Progetto",
     "namePlaceholder": "Il Mio Progetto Fantastico",
-    "descPlaceholder": "Di cosa tratta questo progetto?"
+    "descPlaceholder": "Di cosa tratta questo progetto?",
+    "errorGeneric": "Creazione del progetto fallita",
+    "noDefaultModel": "Il modello predefinito deve essere configurato prima di creare da modello.",
+    "goToSettings": "Vai alle Impostazioni"
   },
   "settings": {
     "title": "Impostazioni Progetto",

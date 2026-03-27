@@ -46,6 +46,7 @@
     "labelBaseUrl": "BASE URL",
     "labelName": "AD",
     "labelSdkType": "SDK T\u00dcR\u00dc",
+    "customPlaceholder": "Sa\u011flay\u0131c\u0131m",
     "statusConnected": "Ba\u011fl\u0131",
     "statusFailed": "Ba\u015far\u0131s\u0131z",
     "statusConnecting": "Ba\u011flan\u0131yor...",

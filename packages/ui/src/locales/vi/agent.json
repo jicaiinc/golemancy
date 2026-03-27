@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "CÔNG CỤ TÍCH HỢP",
     "comingSoon": "SẮP RA MẮT",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "CÔNG CỤ TÙY CHỈNH",
     "bashDesc": "Thực thi lệnh bash, đọc và ghi file",
     "browserDesc": "Điều khiển trình duyệt web để tự động hóa",

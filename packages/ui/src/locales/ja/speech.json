@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "プロバイダー",
+    "customSummary": "カスタム",
     "typeLabel": "タイプ",
     "customType": "カスタム（OpenAI 互換）",
     "apiKeyLabel": "API キー",

@@ -80,6 +80,11 @@
   "tools": {
     "builtinSection": "ВСТРОЕННЫЕ ИНСТРУМЕНТЫ",
     "comingSoon": "СКОРО",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "ПОЛЬЗОВАТЕЛЬСКИЕ ИНСТРУМЕНТЫ",
     "bashDesc": "Выполнение команд Bash, чтение и запись файлов",
     "browserDesc": "Управление браузером для автоматизации",

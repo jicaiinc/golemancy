@@ -46,6 +46,7 @@
     "labelBaseUrl": "기본 URL",
     "labelName": "이름",
     "labelSdkType": "SDK 유형",
+    "customPlaceholder": "나의 프로바이더",
     "statusConnected": "연결됨",
     "statusFailed": "실패",
     "statusConnecting": "연결 중...",

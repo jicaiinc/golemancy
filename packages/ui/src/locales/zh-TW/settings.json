@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "下載 {{platform}} 版",
     "downloadGeneric": "下載",
-    "skip": "跳過此版本",
-    "skipped": "v{{version}} 可用（已跳過）"
+    "checking": "檢查更新中...",
+    "downloading": "下載中... {{percent}}%",
+    "downloaded": "Golemancy v{{version}} 新版本已就緒。",
+    "seeChangelog": "查看更新日誌",
+    "restart": "重新啟動",
+    "restartConfirm": "目前有 {{count}} 個活躍 AI 工作階段，確定重新啟動？",
+    "checkNow": "立即檢查",
+    "retryCheck": "重試",
+    "error": "更新檢查失敗：{{message}}"
   },
   "general": {
     "appearance": "外觀",
@@ -56,7 +63,8 @@
     "nameLabel": "名稱",
     "baseUrlLabel": "基礎 URL",
     "sdkTypeLabel": "SDK 類型",
-    "empty": "尚無供應商。點擊「+ 新增供應商」開始設定。"
+    "empty": "尚無供應商。點擊「+ 新增供應商」開始設定。",
+    "customPlaceholder": "我的供應商"
   },
   "provider": {
     "testing": "測試中...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "基礎 URL（選填）",
     "hideKey": "隱藏金鑰",
     "showKey": "顯示金鑰",
+    "oauthSectionTitle": "登入",
+    "oauthActive": "已啟用",
     "oauthSignIn": "使用 {{provider}} 登入",
     "oauthConnected": "已連線",
     "oauthDisconnect": "中斷連線",

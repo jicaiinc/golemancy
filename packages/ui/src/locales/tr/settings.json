@@ -25,9 +25,16 @@
     "available": "GÜNCELLEME MEVCUT",
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "{{platform}} için indir",
-    "downloadGeneric": "İndir",
-    "skip": "Bu sürümü atla",
-    "skipped": "v{{version}} mevcut (atlandı)"
+    "downloadGeneric": "\u0130ndir",
+    "checking": "G\u00fcncellemeler kontrol ediliyor...",
+    "downloading": "G\u00fcncelleme indiriliyor... {{percent}}%",
+    "downloaded": "Golemancy v{{version}} g\u00fcncel bir s\u00fcr\u00fcm\u00fc mevcut.",
+    "seeChangelog": "Changelog'u g\u00f6r",
+    "restart": "Yeniden Ba\u015flat",
+    "restartConfirm": "{{count}} aktif AI oturumu var. Yine de yeniden ba\u015flat\u0131ls\u0131n m\u0131?",
+    "checkNow": "\u015eimdi kontrol et",
+    "retryCheck": "Tekrar Dene",
+    "error": "G\u00fcncelleme kontrol\u00fc ba\u015far\u0131s\u0131z: {{message}}"
   },
   "general": {
     "appearance": "GÖRÜNÜM",
@@ -56,7 +63,8 @@
     "nameLabel": "AD",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "SDK TÜRÜ",
-    "empty": "Yapılandırılmış sağlayıcı yok. Başlamak için \"+ Sağlayıcı Ekle\"ye tıklayın."
+    "empty": "Yap\u0131land\u0131r\u0131lm\u0131\u015f sa\u011flay\u0131c\u0131 yok. Ba\u015flamak i\u00e7in \"+ Sa\u011flay\u0131c\u0131 Ekle\"ye t\u0131klay\u0131n.",
+    "customPlaceholder": "Sa\u011flay\u0131c\u0131m"
   },
   "provider": {
     "testing": "Test ediliyor...",
@@ -80,7 +88,9 @@
     "baseUrlOptional": "BASE URL (isteğe bağlı)",
     "hideKey": "Key'i Gizle",
     "showKey": "Key'i Göster",
-    "oauthSignIn": "{{provider}} ile giriş yap",
+    "oauthSectionTitle": "G\u0130R\u0130\u015e YAP",
+    "oauthActive": "Aktif",
+    "oauthSignIn": "{{provider}} ile giri\u015f yap",
     "oauthConnected": "Bağlandı",
     "oauthDisconnect": "Bağlantıyı kes",
     "oauthPending": "Tarayıcıda kimlik doğrulama bekleniyor...",

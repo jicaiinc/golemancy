@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "組み込みツール",
     "comingSoon": "近日公開",
+    "bashName": "Bash",
+    "browserName": "ブラウザ",
+    "computerUseName": "コンピューター操作",
+    "taskName": "タスク",
+    "memoryName": "メモリー",
     "customSection": "カスタムツール",
     "bashDesc": "Bash コマンドの実行、ファイルの読み書き",
     "browserDesc": "ブラウザを制御して自動操作",

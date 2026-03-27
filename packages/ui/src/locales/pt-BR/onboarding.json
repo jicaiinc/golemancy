@@ -46,6 +46,7 @@
     "labelBaseUrl": "BASE URL",
     "labelName": "NOME",
     "labelSdkType": "TIPO DE SDK",
+    "customPlaceholder": "Meu Provedor",
     "statusConnected": "Conectado",
     "statusFailed": "Falhou",
     "statusConnecting": "Conectando...",

@@ -23,7 +23,10 @@
     "modalTitle": "Neues Projekt erstellen",
     "createBtn": "Projekt erstellen",
     "namePlaceholder": "Mein tolles Projekt",
-    "descPlaceholder": "Worum geht es in diesem Projekt?"
+    "descPlaceholder": "Worum geht es in diesem Projekt?",
+    "errorGeneric": "Projekt konnte nicht erstellt werden",
+    "noDefaultModel": "Standardmodell muss konfiguriert sein, bevor aus Vorlage erstellt werden kann.",
+    "goToSettings": "Zu Einstellungen"
   },
   "settings": {
     "title": "Projekteinstellungen",

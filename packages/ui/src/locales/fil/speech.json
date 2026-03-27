@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "PROVIDER",
+    "customSummary": "Custom",
     "typeLabel": "URI",
     "customType": "Custom (OpenAI-Compatible)",
     "apiKeyLabel": "API KEY",

@@ -46,6 +46,7 @@
     "labelBaseUrl": "BASE URL",
     "labelName": "NAMA",
     "labelSdkType": "TIPE SDK",
+    "customPlaceholder": "Provider Saya",
     "statusConnected": "Terhubung",
     "statusFailed": "Gagal",
     "statusConnecting": "Menghubungkan...",

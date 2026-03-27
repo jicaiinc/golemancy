@@ -46,6 +46,7 @@
     "labelBaseUrl": "BASE URL",
     "labelName": "NAMN",
     "labelSdkType": "SDK-TYP",
+    "customPlaceholder": "Min provider",
     "statusConnected": "Ansluten",
     "statusFailed": "Misslyckades",
     "statusConnecting": "Ansluter...",

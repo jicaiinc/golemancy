@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "Ladda ner för {{platform}}",
     "downloadGeneric": "Ladda ner",
-    "skip": "Hoppa över denna version",
-    "skipped": "v{{version}} tillgänglig (överhoppad)"
+    "checking": "Söker efter uppdateringar...",
+    "downloading": "Laddar ner uppdatering... {{percent}}%",
+    "downloaded": "En uppdaterad version av Golemancy v{{version}} är tillgänglig.",
+    "seeChangelog": "Se changelog",
+    "restart": "Starta om",
+    "restartConfirm": "Det finns {{count}} aktiva AI-sessioner. Starta om ändå?",
+    "checkNow": "Kontrollera nu",
+    "retryCheck": "Försök igen",
+    "error": "Uppdateringskontroll misslyckades: {{message}}"
   },
   "general": {
     "appearance": "UTSEENDE",
@@ -56,7 +63,8 @@
     "nameLabel": "NAMN",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "SDK-TYP",
-    "empty": "Inga providers konfigurerade. Klicka \"+ Lägg till provider\" för att komma igång."
+    "empty": "Inga providers konfigurerade. Klicka \"+ Lägg till provider\" för att komma igång.",
+    "customPlaceholder": "Min provider"
   },
   "provider": {
     "testing": "Testar...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "BASE URL (valfritt)",
     "hideKey": "Dölj nyckel",
     "showKey": "Visa nyckel",
+    "oauthSectionTitle": "LOGGA IN",
+    "oauthActive": "Aktiv",
     "oauthSignIn": "Logga in med {{provider}}",
     "oauthConnected": "Ansluten",
     "oauthDisconnect": "Koppla från",

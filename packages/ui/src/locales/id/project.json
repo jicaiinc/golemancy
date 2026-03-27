@@ -23,7 +23,10 @@
     "modalTitle": "Buat Proyek Baru",
     "createBtn": "Buat Proyek",
     "namePlaceholder": "Proyek Keren Saya",
-    "descPlaceholder": "Proyek ini tentang apa?"
+    "descPlaceholder": "Proyek ini tentang apa?",
+    "errorGeneric": "Gagal membuat proyek",
+    "noDefaultModel": "Model default harus dikonfigurasi sebelum membuat dari template.",
+    "goToSettings": "Ke Pengaturan"
   },
   "settings": {
     "title": "Pengaturan Proyek",

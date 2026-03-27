@@ -42,6 +42,7 @@
   },
   "provider": {
     "sectionTitle": "POSKYTOVATEL",
+    "customSummary": "Vlastní",
     "typeLabel": "TYP",
     "customType": "Vlastní (kompatibilní s OpenAI)",
     "apiKeyLabel": "API KLÍČ",

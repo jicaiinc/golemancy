@@ -26,7 +26,10 @@
     "modalTitle": "Creare proiect nou",
     "createBtn": "Creare proiect",
     "namePlaceholder": "Proiectul meu extraordinar",
-    "descPlaceholder": "Despre ce este acest proiect?"
+    "descPlaceholder": "Despre ce este acest proiect?",
+    "errorGeneric": "Crearea proiectului a eșuat",
+    "noDefaultModel": "Modelul implicit trebuie configurat înainte de a crea din șablon.",
+    "goToSettings": "Mergeți la setări"
   },
   "settings": {
     "title": "Setări proiect",

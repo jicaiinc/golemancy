@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "Stáhnout pro {{platform}}",
     "downloadGeneric": "Stáhnout",
-    "skip": "Přeskočit tuto verzi",
-    "skipped": "v{{version}} k dispozici (přeskočeno)"
+    "checking": "Kontrola aktualizací...",
+    "downloading": "Stahování aktualizace... {{percent}}%",
+    "downloaded": "Je k dispozici aktualizovaná verze Golemancy v{{version}}.",
+    "seeChangelog": "Zobrazit changelog",
+    "restart": "Restartovat",
+    "restartConfirm": "Je aktivních {{count}} AI relací. Přesto restartovat?",
+    "checkNow": "Zkontrolovat nyní",
+    "retryCheck": "Zkusit znovu",
+    "error": "Kontrola aktualizací selhala: {{message}}"
   },
   "general": {
     "appearance": "VZHLED",
@@ -56,7 +63,8 @@
     "nameLabel": "NÁZEV",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "TYP SDK",
-    "empty": "Žádní poskytovatelé nejsou nakonfigurováni. Klikněte na «+ Přidat poskytovatele» pro začátek."
+    "empty": "Žádní poskytovatelé nejsou nakonfigurováni. Klikněte na «+ Přidat poskytovatele» pro začátek.",
+    "customPlaceholder": "Můj poskytovatel"
   },
   "provider": {
     "testing": "Testování...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "BASE URL (volitelné)",
     "hideKey": "Skrýt klíč",
     "showKey": "Zobrazit klíč",
+    "oauthSectionTitle": "PŘIHLÁŠENÍ",
+    "oauthActive": "Aktivní",
     "oauthSignIn": "Přihlásit se přes {{provider}}",
     "oauthConnected": "Připojeno",
     "oauthDisconnect": "Odpojit",

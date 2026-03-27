@@ -23,7 +23,10 @@
     "modalTitle": "Yeni Proje Oluştur",
     "createBtn": "Proje Oluştur",
     "namePlaceholder": "Harika Projem",
-    "descPlaceholder": "Bu proje ne hakkında?"
+    "descPlaceholder": "Bu proje ne hakkında?",
+    "errorGeneric": "Proje oluşturulamadı",
+    "noDefaultModel": "Şablondan oluşturmadan önce varsayılan model yapılandırılmalıdır.",
+    "goToSettings": "Ayarlara Git"
   },
   "settings": {
     "title": "Proje Ayarları",

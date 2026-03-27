@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "STRUMENTI INTEGRATI",
     "comingSoon": "PROSSIMAMENTE",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Controllo Computer",
+    "taskName": "Attività",
+    "memoryName": "Memoria",
     "customSection": "STRUMENTI PERSONALIZZATI",
     "bashDesc": "Esegui comandi bash, leggi e scrivi file",
     "browserDesc": "Controlla il browser web per l'automazione",

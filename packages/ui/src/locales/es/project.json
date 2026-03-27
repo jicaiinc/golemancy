@@ -23,7 +23,10 @@
     "modalTitle": "Crear Nuevo Proyecto",
     "createBtn": "Crear Proyecto",
     "namePlaceholder": "Mi Proyecto Increíble",
-    "descPlaceholder": "¿De qué trata este proyecto?"
+    "descPlaceholder": "¿De qué trata este proyecto?",
+    "errorGeneric": "Error al crear el proyecto",
+    "noDefaultModel": "El modelo predeterminado debe configurarse antes de crear desde plantilla.",
+    "goToSettings": "Ir a Configuración"
   },
   "settings": {
     "title": "Configuración del Proyecto",

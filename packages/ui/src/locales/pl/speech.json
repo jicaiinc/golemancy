@@ -42,6 +42,7 @@
   },
   "provider": {
     "sectionTitle": "DOSTAWCA",
+    "customSummary": "Niestandardowy",
     "typeLabel": "TYP",
     "customType": "Niestandardowy (kompatybilny z OpenAI)",
     "apiKeyLabel": "KLUCZ API",

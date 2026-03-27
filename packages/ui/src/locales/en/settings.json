@@ -63,7 +63,8 @@
     "nameLabel": "NAME",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "SDK TYPE",
-    "empty": "No providers configured. Click \"+ Add Provider\" to get started."
+    "empty": "No providers configured. Click \"+ Add Provider\" to get started.",
+    "customPlaceholder": "My Provider"
   },
   "provider": {
     "testing": "Testing...",
@@ -87,6 +88,8 @@
     "baseUrlOptional": "BASE URL (optional)",
     "hideKey": "Hide Key",
     "showKey": "Show Key",
+    "oauthSectionTitle": "SIGN IN",
+    "oauthActive": "Active",
     "oauthSignIn": "Sign in with {{provider}}",
     "oauthConnected": "Connected",
     "oauthDisconnect": "Disconnect",

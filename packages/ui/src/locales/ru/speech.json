@@ -42,6 +42,7 @@
   },
   "provider": {
     "sectionTitle": "ПРОВАЙДЕР",
+    "customSummary": "Пользовательский",
     "typeLabel": "ТИП",
     "customType": "Пользовательский (OpenAI-совместимый)",
     "apiKeyLabel": "API КЛЮЧ",

@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "PROVIDER",
+    "customSummary": "Aangepast",
     "typeLabel": "TYPE",
     "customType": "Aangepast (OpenAI-compatibel)",
     "apiKeyLabel": "API KEY",

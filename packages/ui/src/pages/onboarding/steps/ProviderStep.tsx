@@ -244,7 +244,7 @@ export function ProviderStep({
               label={t('provider.labelName')}
               value={customName}
               onChange={e => setCustomName(e.target.value)}
-              placeholder="My Provider"
+              placeholder={t('provider.customPlaceholder')}
             />
             <div>
               <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('provider.labelSdkType')}</label>

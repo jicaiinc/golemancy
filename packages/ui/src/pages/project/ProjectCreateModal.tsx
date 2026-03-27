@@ -23,6 +23,7 @@ interface Props {
 
 export function ProjectCreateModal({ open, onClose }: Props) {
   const { t } = useTranslation('project')
+  const settings = useAppStore(s => s.settings)
   const createProject = useAppStore(s => s.createProject)
   const createProjectFromTemplate = useAppStore(s => s.createProjectFromTemplate)
   const navigate = useNavigate()
@@ -31,16 +32,21 @@ export function ProjectCreateModal({ open, onClose }: Props) {
   const [icon, setIcon] = useState('pickaxe')
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const needsModelConfig = !!selectedTemplateId && !settings?.defaultModel
 
   function reset() {
     setName('')
     setDescription('')
     setIcon('pickaxe')
     setSelectedTemplateId(null)
+    setError(null)
   }
 
   function handleTemplateSelect(templateId: string | null) {
     setSelectedTemplateId(templateId)
+    setError(null)
     if (templateId) {
       const template = getProjectTemplate(templateId)
       if (template) {
@@ -54,6 +60,7 @@ export function ProjectCreateModal({ open, onClose }: Props) {
   async function handleSubmit() {
     if (!name.trim()) return
     setSaving(true)
+    setError(null)
     try {
       let project
       if (selectedTemplateId) {
@@ -68,6 +75,8 @@ export function ProjectCreateModal({ open, onClose }: Props) {
       reset()
       onClose()
       navigate(`/projects/${project.id}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('create.errorGeneric'))
     } finally {
       setSaving(false)
     }
@@ -82,7 +91,7 @@ export function ProjectCreateModal({ open, onClose }: Props) {
       footer={
         <>
           <PixelButton data-testid="cancel-btn" variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
-          <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
+          <PixelButton data-testid="confirm-btn" variant="primary" disabled={!name.trim() || saving || needsModelConfig} onClick={handleSubmit}>
             {saving ? t('common:button.creating') : t('create.createBtn')}
           </PixelButton>
         </>
@@ -93,6 +102,21 @@ export function ProjectCreateModal({ open, onClose }: Props) {
           selectedTemplateId={selectedTemplateId}
           onSelect={handleTemplateSelect}
         />
+
+        {needsModelConfig && (
+          <div className="flex items-center justify-between gap-3 p-3 border-2 border-accent-amber/40 bg-accent-amber/5">
+            <span className="font-mono text-[10px] text-accent-amber leading-[16px]">
+              {t('create.noDefaultModel')}
+            </span>
+            <PixelButton
+              size="sm"
+              variant="ghost"
+              onClick={() => { onClose(); navigate('/settings') }}
+            >
+              {t('create.goToSettings')}
+            </PixelButton>
+          </div>
+        )}
 
         <div className="border-t-2 border-border-dim pt-4 flex flex-col gap-4">
           <PixelInput
@@ -136,6 +160,12 @@ export function ProjectCreateModal({ open, onClose }: Props) {
               ))}
             </div>
           </div>
+
+          {error && (
+            <div className="p-2 bg-accent-red/10 border-2 border-accent-red/30">
+              <span className="text-[10px] text-accent-red font-mono break-all">{error}</span>
+            </div>
+          )}
         </div>
       </div>
     </PixelModal>

@@ -80,6 +80,11 @@
   "tools": {
     "builtinSection": "VESTAVĚNÉ NÁSTROJE",
     "comingSoon": "BRZY",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "VLASTNÍ NÁSTROJE",
     "bashDesc": "Provádění příkazů Bash, čtení a zápis souborů",
     "browserDesc": "Ovládání prohlížeče pro automatizaci",

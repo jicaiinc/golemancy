@@ -29,7 +29,10 @@
     "modalTitle": "Создать новый проект",
     "createBtn": "Создать проект",
     "namePlaceholder": "Мой проект",
-    "descPlaceholder": "О чём этот проект?"
+    "descPlaceholder": "О чём этот проект?",
+    "errorGeneric": "Не удалось создать проект",
+    "noDefaultModel": "Перед созданием из шаблона необходимо настроить модель по умолчанию.",
+    "goToSettings": "Перейти в настройки"
   },
   "settings": {
     "title": "Настройки проекта",

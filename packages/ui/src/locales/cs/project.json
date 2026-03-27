@@ -29,7 +29,10 @@
     "modalTitle": "Vytvořit nový projekt",
     "createBtn": "Vytvořit projekt",
     "namePlaceholder": "Můj projekt",
-    "descPlaceholder": "O čem je tento projekt?"
+    "descPlaceholder": "O čem je tento projekt?",
+    "errorGeneric": "Vytvoření projektu selhalo",
+    "noDefaultModel": "Před vytvořením projektu ze šablony musí být nakonfigurován výchozí model.",
+    "goToSettings": "Přejít do nastavení"
   },
   "settings": {
     "title": "Nastavení projektu",

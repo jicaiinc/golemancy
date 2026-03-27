@@ -26,8 +26,15 @@
     "newVersion": "v{{current}} → v{{latest}}",
     "download": "Scarica per {{platform}}",
     "downloadGeneric": "Scarica",
-    "skip": "Salta questa versione",
-    "skipped": "v{{version}} disponibile (saltata)"
+    "checking": "Ricerca aggiornamenti...",
+    "downloading": "Download aggiornamento... {{percent}}%",
+    "downloaded": "È disponibile una versione aggiornata di Golemancy v{{version}}.",
+    "seeChangelog": "Vedi changelog",
+    "restart": "Riavvia",
+    "restartConfirm": "Ci sono {{count}} sessioni AI attive. Riavviare comunque?",
+    "checkNow": "Controlla ora",
+    "retryCheck": "Riprova",
+    "error": "Controllo aggiornamenti fallito: {{message}}"
   },
   "general": {
     "appearance": "ASPETTO",
@@ -56,7 +63,8 @@
     "nameLabel": "NOME",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "TIPO SDK",
-    "empty": "Nessun provider configurato. Clicca \"+ Aggiungi Provider\" per iniziare."
+    "empty": "Nessun provider configurato. Clicca \"+ Aggiungi Provider\" per iniziare.",
+    "customPlaceholder": "Il Mio Provider"
   },
   "provider": {
     "testing": "Test in corso...",
@@ -80,6 +88,8 @@
     "baseUrlOptional": "BASE URL (opzionale)",
     "hideKey": "Nascondi Key",
     "showKey": "Mostra Key",
+    "oauthSectionTitle": "ACCESSO",
+    "oauthActive": "Attivo",
     "oauthSignIn": "Accedi con {{provider}}",
     "oauthConnected": "Connesso",
     "oauthDisconnect": "Disconnetti",

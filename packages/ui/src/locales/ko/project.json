@@ -23,7 +23,10 @@
     "modalTitle": "새 프로젝트 생성",
     "createBtn": "프로젝트 생성",
     "namePlaceholder": "나의 멋진 프로젝트",
-    "descPlaceholder": "이 프로젝트는 무엇에 관한 것인가요?"
+    "descPlaceholder": "이 프로젝트는 무엇에 관한 것인가요?",
+    "errorGeneric": "프로젝트 생성에 실패했습니다",
+    "noDefaultModel": "템플릿에서 생성하기 전에 기본 모델을 설정해야 합니다.",
+    "goToSettings": "설정으로 이동"
   },
   "settings": {
     "title": "프로젝트 설정",

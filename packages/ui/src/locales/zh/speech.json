@@ -36,6 +36,7 @@
   },
   "provider": {
     "sectionTitle": "供应商",
+    "customSummary": "自定义",
     "typeLabel": "类型",
     "customType": "自定义（OpenAI 兼容）",
     "apiKeyLabel": "API 密钥",

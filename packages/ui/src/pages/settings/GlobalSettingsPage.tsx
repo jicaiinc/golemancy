@@ -294,7 +294,7 @@ function ProvidersTab({ settings, onUpdate }: {
               label={t('providers.nameLabel')}
               value={customName}
               onChange={e => setCustomName(e.target.value)}
-              placeholder="My Provider"
+              placeholder={t('providers.customPlaceholder')}
             />
             <PixelInput
               label={t('providers.baseUrlLabel')}
@@ -692,9 +692,9 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
           'border-border-dim'
         }`}>
           <div className="flex items-center gap-2 font-pixel text-[9px] text-text-secondary mb-2.5">
-            SIGN IN
+            {t('provider.oauthSectionTitle')}
             {isOAuthConnected && (
-              <span className="font-mono text-[9px] text-accent-green bg-accent-green/15 px-1.5 py-0.5">Active</span>
+              <span className="font-mono text-[9px] text-accent-green bg-accent-green/15 px-1.5 py-0.5">{t('provider.oauthActive')}</span>
             )}
           </div>
 

@@ -46,6 +46,7 @@
     "labelBaseUrl": "ベース URL",
     "labelName": "名前",
     "labelSdkType": "SDK タイプ",
+    "customPlaceholder": "マイプロバイダー",
     "statusConnected": "接続済み",
     "statusFailed": "失敗",
     "statusConnecting": "接続中...",

@@ -23,7 +23,10 @@
     "modalTitle": "Nieuw Project Aanmaken",
     "createBtn": "Project Aanmaken",
     "namePlaceholder": "Mijn Geweldige Project",
-    "descPlaceholder": "Waar gaat dit project over?"
+    "descPlaceholder": "Waar gaat dit project over?",
+    "errorGeneric": "Project aanmaken mislukt",
+    "noDefaultModel": "Standaardmodel moet worden geconfigureerd voordat er vanuit sjabloon aangemaakt kan worden.",
+    "goToSettings": "Naar Instellingen"
   },
   "settings": {
     "title": "Projectinstellingen",

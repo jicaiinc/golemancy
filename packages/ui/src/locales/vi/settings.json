@@ -24,10 +24,17 @@
     "upToDate": "Bạn đang dùng phiên bản mới nhất — v{{version}}",
     "available": "CÓ BẢN CẬP NHẬT",
     "newVersion": "v{{current}} → v{{latest}}",
-    "download": "Tải xuống cho {{platform}}",
-    "downloadGeneric": "Tải xuống",
-    "skip": "Bỏ qua phiên bản này",
-    "skipped": "v{{version}} khả dụng (đã bỏ qua)"
+    "download": "T\u1ea3i xu\u1ed1ng cho {{platform}}",
+    "downloadGeneric": "T\u1ea3i xu\u1ed1ng",
+    "checking": "\u0110ang ki\u1ec3m tra c\u1eadp nh\u1eadt...",
+    "downloading": "\u0110ang t\u1ea3i c\u1eadp nh\u1eadt... {{percent}}%",
+    "downloaded": "Ph\u1ea7n m\u1ec1m Golemancy v{{version}} \u0111\u00e3 c\u00f3 b\u1ea3n c\u1eadp nh\u1eadt m\u1edbi.",
+    "seeChangelog": "Xem changelog",
+    "restart": "Kh\u1edfi \u0110\u1ed9ng L\u1ea1i",
+    "restartConfirm": "C\u00f3 {{count}} phi\u00ean AI \u0111ang ho\u1ea1t \u0111\u1ed9ng. Kh\u1edfi \u0111\u1ed9ng l\u1ea1i?",
+    "checkNow": "Ki\u1ec3m tra ngay",
+    "retryCheck": "Th\u1eed L\u1ea1i",
+    "error": "Ki\u1ec3m tra c\u1eadp nh\u1eadt th\u1ea5t b\u1ea1i: {{message}}"
   },
   "general": {
     "appearance": "GIAO DIỆN",
@@ -56,7 +63,8 @@
     "nameLabel": "TÊN",
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "LOẠI SDK",
-    "empty": "Chưa có provider nào được cấu hình. Nhấp \"+ Thêm Provider\" để bắt đầu."
+    "empty": "Ch\u01b0a c\u00f3 provider n\u00e0o \u0111\u01b0\u1ee3c c\u1ea5u h\u00ecnh. Nh\u1ea5p \"+ Th\u00eam Provider\" \u0111\u1ec3 b\u1eaft \u0111\u1ea7u.",
+    "customPlaceholder": "Provider C\u1ee7a T\u00f4i"
   },
   "provider": {
     "testing": "Đang kiểm tra...",
@@ -80,7 +88,9 @@
     "baseUrlOptional": "BASE URL (tùy chọn)",
     "hideKey": "Ẩn Key",
     "showKey": "Hiển Key",
-    "oauthSignIn": "Đăng nhập với {{provider}}",
+    "oauthSectionTitle": "\u0110\u0102NG NH\u1eacP",
+    "oauthActive": "\u0110ang ho\u1ea1t \u0111\u1ed9ng",
+    "oauthSignIn": "\u0110\u0103ng nh\u1eadp v\u1edbi {{provider}}",
     "oauthConnected": "Đã kết nối",
     "oauthDisconnect": "Ngắt kết nối",
     "oauthPending": "Đang chờ xác thực trên trình duyệt...",

@@ -39,6 +39,7 @@
   },
   "provider": {
     "sectionTitle": "FURNIZOR",
+    "customSummary": "Personalizat",
     "typeLabel": "TIP",
     "customType": "Personalizat (compatibil OpenAI)",
     "apiKeyLabel": "CHEIE API",

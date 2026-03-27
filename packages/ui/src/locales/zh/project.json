@@ -23,7 +23,10 @@
     "modalTitle": "创建新项目",
     "createBtn": "创建项目",
     "namePlaceholder": "我的超棒项目",
-    "descPlaceholder": "这个项目是做什么的？"
+    "descPlaceholder": "这个项目是做什么的？",
+    "errorGeneric": "创建项目失败",
+    "noDefaultModel": "从模板创建前，请先配置默认模型。",
+    "goToSettings": "前往设置"
   },
   "settings": {
     "title": "项目设置",

@@ -42,6 +42,7 @@
   },
   "provider": {
     "sectionTitle": "ПРОВАЙДЕР",
+    "customSummary": "Користувацький",
     "typeLabel": "ТИП",
     "customType": "Користувацький (OpenAI-сумісний)",
     "apiKeyLabel": "API КЛЮЧ",

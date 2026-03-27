@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "ALATAN TERBINA DALAM",
     "comingSoon": "AKAN DATANG",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "ALATAN TERSUAI",
     "bashDesc": "Jalankan perintah bash, baca dan tulis fail",
     "browserDesc": "Kawal pelayar web untuk automasi",

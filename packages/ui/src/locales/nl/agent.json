@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "INGEBOUWDE TOOLS",
     "comingSoon": "BINNENKORT",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computergebruik",
+    "taskName": "Taak",
+    "memoryName": "Geheugen",
     "customSection": "AANGEPASTE TOOLS",
     "bashDesc": "Bash-commando's uitvoeren, bestanden lezen en schrijven",
     "browserDesc": "Webbrowser aansturen voor automatisering",

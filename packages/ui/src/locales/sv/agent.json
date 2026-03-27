@@ -72,6 +72,11 @@
   "tools": {
     "builtinSection": "INBYGGDA VERKTYG",
     "comingSoon": "KOMMER SNART",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
     "customSection": "ANPASSADE VERKTYG",
     "bashDesc": "Kör bash-kommandon, läs och skriv filer",
     "browserDesc": "Styr webbläsare för automatisering",
