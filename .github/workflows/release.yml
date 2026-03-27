@@ -120,7 +120,7 @@ jobs:
       - name: Upload source maps (Sentry)
         if: env.SENTRY_AUTH_TOKEN != ''
         run: |
-          npx sentry-cli sourcemaps upload \
+          pnpm dlx @sentry/cli sourcemaps upload \
             --org jicai --project golemancy-desktop \
             --release "$(node -p "require('./apps/desktop/package.json').version")" \
             apps/desktop/out/main apps/desktop/out/preload
