@@ -119,6 +119,7 @@ jobs:
       # ── Step 2.5: Upload source maps for main/preload (Sentry) ──
       - name: Upload source maps (Sentry)
         if: env.SENTRY_AUTH_TOKEN != ''
+        shell: bash
         run: |
           pnpm dlx @sentry/cli sourcemaps upload \
             --org jicai --project golemancy-desktop \
