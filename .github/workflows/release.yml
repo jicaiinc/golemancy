@@ -118,7 +118,7 @@ jobs:
 
       # ── Step 2.5: Upload source maps for main/preload (Sentry) ──
       - name: Upload source maps (Sentry)
-        if: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
+        if: env.SENTRY_AUTH_TOKEN != ''
         run: |
           npx sentry-cli sourcemaps upload \
             --org jicai --project golemancy-desktop \
