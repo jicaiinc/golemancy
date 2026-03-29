@@ -31,6 +31,7 @@
     "@golemancy/tools": "workspace:*",
     "@hono/node-server": "^1",
     "@hono/node-ws": "^1",
+    "@sentry/node": "^10.46.0",
     "@vscode/ripgrep": "^1.17.0",
     "adm-zip": "^0.5.16",
     "ai": "^6.0.82",

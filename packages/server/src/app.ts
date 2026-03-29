@@ -36,6 +36,7 @@ import { createTeamRoutes } from './routes/teams'
 import { createSpeechRoutes } from './routes/speech'
 import { createOAuthRoutes } from './routes/oauth'
 import { logger } from './logger'
+import { captureException } from './sentry'
 import { ConfigurationError } from './agent/errors'
 
 export interface ServerDependencies {
@@ -105,6 +106,7 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
       return c.json({ error: err.message, code: err.code }, err.statusCode as 422)
     }
     logger.error({ err, method: c.req.method, path: c.req.path }, 'unhandled error')
+    captureException(err, { method: c.req.method, path: c.req.path })
     return c.json({
       error: 'Internal Server Error',
       ...(process.env.NODE_ENV === 'development' ? { message: err.message } : {}),

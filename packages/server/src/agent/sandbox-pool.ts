@@ -13,6 +13,7 @@ import type {
 } from '@golemancy/shared'
 import type { SandboxManagerHandle } from './anthropic-sandbox'
 import { logger } from '../logger'
+import { captureException } from '../sentry'
 
 const log = logger.child({ component: 'agent:sandbox-pool' })
 
@@ -470,6 +471,7 @@ export class SandboxPool {
           { projectId, code },
           'Sandbox worker exited unexpectedly — will re-create on next use',
         )
+        captureException(new Error(`Sandbox worker exited unexpectedly (code=${code})`), { projectId })
         handle.destroy()
         // destroy() calls onDestroy which removes from map
       }
