@@ -464,6 +464,7 @@ img[data-pixel],
    Uses ::after so the dashes render above child opaque backgrounds. */
 .border-unrestricted {
   position: relative;
+  isolation: isolate;
 }
 .border-unrestricted::after {
   content: '';
