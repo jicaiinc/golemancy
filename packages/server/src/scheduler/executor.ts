@@ -288,6 +288,8 @@ export class CronJobExecutor {
       return { ...run, status: 'success', durationMs, conversationId }
     } catch (err) {
       this.runningControllers.delete(controllerKey)
+      // Cleanup tools (browser processes, MCP connections, etc.) to prevent resource leaks
+      try { await agentToolsResult?.cleanup() } catch {}
       // --- Active chat lifecycle: unregister immediately to avoid leaking on subsequent errors ---
       if (registeredConversationId) this.deps.activeChatRegistry?.unregister(registeredConversationId)
 

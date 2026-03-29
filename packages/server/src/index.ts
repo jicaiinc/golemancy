@@ -231,6 +231,7 @@ async function main() {
       mcpPool.shutdown(),
       cronScheduler.shutdown(),
     ])
+    dbManager.closeAll()
     logger.info('shutdown complete')
     await flushSentry()
     logger.flush()
