@@ -260,8 +260,13 @@ export const useAppStore = create<AppState>()(
 
       async loadProjects() {
         set({ projectsLoading: true })
-        const projects = await getServices().projects.list()
-        set({ projects, projectsLoading: false })
+        try {
+          const projects = await getServices().projects.list()
+          set({ projects, projectsLoading: false })
+        } catch (err) {
+          set({ projectsLoading: false })
+          captureError(err, { component: 'loadProjects' })
+        }
       },
 
       async selectProject(id: ProjectId) {
@@ -771,13 +776,17 @@ export const useAppStore = create<AppState>()(
       settings: null,
 
       async loadSettings() {
-        const settings = await getServices().settings.get()
-        set({ settings })
-        // Sync persisted theme with loaded settings (if not already overridden)
-        applyThemeToDOM(get().themeMode)
-        // Sync language from server-side settings (fallback if localStorage was cleared)
-        if (settings.language) {
-          i18next.changeLanguage(settings.language)
+        try {
+          const settings = await getServices().settings.get()
+          set({ settings })
+          // Sync persisted theme with loaded settings (if not already overridden)
+          applyThemeToDOM(get().themeMode)
+          // Sync language from server-side settings (fallback if localStorage was cleared)
+          if (settings.language) {
+            i18next.changeLanguage(settings.language)
+          }
+        } catch (err) {
+          captureError(err, { component: 'loadSettings' })
         }
       },
 
