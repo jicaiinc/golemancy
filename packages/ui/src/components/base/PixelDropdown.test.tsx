@@ -71,9 +71,9 @@ describe('PixelDropdown', () => {
       <PixelDropdown trigger={<button>Open</button>} items={items} onSelect={() => {}} />,
     )
     fireEvent.click(screen.getByText('Open'))
-    // Option B is selected — check for checkmark (rendered as &check; HTML entity)
+    // Option B is selected — check for checkmark SVG icon
     const optionB = screen.getByText('Option B').closest('button')!
-    expect(optionB.innerHTML).toContain('&amp;check;')
+    expect(optionB.querySelector('svg')).toBeInTheDocument()
   })
 
   it('closes when clicking outside', () => {

@@ -7,6 +7,7 @@ import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
 import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
+import { CheckIcon, CopyIcon } from '../../components/base/PixelIcons'
 
 const ICONS = [
   { id: 'pickaxe', label: '\u26CF' },
@@ -255,8 +256,8 @@ function CopyableId({ label, value }: { label: string; value: string }) {
         className="group flex items-center gap-2 w-fit px-2 py-1 bg-deep border border-border-dim cursor-pointer select-all hover:border-border-bright transition-colors"
       >
         <span className="font-mono text-[11px] text-text-dim">{value}</span>
-        <span className="font-mono text-[10px] text-text-dim/50 group-hover:text-text-dim transition-colors">
-          {copied ? '✓' : '⎘'}
+        <span className="text-text-dim/50 group-hover:text-text-dim transition-colors">
+          {copied ? <CheckIcon className="w-3 h-3" /> : <CopyIcon className="w-3 h-3" />}
         </span>
       </div>
     </div>

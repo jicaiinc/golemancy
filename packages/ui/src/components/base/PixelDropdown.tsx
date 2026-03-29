@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { dropdownTransition } from '../../lib/motion'
+import { CheckIcon } from './PixelIcons'
 
 interface DropdownItem {
   label: ReactNode
@@ -58,7 +59,7 @@ export function PixelDropdown({ trigger, items, onSelect, dividerAfter = [], cla
                   }}
                 >
                   <span className="truncate">{item.label}</span>
-                  {item.selected && <span className="text-accent-green shrink-0">&check;</span>}
+                  {item.selected && <CheckIcon className="text-accent-green shrink-0" />}
                 </button>
                 {dividerAfter.includes(i) && (
                   <div className="border-t-2 border-border-dim my-0" />
