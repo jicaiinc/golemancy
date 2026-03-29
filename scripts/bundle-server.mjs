@@ -1051,6 +1051,15 @@ process.exit(errors.length > 0 ? 1 : 0);
 
   await normalizeExecutablePermissions(OUT_NODE_MODULES)
 
+  // Strip source maps — only needed for Sentry upload in CI.
+  // CI sets KEEP_SOURCE_MAPS=1 so the upload step can access them before stripping.
+  if (!process.env.KEEP_SOURCE_MAPS) {
+    const depsFiles = await readdir(DEPS_DIR)
+    const mapFiles = depsFiles.filter(f => f.endsWith('.map'))
+    for (const f of mapFiles) await rm(join(DEPS_DIR, f))
+    if (mapFiles.length > 0) console.log(`  Stripped ${mapFiles.length} source map files`)
+  }
+
   console.log('\nServer bundle complete.')
 }
 

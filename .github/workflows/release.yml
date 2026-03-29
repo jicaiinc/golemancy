@@ -129,10 +129,12 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       # ── Step 3: Bundle server code + production dependencies ──
+      # KEEP_SOURCE_MAPS=1 preserves .map files for Sentry upload in Step 3.5
       - name: Bundle server
         run: node scripts/bundle-server.mjs --arch ${{ matrix.arch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          KEEP_SOURCE_MAPS: '1'
 
       # ── Step 3.5: Upload server source maps (Sentry) then strip from bundle ──
       - name: Upload server source maps (Sentry)

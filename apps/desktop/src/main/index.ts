@@ -378,6 +378,7 @@ app.whenReady().then(async () => {
       if (setupWin) setupWin.close()
       setupWin = null
       logger.error({ err }, 'Failed to extract resources archive')
+      Sentry.captureException(err, { extra: { phase: 'resource-extraction' } })
       dialog.showErrorBox(
         'Extraction Error',
         `Failed to extract application resources:\n${err instanceof Error ? err.message : String(err)}`,
@@ -426,6 +427,7 @@ app.whenReady().then(async () => {
     if (setupWin) setupWin.close()
     // W5: Show dialog on server startup failure
     logger.error({ err }, 'failed to start agent server')
+    Sentry.captureException(err, { extra: { phase: 'server-startup' } })
     dialog.showErrorBox(
       'Server Error',
       `Failed to start the agent server:\n${err instanceof Error ? err.message : String(err)}`,
@@ -529,7 +531,7 @@ app.on('window-all-closed', () => {
 
 app.on('render-process-gone', (_event, _webContents, details) => {
   logger.error({ reason: details.reason, exitCode: details.exitCode }, 'renderer process gone')
-  if (details.reason !== 'clean-exit') {
+  if (!isQuitting && details.reason !== 'clean-exit') {
     Sentry.captureMessage('Renderer process gone', {
       level: 'error',
       extra: { reason: details.reason, exitCode: details.exitCode },
@@ -539,7 +541,7 @@ app.on('render-process-gone', (_event, _webContents, details) => {
 
 app.on('child-process-gone', (_event, details) => {
   logger.error({ type: details.type, reason: details.reason, exitCode: details.exitCode }, 'child process gone')
-  if (details.reason !== 'clean-exit') {
+  if (!isQuitting && details.reason !== 'clean-exit') {
     Sentry.captureMessage('Child process gone', {
       level: 'error',
       extra: { type: details.type, reason: details.reason, exitCode: details.exitCode },
