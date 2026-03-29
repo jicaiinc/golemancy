@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell } from 'electron'
 import pkg from 'electron-updater'
 const { autoUpdater } = pkg
+import * as Sentry from '@sentry/electron/main'
 import { logger } from './logger'
 
 const GITHUB_REPO = 'jicaiinc/golemancy'
@@ -82,6 +83,7 @@ function initElectronUpdater(): void {
 
   autoUpdater.on('error', (err) => {
     logger.error({ err }, 'auto-updater error')
+    Sentry.captureException(err, { extra: { component: 'auto-updater' } })
     setState({ status: 'error', error: err.message })
   })
 

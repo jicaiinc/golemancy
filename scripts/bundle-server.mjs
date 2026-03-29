@@ -780,6 +780,7 @@ async function bundleServer() {
       // Use __cjsRequire to avoid naming conflicts.
       js: "import{createRequire as __cjsRequire}from'module';const require=__cjsRequire(import.meta.url);",
     },
+    sourcemap: true,
     external: externals,
     logLevel: 'warning',
   })

@@ -16,6 +16,7 @@ import { resolveModel, buildSystemPromptOptions } from '../agent/model'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
+import { captureException } from '../sentry'
 
 const log = logger.child({ component: 'scheduler:executor' })
 
@@ -313,6 +314,7 @@ export class CronJobExecutor {
       // --- Agent status lifecycle: mark idle on error ---
       await this.markAgentIdle(projectId, agentId, cronJob.id)
 
+      captureException(err, { cronJobId: cronJob.id, projectId, agentId, durationMs })
       log.error({ cronJobId: cronJob.id, err, durationMs }, 'cron job execution failed')
       return { ...run, status: 'error', durationMs, error: errorMessage }
     }

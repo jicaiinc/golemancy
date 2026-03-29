@@ -134,6 +134,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # ── Step 3.5: Upload server source maps (Sentry) ──
+      - name: Upload server source maps (Sentry)
+        if: env.SENTRY_AUTH_TOKEN != ''
+        shell: bash
+        run: |
+          pnpm dlx @sentry/cli sourcemaps upload \
+            --org jicai-inc --project golemancy \
+            --release "$(node -p "require('./apps/desktop/package.json').version")" \
+            apps/desktop/resources/server/deps
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
       # ── Step 4: Preflight check ──
       - name: Preflight check
         run: node scripts/preflight-check.mjs --target ${{ matrix.platform }}
