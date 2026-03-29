@@ -134,7 +134,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── Step 3.5: Upload server source maps (Sentry) ──
+      # ── Step 3.5: Upload server source maps (Sentry) then strip from bundle ──
       - name: Upload server source maps (Sentry)
         if: env.SENTRY_AUTH_TOKEN != ''
         shell: bash
@@ -145,6 +145,12 @@ jobs:
             apps/desktop/resources/server/deps
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      # Always strip .map files so they don't inflate the installer
+      # (runs even when SENTRY_AUTH_TOKEN is absent)
+      - name: Strip server source maps
+        shell: bash
+        run: find apps/desktop/resources/server/deps -name '*.map' -delete 2>/dev/null || true
 
       # ── Step 4: Preflight check ──
       - name: Preflight check
