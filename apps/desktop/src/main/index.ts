@@ -529,16 +529,20 @@ app.on('window-all-closed', () => {
 
 app.on('render-process-gone', (_event, _webContents, details) => {
   logger.error({ reason: details.reason, exitCode: details.exitCode }, 'renderer process gone')
-  Sentry.captureMessage('Renderer process gone', {
-    level: 'error',
-    extra: { reason: details.reason, exitCode: details.exitCode },
-  })
+  if (details.reason !== 'clean-exit') {
+    Sentry.captureMessage('Renderer process gone', {
+      level: 'error',
+      extra: { reason: details.reason, exitCode: details.exitCode },
+    })
+  }
 })
 
 app.on('child-process-gone', (_event, details) => {
   logger.error({ type: details.type, reason: details.reason, exitCode: details.exitCode }, 'child process gone')
-  Sentry.captureMessage('Child process gone', {
-    level: 'error',
-    extra: { type: details.type, reason: details.reason, exitCode: details.exitCode },
-  })
+  if (details.reason !== 'clean-exit') {
+    Sentry.captureMessage('Child process gone', {
+      level: 'error',
+      extra: { type: details.type, reason: details.reason, exitCode: details.exitCode },
+    })
+  }
 })
