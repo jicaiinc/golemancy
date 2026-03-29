@@ -186,7 +186,7 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
                 </div>
                 {!(isSidebarOpen && sidebarMode === 'agents') && (
                   <button
-                    className="px-3 py-1.5 bg-elevated text-text-secondary font-pixel text-[10px] border-2 border-border-dim hover:bg-surface hover:text-text-primary cursor-pointer transition-colors shadow-pixel-raised"
+                    className="px-3 py-1.5 bg-elevated text-text-secondary font-pixel text-[10px] border-2 border-border-dim hover:bg-surface hover:text-text-primary cursor-pointer transition-colors shadow-raised"
                     onClick={() => { setSidebarMode('agents'); setIsSidebarOpen(true) }}
                   >
                     {t('topology.addFirstAgent')}

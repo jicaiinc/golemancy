@@ -236,6 +236,7 @@ export const SEED_SETTINGS: GlobalSettings = {
   },
   defaultModel: { provider: 'anthropic', model: 'claude-opus-4-6' },
   theme: 'dark',
+  styleTheme: 'pixel' as const,
   onboardingCompleted: true,
 }
 

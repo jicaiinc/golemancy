@@ -62,7 +62,7 @@ function TokenTrendChart() {
                 onMouseLeave={() => setHoveredIdx(null)}
               >
                 {hoveredIdx === i && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-elevated border-2 border-border-dim shadow-pixel-drop px-2 py-1 z-10 whitespace-nowrap">
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-elevated border-2 border-border-dim shadow-drop px-2 py-1 z-10 whitespace-nowrap">
                     <div className="text-[9px] font-mono text-text-primary">{d.date}</div>
                     <div className="text-[8px] font-mono text-accent-blue">{t('chart.tooltipIn', { tokens: formatTokens(d.inputTokens) })}</div>
                     <div className="text-[8px] font-mono text-accent-emerald">{t('chart.tooltipOut', { tokens: formatTokens(d.outputTokens) })}</div>

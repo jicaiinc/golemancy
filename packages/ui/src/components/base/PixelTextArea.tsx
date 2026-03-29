@@ -16,10 +16,10 @@ export const PixelTextArea = forwardRef<HTMLTextAreaElement, PixelTextAreaProps>
         )}
         <textarea
           ref={ref}
-          className={`min-h-[80px] bg-deep px-3 py-2 font-mono text-[13px] text-text-primary border-2 placeholder:text-text-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none resize-y transition-colors ${
+          className={`min-h-[80px] bg-deep px-3 py-2 font-mono text-[13px] text-text-primary border-2 placeholder:text-text-dim shadow-sunken outline-none resize-y transition-colors rounded-md ${
             error
               ? 'border-accent-red'
-              : 'border-border-dim hover:border-border-bright focus:border-accent-blue focus:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3),0_0_0_2px_#60A5FA]'
+              : 'border-border-dim hover:border-border-bright focus:border-accent-blue focus:shadow-sunken-focus-blue'
           } disabled:opacity-50 disabled:bg-surface ${className}`}
           {...props}
         />

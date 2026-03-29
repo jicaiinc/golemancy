@@ -44,7 +44,7 @@ export function PixelDropdown({ trigger, items, onSelect, dividerAfter = [], cla
       <AnimatePresence>
         {open && (
           <motion.div
-            className={`absolute top-full mt-1 min-w-[180px] bg-surface border-2 border-border-bright shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3),4px_4px_0_0_rgba(0,0,0,0.5)] z-50 ${align === 'right' ? 'right-0' : 'left-0 w-full'}`}
+            className={`absolute top-full mt-1 min-w-[180px] bg-surface border-2 border-border-bright shadow-elevated rounded-md z-50 ${align === 'right' ? 'right-0' : 'left-0 w-full'}`}
             style={maxHeight ? { maxHeight, overflowY: 'auto' } : undefined}
             {...dropdownTransition}
           >

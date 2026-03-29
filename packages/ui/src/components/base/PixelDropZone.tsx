@@ -76,7 +76,7 @@ export function PixelDropZone({ accept, onDrop, children, className = '', disabl
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={handleClick}
-      className={`border-2 border-dashed transition-colors ${
+      className={`border-2 border-dashed transition-colors rounded-lg ${
         isDragOver
           ? 'border-accent-blue bg-accent-blue/10'
           : 'border-border-dim bg-deep/50 hover:border-text-dim'

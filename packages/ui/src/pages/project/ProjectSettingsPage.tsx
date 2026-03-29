@@ -189,7 +189,7 @@ function GeneralTab({
         <select
           value={project.defaultTargetType === 'team' ? encodeTeamValue(project.defaultTargetId as TeamId) : project.defaultTargetId ?? ''}
           onChange={e => onDefaultChange(e.target.value)}
-          className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+          className="w-full h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue cursor-pointer"
         >
           <option value="">{t('settings.general.defaultNone')}</option>
           {teams.length > 0 && (

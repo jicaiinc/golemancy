@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDocumentTitle, useTabParam } from '../../hooks'
-import type { ProviderSdkType, ProviderEntry, ThemeMode, GlobalSettings, AgentModelConfig, OAuthFlowStatus } from '@golemancy/shared'
+import type { ProviderSdkType, ProviderEntry, ThemeMode, StyleTheme, GlobalSettings, AgentModelConfig, OAuthFlowStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
@@ -273,7 +273,7 @@ function ProvidersTab({ settings, onUpdate }: {
               <select
                 value={customSdkType}
                 onChange={e => setCustomSdkType(e.target.value as ProviderSdkType)}
-                className="w-full h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none"
+                className="w-full h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-sunken focus:border-accent-blue outline-none"
               >
                 {SDK_TYPE_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -354,7 +354,7 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
           <select
             value={provider}
             onChange={e => handleProviderChange(e.target.value)}
-            className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+            className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue cursor-pointer"
           >
             <option value="">{t('defaultModel.noProvider')}</option>
             {availableProviders.map(([slug, entry]) => (
@@ -367,7 +367,7 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
           <select
             value={model}
             onChange={e => setModel(e.target.value)}
-            className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+            className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue cursor-pointer"
           >
             {!provider && <option value="">{t('defaultModel.selectProviderFirst')}</option>}
             {provider && models.length === 0 && <option value="">{t('defaultModel.noModels')}</option>}
@@ -1021,10 +1021,16 @@ function GeneralTab() {
   const { t, i18n } = useTranslation('settings')
   const themeMode = useAppStore(s => s.themeMode)
   const setTheme = useAppStore(s => s.setTheme)
+  const styleTheme = useAppStore(s => s.styleTheme ?? 'pixel')
+  const setStyleTheme = useAppStore(s => s.setStyleTheme)
   const updateSettings = useAppStore(s => s.updateSettings)
   async function handleThemeChange(mode: ThemeMode) {
     setTheme(mode)
     await updateSettings({ theme: mode })
+  }
+  async function handleStyleThemeChange(theme: StyleTheme) {
+    setStyleTheme(theme)
+    await updateSettings({ styleTheme: theme })
   }
 
   const themes: { mode: ThemeMode; label: string; bgPreview: string; surfPreview: string; textPreview: string }[] = [
@@ -1067,6 +1073,52 @@ function GeneralTab() {
               </button>
             )
           })}
+        </div>
+      </PixelCard>
+
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-4">{t('general.style')}</div>
+        <div className="grid grid-cols-2 gap-3">
+          {/* Pixel style card */}
+          <button
+            onClick={() => handleStyleThemeChange('pixel')}
+            className={`p-3 border-2 cursor-pointer transition-colors ${
+              styleTheme === 'pixel'
+                ? 'bg-elevated border-accent-green'
+                : 'bg-deep border-border-dim hover:border-border-bright'
+            }`}
+          >
+            <div className="w-full h-12 bg-[#1E2430] border-2 border-[#4A5568] mb-2 p-1.5 flex flex-col justify-between">
+              <div className="h-1.5 w-3/4 bg-[#2A3242]" />
+              <div className="h-1 w-1/2 bg-[#E8ECF1]" />
+              <div className="h-1 w-2/3 bg-[#8B95A5]" />
+            </div>
+            <div className={`text-[10px] text-center ${styleTheme === 'pixel' ? 'text-accent-green' : 'text-text-secondary'}`}>
+              {t('general.stylePixel')}
+            </div>
+          </button>
+
+          {/* Modern style card */}
+          <button
+            onClick={() => handleStyleThemeChange('modern')}
+            className={`p-3 border-2 cursor-pointer transition-colors ${
+              styleTheme === 'modern'
+                ? 'bg-elevated border-accent-green'
+                : 'bg-deep border-border-dim hover:border-border-bright'
+            }`}
+          >
+            <div
+              className="w-full h-12 bg-[#1E2430] border border-[#4A5568] mb-2 p-1.5 flex flex-col justify-between"
+              style={{ clipPath: 'inset(0 round 6px)' }}
+            >
+              <div className="h-1.5 w-3/4 bg-[#2A3242]" style={{ clipPath: 'inset(0 round 2px)' }} />
+              <div className="h-1 w-1/2 bg-[#E8ECF1]" style={{ clipPath: 'inset(0 round 2px)' }} />
+              <div className="h-1 w-2/3 bg-[#8B95A5]" style={{ clipPath: 'inset(0 round 2px)' }} />
+            </div>
+            <div className={`text-[10px] text-center ${styleTheme === 'modern' ? 'text-accent-green' : 'text-text-secondary'}`}>
+              {t('general.styleModern')}
+            </div>
+          </button>
         </div>
       </PixelCard>
 

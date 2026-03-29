@@ -54,6 +54,18 @@
   --shadow-pixel-sunken: inset -2px -2px 0px 0px rgba(255, 255, 255, 0.5),
     inset 2px 2px 0px 0px rgba(0, 0, 0, 0.15);
   --shadow-pixel-drop: 4px 4px 0px 0px rgba(0, 0, 0, 0.15);
+
+  /* Semantic shadow composites */
+  --shadow-raised: var(--shadow-pixel-raised);
+  --shadow-sunken: var(--shadow-pixel-sunken);
+  --shadow-drop: var(--shadow-pixel-drop);
+  --shadow-elevated: var(--shadow-pixel-raised), var(--shadow-pixel-drop);
+  --shadow-raised-bright: inset 2px 2px 0 0 rgba(255,255,255,0.2), inset -2px -2px 0 0 rgba(0,0,0,0.3);
+  --shadow-raised-bright-active: inset -2px -2px 0 0 rgba(255,255,255,0.2), inset 2px 2px 0 0 rgba(0,0,0,0.3);
+  --shadow-raised-active: var(--shadow-pixel-sunken);
+  --shadow-sunken-focus-blue: var(--shadow-pixel-sunken), 0 0 0 2px rgba(96,165,250,0.6);
+  --shadow-sunken-focus-red: var(--shadow-pixel-sunken), 0 0 0 2px rgba(248,113,113,0.6);
+  --shadow-subtle: inset 2px 2px 0 0 rgba(255,255,255,0.05);
 }
 
 /* === Dark theme === */
@@ -91,6 +103,18 @@
   --shadow-pixel-sunken: inset -2px -2px 0px 0px rgba(255, 255, 255, 0.08),
     inset 2px 2px 0px 0px rgba(0, 0, 0, 0.3);
   --shadow-pixel-drop: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+
+  /* Semantic shadow composites */
+  --shadow-raised: var(--shadow-pixel-raised);
+  --shadow-sunken: var(--shadow-pixel-sunken);
+  --shadow-drop: var(--shadow-pixel-drop);
+  --shadow-elevated: var(--shadow-pixel-raised), var(--shadow-pixel-drop);
+  --shadow-raised-bright: inset 2px 2px 0 0 rgba(255,255,255,0.2), inset -2px -2px 0 0 rgba(0,0,0,0.3);
+  --shadow-raised-bright-active: inset -2px -2px 0 0 rgba(255,255,255,0.2), inset 2px 2px 0 0 rgba(0,0,0,0.3);
+  --shadow-raised-active: var(--shadow-pixel-sunken);
+  --shadow-sunken-focus-blue: var(--shadow-pixel-sunken), 0 0 0 2px rgba(96,165,250,0.6);
+  --shadow-sunken-focus-red: var(--shadow-pixel-sunken), 0 0 0 2px rgba(248,113,113,0.6);
+  --shadow-subtle: inset 2px 2px 0 0 rgba(255,255,255,0.05);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -128,6 +152,18 @@
     --shadow-pixel-sunken: inset -2px -2px 0px 0px rgba(255, 255, 255, 0.08),
       inset 2px 2px 0px 0px rgba(0, 0, 0, 0.3);
     --shadow-pixel-drop: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
+
+    /* Semantic shadow composites */
+    --shadow-raised: var(--shadow-pixel-raised);
+    --shadow-sunken: var(--shadow-pixel-sunken);
+    --shadow-drop: var(--shadow-pixel-drop);
+    --shadow-elevated: var(--shadow-pixel-raised), var(--shadow-pixel-drop);
+    --shadow-raised-bright: inset 2px 2px 0 0 rgba(255,255,255,0.2), inset -2px -2px 0 0 rgba(0,0,0,0.3);
+    --shadow-raised-bright-active: inset -2px -2px 0 0 rgba(255,255,255,0.2), inset 2px 2px 0 0 rgba(0,0,0,0.3);
+    --shadow-raised-active: var(--shadow-pixel-sunken);
+    --shadow-sunken-focus-blue: var(--shadow-pixel-sunken), 0 0 0 2px rgba(96,165,250,0.6);
+    --shadow-sunken-focus-red: var(--shadow-pixel-sunken), 0 0 0 2px rgba(248,113,113,0.6);
+    --shadow-subtle: inset 2px 2px 0 0 rgba(255,255,255,0.05);
   }
 }
 
@@ -180,10 +216,17 @@
   --font-mono: "JetBrains Mono", "Mono CJK", Menlo, Consolas, monospace;
   --font-arcade: "Press Start 2P", monospace;
 
-  /* Pixel shadows */
-  --shadow-pixel-raised: var(--shadow-pixel-raised);
-  --shadow-pixel-sunken: var(--shadow-pixel-sunken);
-  --shadow-pixel-drop: var(--shadow-pixel-drop);
+  /* Semantic shadows */
+  --shadow-raised: var(--shadow-raised);
+  --shadow-sunken: var(--shadow-sunken);
+  --shadow-drop: var(--shadow-drop);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-raised-bright: var(--shadow-raised-bright);
+  --shadow-raised-bright-active: var(--shadow-raised-bright-active);
+  --shadow-raised-active: var(--shadow-raised-active);
+  --shadow-sunken-focus-blue: var(--shadow-sunken-focus-blue);
+  --shadow-sunken-focus-red: var(--shadow-sunken-focus-red);
+  --shadow-subtle: var(--shadow-subtle);
 }
 
 /* === CJK pixel font (Fusion Pixel 12px) — per-language variants === */
@@ -310,11 +353,49 @@
   --font-mono: "JetBrains Mono", "Noto Sans Mono CJK KR", "Mono CJK", Menlo, Consolas, monospace;
 }
 
+/* === Modern style theme === */
+:root.theme-modern {
+  --font-pixel: var(--font-mono);
+
+  --shadow-pixel-raised: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+  --shadow-pixel-sunken: inset 0 2px 4px 0 rgba(0,0,0,0.05);
+  --shadow-pixel-drop: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+
+  --shadow-raised: var(--shadow-pixel-raised);
+  --shadow-sunken: var(--shadow-pixel-sunken);
+  --shadow-drop: var(--shadow-pixel-drop);
+  --shadow-elevated: var(--shadow-pixel-raised), var(--shadow-pixel-drop);
+  --shadow-raised-bright: var(--shadow-pixel-raised);
+  --shadow-raised-bright-active: var(--shadow-pixel-sunken);
+  --shadow-raised-active: var(--shadow-pixel-sunken);
+  --shadow-sunken-focus-blue: var(--shadow-pixel-sunken), 0 0 0 2px rgba(96,165,250,0.5);
+  --shadow-sunken-focus-red: var(--shadow-pixel-sunken), 0 0 0 2px rgba(248,113,113,0.5);
+  --shadow-subtle: 0 1px 2px 0 rgba(0,0,0,0.05);
+}
+
+/* Modern + Dark (explicit) */
+:root.theme-modern.dark {
+  --shadow-pixel-raised: 0 1px 3px 0 rgba(0,0,0,0.3), 0 1px 2px -1px rgba(0,0,0,0.2);
+  --shadow-pixel-sunken: inset 0 2px 4px 0 rgba(0,0,0,0.2);
+  --shadow-pixel-drop: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.2);
+  --shadow-subtle: 0 1px 2px 0 rgba(0,0,0,0.2);
+}
+
+/* Modern + Dark (system, no .dark class) */
+@media (prefers-color-scheme: dark) {
+  :root.theme-modern:not(.light) {
+    --shadow-pixel-raised: 0 1px 3px 0 rgba(0,0,0,0.3), 0 1px 2px -1px rgba(0,0,0,0.2);
+    --shadow-pixel-sunken: inset 0 2px 4px 0 rgba(0,0,0,0.2);
+    --shadow-pixel-drop: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -2px rgba(0,0,0,0.2);
+    --shadow-subtle: 0 1px 2px 0 rgba(0,0,0,0.2);
+  }
+}
+
 /* === Base reset for pixel art === */
 
-*,
-*::before,
-*::after {
+:root:not(.theme-modern) *,
+:root:not(.theme-modern) *::before,
+:root:not(.theme-modern) *::after {
   border-radius: 0 !important;
 }
 

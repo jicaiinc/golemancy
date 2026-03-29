@@ -15,14 +15,14 @@ export function PixelToggle({ checked, onChange, disabled, label, 'data-testid':
         aria-checked={checked}
         disabled={disabled}
         onClick={() => !disabled && onChange(!checked)}
-        className={`relative w-10 h-5 border-2 transition-colors ${
+        className={`relative w-10 h-5 border-2 transition-colors rounded-full ${
           checked
             ? 'bg-accent-green/20 border-accent-green'
             : 'bg-deep border-border-dim'
-        } shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)]`}
+        } shadow-sunken`}
       >
         <span
-          className={`absolute top-[1px] w-3.5 h-3.5 transition-[left] ${
+          className={`absolute top-[1px] w-3.5 h-3.5 transition-[left] rounded-full ${
             checked
               ? 'left-[20px] bg-accent-green'
               : 'left-[1px] bg-text-secondary'

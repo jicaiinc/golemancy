@@ -41,7 +41,7 @@ export function PixelModal({ open, onClose, title, children, footer, size = 'md'
 
           {/* Modal */}
           <motion.div
-            className={`relative w-full ${sizeClasses[size]} mx-4 max-h-[90vh] flex flex-col bg-surface border-2 border-border-bright shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3),4px_4px_0_0_rgba(0,0,0,0.5)]`}
+            className={`relative w-full ${sizeClasses[size]} mx-4 max-h-[90vh] flex flex-col bg-surface border-2 border-border-bright shadow-elevated rounded-lg`}
             {...modalTransition}
           >
             {/* Header */}

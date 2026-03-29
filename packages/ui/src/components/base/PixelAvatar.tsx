@@ -28,7 +28,7 @@ export function PixelAvatar({ size = 'md', src, initials, status, className = ''
   const s = sizeClasses[size]
 
   return (
-    <div className={`relative inline-flex items-center justify-center bg-elevated border-2 border-border-dim shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.08),inset_-2px_-2px_0_0_rgba(0,0,0,0.3)] ${s.container} ${className}`} {...props}>
+    <div className={`relative inline-flex items-center justify-center bg-elevated border-2 border-border-dim shadow-raised rounded-full overflow-hidden ${s.container} ${className}`} {...props}>
       {src ? (
         <img src={src} alt="" className="w-full h-full object-cover" style={{ imageRendering: 'pixelated' }} />
       ) : (

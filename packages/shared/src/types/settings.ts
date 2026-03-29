@@ -54,11 +54,13 @@ export interface ProviderEntry {
 }
 
 export type ThemeMode = 'light' | 'dark' | 'system'
+export type StyleTheme = 'pixel' | 'modern'
 
 export interface GlobalSettings {
   providers: Record<string, ProviderEntry>
   defaultModel?: AgentModelConfig
   theme: ThemeMode
+  styleTheme?: StyleTheme
   language?: string
   speechToText?: SpeechToTextSettings
   onboardingCompleted?: boolean

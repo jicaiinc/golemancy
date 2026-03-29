@@ -251,7 +251,7 @@ export function ProviderStep({
               <select
                 value={customSdkType}
                 onChange={e => setCustomSdkType(e.target.value as ProviderSdkType)}
-                className="w-full h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none"
+                className="w-full h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-sunken focus:border-accent-blue outline-none"
               >
                 {SDK_TYPE_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>

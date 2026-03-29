@@ -249,7 +249,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
           onClick={handleBlankClick}
           className={`text-left p-4 border-2 cursor-pointer transition-colors ${
             !showTemplates
-              ? 'bg-accent-green/10 border-accent-green shadow-pixel-raised'
+              ? 'bg-accent-green/10 border-accent-green shadow-raised'
               : 'bg-surface border-border-dim hover:bg-elevated hover:border-border-bright'
           }`}
         >
@@ -269,7 +269,7 @@ export function TemplateSelector({ selectedTemplateId, onSelect }: TemplateSelec
           onClick={handleFromTemplateClick}
           className={`text-left p-4 border-2 cursor-pointer transition-colors ${
             showTemplates
-              ? 'bg-accent-green/10 border-accent-green shadow-pixel-raised'
+              ? 'bg-accent-green/10 border-accent-green shadow-raised'
               : 'bg-surface border-border-dim hover:bg-elevated hover:border-border-bright'
           }`}
         >

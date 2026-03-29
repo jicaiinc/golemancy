@@ -38,7 +38,7 @@ export function PixelBadge({ variant = 'idle', animated = true, className = '', 
   const animation = animated ? dotAnimations[variant] : ''
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-1 font-pixel text-[8px] leading-[12px] border-2 ${variantClasses[variant]} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-1 font-pixel text-[8px] leading-[12px] border-2 rounded-full ${variantClasses[variant]} ${className}`}
       {...props}
     >
       <span className={`inline-block w-1.5 h-1.5 ${dotBaseClasses[variant]} ${animation}`} />
