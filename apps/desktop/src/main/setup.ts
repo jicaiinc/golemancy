@@ -63,8 +63,11 @@ async function isTarAvailable(): Promise<boolean> {
   try {
     await new Promise<void>((resolve, reject) => {
       execFile('tar', ['--version'], (error) => {
-        if (error) reject(error)
-        else resolve()
+        if (error) {
+          reject(error)
+        } else {
+          resolve()
+        }
       })
     })
     return true

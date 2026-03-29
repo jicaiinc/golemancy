@@ -34,7 +34,7 @@ apps/desktop/resources/server/
 apps/desktop/resources/resources-archive.*
 apps/desktop/electron-builder.win.yml
 .tmp-pnpm-deploy/
-/apps/desktop/golemancy-desktop-0.1.0.tgz
+*.tgz
 /_logs/
 /_content-ops/
 

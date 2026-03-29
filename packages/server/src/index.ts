@@ -36,10 +36,13 @@ import { OAuthManager } from './auth/oauth-manager'
 import { initOpenToolsIPC } from './agent/builtin-tools/open-tools'
 import type { ProjectId } from '@golemancy/shared'
 import { logger } from './logger'
+import { initSentry, captureException, flush as flushSentry } from './sentry'
 import { removeProjectPythonEnv } from './runtime/python-manager'
 import { getBundledNodeBinDir, getBundledUvBinDir, getBundledPythonPath } from './runtime/paths'
 
 async function main() {
+  initSentry()
+
   const startTime = Date.now()
   logger.info({ node: process.version, platform: process.platform, arch: process.arch, pid: process.pid }, 'server starting')
 
@@ -228,7 +231,9 @@ async function main() {
       mcpPool.shutdown(),
       cronScheduler.shutdown(),
     ])
+    dbManager.closeAll()
     logger.info('shutdown complete')
+    await flushSentry()
     logger.flush()
   })
 
@@ -296,15 +301,24 @@ async function main() {
 
 main().catch((err) => {
   logger.fatal({ err }, 'failed to start server')
-  logger.flush(() => process.exit(1))
+  captureException(err, { phase: 'startup' })
+  flushSentry().catch(() => {}).finally(() => {
+    logger.flush(() => process.exit(1))
+  })
 })
 
 process.on('uncaughtException', (err) => {
   logger.fatal({ err }, 'uncaught exception')
-  logger.flush(() => process.exit(1))
+  captureException(err, { handler: 'uncaughtException' })
+  flushSentry().catch(() => {}).finally(() => {
+    logger.flush(() => process.exit(1))
+  })
 })
 
 process.on('unhandledRejection', (reason) => {
   logger.fatal({ err: reason }, 'unhandled rejection')
-  logger.flush(() => process.exit(1))
+  captureException(reason, { handler: 'unhandledRejection' })
+  flushSentry().catch(() => {}).finally(() => {
+    logger.flush(() => process.exit(1))
+  })
 })

@@ -16,6 +16,7 @@ import { permissionsToSandboxConfig } from './permissions-adapter'
 import { buildMCPRuntimeEnv } from '../runtime/env-builder'
 import { toWinSpawn, normalizeCwd } from '../runtime/spawn'
 import { logger } from '../logger'
+import { captureException } from '../sentry'
 
 const log = logger.child({ component: 'agent:mcp-pool' })
 
@@ -460,6 +461,7 @@ export class MCPPool {
       return { tools: rawTools }
     } catch (err) {
       log.error({ err, projectId, serverName: server.name }, 'MCP pool: connection failed')
+      captureException(err, { projectId, serverName: server.name, component: 'mcp-pool' })
       const message = err instanceof Error ? err.message : 'Unknown connection error'
 
       // Enhance error message with captured stderr

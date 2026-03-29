@@ -45,3 +45,14 @@ export function initSentry(): void {
 export function setTelemetryEnabled(enabled: boolean): void {
   telemetryEnabled = enabled
 }
+
+/** Return env vars for the server child process to initialize its own Sentry */
+export function getSentryEnvForServer(): Record<string, string> {
+  const forceSentry = !!process.env.GOLEMANCY_FORCE_SENTRY
+  if (!app.isPackaged && !forceSentry) return {}
+  return {
+    SENTRY_DSN: process.env.SENTRY_DSN || DEFAULT_DSN,
+    GOLEMANCY_VERSION: app.getVersion(),
+    GOLEMANCY_TELEMETRY_ENABLED: String(telemetryEnabled),
+  }
+}
