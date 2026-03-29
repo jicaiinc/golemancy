@@ -137,7 +137,7 @@ export function AgentListPage() {
                       {t('count.tools', { count: agent.tools.length })}
                     </span>
                   )}
-                  {agent.modelConfig.model && (
+                  {agent.modelConfig?.model && (
                     <span className="ml-auto text-[11px] text-text-dim font-mono">
                       {agent.modelConfig.model}
                     </span>
