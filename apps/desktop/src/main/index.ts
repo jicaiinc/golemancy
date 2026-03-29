@@ -348,7 +348,12 @@ app.whenReady().then(async () => {
   // The setup window stays open through the entire first-launch flow (extraction +
   // server startup) so the user always sees progress — closing it only once the
   // main window is about to appear.
-  const needsSetup = await needsResourceExtraction()
+  let needsSetup = false
+  try {
+    needsSetup = await needsResourceExtraction()
+  } catch (err) {
+    logger.error({ err }, 'Failed to check resource extraction status')
+  }
   let setupWin: BrowserWindow | null = null
 
   if (needsSetup) {
@@ -357,13 +362,25 @@ app.whenReady().then(async () => {
 
     // Phase 1: Extracting resources (0–90%)
     setupWin.webContents.send('setup:status', { text: 'Extracting resources...' })
-    await extractResources((progress) => {
-      const ESTIMATED_FILES = 20000
-      const total = progress.total > 0 ? progress.total : ESTIMATED_FILES
-      const percent = Math.min(90, Math.round((progress.current / total) * 90))
-      setupWin!.webContents.send('setup:progress', { percent })
-    })
-    logger.info('Resources extracted, starting server')
+    try {
+      await extractResources((progress) => {
+        const ESTIMATED_FILES = 20000
+        const total = progress.total > 0 ? progress.total : ESTIMATED_FILES
+        const percent = Math.min(90, Math.round((progress.current / total) * 90))
+        setupWin!.webContents.send('setup:progress', { percent })
+      })
+      logger.info('Resources extracted, starting server')
+    } catch (err) {
+      if (setupWin) setupWin.close()
+      setupWin = null
+      logger.error({ err }, 'Failed to extract resources archive')
+      dialog.showErrorBox(
+        'Extraction Error',
+        `Failed to extract application resources:\n${err instanceof Error ? err.message : String(err)}`,
+      )
+      app.quit()
+      return
+    }
 
     // Phase 2: Starting server (90–95%)
     setupWin.webContents.send('setup:progress', { percent: 90 })
