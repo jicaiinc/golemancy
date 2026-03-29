@@ -1,26 +1,28 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, systemPreferences } from 'electron'
-import { join, resolve } from 'path'
+import { join, resolve, sep } from 'path'
 import { homedir } from 'os'
 import { fork, type ChildProcess } from 'child_process'
 import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
 import { needsResourceExtraction, extractResources, createSetupWindow } from './setup'
 import { initAutoUpdater, getUpdateState, checkForUpdatesNow, quitAndInstall, openReleaseUrl } from './updater'
-import { initSentry, setTelemetryEnabled } from './sentry'
+import { initSentry, setTelemetryEnabled, getSentryEnvForServer } from './sentry'
+import * as Sentry from '@sentry/electron/main'
 
 initSentry()
 
 // Monitor-only: logs without suppressing default crash-and-exit behavior
+// try/catch guards prevent snowball when pino's worker thread is dead (GOLEMANCY-8)
 process.on('uncaughtExceptionMonitor', (error) => {
-  logger.fatal({ err: error }, 'uncaught exception in main process')
-  logger.flush()
+  try { logger.fatal({ err: error }, 'uncaught exception in main process') } catch {}
+  try { logger.flush() } catch {}
 })
 
 // Intentionally intercepts to keep the Electron window alive for the user.
 // Unlike uncaughtExceptionMonitor, there is no "monitor" variant for rejections.
 process.on('unhandledRejection', (reason) => {
-  logger.fatal({ err: reason }, 'unhandled rejection in main process')
-  logger.flush()
+  try { logger.fatal({ err: reason }, 'unhandled rejection in main process') } catch {}
+  try { logger.flush() } catch {}
 })
 
 const APP_VERSION: string = JSON.parse(
@@ -73,6 +75,8 @@ function startServer(): Promise<number> {
         } : {
           ...detectDevResourcesPath(rootDir),
         }),
+        // Pass Sentry config to server process
+        ...getSentryEnvForServer(),
       },
       // Dev: use system node (Electron's embedded Node has different ABI for native modules)
       // GOLEMANCY_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
@@ -408,6 +412,10 @@ app.whenReady().then(async () => {
       serverProcess.on('exit', (code, signal) => {
         if (!isQuitting) {
           logger.error({ code, signal }, 'server process exited unexpectedly')
+          Sentry.captureMessage('Server process exited unexpectedly', {
+            level: 'fatal',
+            extra: { code, signal },
+          })
         }
         serverProcess = null
       })
@@ -475,7 +483,7 @@ app.whenReady().then(async () => {
     // Security: only allow opening files under the golemancy data directory
     const dataDir = join(homedir(), '.golemancy')
     const resolved = resolve(fullPath)
-    if (!resolved.startsWith(dataDir + '/') && resolved !== dataDir) {
+    if (!resolved.startsWith(dataDir + sep) && resolved !== dataDir) {
       throw new Error('Cannot open paths outside data directory')
     }
     return shell.openPath(resolved)
@@ -487,6 +495,8 @@ app.whenReady().then(async () => {
 
   ipcMain.on('telemetry:set', (_event, enabled: boolean) => {
     setTelemetryEnabled(enabled)
+    // Forward to server process so its Sentry respects the toggle too
+    serverProcess?.send?.({ type: 'telemetry-toggle', enabled })
   })
 
   ipcMain.handle('shell:openExternal', async (_event, url: string) => {
