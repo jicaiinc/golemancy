@@ -190,7 +190,20 @@ function ProvidersTab({ settings, onUpdate }: {
   }
 
   async function handleUpdateProvider(key: string, entry: ProviderEntry) {
-    await onUpdate({ providers: { ...providers, [key]: entry } })
+    const patch: Partial<GlobalSettings> = { providers: { ...providers, [key]: entry } }
+
+    // Auto-set default model when a provider first becomes available and no default is configured
+    const prevEntry = providers[key]
+    if (
+      entry.testStatus === 'ok'
+      && prevEntry?.testStatus !== 'ok'
+      && !settings.defaultModel
+      && entry.models.length > 0
+    ) {
+      patch.defaultModel = { provider: key, model: entry.models[0] }
+    }
+
+    await onUpdate(patch)
   }
 
   async function handleDefaultModelChange(model: AgentModelConfig | undefined) {
@@ -323,6 +336,12 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
   const [provider, setProvider] = useState(defaultModel?.provider ?? '')
   const [model, setModel] = useState(defaultModel?.model ?? '')
 
+  // Sync local state when defaultModel changes externally (e.g. auto-set on first provider)
+  useEffect(() => {
+    setProvider(defaultModel?.provider ?? '')
+    setModel(defaultModel?.model ?? '')
+  }, [defaultModel?.provider, defaultModel?.model])
+
   const selectedEntry = providers[provider]
   const models = selectedEntry?.models ?? []
 
@@ -398,7 +417,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
 }) {
   const { t } = useTranslation('settings')
   const services = useServices()
-  const [editing, setEditing] = useState(initialEditing)
+  const [editing, setEditing] = useState(initialEditing && !entry.oauthConfig)
   const [apiKey, setApiKey] = useState(entry.apiKey ?? '')
   const [baseUrl, setBaseUrl] = useState(entry.baseUrl ?? '')
   const [name, setName] = useState(entry.name)
@@ -411,9 +430,12 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
   const [testLatency, setTestLatency] = useState(0)
 
   // When initialEditing flips to true (newly added provider), open edit mode
+  // OAuth providers skip edit mode — show the OAuth sign-in section instead
   useEffect(() => {
     if (initialEditing) {
-      setEditing(true)
+      if (!entry.oauthConfig) {
+        setEditing(true)
+      }
       onEditingStart?.()
     }
   }, [initialEditing]) // eslint-disable-line react-hooks/exhaustive-deps
