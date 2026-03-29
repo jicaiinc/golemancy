@@ -17,10 +17,10 @@ export const PixelInput = forwardRef<HTMLInputElement, PixelInputProps>(
         )}
         <input
           ref={ref}
-          className={`h-9 bg-deep px-3 py-2 font-mono text-[13px] text-text-primary border-2 placeholder:text-text-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none transition-colors ${
+          className={`h-9 bg-deep px-3 py-2 font-mono text-[13px] text-text-primary border-2 placeholder:text-text-dim rounded-md shadow-sunken outline-none transition-colors ${
             error
-              ? 'border-accent-red shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3),0_0_0_2px_#F87171]'
-              : 'border-border-dim hover:border-border-bright focus:border-accent-blue focus:shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3),0_0_0_2px_#60A5FA]'
+              ? 'border-accent-red shadow-sunken-focus-red'
+              : 'border-border-dim hover:border-border-bright focus:border-accent-blue focus:shadow-sunken-focus-blue'
           } disabled:opacity-50 disabled:bg-surface ${className}`}
           {...props}
         />

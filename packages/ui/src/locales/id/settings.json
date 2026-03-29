@@ -44,7 +44,10 @@
     "language": "BAHASA",
     "telemetry": "LAPORAN CRASH",
     "telemetryLabel": "Kirim laporan crash",
-    "telemetryDescription": "Bantu tingkatkan Golemancy dengan mengirim laporan crash dan data error secara otomatis. Laporan mencakup pesan error dan stack trace. Konten percakapan tidak dikumpulkan."
+    "telemetryDescription": "Bantu tingkatkan Golemancy dengan mengirim laporan crash dan data error secara otomatis. Laporan mencakup pesan error dan stack trace. Konten percakapan tidak dikumpulkan.",
+    "style": "GAYA",
+    "stylePixel": "Piksel",
+    "styleModern": "Modern"
   },
   "defaultModel": {
     "sectionTitle": "MODEL DEFAULT",

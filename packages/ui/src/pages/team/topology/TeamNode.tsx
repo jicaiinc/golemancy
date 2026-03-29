@@ -37,7 +37,7 @@ export const TeamNode = memo(({ data, selected }: NodeProps<TeamNodeType>) => {
   return (
     <div
       data-testid="team-topology-node"
-      className={`w-[270px] bg-surface border-2 relative cursor-pointer transition-colors ${borderClass}`}
+      className={`w-[270px] bg-surface border-2 rounded-lg relative cursor-pointer transition-colors ${borderClass}`}
       style={{
         boxShadow: selected
           ? '0 0 0 2px color-mix(in srgb, var(--color-accent-blue) 30%, transparent)'

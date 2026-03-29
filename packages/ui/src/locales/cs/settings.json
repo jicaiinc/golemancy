@@ -44,7 +44,10 @@
     "language": "JAZYK",
     "telemetry": "HLÁŠENÍ O PÁDECH",
     "telemetryLabel": "Odesílat hlášení o pádech",
-    "telemetryDescription": "Pomozte vylepšit Golemancy automatickým odesíláním hlášení o pádech a chybách. Hlášení zahrnují chybové zprávy a zásobníky volání. Obsah konverzací se neshromažďuje."
+    "telemetryDescription": "Pomozte vylepšit Golemancy automatickým odesíláním hlášení o pádech a chybách. Hlášení zahrnují chybové zprávy a zásobníky volání. Obsah konverzací se neshromažďuje.",
+    "style": "STYL",
+    "stylePixel": "Pixel",
+    "styleModern": "Moderní"
   },
   "defaultModel": {
     "sectionTitle": "VÝCHOZÍ MODEL",

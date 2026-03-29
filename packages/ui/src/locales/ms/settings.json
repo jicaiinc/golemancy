@@ -44,7 +44,10 @@
     "language": "BAHASA",
     "telemetry": "LAPORAN RANAP",
     "telemetryLabel": "Hantar laporan ranap",
-    "telemetryDescription": "Bantu tingkatkan Golemancy dengan menghantar laporan ranap dan data ralat secara automatik. Laporan termasuk mesej ralat dan jejak tindanan. Kandungan perbualan tidak dikumpulkan."
+    "telemetryDescription": "Bantu tingkatkan Golemancy dengan menghantar laporan ranap dan data ralat secara automatik. Laporan termasuk mesej ralat dan jejak tindanan. Kandungan perbualan tidak dikumpulkan.",
+    "style": "GAYA",
+    "stylePixel": "Piksel",
+    "styleModern": "Moden"
   },
   "defaultModel": {
     "sectionTitle": "MODEL LALAI",

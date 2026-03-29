@@ -89,7 +89,7 @@ export function CompactThresholdControl({ value, onChange, children }: CompactTh
           onFocus={handleInputFocus}
           onBlur={applyInput}
           onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
-          className="w-24 h-7 bg-deep px-2 font-mono text-[12px] text-text-primary text-right border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue tabular-nums"
+          className="w-24 h-7 bg-deep px-2 font-mono text-[12px] text-text-primary text-right border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue tabular-nums"
         />
         <span className="text-[11px] text-text-dim shrink-0">{t('threshold.tokens')}</span>
         {children}

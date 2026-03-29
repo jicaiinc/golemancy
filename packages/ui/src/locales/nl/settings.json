@@ -44,7 +44,10 @@
     "language": "TAAL",
     "telemetry": "CRASHRAPPORTEN",
     "telemetryLabel": "Crashrapporten verzenden",
-    "telemetryDescription": "Help Golemancy te verbeteren door automatisch crashrapporten en foutgegevens te verzenden. Rapporten bevatten foutmeldingen en stack traces. Gespreksinhoud wordt niet verzameld."
+    "telemetryDescription": "Help Golemancy te verbeteren door automatisch crashrapporten en foutgegevens te verzenden. Rapporten bevatten foutmeldingen en stack traces. Gespreksinhoud wordt niet verzameld.",
+    "style": "STIJL",
+    "stylePixel": "Pixel",
+    "styleModern": "Modern"
   },
   "defaultModel": {
     "sectionTitle": "STANDAARDMODEL",

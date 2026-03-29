@@ -1,12 +1,15 @@
 /* Override React Flow defaults for pixel art style */
-.react-flow__node {
+:root:not(.theme-modern) .react-flow__node {
+  border-radius: 0 !important;
+}
+
+:root:not(.theme-modern) .react-flow__handle {
   border-radius: 0 !important;
 }
 
 .react-flow__handle {
   width: 8px !important;
   height: 8px !important;
-  border-radius: 0 !important;
   background: var(--color-border-bright) !important;
   border: 2px solid var(--color-border-dim) !important;
 }
@@ -37,6 +40,9 @@
 .react-flow__controls {
   box-shadow: none !important;
   border: 2px solid var(--color-border-dim) !important;
+}
+
+:root:not(.theme-modern) .react-flow__controls {
   border-radius: 0 !important;
 }
 
@@ -46,9 +52,8 @@
   background: var(--color-surface) !important;
   border: none !important;
   border-bottom: 2px solid var(--color-border-dim) !important;
-  border-radius: 0 !important;
   color: var(--color-text-secondary) !important;
-  box-shadow: var(--shadow-pixel-raised) !important;
+  box-shadow: var(--shadow-raised) !important;
 }
 
 .react-flow__controls-button:hover {
@@ -68,8 +73,7 @@
 .react-flow__minimap {
   background: color-mix(in srgb, var(--color-deep) 90%, transparent) !important;
   border: 2px solid var(--color-border-dim) !important;
-  border-radius: 0 !important;
-  box-shadow: var(--shadow-pixel-drop) !important;
+  box-shadow: var(--shadow-drop) !important;
 }
 
 /* Background */
@@ -79,7 +83,6 @@
 
 /* Selection box */
 .react-flow__selection {
-  border-radius: 0 !important;
   border: 2px solid var(--color-accent-blue) !important;
   background: rgba(96, 165, 250, 0.1) !important;
 }

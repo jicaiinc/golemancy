@@ -30,7 +30,7 @@ export function GlobalSettingsOverlay() {
   return (
     <section
       aria-label={t('settings:page.title')}
-      className="fixed inset-x-0 top-12 bottom-0 z-40 bg-void border-t-2 border-border-bright shadow-[0_-4px_0_0_rgba(0,0,0,0.45)]"
+      className="fixed inset-x-0 top-12 bottom-0 z-40 bg-void border-t-2 border-border-bright shadow-drop"
     >
       <div className="flex h-full flex-col">
         <header className="flex items-center justify-between gap-3 border-b-2 border-border-dim bg-deep px-4 py-3">

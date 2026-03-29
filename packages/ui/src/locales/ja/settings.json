@@ -44,7 +44,10 @@
     "language": "言語",
     "telemetry": "クラッシュレポート",
     "telemetryLabel": "クラッシュレポートを送信する",
-    "telemetryDescription": "クラッシュレポートとエラーデータを自動送信して、Golemancyの改善にご協力ください。レポートにはエラーメッセージとスタックトレースが含まれます。会話内容は収集されません。"
+    "telemetryDescription": "クラッシュレポートとエラーデータを自動送信して、Golemancyの改善にご協力ください。レポートにはエラーメッセージとスタックトレースが含まれます。会話内容は収集されません。",
+    "style": "スタイル",
+    "stylePixel": "ピクセル",
+    "styleModern": "モダン"
   },
   "defaultModel": {
     "sectionTitle": "デフォルトモデル",

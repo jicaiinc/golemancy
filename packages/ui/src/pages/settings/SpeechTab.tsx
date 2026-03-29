@@ -533,7 +533,7 @@ export function SpeechTab() {
                     <select
                       value={stt.providerType}
                       onChange={e => handleProviderTypeChange(e.target.value as 'openai' | 'openai-compatible')}
-                      className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer"
+                      className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-sunken focus:border-accent-blue outline-none cursor-pointer"
                     >
                       <option value="openai">OpenAI</option>
                       <option value="openai-compatible">{t('provider.customType')}</option>
@@ -562,13 +562,13 @@ export function SpeechTab() {
                     <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('provider.modelLabel')}</label>
                     {isCustomProvider || useCustomModel ? (
                       <div className="flex items-center gap-2">
-                        <input type="text" value={model} onChange={e => setModel(e.target.value)} onBlur={handleCustomModelBlur} placeholder="model-id" className="flex-1 h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none" />
+                        <input type="text" value={model} onChange={e => setModel(e.target.value)} onBlur={handleCustomModelBlur} placeholder="model-id" className="flex-1 h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-sunken focus:border-accent-blue outline-none" />
                         {!isCustomProvider && (
                           <button onClick={() => { setUseCustomModel(false); const p = OPENAI_STT_MODELS[0]; setModel(p); save({ model: p, testStatus: 'untested' }) }} className="text-[9px] text-accent-blue hover:text-text-primary cursor-pointer whitespace-nowrap">{t('provider.presets')}</button>
                         )}
                       </div>
                     ) : (
-                      <select value={OPENAI_STT_MODELS.includes(model) ? model : '__custom__'} onChange={e => handleModelSelect(e.target.value)} className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer">
+                      <select value={OPENAI_STT_MODELS.includes(model) ? model : '__custom__'} onChange={e => handleModelSelect(e.target.value)} className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-sunken focus:border-accent-blue outline-none cursor-pointer">
                         {OPENAI_STT_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
                         <option value="__custom__">{t('provider.modelOther')}</option>
                       </select>
@@ -581,7 +581,7 @@ export function SpeechTab() {
                     <select
                       value={language}
                       onChange={e => { setLanguage(e.target.value); void save({ language: e.target.value || undefined }) }}
-                      className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer"
+                      className="w-full h-8 bg-deep px-2 font-mono text-[12px] text-text-primary border border-border-dim shadow-sunken focus:border-accent-blue outline-none cursor-pointer"
                     >
                       {STT_LANGUAGES.map(l => (
                         <option key={l.code} value={l.code}>

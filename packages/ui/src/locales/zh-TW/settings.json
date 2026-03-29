@@ -44,7 +44,10 @@
     "language": "語言",
     "telemetry": "當機報告",
     "telemetryLabel": "發送當機報告",
-    "telemetryDescription": "透過自動傳送當機報告和錯誤資料來協助改善 Golemancy。報告包含錯誤訊息和堆疊追蹤。不會收集對話內容。"
+    "telemetryDescription": "透過自動傳送當機報告和錯誤資料來協助改善 Golemancy。報告包含錯誤訊息和堆疊追蹤。不會收集對話內容。",
+    "style": "樣式",
+    "stylePixel": "像素",
+    "styleModern": "現代"
   },
   "defaultModel": {
     "sectionTitle": "預設模型",

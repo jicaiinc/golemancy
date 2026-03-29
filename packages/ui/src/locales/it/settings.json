@@ -44,7 +44,10 @@
     "language": "LINGUA",
     "telemetry": "SEGNALAZIONI DI CRASH",
     "telemetryLabel": "Invia segnalazioni di crash",
-    "telemetryDescription": "Aiuta a migliorare Golemancy inviando automaticamente segnalazioni di crash e dati di errore. Le segnalazioni includono messaggi di errore e stack trace. Nessun contenuto delle conversazioni viene raccolto."
+    "telemetryDescription": "Aiuta a migliorare Golemancy inviando automaticamente segnalazioni di crash e dati di errore. Le segnalazioni includono messaggi di errore e stack trace. Nessun contenuto delle conversazioni viene raccolto.",
+    "style": "STILE",
+    "stylePixel": "Pixel",
+    "styleModern": "Moderno"
   },
   "defaultModel": {
     "sectionTitle": "MODELLO PREDEFINITO",

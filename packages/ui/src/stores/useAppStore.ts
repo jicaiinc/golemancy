@@ -5,7 +5,7 @@ import type {
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
-  ThemeMode, WorkspaceEntry, FilePreviewData,
+  ThemeMode, StyleTheme, WorkspaceEntry, FilePreviewData,
   TranscriptionRecord, SpeechStorageUsage,
   MemoryEntry, MemoryCreateData, MemoryUpdateData,
   ProjectId, AgentId, ConversationId, SkillId, CronJobId, TranscriptionId, MemoryId, TeamId,
@@ -28,6 +28,14 @@ function applyThemeToDOM(mode: ThemeMode): void {
     root.classList.add(mode)
   }
   // 'system' → no class, CSS @media handles it
+}
+
+// --- Style theme helper ---
+function applyStyleThemeToDOM(theme: StyleTheme): void {
+  if (typeof document === 'undefined') return
+  const root = document.documentElement
+  root.classList.remove('theme-modern')
+  if (theme === 'modern') root.classList.add('theme-modern')
 }
 
 // --- State shape ---
@@ -89,6 +97,7 @@ interface UISlice {
   sidebarCollapsed: boolean
   chatHistoryExpanded: boolean
   themeMode: ThemeMode
+  styleTheme: StyleTheme
   updateState: UpdateState | null
   updateNotificationsEnabled: boolean
   chatFilterShowCron: boolean
@@ -207,6 +216,7 @@ interface UIActions {
   toggleSidebar(): void
   toggleChatHistory(): void
   setTheme(mode: ThemeMode): void
+  setStyleTheme(theme: StyleTheme): void
   setUpdateState(state: UpdateState | null): void
   setUpdateNotifications(enabled: boolean): void
   setChatFilter(key: 'chatFilterShowCron' | 'chatFilterShowSubAgent', value: boolean): void
@@ -775,6 +785,7 @@ export const useAppStore = create<AppState>()(
         set({ settings })
         // Sync persisted theme with loaded settings (if not already overridden)
         applyThemeToDOM(get().themeMode)
+        applyStyleThemeToDOM(get().styleTheme ?? 'pixel')
         // Sync language from server-side settings (fallback if localStorage was cleared)
         if (settings.language) {
           i18next.changeLanguage(settings.language)
@@ -788,6 +799,10 @@ export const useAppStore = create<AppState>()(
           set({ themeMode: data.theme })
           applyThemeToDOM(data.theme)
         }
+        if (data.styleTheme) {
+          set({ styleTheme: data.styleTheme })
+          applyStyleThemeToDOM(data.styleTheme)
+        }
         if (data.language) {
           i18next.changeLanguage(data.language)
         }
@@ -800,6 +815,7 @@ export const useAppStore = create<AppState>()(
       sidebarCollapsed: false,
       chatHistoryExpanded: false,
       themeMode: 'system' as ThemeMode,
+      styleTheme: 'pixel' as StyleTheme,
       updateState: null,
       updateNotificationsEnabled: true,
       chatFilterShowCron: true,
@@ -816,6 +832,11 @@ export const useAppStore = create<AppState>()(
       setTheme(mode: ThemeMode) {
         set({ themeMode: mode })
         applyThemeToDOM(mode)
+      },
+
+      setStyleTheme(theme: StyleTheme) {
+        set({ styleTheme: theme })
+        applyStyleThemeToDOM(theme)
       },
 
       setUpdateState(state) {
@@ -1021,6 +1042,7 @@ export const useAppStore = create<AppState>()(
         sidebarCollapsed: state.sidebarCollapsed,
         chatHistoryExpanded: state.chatHistoryExpanded,
         themeMode: state.themeMode,
+        styleTheme: state.styleTheme,
         updateNotificationsEnabled: state.updateNotificationsEnabled,
         chatFilterShowCron: state.chatFilterShowCron,
         chatFilterShowSubAgent: state.chatFilterShowSubAgent,
@@ -1029,6 +1051,7 @@ export const useAppStore = create<AppState>()(
         return (state?: AppState) => {
           if (state) {
             applyThemeToDOM(state.themeMode)
+            applyStyleThemeToDOM(state.styleTheme ?? 'pixel')
           }
         }
       },

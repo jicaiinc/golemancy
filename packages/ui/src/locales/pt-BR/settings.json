@@ -44,7 +44,10 @@
     "language": "IDIOMA",
     "telemetry": "RELATÓRIOS DE FALHA",
     "telemetryLabel": "Enviar relatórios de falha",
-    "telemetryDescription": "Ajude a melhorar o Golemancy enviando automaticamente relatórios de falha e dados de erro. Os relatórios incluem mensagens de erro e rastreamentos de pilha. Conteúdo de conversa não é coletado."
+    "telemetryDescription": "Ajude a melhorar o Golemancy enviando automaticamente relatórios de falha e dados de erro. Os relatórios incluem mensagens de erro e rastreamentos de pilha. Conteúdo de conversa não é coletado.",
+    "style": "ESTILO",
+    "stylePixel": "Pixel",
+    "styleModern": "Moderno"
   },
   "defaultModel": {
     "sectionTitle": "MODELO PADRÃO",

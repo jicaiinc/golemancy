@@ -44,7 +44,10 @@
     "language": "IDIOMA",
     "telemetry": "INFORMES DE FALLOS",
     "telemetryLabel": "Enviar informes de fallos",
-    "telemetryDescription": "Ayuda a mejorar Golemancy enviando automáticamente informes de fallos y datos de errores. Los informes incluyen mensajes de error y trazas de pila. No se recopila contenido de conversaciones."
+    "telemetryDescription": "Ayuda a mejorar Golemancy enviando automáticamente informes de fallos y datos de errores. Los informes incluyen mensajes de error y trazas de pila. No se recopila contenido de conversaciones.",
+    "style": "ESTILO",
+    "stylePixel": "Píxel",
+    "styleModern": "Moderno"
   },
   "defaultModel": {
     "sectionTitle": "MODELO PREDETERMINADO",

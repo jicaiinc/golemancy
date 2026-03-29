@@ -44,7 +44,10 @@
     "language": "WIKA",
     "telemetry": "PAG-UULAT NG CRASH",
     "telemetryLabel": "Magpadala ng mga ulat ng crash",
-    "telemetryDescription": "Tulungang mapabuti ang Golemancy sa pamamagitan ng awtomatikong pagpapadala ng mga ulat ng crash at data ng error. Kasama sa mga ulat ang mga mensahe ng error at stack trace. Walang nilalaman ng pag-uusap ang kinokolekta."
+    "telemetryDescription": "Tulungang mapabuti ang Golemancy sa pamamagitan ng awtomatikong pagpapadala ng mga ulat ng crash at data ng error. Kasama sa mga ulat ang mga mensahe ng error at stack trace. Walang nilalaman ng pag-uusap ang kinokolekta.",
+    "style": "ESTILO",
+    "stylePixel": "Pixel",
+    "styleModern": "Moderno"
   },
   "defaultModel": {
     "sectionTitle": "DEFAULT MODEL",

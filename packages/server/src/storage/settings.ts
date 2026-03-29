@@ -9,6 +9,7 @@ const log = logger.child({ component: 'storage:settings' })
 const DEFAULT_SETTINGS: GlobalSettings = {
   providers: {},
   theme: 'dark',
+  styleTheme: 'pixel',
 }
 
 export class FileSettingsStorage implements ISettingsService {

@@ -44,7 +44,10 @@
     "language": "LANGUE",
     "telemetry": "RAPPORTS DE PLANTAGE",
     "telemetryLabel": "Envoyer des rapports de plantage",
-    "telemetryDescription": "Aidez à améliorer Golemancy en envoyant automatiquement des rapports de plantage et des données d'erreur. Les rapports incluent les messages d'erreur et les traces de pile. Aucun contenu de conversation n'est collecté."
+    "telemetryDescription": "Aidez à améliorer Golemancy en envoyant automatiquement des rapports de plantage et des données d'erreur. Les rapports incluent les messages d'erreur et les traces de pile. Aucun contenu de conversation n'est collecté.",
+    "style": "STYLE",
+    "stylePixel": "Pixel",
+    "styleModern": "Moderne"
   },
   "defaultModel": {
     "sectionTitle": "MODÈLE PAR DÉFAUT",

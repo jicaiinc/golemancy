@@ -118,7 +118,7 @@ export function SpeechStep({
               <select
                 value={sttModel}
                 onChange={e => { onUpdate({ sttModel: e.target.value, sttTestStatus: 'untested' }); setTestStatus('untested') }}
-                className="w-full h-9 bg-deep px-3 font-mono text-[12px] text-text-primary border-2 border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer"
+                className="w-full h-9 bg-deep px-3 font-mono text-[12px] text-text-primary border-2 border-border-dim shadow-sunken focus:border-accent-blue outline-none cursor-pointer"
               >
                 {OPENAI_STT_MODELS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
@@ -130,7 +130,7 @@ export function SpeechStep({
               <select
                 value={sttLanguage}
                 onChange={e => onUpdate({ sttLanguage: e.target.value })}
-                className="w-full h-9 bg-deep px-3 font-mono text-[12px] text-text-primary border-2 border-border-dim shadow-pixel-sunken focus:border-accent-blue outline-none cursor-pointer"
+                className="w-full h-9 bg-deep px-3 font-mono text-[12px] text-text-primary border-2 border-border-dim shadow-sunken focus:border-accent-blue outline-none cursor-pointer"
               >
                 {STT_LANGUAGES.map(l => (
                   <option key={l.code} value={l.code}>

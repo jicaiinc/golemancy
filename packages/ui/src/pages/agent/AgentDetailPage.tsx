@@ -252,7 +252,7 @@ function ModelConfigTab({ agent, onUpdate }: {
             <select
               value={providerSlug}
               onChange={e => handleProviderChange(e.target.value)}
-              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue cursor-pointer"
             >
               {availableProviders.length === 0 && <option value="">{t('noProviders')}</option>}
               {availableProviders.map(([slug, entry]) => (
@@ -266,7 +266,7 @@ function ModelConfigTab({ agent, onUpdate }: {
             <select
               value={model}
               onChange={e => setModel(e.target.value)}
-              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-[inset_-2px_-2px_0_0_rgba(255,255,255,0.08),inset_2px_2px_0_0_rgba(0,0,0,0.3)] outline-none focus:border-accent-blue cursor-pointer"
+              className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue cursor-pointer"
             >
               {models.length === 0 && <option value="">{t('noModels')}</option>}
               {models.map(m => (

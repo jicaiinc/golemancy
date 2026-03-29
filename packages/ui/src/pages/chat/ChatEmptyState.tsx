@@ -41,7 +41,7 @@ export function ChatEmptyState({ onNewChat, canNewChat, chatHistoryExpanded, onT
               {'> _ <'}
             </div>
             <div className="relative inline-block mb-6">
-              <div className="bg-surface border-2 border-border-dim px-4 py-3 shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.05)]">
+              <div className="bg-surface border-2 border-border-dim px-4 py-3 shadow-subtle">
                 <p className="font-pixel text-[10px] text-text-secondary">
                   {t('empty.readyToChat')}
                 </p>
@@ -63,7 +63,7 @@ export function ChatEmptyState({ onNewChat, canNewChat, chatHistoryExpanded, onT
               {'> _ <'}
             </div>
             <div className="relative inline-block mb-6">
-              <div className="bg-surface border-2 border-border-dim px-4 py-3 shadow-[inset_2px_2px_0_0_rgba(255,255,255,0.05)]">
+              <div className="bg-surface border-2 border-border-dim px-4 py-3 shadow-subtle">
                 <p className="font-pixel text-[10px] text-text-secondary">{t('empty.noMainAgent')}</p>
               </div>
               <div className="absolute -bottom-2 left-6 w-3 h-2 bg-surface border-b-2 border-r-2 border-border-dim" />

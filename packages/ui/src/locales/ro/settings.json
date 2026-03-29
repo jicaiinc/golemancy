@@ -44,7 +44,10 @@
     "language": "LIMBĂ",
     "telemetry": "RAPOARTE DE EROARE",
     "telemetryLabel": "Trimite rapoarte de eroare",
-    "telemetryDescription": "Ajutați la îmbunătățirea Golemancy prin trimiterea automată a rapoartelor de eroare. Rapoartele includ mesaje de eroare și urme de stivă. Conținutul conversațiilor nu este colectat."
+    "telemetryDescription": "Ajutați la îmbunătățirea Golemancy prin trimiterea automată a rapoartelor de eroare. Rapoartele includ mesaje de eroare și urme de stivă. Conținutul conversațiilor nu este colectat.",
+    "style": "STIL",
+    "stylePixel": "Pixel",
+    "styleModern": "Modern"
   },
   "defaultModel": {
     "sectionTitle": "MODEL IMPLICIT",

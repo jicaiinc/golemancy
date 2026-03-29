@@ -21,7 +21,7 @@ export function PixelTooltip({ content, children, position = 'top' }: PixelToolt
     >
       {children}
       {show && (
-        <div className={`absolute ${posClasses} px-2 py-1 bg-surface border-2 border-border-bright shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] font-mono text-[11px] text-text-primary whitespace-nowrap z-50 pointer-events-none`}>
+        <div className={`absolute ${posClasses} px-2 py-1 bg-surface border-2 border-border-bright rounded-md shadow-drop font-mono text-[11px] text-text-primary whitespace-nowrap z-50 pointer-events-none`}>
           {content}
         </div>
       )}
