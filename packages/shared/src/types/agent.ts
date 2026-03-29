@@ -49,7 +49,7 @@ export interface SubAgentStreamState {
   agentName: string
   text: string
   toolCalls: SubAgentToolCallState[]
-  status: 'running' | 'done'
+  status: 'running' | 'done' | 'aborted'
   usage?: { inputTokens: number; outputTokens: number; totalTokens: number }
   sessionId?: string
 }

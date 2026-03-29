@@ -282,6 +282,14 @@ export function createSubAgentTool(
           }
         }
 
+        // If aborted, skip persistence to avoid saving corrupt session history
+        // (tool-calls with state:'call' that have no matching result).
+        // The abort token record is already saved in the onAbort callback above.
+        if (abortSignal?.aborted) {
+          log.debug({ childAgentId: childAgent.id, sessionConvId }, 'sub-agent aborted, skipping persistence')
+          return // finally block handles cleanup
+        }
+
         // Capture child agent token usage
         const childUsage = await result.totalUsage
         const childInputTokens = childUsage.inputTokens ?? 0

@@ -98,6 +98,7 @@ export class CronJobExecutor {
     }
 
     let registeredConversationId: string | undefined
+    let toolCleanup: (() => Promise<void>) | undefined
     try {
       // 2. Load agent config
       const agent = await this.deps.agentStorage.getById(projectId, agentId)
@@ -158,6 +159,7 @@ export class CronJobExecutor {
         oauthManager: this.deps.oauthManager,
       })
 
+      toolCleanup = () => agentToolsResult.cleanup()
       const allTools = agentToolsResult.tools
       const systemPrompt = agentToolsResult.instructions
         ? agent.systemPrompt + '\n\n' + agentToolsResult.instructions
@@ -223,57 +225,69 @@ export class CronJobExecutor {
         if (done) break
       }
 
-      // 10. Save assistant response with full parts (tool calls, tool results, text)
-      const billingUsage = await result.totalUsage
-      const lastStepUsage = await result.usage
-      const assistantContent = await result.text
-      const capturedMsg = captured[0]
-      const assistantMsgId = capturedMsg?.id ?? generateId('msg')
-      const assistantParts = capturedMsg?.parts ?? [{ type: 'text', text: assistantContent }]
-      const inputTokens = billingUsage.inputTokens ?? 0
-      const outputTokens = billingUsage.outputTokens ?? 0
-      const contextTokens = lastStepUsage.totalTokens ?? 0
-      await this.deps.conversationStorage.saveMessage(projectId, conversationId, {
-        id: assistantMsgId as any,
-        role: 'assistant',
-        parts: assistantParts,
-        content: assistantContent,
-        contextTokens,
-        provider: agent.modelConfig.provider,
-        model: agent.modelConfig.model,
-      })
-
-      // Write token_record for this cron API call
-      try {
-        this.deps.tokenRecordStorage.save(projectId, {
-          conversationId,
-          messageId: assistantMsgId,
-          agentId: agentId,
+      // If aborted, skip assistant persistence to avoid saving partial/corrupt messages.
+      // Abort token record was already saved in onAbort callback above.
+      if (abortController.signal.aborted) {
+        log.info({ cronJobId: cronJob.id, conversationId }, 'cron job aborted, skipping assistant persistence')
+      } else {
+        // 10. Save assistant response with full parts (tool calls, tool results, text)
+        const billingUsage = await result.totalUsage
+        const lastStepUsage = await result.usage
+        const assistantContent = await result.text
+        const capturedMsg = captured[0]
+        const assistantMsgId = capturedMsg?.id ?? generateId('msg')
+        const assistantParts = capturedMsg?.parts ?? [{ type: 'text', text: assistantContent }]
+        const inputTokens = billingUsage.inputTokens ?? 0
+        const outputTokens = billingUsage.outputTokens ?? 0
+        const contextTokens = lastStepUsage.totalTokens ?? 0
+        await this.deps.conversationStorage.saveMessage(projectId, conversationId, {
+          id: assistantMsgId as any,
+          role: 'assistant',
+          parts: assistantParts,
+          content: assistantContent,
+          contextTokens,
           provider: agent.modelConfig.provider,
           model: agent.modelConfig.model,
-          inputTokens,
-          outputTokens,
-          source: 'cron',
         })
-        if (this.deps.wsManager) {
-          this.deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId, model: agent.modelConfig.model, inputTokens, outputTokens })
+
+        // Write token_record for this cron API call
+        try {
+          this.deps.tokenRecordStorage.save(projectId, {
+            conversationId,
+            messageId: assistantMsgId,
+            agentId: agentId,
+            provider: agent.modelConfig.provider,
+            model: agent.modelConfig.model,
+            inputTokens,
+            outputTokens,
+            source: 'cron',
+          })
+          if (this.deps.wsManager) {
+            this.deps.wsManager.emit(`project:${projectId}`, { event: 'token:recorded', projectId, agentId: agentId, model: agent.modelConfig.model, inputTokens, outputTokens })
+          }
+        } catch (err) {
+          log.error({ err, conversationId }, 'failed to save cron token record')
         }
-      } catch (err) {
-        log.error({ err, conversationId }, 'failed to save cron token record')
       }
 
       // 11. Cleanup tools
       await agentToolsResult.cleanup()
 
-      // 12. Update run to success
+      const wasAborted = abortController.signal.aborted
+      const runStatus = wasAborted ? 'error' : 'success'
+
+      // 12. Update run status
       const durationMs = Date.now() - startTime
-      await this.deps.cronJobRunStorage.updateStatus(projectId, run.id, 'success', { durationMs })
+      await this.deps.cronJobRunStorage.updateStatus(projectId, run.id, runStatus, {
+        durationMs,
+        ...(wasAborted ? { error: 'Aborted' } : {}),
+      })
 
       // 13. Update cronJob metadata
       const nextRun = this.getNextRun(cronJob)
       await this.deps.cronJobStorage.updateRunMeta(projectId, cronJob.id, {
         lastRunAt: new Date().toISOString(),
-        lastRunStatus: 'success',
+        lastRunStatus: runStatus,
         lastRunId: run.id,
         nextRunAt: nextRun?.toISOString(),
       })
@@ -285,12 +299,16 @@ export class CronJobExecutor {
       await this.markAgentIdle(projectId, agentId, cronJob.id, conversationId)
 
       this.runningControllers.delete(controllerKey)
+      if (wasAborted) {
+        log.info({ cronJobId: cronJob.id, durationMs, conversationId }, 'cron job aborted')
+        return { ...run, status: 'error' as const, durationMs, error: 'Aborted', conversationId }
+      }
       log.info({ cronJobId: cronJob.id, durationMs, conversationId }, 'cron job executed successfully')
       return { ...run, status: 'success', durationMs, conversationId }
     } catch (err) {
       this.runningControllers.delete(controllerKey)
       // Cleanup tools (browser processes, MCP connections, etc.) to prevent resource leaks
-      try { await agentToolsResult?.cleanup() } catch {}
+      try { await toolCleanup?.() } catch {}
       // --- Active chat lifecycle: unregister immediately to avoid leaking on subsequent errors ---
       if (registeredConversationId) this.deps.activeChatRegistry?.unregister(registeredConversationId)
 

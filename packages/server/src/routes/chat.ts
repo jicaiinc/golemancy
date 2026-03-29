@@ -26,6 +26,23 @@ import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:chat' })
 
+/** Tool-invocation states that indicate a completed (usable) tool call.
+ * AI SDK v6 tool parts use type `tool-${name}` or `dynamic-tool`, with state on the part itself.
+ * Legacy sub-agent format uses type `tool-invocation` with state inside a nested toolInvocation object. */
+const COMPLETED_TOOL_STATES = new Set(['result', 'output-available', 'output-error', 'output-denied', 'approval-responded'])
+
+function isIncompleteToolPart(p: { type: string; state?: string; toolInvocation?: { state?: string } }): boolean {
+  // AI SDK v6 format: type is `tool-${name}` or `dynamic-tool`, state is on the part
+  if (p.type.startsWith('tool-') || p.type === 'dynamic-tool') {
+    return !COMPLETED_TOOL_STATES.has(p.state ?? '')
+  }
+  // Legacy format: type is `tool-invocation`, state is nested
+  if (p.type === 'tool-invocation') {
+    return !COMPLETED_TOOL_STATES.has(p.toolInvocation?.state ?? p.state ?? '')
+  }
+  return false
+}
+
 function extractTextContent(parts: UIMessage['parts']): string {
   return parts
     .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
@@ -135,7 +152,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
     // Get project config for permissions config reference
     const project = await deps.projectStorage.getById(projectId as ProjectId)
-    const chatConvId = conversationId ?? 'ephemeral'
+    const chatConvId = conversationId ?? `ephemeral-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     let chatMarkedRunning = false
 
     // AbortController for this chat — allows project deletion to abort in-flight streams.
@@ -319,6 +336,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     }
 
     const hasTools = Object.keys(allTools).length > 0
+    let chatAborted = false
 
     let cleaned = false
     const ensureCleanup = async () => {
@@ -394,6 +412,13 @@ export function createChatRoutes(deps: ChatRouteDeps) {
             writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'completed', record: compactPerformed } })
             writer.write({ type: 'data-usage' as `data-${string}`, data: { inputTokens: compactResult.inputTokens, outputTokens: compactResult.outputTokens } })
           } catch (err) {
+            // If abort triggered during compact, bail out entirely
+            if (chatAbortController.signal.aborted) {
+              log.info({ conversationId }, 'auto-compact aborted by user, ending chat')
+              writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'aborted' } })
+              await ensureCleanup()
+              return
+            }
             log.error({ err, conversationId, totalTokens: compactInputs.totalTokens, threshold: compactInputs.threshold }, 'auto-compact failed, skipping — will use full message history')
             writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'failed' } })
           }
@@ -405,7 +430,18 @@ export function createChatRoutes(deps: ChatRouteDeps) {
             ? await deps.compactRecordStorage.getLatest(projectId as ProjectId, conversationId as ConversationId)
             : null)
         const messagesForModel = buildMessagesForModel(rehydratedMessages, latestCompact)
-        const modelMessages = await convertToModelMessages(messagesForModel)
+
+        // Sanitize: strip incomplete tool-invocation parts left by previous aborts.
+        // Without this, convertToModelMessages throws MissingToolResultsError when the
+        // frontend Chat cache contains tool-calls without matching tool-results.
+        const sanitizedForModel = messagesForModel
+          .map(msg => {
+            if (msg.role !== 'assistant') return msg
+            const cleanParts = msg.parts.filter(p => !isIncompleteToolPart(p as any))
+            return cleanParts.length > 0 ? { ...msg, parts: cleanParts as UIMessage['parts'] } : null
+          })
+          .filter((msg): msg is UIMessage => msg !== null)
+        const modelMessages = await convertToModelMessages(sanitizedForModel)
 
         // --- Chat stream ---
         const toolNames = hasTools ? Object.keys(allTools) : []
@@ -446,6 +482,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           },
           onFinish: ensureCleanup,
           onAbort: async ({ steps }) => {
+            chatAborted = true
             let inputTokens = 0, outputTokens = 0
             for (const step of steps) {
               inputTokens += step.usage?.inputTokens ?? 0
@@ -498,6 +535,12 @@ export function createChatRoutes(deps: ChatRouteDeps) {
             }
           },
           onFinish: async ({ responseMessage }) => {
+            // AI SDK v6 calls this even on aborted streams.
+            // Skip persistence to avoid saving partial messages and double token records.
+            if (chatAborted) {
+              log.debug({ conversationId }, 'skipping assistant persistence — chat was aborted')
+              return
+            }
             try {
               const lastStepUsage = await result.usage
               const billingUsage = await result.totalUsage

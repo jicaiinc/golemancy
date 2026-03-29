@@ -10,7 +10,7 @@ import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
 import { PixelButton, PixelSpinner, PixelNotificationBanner, SidebarToggleIcon } from '../../components'
 import { parseErrorMessage } from '../../lib/parse-error'
 import { staggerContainer, staggerItem } from '../../lib/motion'
-import { getOrCreateChat } from '../../lib/chat-instances'
+import { getOrCreateChat, sanitizeChatAfterAbort } from '../../lib/chat-instances'
 import { MessageBubble } from './MessageBubble'
 import { CompactBoundary } from './CompactBoundary'
 import { ChatInput } from './ChatInput'
@@ -165,7 +165,7 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
           if (part.data.record) {
             setCompactRecords(prev => [...prev, part.data!.record as CompactRecord])
           }
-        } else if (part.data.status === 'failed') {
+        } else if (part.data.status === 'failed' || part.data.status === 'aborted') {
           setCompacting(false)
           onCompactingChange?.(false)
         }
@@ -199,9 +199,12 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
     const prev = prevStatusRef.current
     prevStatusRef.current = status
     if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
+      // Sanitize Chat instance: strip incomplete tool-invocation parts left by abort.
+      // Safe to call on normal completion too — no-op if no incomplete parts exist.
+      sanitizeChatAfterAbort(conversation.id)
       refreshConversationTasks()
     }
-  }, [status, refreshConversationTasks])
+  }, [status, refreshConversationTasks, conversation.id])
 
   // --- Send handler ---
   const handleSend = useCallback(async (content: string, files?: FileUIPart[]) => {

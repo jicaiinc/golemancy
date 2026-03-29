@@ -92,6 +92,58 @@ export function releaseIdleChats(): void {
   }
 }
 
+/**
+ * Sanitize a Chat instance after abort — strip incomplete tool-invocation parts
+ * from the last assistant message. This prevents "Tool result is missing" errors
+ * when the user sends the next message, because incomplete tool-calls would
+ * otherwise be included in the POST body and rejected by the AI provider.
+ *
+ * Call this when chat status transitions from streaming/submitted → ready.
+ */
+export function sanitizeChatAfterAbort(conversationId: ConversationId): void {
+  const chat = chatInstances.get(conversationId)
+  if (!chat || chat.messages.length === 0) return
+
+  const messages = [...chat.messages]
+  let changed = false
+
+  // Walk backwards — abort can leave incomplete parts in the last assistant message,
+  // but also in earlier ones if multiple tool-call steps ran before abort.
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i]
+    if (msg.role !== 'assistant') continue
+
+    const hasIncomplete = msg.parts.some(p => isIncompleteToolPart(p as any))
+    if (!hasIncomplete) continue
+
+    const cleanParts = msg.parts.filter(p => !isIncompleteToolPart(p as any))
+
+    if (cleanParts.length > 0) {
+      messages[i] = { ...msg, parts: cleanParts as UIMessage['parts'] }
+    } else {
+      messages.splice(i, 1)
+    }
+    changed = true
+  }
+
+  if (changed) {
+    chat.messages = messages
+  }
+}
+
+/** Tool-invocation states that indicate a completed (usable) tool call. */
+const COMPLETED_TOOL_STATES = new Set(['result', 'output-available', 'output-error', 'output-denied', 'approval-responded'])
+
+function isIncompleteToolPart(p: { type: string; state?: string; toolInvocation?: { state?: string } }): boolean {
+  if (p.type.startsWith('tool-') || p.type === 'dynamic-tool') {
+    return !COMPLETED_TOOL_STATES.has(p.state ?? '')
+  }
+  if (p.type === 'tool-invocation') {
+    return !COMPLETED_TOOL_STATES.has(p.toolInvocation?.state ?? p.state ?? '')
+  }
+  return false
+}
+
 export function hasChat(conversationId: ConversationId): boolean {
   return chatInstances.has(conversationId)
 }
