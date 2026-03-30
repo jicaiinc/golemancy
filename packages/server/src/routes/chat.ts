@@ -26,23 +26,6 @@ import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:chat' })
 
-/** Tool-invocation states that indicate a completed (usable) tool call.
- * AI SDK v6 tool parts use type `tool-${name}` or `dynamic-tool`, with state on the part itself.
- * Legacy sub-agent format uses type `tool-invocation` with state inside a nested toolInvocation object. */
-const COMPLETED_TOOL_STATES = new Set(['result', 'output-available', 'output-error', 'output-denied', 'approval-responded'])
-
-function isIncompleteToolPart(p: { type: string; state?: string; toolInvocation?: { state?: string } }): boolean {
-  // AI SDK v6 format: type is `tool-${name}` or `dynamic-tool`, state is on the part
-  if (p.type.startsWith('tool-') || p.type === 'dynamic-tool') {
-    return !COMPLETED_TOOL_STATES.has(p.state ?? '')
-  }
-  // Legacy format: type is `tool-invocation`, state is nested
-  if (p.type === 'tool-invocation') {
-    return !COMPLETED_TOOL_STATES.has(p.toolInvocation?.state ?? p.state ?? '')
-  }
-  return false
-}
-
 function extractTextContent(parts: UIMessage['parts']): string {
   return parts
     .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
@@ -328,7 +311,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
             const allUiMsgs: UIMessage[] = messagesToCompact.map(m => ({
               id: m.id, role: m.role, parts: m.parts as UIMessage['parts'],
             }))
-            const allModelMsgs = await convertToModelMessages(allUiMsgs)
+            const allModelMsgs = await convertToModelMessages(allUiMsgs, { ignoreIncompleteToolCalls: true })
             compactInputs = { allModelMsgs, lastAssistant, totalTokens, threshold }
           }
         }
@@ -336,7 +319,6 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     }
 
     const hasTools = Object.keys(allTools).length > 0
-    let chatAborted = false
 
     let cleaned = false
     const ensureCleanup = async () => {
@@ -431,17 +413,9 @@ export function createChatRoutes(deps: ChatRouteDeps) {
             : null)
         const messagesForModel = buildMessagesForModel(rehydratedMessages, latestCompact)
 
-        // Sanitize: strip incomplete tool-invocation parts left by previous aborts.
-        // Without this, convertToModelMessages throws MissingToolResultsError when the
-        // frontend Chat cache contains tool-calls without matching tool-results.
-        const sanitizedForModel = messagesForModel
-          .map(msg => {
-            if (msg.role !== 'assistant') return msg
-            const cleanParts = msg.parts.filter(p => !isIncompleteToolPart(p as any))
-            return cleanParts.length > 0 ? { ...msg, parts: cleanParts as UIMessage['parts'] } : null
-          })
-          .filter((msg): msg is UIMessage => msg !== null)
-        const modelMessages = await convertToModelMessages(sanitizedForModel)
+        // ignoreIncompleteToolCalls: AI SDK built-in defense — silently drops tool-call
+        // parts that lack a corresponding tool-result (left over from previous aborts).
+        const modelMessages = await convertToModelMessages(messagesForModel, { ignoreIncompleteToolCalls: true })
 
         // --- Chat stream ---
         const toolNames = hasTools ? Object.keys(allTools) : []
@@ -482,7 +456,6 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           },
           onFinish: ensureCleanup,
           onAbort: async ({ steps }) => {
-            chatAborted = true
             let inputTokens = 0, outputTokens = 0
             for (const step of steps) {
               inputTokens += step.usage?.inputTokens ?? 0
@@ -534,10 +507,10 @@ export function createChatRoutes(deps: ChatRouteDeps) {
               return { toolUsages: entries }
             }
           },
-          onFinish: async ({ responseMessage }) => {
+          onFinish: async ({ responseMessage, isAborted }) => {
             // AI SDK v6 calls this even on aborted streams.
             // Skip persistence to avoid saving partial messages and double token records.
-            if (chatAborted) {
+            if (isAborted) {
               log.debug({ conversationId }, 'skipping assistant persistence — chat was aborted')
               return
             }

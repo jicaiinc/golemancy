@@ -196,7 +196,7 @@ export function createSubAgentTool(
             ...historyMessages,
             { id: userMsgId, role: 'user' as const, parts: [{ type: 'text' as const, text: userContent }] },
           ]
-          modelMessages = await convertToModelMessages(allUIMessages)
+          modelMessages = await convertToModelMessages(allUIMessages, { ignoreIncompleteToolCalls: true })
         }
 
         const result = streamText({

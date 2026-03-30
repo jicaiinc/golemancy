@@ -171,7 +171,7 @@ export class CronJobExecutor {
         role: 'user',
         parts: [{ type: 'text', text: userContent }],
       }]
-      const modelMessages = await convertToModelMessages(uiMessages)
+      const modelMessages = await convertToModelMessages(uiMessages, { ignoreIncompleteToolCalls: true })
 
       const hasTools = Object.keys(allTools).length > 0
 

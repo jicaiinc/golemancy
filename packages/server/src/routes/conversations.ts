@@ -181,7 +181,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
       role: m.role,
       parts: m.parts as UIMessage['parts'],
     }))
-    const modelMessages = await convertToModelMessages(uiMessages)
+    const modelMessages = await convertToModelMessages(uiMessages, { ignoreIncompleteToolCalls: true })
 
     let result
     try {

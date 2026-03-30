@@ -689,9 +689,10 @@ describe('HTTP API routes', () => {
         }),
       }))
 
-      expect(convertToModelMessages).toHaveBeenCalledWith([
-        { id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] },
-      ])
+      expect(convertToModelMessages).toHaveBeenCalledWith(
+        [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hello' }] }],
+        { ignoreIncompleteToolCalls: true },
+      )
       expect(streamText).toHaveBeenCalledWith(expect.objectContaining({
         messages: mockModelMessages,
       }))
