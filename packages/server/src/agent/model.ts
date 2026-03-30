@@ -128,7 +128,7 @@ export async function resolveModel(
     case 'openai-compatible':
     default: {
       const { createOpenAI } = await import('@ai-sdk/openai')
-      return { model: createOpenAI({ apiKey: entry.apiKey, baseURL: entry.baseUrl })(model) }
+      return { model: createOpenAI({ apiKey: entry.apiKey, baseURL: entry.baseUrl }).chat(model) }
     }
   }
 }

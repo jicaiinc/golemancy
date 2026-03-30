@@ -48,7 +48,7 @@ async function createTestModel(sdkType: ProviderSdkType, apiKey?: string, baseUr
     case 'openai-compatible':
     default: {
       const { createOpenAI } = await import('@ai-sdk/openai')
-      return createOpenAI({ apiKey, baseURL: baseUrl })(model ?? 'gpt-5.2')
+      return createOpenAI({ apiKey, baseURL: baseUrl }).chat(model ?? 'gpt-5.2')
     }
   }
 }
