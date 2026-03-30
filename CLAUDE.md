@@ -16,11 +16,6 @@ GitHub: https://github.com/jicaiinc/golemancy | Domain: golemancy.ai | Copyright
 
 **Fact-Based Analysis**: 需要分析时，必须查阅实际证据（官方文档、WebSearch、Context7、源码），不要依赖训练知识。
 
-**Agent Model Preferences** (spawning via Agent tool):
-- `model: "opus"` — complex tasks (refactoring, features, debugging)
-- sonnet — moderate tasks (code review, tests, straightforward edits)
-- `model: "haiku"` — **only** for simple file search/grep (Explore agent)
-- When in doubt, prefer stronger model
 
 **`__guidelines/` 目录只读** — 未经用户允许不得新增、修改或删除。每个主题独立子文件夹，格式 `{topic}-{YYYYMMDD}`。当前内容：`__guidelines/i18n-20260302/`（翻译基准 + 开发规范）。
 
