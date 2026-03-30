@@ -90,7 +90,7 @@ Four top-level abstractions: **Project** (container), **Agent** (core unit), **T
 
 Electron main fork()s server child process (PORT=0), server sends `{ port, token }` via IPC, main passes to renderer via `additionalArguments` + preload `contextBridge`. All UI↔Server communication is HTTP to `127.0.0.1:port` with per-session Bearer token. Without Electron, UI falls back to mock services.
 
-**Pitfalls**: see `_pitfalls/electron-server-fork.md`. Key: use `app.getAppPath()` not `__dirname`; use `execPath: 'node'` in dev for native modules; always `pnpm dev` smoke test after Electron/server changes.
+**Pitfalls**: see `_pitfalls/electron-server-fork.md`. Key: use `app.getAppPath()` not `__dirname`; use `execPath: 'node'` in dev for native modules; always `pnpm dev` smoke test after Electron/server changes. **Never use `localhost` for internal Electron↔Server communication — always use `127.0.0.1`.** On some Windows machines (especially Win11 Insider), `localhost` resolves to `::1` (IPv6) while the server only listens on IPv4, causing all fetch requests to fail silently (user sees white screen).
 
 ### Server
 

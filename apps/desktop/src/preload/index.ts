@@ -21,7 +21,7 @@ function getPlatformLabel(): string | null {
 
 contextBridge.exposeInMainWorld('electronAPI', {
   getServerPort: () => serverPort,
-  getServerBaseUrl: () => serverPort ? `http://localhost:${serverPort}` : null,
+  getServerBaseUrl: () => serverPort ? `http://127.0.0.1:${serverPort}` : null,
   getServerToken: () => serverToken,
   openNewWindow: (projectId?: string) => ipcRenderer.invoke('window:open', projectId),
   openPath: (fullPath: string) => ipcRenderer.invoke('shell:openPath', fullPath),
