@@ -38,20 +38,23 @@ export function ChatPage() {
   const [chatBusy, setChatBusy] = useState(false)
   const compactAbortRef = useRef<AbortController | null>(null)
 
-  // Restore contextTokens from last assistant message when conversation changes
+  // Restore contextTokens from last assistant message when conversation changes.
+  // Only depend on currentConversationId — NOT conversations — to avoid being
+  // reset when conversations.list() (which lacks messages) overwrites the store.
+  // During streaming, onData keeps contextTokens up-to-date independently.
   useEffect(() => {
     if (!currentConversationId) {
       setContextTokens(null)
       return
     }
-    const conv = conversations.find(c => c.id === currentConversationId)
-    if (conv?.messages) {
+    const conv = useAppStore.getState().conversations.find(c => c.id === currentConversationId)
+    if (conv?.messages?.length) {
       const lastAssistant = [...conv.messages].reverse().find(m => m.role === 'assistant')
       setContextTokens(lastAssistant?.contextTokens ?? null)
     } else {
       setContextTokens(null)
     }
-  }, [currentConversationId, conversations])
+  }, [currentConversationId])
 
   // Load historical usage when conversation changes
   useEffect(() => {
