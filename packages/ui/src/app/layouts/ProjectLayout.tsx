@@ -38,9 +38,9 @@ export function ProjectLayout() {
     const removeChatEndListener = addListener('runtime:chat_ended', async () => {
       const pid = useAppStore.getState().currentProjectId
       if (!pid) return
-      const conversations = await getServices().conversations.list(pid)
+      const conversationList = await getServices().conversations.list(pid)
       if (useAppStore.getState().currentProjectId === pid) {
-        useAppStore.setState({ conversations })
+        useAppStore.setState({ conversationList })
       }
     })
 

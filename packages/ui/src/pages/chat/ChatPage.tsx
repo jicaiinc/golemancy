@@ -15,9 +15,10 @@ import { ChatEmptyState } from './ChatEmptyState'
 export function ChatPage() {
   const { t } = useTranslation('chat')
   const agents = useAppStore(s => s.agents)
-  const conversations = useAppStore(s => s.conversations)
+  const conversationList = useAppStore(s => s.conversationList)
   const conversationsLoading = useAppStore(s => s.conversationsLoading)
-  const currentConversationId = useAppStore(s => s.currentConversationId)
+  const currentConversation = useAppStore(s => s.currentConversation)
+  const currentConversationId = currentConversation?.id ?? null
   const selectConversation = useAppStore(s => s.selectConversation)
   const createConversation = useAppStore(s => s.createConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
@@ -39,22 +40,15 @@ export function ChatPage() {
   const compactAbortRef = useRef<AbortController | null>(null)
 
   // Restore contextTokens from last assistant message when conversation changes.
-  // Only depend on currentConversationId — NOT conversations — to avoid being
-  // reset when conversations.list() (which lacks messages) overwrites the store.
   // During streaming, onData keeps contextTokens up-to-date independently.
   useEffect(() => {
-    if (!currentConversationId) {
+    if (!currentConversation?.messages?.length) {
       setContextTokens(null)
       return
     }
-    const conv = useAppStore.getState().conversations.find(c => c.id === currentConversationId)
-    if (conv?.messages?.length) {
-      const lastAssistant = [...conv.messages].reverse().find(m => m.role === 'assistant')
-      setContextTokens(lastAssistant?.contextTokens ?? null)
-    } else {
-      setContextTokens(null)
-    }
-  }, [currentConversationId])
+    const lastAssistant = [...currentConversation.messages].reverse().find(m => m.role === 'assistant')
+    setContextTokens(lastAssistant?.contextTokens ?? null)
+  }, [currentConversationId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load historical usage when conversation changes
   useEffect(() => {
@@ -112,9 +106,7 @@ export function ChatPage() {
       // Reload conversation to get updated compactRecords and messages
       const updated = await svc.conversations.getById(currentProject.id, currentConversationId)
       if (updated) {
-        useAppStore.setState(s => ({
-          conversations: s.conversations.map(c => c.id === currentConversationId ? updated : c),
-        }))
+        useAppStore.setState({ currentConversation: updated })
         // Update contextTokens from refreshed messages
         const lastAssistant = [...updated.messages].reverse().find(m => m.role === 'assistant')
         setContextTokens(lastAssistant?.contextTokens ?? null)
@@ -172,9 +164,6 @@ export function ChatPage() {
     await createConversation(defaultTargetType, defaultTargetId, t('newChatTitle'))
   }, [defaultTargetType, defaultTargetId, createConversation])
 
-  // Find current conversation and its agent
-  const currentConversation = conversations.find(c => c.id === currentConversationId)
-
   const updateConversation = useAppStore(s => s.updateConversation)
 
   const handleSwitchAgent = useCallback(async (targetType: TargetType, targetId: AgentId | TeamId) => {
@@ -229,7 +218,7 @@ export function ChatPage() {
         <ChatSidebar
           agents={agents}
           teams={teams}
-          conversations={conversations}
+          conversations={conversationList}
           selectedConversationId={currentConversationId}
           onSelectConversation={handleSelectConversation}
           onRenameConversation={handleRenameConversation}

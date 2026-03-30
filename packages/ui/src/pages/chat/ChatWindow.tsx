@@ -237,10 +237,14 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
           role: m.role,
           parts: m.parts as UIMessage['parts'],
         }))
-        // Update store for sidebar metadata
-        useAppStore.setState(s => ({
-          conversations: s.conversations.map(c => c.id === conversation.id ? updated : c),
-        }))
+        // Update store: currentConversation detail + sidebar metadata
+        useAppStore.setState(s => {
+          const { messages, compactRecords, ...summary } = updated
+          return {
+            currentConversation: updated,
+            conversationList: s.conversationList.map(c => c.id === conversation.id ? summary : c),
+          }
+        })
       }
     }
   }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat, messages.length, updateConversationTitle, titleManuallyEdited, t])

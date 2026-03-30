@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, GlobalSettings, OAuthFlowState, CronJob,CronJobRun, Skill, Team, ProviderEntry,
+  Project, Agent, Conversation, ConversationSummary, ConversationTask, GlobalSettings, OAuthFlowState, CronJob,CronJobRun, Skill, Team, ProviderEntry,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId,
   TargetType,
@@ -86,7 +86,7 @@ export class HttpConversationService implements IConversationService {
 
   list(projectId: ProjectId, agentId?: AgentId) {
     const params = agentId ? `?agentId=${agentId}` : ''
-    return fetchJson<Conversation[]>(`${this.baseUrl}/api/projects/${projectId}/conversations${params}`)
+    return fetchJson<ConversationSummary[]>(`${this.baseUrl}/api/projects/${projectId}/conversations${params}`)
   }
   getById(projectId: ProjectId, id: ConversationId) {
     return fetchJson<Conversation | null>(`${this.baseUrl}/api/projects/${projectId}/conversations/${id}`)

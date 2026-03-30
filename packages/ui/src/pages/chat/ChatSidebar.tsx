@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
-import type { Agent, Conversation, ConversationId, Team } from '@golemancy/shared'
+import type { Agent, ConversationSummary, ConversationId, Team } from '@golemancy/shared'
 import { useTranslation } from 'react-i18next'
 import { PixelButton, PixelToggle } from '../../components'
 import { relativeTime } from '../../lib/time'
@@ -7,7 +7,7 @@ import { relativeTime } from '../../lib/time'
 interface ChatSidebarProps {
   agents: Agent[]
   teams: Team[]
-  conversations: Conversation[]
+  conversations: ConversationSummary[]
   selectedConversationId: ConversationId | null
   onSelectConversation: (id: ConversationId) => void
   onRenameConversation?: (id: ConversationId, title: string) => void
@@ -44,7 +44,7 @@ export function ChatSidebar({
     }
   }, [editingId])
 
-  const handleStartEdit = useCallback((conv: Conversation) => {
+  const handleStartEdit = useCallback((conv: ConversationSummary) => {
     setEditingId(conv.id)
     setEditValue(conv.title)
   }, [])

@@ -332,7 +332,7 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 166 | chat-navigation | navigating to ?conv=id syncs currentConversationId in store | ✅ |
+| 166 | chat-navigation | navigating to ?conv=id syncs currentConversation in store | ✅ |
 | 167 | chat-navigation | PATCH empty conversation targetType/targetId switches agent | ✅ |
 | 168 | chat-navigation | conversation with messages supports creating a new conversation for different agent | ✅ |
 | 169 | chat-navigation | PATCH conversation to team target type | ✅ |

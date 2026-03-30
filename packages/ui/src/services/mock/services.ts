@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, ProviderEntry,
+  Project, Agent, Conversation, ConversationSummary, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, ProviderEntry,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile, Team,
   ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId, TargetType,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
@@ -199,11 +199,11 @@ export class MockAgentService implements IAgentService {
 export class MockConversationService implements IConversationService {
   private data = new Map<ConversationId, Conversation>(SEED_CONVERSATIONS.map(c => [c.id, { ...c }]))
 
-  async list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]> {
+  async list(projectId: ProjectId, agentId?: AgentId): Promise<ConversationSummary[]> {
     await delay()
-    return [...this.data.values()].filter(c =>
-      c.projectId === projectId && (!agentId || c.targetId === agentId)
-    )
+    return [...this.data.values()]
+      .filter(c => c.projectId === projectId && (!agentId || c.targetId === agentId))
+      .map(({ messages, compactRecords, ...summary }) => summary)
   }
 
   async getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null> {

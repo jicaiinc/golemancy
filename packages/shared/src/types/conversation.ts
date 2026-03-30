@@ -35,3 +35,6 @@ export interface Conversation extends Timestamped {
   lastMessageAt: string
   compactRecords?: CompactRecord[]
 }
+
+/** Lightweight conversation metadata for list views (no messages, no compactRecords). */
+export type ConversationSummary = Omit<Conversation, 'messages' | 'compactRecords'>

@@ -31,7 +31,7 @@ export function TaskListPage() {
   const project = useCurrentProject()
   const tasks = useAppStore(s => s.conversationTasks)
   const tasksLoading = useAppStore(s => s.tasksLoading)
-  const conversations = useAppStore(s => s.conversations)
+  const conversationList = useAppStore(s => s.conversationList)
   const refreshConversationTasks = useAppStore(s => s.refreshConversationTasks)
   const navigate = useNavigate()
 
@@ -98,7 +98,7 @@ export function TaskListPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {[...grouped.entries()].map(([convId, convTasks]) => {
-            const conv = conversations.find(c => c.id === convId)
+            const conv = conversationList.find(c => c.id === convId)
             const isGroupExpanded = expandedGroups.has(convId)
             const completedCount = convTasks.filter(task => task.status === 'completed').length
             const totalCount = convTasks.filter(task => task.status !== 'deleted').length

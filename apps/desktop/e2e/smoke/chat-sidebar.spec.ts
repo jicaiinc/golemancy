@@ -32,7 +32,7 @@ test.describe('Chat Sidebar', () => {
     await helper.navigateTo(`/projects/${projectId}/chat`)
 
     // Wait for conversations to appear in the store (needs extra time for API fetch after clearProject)
-    await helper.store.waitFor('state.conversations.length >= 3', 30_000)
+    await helper.store.waitFor('state.conversationList.length >= 3', 30_000)
 
     // Expand chat history sidebar (defaults to collapsed)
     await window.evaluate(() => {

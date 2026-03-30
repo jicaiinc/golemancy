@@ -21,7 +21,7 @@ test.describe('Chat Navigation', () => {
 
   // ===== URL Sync =====
 
-  test('navigating to ?conv=id syncs currentConversationId in store', async ({ helper }) => {
+  test('navigating to ?conv=id syncs currentConversation in store', async ({ helper }) => {
     const conv = await helper.apiPost(`/api/projects/${projectId}/conversations`, {
       targetType: 'agent',
       targetId: agent1Id,
@@ -31,11 +31,11 @@ test.describe('Chat Navigation', () => {
     await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
 
     await helper.store.waitFor(
-      `state.currentConversationId === "${conv.id}"`,
+      `state.currentConversation && state.currentConversation.id === "${conv.id}"`,
       TIMEOUTS.PAGE_LOAD,
     )
 
-    const selectedId = await helper.store.get<string>('currentConversationId')
+    const selectedId = await helper.store.get<string>('currentConversation.id')
     expect(selectedId).toBe(conv.id)
   })
 

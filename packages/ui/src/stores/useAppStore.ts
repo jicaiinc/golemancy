@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, Team,
+  Project, Agent, Conversation, ConversationSummary, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, Team,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
@@ -51,9 +51,15 @@ interface AgentSlice {
 }
 
 interface ConversationSlice {
-  conversations: Conversation[]
-  currentConversationId: ConversationId | null
+  conversationList: ConversationSummary[]
+  currentConversation: Conversation | null
   conversationsLoading: boolean
+}
+
+/** Strip messages/compactRecords from a full Conversation to get a ConversationSummary. */
+function toSummary(conv: Conversation): ConversationSummary {
+  const { messages, compactRecords, ...summary } = conv
+  return summary
 }
 
 interface TaskSlice {
@@ -291,7 +297,8 @@ export const useAppStore = create<AppState>()(
         set({
           currentProjectId: id,
           agents: [],
-          conversations: [],
+          conversationList: [],
+          currentConversation: null,
           conversationTasks: [],
           workspaceEntries: [],
           skills: [],
@@ -315,7 +322,7 @@ export const useAppStore = create<AppState>()(
         // Workspace is lazy-loaded on page visit, not on project select
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
-        const [agents, conversations, conversationTasks, skills, mcpServers, cronJobs, teams] = await Promise.all([
+        const [agents, conversationList, conversationTasks, skills, mcpServers, cronJobs, teams] = await Promise.all([
           safe(svc.agents.list(id)),
           safe(svc.conversations.list(id)),
           safe(svc.tasks.list(id)),
@@ -330,7 +337,7 @@ export const useAppStore = create<AppState>()(
 
         set({
           agents,
-          conversations,
+          conversationList,
           conversationTasks,
           skills,
           mcpServers,
@@ -351,7 +358,8 @@ export const useAppStore = create<AppState>()(
         set({
           currentProjectId: null,
           agents: [],
-          conversations: [],
+          conversationList: [],
+          currentConversation: null,
           conversationTasks: [],
           workspaceEntries: [],
           workspaceCurrentPath: '',
@@ -368,7 +376,6 @@ export const useAppStore = create<AppState>()(
           mcpServersLoading: false,
           cronJobsLoading: false,
           cronJobRunsLoading: false,
-          currentConversationId: null,
         })
       },
 
@@ -403,7 +410,7 @@ export const useAppStore = create<AppState>()(
         await getServices().projects.delete(id)
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversations: [], conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [], memories: [], teams: [] } : {}),
+          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversationList: [], currentConversation: null, conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [], memories: [], teams: [] } : {}),
         }))
       },
 
@@ -475,58 +482,56 @@ export const useAppStore = create<AppState>()(
       },
 
       // --- Conversation state ---
-      conversations: [],
-      currentConversationId: null,
+      conversationList: [],
+      currentConversation: null,
       conversationsLoading: false,
 
       async loadConversations(projectId: ProjectId, agentId?: AgentId) {
         set({ conversationsLoading: true })
-        const conversations = await getServices().conversations.list(projectId, agentId)
-        set({ conversations, conversationsLoading: false })
+        const conversationList = await getServices().conversations.list(projectId, agentId)
+        set({ conversationList, conversationsLoading: false })
       },
 
       async selectConversation(id: ConversationId | null) {
         if (!id) {
-          set({ currentConversationId: null })
+          set({ currentConversation: null })
           return
         }
 
         const projectId = get().currentProjectId
         if (!projectId) {
-          set({ currentConversationId: id })
+          set({ currentConversation: null })
           return
         }
 
-        // Load full conversation (with messages) BEFORE setting currentConversationId.
+        // Load full conversation (with messages) BEFORE setting currentConversation.
         // This ensures ChatWindow mounts with messages already available,
         // since useChat only reads `messages` on initialization.
         const full = await getServices().conversations.getById(projectId, id)
         if (full) {
-          set(s => {
-            const exists = s.conversations.some(c => c.id === id)
-            return {
-              conversations: exists
-                ? s.conversations.map(c => c.id === id ? full : c)
-                : [...s.conversations, full],
-              currentConversationId: id,
-            }
-          })
+          set(s => ({
+            currentConversation: full,
+            // Update list entry metadata (e.g. title/lastMessageAt) if it exists
+            conversationList: s.conversationList.some(c => c.id === id)
+              ? s.conversationList.map(c => c.id === id ? toSummary(full) : c)
+              : [...s.conversationList, toSummary(full)],
+          }))
           console.debug('[store] selectConversation loaded', id, 'messages:', full.messages.length)
         } else {
-          set({ currentConversationId: id })
+          set({ currentConversation: null })
         }
       },
 
       async ensureConversation(id: ConversationId) {
         const projectId = get().currentProjectId
         if (!projectId) return
-        const exists = get().conversations.some(c => c.id === id)
+        const exists = get().conversationList.some(c => c.id === id)
         if (exists) return
         const conv = await getServices().conversations.getById(projectId, id)
         if (conv) {
-          set(s => s.conversations.some(c => c.id === id)
+          set(s => s.conversationList.some(c => c.id === id)
             ? s
-            : { conversations: [...s.conversations, conv] },
+            : { conversationList: [...s.conversationList, toSummary(conv)] },
           )
         }
       },
@@ -535,7 +540,10 @@ export const useAppStore = create<AppState>()(
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
         const conv = await getServices().conversations.create(projectId, targetType, targetId, title)
-        set(s => ({ conversations: [...s.conversations, conv], currentConversationId: conv.id }))
+        set(s => ({
+          conversationList: [...s.conversationList, toSummary(conv)],
+          currentConversation: conv,
+        }))
         return conv
       },
 
@@ -548,7 +556,13 @@ export const useAppStore = create<AppState>()(
         if (changesTarget) {
           destroyChat(id)
         }
-        set(s => ({ conversations: s.conversations.map(c => c.id === id ? updated : c) }))
+        set(s => ({
+          conversationList: s.conversationList.map(c => c.id === id ? toSummary(updated) : c),
+          // Update currentConversation metadata if it's the active one (preserve messages)
+          ...(s.currentConversation && s.currentConversation.id === id
+            ? { currentConversation: { ...s.currentConversation, ...toSummary(updated) } }
+            : {}),
+        }))
         return updated
       },
 
@@ -556,7 +570,13 @@ export const useAppStore = create<AppState>()(
         const projectId = get().currentProjectId
         if (!projectId) throw new Error('No project selected')
         const updated = await getServices().conversations.update(projectId, id, { title })
-        set(s => ({ conversations: s.conversations.map(c => c.id === id ? { ...c, title: updated.title, updatedAt: updated.updatedAt } : c) }))
+        if (!updated) return
+        set(s => ({
+          conversationList: s.conversationList.map(c => c.id === id ? { ...c, title: updated.title, updatedAt: updated.updatedAt } : c),
+          ...(s.currentConversation && s.currentConversation.id === id
+            ? { currentConversation: { ...s.currentConversation, title: updated.title, updatedAt: updated.updatedAt } }
+            : {}),
+        }))
       },
 
       async deleteConversation(id: ConversationId) {
@@ -565,8 +585,8 @@ export const useAppStore = create<AppState>()(
         await getServices().conversations.delete(projectId, id)
         destroyChat(id)
         set(s => ({
-          conversations: s.conversations.filter(c => c.id !== id),
-          ...(s.currentConversationId === id ? { currentConversationId: null } : {}),
+          conversationList: s.conversationList.filter(c => c.id !== id),
+          ...(s.currentConversation?.id === id ? { currentConversation: null } : {}),
         }))
       },
 

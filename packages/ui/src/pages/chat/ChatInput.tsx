@@ -80,7 +80,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
   const transcribeAudio = useAppStore(s => s.transcribeAudio)
   const retrySpeechRecord = useAppStore(s => s.retrySpeechRecord)
   const currentProjectId = useAppStore(s => s.currentProjectId)
-  const currentConversationId = useAppStore(s => s.currentConversationId)
+  const currentConversationId = useAppStore(s => s.currentConversation?.id ?? null)
 
   const handleAttachFiles = useCallback(async (files: File[]) => {
     const parts = await filesToFileUIParts(files)

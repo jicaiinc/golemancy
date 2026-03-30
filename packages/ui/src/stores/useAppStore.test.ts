@@ -164,8 +164,8 @@ describe('useAppStore', () => {
       projectsLoading: false,
       agents: [],
       agentsLoading: false,
-      conversations: [],
-      currentConversationId: null,
+      conversationList: [],
+      currentConversation: null,
       conversationsLoading: false,
       conversationTasks: [],
       tasksLoading: false,
@@ -223,7 +223,7 @@ describe('useAppStore', () => {
       const state = useAppStore.getState()
       expect(state.currentProjectId).toBe('proj-1')
       expect(state.agents).toHaveLength(1)
-      expect(state.conversations).toHaveLength(1)
+      expect(state.conversationList).toHaveLength(1)
       expect(state.conversationTasks).toHaveLength(1)
       expect(mockServices.agents.list).toHaveBeenCalledWith('proj-1')
       expect(mockServices.conversations.list).toHaveBeenCalledWith('proj-1')
@@ -293,9 +293,9 @@ describe('useAppStore', () => {
       const state = useAppStore.getState()
       expect(state.currentProjectId).toBeNull()
       expect(state.agents).toEqual([])
-      expect(state.conversations).toEqual([])
+      expect(state.conversationList).toEqual([])
       expect(state.conversationTasks).toEqual([])
-      expect(state.currentConversationId).toBeNull()
+      expect(state.currentConversation).toBeNull()
     })
   })
 
@@ -310,15 +310,22 @@ describe('useAppStore', () => {
   })
 
   describe('selectConversation', () => {
-    it('sets current conversation id', async () => {
+    it('sets current conversation', async () => {
+      // selectConversation requires a project to call getById
+      useAppStore.setState({ currentProjectId: 'proj-1' as ProjectId })
+      ;(mockServices.conversations.getById as any).mockResolvedValue({
+        id: 'conv-1', projectId: 'proj-1', title: 'Chat 1', targetType: 'agent', targetId: 'agent-1',
+        messages: [{ id: 'msg-1', role: 'user', parts: [], content: 'hi' }],
+        lastMessageAt: '2026-01-01T00:00:00.000Z', createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
+      })
       await useAppStore.getState().selectConversation('conv-1' as ConversationId)
-      expect(useAppStore.getState().currentConversationId).toBe('conv-1')
+      expect(useAppStore.getState().currentConversation?.id).toBe('conv-1')
     })
 
     it('clears conversation when null', async () => {
-      await useAppStore.getState().selectConversation('conv-1' as ConversationId)
+      useAppStore.setState({ currentConversation: { id: 'conv-1' } as any })
       await useAppStore.getState().selectConversation(null)
-      expect(useAppStore.getState().currentConversationId).toBeNull()
+      expect(useAppStore.getState().currentConversation).toBeNull()
     })
   })
 
@@ -327,16 +334,16 @@ describe('useAppStore', () => {
       const { destroyChat } = await import('../lib/chat-instances')
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
-        conversations: [{ id: 'conv-1' as ConversationId, title: 'Chat 1' } as any],
-        currentConversationId: 'conv-1' as ConversationId,
+        conversationList: [{ id: 'conv-1' as ConversationId, title: 'Chat 1' } as any],
+        currentConversation: { id: 'conv-1' as ConversationId, title: 'Chat 1', messages: [] } as any,
       })
       ;(mockServices.conversations.delete as any).mockResolvedValue(undefined)
 
       await useAppStore.getState().deleteConversation('conv-1' as ConversationId)
 
       expect(destroyChat).toHaveBeenCalledWith('conv-1')
-      expect(useAppStore.getState().conversations).toHaveLength(0)
-      expect(useAppStore.getState().currentConversationId).toBeNull()
+      expect(useAppStore.getState().conversationList).toHaveLength(0)
+      expect(useAppStore.getState().currentConversation).toBeNull()
     })
   })
 
@@ -350,7 +357,7 @@ describe('useAppStore', () => {
       const { destroyChat } = await import('../lib/chat-instances')
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
-        conversations: [{ id: 'conv-1' as ConversationId, title: 'Chat 1', targetType: 'agent', targetId: 'agent-1' as AgentId } as any],
+        conversationList: [{ id: 'conv-1' as ConversationId, title: 'Chat 1', targetType: 'agent', targetId: 'agent-1' as AgentId } as any],
       })
       ;(mockServices.conversations.update as any).mockResolvedValue({
         id: 'conv-1',
@@ -371,7 +378,7 @@ describe('useAppStore', () => {
       const { destroyChat } = await import('../lib/chat-instances')
       useAppStore.setState({
         currentProjectId: 'proj-1' as ProjectId,
-        conversations: [{ id: 'conv-1' as ConversationId, title: 'Chat 1', targetType: 'agent', targetId: 'agent-1' as AgentId } as any],
+        conversationList: [{ id: 'conv-1' as ConversationId, title: 'Chat 1', targetType: 'agent', targetId: 'agent-1' as AgentId } as any],
       })
       ;(mockServices.conversations.update as any).mockResolvedValue({
         id: 'conv-1',

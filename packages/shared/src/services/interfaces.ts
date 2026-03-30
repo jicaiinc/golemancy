@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, CronJob, CronJobRun, Skill, Team,
+  Project, Agent, Conversation, ConversationSummary, ConversationTask, CronJob, CronJobRun, Skill, Team,
   GlobalSettings, OAuthFlowState, ProviderEntry,
   ProjectId, AgentId, ConversationId, MessageId, TaskId, SkillId, CronJobId, TeamId, TargetType,
   PermissionsConfigId, TranscriptionId, MemoryId,
@@ -45,7 +45,7 @@ export interface ConversationTokenUsageResult {
 }
 
 export interface IConversationService {
-  list(projectId: ProjectId, agentId?: AgentId): Promise<Conversation[]>
+  list(projectId: ProjectId, agentId?: AgentId): Promise<ConversationSummary[]>
   getById(projectId: ProjectId, id: ConversationId): Promise<Conversation | null>
   create(projectId: ProjectId, targetType: TargetType, targetId: AgentId | TeamId, title: string): Promise<Conversation>
   sendMessage(projectId: ProjectId, conversationId: ConversationId, content: string): Promise<void>
