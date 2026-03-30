@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
 import { needsResourceExtraction, extractResources, createSetupWindow } from './setup'
 import { initAutoUpdater, getUpdateState, checkForUpdatesNow, quitAndInstall, openReleaseUrl } from './updater'
-import { initSentry, setTelemetryEnabled, getSentryEnvForServer } from './sentry'
+import { initSentry, setTelemetryEnabled, getSentryEnvForServer, serverBreadcrumb, flushSentry, setServerStartupContext } from './sentry'
 import * as Sentry from '@sentry/electron/main'
 
 initSentry()
@@ -39,6 +39,14 @@ let serverPort: number | null = null
 let serverToken: string | null = null
 let isQuitting = false
 
+// Circular buffer for server child process stderr (last 4KB)
+let serverStderr = ''
+const STDERR_MAX = 4096
+function appendStderr(chunk: string): void {
+  serverStderr += chunk
+  if (serverStderr.length > STDERR_MAX) serverStderr = serverStderr.slice(-STDERR_MAX)
+}
+
 function detectDevResourcesPath(rootDir: string): Record<string, string> {
   const resourcesDir = join(rootDir, 'apps/desktop/resources')
   const runtimeDir = join(resourcesDir, 'runtime')
@@ -63,6 +71,25 @@ function startServer(): Promise<number> {
     const serverCwd = app.isPackaged
       ? join(process.resourcesPath, 'server')
       : join(rootDir, 'packages/server')
+    // Dev: use system node (Electron's embedded Node has different ABI for native modules)
+    // GOLEMANCY_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
+    // (GUI apps on macOS don't inherit shell PATH, so bare 'node' may fail).
+    const execPathResolved = app.isPackaged
+      ? join(process.resourcesPath, 'runtime', 'node',
+          ...(process.platform === 'win32' ? ['node.exe'] : ['bin', 'node']))
+      : (process.env.GOLEMANCY_FORK_EXEC_PATH || 'node')
+
+    // Pre-flight: record all resolved paths and their existence
+    serverBreadcrumb('pre-flight', {
+      serverEntryExists: existsSync(serverEntry),
+      serverCwdExists: existsSync(serverCwd),
+      execPathExists: execPathResolved === 'node' ? 'system' : existsSync(execPathResolved),
+      serverEntryTail: serverEntry.split(sep).slice(-3).join(sep),
+      execPathTail: execPathResolved === 'node' ? 'node' : execPathResolved.split(sep).slice(-3).join(sep),
+      isPackaged: app.isPackaged,
+      platform: process.platform,
+    })
+
     const child = fork(serverEntry, [], {
       env: {
         ...process.env,
@@ -78,42 +105,81 @@ function startServer(): Promise<number> {
         // Pass Sentry config to server process
         ...getSentryEnvForServer(),
       },
-      // Dev: use system node (Electron's embedded Node has different ABI for native modules)
-      // GOLEMANCY_FORK_EXEC_PATH allows E2E tests to pass an absolute node path
-      // (GUI apps on macOS don't inherit shell PATH, so bare 'node' may fail).
-      execPath: app.isPackaged
-        ? join(process.resourcesPath, 'runtime', 'node',
-            ...(process.platform === 'win32' ? ['node.exe'] : ['bin', 'node']))
-        : (process.env.GOLEMANCY_FORK_EXEC_PATH || 'node'),
+      execPath: execPathResolved,
       execArgv: app.isPackaged ? [] : ['--import', 'tsx'],
       cwd: serverCwd,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
 
     serverProcess = child
+    serverStderr = ''
 
     const serverLog = logger.child({ component: 'server' })
-    child.stderr?.on('data', (d: Buffer) => serverLog.error(d.toString().trimEnd()))
+    child.stderr?.on('data', (d: Buffer) => {
+      const text = d.toString().trimEnd()
+      serverLog.error(text)
+      appendStderr(text)
+    })
     child.stdout?.on('data', (d: Buffer) => serverLog.debug(d.toString().trimEnd()))
+
+    child.on('spawn', () => {
+      serverBreadcrumb('spawned', { pid: child.pid })
+    })
 
     child.on('message', (msg: any) => {
       if (msg?.type === 'ready' && msg.port) {
+        serverBreadcrumb('ready', { port: msg.port, pid: child.pid })
         serverPort = msg.port
         serverToken = msg.token ?? null
         resolve(msg.port)
+      } else if (msg?.type === 'startup-progress') {
+        serverBreadcrumb(`progress: ${msg.phase}`, { phase: msg.phase, elapsedMs: msg.elapsedMs })
+      } else if (msg?.type === 'startup-error') {
+        serverBreadcrumb('startup-error IPC', {
+          message: msg.message,
+          stack: typeof msg.stack === 'string' ? msg.stack.slice(0, 512) : undefined,
+        }, 'error')
       } else if (msg?.type === 'open-path' && msg.path && msg.requestId) {
         handleOpenPathIPC(child, msg.path, msg.requestId)
       }
     })
 
-    child.on('error', reject)
-    child.on('exit', (code) => {
+    child.on('error', (err) => {
+      const e = err as NodeJS.ErrnoException
+      serverBreadcrumb('error', {
+        message: e.message, code: e.code, errno: e.errno, syscall: e.syscall, path: e.path,
+      }, 'error')
+      reject(err)
+    })
+
+    child.on('disconnect', () => {
+      serverBreadcrumb('IPC disconnected', undefined, 'warning')
+    })
+
+    child.on('close', (code, signal) => {
+      serverBreadcrumb('close', { code, signal }, code === 0 ? 'info' : 'error')
+    })
+
+    child.on('exit', (code, signal) => {
+      serverBreadcrumb('exit', {
+        code, signal, stderrTail: serverStderr.slice(-1024) || '(empty)',
+      }, code === 0 ? 'info' : 'error')
+
       if (code !== 0 && code !== null) {
         reject(new Error(`Server exited with code ${code}`))
+      } else if (code === null && signal) {
+        reject(new Error(`Server killed by signal ${signal}`))
       }
     })
 
-    setTimeout(() => reject(new Error('Server startup timeout')), 60000)
+    setTimeout(() => {
+      serverBreadcrumb('timeout', {
+        pid: child.pid, killed: child.killed, exitCode: child.exitCode,
+        signalCode: child.signalCode, connected: child.connected,
+        stderrTail: serverStderr.slice(-1024) || '(empty)',
+      }, 'error')
+      reject(new Error('Server startup timeout'))
+    }, 60000)
   })
 }
 
@@ -379,6 +445,7 @@ app.whenReady().then(async () => {
       setupWin = null
       logger.error({ err }, 'Failed to extract resources archive')
       Sentry.captureException(err, { extra: { phase: 'resource-extraction' } })
+      await flushSentry()
       dialog.showErrorBox(
         'Extraction Error',
         `Failed to extract application resources:\n${err instanceof Error ? err.message : String(err)}`,
@@ -413,10 +480,16 @@ app.whenReady().then(async () => {
       serverProcess.on('exit', (code, signal) => {
         if (!isQuitting) {
           logger.error({ code, signal }, 'server process exited unexpectedly')
+          setServerStartupContext({
+            code, signal,
+            stderrTail: serverStderr.slice(-2048) || '(empty)',
+            serverPid: serverProcess?.pid ?? null,
+          })
           Sentry.captureMessage('Server process exited unexpectedly', {
             level: 'fatal',
-            extra: { code, signal },
+            extra: { code, signal, stderrTail: serverStderr.slice(-1024) },
           })
+          flushSentry().catch(() => {})
         }
         serverProcess = null
       })
@@ -425,9 +498,17 @@ app.whenReady().then(async () => {
     if (serverProgressTimer) clearInterval(serverProgressTimer)
   } catch (err) {
     if (setupWin) setupWin.close()
-    // W5: Show dialog on server startup failure
     logger.error({ err }, 'failed to start agent server')
+    setServerStartupContext({
+      platform: process.platform, arch: process.arch, isPackaged: app.isPackaged,
+      nodeVersion: process.versions.node, electronVersion: process.versions.electron,
+      stderrTail: serverStderr.slice(-2048) || '(empty)',
+      serverPid: serverProcess?.pid ?? null, serverExitCode: serverProcess?.exitCode ?? null,
+      serverSignalCode: serverProcess?.signalCode ?? null,
+      serverConnected: serverProcess?.connected ?? null, serverKilled: serverProcess?.killed ?? null,
+    })
     Sentry.captureException(err, { extra: { phase: 'server-startup' } })
+    await flushSentry()
     dialog.showErrorBox(
       'Server Error',
       `Failed to start the agent server:\n${err instanceof Error ? err.message : String(err)}`,

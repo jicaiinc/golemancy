@@ -53,6 +53,12 @@ export function captureMessage(message: string, context?: Record<string, unknown
   Sentry.captureMessage(message, { extra: context })
 }
 
+/** Add a breadcrumb (no-op if not initialized) */
+export function addBreadcrumb(message: string, data?: Record<string, unknown>): void {
+  if (!initialized) return
+  Sentry.addBreadcrumb({ category: 'server', message, data })
+}
+
 /** Flush pending events (call before process.exit) */
 export async function flush(timeout = 2000): Promise<void> {
   if (!initialized) return

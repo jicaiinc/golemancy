@@ -46,6 +46,25 @@ export function setTelemetryEnabled(enabled: boolean): void {
   telemetryEnabled = enabled
 }
 
+/** Add a breadcrumb scoped to the server startup lifecycle */
+export function serverBreadcrumb(
+  message: string,
+  data?: Record<string, unknown>,
+  level: 'info' | 'warning' | 'error' = 'info',
+): void {
+  Sentry.addBreadcrumb({ category: 'server.startup', message, data, level })
+}
+
+/** Flush pending Sentry events — must be called before app.quit() after capturing a fatal event */
+export async function flushSentry(timeout = 2000): Promise<void> {
+  await Sentry.flush(timeout)
+}
+
+/** Set structured diagnostic context visible in Sentry event's "Contexts" panel */
+export function setServerStartupContext(ctx: Record<string, unknown>): void {
+  Sentry.setContext('Server Startup', ctx)
+}
+
 /** Return env vars for the server child process to initialize its own Sentry */
 export function getSentryEnvForServer(): Record<string, string> {
   const forceSentry = !!process.env.GOLEMANCY_FORCE_SENTRY

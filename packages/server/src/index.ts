@@ -40,11 +40,18 @@ import { initSentry, captureException, flush as flushSentry } from './sentry'
 import { removeProjectPythonEnv } from './runtime/python-manager'
 import { getBundledNodeBinDir, getBundledUvBinDir, getBundledPythonPath } from './runtime/paths'
 
+function reportProgress(phase: string, startTime: number): void {
+  try { process.send?.({ type: 'startup-progress', phase, elapsedMs: Date.now() - startTime }) } catch {}
+}
+
 async function main() {
   initSentry()
 
   const startTime = Date.now()
+  reportProgress('sentry-initialized', startTime)
+
   logger.info({ node: process.version, platform: process.platform, arch: process.arch, pid: process.pid }, 'server starting')
+  reportProgress('logger-ready', startTime)
 
   // macOS/Linux GUI apps inherit a truncated PATH (/usr/bin:/bin:/usr/sbin:/sbin).
   // Resolve the user's login shell PATH and merge missing entries so that
@@ -99,6 +106,7 @@ async function main() {
     process.env.UV_CACHE_DIR = path.join(getDataDir(), 'runtime', 'cache', 'uv')
     logger.info({ uvCacheDir: process.env.UV_CACHE_DIR }, 'set UV_CACHE_DIR')
   }
+  reportProgress('path-augmented', startTime)
 
   const port = parseInt(process.env.PORT ?? '3883', 10)
 
@@ -106,6 +114,7 @@ async function main() {
   const dataDir = getDataDir()
   logger.debug({ dataDir }, 'ensuring data directory exists')
   await fs.mkdir(dataDir, { recursive: true })
+  reportProgress('datadir-ready', startTime)
 
   // Per-project database manager (lazy-loads DBs on first access)
   const dbManager = new ProjectDbManager()
@@ -116,6 +125,7 @@ async function main() {
   const audioDir = path.join(dataDir, 'speech', 'audio')
   await fs.mkdir(audioDir, { recursive: true })
   const speechStorage = new SpeechStorage(speechDb, audioDir)
+  reportProgress('db-initialized', startTime)
 
   // Construct dependencies
   const projectStorage = new FileProjectStorage()
@@ -190,6 +200,7 @@ async function main() {
   // SEC-07: Generate auth token for IPC-based authentication
   const authToken = crypto.randomUUID()
   const app = createApp(deps, authToken)
+  reportProgress('app-created', startTime)
 
   // Wire WebSocket: createNodeWebSocket must receive the same Hono app to install upgrade middleware
   const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app })
@@ -243,6 +254,7 @@ async function main() {
 
   // SEC-09: Bind to loopback only
   const server = serve({ fetch: app.fetch, port, hostname: '127.0.0.1' }, async (info) => {
+    reportProgress('http-bound', startTime)
     // Inject WebSocket upgrade handler into the HTTP server
     injectWebSocket(server)
     logger.info({ port: info.port, host: '127.0.0.1', startupMs: Date.now() - startTime }, 'server ready (ws enabled)')
@@ -300,10 +312,11 @@ async function main() {
 }
 
 main().catch((err) => {
-  logger.fatal({ err }, 'failed to start server')
+  try { logger.fatal({ err }, 'failed to start server') } catch {}
+  try { process.send?.({ type: 'startup-error', message: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack?.slice(0, 1024) : undefined }) } catch {}
   captureException(err, { phase: 'startup' })
   flushSentry().catch(() => {}).finally(() => {
-    logger.flush(() => process.exit(1))
+    try { logger.flush(() => process.exit(1)) } catch { process.exit(1) }
   })
 })
 
