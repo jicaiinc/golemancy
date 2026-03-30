@@ -57,7 +57,9 @@
     "noProvider": "-- Tiada --",
     "selectProviderFirst": "-- Pilih provider dahulu --",
     "noModels": "Tiada model tersedia",
-    "saved": "Disimpan!"
+    "saved": "Disimpan!",
+    "orphaned": "Provider model yang dikonfigurasi sudah tidak tersedia. Sila pilih yang baharu.",
+    "autoSwitched": "Model lalai telah ditukar secara automatik kerana provider sebelumnya telah dialih keluar."
   },
   "providers": {
     "sectionTitle": "PROVIDER",

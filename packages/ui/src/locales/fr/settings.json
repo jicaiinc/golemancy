@@ -57,7 +57,9 @@
     "noProvider": "-- Aucun --",
     "selectProviderFirst": "-- Sélectionnez d'abord un fournisseur --",
     "noModels": "Aucun modèle disponible",
-    "saved": "Enregistré !"
+    "saved": "Enregistré !",
+    "orphaned": "Le fournisseur du modèle configuré n'est plus disponible. Veuillez en sélectionner un nouveau.",
+    "autoSwitched": "Le modèle par défaut a été automatiquement changé car le fournisseur précédent a été supprimé."
   },
   "providers": {
     "sectionTitle": "FOURNISSEURS",

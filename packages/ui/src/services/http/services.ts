@@ -292,8 +292,10 @@ export class HttpSettingsService implements ISettingsService {
     return fetchJson<GlobalSettings>(`${this.baseUrl}/api/settings`)
   }
   update(data: Partial<GlobalSettings>) {
+    // Convert undefined → null so JSON.stringify preserves "clear" intent
+    const body = JSON.stringify(data, (_k, v) => v === undefined ? null : v)
     return fetchJson<GlobalSettings>(`${this.baseUrl}/api/settings`, {
-      method: 'PATCH', body: JSON.stringify(data),
+      method: 'PATCH', body,
     })
   }
   testProvider(slug: string) {

@@ -57,7 +57,9 @@
     "noProvider": "-- Brak --",
     "selectProviderFirst": "-- Najpierw wybierz dostawcę --",
     "noModels": "Brak dostępnych modeli",
-    "saved": "Zapisano!"
+    "saved": "Zapisano!",
+    "orphaned": "Dostawca skonfigurowanego modelu nie jest już dostępny. Wybierz nowego.",
+    "autoSwitched": "Model domyślny został automatycznie zmieniony, ponieważ poprzedni dostawca został usunięty."
   },
   "providers": {
     "sectionTitle": "DOSTAWCY",

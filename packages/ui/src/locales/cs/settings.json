@@ -57,7 +57,9 @@
     "noProvider": "-- Žádný --",
     "selectProviderFirst": "-- Nejprve vyberte poskytovatele --",
     "noModels": "Žádné dostupné modely",
-    "saved": "Uloženo!"
+    "saved": "Uloženo!",
+    "orphaned": "Poskytovatel nastaveného modelu již není dostupný. Vyberte prosím nový.",
+    "autoSwitched": "Výchozí model byl automaticky změněn, protože předchozí poskytovatel byl odstraněn."
   },
   "providers": {
     "sectionTitle": "POSKYTOVATELÉ",

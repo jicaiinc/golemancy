@@ -57,7 +57,9 @@
     "noProvider": "-- Niciunul --",
     "selectProviderFirst": "-- Selectați mai întâi furnizorul --",
     "noModels": "Niciun model disponibil",
-    "saved": "Salvat!"
+    "saved": "Salvat!",
+    "orphaned": "Furnizorul modelului configurat nu mai este disponibil. Selectați unul nou.",
+    "autoSwitched": "Modelul implicit a fost schimbat automat deoarece furnizorul anterior a fost eliminat."
   },
   "providers": {
     "sectionTitle": "FURNIZORI",

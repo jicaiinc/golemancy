@@ -48,6 +48,12 @@ export class FileSettingsStorage implements ISettingsService {
     const existing = await this.get()
     log.debug('updating settings')
     const updated: GlobalSettings = { ...existing, ...data }
+    // Clean up null values sent by the client (undefined → null serialization for "clear" intent)
+    for (const key of Object.keys(updated) as Array<keyof GlobalSettings>) {
+      if (updated[key] === null) {
+        delete (updated as unknown as Record<string, unknown>)[key]
+      }
+    }
     await writeJson(this.settingsPath, updated)
     return updated
   }

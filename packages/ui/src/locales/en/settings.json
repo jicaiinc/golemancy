@@ -57,7 +57,9 @@
     "noProvider": "-- None --",
     "selectProviderFirst": "-- Select provider first --",
     "noModels": "No models available",
-    "saved": "Saved!"
+    "saved": "Saved!",
+    "orphaned": "The configured model's provider is no longer available. Please select a new one.",
+    "autoSwitched": "Default model was automatically changed because the previous provider was removed."
   },
   "providers": {
     "sectionTitle": "PROVIDERS",

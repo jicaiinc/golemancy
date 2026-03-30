@@ -376,17 +376,8 @@ export const useAppStore = create<AppState>()(
         const svc = getServices()
         const project = await svc.projects.create(data)
 
-        // Resolve default model: settings.defaultModel → first test-verified provider → empty
         const settings = get().settings
-        let modelConfig = settings?.defaultModel
-        if (!modelConfig) {
-          const entry = Object.entries(settings?.providers ?? {}).find(
-            ([, e]) => e.testStatus === 'ok',
-          )
-          if (entry) {
-            modelConfig = { provider: entry[0], model: entry[1].models[0] ?? '' }
-          }
-        }
+        const modelConfig = settings?.defaultModel
 
         // Auto-create default Main Agent
         const agent = await svc.agents.create(project.id, {

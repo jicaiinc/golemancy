@@ -57,7 +57,9 @@
     "noProvider": "-- Geen --",
     "selectProviderFirst": "-- Selecteer eerst een provider --",
     "noModels": "Geen modellen beschikbaar",
-    "saved": "Opgeslagen!"
+    "saved": "Opgeslagen!",
+    "orphaned": "De provider van het geconfigureerde model is niet meer beschikbaar. Selecteer een nieuwe.",
+    "autoSwitched": "Het standaardmodel is automatisch gewijzigd omdat de vorige provider is verwijderd."
   },
   "providers": {
     "sectionTitle": "PROVIDERS",

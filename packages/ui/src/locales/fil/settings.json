@@ -57,7 +57,9 @@
     "noProvider": "-- Wala --",
     "selectProviderFirst": "-- Pumili muna ng provider --",
     "noModels": "Walang available na model",
-    "saved": "Na-save!"
+    "saved": "Na-save!",
+    "orphaned": "Hindi na available ang provider ng naka-configure na model. Pumili ng bago.",
+    "autoSwitched": "Awtomatikong pinalitan ang default model dahil inalis ang dating provider."
   },
   "providers": {
     "sectionTitle": "MGA PROVIDER",

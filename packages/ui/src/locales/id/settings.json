@@ -57,7 +57,9 @@
     "noProvider": "-- Tidak ada --",
     "selectProviderFirst": "-- Pilih provider terlebih dahulu --",
     "noModels": "Tidak ada model tersedia",
-    "saved": "Tersimpan!"
+    "saved": "Tersimpan!",
+    "orphaned": "Provider model yang dikonfigurasi sudah tidak tersedia. Silakan pilih yang baru.",
+    "autoSwitched": "Model default otomatis diubah karena provider sebelumnya telah dihapus."
   },
   "providers": {
     "sectionTitle": "PROVIDER",

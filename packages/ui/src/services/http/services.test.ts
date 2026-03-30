@@ -499,6 +499,15 @@ describe('HttpSettingsService', () => {
       expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ theme: 'light' }) }),
     )
   })
+
+  it('update() serializes undefined values as null to preserve clear intent', async () => {
+    mockFetch.mockResolvedValue(jsonResponse({}))
+    await svc.update({ defaultModel: undefined } as any)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${BASE}/api/settings`,
+      expect.objectContaining({ body: '{"defaultModel":null}' }),
+    )
+  })
 })
 
 // ── HttpDashboardService ──────────────────────────────────────

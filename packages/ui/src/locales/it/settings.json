@@ -57,7 +57,9 @@
     "noProvider": "-- Nessuno --",
     "selectProviderFirst": "-- Seleziona prima un provider --",
     "noModels": "Nessun modello disponibile",
-    "saved": "Salvato!"
+    "saved": "Salvato!",
+    "orphaned": "Il provider del modello configurato non è più disponibile. Selezionane uno nuovo.",
+    "autoSwitched": "Il modello predefinito è stato cambiato automaticamente perché il provider precedente è stato rimosso."
   },
   "providers": {
     "sectionTitle": "PROVIDER",

@@ -57,7 +57,9 @@
     "noProvider": "-- Không có --",
     "selectProviderFirst": "-- Chọn provider trước --",
     "noModels": "Không có model khả dụng",
-    "saved": "Đã lưu!"
+    "saved": "Đã lưu!",
+    "orphaned": "Provider của model đã cấu hình không còn khả dụng. Vui lòng chọn provider mới.",
+    "autoSwitched": "Model mặc định đã được tự động thay đổi do provider trước đó đã bị xóa."
   },
   "providers": {
     "sectionTitle": "PROVIDER",

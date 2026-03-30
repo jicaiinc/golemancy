@@ -115,3 +115,161 @@ describe('GlobalSettingsPage', () => {
     expect(screen.getByText(/You're up to date/)).toBeInTheDocument()
   })
 })
+
+describe('DefaultModelSection', () => {
+  let services: ServiceContainer
+
+  beforeEach(() => {
+    services = createTestServices()
+    configureServices(services)
+  })
+
+  it('shows orphaned warning when defaultModel references unavailable provider', () => {
+    useAppStore.setState({
+      settings: {
+        ...mockSettings,
+        defaultModel: { provider: 'deleted-provider', model: 'some-model' },
+      },
+      themeMode: 'dark',
+    })
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Providers'))
+    expect(screen.getByText(/no longer available/i)).toBeInTheDocument()
+  })
+
+  it('does not show orphaned warning when defaultModel references an available provider', () => {
+    useAppStore.setState({
+      settings: {
+        ...mockSettings,
+        defaultModel: { provider: 'openai', model: 'gpt-4o' },
+      },
+      themeMode: 'dark',
+    })
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Providers'))
+    expect(screen.queryByText(/no longer available/i)).not.toBeInTheDocument()
+  })
+
+  it('does not show orphaned warning when no defaultModel is set', () => {
+    useAppStore.setState({
+      settings: { ...mockSettings, defaultModel: undefined },
+      themeMode: 'dark',
+    })
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Providers'))
+    expect(screen.queryByText(/no longer available/i)).not.toBeInTheDocument()
+  })
+
+  it('disables dropdowns when no providers are available', () => {
+    useAppStore.setState({
+      settings: { providers: {}, theme: 'dark' },
+      themeMode: 'dark',
+    })
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Providers'))
+    const selects = screen.getAllByRole('combobox')
+    for (const select of selects) {
+      expect(select).toBeDisabled()
+    }
+  })
+
+  it('does not offer a None option when providers are available', () => {
+    useAppStore.setState({
+      settings: {
+        ...mockSettings,
+        defaultModel: { provider: 'openai', model: 'gpt-4o' },
+      },
+      themeMode: 'dark',
+    })
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Providers'))
+    expect(screen.queryByText('-- None --')).not.toBeInTheDocument()
+  })
+})
+
+describe('handleDeleteProvider — defaultModel auto-switch', () => {
+  const twoProviderSettings: GlobalSettings = {
+    providers: {
+      openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
+      anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant', models: ['claude-sonnet-4-6'], testStatus: 'ok' },
+    },
+    theme: 'dark',
+    defaultModel: { provider: 'openai', model: 'gpt-4o' },
+  }
+
+  let updateSettingsSpy: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    const services = createTestServices()
+    configureServices(services)
+    useAppStore.setState({ settings: twoProviderSettings, themeMode: 'dark' })
+    // Spy on the store's updateSettings to capture the patch passed from the component
+    updateSettingsSpy = vi.fn().mockImplementation(async (data: Partial<GlobalSettings>) => {
+      useAppStore.setState({ settings: { ...twoProviderSettings, ...data } })
+    })
+    useAppStore.setState({ updateSettings: updateSettingsSpy as unknown as (data: Partial<GlobalSettings>) => Promise<void> })
+  })
+
+  it('auto-switches defaultModel to next available provider when deleting current default', async () => {
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Providers'))
+
+    const delButtons = screen.getAllByText('Del')
+    fireEvent.click(delButtons[0])
+    fireEvent.click(screen.getByText('Confirm'))
+
+    await waitFor(() => {
+      expect(updateSettingsSpy).toHaveBeenCalled()
+    })
+
+    const patch = updateSettingsSpy.mock.calls[0][0]
+    expect(patch.providers).not.toHaveProperty('openai')
+    expect(patch.defaultModel).toEqual({ provider: 'anthropic', model: 'claude-sonnet-4-6' })
+  })
+
+  it('clears defaultModel when deleting the only provider', async () => {
+    const singleProviderSettings: GlobalSettings = {
+      providers: {
+        openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
+      },
+      theme: 'dark',
+      defaultModel: { provider: 'openai', model: 'gpt-4o' },
+    }
+    updateSettingsSpy = vi.fn().mockImplementation(async (data: Partial<GlobalSettings>) => {
+      useAppStore.setState({ settings: { ...singleProviderSettings, ...data } })
+    })
+    useAppStore.setState({ settings: singleProviderSettings, themeMode: 'dark', updateSettings: updateSettingsSpy as unknown as (data: Partial<GlobalSettings>) => Promise<void> })
+
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Providers'))
+
+    fireEvent.click(screen.getByText('Del'))
+    fireEvent.click(screen.getByText('Confirm'))
+
+    await waitFor(() => {
+      expect(updateSettingsSpy).toHaveBeenCalled()
+    })
+
+    const patch = updateSettingsSpy.mock.calls[0][0]
+    expect(patch.providers).toEqual({})
+    expect(patch.defaultModel).toBeUndefined()
+  })
+
+  it('does not change defaultModel when deleting a non-default provider', async () => {
+    renderWithRouter(<GlobalSettingsPage />)
+    fireEvent.click(screen.getByText('Providers'))
+
+    const delButtons = screen.getAllByText('Del')
+    fireEvent.click(delButtons[1])
+    fireEvent.click(screen.getByText('Confirm'))
+
+    await waitFor(() => {
+      expect(updateSettingsSpy).toHaveBeenCalled()
+    })
+
+    const patch = updateSettingsSpy.mock.calls[0][0]
+    expect(patch.providers).toHaveProperty('openai')
+    expect(patch.providers).not.toHaveProperty('anthropic')
+    expect(patch).not.toHaveProperty('defaultModel')
+  })
+})

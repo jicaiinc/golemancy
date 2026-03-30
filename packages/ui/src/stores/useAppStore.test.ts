@@ -409,6 +409,47 @@ describe('useAppStore', () => {
       expect(result.id).toBe('proj-new')
       expect(useAppStore.getState().projects).toHaveLength(1)
     })
+
+    it('uses settings.defaultModel directly without fallback', async () => {
+      const services = createTestServices()
+      const defaultModel = { provider: 'anthropic', model: 'claude-sonnet-4-6' }
+      services.settings.get = vi.fn().mockResolvedValue({
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
+          anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant', models: ['claude-sonnet-4-6'], testStatus: 'ok' },
+        },
+        theme: 'dark',
+        defaultModel,
+      })
+      configureServices(services)
+      await useAppStore.getState().loadSettings()
+
+      await useAppStore.getState().createProject({ name: 'Test', description: '', icon: '' })
+      expect(services.agents.create).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ modelConfig: defaultModel }),
+      )
+    })
+
+    it('does not silently fallback to first provider when defaultModel is missing', async () => {
+      const services = createTestServices()
+      services.settings.get = vi.fn().mockResolvedValue({
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
+        },
+        theme: 'dark',
+        // No defaultModel set
+      })
+      configureServices(services)
+      await useAppStore.getState().loadSettings()
+
+      await useAppStore.getState().createProject({ name: 'Test', description: '', icon: '' })
+      // Should use empty modelConfig, not silently pick openai
+      expect(services.agents.create).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ modelConfig: { provider: '', model: '' } }),
+      )
+    })
   })
 
   describe('deleteProject', () => {

@@ -57,7 +57,9 @@
     "noProvider": "-- Yok --",
     "selectProviderFirst": "-- Önce sağlayıcı seçin --",
     "noModels": "Kullanılabilir model yok",
-    "saved": "Kaydedildi!"
+    "saved": "Kaydedildi!",
+    "orphaned": "Yapılandırılmış modelin sağlayıcısı artık mevcut değil. Lütfen yeni bir tane seçin.",
+    "autoSwitched": "Önceki sağlayıcı kaldırıldığı için varsayılan model otomatik olarak değiştirildi."
   },
   "providers": {
     "sectionTitle": "SAĞLAYICILAR",

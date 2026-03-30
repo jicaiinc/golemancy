@@ -164,10 +164,15 @@ function ProvidersTab({ settings, onUpdate }: {
   async function handleDeleteProvider(key: string) {
     const updated = { ...providers }
     delete updated[key]
-    // Clear defaultModel if it references the deleted provider
     const patch: Partial<GlobalSettings> = { providers: updated }
+    // If the deleted provider was the default model's provider, auto-switch to the next available one
     if (settings.defaultModel?.provider === key) {
-      patch.defaultModel = undefined
+      const next = Object.entries(updated).find(
+        ([, e]) => e.testStatus === 'ok' && e.models.length > 0,
+      )
+      patch.defaultModel = next
+        ? { provider: next[0], model: next[1].models[0] }
+        : undefined
     }
     await onUpdate(patch)
   }
@@ -291,51 +296,81 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
   onChange: (model: AgentModelConfig | undefined) => Promise<void>
 }) {
   const { t } = useTranslation('settings')
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [provider, setProvider] = useState(defaultModel?.provider ?? '')
-  const [model, setModel] = useState(defaultModel?.model ?? '')
+  const [autoSwitched, setAutoSwitched] = useState(false)
+  const prevProviderRef = useRef(defaultModel?.provider)
 
-  // Sync local state when defaultModel changes externally (e.g. auto-set on first provider)
+  // Sync local state when defaultModel changes externally
   useEffect(() => {
-    setProvider(defaultModel?.provider ?? '')
-    setModel(defaultModel?.model ?? '')
+    const prev = prevProviderRef.current
+    const next = defaultModel?.provider ?? ''
+    prevProviderRef.current = next
+
+    // Detect auto-switch: provider changed and the previous one is gone
+    if (prev && next && prev !== next && !availableProviders.some(([slug]) => slug === prev)) {
+      setAutoSwitched(true)
+    }
   }, [defaultModel?.provider, defaultModel?.model])
 
+  const provider = defaultModel?.provider ?? ''
+  const model = defaultModel?.model ?? ''
   const selectedEntry = providers[provider]
   const models = selectedEntry?.models ?? []
+  const disabled = availableProviders.length === 0
+
+  // Orphaned: defaultModel references a provider that is not available
+  const isOrphaned = !!defaultModel?.provider
+    && !availableProviders.some(([slug]) => slug === defaultModel.provider)
+
+  const hasWarning = isOrphaned || autoSwitched
 
   function handleProviderChange(slug: string) {
-    setProvider(slug)
     const entry = providers[slug]
-    setModel(entry?.models[0] ?? '')
+    const firstModel = entry?.models[0]
+    if (slug && firstModel) {
+      onChange({ provider: slug, model: firstModel })
+    }
+    setAutoSwitched(false)
   }
 
-  async function handleSave() {
-    setSaving(true)
-    if (provider && model) {
-      await onChange({ provider, model })
-    } else {
-      await onChange(undefined)
+  function handleModelChange(m: string) {
+    if (provider && m) {
+      onChange({ provider, model: m })
     }
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    setAutoSwitched(false)
   }
+
+  const warningMessage = isOrphaned
+    ? t('defaultModel.orphaned')
+    : autoSwitched
+      ? t('defaultModel.autoSwitched')
+      : null
 
   return (
-    <PixelCard>
-      <div className="font-pixel text-[10px] text-text-secondary mb-2">{t('defaultModel.sectionTitle')}</div>
-      <p className="text-[11px] text-text-dim mb-3">{t('defaultModel.description')}</p>
+    <PixelCard className={hasWarning ? 'border-accent-amber bg-accent-amber/5' : undefined}>
+      <div className="flex items-center gap-2 mb-2">
+        <div className="font-pixel text-[10px] text-text-secondary">{t('defaultModel.sectionTitle')}</div>
+        {hasWarning && (
+          <span className="font-pixel text-[7px] text-accent-amber bg-accent-amber/15 border border-accent-amber/40 px-1.5 py-0.5 tracking-wide">CHANGED</span>
+        )}
+      </div>
+      {warningMessage ? (
+        <div className="flex items-start gap-2 mb-3">
+          <span className="text-accent-amber shrink-0 mt-px">{'\u26A0'}</span>
+          <p className="text-[11px] text-text-secondary">{warningMessage}</p>
+        </div>
+      ) : (
+        <p className="text-[11px] text-text-dim mb-3">{t('defaultModel.description')}</p>
+      )}
       <div className="flex items-end gap-3">
         <div className="flex flex-col gap-1 flex-1">
           <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('defaultModel.providerLabel')}</label>
           <select
             value={provider}
             onChange={e => handleProviderChange(e.target.value)}
-            className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue cursor-pointer"
+            disabled={disabled}
+            className={`h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
-            <option value="">{t('defaultModel.noProvider')}</option>
+            {disabled && <option value="">{t('defaultModel.noProvider')}</option>}
             {availableProviders.map(([slug, entry]) => (
               <option key={slug} value={slug}>{entry.name}</option>
             ))}
@@ -345,21 +380,16 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
           <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('defaultModel.modelLabel')}</label>
           <select
             value={model}
-            onChange={e => setModel(e.target.value)}
-            className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue cursor-pointer"
+            onChange={e => handleModelChange(e.target.value)}
+            disabled={disabled}
+            className={`h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
-            {!provider && <option value="">{t('defaultModel.selectProviderFirst')}</option>}
-            {provider && models.length === 0 && <option value="">{t('defaultModel.noModels')}</option>}
+            {disabled && <option value="">{t('defaultModel.selectProviderFirst')}</option>}
+            {!disabled && models.length === 0 && <option value="">{t('defaultModel.noModels')}</option>}
             {models.map(m => (
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <PixelButton size="sm" variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? t('common:button.saving') : t('common:button.save')}
-          </PixelButton>
-          {saved && <span className="text-[11px] text-accent-green">{t('defaultModel.saved')}</span>}
         </div>
       </div>
     </PixelCard>

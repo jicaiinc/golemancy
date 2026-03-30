@@ -57,7 +57,9 @@
     "noProvider": "-- 無 --",
     "selectProviderFirst": "-- 請先選擇供應商 --",
     "noModels": "無可用模型",
-    "saved": "已儲存！"
+    "saved": "已儲存！",
+    "orphaned": "目前模型的供應商已無法使用，請重新選擇。",
+    "autoSwitched": "由於先前的供應商已被移除，預設模型已自動更換。"
   },
   "providers": {
     "sectionTitle": "供應商",

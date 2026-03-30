@@ -57,7 +57,9 @@
     "noProvider": "-- Ingen --",
     "selectProviderFirst": "-- Välj provider först --",
     "noModels": "Inga modeller tillgängliga",
-    "saved": "Sparat!"
+    "saved": "Sparat!",
+    "orphaned": "Providern för den konfigurerade modellen är inte längre tillgänglig. Välj en ny.",
+    "autoSwitched": "Standardmodellen ändrades automatiskt eftersom den tidigare providern togs bort."
   },
   "providers": {
     "sectionTitle": "PROVIDERS",
