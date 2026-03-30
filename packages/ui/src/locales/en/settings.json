@@ -70,7 +70,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "SDK TYPE",
     "empty": "No providers configured. Click \"+ Add Provider\" to get started.",
-    "customPlaceholder": "My Provider"
+    "customPlaceholder": "My Provider",
+    "testAndSave": "Test & Save",
+    "testingConnection": "Testing...",
+    "configureProvider": "CONFIGURE {{name}}",
+    "configureCustom": "CONFIGURE CUSTOM PROVIDER",
+    "apiKeyRequired": "API KEY (required)",
+    "modelsRequired": "MODELS (at least one)"
   },
   "provider": {
     "testing": "Testing...",

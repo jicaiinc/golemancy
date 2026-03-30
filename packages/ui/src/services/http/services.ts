@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, GlobalSettings, OAuthFlowState, CronJob,CronJobRun, Skill, Team,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, OAuthFlowState, CronJob,CronJobRun, Skill, Team, ProviderEntry,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile,
   ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId,
   TargetType,
@@ -300,6 +300,12 @@ export class HttpSettingsService implements ISettingsService {
     return fetchJson<{ ok: boolean; error?: string; latencyMs?: number }>(
       `${this.baseUrl}/api/settings/providers/${encodeURIComponent(slug)}/test`,
       { method: 'POST' },
+    )
+  }
+  testProviderConfig(config: ProviderEntry) {
+    return fetchJson<{ ok: boolean; error?: string; latencyMs?: number }>(
+      `${this.baseUrl}/api/settings/providers/test`,
+      { method: 'POST', body: JSON.stringify(config) },
     )
   }
   startOAuthFlow(slug: string) {

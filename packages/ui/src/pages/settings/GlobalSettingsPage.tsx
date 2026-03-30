@@ -10,6 +10,7 @@ import { GlobalLayout } from '../../app/layouts/GlobalLayout'
 import { SpeechTab } from './SpeechTab'
 import { PROVIDER_PRESETS } from '../../lib/provider-presets'
 import { LANGUAGES } from '../../i18n/languages'
+import { AnimatePresence, motion } from 'motion/react'
 
 const SDK_TYPE_OPTIONS: { value: ProviderSdkType; label: string }[] = [
   { value: 'anthropic', label: 'Anthropic' },
@@ -112,18 +113,21 @@ export function GlobalSettingsContent({
   )
 }
 
+// ========== Add Mode Type ==========
+type AddMode =
+  | false
+  | 'select'
+  | { type: 'preset'; key: string }
+  | { type: 'custom' }
+  | { type: 'oauth'; key: string }
+
 // ========== Providers Tab ==========
 function ProvidersTab({ settings, onUpdate }: {
   settings: GlobalSettings
   onUpdate: (data: Partial<GlobalSettings>) => Promise<void>
 }) {
   const { t } = useTranslation('settings')
-  const [addMode, setAddMode] = useState<false | 'select' | 'custom'>(false)
-  const [customName, setCustomName] = useState('')
-  const [customBaseUrl, setCustomBaseUrl] = useState('')
-  const [customSdkType, setCustomSdkType] = useState<ProviderSdkType>('openai-compatible')
-  // Track newly added provider key so its card auto-opens in edit mode
-  const [newlyAddedKey, setNewlyAddedKey] = useState<string | null>(null)
+  const [addMode, setAddMode] = useState<AddMode>(false)
 
   // Defensive: providers may be undefined or old array format from v1 data
   const providers = (settings.providers && !Array.isArray(settings.providers)) ? settings.providers : {}
@@ -137,45 +141,24 @@ function ProvidersTab({ settings, onUpdate }: {
   // Presets not yet added
   const remainingPresets = Object.entries(PROVIDER_PRESETS).filter(([key]) => !providers[key])
 
-  async function handleAddPreset(key: string) {
+  function handlePresetClick(key: string) {
     const preset = PROVIDER_PRESETS[key]
     if (!preset) return
-    const updated = { ...providers }
-    updated[key] = {
-      name: preset.name,
-      sdkType: preset.sdkType,
-      models: [...preset.defaultModels],
-      baseUrl: preset.defaultBaseUrl,
-      ...(preset.oauthConfig ? { oauthConfig: preset.oauthConfig } : {}),
+    if (preset.oauthConfig) {
+      setAddMode({ type: 'oauth', key })
+    } else {
+      setAddMode({ type: 'preset', key })
     }
-    await onUpdate({ providers: updated })
-    setNewlyAddedKey(key)
-    setAddMode(false)
   }
 
-  async function handleAddCustom() {
-    const name = customName.trim()
-    if (!name) return
-    const slug = slugify(name) || 'custom'
-    const updated = { ...providers }
-    let finalSlug = slug
-    if (updated[finalSlug]) {
-      let i = 2
-      while (updated[`${slug}-${i}`]) i++
-      finalSlug = `${slug}-${i}`
+  async function handleSaveProvider(key: string, entry: ProviderEntry) {
+    const patch: Partial<GlobalSettings> = { providers: { ...providers, [key]: entry } }
+    // Auto-set default model when a provider first becomes available and no default is configured
+    if (entry.testStatus === 'ok' && !settings.defaultModel && entry.models.length > 0) {
+      patch.defaultModel = { provider: key, model: entry.models[0] }
     }
-    updated[finalSlug] = {
-      name,
-      sdkType: customSdkType,
-      models: [],
-      baseUrl: customBaseUrl.trim() || undefined,
-    }
-    await onUpdate({ providers: updated })
-    setNewlyAddedKey(finalSlug)
-    setAddMode(false)
-    setCustomName('')
-    setCustomBaseUrl('')
-    setCustomSdkType('openai-compatible')
+    await onUpdate(patch)
+    setAddMode('select')
   }
 
   async function handleDeleteProvider(key: string) {
@@ -228,81 +211,60 @@ function ProvidersTab({ settings, onUpdate }: {
         </PixelButton>
       </div>
 
-      {/* Add Provider Panel */}
-      {addMode === 'select' && (
-        <PixelCard variant="outlined">
-          <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('providers.selectProvider')}</div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-            {remainingPresets.map(([key, preset]) => (
-              <button
-                key={key}
-                onClick={() => handleAddPreset(key)}
-                className={`p-3 border-2 cursor-pointer transition-colors text-left ${
-                  preset.oauthConfig
-                    ? 'border-[rgba(123,143,168,0.45)] bg-gradient-to-br from-deep to-[rgba(107,203,119,0.03)] hover:border-[rgba(123,143,168,0.7)]'
-                    : 'border-border-dim bg-deep hover:border-border-bright'
-                }`}
-              >
-                <div className="text-[11px] text-text-primary">{preset.name}</div>
-                {preset.oauthConfig ? (
-                  <div className="flex gap-1 mt-1.5 flex-wrap">
-                    <span className="font-pixel text-[7px] text-[#7B8FA8] bg-[rgba(123,143,168,0.1)] border border-[rgba(123,143,168,0.3)] px-1.5 py-0.5 tracking-wide">OAUTH</span>
-                    <span className="font-pixel text-[7px] text-accent-green bg-accent-green/10 border border-accent-green/30 px-1.5 py-0.5 tracking-wide">{t('provider.oauthNoApiFees')}</span>
-                  </div>
-                ) : (
-                  <div className="text-[9px] text-text-dim mt-1">{preset.sdkType}</div>
-                )}
-              </button>
-            ))}
-            <button
-              onClick={() => setAddMode('custom')}
-              className="p-3 border-2 border-border-dim border-dashed bg-deep hover:border-border-bright cursor-pointer transition-colors text-left"
-            >
-              <div className="text-[11px] text-text-primary">{t('providers.custom')}</div>
-              <div className="text-[9px] text-text-dim mt-1">{t('providers.anyEndpoint')}</div>
-            </button>
-          </div>
-        </PixelCard>
-      )}
-
-      {addMode === 'custom' && (
-        <PixelCard variant="outlined">
-          <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('providers.customProvider')}</div>
-          <div className="flex flex-col gap-3">
-            <PixelInput
-              label={t('providers.nameLabel')}
-              value={customName}
-              onChange={e => setCustomName(e.target.value)}
-              placeholder={t('providers.customPlaceholder')}
-            />
-            <PixelInput
-              label={t('providers.baseUrlLabel')}
-              value={customBaseUrl}
-              onChange={e => setCustomBaseUrl(e.target.value)}
-              placeholder="https://api.example.com/v1"
-            />
-            <div>
-              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('providers.sdkTypeLabel')}</label>
-              <select
-                value={customSdkType}
-                onChange={e => setCustomSdkType(e.target.value as ProviderSdkType)}
-                className="w-full h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-sunken focus:border-accent-blue outline-none"
-              >
-                {SDK_TYPE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+      {/* Add Provider Panel — animates between grid and form */}
+      <AnimatePresence mode="wait">
+        {addMode === 'select' && (
+          <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <PixelCard variant="outlined">
+              <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('providers.selectProvider')}</div>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                {remainingPresets.map(([key, preset]) => (
+                  <button
+                    key={key}
+                    onClick={() => handlePresetClick(key)}
+                    className={`p-3 border-2 cursor-pointer transition-colors text-left ${
+                      preset.oauthConfig
+                        ? 'border-[rgba(123,143,168,0.45)] bg-gradient-to-br from-deep to-[rgba(107,203,119,0.03)] hover:border-[rgba(123,143,168,0.7)]'
+                        : 'border-border-dim bg-deep hover:border-border-bright'
+                    }`}
+                  >
+                    <div className="text-[11px] text-text-primary">{preset.name}</div>
+                    {preset.oauthConfig ? (
+                      <div className="flex gap-1 mt-1.5 flex-wrap">
+                        <span className="font-pixel text-[7px] text-[#7B8FA8] bg-[rgba(123,143,168,0.1)] border border-[rgba(123,143,168,0.3)] px-1.5 py-0.5 tracking-wide">OAUTH</span>
+                        <span className="font-pixel text-[7px] text-accent-green bg-accent-green/10 border border-accent-green/30 px-1.5 py-0.5 tracking-wide">{t('provider.oauthNoApiFees')}</span>
+                      </div>
+                    ) : (
+                      <div className="text-[9px] text-text-dim mt-1">{preset.sdkType}</div>
+                    )}
+                  </button>
                 ))}
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <PixelButton size="sm" variant="primary" onClick={handleAddCustom}>{t('common:button.add')}</PixelButton>
-              <PixelButton size="sm" variant="ghost" onClick={() => setAddMode('select')}>{t('common:button.back')}</PixelButton>
-            </div>
-          </div>
-        </PixelCard>
-      )}
+                <button
+                  onClick={() => setAddMode({ type: 'custom' })}
+                  className="p-3 border-2 border-border-dim border-dashed bg-deep hover:border-border-bright cursor-pointer transition-colors text-left"
+                >
+                  <div className="text-[11px] text-text-primary">{t('providers.custom')}</div>
+                  <div className="text-[9px] text-text-dim mt-1">{t('providers.anyEndpoint')}</div>
+                </button>
+              </div>
+            </PixelCard>
+          </motion.div>
+        )}
+        {typeof addMode === 'object' && (
+          <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            <ProviderAddForm
+              mode={addMode}
+              providers={providers}
+              onSave={handleSaveProvider}
+              onCancel={() => setAddMode('select')}
+              onUpdate={onUpdate}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Provider Cards */}
-      {providerKeys.length === 0 ? (
+      {providerKeys.length === 0 && !addMode ? (
         <PixelCard variant="outlined" className="text-center py-6">
           <p className="text-[12px] text-text-dim">{t('providers.empty')}</p>
         </PixelCard>
@@ -314,8 +276,6 @@ function ProvidersTab({ settings, onUpdate }: {
             entry={providers[key]}
             onUpdate={entry => handleUpdateProvider(key, entry)}
             onDelete={() => handleDeleteProvider(key)}
-            initialEditing={key === newlyAddedKey}
-            onEditingStart={() => setNewlyAddedKey(null)}
           />
         ))
       )}
@@ -406,18 +366,353 @@ function DefaultModelSection({ providers, availableProviders, defaultModel, onCh
   )
 }
 
+// ========== Provider Add Form (in-place transform) ==========
+function ProviderAddForm({ mode, providers, onSave, onCancel, onUpdate }: {
+  mode: { type: 'preset'; key: string } | { type: 'custom' } | { type: 'oauth'; key: string }
+  providers: Record<string, ProviderEntry>
+  onSave: (key: string, entry: ProviderEntry) => Promise<void>
+  onCancel: () => void
+  onUpdate: (data: Partial<GlobalSettings>) => Promise<void>
+}) {
+  const { t } = useTranslation('settings')
+  const services = useServices()
+
+  const preset = mode.type !== 'custom' ? PROVIDER_PRESETS[mode.key] : undefined
+
+  // Form state
+  const [apiKey, setApiKey] = useState('')
+  const [baseUrl, setBaseUrl] = useState(preset?.defaultBaseUrl ?? '')
+  const [showKey, setShowKey] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testError, setTestError] = useState('')
+  // Custom-specific state
+  const [customName, setCustomName] = useState('')
+  const [customBaseUrl, setCustomBaseUrl] = useState('')
+  const [customSdkType, setCustomSdkType] = useState<ProviderSdkType>('openai-compatible')
+  const [customModels, setCustomModels] = useState<string[]>([])
+  const [newModel, setNewModel] = useState('')
+  // OAuth state
+  const [oauthStatus, setOauthStatus] = useState<OAuthFlowStatus>('idle')
+  const [oauthError, setOauthError] = useState('')
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current)
+    }
+  }, [])
+
+  const buildEntry = useCallback((): { slug: string; entry: ProviderEntry } => {
+    if (mode.type === 'custom') {
+      const name = customName.trim()
+      const slug = slugify(name) || 'custom'
+      let finalSlug = slug
+      if (providers[finalSlug]) {
+        let i = 2
+        while (providers[`${slug}-${i}`]) i++
+        finalSlug = `${slug}-${i}`
+      }
+      return {
+        slug: finalSlug,
+        entry: {
+          name,
+          sdkType: customSdkType,
+          models: customModels,
+          apiKey: apiKey || undefined,
+          baseUrl: customBaseUrl.trim() || undefined,
+        },
+      }
+    }
+    // Preset or OAuth
+    return {
+      slug: mode.key,
+      entry: {
+        name: preset!.name,
+        sdkType: preset!.sdkType,
+        models: [...preset!.defaultModels],
+        apiKey: apiKey || undefined,
+        baseUrl: baseUrl.trim() || preset!.defaultBaseUrl,
+        ...(preset!.oauthConfig ? { oauthConfig: preset!.oauthConfig } : {}),
+      },
+    }
+  }, [mode, preset, apiKey, baseUrl, customName, customBaseUrl, customSdkType, customModels, providers])
+
+  async function handleTestAndSave() {
+    const { slug, entry } = buildEntry()
+    setTesting(true)
+    setTestError('')
+    try {
+      const result = await services.settings.testProviderConfig!(entry)
+      if (result.ok) {
+        await onSave(slug, { ...entry, testStatus: 'ok' })
+      } else {
+        setTestError(result.error ?? t('provider.failed'))
+      }
+    } catch (err) {
+      setTestError(err instanceof Error ? err.message : t('provider.failed'))
+    } finally {
+      setTesting(false)
+    }
+  }
+
+  function handleAddModel() {
+    const model = newModel.trim()
+    if (!model || customModels.includes(model)) return
+    setCustomModels([...customModels, model])
+    setNewModel('')
+  }
+
+  function handleRemoveModel(model: string) {
+    setCustomModels(customModels.filter(m => m !== model))
+  }
+
+  // OAuth flow
+  const startOAuthFlow = useCallback(async () => {
+    if (!services.settings.startOAuthFlow || !preset) return
+    // Must save provider entry first (oauthManager reads from settings)
+    const { slug, entry } = buildEntry()
+    await onUpdate({ providers: { ...providers, [slug]: entry } })
+    setOauthStatus('pending')
+    setOauthError('')
+    try {
+      const { authUrl } = await services.settings.startOAuthFlow(slug)
+      if (window.electronAPI?.openExternalUrl) {
+        await window.electronAPI.openExternalUrl(authUrl)
+      } else {
+        window.open(authUrl, '_blank')
+      }
+      pollRef.current = setInterval(async () => {
+        try {
+          const flowState = await services.settings.getOAuthFlowStatus!(slug)
+          if (flowState.status === 'success') {
+            if (pollRef.current) clearInterval(pollRef.current)
+            pollRef.current = null
+            setOauthStatus('success')
+            const fresh = await services.settings.get()
+            const freshEntry = fresh.providers[slug]
+            if (freshEntry) {
+              await onSave(slug, { ...freshEntry, testStatus: 'ok' })
+            }
+          } else if (flowState.status === 'error') {
+            if (pollRef.current) clearInterval(pollRef.current)
+            pollRef.current = null
+            setOauthStatus('error')
+            setOauthError(flowState.error ?? t('provider.oauthError'))
+          }
+        } catch {
+          // Polling error — ignore
+        }
+      }, 2000)
+      setTimeout(() => {
+        if (pollRef.current) {
+          clearInterval(pollRef.current)
+          pollRef.current = null
+          setOauthStatus('error')
+          setOauthError('Authentication timed out')
+        }
+      }, 5 * 60 * 1000)
+    } catch (err) {
+      setOauthStatus('error')
+      setOauthError(err instanceof Error ? err.message : String(err))
+    }
+  }, [services, preset, buildEntry, providers, onUpdate, onSave, t])
+
+  const cancelOAuth = useCallback(async () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current)
+      pollRef.current = null
+    }
+    setOauthStatus('idle')
+    setOauthError('')
+    // Delete temporarily saved provider entry
+    if (mode.type === 'oauth') {
+      const { [mode.key]: _, ...rest } = providers
+      await onUpdate({ providers: rest })
+      try {
+        await services.settings.cancelOAuthFlow?.(mode.key)
+      } catch { /* ignore */ }
+    }
+    onCancel()
+  }, [services, mode, providers, onUpdate, onCancel])
+
+  const canTestPreset = !!apiKey || isLocalUrl(baseUrl)
+  const canTestCustom = !!customName.trim() && customModels.length > 0 && (!!apiKey || isLocalUrl(customBaseUrl))
+
+  // --- Preset / Custom form ---
+  if (mode.type === 'preset' || mode.type === 'custom') {
+    const title = mode.type === 'preset'
+      ? t('providers.configureProvider', { name: preset!.name })
+      : t('providers.configureCustom')
+
+    return (
+      <PixelCard variant="outlined">
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">{title}</div>
+        <div className="flex flex-col gap-3">
+          {/* Custom-only: name, sdk type */}
+          {mode.type === 'custom' && (
+            <>
+              <PixelInput
+                label={t('providers.nameLabel')}
+                value={customName}
+                onChange={e => setCustomName(e.target.value)}
+                placeholder={t('providers.customPlaceholder')}
+              />
+              <div>
+                <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('providers.sdkTypeLabel')}</label>
+                <select
+                  value={customSdkType}
+                  onChange={e => setCustomSdkType(e.target.value as ProviderSdkType)}
+                  className="w-full h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-sunken focus:border-accent-blue outline-none"
+                >
+                  {SDK_TYPE_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          {/* API Key */}
+          <div>
+            <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('providers.apiKeyRequired')}</label>
+            <div className="flex gap-2">
+              <input
+                type={showKey ? 'text' : 'password'}
+                value={apiKey}
+                onChange={e => setApiKey(e.target.value)}
+                placeholder="sk-..."
+                className="flex-1 h-9 bg-deep px-3 text-[12px] text-text-primary font-mono border-2 border-border-dim shadow-sunken focus:border-accent-blue outline-none"
+              />
+              <PixelButton size="sm" variant="ghost" onClick={() => setShowKey(!showKey)}>
+                {showKey ? t('provider.hideKey') : t('provider.showKey')}
+              </PixelButton>
+            </div>
+          </div>
+
+          {/* Base URL */}
+          <PixelInput
+            label={mode.type === 'custom' ? t('providers.baseUrlLabel') : t('provider.baseUrlOptional')}
+            value={mode.type === 'custom' ? customBaseUrl : baseUrl}
+            onChange={e => mode.type === 'custom' ? setCustomBaseUrl(e.target.value) : setBaseUrl(e.target.value)}
+            placeholder="https://api.example.com/v1"
+          />
+
+          {/* Custom-only: models */}
+          {mode.type === 'custom' && (
+            <div>
+              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('providers.modelsRequired')}</label>
+              {customModels.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {customModels.map(m => (
+                    <span key={m} className="inline-flex items-center gap-1 bg-deep border border-border-dim px-2 py-0.5 text-[11px] font-mono text-text-secondary">
+                      {m}
+                      <button onClick={() => handleRemoveModel(m)} className="text-text-dim hover:text-accent-red cursor-pointer">&times;</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <input
+                  value={newModel}
+                  onChange={e => setNewModel(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAddModel()}
+                  placeholder="model-name"
+                  className="flex-1 h-8 bg-deep px-3 text-[11px] text-text-primary font-mono border-2 border-border-dim shadow-sunken focus:border-accent-blue outline-none"
+                />
+                <PixelButton size="sm" variant="ghost" onClick={handleAddModel}>{t('provider.addModel')}</PixelButton>
+              </div>
+            </div>
+          )}
+
+          {/* Preset: show pre-filled models as read-only chips */}
+          {mode.type === 'preset' && preset && (
+            <div>
+              <label className="font-pixel text-[8px] text-text-dim block mb-1">{t('provider.modelsCount', { count: preset.defaultModels.length })}</label>
+              <div className="flex flex-wrap gap-1.5">
+                {preset.defaultModels.map(m => (
+                  <span key={m} className="bg-deep border border-border-dim px-2 py-0.5 text-[11px] font-mono text-text-secondary">{m}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Error */}
+          {testError && (
+            <div className="bg-accent-red/10 border border-accent-red/30 p-2 text-[11px] text-accent-red font-mono break-all">{testError}</div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-2 items-center">
+            <PixelButton
+              size="sm"
+              variant="primary"
+              onClick={handleTestAndSave}
+              disabled={testing || (mode.type === 'preset' ? !canTestPreset : !canTestCustom)}
+            >
+              {testing ? t('providers.testingConnection') : t('providers.testAndSave')}
+            </PixelButton>
+            <PixelButton size="sm" variant="ghost" onClick={onCancel}>
+              {mode.type === 'custom' ? t('common:button.back') : t('common:button.cancel')}
+            </PixelButton>
+          </div>
+        </div>
+      </PixelCard>
+    )
+  }
+
+  // --- OAuth form ---
+  return (
+    <PixelCard variant="outlined" className="border-[rgba(123,143,168,0.35)]">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="font-pixel text-[10px] text-text-secondary">{t('providers.configureProvider', { name: preset!.name })}</span>
+        <span className="font-pixel text-[7px] text-[#7B8FA8] bg-[rgba(123,143,168,0.1)] border border-[rgba(123,143,168,0.3)] px-1.5 py-0.5 tracking-wide">OAUTH</span>
+        <span className="font-pixel text-[7px] text-accent-green bg-accent-green/10 border border-accent-green/30 px-1.5 py-0.5 tracking-wide">{t('provider.oauthNoApiFees')}</span>
+      </div>
+
+      {oauthStatus === 'idle' && (
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={startOAuthFlow}
+            className="w-full p-3 border-2 border-accent-green/40 bg-gradient-to-r from-accent-green/5 to-accent-green/10 hover:border-accent-green/70 cursor-pointer transition-colors text-center"
+          >
+            <span className="text-[12px] text-accent-green font-pixel">{t('provider.oauthSignIn', { provider: preset!.name })}</span>
+          </button>
+          <p className="text-[10px] text-text-dim">{t('provider.oauthSubscriptionHint')}</p>
+          <PixelButton size="sm" variant="ghost" onClick={onCancel}>{t('common:button.cancel')}</PixelButton>
+        </div>
+      )}
+
+      {oauthStatus === 'pending' && (
+        <div className="flex flex-col gap-2">
+          <p className="text-[11px] text-accent-amber animate-pulse">{t('provider.oauthPending')}</p>
+          <p className="text-[10px] text-text-dim">{t('provider.oauthPendingHint')}</p>
+          <PixelButton size="sm" variant="ghost" onClick={cancelOAuth}>{t('provider.oauthCancel')}</PixelButton>
+        </div>
+      )}
+
+      {oauthStatus === 'error' && (
+        <div className="flex flex-col gap-2">
+          <div className="bg-accent-red/10 border border-accent-red/30 p-2 text-[11px] text-accent-red font-mono">{oauthError}</div>
+          <div className="flex gap-2">
+            <PixelButton size="sm" variant="primary" onClick={startOAuthFlow}>{t('common:button.retry')}</PixelButton>
+            <PixelButton size="sm" variant="ghost" onClick={cancelOAuth}>{t('common:button.cancel')}</PixelButton>
+          </div>
+        </div>
+      )}
+    </PixelCard>
+  )
+}
+
 // ========== Provider Card ==========
-function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing = false, onEditingStart }: {
+function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
   providerKey: string
   entry: ProviderEntry
   onUpdate: (entry: ProviderEntry) => Promise<void>
   onDelete: () => Promise<void>
-  initialEditing?: boolean
-  onEditingStart?: () => void
 }) {
   const { t } = useTranslation('settings')
   const services = useServices()
-  const [editing, setEditing] = useState(initialEditing && !entry.oauthConfig)
+  const [editing, setEditing] = useState(false)
   const [apiKey, setApiKey] = useState(entry.apiKey ?? '')
   const [baseUrl, setBaseUrl] = useState(entry.baseUrl ?? '')
   const [name, setName] = useState(entry.name)
@@ -428,17 +723,6 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete, initialEditing =
   const [testing, setTesting] = useState(false)
   const [testError, setTestError] = useState('')
   const [testLatency, setTestLatency] = useState(0)
-
-  // When initialEditing flips to true (newly added provider), open edit mode
-  // OAuth providers skip edit mode — show the OAuth sign-in section instead
-  useEffect(() => {
-    if (initialEditing) {
-      if (!entry.oauthConfig) {
-        setEditing(true)
-      }
-      onEditingStart?.()
-    }
-  }, [initialEditing]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Defensive: ensure models is always an array
   const safeEntry = { ...entry, models: entry.models ?? [] }

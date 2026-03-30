@@ -72,7 +72,7 @@ test.describe('Settings', () => {
     await expect(window.getByText('Custom').first()).toBeVisible()
   })
 
-  test('add preset provider creates a new provider card', async ({ window, helper }) => {
+  test('add preset provider shows configure form', async ({ window, helper }) => {
     await helper.navigateTo('/')
     await helper.navigateTo('/settings')
     await window.locator('[data-testid="tab-providers"]').click()
@@ -83,10 +83,12 @@ test.describe('Settings', () => {
     await expect(window.getByText('SELECT PROVIDER')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
-    // Click a preset that's guaranteed to not already exist
+    // Click a preset — should show inline configure form, not create a card
     await window.getByText('DeepSeek').first().click()
-    // Should now show DeepSeek provider card
-    await expect(window.getByText('DeepSeek').first()).toBeVisible()
+    // Should now show configure form with API Key input and Test & Save button
+    await expect(window.getByText('CONFIGURE DeepSeek')).toBeVisible()
+    await expect(window.getByText('API KEY (required)')).toBeVisible()
+    await expect(window.getByRole('button', { name: 'Test & Save' })).toBeVisible()
   })
 
   test('custom provider flow', async ({ window, helper }) => {
@@ -98,9 +100,11 @@ test.describe('Settings', () => {
     })
     await window.getByRole('button', { name: '+ Add Provider' }).click()
     await window.getByText('Custom').click()
-    // Should show custom provider form
-    await expect(window.getByText('CUSTOM PROVIDER')).toBeVisible()
+    // Should show custom provider form with all fields
+    await expect(window.getByText('CONFIGURE CUSTOM PROVIDER')).toBeVisible()
     await expect(window.getByText('SDK TYPE')).toBeVisible()
+    await expect(window.getByText('API KEY (required)')).toBeVisible()
+    await expect(window.getByText('MODELS (at least one)')).toBeVisible()
   })
 
   test('general tab is default', async ({ window, helper }) => {

@@ -69,6 +69,63 @@ export function createSettingsRoutes(storage: ISettingsService) {
     return c.json(updated)
   })
 
+  // Body-based test: test provider config before saving
+  app.post('/providers/test', async (c) => {
+    const entry = await c.req.json()
+    log.info({ sdkType: entry.sdkType }, 'testing provider config')
+
+    if (!entry.apiKey && !entry.baseUrl?.includes('localhost') && !entry.oauth?.accessToken) {
+      return c.json({ ok: false, error: 'NO_API_KEY' }, 400)
+    }
+
+    const testModel = entry.models?.[0]
+    if (!testModel) {
+      return c.json({ ok: false, error: 'NO_MODELS_CONFIGURED' }, 400)
+    }
+
+    try {
+      let model
+      let isOAuthModel = false
+      if (entry.oauth?.accessToken && entry.oauthConfig) {
+        const { createOpenAI } = await import('@ai-sdk/openai')
+        model = createOpenAI({
+          apiKey: entry.oauth.accessToken,
+          baseURL: entry.oauthConfig.apiBaseUrl,
+          headers: entry.oauth.accountId
+            ? { 'ChatGPT-Account-Id': entry.oauth.accountId }
+            : undefined,
+        }).responses(testModel)
+        isOAuthModel = true
+      } else {
+        model = await createTestModel(entry.sdkType, entry.apiKey, entry.baseUrl, testModel)
+      }
+      const start = Date.now()
+
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), TEST_TIMEOUT_MS)
+
+      try {
+        await generateText({
+          model,
+          prompt: 'Say "ok"',
+          maxOutputTokens: 20,
+          abortSignal: controller.signal,
+          ...(isOAuthModel ? { providerOptions: { openai: { store: false, instructions: 'You are a helpful assistant.' } } } : {}),
+        })
+      } finally {
+        clearTimeout(timeout)
+      }
+
+      const latencyMs = Date.now() - start
+      log.info({ sdkType: entry.sdkType, latencyMs }, 'provider config test succeeded')
+      return c.json({ ok: true, latencyMs })
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      log.warn({ sdkType: entry.sdkType, error: message }, 'provider config test failed')
+      return c.json({ ok: false, error: message })
+    }
+  })
+
   app.post('/providers/:slug/test', async (c) => {
     const slug = c.req.param('slug')
     log.info({ slug }, 'testing provider')

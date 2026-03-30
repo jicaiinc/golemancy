@@ -9,8 +9,10 @@ const mocks = vi.hoisted(() => {
 
   const openaiModel = { id: 'openai-model' }
   const openaiResponsesModel = { id: 'openai-responses-model' }
+  const openaiChatModel = { id: 'openai-chat-model' }
   const openaiFactory = vi.fn(() => openaiModel)
   openaiFactory.responses = vi.fn(() => openaiResponsesModel)
+  openaiFactory.chat = vi.fn(() => openaiChatModel)
   const createOpenAI = vi.fn(() => openaiFactory)
 
   const googleModel = { id: 'google-model' }
@@ -19,7 +21,7 @@ const mocks = vi.hoisted(() => {
 
   return {
     createAnthropic, anthropicFactory, anthropicModel,
-    createOpenAI, openaiFactory, openaiModel, openaiResponsesModel,
+    createOpenAI, openaiFactory, openaiModel, openaiResponsesModel, openaiChatModel,
     createGoogleGenerativeAI, googleFactory, googleModel,
   }
 })
@@ -106,8 +108,8 @@ describe('resolveModel', () => {
         apiKey: 'ollama-key',
         baseURL: 'http://localhost:11434/v1',
       })
-      expect(mocks.openaiFactory).toHaveBeenCalledWith('llama3')
-      expect(result.model).toBe(mocks.openaiModel)
+      expect(mocks.openaiFactory.chat).toHaveBeenCalledWith('llama3')
+      expect(result.model).toBe(mocks.openaiChatModel)
     })
   })
 

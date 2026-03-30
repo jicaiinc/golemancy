@@ -1,5 +1,5 @@
 import type {
-  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill,
+  Project, Agent, Conversation, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, ProviderEntry,
   MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, PermissionsConfigFile, Team,
   ProjectId, AgentId, ConversationId, TaskId, MessageId, SkillId, CronJobId, PermissionsConfigId, MemoryId, TeamId, TargetType,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
@@ -643,6 +643,13 @@ export class MockSettingsService implements ISettingsService {
     const entry = this.settings.providers[slug]
     if (!entry) return { ok: false, error: `Provider "${slug}" not found` }
     if (!entry.apiKey && !entry.baseUrl?.includes('localhost')) return { ok: false, error: 'No API key configured' }
+    return { ok: true, latencyMs: 120 + Math.floor(Math.random() * 200) }
+  }
+
+  async testProviderConfig(config: ProviderEntry): Promise<{ ok: boolean; error?: string; latencyMs?: number }> {
+    await delay(200)
+    if (!config.apiKey && !config.baseUrl?.includes('localhost')) return { ok: false, error: 'No API key configured' }
+    if (!config.models?.length) return { ok: false, error: 'No models configured' }
     return { ok: true, latencyMs: 120 + Math.floor(Math.random() * 200) }
   }
 }
