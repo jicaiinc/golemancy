@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useTabParam } from '../../hooks'
 import { useTranslation } from 'react-i18next'
@@ -198,7 +198,6 @@ function ModelConfigTab({ agent, onUpdate }: {
   const [compactThreshold, setCompactThreshold] = useState(
     agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD,
   )
-  const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
   // Filter to available providers: test must have passed
@@ -224,22 +223,53 @@ function ModelConfigTab({ agent, onUpdate }: {
   const selectedProvider = settings?.providers[providerSlug]
   const models = selectedProvider?.models ?? []
 
-  function handleProviderChange(slug: string) {
-    setProviderSlug(slug)
-    const entry = settings?.providers[slug]
-    setModel(entry?.models[0] ?? '')
-  }
-
-  async function handleSave() {
-    setSaving(true)
-    await onUpdate(agent.id, {
-      modelConfig: { provider: providerSlug, model },
-      compactThreshold,
-    })
-    setSaving(false)
+  function flashSaved() {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
+
+  async function handleProviderChange(slug: string) {
+    setProviderSlug(slug)
+    const entry = settings?.providers[slug]
+    const newModel = entry?.models[0] ?? ''
+    setModel(newModel)
+    await onUpdate(agent.id, {
+      modelConfig: { provider: slug, model: newModel },
+      compactThreshold,
+    })
+    flashSaved()
+  }
+
+  async function handleModelChange(value: string) {
+    setModel(value)
+    await onUpdate(agent.id, {
+      modelConfig: { provider: providerSlug, model: value },
+      compactThreshold,
+    })
+    flashSaved()
+  }
+
+  const compactTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
+  const latestRef = useRef({ providerSlug, model })
+  latestRef.current = { providerSlug, model }
+
+  useEffect(() => {
+    return () => { if (compactTimerRef.current) clearTimeout(compactTimerRef.current) }
+  }, [])
+
+  const handleCompactThresholdChange = useCallback((value: number) => {
+    setCompactThreshold(value)
+    if (compactTimerRef.current) clearTimeout(compactTimerRef.current)
+    compactTimerRef.current = setTimeout(async () => {
+      const { providerSlug: p, model: m } = latestRef.current
+      await onUpdate(agent.id, {
+        modelConfig: { provider: p, model: m },
+        compactThreshold: value,
+      })
+      flashSaved()
+    }, 500)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- flashSaved only calls stable setSaved
+  }, [agent.id, onUpdate])
 
   return (
     <div className="max-w-[640px] flex flex-col gap-4">
@@ -265,7 +295,7 @@ function ModelConfigTab({ agent, onUpdate }: {
             <label className="font-pixel text-[8px] leading-[12px] text-text-secondary">{t('label.model')}</label>
             <select
               value={model}
-              onChange={e => setModel(e.target.value)}
+              onChange={e => handleModelChange(e.target.value)}
               className="h-9 bg-deep px-3 font-mono text-[13px] text-text-primary border-2 border-border-dim shadow-sunken outline-none focus:border-accent-blue cursor-pointer"
             >
               {models.length === 0 && <option value="">{t('noModels')}</option>}
@@ -280,15 +310,14 @@ function ModelConfigTab({ agent, onUpdate }: {
       {/* Compact Threshold */}
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('modelConfig.compactLabel')}</div>
-        <CompactThresholdControl value={compactThreshold} onChange={setCompactThreshold} />
+        <CompactThresholdControl value={compactThreshold} onChange={handleCompactThresholdChange} />
       </PixelCard>
 
-      <div className="flex items-center gap-3">
-        <PixelButton variant="primary" onClick={handleSave} disabled={saving}>
-          {saving ? t('common:button.saving') : t('common:button.save')}
-        </PixelButton>
-        {saved && <span className="text-[12px] text-accent-green">{t('savedMsg')}</span>}
-      </div>
+      {saved && (
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] text-accent-green">{t('savedMsg')}</span>
+        </div>
+      )}
     </div>
   )
 }

@@ -357,8 +357,6 @@ export function SpeechTab() {
 
   const testStatus = stt.testStatus ?? 'untested'
 
-  const [saved, setSaved] = useState(false)
-
   // History state
   const speechHistory = useAppStore(s => s.speechHistory)
   const speechHistoryLoading = useAppStore(s => s.speechHistoryLoading)
@@ -607,7 +605,7 @@ export function SpeechTab() {
                     </select>
                   </div>
 
-                  {/* Test + Save */}
+                  {/* Test */}
                   <div className="flex items-center gap-2">
                     <PixelButton size="sm" variant={testStatus === 'ok' ? 'ghost' : 'secondary'} onClick={runTest} disabled={testing} data-testid="speech-test-btn">
                       {testing ? '...' : testStatus === 'ok' ? t('test.retest') : t('test.test')}
@@ -621,27 +619,6 @@ export function SpeechTab() {
                     ) : (
                       <span className="text-[9px] text-text-dim">{t('test.untested')}</span>
                     )}
-                    <div className="ml-auto flex items-center gap-2">
-                      {saved && <span className="text-[11px] text-accent-green">{t('test.ok')}</span>}
-                      <PixelButton
-                        size="sm"
-                        variant="primary"
-                        onClick={async () => {
-                          await save({
-                            apiKey: apiKey || undefined,
-                            baseUrl: baseUrl || undefined,
-                            model,
-                            language: language || undefined,
-                            testStatus: 'untested',
-                          })
-                          setSaved(true)
-                          setTimeout(() => setSaved(false), 1500)
-                        }}
-                        data-testid="speech-save-btn"
-                      >
-                        {t('common:button.save')}
-                      </PixelButton>
-                    </div>
                   </div>
                   {!testing && testStatus === 'error' && testError && (
                     <div className="p-1.5 bg-accent-red/10 border border-accent-red/30">

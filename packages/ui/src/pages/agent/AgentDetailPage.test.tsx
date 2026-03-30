@@ -245,6 +245,79 @@ describe('AgentDetailPage', () => {
     })
   })
 
+  it('Model Config tab auto-saves on provider change', async () => {
+    const mockUpdate = vi.fn().mockResolvedValue(undefined)
+    useAppStore.setState({
+      updateAgent: mockUpdate,
+      settings: {
+        ...baseSettings,
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
+          anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant', models: ['claude-sonnet-4-20250514'], testStatus: 'ok' },
+        },
+      },
+    })
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Model Config'))
+
+    await waitFor(() => {
+      expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+    })
+
+    // Change provider to Anthropic
+    const providerSelect = screen.getByDisplayValue('OpenAI')
+    fireEvent.change(providerSelect, { target: { value: 'anthropic' } })
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(AGENT_ID, expect.objectContaining({
+        modelConfig: { provider: 'anthropic', model: 'claude-sonnet-4-20250514' },
+      }))
+    })
+  })
+
+  it('Model Config tab auto-saves on model change', async () => {
+    const mockUpdate = vi.fn().mockResolvedValue(undefined)
+    useAppStore.setState({
+      updateAgent: mockUpdate,
+      settings: {
+        ...baseSettings,
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o', 'gpt-4o-mini'], testStatus: 'ok' },
+        },
+      },
+    })
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Model Config'))
+
+    await waitFor(() => {
+      expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+    })
+
+    // Change model
+    const modelSelect = screen.getByDisplayValue('gpt-4o')
+    fireEvent.change(modelSelect, { target: { value: 'gpt-4o-mini' } })
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith(AGENT_ID, expect.objectContaining({
+        modelConfig: { provider: 'openai', model: 'gpt-4o-mini' },
+      }))
+    })
+  })
+
+  it('Model Config tab has no Save button', async () => {
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Model Config'))
+
+    await waitFor(() => {
+      expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+    })
+
+    // Should not have a Save/Saving button in Model Config tab
+    const buttons = screen.queryAllByRole('button')
+    const saveButtons = buttons.filter(b => b.textContent === 'Save' || b.textContent === 'Saving...')
+    expect(saveButtons).toHaveLength(0)
+  })
+
   it('switches to Skills tab and shows empty state', async () => {
     renderAtRoute()
     fireEvent.click(screen.getByText('Skills'))
