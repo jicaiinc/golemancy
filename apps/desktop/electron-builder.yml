@@ -6,6 +6,7 @@ publish:
   provider: github
   owner: jicaiinc
   repo: golemancy
+  releaseType: draft
 
 directories:
   output: release
