@@ -94,7 +94,7 @@ Electron main fork()s server child process (PORT=0), server sends `{ port, token
 
 ### Server
 
-Hono HTTP server + SQLite (drizzle-orm) + Vercel AI SDK. **Storage split**: SQLite for high-frequency queryable data (messages, task logs, memories); file system for human-readable config (projects, agents, teams, skills, settings JSON). Each project gets its own SQLite database. FTS5 for message search.
+Hono HTTP server + SQLite (drizzle-orm) + Vercel AI SDK. **Storage split**: SQLite for high-frequency queryable data (messages, task logs, memories); file system for human-readable config (projects, agents, teams, skills, settings JSON). Each project gets its own SQLite database. FTS5 for message search. **Logs**: 用户通过 app 启动时，日志存放在 `~/.golemancy/logs/`。
 
 Key dirs in `packages/server/src/`: `app.ts` (Hono factory), `db/` (SQLite + migrations), `storage/` (service impl), `routes/` (REST endpoints), `agent/` (AI runtime, tools, MCP, sandbox, permissions), `runtime/` (Node/Python env), `ws/` (WebSocket events).
 
