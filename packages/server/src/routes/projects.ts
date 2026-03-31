@@ -2,8 +2,9 @@ import { Hono } from 'hono'
 import type { IProjectService, ISettingsService, ProjectId } from '@golemancy/shared'
 import { getProjectTemplate } from '@golemancy/shared'
 import { instantiateProjectTemplate } from '../storage/template-instantiate'
-import { clearProjectDeletion, markProjectDeleted, markProjectDeleting } from '../project-deletion'
+import { clearProjectDeletion, isProjectBlocked, markProjectDeleted, markProjectDeleting } from '../project-deletion'
 import { initProjectPythonEnv } from '../runtime/python-manager'
+import { captureException } from '../sentry'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:projects' })
@@ -21,12 +22,15 @@ export function createProjectRoutes(deps: ProjectRouteDeps) {
   app.get('/', async (c) => {
     log.debug('listing projects')
     const projects = await storage.list()
-    log.debug({ count: projects.length }, 'listed projects')
-    return c.json(projects)
+    // Filter out projects that are mid-deletion (background cleanup in progress)
+    const visible = projects.filter(p => !isProjectBlocked(p.id))
+    log.debug({ count: visible.length }, 'listed projects')
+    return c.json(visible)
   })
 
   app.get('/:id', async (c) => {
     const id = c.req.param('id') as ProjectId
+    if (isProjectBlocked(id)) return c.json({ error: 'NOT_FOUND' }, 404)
     log.debug({ projectId: id }, 'getting project')
     const project = await storage.getById(id)
     if (!project) return c.json({ error: 'NOT_FOUND' }, 404)
@@ -113,15 +117,23 @@ export function createProjectRoutes(deps: ProjectRouteDeps) {
     const id = c.req.param('id') as ProjectId
     log.debug({ projectId: id }, 'deleting project')
     markProjectDeleting(id)
-    try {
-      if (deps.onBeforeDelete) await deps.onBeforeDelete(id)
-      await storage.delete(id)
-      markProjectDeleted(id)
-      return c.json({ ok: true })
-    } catch (err) {
-      clearProjectDeletion(id)
-      throw err
+
+    // Return immediately — actual cleanup runs in background
+    const doDelete = async () => {
+      try {
+        if (deps.onBeforeDelete) await deps.onBeforeDelete(id)
+        await storage.delete(id)
+        markProjectDeleted(id)
+        log.info({ projectId: id }, 'project deleted successfully')
+      } catch (err) {
+        clearProjectDeletion(id)
+        captureException(err, { projectId: id, phase: 'background-delete' })
+        log.error({ projectId: id, err }, 'background project deletion failed')
+      }
     }
+    setImmediate(() => { doDelete().catch(() => {}) })
+
+    return c.json({ ok: true })
   })
 
   return app

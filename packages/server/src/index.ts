@@ -154,23 +154,34 @@ async function main() {
   let cronExecutor: CronJobExecutor | undefined
 
   const onProjectDeleting = async (id: ProjectId) => {
-    // 1. Abort: cancel active chats, scheduled cron jobs, and running cron executions
-    activeChatRegistry.abortProject(id as string)
-    cronScheduler.removeProjectJobs(id as string)
-    cronExecutor?.abortProject(id as string)
+    const pid = id as string
 
-    // 2. Grace period: let abort signals propagate and streams wind down
-    await new Promise(r => setTimeout(r, 500))
+    // 1. Remove scheduled cron jobs (instant, no waiting needed)
+    cronScheduler.removeProjectJobs(pid)
 
-    // 3. Close SQLite database (WAL checkpoint happens inside closeDb)
-    dbManager.closeProject(id)
+    // 2. Abort active chats + running cron executions, then wait for them to finish.
+    //    Retry up to 3 rounds (2s each). If chats stop early, we break immediately.
+    const ABORT_ROUNDS = 3
+    const ABORT_INTERVAL_MS = 2000
+    for (let round = 0; round < ABORT_ROUNDS; round++) {
+      activeChatRegistry.abortProject(pid)
+      cronExecutor?.abortProject(pid)
+      await new Promise(r => setTimeout(r, ABORT_INTERVAL_MS))
+      const remaining = activeChatRegistry.getRunningForProject(pid)
+      if (remaining.length === 0) break
+      logger.warn({ projectId: pid, round: round + 1, remaining: remaining.length }, 'active chats still running after abort, retrying')
+    }
 
-    // 4. Tear down child processes (all awaitable now)
+    // 3. Tear down child processes BEFORE closing DB —
+    //    MCP/sandbox/Python processes may hold file handles on the project directory.
     await Promise.allSettled([
       removeProjectPythonEnv(id),
       sandboxPool.removeProject(id),
       mcpPool.invalidateProject(id),
     ])
+
+    // 4. Close SQLite database (WAL checkpoint happens inside closeDb)
+    dbManager.closeProject(id)
   }
 
   const deps: ServerDependencies = {

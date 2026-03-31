@@ -407,11 +407,13 @@ export const useAppStore = create<AppState>()(
       },
 
       async deleteProject(id) {
-        await getServices().projects.delete(id)
+        // Optimistic: remove from store immediately, then fire backend delete.
+        // Backend returns 200 instantly (deletion runs in background).
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
           ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversationList: [], currentConversation: null, conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [], memories: [], teams: [] } : {}),
         }))
+        await getServices().projects.delete(id)
       },
 
       async cloneProject(id, newName) {

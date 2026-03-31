@@ -96,22 +96,36 @@ describe('Projects routes', () => {
   })
 
   describe('DELETE /api/projects/:id', () => {
-    it('deletes project', async () => {
+    it('returns 200 immediately and marks project as deleting', async () => {
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}`)
       expect(res.status).toBe(200)
       const body = await res.json()
       expect(body.ok).toBe(true)
-      expect(mocks.projectStorage.delete).toHaveBeenCalledWith(projId)
+      // Project is blocked immediately (before background delete runs)
       expect(isProjectBlocked(projId)).toBe(true)
     })
 
-    it('clears deletion marker when delete fails', async () => {
+    it('calls storage.delete in background', async () => {
+      await makeRequest(app, 'DELETE', `/api/projects/${projId}`)
+      // Background delete runs via setImmediate — flush it
+      await new Promise(r => setImmediate(r))
+      await vi.waitFor(() => {
+        expect(mocks.projectStorage.delete).toHaveBeenCalledWith(projId)
+      })
+    })
+
+    it('clears deletion marker when background delete fails', async () => {
       vi.mocked(mocks.projectStorage.delete).mockRejectedValue(new Error('delete failed'))
 
       const res = await makeRequest(app, 'DELETE', `/api/projects/${projId}`)
+      // Still returns 200 immediately
+      expect(res.status).toBe(200)
 
-      expect(res.status).toBe(500)
-      expect(isProjectBlocked(projId)).toBe(false)
+      // Wait for background delete to complete and clear the marker
+      await new Promise(r => setImmediate(r))
+      await vi.waitFor(() => {
+        expect(isProjectBlocked(projId)).toBe(false)
+      })
     })
   })
 })

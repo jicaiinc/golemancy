@@ -255,7 +255,11 @@ describe('HTTP API routes', () => {
       expect(res.status).toBe(200)
       const body = await res.json()
       expect(body.ok).toBe(true)
-      expect(deps.projectStorage.delete).toHaveBeenCalledWith('proj-1')
+      // Background delete runs via setImmediate — flush it
+      await new Promise(r => setImmediate(r))
+      await vi.waitFor(() => {
+        expect(deps.projectStorage.delete).toHaveBeenCalledWith('proj-1')
+      })
     })
   })
 

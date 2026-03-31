@@ -122,6 +122,16 @@ export class FileProjectStorage implements IProjectService {
   async delete(id: ProjectId): Promise<void> {
     validateId(id)
     log.debug({ projectId: id }, 'deleting project')
+
+    // Delete project.json first — guarantees list() no longer returns this project,
+    // even if the directory removal fails (EBUSY on Windows).
+    const projectJson = this.projectJsonPath(id)
+    try {
+      await fs.unlink(projectJson)
+    } catch (e) {
+      if (!isNodeError(e) || e.code !== 'ENOENT') throw e
+    }
+
     await deleteDir(path.join(this.projectsDir, id))
   }
 

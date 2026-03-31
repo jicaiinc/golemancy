@@ -2,6 +2,10 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { assertProjectPathWritable } from '../project-deletion'
+import { captureException } from '../sentry'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'storage:base' })
 
 export function isNodeError(e: unknown): e is NodeJS.ErrnoException {
   return e instanceof Error && 'code' in e
@@ -71,8 +75,8 @@ export async function listJsonFiles<T>(dirPath: string): Promise<T[]> {
 }
 
 const RETRY_CODES = new Set(['EBUSY', 'EPERM', 'EACCES'])
-const DELETE_DIR_MAX_RETRIES = 5
-const DELETE_DIR_BASE_DELAY_MS = 200
+const DELETE_DIR_MAX_RETRIES = 3
+const DELETE_DIR_BASE_DELAY_MS = 2000
 
 export async function deleteDir(dirPath: string): Promise<void> {
   for (let attempt = 0; attempt <= DELETE_DIR_MAX_RETRIES; attempt++) {
@@ -86,9 +90,17 @@ export async function deleteDir(dirPath: string): Promise<void> {
         && isNodeError(e)
         && RETRY_CODES.has(e.code ?? '')
       ) {
-        const delay = DELETE_DIR_BASE_DELAY_MS * 2 ** attempt
+        const delay = DELETE_DIR_BASE_DELAY_MS
+        log.warn({ dirPath, attempt: attempt + 1, code: (e as NodeJS.ErrnoException).code }, 'deleteDir retry')
         await new Promise(r => setTimeout(r, delay))
         continue
+      }
+      // Final attempt failed — log to Sentry instead of throwing
+      const code = isNodeError(e) ? e.code : undefined
+      if (code && RETRY_CODES.has(code)) {
+        log.error({ dirPath, attempts: DELETE_DIR_MAX_RETRIES + 1, code }, 'deleteDir failed after all retries, giving up')
+        captureException(e, { dirPath, attempts: DELETE_DIR_MAX_RETRIES + 1 })
+        return
       }
       throw e
     }
