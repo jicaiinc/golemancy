@@ -47,6 +47,7 @@ interface ProjectSlice {
   projects: Project[]
   currentProjectId: ProjectId | null
   projectsLoading: boolean
+  projectsError: boolean
 }
 
 
@@ -76,6 +77,7 @@ interface WorkspaceSlice {
 
 interface SettingsSlice {
   settings: GlobalSettings | null
+  settingsError: boolean
 }
 
 interface UISlice {
@@ -184,6 +186,10 @@ export type AppState =
   & ProjectSlice & ConversationSlice & WorkspaceSlice & SettingsSlice & UISlice & DashboardSlice & SpeechSlice
   & ProjectActions & ConversationActions & WorkspaceActions & SettingsActions & UIActions & DashboardActions & SpeechActions
 
+// Request generation counters — stale responses from superseded calls are discarded
+let _settingsGen = 0
+let _projectsGen = 0
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -191,14 +197,21 @@ export const useAppStore = create<AppState>()(
       projects: [],
       currentProjectId: null,
       projectsLoading: true,
+      projectsError: false,
 
       async loadProjects() {
-        set({ projectsLoading: true })
+        const gen = ++_projectsGen
+        set({ projectsLoading: true, projectsError: false })
+        console.info('[bootstrap] loadProjects: start')
         try {
           const projects = await getServices().projects.list()
+          if (gen !== _projectsGen) return
+          console.info('[bootstrap] loadProjects: response received, count:', projects.length)
           set({ projects, projectsLoading: false })
         } catch (err) {
-          set({ projectsLoading: false })
+          if (gen !== _projectsGen) return
+          set({ projectsLoading: false, projectsError: true })
+          console.info('[bootstrap] loadProjects: failed', err)
           captureError(err, { component: 'loadProjects' })
         }
       },
@@ -484,11 +497,18 @@ export const useAppStore = create<AppState>()(
 
       // --- Settings state ---
       settings: null,
+      settingsError: false,
 
       async loadSettings() {
+        const gen = ++_settingsGen
+        set({ settingsError: false })
+        console.info('[bootstrap] loadSettings: start')
         try {
           const settings = await getServices().settings.get()
+          if (gen !== _settingsGen) return
+          console.info('[bootstrap] loadSettings: response received')
           set({ settings })
+          console.info('[bootstrap] loadSettings: state updated')
           // Sync persisted theme with loaded settings (if not already overridden)
           applyThemeToDOM(get().themeMode)
           applyStyleThemeToDOM(get().styleTheme ?? 'pixel')
@@ -497,6 +517,9 @@ export const useAppStore = create<AppState>()(
             i18next.changeLanguage(settings.language)
           }
         } catch (err) {
+          if (gen !== _settingsGen) return
+          set({ settingsError: true })
+          console.info('[bootstrap] loadSettings: failed', err)
           captureError(err, { component: 'loadSettings' })
         }
       },

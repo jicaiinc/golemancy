@@ -4,6 +4,7 @@ import { ServiceProvider } from '../services'
 import { WebSocketProvider } from '../providers/WebSocketProvider'
 import { queryClient } from '../queries/query-client'
 import { useAppStore } from '../stores'
+import { captureError } from '../lib/error-reporting'
 
 function DataLoader({ children }: { children: ReactNode }) {
   const loadProjects = useAppStore(s => s.loadProjects)
@@ -13,6 +14,26 @@ function DataLoader({ children }: { children: ReactNode }) {
     loadProjects()
     loadSettings()
   }, [loadProjects, loadSettings])
+
+  // Bootstrap stall detection: if not ready after 15s, report to Sentry
+  // so all [bootstrap] breadcrumbs are captured for diagnosis.
+  // Only fires when still waiting (pending) — known errors are already reported by captureError.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const { settings, settingsError, projectsLoading, projectsError } = useAppStore.getState()
+      const isPending = (!settings && !settingsError) || (projectsLoading && !projectsError)
+      if (isPending) {
+        captureError(new Error('Bootstrap stalled: UI not ready after 15s'), {
+          component: 'DataLoader',
+          hasSettings: !!settings,
+          settingsError,
+          projectsLoading,
+          projectsError,
+        })
+      }
+    }, 15_000)
+    return () => clearTimeout(timer)
+  }, [])
 
   return <>{children}</>
 }

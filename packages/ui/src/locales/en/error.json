@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Something went wrong. Please try again later."
   },
+  "bootstrap": {
+    "title": "Connection Failed",
+    "message": "Unable to connect to the local server. This may be a temporary issue."
+  },
   "boundary": {
     "title": "Something Exploded",
     "message": "A wild error appeared! Don't worry, your data is safe.",

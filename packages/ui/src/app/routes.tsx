@@ -1,8 +1,10 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router'
 import type { Location as RouterLocation } from 'react-router'
+import { useTranslation } from 'react-i18next'
 import { ProjectLayout } from './layouts/ProjectLayout'
 import { useAppStore } from '../stores'
+import { PixelSpinner, PixelButton } from '../components'
 import {
   ProjectListPage,
   DashboardPage,
@@ -22,13 +24,55 @@ import {
   OnboardingPage,
 } from '../pages'
 
+function BootstrapLoading() {
+  return (
+    <div className="flex items-center justify-center h-screen bg-void">
+      <PixelSpinner size="lg" label="Loading..." />
+    </div>
+  )
+}
+
+function BootstrapError({ onRetry }: { onRetry: () => void }) {
+  const { t } = useTranslation(['error', 'common'])
+  return (
+    <div className="flex items-center justify-center h-screen bg-void">
+      <div className="text-center max-w-[400px] p-8">
+        <div className="font-pixel text-[14px] text-accent-red mb-2">
+          {t('error:bootstrap.title', 'Connection Failed')}
+        </div>
+        <p className="text-[12px] text-text-secondary mb-4">
+          {t('error:bootstrap.message', 'Unable to connect to the local server. This may be a temporary issue.')}
+        </p>
+        <PixelButton variant="primary" onClick={onRetry}>
+          {t('common:button.retry', 'Retry')}
+        </PixelButton>
+      </div>
+    </div>
+  )
+}
+
 function RootRedirect() {
   const settings = useAppStore(s => s.settings)
+  const settingsError = useAppStore(s => s.settingsError)
   const projects = useAppStore(s => s.projects)
   const projectsLoading = useAppStore(s => s.projectsLoading)
+  const projectsError = useAppStore(s => s.projectsError)
+  const loadSettings = useAppStore(s => s.loadSettings)
+  const loadProjects = useAppStore(s => s.loadProjects)
 
-  // Wait for settings and projects to load before deciding
-  if (!settings || projectsLoading) return null
+  const handleRetry = useCallback(() => {
+    loadSettings()
+    loadProjects()
+  }, [loadSettings, loadProjects])
+
+  // Loading: settings not yet loaded and no error
+  if (!settings && !settingsError) return <BootstrapLoading />
+
+  // Error: settings or projects failed to load
+  if (settingsError || projectsError || !settings) return <BootstrapError onRetry={handleRetry} />
+
+  // Projects still loading
+  if (projectsLoading) return <BootstrapLoading />
 
   // Show onboarding if not completed AND (in-progress OR fresh install)
   const needsOnboarding = !settings.onboardingCompleted
