@@ -221,14 +221,16 @@ function ModelConfigTab({ agent, onUpdate }: {
     setCompactThreshold(agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD)
   }, [agent.id])
 
-  // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available
+  // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available and persist
   useEffect(() => {
     if (availableProviders.length > 0 && !settings?.providers[providerSlug]) {
       const [slug, entry] = availableProviders[0]
+      const newModel = entry.models[0] ?? ''
       setProviderSlug(slug)
-      setModel(entry.models[0] ?? '')
+      setModel(newModel)
+      onUpdate(agent.id, { modelConfig: { provider: slug, model: newModel } })
     }
-  }, [availableProviders.length, providerSlug, settings?.providers])
+  }, [availableProviders.length, providerSlug, settings?.providers, agent.id, onUpdate])
 
   const selectedProvider = settings?.providers[providerSlug]
   const models = selectedProvider?.models ?? []

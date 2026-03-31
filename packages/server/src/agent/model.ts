@@ -48,12 +48,19 @@ export async function resolveModel(
   agentConfig: AgentModelConfig,
   oauthManager?: OAuthManager,
 ): Promise<ResolvedModel> {
-  const { provider, model } = agentConfig
+  // Fallback: empty agent config → use global default model
+  const effective = agentConfig.provider
+    ? agentConfig
+    : settings.defaultModel ?? agentConfig
+
+  const { provider, model } = effective
   const entry = settings.providers[provider]
   if (!entry) {
     throw new ConfigurationError(
-      `Provider "${provider}" is not configured. Go to Settings → Providers to add it.`,
-      'PROVIDER_NOT_CONFIGURED',
+      provider
+        ? `Provider "${provider}" is not configured. Go to Settings → Providers to add it.`
+        : 'No model configured. Go to Settings → Providers to set up a provider.',
+      provider ? 'PROVIDER_NOT_CONFIGURED' : 'NO_PROVIDER_CONFIGURED',
     )
   }
 

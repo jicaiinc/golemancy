@@ -317,10 +317,11 @@ describe('ChatWindow', () => {
   describe('error display', () => {
     it('shows parsed error message from server JSON response', () => {
       // AI SDK v6 throws raw response body as error.message
+      // parseErrorMessage now prefers body.code for i18n lookup; mock returns key segment
       useChatError = new Error('{"error":"API key for provider \\"openai\\" is not set.","code":"API_KEY_MISSING"}')
       render(<MemoryRouter><ChatWindow conversation={makeConversation()} agent={makeAgent()} {...defaultSidebarProps} /></MemoryRouter>)
 
-      expect(screen.getByText('API key for provider "openai" is not set.')).toBeInTheDocument()
+      expect(screen.getByText('API_KEY_MISSING')).toBeInTheDocument()
     })
 
     it('shows friendly message for Internal Server Error', () => {

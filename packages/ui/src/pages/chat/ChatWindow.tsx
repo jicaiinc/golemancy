@@ -3,6 +3,7 @@ import { useChat } from '@ai-sdk/react'
 import type { UIMessage, FileUIPart } from 'ai'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate, useLocation } from 'react-router'
 import type { Agent, AgentId, CompactRecord, Conversation, Team, TeamId, TargetType } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useRefreshConversationTasks } from '../../queries/conversation-tasks'
@@ -51,6 +52,8 @@ interface ChatWindowProps {
 
 export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate, onContextUpdate, onCompactingChange, onBusyChange, externalCompacting }: ChatWindowProps) {
   const { t } = useTranslation(['chat', 'common'])
+  const navigate = useNavigate()
+  const location = useLocation()
   const deleteConversation = useAppStore(s => s.deleteConversation)
   const selectConversation = useAppStore(s => s.selectConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
@@ -383,11 +386,27 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
       </div>
 
       {/* Error banner */}
-      {error && (
-        <PixelNotificationBanner severity="error" onDismiss={clearError}>
-          {parseErrorMessage(error)}
-        </PixelNotificationBanner>
-      )}
+      {error && (() => {
+        const parsed = parseErrorMessage(error)
+        const isProviderError = parsed.code === 'PROVIDER_NOT_CONFIGURED' || parsed.code === 'NO_PROVIDER_CONFIGURED'
+        return (
+          <PixelNotificationBanner severity="error" onDismiss={clearError}>
+            {parsed.message}
+            {isProviderError && (
+              <>
+                {' '}
+                <button
+                  type="button"
+                  className="underline hover:text-text-primary transition-colors cursor-pointer"
+                  onClick={() => navigate('/settings', { state: { backgroundLocation: location } })}
+                >
+                  {t('error.goToSettings')}
+                </button>
+              </>
+            )}
+          </PixelNotificationBanner>
+        )
+      })()}
 
       {/* MCP / tool loading warnings */}
       {toolWarnings.filter(w => !dismissedWarnings.has(w)).map((warning) => (
