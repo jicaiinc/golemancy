@@ -15,6 +15,7 @@ export function captureError(error: unknown, context?: Record<string, unknown>):
     type: 'captured',
     message: err.message,
     stack: err.stack,
+    ...(context ? { context } : {}),
   })
   _capture?.(err, context)
 }

@@ -13,6 +13,7 @@ import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import i18next from 'i18next'
 import { getServices } from '../services'
 import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
+import { logBootstrapEvent } from '../lib/bootstrap-logging'
 import { captureError } from '../lib/error-reporting'
 import { queryClient } from '../queries/query-client'
 import { queryKeys } from '../queries/keys'
@@ -202,17 +203,20 @@ export const useAppStore = create<AppState>()(
       async loadProjects() {
         const gen = ++_projectsGen
         set({ projectsLoading: true, projectsError: false })
-        console.info('[bootstrap] loadProjects: start')
+        logBootstrapEvent('loadProjects.start', { generation: gen })
         try {
           const projects = await getServices().projects.list()
           if (gen !== _projectsGen) return
-          console.info('[bootstrap] loadProjects: response received, count:', projects.length)
+          logBootstrapEvent('loadProjects.success', {
+            generation: gen,
+            projectCount: projects.length,
+          })
           set({ projects, projectsLoading: false })
         } catch (err) {
           if (gen !== _projectsGen) return
           set({ projectsLoading: false, projectsError: true })
-          console.info('[bootstrap] loadProjects: failed', err)
-          captureError(err, { component: 'loadProjects' })
+          logBootstrapEvent('loadProjects.error', { generation: gen }, 'error')
+          captureError(err, { component: 'loadProjects', generation: gen })
         }
       },
 
@@ -502,13 +506,17 @@ export const useAppStore = create<AppState>()(
       async loadSettings() {
         const gen = ++_settingsGen
         set({ settingsError: false })
-        console.info('[bootstrap] loadSettings: start')
+        logBootstrapEvent('loadSettings.start', { generation: gen })
         try {
           const settings = await getServices().settings.get()
           if (gen !== _settingsGen) return
-          console.info('[bootstrap] loadSettings: response received')
+          logBootstrapEvent('loadSettings.success', {
+            generation: gen,
+            onboardingCompleted: !!settings.onboardingCompleted,
+            providerCount: Object.keys(settings.providers ?? {}).length,
+            language: settings.language ?? null,
+          })
           set({ settings })
-          console.info('[bootstrap] loadSettings: state updated')
           // Sync persisted theme with loaded settings (if not already overridden)
           applyThemeToDOM(get().themeMode)
           applyStyleThemeToDOM(get().styleTheme ?? 'pixel')
@@ -519,8 +527,8 @@ export const useAppStore = create<AppState>()(
         } catch (err) {
           if (gen !== _settingsGen) return
           set({ settingsError: true })
-          console.info('[bootstrap] loadSettings: failed', err)
-          captureError(err, { component: 'loadSettings' })
+          logBootstrapEvent('loadSettings.error', { generation: gen }, 'error')
+          captureError(err, { component: 'loadSettings', generation: gen })
         }
       },
 

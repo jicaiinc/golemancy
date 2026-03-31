@@ -11,6 +11,7 @@ interface ElectronAPI {
   getServerPort: () => number | null
   getServerBaseUrl: () => string | null
   getServerToken: () => string | null
+  getLaunchId?: () => string | null
   openNewWindow: (projectId?: string) => Promise<void>
   openPath: (fullPath: string) => Promise<string>
   requestMicrophoneAccess: () => Promise<string>
@@ -23,7 +24,8 @@ interface ElectronAPI {
   forceRestartAndInstall: () => Promise<void>
   openExternalUrl: (url: string) => Promise<void>
   onMenuOpenSettings: (callback: () => void) => () => void
-  reportError: (payload: { type: string; message: string; stack?: string }) => void
+  reportError: (payload: { type: string; message: string; stack?: string; context?: Record<string, unknown> }) => void
+  logRendererEvent?: (payload: { scope: string; event: string; level?: string; context?: Record<string, unknown> }) => void
   setTelemetryEnabled: (enabled: boolean) => void
 }
 

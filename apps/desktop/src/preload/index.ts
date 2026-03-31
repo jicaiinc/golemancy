@@ -8,6 +8,9 @@ const serverPort = Number.isNaN(parsedPort) ? null : parsedPort
 const serverTokenArg = process.argv.find(arg => arg.startsWith('--server-token='))
 const serverToken = serverTokenArg ? serverTokenArg.split('=')[1] ?? null : null
 
+const launchIdArg = process.argv.find(arg => arg.startsWith('--launch-id='))
+const launchId = launchIdArg ? launchIdArg.split('=')[1] ?? null : null
+
 const appVersionArg = process.argv.find(arg => arg.startsWith('--app-version='))
 const appVersion = appVersionArg ? appVersionArg.split('=')[1] ?? null : null
 
@@ -23,6 +26,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getServerPort: () => serverPort,
   getServerBaseUrl: () => serverPort ? `http://127.0.0.1:${serverPort}` : null,
   getServerToken: () => serverToken,
+  getLaunchId: () => launchId,
   openNewWindow: (projectId?: string) => ipcRenderer.invoke('window:open', projectId),
   openPath: (fullPath: string) => ipcRenderer.invoke('shell:openPath', fullPath),
   requestMicrophoneAccess: () => ipcRenderer.invoke('media:requestMicrophoneAccess'),
@@ -43,7 +47,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('menu:open-settings', handler)
     return () => { ipcRenderer.removeListener('menu:open-settings', handler) }
   },
-  reportError: (payload: { type: string; message: string; stack?: string }) =>
+  reportError: (payload: { type: string; message: string; stack?: string; context?: Record<string, unknown> }) =>
     ipcRenderer.send('renderer:error', payload),
+  logRendererEvent: (payload: { scope: string; event: string; level?: string; context?: Record<string, unknown> }) =>
+    ipcRenderer.send('renderer:log', payload),
   setTelemetryEnabled: (enabled: boolean) => ipcRenderer.send('telemetry:set', enabled),
 })

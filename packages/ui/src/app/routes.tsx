@@ -1,10 +1,11 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router'
 import type { Location as RouterLocation } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { ProjectLayout } from './layouts/ProjectLayout'
 import { useAppStore } from '../stores'
 import { PixelSpinner, PixelButton } from '../components'
+import { logBootstrapEvent } from '../lib/bootstrap-logging'
 import {
   ProjectListPage,
   DashboardPage,
@@ -59,11 +60,36 @@ function RootRedirect() {
   const projectsError = useAppStore(s => s.projectsError)
   const loadSettings = useAppStore(s => s.loadSettings)
   const loadProjects = useAppStore(s => s.loadProjects)
+  const hasLoggedBootstrapErrorRef = useRef(false)
 
   const handleRetry = useCallback(() => {
+    logBootstrapEvent('retry.click', {
+      settingsError,
+      projectsError,
+      hasSettings: !!settings,
+      projectsLoading,
+      projectCount: projects.length,
+    }, 'warning')
     loadSettings()
     loadProjects()
-  }, [loadSettings, loadProjects])
+  }, [loadSettings, loadProjects, projects.length, projectsError, projectsLoading, settings, settingsError])
+
+  useEffect(() => {
+    if (settingsError || projectsError) {
+      if (!hasLoggedBootstrapErrorRef.current) {
+        hasLoggedBootstrapErrorRef.current = true
+        logBootstrapEvent('rootRedirect.error', {
+          settingsError,
+          projectsError,
+          hasSettings: !!settings,
+          projectsLoading,
+          projectCount: projects.length,
+        }, 'warning')
+      }
+    } else {
+      hasLoggedBootstrapErrorRef.current = false
+    }
+  }, [projects.length, projectsError, projectsLoading, settings, settingsError])
 
   // Loading: settings not yet loaded and no error
   if (!settings && !settingsError) return <BootstrapLoading />

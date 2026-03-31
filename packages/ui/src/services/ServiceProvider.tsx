@@ -3,6 +3,7 @@ import { type ServiceContainer, configureServices } from './container'
 import { createHttpServices } from './http'
 import { setAuthToken, setBaseUrl } from './http/base'
 import { useAppStore } from '../stores'
+import { logBootstrapEvent } from '../lib/bootstrap-logging'
 
 const ServiceContext = createContext<ServiceContainer | null>(null)
 
@@ -15,10 +16,20 @@ export function useServiceContext(): ServiceContainer {
 function initServices(): ServiceContainer {
   const baseUrl = window.electronAPI?.getServerBaseUrl()
   const token = window.electronAPI?.getServerToken()
+  const port = window.electronAPI?.getServerPort?.() ?? null
 
-  console.info('[bootstrap] initServices:', baseUrl ? 'http' : 'no-baseUrl', token ? 'has-token' : 'no-token')
+  logBootstrapEvent('initServices.start', {
+    baseUrl,
+    hasToken: !!token,
+    port,
+  })
 
   if (!baseUrl || !token) {
+    logBootstrapEvent('initServices.error', {
+      baseUrl,
+      hasToken: !!token,
+      port,
+    }, 'error')
     throw new Error('Server connection unavailable: missing baseUrl or token from Electron')
   }
 
@@ -26,6 +37,7 @@ function initServices(): ServiceContainer {
   setBaseUrl(baseUrl)
   const container = createHttpServices(baseUrl)
   configureServices(container)
+  logBootstrapEvent('initServices.ready', { baseUrl, port })
   return container
 }
 

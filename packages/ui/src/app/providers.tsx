@@ -5,12 +5,14 @@ import { WebSocketProvider } from '../providers/WebSocketProvider'
 import { queryClient } from '../queries/query-client'
 import { useAppStore } from '../stores'
 import { captureError } from '../lib/error-reporting'
+import { logBootstrapEvent } from '../lib/bootstrap-logging'
 
 function DataLoader({ children }: { children: ReactNode }) {
   const loadProjects = useAppStore(s => s.loadProjects)
   const loadSettings = useAppStore(s => s.loadSettings)
 
   useEffect(() => {
+    logBootstrapEvent('dataLoader.mount')
     loadProjects()
     loadSettings()
   }, [loadProjects, loadSettings])
@@ -23,6 +25,12 @@ function DataLoader({ children }: { children: ReactNode }) {
       const { settings, settingsError, projectsLoading, projectsError } = useAppStore.getState()
       const isPending = (!settings && !settingsError) || (projectsLoading && !projectsError)
       if (isPending) {
+        logBootstrapEvent('stall.detected', {
+          hasSettings: !!settings,
+          settingsError,
+          projectsLoading,
+          projectsError,
+        }, 'warning')
         captureError(new Error('Bootstrap stalled: UI not ready after 15s'), {
           component: 'DataLoader',
           hasSettings: !!settings,

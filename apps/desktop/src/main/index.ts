@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, systemPr
 import { join, resolve, sep } from 'path'
 import { homedir } from 'os'
 import { fork, type ChildProcess } from 'child_process'
+import { randomUUID } from 'crypto'
 import { existsSync, readFileSync } from 'fs'
 import { logger } from './logger'
 import { needsResourceExtraction, extractResources, createSetupWindow } from './setup'
@@ -33,6 +34,8 @@ const APP_VERSION: string = JSON.parse(
     'utf-8',
   ),
 ).version
+
+const APP_LAUNCH_ID = randomUUID()
 
 let serverProcess: ChildProcess | null = null
 let serverPort: number | null = null
@@ -94,6 +97,7 @@ function startServer(): Promise<number> {
       env: {
         ...process.env,
         PORT: '0',
+        GOLEMANCY_LAUNCH_ID: APP_LAUNCH_ID,
         // Pass Electron resources path to server for bundled runtime resolution.
         // NODE_ENV=production disables pino-pretty (dev-only transport) to prevent crash.
         ...(app.isPackaged ? {
@@ -131,6 +135,7 @@ function startServer(): Promise<number> {
         serverBreadcrumb('ready', { port: msg.port, pid: child.pid })
         serverPort = msg.port
         serverToken = msg.token ?? null
+        logger.info({ launchId: APP_LAUNCH_ID, port: msg.port, pid: child.pid }, 'server ready IPC received')
         resolve(msg.port)
       } else if (msg?.type === 'startup-progress') {
         serverBreadcrumb(`progress: ${msg.phase}`, { phase: msg.phase, elapsedMs: msg.elapsedMs })
@@ -336,6 +341,7 @@ function createWindow(options?: { projectId?: string; action?: 'create' }): void
       additionalArguments: [
         `--server-port=${serverPort}`,
         ...(serverToken ? [`--server-token=${serverToken}`] : []),
+        `--launch-id=${APP_LAUNCH_ID}`,
         `--app-version=${APP_VERSION}`,
       ],
     },
@@ -397,6 +403,7 @@ app.name = 'Golemancy'
 
 app.whenReady().then(async () => {
   logger.info({
+    launchId: APP_LAUNCH_ID,
     version: APP_VERSION,
     electron: process.versions.electron,
     node: process.versions.node,
@@ -573,7 +580,12 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.on('renderer:error', (_event, payload) => {
-    logger.error({ rendererError: payload }, 'renderer error')
+    logger.error({ launchId: APP_LAUNCH_ID, rendererError: payload }, 'renderer error')
+  })
+
+  ipcMain.on('renderer:log', (_event, payload: { scope?: string; event?: string; level?: string; context?: Record<string, unknown> }) => {
+    const level = payload.level === 'error' ? 'error' : payload.level === 'warning' ? 'warn' : 'info'
+    logger[level]({ launchId: APP_LAUNCH_ID, rendererLog: payload }, `renderer ${payload.scope ?? 'app'}: ${payload.event ?? 'event'}`)
   })
 
   ipcMain.on('telemetry:set', (_event, enabled: boolean) => {

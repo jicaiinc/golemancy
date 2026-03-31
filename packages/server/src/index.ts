@@ -48,9 +48,10 @@ async function main() {
   initSentry()
 
   const startTime = Date.now()
+  const launchId = process.env.GOLEMANCY_LAUNCH_ID ?? null
   reportProgress('sentry-initialized', startTime)
 
-  logger.info({ node: process.version, platform: process.platform, arch: process.arch, pid: process.pid }, 'server starting')
+  logger.info({ launchId, node: process.version, platform: process.platform, arch: process.arch, pid: process.pid }, 'server starting')
   reportProgress('logger-ready', startTime)
 
   // macOS/Linux GUI apps inherit a truncated PATH (/usr/bin:/bin:/usr/sbin:/sbin).
@@ -268,7 +269,7 @@ async function main() {
     reportProgress('http-bound', startTime)
     // Inject WebSocket upgrade handler into the HTTP server
     injectWebSocket(server)
-    logger.info({ port: info.port, host: '127.0.0.1', startupMs: Date.now() - startTime }, 'server ready (ws enabled)')
+    logger.info({ launchId, port: info.port, host: '127.0.0.1', startupMs: Date.now() - startTime }, 'server ready (ws enabled)')
 
     if (process.send) {
       process.send({ type: 'ready', port: info.port, token: authToken })
