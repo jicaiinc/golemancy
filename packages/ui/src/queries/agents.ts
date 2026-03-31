@@ -58,12 +58,12 @@ export function useDeleteAgent() {
       if (!projectId) throw new Error('No project selected')
       return getServices().agents.delete(projectId, id)
     },
-    onSuccess: (_data, id) => {
+    onSuccess: async (_data, id) => {
       if (!projectId) return
       qc.invalidateQueries({ queryKey: queryKeys.agents.all(projectId) })
       const project = projects.find(p => p.id === projectId)
       if (project?.defaultTargetId === id) {
-        updateProject(projectId, { defaultTargetType: undefined, defaultTargetId: undefined })
+        await updateProject(projectId, { defaultTargetType: undefined, defaultTargetId: undefined })
       }
     },
   })

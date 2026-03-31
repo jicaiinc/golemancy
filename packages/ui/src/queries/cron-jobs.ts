@@ -89,8 +89,10 @@ export function useTriggerCronJob() {
         old?.map(c => c.id === id ? { ...c, lastRunStatus: 'running' as const } : c),
       )
     },
-    onSettled: () => {
-      if (projectId) qc.invalidateQueries({ queryKey: queryKeys.cronJobs.all(projectId) })
+    onSettled: (_data, _error, id) => {
+      if (!projectId) return
+      qc.invalidateQueries({ queryKey: queryKeys.cronJobs.all(projectId) })
+      qc.invalidateQueries({ queryKey: queryKeys.cronJobRuns.all(projectId, id) })
     },
   })
 }

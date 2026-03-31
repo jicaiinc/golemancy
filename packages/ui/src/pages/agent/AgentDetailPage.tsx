@@ -29,7 +29,7 @@ const statusAnimation: Record<AgentStatus, string> = {
 export function AgentDetailPage() {
   const { t } = useTranslation('agent')
   const { projectId, agentId } = useParams<{ projectId: string; agentId: string }>()
-  const { data: agents = [], isLoading: agentsLoading } = useAgents(projectId as ProjectId | null)
+  const { data: agents = [], isLoading: agentsLoading, isError: agentsError } = useAgents(projectId as ProjectId | null)
   const updateAgentMutation = useUpdateAgent()
   const deleteAgentMutation = useDeleteAgent()
   const navigate = useNavigate()
@@ -53,7 +53,7 @@ export function AgentDetailPage() {
 
   if (agentsLoading) return null
 
-  if (!agent) {
+  if (agentsError || !agent) {
     return (
       <div className="p-6">
         <p className="text-text-dim">{t('detail.notFound')}</p>

@@ -8,7 +8,7 @@ import { TeamTopologyView } from './topology/TeamTopologyView'
 export function TeamDetailPage() {
   const { t } = useTranslation('team')
   const { projectId, teamId } = useParams<{ projectId: string; teamId: string }>()
-  const { data: teams = [], isLoading: teamsLoading } = useTeams(projectId as ProjectId | null)
+  const { data: teams = [], isLoading: teamsLoading, isError: teamsError } = useTeams(projectId as ProjectId | null)
   const navigate = useNavigate()
 
   const team = teams.find(t => t.id === teamId)
@@ -21,7 +21,7 @@ export function TeamDetailPage() {
     )
   }
 
-  if (!team) {
+  if (teamsError || !team) {
     return (
       <div className="p-6">
         <p className="text-text-dim">{t('detail.notFound')}</p>
