@@ -82,9 +82,7 @@ test.describe('Runtime Management E2E', () => {
     const slider = window.locator('input[type="range"]')
     await slider.fill(String(newThreshold))
 
-    // Save
-    const saveBtn = window.getByRole('button', { name: /^Save$/i })
-    await saveBtn.click()
+    // ModelConfigTab auto-saves on change (500ms debounce for compact threshold)
     await expect(window.getByText('Saved!')).toBeVisible({ timeout: 5000 })
 
     // Verify persistence via API read-back (not in-memory store)

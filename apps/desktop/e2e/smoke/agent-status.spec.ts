@@ -150,6 +150,11 @@ test.describe('Agent Status', () => {
     await expect(agentCard).toBeVisible()
     await expect(listStatus).toHaveAttribute('data-agent-status', 'idle')
 
+    // Temporarily remove defaultModel so resolveModel can't silently fallback
+    // from the invalid provider to a working one
+    const currentSettings = await helper.apiGet('/api/settings')
+    await helper.apiPatch('/api/settings', { defaultModel: null })
+
     await expect(
       helper.sendChatViaApiBuffered(
         projectId,
@@ -159,6 +164,9 @@ test.describe('Agent Status', () => {
         TIMEOUTS.AI_RESPONSE,
       ),
     ).rejects.toThrow(/PROVIDER_NOT_CONFIGURED|Provider/)
+
+    // Restore defaultModel for subsequent tests
+    await helper.apiPatch('/api/settings', { defaultModel: currentSettings.defaultModel })
 
     await expect.poll(
       async () => await listStatus.getAttribute('data-agent-status'),

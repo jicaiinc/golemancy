@@ -90,19 +90,23 @@ test.describe('Deletion Safety', () => {
     const deleteResult = await helper.apiDelete(`/api/projects/${projectId}`)
     expect(deleteResult.ok).toBe(true)
 
-    // Project itself should be 404
+    // Project itself should be 404 immediately (guarded by isProjectBlocked)
     const projectResponse = await helper.apiGetRaw(`/api/projects/${projectId}`)
     expect(projectResponse.status()).toBe(404)
 
-    // Sub-resources should be 404 (project directory deleted, database gone)
-    const agentResponse = await helper.apiGetRaw(
-      `/api/projects/${projectId}/agents/${agent2Id}`,
-    )
-    expect(agentResponse.status()).toBe(404)
+    // Sub-resources return 404 after background deletion completes (async cleanup)
+    await expect(async () => {
+      const agentResponse = await helper.apiGetRaw(
+        `/api/projects/${projectId}/agents/${agent2Id}`,
+      )
+      expect(agentResponse.status()).toBe(404)
+    }).toPass({ timeout: 5000 })
 
-    const cronResponse = await helper.apiGetRaw(
-      `/api/projects/${projectId}/cron-jobs/${cronId}`,
-    )
-    expect(cronResponse.status()).toBe(404)
+    await expect(async () => {
+      const cronResponse = await helper.apiGetRaw(
+        `/api/projects/${projectId}/cron-jobs/${cronId}`,
+      )
+      expect(cronResponse.status()).toBe(404)
+    }).toPass({ timeout: 5000 })
   })
 })

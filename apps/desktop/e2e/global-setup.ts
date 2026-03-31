@@ -89,6 +89,7 @@ export default async function globalSetup() {
       ? { provider: 'google', model: 'gemini-2.5-flash' }
       : { provider: 'openai', model: 'gpt-5-mini' },
     theme: 'dark' as const,
+    language: 'en',
   }
 
   fs.writeFileSync(

@@ -584,9 +584,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       const errorMessage = err instanceof Error ? err.message : String(err)
       log.error({ err, projectId, agentId, conversationId }, 'chat route failed')
       await persistErrorMessage(errorMessage)
-      // Configuration errors (missing provider, no API key) are environment issues,
-      // not agent failures — don't permanently mark agent as errored
-      await markChatEnded(err instanceof ConfigurationError ? 'idle' : 'error')
+      await markChatEnded('error')
       throw err
     }
   })

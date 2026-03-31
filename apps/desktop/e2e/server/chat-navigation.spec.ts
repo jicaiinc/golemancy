@@ -28,6 +28,14 @@ test.describe('Chat Navigation', () => {
       title: 'URL Sync Test',
     })
 
+    // Ensure currentProjectId is set before navigating to chat
+    // (selectConversation bails silently when currentProjectId is null)
+    await helper.navigateTo(`/projects/${projectId}`)
+    await helper.store.waitFor(
+      `state.currentProjectId === "${projectId}"`,
+      TIMEOUTS.PAGE_LOAD,
+    )
+
     await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
 
     await helper.store.waitFor(
