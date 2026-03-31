@@ -35,7 +35,7 @@
     "sectionTitle": "语音转文字"
   },
   "provider": {
-    "sectionTitle": "供应商",
+    "sectionTitle": "服务商",
     "customSummary": "自定义",
     "typeLabel": "类型",
     "customType": "自定义（OpenAI 兼容）",

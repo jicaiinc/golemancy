@@ -4,7 +4,7 @@
   },
   "tabs": {
     "general": "通用",
-    "providers": "供应商",
+    "providers": "服务商",
     "speech": "语音",
     "about": "关于"
   },
@@ -52,27 +52,27 @@
   "defaultModel": {
     "sectionTitle": "默认模型",
     "description": "创建新项目和 Agent 时使用的默认模型。",
-    "providerLabel": "供应商",
+    "providerLabel": "服务商",
     "modelLabel": "模型",
     "noProvider": "-- 无 --",
-    "selectProviderFirst": "-- 请先选择供应商 --",
+    "selectProviderFirst": "-- 请先选择服务商 --",
     "noModels": "无可用模型",
     "saved": "已保存！",
-    "orphaned": "当前模型的供应商已不可用，请重新选择。",
-    "autoSwitched": "由于之前的供应商已被移除，默认模型已自动更换。"
+    "orphaned": "当前模型的服务商已不可用，请重新选择。",
+    "autoSwitched": "由于之前的服务商已被移除，默认模型已自动更换。"
   },
   "providers": {
-    "sectionTitle": "供应商",
-    "addProvider": "+ 添加供应商",
-    "selectProvider": "选择供应商",
-    "customProvider": "自定义供应商",
+    "sectionTitle": "服务商",
+    "addProvider": "+ 添加服务商",
+    "selectProvider": "选择服务商",
+    "customProvider": "自定义服务商",
     "custom": "自定义",
     "anyEndpoint": "任意接口",
     "nameLabel": "名称",
     "baseUrlLabel": "基础 URL",
     "sdkTypeLabel": "SDK 类型",
-    "empty": "暂无供应商。点击\"+ 添加供应商\"开始配置。",
-    "customPlaceholder": "我的供应商"
+    "empty": "暂无服务商。点击\"+ 添加服务商\"开始配置。",
+    "customPlaceholder": "我的服务商"
   },
   "provider": {
     "testing": "测试中...",

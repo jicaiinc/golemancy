@@ -5,7 +5,7 @@
   },
   "steps": {
     "welcome": "欢迎",
-    "provider": "供应商",
+    "provider": "服务商",
     "speech": "语音",
     "project": "项目",
     "complete": "完成"
@@ -37,16 +37,16 @@
     "description": "让一个人拥有一整支 AI 团队的力量，完成调研、写作、翻译、数据分析、营销和报告。"
   },
   "provider": {
-    "heading": "连接 AI 供应商",
-    "description": "选择一个供应商并输入 API 密钥以开始使用。",
+    "heading": "连接 AI 服务商",
+    "description": "选择一个服务商并输入 API 密钥以开始使用。",
     "customLabel": "自定义",
     "customSubtitle": "任意接口",
-    "customCardTitle": "自定义供应商",
+    "customCardTitle": "自定义服务商",
     "labelApiKey": "API 密钥",
     "labelBaseUrl": "基础 URL",
     "labelName": "名称",
     "labelSdkType": "SDK 类型",
-    "customPlaceholder": "我的供应商",
+    "customPlaceholder": "我的服务商",
     "statusConnected": "已连接",
     "statusFailed": "失败",
     "statusConnecting": "连接中...",
@@ -82,7 +82,7 @@
   "complete": {
     "heading": "设置完成！",
     "description": "以下是你的配置摘要。",
-    "labelProvider": "供应商",
+    "labelProvider": "服务商",
     "labelDefaultModel": "默认模型",
     "labelSpeechToText": "语音转文字",
     "labelProject": "项目",

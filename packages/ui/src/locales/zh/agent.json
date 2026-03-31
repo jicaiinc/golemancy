@@ -4,7 +4,7 @@
     "agentName": "AGENT 名称",
     "description": "描述",
     "systemPrompt": "系统提示词",
-    "provider": "供应商",
+    "provider": "服务商",
     "model": "模型"
   },
   "statusLabel": {
@@ -13,7 +13,7 @@
     "error": "错误",
     "paused": "已暂停"
   },
-  "noProviders": "未配置供应商",
+  "noProviders": "未配置服务商",
   "noModels": "无可用模型",
   "savedMsg": "已保存！",
   "list": {
