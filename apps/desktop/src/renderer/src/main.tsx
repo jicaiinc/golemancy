@@ -4,7 +4,11 @@ import * as Sentry from '@sentry/electron/renderer'
 import { setErrorCapture } from '@golemancy/ui/lib/error-reporting'
 import { App } from '@golemancy/ui'
 
-Sentry.init()
+Sentry.init({
+  integrations: [Sentry.replayIntegration()],
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+})
 
 setErrorCapture((error, context) => {
   Sentry.captureException(error, { extra: context })
