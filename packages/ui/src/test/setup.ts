@@ -25,6 +25,27 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 })
 
+// Mock window.electronAPI (ServiceProvider requires it — no mock fallback)
+;(window as any).electronAPI = {
+  getServerPort: () => 19999,
+  getServerBaseUrl: () => 'http://127.0.0.1:19999',
+  getServerToken: () => 'test-token',
+  getAppVersion: () => '0.0.0-test',
+  getPlatformLabel: () => 'Test',
+  openNewWindow: vi.fn(),
+  openPath: vi.fn(),
+  openExternalUrl: vi.fn(),
+  requestMicrophoneAccess: vi.fn().mockResolvedValue('granted'),
+  onUpdateState: vi.fn().mockReturnValue(() => {}),
+  onMenuOpenSettings: vi.fn().mockReturnValue(() => {}),
+  openReleaseUrl: vi.fn(),
+  checkForUpdatesNow: vi.fn(),
+  restartAndInstall: vi.fn().mockResolvedValue({ blocked: false, activeChatCount: 0 }),
+  forceRestartAndInstall: vi.fn(),
+  reportError: vi.fn(),
+  setTelemetryEnabled: vi.fn(),
+}
+
 // Mock ResizeObserver (for layout components)
 globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),

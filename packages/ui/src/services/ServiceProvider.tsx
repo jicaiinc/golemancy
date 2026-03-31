@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { type ServiceContainer, configureServices } from './container'
-import { createMockServices } from './mock'
 import { createHttpServices } from './http'
 import { setAuthToken, setBaseUrl } from './http/base'
 import { useAppStore } from '../stores'
@@ -17,18 +16,17 @@ function initServices(): ServiceContainer {
   const baseUrl = window.electronAPI?.getServerBaseUrl()
   const token = window.electronAPI?.getServerToken()
 
-  if (baseUrl && token) {
-    setAuthToken(token)
-    setBaseUrl(baseUrl)
-    const container = createHttpServices(baseUrl)
-    configureServices(container)
-    return container
+  console.info('[bootstrap] initServices:', baseUrl ? 'http' : 'no-baseUrl', token ? 'has-token' : 'no-token')
+
+  if (!baseUrl || !token) {
+    throw new Error('Server connection unavailable: missing baseUrl or token from Electron')
   }
 
-  // Fallback: mock services for dev without Electron or tests
-  const mock = createMockServices()
-  configureServices(mock)
-  return mock
+  setAuthToken(token)
+  setBaseUrl(baseUrl)
+  const container = createHttpServices(baseUrl)
+  configureServices(container)
+  return container
 }
 
 export function ServiceProvider({ children }: { children: ReactNode }) {

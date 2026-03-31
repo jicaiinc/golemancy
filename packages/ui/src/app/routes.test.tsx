@@ -80,8 +80,6 @@ function createTestServices(): ServiceContainer {
 describe('RootRedirect — Onboarding Detection', () => {
   beforeEach(() => {
     configureServices(createTestServices())
-    // Ensure electronAPI is not available
-    delete (window as any).electronAPI
     window.history.replaceState(null, '', '#/')
   })
 

@@ -3,20 +3,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ServiceProvider, useServiceContext } from './ServiceProvider'
 import { getServices } from './container'
 
-// Mock the service factories
-vi.mock('./mock', () => ({
-  createMockServices: vi.fn(() => ({
-    projects: { __type: 'mock' },
-    agents: { __type: 'mock' },
-    conversations: { __type: 'mock' },
-    tasks: { __type: 'mock' },
-    workspace: { __type: 'mock' },
-    settings: { __type: 'mock' },
-    dashboard: { __type: 'mock' },
-    globalDashboard: { __type: 'mock' },
-  })),
-}))
-
 vi.mock('./http', () => ({
   createHttpServices: vi.fn((baseUrl: string) => ({
     projects: { __type: 'http', baseUrl },
@@ -42,17 +28,23 @@ function ServiceTypeReader() {
   return <div data-testid="service-type">{type}</div>
 }
 
+function setupElectronAPI(baseUrl: string | null = 'http://127.0.0.1:3001', token: string | null = 'test-token') {
+  ;(window as any).electronAPI = {
+    getServerBaseUrl: () => baseUrl,
+    getServerToken: () => token,
+    getServerPort: () => baseUrl ? 3001 : null,
+  }
+}
+
 describe('ServiceProvider', () => {
   const originalElectronAPI = (window as any).electronAPI
 
   beforeEach(() => {
     vi.clearAllMocks()
-    // Clean up electronAPI before each test
     delete (window as any).electronAPI
   })
 
   afterEach(() => {
-    // Restore original state
     if (originalElectronAPI) {
       (window as any).electronAPI = originalElectronAPI
     } else {
@@ -60,99 +52,79 @@ describe('ServiceProvider', () => {
     }
   })
 
-  it('creates Mock services when electronAPI is undefined', () => {
-    // electronAPI is already deleted in beforeEach
-    render(
-      <ServiceProvider>
-        <ServiceTypeReader />
-      </ServiceProvider>
-    )
+  it('throws when electronAPI is undefined', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    expect(() => render(
+      <ServiceProvider><ServiceTypeReader /></ServiceProvider>,
+    )).toThrow('Server connection unavailable')
+    spy.mockRestore()
+  })
 
-    expect(screen.getByTestId('service-type')).toHaveTextContent('mock')
+  it('throws when electronAPI returns null baseUrl', () => {
+    setupElectronAPI(null, 'some-token')
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    expect(() => render(
+      <ServiceProvider><ServiceTypeReader /></ServiceProvider>,
+    )).toThrow('Server connection unavailable')
+    spy.mockRestore()
+  })
+
+  it('throws when electronAPI returns null token', () => {
+    setupElectronAPI('http://127.0.0.1:3001', null)
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    expect(() => render(
+      <ServiceProvider><ServiceTypeReader /></ServiceProvider>,
+    )).toThrow('Server connection unavailable')
+    spy.mockRestore()
   })
 
   it('creates HTTP services when electronAPI returns baseUrl and token', async () => {
-    ;(window as any).electronAPI = {
-      getServerBaseUrl: () => 'http://localhost:3001',
-      getServerToken: () => 'test-token-123',
-      getServerPort: () => 3001,
-    }
+    setupElectronAPI('http://127.0.0.1:3001', 'test-token-123')
 
     const { setAuthToken, setBaseUrl } = await import('./http/base')
 
     render(
       <ServiceProvider>
         <ServiceTypeReader />
-      </ServiceProvider>
+      </ServiceProvider>,
     )
 
     expect(screen.getByTestId('service-type')).toHaveTextContent('http')
     expect(setAuthToken).toHaveBeenCalledWith('test-token-123')
-    expect(setBaseUrl).toHaveBeenCalledWith('http://localhost:3001')
-  })
-
-  it('falls back to Mock services when electronAPI returns null baseUrl', () => {
-    ;(window as any).electronAPI = {
-      getServerBaseUrl: () => null,
-      getServerToken: () => 'some-token',
-      getServerPort: () => null,
-    }
-
-    render(
-      <ServiceProvider>
-        <ServiceTypeReader />
-      </ServiceProvider>
-    )
-
-    expect(screen.getByTestId('service-type')).toHaveTextContent('mock')
-  })
-
-  it('falls back to Mock services when electronAPI returns null token', () => {
-    ;(window as any).electronAPI = {
-      getServerBaseUrl: () => 'http://localhost:3001',
-      getServerToken: () => null,
-      getServerPort: () => 3001,
-    }
-
-    render(
-      <ServiceProvider>
-        <ServiceTypeReader />
-      </ServiceProvider>
-    )
-
-    expect(screen.getByTestId('service-type')).toHaveTextContent('mock')
+    expect(setBaseUrl).toHaveBeenCalledWith('http://127.0.0.1:3001')
   })
 
   it('configures module-level service container via configureServices', () => {
+    setupElectronAPI()
+
     render(
       <ServiceProvider>
         <ServiceTypeReader />
-      </ServiceProvider>
+      </ServiceProvider>,
     )
 
-    // getServices() should not throw — container was configured
     const services = getServices()
     expect(services).toBeTruthy()
-    expect((services.projects as any).__type).toBe('mock')
+    expect((services.projects as any).__type).toBe('http')
   })
 
   it('provides services via useServiceContext hook', () => {
+    setupElectronAPI()
+
     render(
       <ServiceProvider>
         <ServiceTypeReader />
-      </ServiceProvider>
+      </ServiceProvider>,
     )
 
-    // If useServiceContext threw, the component wouldn't render
     expect(screen.getByTestId('service-type')).toBeInTheDocument()
   })
 
   it('throws when useServiceContext is used outside ServiceProvider', () => {
-    // Suppress console.error for expected error boundary
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     expect(() => render(<ServiceTypeReader />)).toThrow(
-      'useServiceContext must be used within ServiceProvider'
+      'useServiceContext must be used within ServiceProvider',
     )
 
     spy.mockRestore()
