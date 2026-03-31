@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} 输入 / {{output}} 输出"
   },
   "error": {
-    "goToSettings": "前往设置 → Providers"
+    "goToSettings": "前往设置 → 供应商"
   },
   "tool": {
     "running": "运行中...",

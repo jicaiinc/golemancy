@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} in / {{output}} out"
   },
   "error": {
-    "goToSettings": "Pumunta sa Settings → Providers"
+    "goToSettings": "Pumunta sa Settings → Mga Provider"
   },
   "tool": {
     "running": "Tumatakbo...",

@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} vst / {{output}} výst"
   },
   "error": {
-    "goToSettings": "Přejít do Nastavení → Providers"
+    "goToSettings": "Přejít do Nastavení → Poskytovatelé"
   },
   "tool": {
     "running": "Provádění...",

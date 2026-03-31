@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} вх / {{output}} вых"
   },
   "error": {
-    "goToSettings": "Перейти в Настройки → Providers"
+    "goToSettings": "Перейти в Настройки → Провайдеры"
   },
   "tool": {
     "running": "Выполнение...",

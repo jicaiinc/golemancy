@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} entrée / {{output}} sortie"
   },
   "error": {
-    "goToSettings": "Aller dans Paramètres → Providers"
+    "goToSettings": "Aller dans Paramètres → Fournisseurs"
   },
   "tool": {
     "running": "Exécution...",

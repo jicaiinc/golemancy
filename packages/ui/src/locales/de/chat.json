@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} in / {{output}} out"
   },
   "error": {
-    "goToSettings": "Zu Einstellungen → Providers"
+    "goToSettings": "Zu Einstellungen → Provider"
   },
   "tool": {
     "running": "Wird ausgeführt...",

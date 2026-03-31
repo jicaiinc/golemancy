@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} masuk / {{output}} keluar"
   },
   "error": {
-    "goToSettings": "Pergi ke Tetapan → Providers"
+    "goToSettings": "Pergi ke Tetapan → Provider"
   },
   "tool": {
     "running": "Berjalan...",

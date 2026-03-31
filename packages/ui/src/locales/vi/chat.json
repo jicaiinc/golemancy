@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} vào / {{output}} ra"
   },
   "error": {
-    "goToSettings": "Đi tới Cài đặt → Providers"
+    "goToSettings": "Đi tới Cài đặt → Provider"
   },
   "tool": {
     "running": "Đang chạy...",

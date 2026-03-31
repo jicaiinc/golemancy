@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} giriş / {{output}} çıkış"
   },
   "error": {
-    "goToSettings": "Ayarlar → Providers'a git"
+    "goToSettings": "Ayarlar → Sağlayıcılar'a git"
   },
   "tool": {
     "running": "Çalışıyor...",

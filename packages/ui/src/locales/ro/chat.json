@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} intrare / {{output}} ieșire"
   },
   "error": {
-    "goToSettings": "Mergi la Setări → Providers"
+    "goToSettings": "Mergi la Setări → Furnizori"
   },
   "tool": {
     "running": "Se execută...",

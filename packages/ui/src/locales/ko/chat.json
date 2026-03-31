@@ -52,7 +52,7 @@
     "tokensSummary": "{{input}} 입력 / {{output}} 출력"
   },
   "error": {
-    "goToSettings": "설정 → Providers로 이동"
+    "goToSettings": "설정 → 프로바이더로 이동"
   },
   "tool": {
     "running": "실행 중...",
