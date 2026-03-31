@@ -323,6 +323,7 @@ async function main() {
 }
 
 main().catch((err) => {
+  // Startup failure is truly fatal — the server cannot serve requests.
   try { logger.fatal({ err }, 'failed to start server') } catch {}
   try { process.send?.({ type: 'startup-error', message: err instanceof Error ? err.message : String(err), stack: err instanceof Error ? err.stack?.slice(0, 1024) : undefined }) } catch {}
   captureException(err, { phase: 'startup' })
@@ -332,17 +333,17 @@ main().catch((err) => {
 })
 
 process.on('uncaughtException', (err) => {
-  logger.fatal({ err }, 'uncaught exception')
+  // Log and report but do NOT exit. HTTP servers handle requests independently —
+  // one bad request's synchronous throw should not kill the entire server.
+  // If the process state is truly corrupted, subsequent requests will fail
+  // and the main process watchdog can restart us.
+  logger.error({ err }, 'uncaught exception (non-fatal, server continues)')
   captureException(err, { handler: 'uncaughtException' })
-  flushSentry().catch(() => {}).finally(() => {
-    logger.flush(() => process.exit(1))
-  })
 })
 
 process.on('unhandledRejection', (reason) => {
-  logger.fatal({ err: reason }, 'unhandled rejection')
+  // Unhandled rejections are forgotten .catch() calls — they do NOT corrupt
+  // process state. Log and continue serving.
+  logger.error({ err: reason }, 'unhandled rejection (non-fatal, server continues)')
   captureException(reason, { handler: 'unhandledRejection' })
-  flushSentry().catch(() => {}).finally(() => {
-    logger.flush(() => process.exit(1))
-  })
 })
