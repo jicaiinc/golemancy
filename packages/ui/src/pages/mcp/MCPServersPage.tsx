@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
-import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile } from '@golemancy/shared'
-import { useAppStore } from '../../stores'
+import type { MCPServerConfig, MCPServerCreateData, MCPServerUpdateData, MCPProjectFile, ProjectId } from '@golemancy/shared'
+import { useAgents } from '../../queries/agents'
+import { useMCPServers, useCreateMCPServer, useUpdateMCPServer, useDeleteMCPServer } from '../../queries/mcp-servers'
 import { useCurrentProject, usePermissionConfig } from '../../hooks'
+import { getServices } from '../../services/container'
 import {
   PixelCard, PixelButton, PixelBadge, PixelTabs, PixelToggle, PixelSpinner, PixelDropZone,
 } from '../../components'
@@ -19,13 +21,11 @@ const transportColors: Record<string, string> = {
 export function MCPServersPage() {
   const { t } = useTranslation('mcp')
   const project = useCurrentProject()
-  const mcpServers = useAppStore(s => s.mcpServers)
-  const mcpServersLoading = useAppStore(s => s.mcpServersLoading)
-  const agents = useAppStore(s => s.agents)
-  const createMCPServer = useAppStore(s => s.createMCPServer)
-  const updateMCPServer = useAppStore(s => s.updateMCPServer)
-  const deleteMCPServer = useAppStore(s => s.deleteMCPServer)
-  const testMCPServer = useAppStore(s => s.testMCPServer)
+  const { data: mcpServers = [], isLoading: mcpServersLoading } = useMCPServers(project?.id ?? null)
+  const { data: agents = [] } = useAgents(project?.id ?? null)
+  const createMCPServerMutation = useCreateMCPServer()
+  const updateMCPServerMutation = useUpdateMCPServer()
+  const deleteMCPServerMutation = useDeleteMCPServer()
   const { mode, applyToMCP, sandboxSupported } = usePermissionConfig()
 
   const tabs = [
@@ -62,7 +62,11 @@ export function MCPServersPage() {
   async function handleTest(name: string) {
     setTestResults(prev => ({ ...prev, [name]: { status: 'testing' } }))
     try {
-      const result = await testMCPServer(name)
+      const pid = project?.id
+      if (!pid) return
+      const svc = getServices().mcp
+      if (!svc.test) throw new Error('MCP test not available')
+      const result = await svc.test(pid, name)
       if (result.ok) {
         setTestResults(prev => ({ ...prev, [name]: { status: 'ok', message: t('server.testOk', { count: result.toolCount }) } }))
       } else {
@@ -75,7 +79,7 @@ export function MCPServersPage() {
   }
 
   async function handleCreate(data: MCPServerCreateData) {
-    const server = await createMCPServer(data)
+    const server = await createMCPServerMutation.mutateAsync(data)
     setShowCreate(false)
     // Auto-test after creation
     if (server.enabled) {
@@ -85,12 +89,12 @@ export function MCPServersPage() {
 
   async function handleEdit(data: { name: string } & MCPServerUpdateData) {
     const { name, ...updateData } = data
-    await updateMCPServer(name, updateData)
+    await updateMCPServerMutation.mutateAsync({ name, data: updateData })
     setEditServer(null)
   }
 
   async function handleToggleEnabled(server: MCPServerConfig) {
-    await updateMCPServer(server.name, { enabled: !server.enabled })
+    await updateMCPServerMutation.mutateAsync({ name: server.name, data: { enabled: !server.enabled } })
     // Auto-test when enabling
     if (!server.enabled) {
       handleTest(server.name)
@@ -106,7 +110,7 @@ export function MCPServersPage() {
     setDeleteError(null)
     setConfirmDeleteName(null)
     try {
-      await deleteMCPServer(server.name)
+      await deleteMCPServerMutation.mutateAsync(server.name)
     } catch (err) {
       const message = err instanceof Error ? err.message : t('server.deleteError')
       setDeleteError(message)
@@ -130,14 +134,14 @@ export function MCPServersPage() {
         return
       }
       await Promise.all(entries.map(([name, config]) =>
-        createMCPServer({ name, ...config, enabled: config.enabled ?? true })
+        createMCPServerMutation.mutateAsync({ name, ...config, enabled: config.enabled ?? true })
       ))
       setImportStatus({ type: 'success', message: t('import.importedCount', { count: entries.length }) })
     } catch (err) {
       const message = err instanceof Error ? err.message : t('import.parseError')
       setImportStatus({ type: 'error', message })
     }
-  }, [createMCPServer, t])
+  }, [createMCPServerMutation, t])
 
   return (
     <motion.div className="p-6" data-testid="mcp-page" {...staggerContainer} initial="initial" animate="animate">

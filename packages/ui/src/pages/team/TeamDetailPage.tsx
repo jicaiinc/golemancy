@@ -1,14 +1,14 @@
 import { useParams, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { useAppStore } from '../../stores'
+import type { ProjectId } from '@golemancy/shared'
+import { useTeams } from '../../queries/teams'
 import { PixelButton } from '../../components'
 import { TeamTopologyView } from './topology/TeamTopologyView'
 
 export function TeamDetailPage() {
   const { t } = useTranslation('team')
   const { projectId, teamId } = useParams<{ projectId: string; teamId: string }>()
-  const teams = useAppStore(s => s.teams)
-  const teamsLoading = useAppStore(s => s.teamsLoading)
+  const { data: teams = [], isLoading: teamsLoading } = useTeams(projectId as ProjectId | null)
   const navigate = useNavigate()
 
   const team = teams.find(t => t.id === teamId)

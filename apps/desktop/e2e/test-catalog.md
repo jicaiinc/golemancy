@@ -108,7 +108,7 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 | 38 | agent-config-interaction | Skills Tab: assign skill triggers auto-save | ✅ |
 | 39 | agent-config-interaction | Tools Tab: toggle browser triggers auto-save | ✅ |
 | 40 | agent-config-interaction | MCP Tab: assign MCP server triggers auto-save | ✅ |
-| 41 | agent-config-interaction | Model Config Tab: explicit save persists compactThreshold | ✅ |
+| 41 | agent-config-interaction | Model Config Tab: auto-save renders without Save button | ✅ |
 
 ### Agent 状态
 
@@ -292,7 +292,7 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 | 147 | save-behavior-consistency | Skills tab: assign triggers auto-save | ✅ |
 | 148 | save-behavior-consistency | Tools tab: toggle triggers auto-save | ✅ |
 | 149 | save-behavior-consistency | General tab: edit requires explicit Save click | ✅ |
-| 150 | save-behavior-consistency | Model Config tab: edit requires explicit Save click | ✅ |
+| 150 | save-behavior-consistency | Model Config tab: auto-save renders without Save button | ✅ |
 | 151 | save-behavior-consistency | Project default agent: select triggers auto-save | ✅ |
 | 152 | save-behavior-consistency | Global theme: switch triggers auto-save | ✅ |
 

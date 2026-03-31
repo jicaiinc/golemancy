@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
-import { useAppStore } from '../../stores'
+import type { ProjectId } from '@golemancy/shared'
+import { useAgents } from '../../queries/agents'
+import { useTeams, useCloneTeam } from '../../queries/teams'
 import { PixelButton, PixelCard, PixelSpinner, CopyIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { TeamCreateModal } from './TeamCreateModal'
@@ -11,10 +13,9 @@ import { getCloneName } from '../../lib/clone-name'
 export function TeamListPage() {
   const { t } = useTranslation('team')
   const { projectId } = useParams<{ projectId: string }>()
-  const teams = useAppStore(s => s.teams)
-  const teamsLoading = useAppStore(s => s.teamsLoading)
-  const agents = useAppStore(s => s.agents)
-  const cloneTeam = useAppStore(s => s.cloneTeam)
+  const { data: teams = [], isLoading: teamsLoading } = useTeams(projectId as ProjectId | null)
+  const { data: agents = [] } = useAgents(projectId as ProjectId | null)
+  const cloneTeam = useCloneTeam()
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
 
@@ -77,7 +78,7 @@ export function TeamListPage() {
                         title={t('list.clone')}
                         onClick={(e) => {
                           e.stopPropagation()
-                          cloneTeam(team.id, getCloneName(team.name, teams.map(t => t.name)))
+                          cloneTeam.mutate({ id: team.id, newName: getCloneName(team.name, teams.map(t => t.name)) })
                         }}
                       >
                         <CopyIcon className="w-[14px] h-[14px]" />

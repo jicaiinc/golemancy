@@ -1,23 +1,27 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
-  Project, Agent, Conversation, ConversationSummary, ConversationTask, GlobalSettings, CronJob,CronJobRun, Skill, Team,
-  MCPServerConfig, MCPServerCreateData, MCPServerUpdateData,
+  Project, Conversation, ConversationSummary, GlobalSettings,
   DashboardSummary, DashboardAgentStats, DashboardRecentChat, DashboardTokenTrend,
   DashboardTokenByModel, DashboardTokenByAgent, RuntimeStatus, TimeRange,
   ThemeMode, StyleTheme, WorkspaceEntry, FilePreviewData,
   TranscriptionRecord, SpeechStorageUsage,
-  MemoryEntry, MemoryCreateData, MemoryUpdateData,
-  ProjectId, AgentId, ConversationId, SkillId, CronJobId, TranscriptionId, MemoryId, TeamId,
+  ProjectId, AgentId, ConversationId, TranscriptionId, TeamId,
   TargetType,
-  SkillCreateData, SkillUpdateData,
-  AgentStatus,
 } from '@golemancy/shared'
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@golemancy/shared'
 import i18next from 'i18next'
 import { getServices } from '../services'
 import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
 import { captureError } from '../lib/error-reporting'
+import { queryClient } from '../queries/query-client'
+import { queryKeys } from '../queries/keys'
+import { agentListOptions } from '../queries/agents'
+import { skillListOptions } from '../queries/skills'
+import { mcpServerListOptions } from '../queries/mcp-servers'
+import { teamListOptions } from '../queries/teams'
+import { cronJobListOptions } from '../queries/cron-jobs'
+import { conversationTaskListOptions } from '../queries/conversation-tasks'
 
 // --- Theme helper ---
 function applyThemeToDOM(mode: ThemeMode): void {
@@ -45,10 +49,6 @@ interface ProjectSlice {
   projectsLoading: boolean
 }
 
-interface AgentSlice {
-  agents: Agent[]
-  agentsLoading: boolean
-}
 
 interface ConversationSlice {
   conversationList: ConversationSummary[]
@@ -62,11 +62,6 @@ function toSummary(conv: Conversation): ConversationSummary {
   return summary
 }
 
-interface TaskSlice {
-  conversationTasks: ConversationTask[]
-  tasksLoading: boolean
-}
-
 interface WorkspaceSlice {
   /** Current directory listing (flat — one level at a time) */
   workspaceEntries: WorkspaceEntry[]
@@ -78,22 +73,6 @@ interface WorkspaceSlice {
   workspacePreviewLoading: boolean
 }
 
-interface SkillSlice {
-  skills: Skill[]
-  skillsLoading: boolean
-}
-
-interface MCPSlice {
-  mcpServers: MCPServerConfig[]
-  mcpServersLoading: boolean
-}
-
-interface CronJobSlice {
-  cronJobs: CronJob[]
-  cronJobsLoading: boolean
-  cronJobRuns: CronJobRun[]
-  cronJobRunsLoading: boolean
-}
 
 interface SettingsSlice {
   settings: GlobalSettings | null
@@ -129,15 +108,6 @@ interface SpeechSlice {
   speechStorageUsage: SpeechStorageUsage | null
 }
 
-interface MemorySlice {
-  memories: MemoryEntry[]
-  memoriesLoading: boolean
-}
-
-interface TeamSlice {
-  teams: Team[]
-  teamsLoading: boolean
-}
 
 // --- Actions ---
 interface ProjectActions {
@@ -151,15 +121,6 @@ interface ProjectActions {
   createProjectFromTemplate(templateId: string, name: string): Promise<Project>
 }
 
-interface AgentActions {
-  loadAgents(projectId: ProjectId): Promise<void>
-  createAgent(data: Pick<Agent, 'name' | 'description' | 'systemPrompt' | 'modelConfig'>): Promise<Agent>
-  updateAgent(id: AgentId, data: Partial<Agent>): Promise<void>
-  deleteAgent(id: AgentId): Promise<void>
-  cloneAgent(id: AgentId, newName: string): Promise<Agent>
-  /** Update agent status from WebSocket event (no server call) */
-  updateAgentStatus(agentId: AgentId, status: AgentStatus): void
-}
 
 interface ConversationActions {
   loadConversations(projectId: ProjectId, agentId?: AgentId): Promise<void>
@@ -170,11 +131,6 @@ interface ConversationActions {
   updateConversation(id: ConversationId, data: { title?: string; targetType?: TargetType; targetId?: AgentId | TeamId }): Promise<Conversation>
   updateConversationTitle(id: ConversationId, title: string): Promise<void>
   deleteConversation(id: ConversationId): Promise<void>
-}
-
-interface TaskActions {
-  loadConversationTasks(projectId: ProjectId): Promise<void>
-  refreshConversationTasks(): Promise<void>
 }
 
 interface WorkspaceActions {
@@ -188,30 +144,6 @@ interface WorkspaceActions {
   deleteWorkspaceFile(filePath: string): Promise<void>
 }
 
-interface SkillActions {
-  loadSkills(projectId: ProjectId): Promise<void>
-  createSkill(data: SkillCreateData): Promise<Skill>
-  updateSkill(id: SkillId, data: SkillUpdateData): Promise<void>
-  deleteSkill(id: SkillId): Promise<void>
-  importSkillsFromZip(file: File): Promise<{ imported: Array<{ name: string; id: SkillId }>; count: number }>
-}
-
-interface MCPActions {
-  loadMCPServers(projectId: ProjectId): Promise<void>
-  createMCPServer(data: MCPServerCreateData): Promise<MCPServerConfig>
-  updateMCPServer(name: string, data: MCPServerUpdateData): Promise<void>
-  deleteMCPServer(name: string): Promise<void>
-  testMCPServer(name: string): Promise<{ ok: boolean; toolCount: number; error?: string }>
-}
-
-interface CronJobActions {
-  loadCronJobs(projectId: ProjectId): Promise<void>
-  createCronJob(data: Pick<CronJob, 'targetType' | 'targetId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>): Promise<CronJob>
-  updateCronJob(id: CronJobId, data: Partial<Pick<CronJob, 'targetType' | 'targetId' | 'name' | 'cronExpression' | 'enabled' | 'instruction' | 'scheduleType' | 'scheduledAt'>>): Promise<void>
-  deleteCronJob(id: CronJobId): Promise<void>
-  triggerCronJob(id: CronJobId): Promise<void>
-  loadCronJobRuns(cronJobId: CronJobId): Promise<void>
-}
 
 interface SettingsActions {
   loadSettings(): Promise<void>
@@ -246,25 +178,11 @@ interface SpeechActions {
   loadSpeechStorageUsage(): Promise<void>
 }
 
-interface MemoryActions {
-  loadMemories(agentId: AgentId): Promise<void>
-  createMemory(agentId: AgentId, data: MemoryCreateData): Promise<MemoryEntry>
-  updateMemory(agentId: AgentId, id: MemoryId, data: MemoryUpdateData): Promise<void>
-  deleteMemory(agentId: AgentId, id: MemoryId): Promise<void>
-}
-
-interface TeamActions {
-  loadTeams(projectId: ProjectId): Promise<void>
-  createTeam(data: Pick<Team, 'name' | 'description' | 'instruction' | 'members'>): Promise<Team>
-  updateTeam(id: TeamId, data: Partial<Pick<Team, 'name' | 'description' | 'instruction' | 'members'>>): Promise<void>
-  deleteTeam(id: TeamId): Promise<void>
-  cloneTeam(id: TeamId, newName: string): Promise<Team>
-}
 
 // --- Combined ---
 export type AppState =
-  & ProjectSlice & AgentSlice & ConversationSlice & TaskSlice & WorkspaceSlice & SkillSlice & MCPSlice & CronJobSlice & SettingsSlice & UISlice & DashboardSlice & SpeechSlice & MemorySlice & TeamSlice
-  & ProjectActions & AgentActions & ConversationActions & TaskActions & WorkspaceActions & SkillActions & MCPActions & CronJobActions & SettingsActions & UIActions & DashboardActions & SpeechActions & MemoryActions & TeamActions
+  & ProjectSlice & ConversationSlice & WorkspaceSlice & SettingsSlice & UISlice & DashboardSlice & SpeechSlice
+  & ProjectActions & ConversationActions & WorkspaceActions & SettingsActions & UIActions & DashboardActions & SpeechActions
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -293,89 +211,64 @@ export const useAppStore = create<AppState>()(
         // server-side execution completes and saves messages to DB.
         releaseIdleChats()
 
+        // Clear old project's TQ cache
+        if (prevId) {
+          queryClient.removeQueries({
+            predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[1] === prevId,
+          })
+        }
+
         // Clear → set new → populate
         set({
           currentProjectId: id,
-          agents: [],
           conversationList: [],
           currentConversation: null,
-          conversationTasks: [],
           workspaceEntries: [],
-          skills: [],
-          mcpServers: [],
-          cronJobs: [],
-          cronJobRuns: [],
-          memories: [],
-          teams: [],
-          agentsLoading: true,
           conversationsLoading: true,
-          tasksLoading: true,
           workspaceLoading: false,
-          skillsLoading: true,
-          mcpServersLoading: true,
-          cronJobsLoading: true,
-          cronJobRunsLoading: false,
-          teamsLoading: true,
         })
 
         // Load project data in parallel (individual failures resolve to empty arrays)
         // Workspace is lazy-loaded on page visit, not on project select
         const svc = getServices()
         const safe = <T,>(p: Promise<T[]>): Promise<T[]> => p.catch(() => [] as T[])
-        const [agents, conversationList, conversationTasks, skills, mcpServers, cronJobs, teams] = await Promise.all([
-          safe(svc.agents.list(id)),
+        const [conversationList] = await Promise.all([
           safe(svc.conversations.list(id)),
-          safe(svc.tasks.list(id)),
-          safe(svc.skills.list(id)),
-          safe(svc.mcp.list(id)),
-          safe(svc.cronJobs.list(id)),
-          safe(svc.teams.list(id)),
+          // TQ prefetch (runs in parallel, maintains zero-flicker UX)
+          queryClient.prefetchQuery(agentListOptions(id)),
+          queryClient.prefetchQuery(skillListOptions(id)),
+          queryClient.prefetchQuery(mcpServerListOptions(id)),
+          queryClient.prefetchQuery(teamListOptions(id)),
+          queryClient.prefetchQuery(cronJobListOptions(id)),
+          queryClient.prefetchQuery(conversationTaskListOptions(id)),
         ])
 
         // Guard: only apply if still the active project
         if (get().currentProjectId !== id) return
 
         set({
-          agents,
           conversationList,
-          conversationTasks,
-          skills,
-          mcpServers,
-          cronJobs,
-          teams,
-          agentsLoading: false,
           conversationsLoading: false,
-          tasksLoading: false,
-          skillsLoading: false,
-          mcpServersLoading: false,
-          cronJobsLoading: false,
-          teamsLoading: false,
         })
       },
 
       clearProject() {
+        const prevId = get().currentProjectId
         destroyAllChats()
+        if (prevId) {
+          queryClient.removeQueries({
+            predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[1] === prevId,
+          })
+        }
         set({
           currentProjectId: null,
-          agents: [],
           conversationList: [],
           currentConversation: null,
-          conversationTasks: [],
           workspaceEntries: [],
           workspaceCurrentPath: '',
           workspacePreview: null,
           workspaceLoading: false,
           workspacePreviewLoading: false,
-          skills: [],
-          mcpServers: [],
-          cronJobs: [],
-          cronJobRuns: [],
-          memories: [],
-          teams: [],
-          skillsLoading: false,
-          mcpServersLoading: false,
-          cronJobsLoading: false,
-          cronJobRunsLoading: false,
         })
       },
 
@@ -409,10 +302,16 @@ export const useAppStore = create<AppState>()(
       async deleteProject(id) {
         // Optimistic: remove from store immediately, then fire backend delete.
         // Backend returns 200 instantly (deletion runs in background).
+        const isCurrent = get().currentProjectId === id
         set(s => ({
           projects: s.projects.filter(p => p.id !== id),
-          ...(s.currentProjectId === id ? { currentProjectId: null, agents: [], conversationList: [], currentConversation: null, conversationTasks: [], workspaceEntries: [], skills: [], mcpServers: [], cronJobs: [], cronJobRuns: [], memories: [], teams: [] } : {}),
+          ...(isCurrent ? { currentProjectId: null, conversationList: [], currentConversation: null, workspaceEntries: [] } : {}),
         }))
+        if (isCurrent) {
+          queryClient.removeQueries({
+            predicate: (q) => Array.isArray(q.queryKey) && q.queryKey[1] === id,
+          })
+        }
         await getServices().projects.delete(id)
       },
 
@@ -430,58 +329,7 @@ export const useAppStore = create<AppState>()(
         return project
       },
 
-      // --- Agent state ---
-      agents: [],
-      agentsLoading: false,
-
-      async loadAgents(projectId: ProjectId) {
-        set({ agentsLoading: true })
-        const agents = await getServices().agents.list(projectId)
-        set({ agents, agentsLoading: false })
-      },
-
-      async createAgent(data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const agent = await getServices().agents.create(projectId, data)
-        set(s => ({ agents: [...s.agents, agent] }))
-        return agent
-      },
-
-      async updateAgent(id, data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const updated = await getServices().agents.update(projectId, id, data)
-        set(s => ({ agents: s.agents.map(a => a.id === id ? updated : a) }))
-      },
-
-      async deleteAgent(id) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().agents.delete(projectId, id)
-        set(s => ({ agents: s.agents.filter(a => a.id !== id) }))
-        // If the deleted agent was the project's default target, clear it
-        const project = get().projects.find(p => p.id === projectId)
-        if (project?.defaultTargetId === id) {
-          await get().updateProject(projectId, { defaultTargetType: undefined, defaultTargetId: undefined })
-        }
-      },
-
-      async cloneAgent(id, newName) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const agent = await getServices().agents.clone(projectId, id, newName)
-        set(s => ({ agents: [...s.agents, agent] }))
-        return agent
-      },
-
-      updateAgentStatus(agentId: AgentId, status: AgentStatus) {
-        set(s => ({
-          agents: s.agents.map(a =>
-            a.id === agentId ? { ...a, status } : a,
-          ),
-        }))
-      },
+      // --- Agent state: migrated to TanStack Query (see queries/agents.ts) ---
 
       // --- Conversation state ---
       conversationList: [],
@@ -592,23 +440,6 @@ export const useAppStore = create<AppState>()(
         }))
       },
 
-      // --- Task state ---
-      conversationTasks: [],
-      tasksLoading: false,
-
-      async loadConversationTasks(projectId: ProjectId) {
-        set({ tasksLoading: true })
-        const tasks = await getServices().tasks.list(projectId)
-        set({ conversationTasks: tasks, tasksLoading: false })
-      },
-
-      async refreshConversationTasks() {
-        const projectId = get().currentProjectId
-        if (!projectId) return
-        const tasks = await getServices().tasks.list(projectId)
-        set({ conversationTasks: tasks })
-      },
-
       // --- Workspace state ---
       workspaceEntries: [],
       workspaceCurrentPath: '',
@@ -649,151 +480,7 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      // --- Skill state ---
-      skills: [],
-      skillsLoading: false,
-
-      async loadSkills(projectId: ProjectId) {
-        set({ skillsLoading: true })
-        const skills = await getServices().skills.list(projectId)
-        set({ skills, skillsLoading: false })
-      },
-
-      async createSkill(data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const skill = await getServices().skills.create(projectId, data)
-        set(s => ({ skills: [...s.skills, skill] }))
-        return skill
-      },
-
-      async updateSkill(id, data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const updated = await getServices().skills.update(projectId, id, data)
-        set(s => ({ skills: s.skills.map(sk => sk.id === id ? updated : sk) }))
-      },
-
-      async deleteSkill(id) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().skills.delete(projectId, id)
-        set(s => ({ skills: s.skills.filter(sk => sk.id !== id) }))
-      },
-
-      async importSkillsFromZip(file) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const result = await getServices().skills.importZip(projectId, file)
-        // Reload skills to get the newly imported ones
-        await get().loadSkills(projectId)
-        return result
-      },
-
-      // --- MCP state ---
-      mcpServers: [],
-      mcpServersLoading: false,
-
-      async loadMCPServers(projectId: ProjectId) {
-        set({ mcpServersLoading: true })
-        const mcpServers = await getServices().mcp.list(projectId)
-        set({ mcpServers, mcpServersLoading: false })
-      },
-
-      async createMCPServer(data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const server = await getServices().mcp.create(projectId, data)
-        set(s => ({ mcpServers: [...s.mcpServers, server] }))
-        return server
-      },
-
-      async updateMCPServer(name, data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const updated = await getServices().mcp.update(projectId, name, data)
-        set(s => ({ mcpServers: s.mcpServers.map(m => m.name === name ? updated : m) }))
-      },
-
-      async deleteMCPServer(name) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().mcp.delete(projectId, name)
-        set(s => ({ mcpServers: s.mcpServers.filter(m => m.name !== name) }))
-      },
-
-      async testMCPServer(name) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const svc = getServices().mcp
-        if (!svc.test) throw new Error('MCP test not available')
-        return svc.test(projectId, name)
-      },
-
-      // --- CronJob state ---
-      cronJobs: [],
-      cronJobsLoading: false,
-      cronJobRuns: [],
-      cronJobRunsLoading: false,
-
-      async loadCronJobs(projectId: ProjectId) {
-        set({ cronJobsLoading: true })
-        const cronJobs = await getServices().cronJobs.list(projectId)
-        set({ cronJobs, cronJobsLoading: false })
-      },
-
-      async createCronJob(data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const job = await getServices().cronJobs.create(projectId, data)
-        set(s => ({ cronJobs: [...s.cronJobs, job] }))
-        return job
-      },
-
-      async updateCronJob(id, data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const updated = await getServices().cronJobs.update(projectId, id, data)
-        set(s => ({ cronJobs: s.cronJobs.map(c => c.id === id ? updated : c) }))
-      },
-
-      async deleteCronJob(id) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().cronJobs.delete(projectId, id)
-        set(s => ({ cronJobs: s.cronJobs.filter(c => c.id !== id) }))
-      },
-
-      async triggerCronJob(id) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const svc = getServices().cronJobs
-        if (!svc.trigger) return
-        // Optimistically set status to 'running' immediately
-        set(s => ({
-          cronJobs: s.cronJobs.map(c => c.id === id ? { ...c, lastRunStatus: 'running' as const } : c),
-        }))
-        try {
-          await svc.trigger(projectId, id)
-          // Silent reload — don't set cronJobsLoading to avoid page flash
-          const cronJobs = await getServices().cronJobs.list(projectId)
-          set({ cronJobs })
-        } catch (err) {
-          // Silent reload on error too
-          const cronJobs = await getServices().cronJobs.list(projectId)
-          set({ cronJobs })
-          throw err
-        }
-      },
-
-      async loadCronJobRuns(cronJobId) {
-        const projectId = get().currentProjectId
-        if (!projectId) return
-        set({ cronJobRunsLoading: true })
-        const svc = getServices().cronJobs
-        const runs = svc.listRuns ? await svc.listRuns(projectId, cronJobId) : []
-        set({ cronJobRuns: runs, cronJobRunsLoading: false })
-      },
+      // --- Skill + MCP state: migrated to TanStack Query (see queries/skills.ts, queries/mcp-servers.ts) ---
 
       // --- Settings state ---
       settings: null,
@@ -975,88 +662,7 @@ export const useAppStore = create<AppState>()(
         set({ speechStorageUsage: usage })
       },
 
-      // --- Memory state ---
-      memories: [],
-      memoriesLoading: false,
-
-      async loadMemories(agentId: AgentId) {
-        const projectId = get().currentProjectId
-        if (!projectId) return
-        set({ memoriesLoading: true })
-        try {
-          const memories = await getServices().memories.list(projectId, agentId)
-          set({ memories, memoriesLoading: false })
-        } catch {
-          set({ memoriesLoading: false })
-        }
-      },
-
-      async createMemory(agentId: AgentId, data: MemoryCreateData) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const memory = await getServices().memories.create(projectId, agentId, data)
-        set(s => ({ memories: [...s.memories, memory] }))
-        return memory
-      },
-
-      async updateMemory(agentId: AgentId, id: MemoryId, data: MemoryUpdateData) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const updated = await getServices().memories.update(projectId, agentId, id, data)
-        set(s => ({ memories: s.memories.map(m => m.id === id ? updated : m) }))
-      },
-
-      async deleteMemory(agentId: AgentId, id: MemoryId) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().memories.delete(projectId, agentId, id)
-        set(s => ({ memories: s.memories.filter(m => m.id !== id) }))
-      },
-
-      // --- Team state ---
-      teams: [],
-      teamsLoading: false,
-
-      async loadTeams(projectId: ProjectId) {
-        set({ teamsLoading: true })
-        const teams = await getServices().teams.list(projectId)
-        set({ teams, teamsLoading: false })
-      },
-
-      async createTeam(data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const team = await getServices().teams.create(projectId, data)
-        set(s => ({ teams: [...s.teams, team] }))
-        return team
-      },
-
-      async updateTeam(id, data) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const updated = await getServices().teams.update(projectId, id, data)
-        set(s => ({ teams: s.teams.map(t => t.id === id ? updated : t) }))
-      },
-
-      async deleteTeam(id) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        await getServices().teams.delete(projectId, id)
-        set(s => ({ teams: s.teams.filter(t => t.id !== id) }))
-        // If the deleted team was the project's default target, clear it
-        const project = get().projects.find(p => p.id === get().currentProjectId)
-        if (project?.defaultTargetId === id) {
-          await get().updateProject(project.id, { defaultTargetType: undefined, defaultTargetId: undefined })
-        }
-      },
-
-      async cloneTeam(id, newName) {
-        const projectId = get().currentProjectId
-        if (!projectId) throw new Error('No project selected')
-        const team = await getServices().teams.clone(projectId, id, newName)
-        set(s => ({ teams: [...s.teams, team] }))
-        return team
-      },
+      // Memory + Team state migrated to TanStack Query (queries/memories.ts, queries/teams.ts)
     }),
     {
       name: 'golemancy-prefs',
@@ -1081,8 +687,60 @@ export const useAppStore = create<AppState>()(
   ),
 )
 
-// Expose store for E2E testing.
-// Always exposed — this is an Electron desktop app, not a public web app.
+// Expose store for E2E testing via bridge proxy.
+// Merges Zustand state with TanStack Query cache so E2E tests
+// can read migrated fields (e.g. agents) without code changes.
 if (typeof window !== 'undefined') {
-  ;(window as any).__GOLEMANCY_STORE__ = useAppStore
+  const bridge = (() => {}) as any
+  bridge.getState = () => {
+    const state = useAppStore.getState()
+    const pid = state.currentProjectId
+    return {
+      ...state,
+      // Inject TQ-migrated fields back into the state shape for E2E compat
+      agents: pid ? queryClient.getQueryData(queryKeys.agents.all(pid)) ?? [] : [],
+      agentsLoading: pid
+        ? queryClient.getQueryState(queryKeys.agents.all(pid))?.status === 'pending'
+        : false,
+      skills: pid ? queryClient.getQueryData(queryKeys.skills.all(pid)) ?? [] : [],
+      skillsLoading: pid
+        ? queryClient.getQueryState(queryKeys.skills.all(pid))?.status === 'pending'
+        : false,
+      mcpServers: pid ? queryClient.getQueryData(queryKeys.mcpServers.all(pid)) ?? [] : [],
+      mcpServersLoading: pid
+        ? queryClient.getQueryState(queryKeys.mcpServers.all(pid))?.status === 'pending'
+        : false,
+      teams: pid ? queryClient.getQueryData(queryKeys.teams.all(pid)) ?? [] : [],
+      teamsLoading: pid
+        ? queryClient.getQueryState(queryKeys.teams.all(pid))?.status === 'pending'
+        : false,
+      cronJobs: pid ? queryClient.getQueryData(queryKeys.cronJobs.all(pid)) ?? [] : [],
+      cronJobsLoading: pid
+        ? queryClient.getQueryState(queryKeys.cronJobs.all(pid))?.status === 'pending'
+        : false,
+      cronJobRuns: [] as unknown[],
+      cronJobRunsLoading: false,
+      conversationTasks: pid ? queryClient.getQueryData(queryKeys.tasks.all(pid)) ?? [] : [],
+      tasksLoading: pid
+        ? queryClient.getQueryState(queryKeys.tasks.all(pid))?.status === 'pending'
+        : false,
+      memories: [] as unknown[],
+      memoriesLoading: false,
+      // TQ-migrated action stubs for E2E compat
+      loadAgents: async (pid: ProjectId) => {
+        await queryClient.invalidateQueries({ queryKey: queryKeys.agents.all(pid) })
+      },
+      loadCronJobs: async (pid: ProjectId) => {
+        await queryClient.invalidateQueries({ queryKey: queryKeys.cronJobs.all(pid) })
+      },
+      loadConversationTasks: async (pid: ProjectId) => {
+        await queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all(pid) })
+      },
+      refreshConversationTasks: async () => {
+        if (pid) await queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all(pid) })
+      },
+    }
+  }
+  bridge.subscribe = useAppStore.subscribe
+  ;(window as any).__GOLEMANCY_STORE__ = bridge
 }

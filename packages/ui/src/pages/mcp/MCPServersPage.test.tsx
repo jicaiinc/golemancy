@@ -2,9 +2,22 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MCPServersPage } from './MCPServersPage'
 import { useAppStore } from '../../stores'
+import { useAgents } from '../../queries/agents'
+import { useMCPServers, useCreateMCPServer, useUpdateMCPServer, useDeleteMCPServer } from '../../queries/mcp-servers'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
 import type { AgentId, ProjectId, MCPServerConfig } from '@golemancy/shared'
+
+vi.mock('../../queries/agents', () => ({
+  useAgents: vi.fn(),
+}))
+
+vi.mock('../../queries/mcp-servers', () => ({
+  useMCPServers: vi.fn(),
+  useCreateMCPServer: vi.fn(),
+  useUpdateMCPServer: vi.fn(),
+  useDeleteMCPServer: vi.fn(),
+}))
 
 // Mock motion/react to avoid animation issues in tests
 vi.mock('motion/react', () => ({
@@ -130,17 +143,19 @@ describe('MCPServersPage', () => {
   beforeEach(() => {
     services = createTestServices()
     configureServices(services)
+    vi.mocked(useAgents).mockReturnValue({ data: mockAgents, isLoading: false } as any)
+    vi.mocked(useMCPServers).mockReturnValue({ data: [], isLoading: false } as any)
+    vi.mocked(useCreateMCPServer).mockReturnValue({ mutateAsync: vi.fn() } as any)
+    vi.mocked(useUpdateMCPServer).mockReturnValue({ mutateAsync: vi.fn() } as any)
+    vi.mocked(useDeleteMCPServer).mockReturnValue({ mutateAsync: vi.fn() } as any)
     useAppStore.setState({
       currentProjectId: 'proj-1' as ProjectId,
       projects: [{ id: 'proj-1' as ProjectId, name: 'Test Project', description: '', createdAt: '', updatedAt: '' }] as any,
-      agents: mockAgents as any,
-      mcpServers: [],
-      mcpServersLoading: false,
     })
   })
 
   it('shows spinner when loading', async () => {
-    useAppStore.setState({ mcpServersLoading: true })
+    vi.mocked(useMCPServers).mockReturnValue({ data: [], isLoading: true } as any)
     let container: HTMLElement
     await act(async () => {
       ;({ container } = render(<MCPServersPage />))
@@ -155,14 +170,14 @@ describe('MCPServersPage', () => {
   })
 
   it('renders server count in header', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
     await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('MCP Servers')).toBeInTheDocument()
     expect(screen.getByText('3 servers')).toBeInTheDocument()
   })
 
   it('renders server names', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
     await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('filesystem')).toBeInTheDocument()
     expect(screen.getByText('web-search')).toBeInTheDocument()
@@ -170,7 +185,7 @@ describe('MCPServersPage', () => {
   })
 
   it('shows transport type badge for each server', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
     await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('STDIO')).toBeInTheDocument()
     expect(screen.getByText('SSE')).toBeInTheDocument()
@@ -178,13 +193,13 @@ describe('MCPServersPage', () => {
   })
 
   it('shows description when available', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
     await act(async () => { render(<MCPServersPage />) })
     expect(screen.getByText('Access local files')).toBeInTheDocument()
   })
 
   it('shows agent reference count', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
     await act(async () => { render(<MCPServersPage />) })
     // filesystem is used by 2 agents (Writer + Researcher)
     expect(screen.getByText('Used by 2 agents')).toBeInTheDocument()
@@ -195,8 +210,9 @@ describe('MCPServersPage', () => {
   })
 
   it('toggle calls updateMCPServer', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
-    vi.mocked(services.mcp.update).mockResolvedValue({ ...mockMCPServers[0], enabled: false })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
+    const mockMutateAsync = vi.fn()
+    vi.mocked(useUpdateMCPServer).mockReturnValue({ mutateAsync: mockMutateAsync } as any)
     await act(async () => { render(<MCPServersPage />) })
 
     const toggles = screen.getAllByRole('switch')
@@ -204,12 +220,12 @@ describe('MCPServersPage', () => {
     fireEvent.click(toggles[0])
 
     await waitFor(() => {
-      expect(services.mcp.update).toHaveBeenCalled()
+      expect(mockMutateAsync).toHaveBeenCalledWith({ name: 'filesystem', data: { enabled: false } })
     })
   })
 
   it('shows error when deleting server referenced by agents', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
     await act(async () => { render(<MCPServersPage />) })
 
     // Click the delete button (×) for 'filesystem' which is referenced by 2 agents
@@ -242,7 +258,7 @@ describe('MCPServersPage', () => {
   })
 
   it('opens edit modal when clicking Edit', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
     await act(async () => { render(<MCPServersPage />) })
     const editButtons = screen.getAllByText('Edit')
     fireEvent.click(editButtons[0])
@@ -250,7 +266,7 @@ describe('MCPServersPage', () => {
   })
 
   it('has Edit and delete buttons for each server', async () => {
-    useAppStore.setState({ mcpServers: mockMCPServers })
+    vi.mocked(useMCPServers).mockReturnValue({ data: mockMCPServers, isLoading: false } as any)
     await act(async () => { render(<MCPServersPage />) })
     expect(screen.getAllByText('Edit')).toHaveLength(3)
     expect(screen.getAllByText('\u00d7')).toHaveLength(3)

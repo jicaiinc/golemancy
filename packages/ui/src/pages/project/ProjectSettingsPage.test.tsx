@@ -3,9 +3,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { ProjectSettingsPage } from './ProjectSettingsPage'
 import { useAppStore } from '../../stores'
+import { useAgents } from '../../queries/agents'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
 import type { Agent, AgentId, ProjectId, GlobalSettings, Project } from '@golemancy/shared'
+
+vi.mock('../../queries/agents', () => ({
+  useAgents: vi.fn(),
+}))
+
+vi.mock('../../queries/teams', () => ({
+  useTeams: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+}))
 
 vi.mock('motion/react', () => ({
   motion: {
@@ -121,11 +130,11 @@ function renderAtRoute() {
 describe('ProjectSettingsPage', () => {
   beforeEach(() => {
     configureServices(createTestServices())
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent()], isLoading: false } as any)
     useAppStore.setState({
       settings: baseSettings,
       projects: [testProject],
       currentProjectId: PROJECT_ID,
-      agents: [makeAgent()],
       updateProject: vi.fn().mockResolvedValue(undefined),
     })
   })

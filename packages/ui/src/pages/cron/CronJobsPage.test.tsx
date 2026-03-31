@@ -3,9 +3,29 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { CronJobsPage } from './CronJobsPage'
 import { useAppStore } from '../../stores'
+import { useAgents } from '../../queries/agents'
+import { useCronJobs, useUpdateCronJob, useDeleteCronJob, useTriggerCronJob } from '../../queries/cron-jobs'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
 import type { AgentId, CronJobId, ProjectId } from '@golemancy/shared'
+
+vi.mock('../../queries/agents', () => ({
+  useAgents: vi.fn(),
+}))
+
+vi.mock('../../queries/teams', () => ({
+  useTeams: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+}))
+
+vi.mock('../../queries/cron-jobs', () => ({
+  useCronJobs: vi.fn(),
+  useCronJobRuns: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+  useCreateCronJob: vi.fn().mockReturnValue({ mutateAsync: vi.fn() }),
+  useUpdateCronJob: vi.fn().mockReturnValue({ mutateAsync: vi.fn() }),
+  useDeleteCronJob: vi.fn().mockReturnValue({ mutateAsync: vi.fn() }),
+  useTriggerCronJob: vi.fn().mockReturnValue({ mutate: vi.fn() }),
+  cronJobListOptions: vi.fn(),
+}))
 
 // Mock motion/react to avoid animation issues in tests
 vi.mock('motion/react', () => ({
@@ -106,24 +126,25 @@ function createTestServices(): ServiceContainer {
   }
 }
 
+function setCronJobs(jobs: any[]) {
+  vi.mocked(useCronJobs).mockReturnValue({ data: jobs, isLoading: false } as any)
+}
+
 describe('CronJobsPage', () => {
   let services: ServiceContainer
 
   beforeEach(() => {
     services = createTestServices()
     configureServices(services)
+    vi.mocked(useAgents).mockReturnValue({ data: mockAgents, isLoading: false } as any)
+    vi.mocked(useCronJobs).mockReturnValue({ data: [], isLoading: false } as any)
     useAppStore.setState({
       currentProjectId: 'proj-1' as ProjectId,
-      agents: mockAgents as any,
-      cronJobs: [],
-      cronJobsLoading: false,
-      cronJobRuns: [],
-      cronJobRunsLoading: false,
     })
   })
 
   it('shows spinner when loading', () => {
-    useAppStore.setState({ cronJobsLoading: true })
+    vi.mocked(useCronJobs).mockReturnValue({ data: [], isLoading: true } as any)
     const { container } = renderWithRouter(<CronJobsPage />)
     // PixelSpinner renders animated spans with pixel-pulse animation
     expect(container.querySelector('[class*="animate-"]')).toBeTruthy()
@@ -138,14 +159,14 @@ describe('CronJobsPage', () => {
   })
 
   it('renders header with count badge', () => {
-    useAppStore.setState({ cronJobs: mockCronJobs as any })
+    setCronJobs(mockCronJobs)
     renderWithRouter(<CronJobsPage />)
     expect(screen.getByText('Automations')).toBeInTheDocument()
     expect(screen.getByText('2')).toBeInTheDocument()
   })
 
   it('renders cron job list with names and expressions', () => {
-    useAppStore.setState({ cronJobs: mockCronJobs as any })
+    setCronJobs(mockCronJobs)
     renderWithRouter(<CronJobsPage />)
     expect(screen.getByText('Daily Summary')).toBeInTheDocument()
     expect(screen.getByText('0 9 * * *')).toBeInTheDocument()
@@ -154,20 +175,18 @@ describe('CronJobsPage', () => {
   })
 
   it('shows agent name badge for each job', () => {
-    useAppStore.setState({ cronJobs: mockCronJobs as any })
+    setCronJobs(mockCronJobs)
     renderWithRouter(<CronJobsPage />)
     expect(screen.getByText('@Writer')).toBeInTheDocument()
     expect(screen.getByText('@Researcher')).toBeInTheDocument()
   })
 
   it('shows "Agent not found" when agent is missing', () => {
-    useAppStore.setState({
-      cronJobs: [{
-        ...mockCronJobs[0],
-        targetType: 'agent' as const,
-        targetId: 'agent-missing' as AgentId,
-      }] as any,
-    })
+    setCronJobs([{
+      ...mockCronJobs[0],
+      targetType: 'agent' as const,
+      targetId: 'agent-missing' as AgentId,
+    }])
     renderWithRouter(<CronJobsPage />)
     expect(screen.getByText('Agent not found')).toBeInTheDocument()
   })
@@ -190,7 +209,7 @@ describe('CronJobsPage', () => {
   })
 
   it('opens edit form when clicking Edit', () => {
-    useAppStore.setState({ cronJobs: mockCronJobs as any })
+    setCronJobs(mockCronJobs)
     renderWithRouter(<CronJobsPage />)
     const editButtons = screen.getAllByText('Edit')
     fireEvent.click(editButtons[0])
@@ -198,7 +217,7 @@ describe('CronJobsPage', () => {
   })
 
   it('opens delete confirmation when clicking Delete', () => {
-    useAppStore.setState({ cronJobs: mockCronJobs as any })
+    setCronJobs(mockCronJobs)
     renderWithRouter(<CronJobsPage />)
     const deleteButtons = screen.getAllByText('Delete')
     fireEvent.click(deleteButtons[0])
@@ -207,7 +226,9 @@ describe('CronJobsPage', () => {
   })
 
   it('calls deleteCronJob when confirming delete', async () => {
-    useAppStore.setState({ cronJobs: mockCronJobs as any })
+    const mockMutateAsync = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useDeleteCronJob).mockReturnValue({ mutateAsync: mockMutateAsync } as any)
+    setCronJobs(mockCronJobs)
     renderWithRouter(<CronJobsPage />)
     // Click first delete button to open modal
     const deleteButtons = screen.getAllByText('Delete')
@@ -216,12 +237,12 @@ describe('CronJobsPage', () => {
     const allDeleteBtns = screen.getAllByText('Delete')
     fireEvent.click(allDeleteBtns[allDeleteBtns.length - 1])
     await waitFor(() => {
-      expect(services.cronJobs.delete).toHaveBeenCalled()
+      expect(mockMutateAsync).toHaveBeenCalledWith('cron-1')
     })
   })
 
   it('has Edit and Delete buttons for each job', () => {
-    useAppStore.setState({ cronJobs: mockCronJobs as any })
+    setCronJobs(mockCronJobs)
     renderWithRouter(<CronJobsPage />)
     expect(screen.getAllByText('Edit')).toHaveLength(2)
     // Delete buttons: 2 from jobs list (modal not open yet)
@@ -229,26 +250,22 @@ describe('CronJobsPage', () => {
   })
 
   it('shows running status bar when job is running', () => {
-    useAppStore.setState({
-      cronJobs: [{
-        ...mockCronJobs[0],
-        lastRunStatus: 'running',
-        lastRunId: 'run-1',
-      }] as any,
-    })
+    setCronJobs([{
+      ...mockCronJobs[0],
+      lastRunStatus: 'running',
+      lastRunId: 'run-1',
+    }])
     renderWithRouter(<CronJobsPage />)
     expect(screen.getByText('Running...')).toBeInTheDocument()
     expect(screen.getByText('View Chat →')).toBeInTheDocument()
   })
 
   it('shows "once" badge for one-time schedules', () => {
-    useAppStore.setState({
-      cronJobs: [{
-        ...mockCronJobs[0],
-        scheduleType: 'once',
-        scheduledAt: '2026-03-01T09:00:00.000Z',
-      }] as any,
-    })
+    setCronJobs([{
+      ...mockCronJobs[0],
+      scheduleType: 'once',
+      scheduledAt: '2026-03-01T09:00:00.000Z',
+    }])
     renderWithRouter(<CronJobsPage />)
     expect(screen.getByText('once')).toBeInTheDocument()
   })

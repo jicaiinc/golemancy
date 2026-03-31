@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
-import type { Skill, SkillId } from '@golemancy/shared'
-import { useAppStore } from '../../stores'
+import type { Skill, SkillId, ProjectId } from '@golemancy/shared'
+import { useAgents } from '../../queries/agents'
+import { useSkills, useCreateSkill, useUpdateSkill, useDeleteSkill, useImportSkills } from '../../queries/skills'
 import { useCurrentProject } from '../../hooks'
 import {
   PixelCard, PixelButton, PixelTabs, PixelSpinner, PixelDropZone,
@@ -13,12 +14,12 @@ import { SkillFormModal } from './SkillFormModal'
 export function SkillsPage() {
   const { t } = useTranslation(['skill', 'common'])
   const project = useCurrentProject()
-  const skills = useAppStore(s => s.skills)
-  const skillsLoading = useAppStore(s => s.skillsLoading)
-  const agents = useAppStore(s => s.agents)
-  const createSkill = useAppStore(s => s.createSkill)
-  const updateSkill = useAppStore(s => s.updateSkill)
-  const deleteSkill = useAppStore(s => s.deleteSkill)
+  const { data: skills = [], isLoading: skillsLoading } = useSkills(project?.id ?? null)
+  const { data: agents = [] } = useAgents(project?.id ?? null)
+  const createSkillMutation = useCreateSkill()
+  const updateSkillMutation = useUpdateSkill()
+  const deleteSkillMutation = useDeleteSkill()
+  const importSkillsMutation = useImportSkills()
 
   const tabs = [
     { id: 'installed', label: t('skill:tabs.installed') },
@@ -47,7 +48,7 @@ export function SkillsPage() {
     setDeleteError(null)
     setConfirmDeleteId(null)
     try {
-      await deleteSkill(skill.id)
+      await deleteSkillMutation.mutateAsync(skill.id)
     } catch (err) {
       const message = err instanceof Error ? err.message : t('skill:deleteError.generic')
       setDeleteError(message)
@@ -72,15 +73,14 @@ export function SkillsPage() {
         await Promise.all(mdFiles.map(async (file) => {
           const content = await file.text()
           const name = file.name.replace(/\.md$/i, '').replace(/[-_]/g, ' ')
-          return createSkill({ name, description: '', instructions: content })
+          return createSkillMutation.mutateAsync({ name, description: '', instructions: content })
         }))
         totalImported += mdFiles.length
       }
 
       // Handle .zip files
-      const importSkillsFromZip = useAppStore.getState().importSkillsFromZip
       for (const zipFile of zipFiles) {
-        const result = await importSkillsFromZip(zipFile)
+        const result = await importSkillsMutation.mutateAsync(zipFile)
         totalImported += result.count
       }
 
@@ -89,7 +89,7 @@ export function SkillsPage() {
       const message = err instanceof Error ? err.message : t('skill:import.importError')
       setImportStatus({ type: 'error', message })
     }
-  }, [createSkill, t])
+  }, [createSkillMutation, importSkillsMutation, t])
 
   return (
     <motion.div className="p-6" data-testid="skills-page" {...staggerContainer} initial="initial" animate="animate">
@@ -205,7 +205,7 @@ export function SkillsPage() {
         open={showCreate}
         onClose={() => setShowCreate(false)}
         onSubmit={async (name, description, instructions) => {
-          await createSkill({ name, description, instructions })
+          await createSkillMutation.mutateAsync({ name, description, instructions })
           setShowCreate(false)
         }}
         title={t('skill:form.newTitle')}
@@ -217,7 +217,7 @@ export function SkillsPage() {
           open
           onClose={() => setEditSkill(null)}
           onSubmit={async (name, description, instructions) => {
-            await updateSkill(editSkill.id, { name, description, instructions })
+            await updateSkillMutation.mutateAsync({ id: editSkill.id, data: { name, description, instructions } })
             setEditSkill(null)
           }}
           title={t('skill:form.editTitle')}

@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
-import type { AgentStatus } from '@golemancy/shared'
-import { useAppStore } from '../../stores'
+import type { AgentStatus, ProjectId } from '@golemancy/shared'
+import { useAgents, useCloneAgent } from '../../queries/agents'
 import { PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelSpinner, CopyIcon } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { AgentCreateModal } from './AgentCreateModal'
@@ -30,9 +30,8 @@ const statusBadgeVariant: Record<AgentStatus, 'idle' | 'running' | 'error'> = {
 export function AgentListPage() {
   const { t } = useTranslation('agent')
   const { projectId } = useParams<{ projectId: string }>()
-  const agents = useAppStore(s => s.agents)
-  const agentsLoading = useAppStore(s => s.agentsLoading)
-  const cloneAgent = useAppStore(s => s.cloneAgent)
+  const { data: agents = [], isLoading: agentsLoading } = useAgents(projectId as ProjectId | null)
+  const cloneAgent = useCloneAgent()
   const navigate = useNavigate()
   const [showCreate, setShowCreate] = useState(false)
 
@@ -113,7 +112,7 @@ export function AgentListPage() {
                         title={t('list.clone')}
                         onClick={(e) => {
                           e.stopPropagation()
-                          cloneAgent(agent.id, getCloneName(agent.name, agents.map(a => a.name)))
+                          cloneAgent.mutate({ id: agent.id, newName: getCloneName(agent.name, agents.map(a => a.name)) })
                         }}
                       >
                         <CopyIcon className="w-[14px] h-[14px]" />

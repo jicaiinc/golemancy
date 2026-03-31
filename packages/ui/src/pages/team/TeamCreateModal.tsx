@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { useAppStore } from '../../stores'
+import { useCreateTeam } from '../../queries/teams'
 import { PixelModal, PixelButton, PixelInput } from '../../components'
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 export function TeamCreateModal({ open, onClose }: Props) {
   const { t } = useTranslation('team')
   const { projectId } = useParams<{ projectId: string }>()
-  const createTeam = useAppStore(s => s.createTeam)
+  const createTeam = useCreateTeam()
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -27,9 +27,10 @@ export function TeamCreateModal({ open, onClose }: Props) {
     if (!name.trim()) return
     setSaving(true)
     try {
-      const team = await createTeam({
+      const team = await createTeam.mutateAsync({
         name: name.trim(),
         description: description.trim(),
+        instruction: '',
         members: [],
       })
       reset()

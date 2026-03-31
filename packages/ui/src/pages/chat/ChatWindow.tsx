@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, CompactRecord, Conversation, Team, TeamId, TargetType } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
+import { useRefreshConversationTasks } from '../../queries/conversation-tasks'
 import { getServices } from '../../services'
 import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
 import { PixelButton, PixelSpinner, PixelNotificationBanner, SidebarToggleIcon } from '../../components'
@@ -193,7 +194,7 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
 
   // Refresh conversation tasks after streaming completes.
   // Agent may have created/updated tasks via built-in TaskCreate/TaskUpdate tools.
-  const refreshConversationTasks = useAppStore(s => s.refreshConversationTasks)
+  const refreshConversationTasks = useRefreshConversationTasks()
   const prevStatusRef = useRef(status)
   useEffect(() => {
     const prev = prevStatusRef.current

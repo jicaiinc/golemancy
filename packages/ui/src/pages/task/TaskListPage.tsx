@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import type { ConversationTaskStatus } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useCurrentProject } from '../../hooks'
+import { useConversationTasks, useRefreshConversationTasks } from '../../queries/conversation-tasks'
 import {
   PixelCard, PixelBadge, PixelSpinner,
 } from '../../components'
@@ -29,10 +30,10 @@ const statusBadgeVariant: Record<ConversationTaskStatus, 'idle' | 'running' | 's
 export function TaskListPage() {
   const { t } = useTranslation('task')
   const project = useCurrentProject()
-  const tasks = useAppStore(s => s.conversationTasks)
-  const tasksLoading = useAppStore(s => s.tasksLoading)
+  const currentProjectId = useAppStore(s => s.currentProjectId)
+  const { data: tasks = [], isLoading: tasksLoading } = useConversationTasks(currentProjectId)
   const conversationList = useAppStore(s => s.conversationList)
-  const refreshConversationTasks = useAppStore(s => s.refreshConversationTasks)
+  const refreshConversationTasks = useRefreshConversationTasks()
   const navigate = useNavigate()
 
   // Refresh tasks on mount to ensure we have the latest data

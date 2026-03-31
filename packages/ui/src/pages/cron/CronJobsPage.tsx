@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import cronstrue from 'cronstrue'
-import type { CronJob, CronJobId, CronJobRun } from '@golemancy/shared'
-import { useAppStore } from '../../stores'
+import type { CronJob, CronJobId, CronJobRun, ProjectId } from '@golemancy/shared'
+import { useAgents } from '../../queries/agents'
+import { useTeams } from '../../queries/teams'
+import { useCronJobs, useUpdateCronJob, useDeleteCronJob, useTriggerCronJob } from '../../queries/cron-jobs'
+import { getServices } from '../../services'
+import { queryClient } from '../../queries/query-client'
+import { queryKeys } from '../../queries/keys'
 import {
   PixelButton, PixelCard, PixelBadge, PixelToggle,
   PixelSpinner, PixelModal,
@@ -36,15 +41,12 @@ export function CronJobsPage() {
   const { t } = useTranslation('cron')
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const agents = useAppStore(s => s.agents)
-  const teams = useAppStore(s => s.teams)
-  const cronJobs = useAppStore(s => s.cronJobs)
-  const cronJobsLoading = useAppStore(s => s.cronJobsLoading)
-  const updateCronJob = useAppStore(s => s.updateCronJob)
-  const deleteCronJob = useAppStore(s => s.deleteCronJob)
-  const loadCronJobRuns = useAppStore(s => s.loadCronJobRuns)
-
-  const triggerCronJob = useAppStore(s => s.triggerCronJob)
+  const { data: agents = [] } = useAgents(projectId as ProjectId | null)
+  const { data: teams = [] } = useTeams(projectId as ProjectId | null)
+  const { data: cronJobs = [], isLoading: cronJobsLoading } = useCronJobs(projectId as ProjectId | null)
+  const updateCronJobMutation = useUpdateCronJob()
+  const deleteCronJobMutation = useDeleteCronJob()
+  const triggerCronJobMutation = useTriggerCronJob()
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<CronJobId | null>(null)
@@ -76,25 +78,28 @@ export function CronJobsPage() {
   }
 
   async function handleToggle(id: CronJobId, currentEnabled: boolean) {
-    await updateCronJob(id, { enabled: !currentEnabled })
+    await updateCronJobMutation.mutateAsync({ id, data: { enabled: !currentEnabled } })
   }
 
   async function handleConfirmDelete() {
     if (!deletingJob) return
-    await deleteCronJob(deletingJob.id)
+    await deleteCronJobMutation.mutateAsync(deletingJob.id)
     setDeletingJob(null)
   }
 
-  async function navigateToRunChat(job: CronJob) {
+  const navigateToRunChat = useCallback(async (job: CronJob) => {
     if (!projectId || !job.lastRunId) return
-    // Load latest run to get conversationId
-    await loadCronJobRuns(job.id)
-    const runs = useAppStore.getState().cronJobRuns
+    const svc = getServices().cronJobs
+    if (!svc.listRuns) return
+    const runs = await queryClient.fetchQuery({
+      queryKey: queryKeys.cronJobRuns.all(projectId as ProjectId, job.id),
+      queryFn: () => svc.listRuns!(projectId as ProjectId, job.id),
+    })
     const latestRun = runs.find(r => r.id === job.lastRunId)
     if (latestRun?.conversationId) {
       navigate(`/projects/${projectId}/chat?conv=${latestRun.conversationId}`)
     }
-  }
+  }, [projectId, navigate])
 
   if (cronJobsLoading) {
     return (
@@ -194,7 +199,7 @@ export function CronJobsPage() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-1 shrink-0">
-                      <PixelButton size="sm" variant="ghost" data-testid="cron-trigger-btn" onClick={() => triggerCronJob(job.id)}>
+                      <PixelButton size="sm" variant="ghost" data-testid="cron-trigger-btn" onClick={() => triggerCronJobMutation.mutate(job.id)}>
                         {t('job.runBtn')}
                       </PixelButton>
                       <PixelButton size="sm" variant="ghost" data-testid="cron-history-btn" onClick={() => setHistoryJobId(job.id)}>

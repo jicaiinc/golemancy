@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next'
 import cronstrue from 'cronstrue'
 import type { AgentId, CronJob, TeamId, TargetType } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
+import { useAgents } from '../../queries/agents'
+import { useTeams } from '../../queries/teams'
+import { useCreateCronJob, useUpdateCronJob } from '../../queries/cron-jobs'
 import { PixelModal, PixelInput, PixelTextArea, PixelButton, PixelToggle } from '../../components'
 import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
 
@@ -37,10 +40,11 @@ interface CronJobFormModalProps {
 
 export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalProps) {
   const { t } = useTranslation(['cron', 'common'])
-  const agents = useAppStore(s => s.agents)
-  const teams = useAppStore(s => s.teams)
-  const createCronJob = useAppStore(s => s.createCronJob)
-  const updateCronJob = useAppStore(s => s.updateCronJob)
+  const currentProjectId = useAppStore(s => s.currentProjectId)
+  const { data: agents = [] } = useAgents(currentProjectId)
+  const { data: teams = [] } = useTeams(currentProjectId)
+  const createCronJobMutation = useCreateCronJob()
+  const updateCronJobMutation = useUpdateCronJob()
 
   const [name, setName] = useState('')
   const [cronExpression, setCronExpression] = useState('0 * * * *')
@@ -97,7 +101,7 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
     try {
       const scheduledAtIso = scheduleType === 'once' ? localDatetimeToIso(scheduledAtLocal) : undefined
       if (isEdit && editJob) {
-        await updateCronJob(editJob.id, {
+        await updateCronJobMutation.mutateAsync({ id: editJob.id, data: {
           name: name.trim(),
           cronExpression: cronExpression.trim(),
           targetType,
@@ -106,9 +110,9 @@ export function CronJobFormModal({ open, onClose, editJob }: CronJobFormModalPro
           enabled,
           scheduleType,
           scheduledAt: scheduledAtIso,
-        })
+        } })
       } else {
-        await createCronJob({
+        await createCronJobMutation.mutateAsync({
           name: name.trim(),
           cronExpression: scheduleType === 'cron' ? cronExpression.trim() : '',
           targetType,

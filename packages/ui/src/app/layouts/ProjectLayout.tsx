@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import { Outlet, useParams, useNavigate } from 'react-router'
-import type { AgentId, AgentStatus, ConversationId, ProjectId } from '@golemancy/shared'
+import type { Agent, AgentId, AgentStatus, ConversationId, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
 import { useWs } from '../../providers/WebSocketProvider'
 import { getServices } from '../../services/container'
+import { queryClient } from '../../queries/query-client'
+import { queryKeys } from '../../queries/keys'
 import { AppShell } from '../../components/layout'
 
 export function ProjectLayout() {
@@ -21,9 +23,13 @@ export function ProjectLayout() {
     subscribe([`project:${projectId}`])
 
     const removeStatusListener = addListener('agent:status_changed', (data) => {
-      useAppStore.getState().updateAgentStatus(
-        data.agentId as AgentId,
-        data.status as AgentStatus,
+      const pid = useAppStore.getState().currentProjectId
+      if (!pid) return
+      queryClient.setQueryData<Agent[]>(
+        queryKeys.agents.all(pid),
+        (old) => old?.map(a =>
+          a.id === data.agentId ? { ...a, status: data.status as AgentStatus } : a,
+        ),
       )
     })
 

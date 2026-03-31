@@ -8,6 +8,11 @@ import { useAppStore } from '../../stores'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
 
+// Mock conversation-tasks TQ hook
+vi.mock('../../queries/conversation-tasks', () => ({
+  useRefreshConversationTasks: vi.fn().mockReturnValue(vi.fn()),
+}))
+
 // Mock motion/react to avoid animation issues in tests
 vi.mock('motion/react', () => ({
   motion: {

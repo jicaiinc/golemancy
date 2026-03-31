@@ -4,6 +4,8 @@ import { useTabParam } from '../../hooks'
 import { useTranslation } from 'react-i18next'
 import type { Agent, AgentId, ProjectId, Team, TeamId } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
+import { useAgents } from '../../queries/agents'
+import { useTeams } from '../../queries/teams'
 import { useCurrentProject } from '../../hooks'
 import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
 import { PixelButton, PixelInput, PixelTextArea, PixelCard, PixelTabs, PermissionsSettings } from '../../components'
@@ -26,8 +28,8 @@ export function ProjectSettingsPage() {
   const project = useCurrentProject()
   const updateProject = useAppStore(s => s.updateProject)
   const deleteProject = useAppStore(s => s.deleteProject)
-  const agents = useAppStore(s => s.agents)
-  const teams = useAppStore(s => s.teams)
+  const { data: agents = [] } = useAgents(projectId as ProjectId | null)
+  const { data: teams = [] } = useTeams(projectId as ProjectId | null)
   const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useTabParam(['general', 'permissions'])

@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 import type { AgentId, ConversationId, ConversationTokenUsageResult, TeamId, TargetType } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
+import { useAgents } from '../../queries/agents'
+import { useTeams } from '../../queries/teams'
+import { useConversationTasks } from '../../queries/conversation-tasks'
 import { useCurrentProject, usePermissionMode } from '../../hooks'
 import { getServices } from '../../services/container'
 import { PixelSpinner, StatusBar } from '../../components'
@@ -14,7 +17,8 @@ import { ChatEmptyState } from './ChatEmptyState'
 
 export function ChatPage() {
   const { t } = useTranslation('chat')
-  const agents = useAppStore(s => s.agents)
+  const currentProjectId = useAppStore(s => s.currentProjectId)
+  const { data: agents = [] } = useAgents(currentProjectId)
   const conversationList = useAppStore(s => s.conversationList)
   const conversationsLoading = useAppStore(s => s.conversationsLoading)
   const currentConversation = useAppStore(s => s.currentConversation)
@@ -22,7 +26,7 @@ export function ChatPage() {
   const selectConversation = useAppStore(s => s.selectConversation)
   const createConversation = useAppStore(s => s.createConversation)
   const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
-  const conversationTasks = useAppStore(s => s.conversationTasks)
+  const { data: conversationTasks = [] } = useConversationTasks(currentProjectId)
   const chatHistoryExpanded = useAppStore(s => s.chatHistoryExpanded)
   const toggleChatHistory = useAppStore(s => s.toggleChatHistory)
   const currentProject = useCurrentProject()
@@ -147,7 +151,7 @@ export function ChatPage() {
     selectConversation(id)
   }, [selectConversation])
 
-  const teams = useAppStore(s => s.teams)
+  const { data: teams = [] } = useTeams(currentProjectId)
   const chatFilterShowCron = useAppStore(s => s.chatFilterShowCron)
   const chatFilterShowSubAgent = useAppStore(s => s.chatFilterShowSubAgent)
   const setChatFilter = useAppStore(s => s.setChatFilter)

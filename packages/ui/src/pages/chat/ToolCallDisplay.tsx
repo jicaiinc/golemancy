@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
+import { useAgents } from '../../queries/agents'
 import type { SubAgentStreamState, SubAgentToolCallState } from '@golemancy/shared'
 
 interface ToolInvocationBase {
@@ -48,7 +49,8 @@ function UsageBadge({ usage }: { usage: StepUsage }) {
  * Falls back to the raw tool name if the agent is not found.
  */
 function useToolDisplayName(toolName: string): string {
-  const agents = useAppStore(s => s.agents)
+  const projectId = useAppStore(s => s.currentProjectId)
+  const { data: agents = [] } = useAgents(projectId)
 
   if (!toolName.startsWith(DELEGATE_PREFIX)) return toolName
 

@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'motion/react'
 import { type Agent, type AgentId, type Team, type ProjectId, getEnabledBuiltinTools } from '@golemancy/shared'
 import { PixelButton } from '../../../components'
-import { useAppStore } from '../../../stores'
+import { useUpdateTeam } from '../../../queries/teams'
+import { useSkills } from '../../../queries/skills'
 import { getServices } from '../../../services'
 
 type SidebarMode = 'agents' | 'detail' | 'settings'
@@ -146,7 +147,7 @@ function DetailPanel({
   const { t } = useTranslation('team')
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
-  const skills = useAppStore(s => s.skills)
+  const { data: skills = [] } = useSkills(projectId as ProjectId | null)
 
   const agent = agents.find(a => a.id === agentId) ?? null
   const member = team.members.find(m => m.agentId === agentId)
@@ -296,7 +297,7 @@ function DetailPanel({
 
 function SettingsPanel({ team, agents }: { team: Team; agents: Agent[] }) {
   const { t } = useTranslation('team')
-  const updateTeam = useAppStore(s => s.updateTeam)
+  const updateTeam = useUpdateTeam()
 
   const [description, setDescription] = useState(team.description)
   const [instruction, setInstruction] = useState(team.instruction ?? '')
@@ -318,7 +319,7 @@ function SettingsPanel({ team, agents }: { team: Team; agents: Agent[] }) {
 
   async function saveDescription() {
     if (description !== team.description) {
-      await updateTeam(team.id, { description: description.trim() })
+      await updateTeam.mutateAsync({ id: team.id, data: { description: description.trim() } })
       flashSaved()
     }
   }
@@ -326,7 +327,7 @@ function SettingsPanel({ team, agents }: { team: Team; agents: Agent[] }) {
   async function saveInstruction() {
     const val = instruction.trim() || undefined
     if (val !== (team.instruction ?? undefined)) {
-      await updateTeam(team.id, { instruction: val })
+      await updateTeam.mutateAsync({ id: team.id, data: { instruction: val } })
       flashSaved()
     }
   }

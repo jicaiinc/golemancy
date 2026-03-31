@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { Team } from '@golemancy/shared'
 import { PixelButton } from '../../../components'
-import { useAppStore } from '../../../stores'
+import { useUpdateTeam, useDeleteTeam } from '../../../queries/teams'
 
 interface TeamTopologyToolbarProps {
   team: Team
@@ -18,8 +18,8 @@ export function TeamTopologyToolbar({
   const { t } = useTranslation('team')
   const { projectId } = useParams<{ projectId: string }>()
   const navigate = useNavigate()
-  const updateTeam = useAppStore(s => s.updateTeam)
-  const deleteTeam = useAppStore(s => s.deleteTeam)
+  const updateTeam = useUpdateTeam()
+  const deleteTeam = useDeleteTeam()
 
   const [editingName, setEditingName] = useState(false)
   const [name, setName] = useState(team.name)
@@ -33,14 +33,14 @@ export function TeamTopologyToolbar({
   async function saveName() {
     setEditingName(false)
     if (name.trim() && name !== team.name) {
-      await updateTeam(team.id, { name: name.trim() })
+      await updateTeam.mutateAsync({ id: team.id, data: { name: name.trim() } })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     }
   }
 
   async function handleDelete() {
-    await deleteTeam(team.id)
+    await deleteTeam.mutateAsync(team.id)
     navigate(`/projects/${projectId}/teams`)
   }
 

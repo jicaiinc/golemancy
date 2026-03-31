@@ -1,8 +1,7 @@
-import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import type { CronJobId, CronJobRun } from '@golemancy/shared'
-import { useAppStore } from '../../stores'
+import type { CronJobId, CronJobRun, ProjectId } from '@golemancy/shared'
+import { useCronJobRuns } from '../../queries/cron-jobs'
 import { PixelModal, PixelCard, PixelBadge, PixelSpinner } from '../../components'
 
 interface CronJobRunsModalProps {
@@ -34,15 +33,10 @@ export function CronJobRunsModal({ open, onClose, cronJobId, cronJobName }: Cron
   const { t } = useTranslation('cron')
   const { projectId } = useParams()
   const navigate = useNavigate()
-  const cronJobRuns = useAppStore(s => s.cronJobRuns)
-  const cronJobRunsLoading = useAppStore(s => s.cronJobRunsLoading)
-  const loadCronJobRuns = useAppStore(s => s.loadCronJobRuns)
-
-  useEffect(() => {
-    if (open && cronJobId) {
-      loadCronJobRuns(cronJobId)
-    }
-  }, [open, cronJobId, loadCronJobRuns])
+  const { data: cronJobRuns = [], isLoading: cronJobRunsLoading } = useCronJobRuns(
+    open && cronJobId ? projectId as ProjectId : null,
+    open ? cronJobId : null,
+  )
 
   function handleOpenChat(run: CronJobRun) {
     if (!projectId || !run.conversationId) return

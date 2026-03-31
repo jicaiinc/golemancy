@@ -2,9 +2,13 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useTabParam } from '../../hooks'
 import { useTranslation } from 'react-i18next'
-import type { Agent, AgentId, AgentStatus, SkillId, MemoryEntry, MemoryId } from '@golemancy/shared'
+import type { Agent, AgentId, AgentStatus, ProjectId, SkillId, MemoryEntry, MemoryId } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MEMORY_AUTO_LOAD, DEFAULT_MEMORY_PRIORITY, BUILTIN_TOOL_DEFAULTS } from '@golemancy/shared'
 import { useAppStore } from '../../stores'
+import { useAgents, useUpdateAgent, useDeleteAgent } from '../../queries/agents'
+import { useMemories, useCreateMemory, useUpdateMemory, useDeleteMemory } from '../../queries/memories'
+import { useSkills } from '../../queries/skills'
+import { useMCPServers } from '../../queries/mcp-servers'
 import { usePermissionConfig } from '../../hooks'
 import {
   PixelButton, PixelCard, PixelBadge, PixelAvatar, PixelTabs,
@@ -25,12 +29,16 @@ const statusAnimation: Record<AgentStatus, string> = {
 export function AgentDetailPage() {
   const { t } = useTranslation('agent')
   const { projectId, agentId } = useParams<{ projectId: string; agentId: string }>()
-  const agents = useAppStore(s => s.agents)
-  const updateAgent = useAppStore(s => s.updateAgent)
-  const deleteAgent = useAppStore(s => s.deleteAgent)
+  const { data: agents = [], isLoading: agentsLoading } = useAgents(projectId as ProjectId | null)
+  const updateAgentMutation = useUpdateAgent()
+  const deleteAgentMutation = useDeleteAgent()
   const navigate = useNavigate()
 
   const agent = agents.find(a => a.id === agentId)
+
+  const handleUpdate = useCallback(async (id: AgentId, data: Partial<Agent>) => {
+    await updateAgentMutation.mutateAsync({ id, data })
+  }, [updateAgentMutation])
 
   const [activeTab, setActiveTab] = useTabParam(['general', 'model-config', 'skills', 'tools', 'mcp', 'memory'])
 
@@ -42,6 +50,8 @@ export function AgentDetailPage() {
     { id: 'mcp', label: 'MCP' },
     { id: 'memory', label: t('detail.tabs.memory') },
   ], [t])
+
+  if (agentsLoading) return null
 
   if (!agent) {
     return (
@@ -111,11 +121,11 @@ export function AgentDetailPage() {
       <PixelTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} data-testid="agent-tabs" />
 
       <div className="mt-4">
-        {activeTab === 'general' && <GeneralAgentTab agent={agent} onUpdate={updateAgent} onDelete={async () => { await deleteAgent(agent.id); navigate(`/projects/${projectId}/agents`) }} />}
-        {activeTab === 'model-config' && <ModelConfigTab agent={agent} onUpdate={updateAgent} />}
-        {activeTab === 'skills' && <SkillsTab agent={agent} onUpdate={updateAgent} />}
-        {activeTab === 'tools' && <ToolsTab agent={agent} onUpdate={updateAgent} />}
-        {activeTab === 'mcp' && <MCPTab agent={agent} onUpdate={updateAgent} />}
+        {activeTab === 'general' && <GeneralAgentTab agent={agent} onUpdate={handleUpdate} onDelete={async () => { await deleteAgentMutation.mutateAsync(agent.id); navigate(`/projects/${projectId}/agents`) }} />}
+        {activeTab === 'model-config' && <ModelConfigTab agent={agent} onUpdate={handleUpdate} />}
+        {activeTab === 'skills' && <SkillsTab agent={agent} onUpdate={handleUpdate} />}
+        {activeTab === 'tools' && <ToolsTab agent={agent} onUpdate={handleUpdate} />}
+        {activeTab === 'mcp' && <MCPTab agent={agent} onUpdate={handleUpdate} />}
         {activeTab === 'memory' && <MemoryTab agent={agent} />}
       </div>
     </div>
@@ -328,9 +338,9 @@ function SkillsTab({ agent, onUpdate }: {
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
   const { t } = useTranslation('agent')
-  const skills = useAppStore(s => s.skills)
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
+  const { data: skills = [] } = useSkills(projectId as ProjectId | null)
 
   const assigned = skills.filter(s => agent.skillIds.includes(s.id))
   const available = skills.filter(s => !agent.skillIds.includes(s.id))
@@ -493,9 +503,9 @@ function MCPTab({ agent, onUpdate }: {
   onUpdate: (id: AgentId, data: Partial<Agent>) => Promise<void>
 }) {
   const { t } = useTranslation('agent')
-  const mcpServers = useAppStore(s => s.mcpServers)
   const navigate = useNavigate()
   const { projectId } = useParams<{ projectId: string }>()
+  const { data: mcpServers = [] } = useMCPServers(projectId as ProjectId | null)
   const { mode, applyToMCP, sandboxSupported } = usePermissionConfig()
 
   const assignedNames = agent.mcpServers ?? []
@@ -647,12 +657,11 @@ function PriorityStars({ value, onChange }: { value: number; onChange?: (v: numb
 // ========== Memory Tab ==========
 function MemoryTab({ agent }: { agent: Agent }) {
   const { t } = useTranslation('agent')
-  const memories = useAppStore(s => s.memories)
-  const memoriesLoading = useAppStore(s => s.memoriesLoading)
-  const loadMemories = useAppStore(s => s.loadMemories)
-  const createMemory = useAppStore(s => s.createMemory)
-  const updateMemory = useAppStore(s => s.updateMemory)
-  const deleteMemory = useAppStore(s => s.deleteMemory)
+  const currentProjectId = useAppStore(s => s.currentProjectId)
+  const { data: memories = [], isLoading: memoriesLoading } = useMemories(currentProjectId, agent.id)
+  const createMemoryMutation = useCreateMemory()
+  const updateMemoryMutation = useUpdateMemory()
+  const deleteMemoryMutation = useDeleteMemory()
 
   const [showAdd, setShowAdd] = useState(false)
   const [newContent, setNewContent] = useState('')
@@ -670,10 +679,6 @@ function MemoryTab({ agent }: { agent: Agent }) {
   const maxAutoLoad = typeof memoryConfig === 'object' && memoryConfig
     ? ((memoryConfig as Record<string, unknown>).maxAutoLoad as number | undefined) ?? DEFAULT_MEMORY_AUTO_LOAD
     : DEFAULT_MEMORY_AUTO_LOAD
-
-  useEffect(() => {
-    loadMemories(agent.id)
-  }, [agent.id])
 
   const pinned = useMemo(() =>
     memories
@@ -696,12 +701,12 @@ function MemoryTab({ agent }: { agent: Agent }) {
     setAdding(true)
     try {
       const tags = newTags.split(',').map(s => s.trim()).filter(Boolean)
-      await createMemory(agent.id, {
+      await createMemoryMutation.mutateAsync({ agentId: agent.id, data: {
         content: newContent.trim(),
         priority: newPriority,
         pinned: newPinned,
         tags,
-      })
+      } })
       setNewContent('')
       setNewTags('')
       setNewPriority(DEFAULT_MEMORY_PRIORITY)
@@ -721,7 +726,7 @@ function MemoryTab({ agent }: { agent: Agent }) {
 
   async function handleEditSave(mem: MemoryEntry) {
     const tags = editTags.split(',').map(s => s.trim()).filter(Boolean)
-    await updateMemory(agent.id, mem.id, { content: editContent.trim(), tags, priority: editPriority })
+    await updateMemoryMutation.mutateAsync({ agentId: agent.id, id: mem.id, data: { content: editContent.trim(), tags, priority: editPriority } })
     setEditingId(null)
   }
 
@@ -769,7 +774,7 @@ function MemoryTab({ agent }: { agent: Agent }) {
               <div className="ml-auto flex items-center gap-0.5 shrink-0">
                 {confirmDeleteId === m.id ? (
                   <>
-                    <PixelButton size="sm" variant="danger" onClick={() => { setConfirmDeleteId(null); deleteMemory(agent.id, m.id) }}>
+                    <PixelButton size="sm" variant="danger" onClick={() => { setConfirmDeleteId(null); deleteMemoryMutation.mutate({ agentId: agent.id, id: m.id }) }}>
                       {t('common:button.confirm')}
                     </PixelButton>
                     <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDeleteId(null)}>
@@ -778,7 +783,7 @@ function MemoryTab({ agent }: { agent: Agent }) {
                   </>
                 ) : (
                   <>
-                    <PixelButton size="sm" variant="ghost" onClick={() => updateMemory(agent.id, m.id, { pinned: !m.pinned })} data-testid={`memory-pin-btn-${m.id}`}>
+                    <PixelButton size="sm" variant="ghost" onClick={() => updateMemoryMutation.mutate({ agentId: agent.id, id: m.id, data: { pinned: !m.pinned } })} data-testid={`memory-pin-btn-${m.id}`}>
                       {m.pinned ? t('memory.unpin') : t('memory.pin')}
                     </PixelButton>
                     <PixelButton size="sm" variant="ghost" onClick={() => startEdit(m)} data-testid={`memory-edit-btn-${m.id}`}>

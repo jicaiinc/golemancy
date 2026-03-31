@@ -1,6 +1,8 @@
 import { useEffect, type ReactNode } from 'react'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { ServiceProvider } from '../services'
 import { WebSocketProvider } from '../providers/WebSocketProvider'
+import { queryClient } from '../queries/query-client'
 import { useAppStore } from '../stores'
 
 function DataLoader({ children }: { children: ReactNode }) {
@@ -18,11 +20,13 @@ function DataLoader({ children }: { children: ReactNode }) {
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <ServiceProvider>
-      <WebSocketProvider>
-        <DataLoader>
-          {children}
-        </DataLoader>
-      </WebSocketProvider>
+      <QueryClientProvider client={queryClient}>
+        <WebSocketProvider>
+          <DataLoader>
+            {children}
+          </DataLoader>
+        </WebSocketProvider>
+      </QueryClientProvider>
     </ServiceProvider>
   )
 }

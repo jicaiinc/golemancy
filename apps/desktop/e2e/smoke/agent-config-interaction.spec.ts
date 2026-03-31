@@ -36,11 +36,14 @@ test.describe('Agent Config Interaction — Auto-Save & Explicit Save', () => {
     })
 
     // Force store refresh: clear project so selectProject re-runs on navigation
+    // and picks up skill/MCP created via API above
     await window.evaluate(() => {
       const store = (window as any).__GOLEMANCY_STORE__
       if (store) store.getState().clearProject()
     })
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
+    // Wait for agents to load from TQ cache after clearProject flush
+    await helper.store.waitFor(`state.agents && state.agents.find(a => a.id === "${agentId}")`, TIMEOUTS.PAGE_LOAD)
     await expect(window.getByText('Config Interaction Agent')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
@@ -120,7 +123,7 @@ test.describe('Agent Config Interaction — Auto-Save & Explicit Save', () => {
     })
   })
 
-  test('Model Config Tab: explicit save persists compactThreshold', async ({ window, helper }) => {
+  test('Model Config Tab: auto-save renders without Save button', async ({ window, helper }) => {
     // Switch to Model Config tab
     await window.locator('[data-testid="tab-model-config"]').click()
     // Verify Model Config section header (use exact to avoid matching tab button text)
@@ -128,31 +131,13 @@ test.describe('Agent Config Interaction — Auto-Save & Explicit Save', () => {
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Find the compact threshold control and change it
-    // The CompactThresholdControl renders a slider or input
-    // Look for the compact threshold section
+    // Compact threshold section should be visible
     await expect(window.getByText('COMPACT THRESHOLD')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Click Save button (explicit save — change should NOT auto-persist)
-    const saveBtn = window.getByRole('button', { name: 'Save' })
-    await expect(saveBtn).toBeVisible()
-
-    // Click save
-    await saveBtn.click()
-
-    // "Saved!" indicator should appear
-    await expect(window.getByText('Saved!')).toBeVisible({ timeout: 5000 })
-
-    // Verify store has the agent's compactThreshold persisted
-    const agents = await window.evaluate(() => {
-      const store = (window as any).__GOLEMANCY_STORE__
-      return store?.getState()?.agents ?? []
-    })
-    const agent = agents.find((a: any) => a.id === agentId)
-    expect(agent).toBeTruthy()
-    // compactThreshold should be defined (either default or changed)
-    expect(agent.compactThreshold).toBeDefined()
+    // Model Config tab uses auto-save — no Save button should exist
+    const saveBtns = window.getByRole('button', { name: /^Save$/i })
+    await expect(saveBtns).toHaveCount(0)
   })
 })

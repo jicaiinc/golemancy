@@ -5,7 +5,9 @@ import {
 } from '@xyflow/react'
 import { type Agent, type AgentId, type Team, type ProjectId, type Skill, getEnabledBuiltinTools } from '@golemancy/shared'
 import { getServices } from '../../../services'
-import { useAppStore } from '../../../stores'
+import { useUpdateTeam } from '../../../queries/teams'
+import { queryKeys } from '../../../queries/keys'
+import { queryClient } from '../../../queries/query-client'
 import { computeTeamLayout } from './useTeamTopologyLayout'
 import type { TeamNodeData } from './TeamNode'
 
@@ -23,9 +25,9 @@ export function isDescendantOf(agentId: AgentId, ancestorId: AgentId, members: T
   return false
 }
 
-/** Read the latest team members from the Zustand store (avoids stale closures). */
-function getLatestMembers(teamId: string): Team['members'] {
-  const teams = useAppStore.getState().teams
+/** Read the latest team members from TQ cache (avoids stale closures). */
+function getLatestMembers(teamId: string, projectId: ProjectId): Team['members'] {
+  const teams = queryClient.getQueryData<Team[]>(queryKeys.teams.all(projectId)) ?? []
   return teams.find(t => t.id === teamId)?.members ?? []
 }
 
@@ -40,7 +42,7 @@ export function useTeamTopologyData(
   const [sidebarMode, setSidebarMode] = useState<'agents' | 'detail' | 'settings'>('agents')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [layoutApplied, setLayoutApplied] = useState(0)
-  const updateTeam = useAppStore(s => s.updateTeam)
+  const updateTeamMutation = useUpdateTeam()
 
   // Guard: prevent onEdgesDelete from racing with onNodesDelete
   const deletingNodesRef = useRef(false)
@@ -175,24 +177,24 @@ export function useTeamTopologyData(
   const onConnect: OnConnect = useCallback((connection) => {
     const { source, target } = connection
     if (!source || !target) return
-    const members = getLatestMembers(team.id)
+    const members = getLatestMembers(team.id, projectId)
     if (isDescendantOf(source as AgentId, target as AgentId, members)) return
     const updatedMembers = members.map(m =>
       m.agentId === target ? { ...m, parentAgentId: source as AgentId } : m,
     )
-    updateTeam(team.id, { members: updatedMembers })
-  }, [team.id, updateTeam])
+    updateTeamMutation.mutate({ id: team.id, data: { members: updatedMembers } })
+  }, [team.id, projectId, updateTeamMutation])
 
   const onEdgeDelete = useCallback((deletedEdges: Edge[]) => {
     // Skip if this was triggered by node deletion — onNodesDelete handles it
     if (deletingNodesRef.current) return
-    const members = getLatestMembers(team.id)
+    const members = getLatestMembers(team.id, projectId)
     const targetIds = new Set(deletedEdges.map(e => e.target))
     const updatedMembers = members.map(m =>
       targetIds.has(m.agentId) ? { ...m, parentAgentId: undefined } : m,
     )
-    updateTeam(team.id, { members: updatedMembers })
-  }, [team.id, updateTeam])
+    updateTeamMutation.mutate({ id: team.id, data: { members: updatedMembers } })
+  }, [team.id, projectId, updateTeamMutation])
 
   const resetLayout = useCallback(async () => {
     const fresh = computeTeamLayout(rawNodes, rawEdges, {})
@@ -207,44 +209,44 @@ export function useTeamTopologyData(
     if (position) {
       savedLayoutRef.current[agentId] = position
     }
-    const members = getLatestMembers(team.id)
+    const members = getLatestMembers(team.id, projectId)
     const newMember = { agentId, parentAgentId }
     const updatedMembers = [...members, newMember]
-    await updateTeam(team.id, { members: updatedMembers })
+    await updateTeamMutation.mutateAsync({ id: team.id, data: { members: updatedMembers } })
     if (position) {
       getServices().teams.saveLayout(projectId, team.id, savedLayoutRef.current).catch(() => {})
     }
-  }, [team.id, updateTeam, projectId])
+  }, [team.id, projectId, updateTeamMutation])
 
   const removeMember = useCallback(async (agentId: AgentId): Promise<boolean> => {
-    const members = getLatestMembers(team.id)
+    const members = getLatestMembers(team.id, projectId)
     const member = members.find(m => m.agentId === agentId)
     if (!member) return false
     const updatedMembers = members
       .filter(m => m.agentId !== agentId)
       .map(m => m.parentAgentId === agentId ? { ...m, parentAgentId: undefined } : m)
-    await updateTeam(team.id, { members: updatedMembers })
+    await updateTeamMutation.mutateAsync({ id: team.id, data: { members: updatedMembers } })
     return true
-  }, [team.id, updateTeam])
+  }, [team.id, projectId, updateTeamMutation])
 
   const onNodesDelete = useCallback((deletedNodes: Node[]) => {
     deletingNodesRef.current = true
-    const members = getLatestMembers(team.id)
+    const members = getLatestMembers(team.id, projectId)
     const deletedIds = new Set(deletedNodes.map(n => n.id))
     const updatedMembers = members
       .filter(m => !deletedIds.has(m.agentId))
       .map(m => m.parentAgentId && deletedIds.has(m.parentAgentId) ? { ...m, parentAgentId: undefined } : m)
-    updateTeam(team.id, { members: updatedMembers })
+    updateTeamMutation.mutate({ id: team.id, data: { members: updatedMembers } })
     setSelectedAgentId(null)
     setSidebarMode('agents')
     setTimeout(() => { deletingNodesRef.current = false }, 0)
-  }, [team.id, updateTeam, setSelectedAgentId, setSidebarMode])
+  }, [team.id, projectId, updateTeamMutation, setSelectedAgentId, setSidebarMode])
 
   // Validate connection: target can only have one parent, no cycles, no self-loop
   const isValidConnection = useCallback((connection: Edge | Connection) => {
     const { source, target } = connection
     if (!source || !target || source === target) return false
-    const members = getLatestMembers(team.id)
+    const members = getLatestMembers(team.id, projectId)
     const targetMember = members.find(m => m.agentId === target)
     if (targetMember?.parentAgentId) return false
     if (isDescendantOf(source as AgentId, target as AgentId, members)) return false

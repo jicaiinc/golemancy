@@ -151,7 +151,7 @@ test.describe('Save Behavior Consistency', () => {
     )
   })
 
-  test('Model Config tab: edit requires explicit Save click', async ({ window, helper }) => {
+  test('Model Config tab: auto-save renders without Save button', async ({ window, helper }) => {
     // Switch to Model Config tab
     await window.locator('[data-testid="tab-model-config"]').click()
     await expect(window.getByText('MODEL CONFIG', { exact: true })).toBeVisible({
@@ -163,22 +163,9 @@ test.describe('Save Behavior Consistency', () => {
       timeout: TIMEOUTS.PAGE_LOAD,
     })
 
-    // Click Save button (explicit save)
-    const saveBtn = window.getByRole('button', { name: /^Save$|^save$/i }).first()
-    await expect(saveBtn).toBeVisible()
-    await saveBtn.click()
-
-    // "Saved!" indicator should appear (translated text)
-    // Wait for the save to complete
-    await window.waitForTimeout(500)
-
-    // Verify store has the agent's compactThreshold persisted
-    const agent = await window.evaluate((aid: string) => {
-      const store = (window as any).__GOLEMANCY_STORE__
-      return store?.getState()?.agents?.find((a: any) => a.id === aid)
-    }, agentId)
-    expect(agent).toBeTruthy()
-    expect(agent.compactThreshold).toBeDefined()
+    // Model Config tab uses auto-save — no Save button should exist
+    const saveBtns = window.getByRole('button', { name: /^Save$/i })
+    await expect(saveBtns).toHaveCount(0)
   })
 
   test('Project default agent: select triggers auto-save', async ({ helper, window }) => {

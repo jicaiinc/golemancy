@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
+import { useCreateAgent } from '../../queries/agents'
 import { PixelModal, PixelButton, PixelInput, PixelTextArea } from '../../components'
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
   const { t } = useTranslation('agent')
   const { projectId } = useParams<{ projectId: string }>()
-  const createAgent = useAppStore(s => s.createAgent)
+  const createAgentMutation = useCreateAgent()
   const settings = useAppStore(s => s.settings)
   const navigate = useNavigate()
   const [name, setName] = useState('')
@@ -61,7 +62,7 @@ export function AgentCreateModal({ open, onClose, skipNavigation }: Props) {
     if (!name.trim() || !providerSlug || !model) return
     setSaving(true)
     try {
-      const agent = await createAgent({
+      const agent = await createAgentMutation.mutateAsync({
         name: name.trim(),
         description: description.trim(),
         systemPrompt: systemPrompt.trim(),

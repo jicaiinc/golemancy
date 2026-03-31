@@ -13,6 +13,8 @@ import {
 import '@xyflow/react/dist/style.css'
 import type { Team, AgentId, ProjectId } from '@golemancy/shared'
 import { useAppStore } from '../../../stores'
+import { useAgents } from '../../../queries/agents'
+import { useSkills } from '../../../queries/skills'
 import { TeamNode } from './TeamNode'
 import { TeamEdge, TeamEdgeArrowDefs } from './TeamEdge'
 import { TeamTopologyToolbar } from './TeamTopologyToolbar'
@@ -41,8 +43,8 @@ function TeamTopologyCanvas({ team }: TeamTopologyViewProps) {
   const { t } = useTranslation('team')
   const { projectId } = useParams<{ projectId: string }>()
   const { fitView, screenToFlowPosition } = useReactFlow()
-  const agents = useAppStore(s => s.agents)
-  const skills = useAppStore(s => s.skills)
+  const { data: agents = [] } = useAgents(projectId as ProjectId | null)
+  const { data: skills = [] } = useSkills(projectId as ProjectId | null)
   const themeMode = useAppStore(s => s.themeMode)
 
   const {

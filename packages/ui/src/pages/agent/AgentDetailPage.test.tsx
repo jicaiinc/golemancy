@@ -3,9 +3,31 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { AgentDetailPage } from './AgentDetailPage'
 import { useAppStore } from '../../stores'
+import { useAgents, useUpdateAgent, useDeleteAgent } from '../../queries/agents'
 import { configureServices } from '../../services/container'
 import type { ServiceContainer } from '../../services/container'
 import type { Agent, AgentId, ProjectId, GlobalSettings, Project } from '@golemancy/shared'
+
+vi.mock('../../queries/agents', () => ({
+  useAgents: vi.fn(),
+  useUpdateAgent: vi.fn(),
+  useDeleteAgent: vi.fn(),
+}))
+
+vi.mock('../../queries/skills', () => ({
+  useSkills: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+}))
+
+vi.mock('../../queries/mcp-servers', () => ({
+  useMCPServers: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+}))
+
+vi.mock('../../queries/memories', () => ({
+  useMemories: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+  useCreateMemory: vi.fn().mockReturnValue({ mutateAsync: vi.fn() }),
+  useUpdateMemory: vi.fn().mockReturnValue({ mutate: vi.fn() }),
+  useDeleteMemory: vi.fn().mockReturnValue({ mutate: vi.fn() }),
+}))
 
 vi.mock('motion/react', () => ({
   motion: {
@@ -113,16 +135,14 @@ describe('AgentDetailPage', () => {
       settings: baseSettings,
       projects: [testProject],
       currentProjectId: PROJECT_ID,
-      agents: [makeAgent()],
-      skills: [],
-      mcpServers: [],
-      updateAgent: vi.fn().mockResolvedValue(undefined),
-      deleteAgent: vi.fn().mockResolvedValue(undefined),
     })
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent()], isLoading: false } as any)
+    vi.mocked(useUpdateAgent).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue(undefined) } as any)
+    vi.mocked(useDeleteAgent).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue(undefined) } as any)
   })
 
   it('shows "not found" when agent does not exist', () => {
-    useAppStore.setState({ agents: [] })
+    vi.mocked(useAgents).mockReturnValue({ data: [], isLoading: false } as any)
     renderAtRoute()
     expect(screen.getByText('Agent not found.')).toBeInTheDocument()
   })
@@ -149,13 +169,11 @@ describe('AgentDetailPage', () => {
   })
 
   it('shows stats (skills, tools, MCP servers counts)', () => {
-    useAppStore.setState({
-      agents: [makeAgent({
-        skillIds: ['s1' as any, 's2' as any],
-        tools: [{ id: 't1', name: 'tool1', description: 'desc', parameters: {} }] as any,
-        mcpServers: ['mcp1'],
-      })],
-    })
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent({
+      skillIds: ['s1' as any, 's2' as any],
+      tools: [{ id: 't1', name: 'tool1', description: 'desc', parameters: {} }] as any,
+      mcpServers: ['mcp1'],
+    })], isLoading: false } as any)
     renderAtRoute()
     expect(screen.getByText('2 skills')).toBeInTheDocument()
     expect(screen.getByText('1 tool')).toBeInTheDocument()
@@ -180,49 +198,47 @@ describe('AgentDetailPage', () => {
   })
 
   it('Save button calls updateAgent', async () => {
-    const mockUpdate = vi.fn().mockResolvedValue(undefined)
-    useAppStore.setState({ updateAgent: mockUpdate })
+    const mockMutate = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useUpdateAgent).mockReturnValue({ mutateAsync: mockMutate } as any)
     renderAtRoute()
 
     const saveButton = screen.getByText('Save')
     fireEvent.click(saveButton)
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith(AGENT_ID, expect.objectContaining({
+      expect(mockMutate).toHaveBeenCalledWith({ id: AGENT_ID, data: expect.objectContaining({
         name: 'Test Agent',
         description: 'A test agent for unit tests',
         systemPrompt: 'You are a helpful assistant.',
-      }))
+      }) })
     })
   })
 
   it('Delete Agent button calls deleteAgent after confirmation', async () => {
-    const mockDelete = vi.fn().mockResolvedValue(undefined)
-    useAppStore.setState({ deleteAgent: mockDelete })
+    const mockMutate = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useDeleteAgent).mockReturnValue({ mutateAsync: mockMutate } as any)
     renderAtRoute()
 
     // First click shows confirmation
     fireEvent.click(screen.getByText('Delete Agent'))
-    expect(mockDelete).not.toHaveBeenCalled()
+    expect(mockMutate).not.toHaveBeenCalled()
     expect(screen.getByText('Are you sure you want to delete this agent?')).toBeInTheDocument()
 
     // Confirm click actually deletes
     fireEvent.click(screen.getByText('Confirm'))
     await waitFor(() => {
-      expect(mockDelete).toHaveBeenCalledWith(AGENT_ID)
+      expect(mockMutate).toHaveBeenCalledWith(AGENT_ID)
     })
   })
 
   it('displays running status with correct badge', () => {
-    useAppStore.setState({ agents: [makeAgent({ status: 'running' })] })
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent({ status: 'running' })], isLoading: false } as any)
     renderAtRoute()
     expect(screen.getByText('running')).toBeInTheDocument()
   })
 
   it('shows model name when agent has model configured', () => {
-    useAppStore.setState({
-      agents: [makeAgent({ modelConfig: { provider: 'openai', model: 'gpt-4-turbo' } })],
-    })
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent({ modelConfig: { provider: 'openai', model: 'gpt-4-turbo' } })], isLoading: false } as any)
     renderAtRoute()
     expect(screen.getByText('gpt-4-turbo')).toBeInTheDocument()
   })
@@ -246,9 +262,9 @@ describe('AgentDetailPage', () => {
   })
 
   it('Model Config tab auto-saves on provider change', async () => {
-    const mockUpdate = vi.fn().mockResolvedValue(undefined)
+    const mockMutate = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useUpdateAgent).mockReturnValue({ mutateAsync: mockMutate } as any)
     useAppStore.setState({
-      updateAgent: mockUpdate,
       settings: {
         ...baseSettings,
         providers: {
@@ -269,16 +285,16 @@ describe('AgentDetailPage', () => {
     fireEvent.change(providerSelect, { target: { value: 'anthropic' } })
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith(AGENT_ID, expect.objectContaining({
+      expect(mockMutate).toHaveBeenCalledWith({ id: AGENT_ID, data: expect.objectContaining({
         modelConfig: { provider: 'anthropic', model: 'claude-sonnet-4-20250514' },
-      }))
+      }) })
     })
   })
 
   it('Model Config tab auto-saves on model change', async () => {
-    const mockUpdate = vi.fn().mockResolvedValue(undefined)
+    const mockMutate = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useUpdateAgent).mockReturnValue({ mutateAsync: mockMutate } as any)
     useAppStore.setState({
-      updateAgent: mockUpdate,
       settings: {
         ...baseSettings,
         providers: {
@@ -298,9 +314,9 @@ describe('AgentDetailPage', () => {
     fireEvent.change(modelSelect, { target: { value: 'gpt-4o-mini' } })
 
     await waitFor(() => {
-      expect(mockUpdate).toHaveBeenCalledWith(AGENT_ID, expect.objectContaining({
+      expect(mockMutate).toHaveBeenCalledWith({ id: AGENT_ID, data: expect.objectContaining({
         modelConfig: { provider: 'openai', model: 'gpt-4o-mini' },
-      }))
+      }) })
     })
   })
 
