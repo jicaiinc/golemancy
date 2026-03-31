@@ -221,16 +221,26 @@ function ModelConfigTab({ agent, onUpdate }: {
     setCompactThreshold(agent.compactThreshold ?? DEFAULT_COMPACT_THRESHOLD)
   }, [agent.id])
 
-  // Auto-fallback: if the agent's provider doesn't exist in available providers, switch to first available and persist
+  // Auto-fallback: if the agent's provider doesn't exist in available providers, switch and persist.
+  // Prefer settings.defaultModel (consistent with server-side resolveModel fallback),
+  // but only if its provider is available (testStatus === 'ok'). Otherwise use first available.
   useEffect(() => {
     if (availableProviders.length > 0 && !settings?.providers[providerSlug]) {
-      const [slug, entry] = availableProviders[0]
-      const newModel = entry.models[0] ?? ''
-      setProviderSlug(slug)
-      setModel(newModel)
-      onUpdate(agent.id, { modelConfig: { provider: slug, model: newModel } })
+      const dm = settings?.defaultModel
+      const dmAvailable = dm && availableProviders.some(([slug]) => slug === dm.provider)
+      if (dmAvailable) {
+        setProviderSlug(dm.provider)
+        setModel(dm.model)
+        onUpdate(agent.id, { modelConfig: { provider: dm.provider, model: dm.model } })
+      } else {
+        const [slug, entry] = availableProviders[0]
+        const newModel = entry.models[0] ?? ''
+        setProviderSlug(slug)
+        setModel(newModel)
+        onUpdate(agent.id, { modelConfig: { provider: slug, model: newModel } })
+      }
     }
-  }, [availableProviders.length, providerSlug, settings?.providers, agent.id, onUpdate])
+  }, [availableProviders.length, providerSlug, settings?.providers, settings?.defaultModel, agent.id, onUpdate])
 
   const selectedProvider = settings?.providers[providerSlug]
   const models = selectedProvider?.models ?? []

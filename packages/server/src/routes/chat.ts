@@ -18,6 +18,7 @@ import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import type { WebSocketManager } from '../ws/handler'
 import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel, buildSystemPromptOptions } from '../agent/model'
+import { ConfigurationError } from '../agent/errors'
 import { loadAgentTools } from '../agent/tools'
 import { buildMessagesForModel, compactConversation } from '../agent/compact'
 import { generateId } from '../utils/ids'
@@ -583,7 +584,9 @@ export function createChatRoutes(deps: ChatRouteDeps) {
       const errorMessage = err instanceof Error ? err.message : String(err)
       log.error({ err, projectId, agentId, conversationId }, 'chat route failed')
       await persistErrorMessage(errorMessage)
-      await markChatEnded('error')
+      // Configuration errors (missing provider, no API key) are environment issues,
+      // not agent failures — don't permanently mark agent as errored
+      await markChatEnded(err instanceof ConfigurationError ? 'idle' : 'error')
       throw err
     }
   })

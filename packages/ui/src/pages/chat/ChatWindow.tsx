@@ -388,7 +388,7 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
       {/* Error banner */}
       {error && (() => {
         const parsed = parseErrorMessage(error)
-        const isProviderError = parsed.code === 'PROVIDER_NOT_CONFIGURED' || parsed.code === 'NO_PROVIDER_CONFIGURED'
+        const isProviderError = parsed.code === 'PROVIDER_NOT_CONFIGURED' || parsed.code === 'NO_PROVIDER_CONFIGURED' || parsed.code === 'API_KEY_MISSING'
         return (
           <PixelNotificationBanner severity="error" onDismiss={clearError}>
             {parsed.message}

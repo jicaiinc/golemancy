@@ -224,6 +224,53 @@ describe('resolveModel', () => {
     })
   })
 
+  describe('defaultModel fallback', () => {
+    it('falls back to defaultModel when agent provider is empty string', async () => {
+      const settings = makeSettings({ defaultModel: { provider: 'google', model: 'gemini-2.5-flash' } })
+      const agentConfig: AgentModelConfig = { provider: '', model: '' }
+
+      const resolved = await resolveModel(settings, agentConfig)
+      expect(resolved.model).toBe(mocks.googleModel)
+    })
+
+    it('falls back to defaultModel when agent provider was deleted from settings', async () => {
+      const settings = makeSettings({
+        providers: {
+          google: { name: 'Google', sdkType: 'google', apiKey: 'key', models: ['gemini-2.5-flash'] },
+        },
+        defaultModel: { provider: 'google', model: 'gemini-2.5-flash' },
+      })
+      // Agent still references deleted "openai" provider
+      const agentConfig: AgentModelConfig = { provider: 'openai', model: 'gpt-4o' }
+
+      const resolved = await resolveModel(settings, agentConfig)
+      expect(resolved.model).toBe(mocks.googleModel)
+    })
+
+    it('throws NO_PROVIDER_CONFIGURED when both agent provider and defaultModel are empty', async () => {
+      const settings = makeSettings({ providers: {} })
+      const agentConfig: AgentModelConfig = { provider: '', model: '' }
+
+      await expect(resolveModel(settings, agentConfig)).rejects.toThrow(ConfigurationError)
+      try { await resolveModel(settings, agentConfig) } catch (err) {
+        expect((err as ConfigurationError).code).toBe('NO_PROVIDER_CONFIGURED')
+      }
+    })
+
+    it('throws PROVIDER_NOT_CONFIGURED when defaultModel also references deleted provider', async () => {
+      const settings = makeSettings({
+        providers: {},
+        defaultModel: { provider: 'deleted', model: 'some-model' },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'also-deleted', model: 'some-model' }
+
+      await expect(resolveModel(settings, agentConfig)).rejects.toThrow(ConfigurationError)
+      try { await resolveModel(settings, agentConfig) } catch (err) {
+        expect((err as ConfigurationError).code).toBe('PROVIDER_NOT_CONFIGURED')
+      }
+    })
+  })
+
   describe('OAuth model resolution', () => {
     it('resolves OAuth provider via .responses() with useInstructionsParam', async () => {
       const settings = makeSettings({

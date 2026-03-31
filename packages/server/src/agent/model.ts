@@ -48,8 +48,8 @@ export async function resolveModel(
   agentConfig: AgentModelConfig,
   oauthManager?: OAuthManager,
 ): Promise<ResolvedModel> {
-  // Fallback: empty agent config → use global default model
-  const effective = agentConfig.provider
+  // Fallback: use global default when agent's provider is missing or deleted from settings
+  const effective = (agentConfig.provider && settings.providers[agentConfig.provider])
     ? agentConfig
     : settings.defaultModel ?? agentConfig
 
