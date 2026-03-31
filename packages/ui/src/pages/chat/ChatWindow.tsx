@@ -398,7 +398,7 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
                 <button
                   type="button"
                   className="underline hover:text-text-primary transition-colors cursor-pointer"
-                  onClick={() => navigate('/settings', { state: { backgroundLocation: location } })}
+                  onClick={() => navigate('/settings?tab=providers', { state: { backgroundLocation: location } })}
                 >
                   {t('error.goToSettings')}
                 </button>
