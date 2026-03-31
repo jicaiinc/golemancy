@@ -51,6 +51,9 @@
     "summary": "PODSUMOWANIE",
     "tokensSummary": "{{input}} wej / {{output}} wyj"
   },
+  "error": {
+    "goToSettings": "Przejdź do Ustawienia → Providers"
+  },
   "tool": {
     "running": "Wykonywanie...",
     "awaitingApproval": "Oczekiwanie na zatwierdzenie",

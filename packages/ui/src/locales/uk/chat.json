@@ -51,6 +51,9 @@
     "summary": "ПІДСУМОК",
     "tokensSummary": "{{input}} вх / {{output}} вих"
   },
+  "error": {
+    "goToSettings": "Перейти до Налаштування → Providers"
+  },
   "tool": {
     "running": "Виконання...",
     "awaitingApproval": "Очікування схвалення",

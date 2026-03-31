@@ -51,6 +51,9 @@
     "summary": "BUOD",
     "tokensSummary": "{{input}} in / {{output}} out"
   },
+  "error": {
+    "goToSettings": "Pumunta sa Settings → Providers"
+  },
   "tool": {
     "running": "Tumatakbo...",
     "awaitingApproval": "Naghihintay ng pag-apruba",

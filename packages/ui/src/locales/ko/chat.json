@@ -51,6 +51,9 @@
     "summary": "요약",
     "tokensSummary": "{{input}} 입력 / {{output}} 출력"
   },
+  "error": {
+    "goToSettings": "설정 → Providers로 이동"
+  },
   "tool": {
     "running": "실행 중...",
     "awaitingApproval": "승인 대기",

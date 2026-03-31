@@ -51,6 +51,9 @@
     "summary": "SAMMANFATTNING",
     "tokensSummary": "{{input}} in / {{output}} ut"
   },
+  "error": {
+    "goToSettings": "Gå till Inställningar → Providers"
+  },
   "tool": {
     "running": "Kör...",
     "awaitingApproval": "Inväntar godkännande",

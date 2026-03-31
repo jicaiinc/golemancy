@@ -51,6 +51,9 @@
     "summary": "REZUMAT",
     "tokensSummary": "{{input}} intrare / {{output}} ieșire"
   },
+  "error": {
+    "goToSettings": "Mergi la Setări → Providers"
+  },
   "tool": {
     "running": "Se execută...",
     "awaitingApproval": "Se așteaptă aprobare",

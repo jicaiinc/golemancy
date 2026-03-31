@@ -51,6 +51,9 @@
     "summary": "ZUSAMMENFASSUNG",
     "tokensSummary": "{{input}} in / {{output}} out"
   },
+  "error": {
+    "goToSettings": "Zu Einstellungen → Providers"
+  },
   "tool": {
     "running": "Wird ausgeführt...",
     "awaitingApproval": "Wartet auf Genehmigung",

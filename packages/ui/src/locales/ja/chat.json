@@ -51,6 +51,9 @@
     "summary": "要約",
     "tokensSummary": "{{input}} 入力 / {{output}} 出力"
   },
+  "error": {
+    "goToSettings": "設定 → Providers を開く"
+  },
   "tool": {
     "running": "実行中...",
     "awaitingApproval": "承認待ち",

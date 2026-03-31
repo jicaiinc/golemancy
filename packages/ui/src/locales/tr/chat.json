@@ -51,6 +51,9 @@
     "summary": "ÖZET",
     "tokensSummary": "{{input}} giriş / {{output}} çıkış"
   },
+  "error": {
+    "goToSettings": "Ayarlar → Providers'a git"
+  },
   "tool": {
     "running": "Çalışıyor...",
     "awaitingApproval": "Onay bekleniyor",

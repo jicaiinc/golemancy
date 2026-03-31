@@ -51,6 +51,9 @@
     "summary": "RINGKASAN",
     "tokensSummary": "{{input}} masuk / {{output}} keluar"
   },
+  "error": {
+    "goToSettings": "Buka Pengaturan → Providers"
+  },
   "tool": {
     "running": "Menjalankan...",
     "awaitingApproval": "Menunggu persetujuan",

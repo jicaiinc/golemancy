@@ -51,6 +51,9 @@
     "summary": "RIEPILOGO",
     "tokensSummary": "{{input}} in / {{output}} out"
   },
+  "error": {
+    "goToSettings": "Vai a Impostazioni → Providers"
+  },
   "tool": {
     "running": "In esecuzione...",
     "awaitingApproval": "In attesa di approvazione",

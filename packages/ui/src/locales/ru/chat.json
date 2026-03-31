@@ -51,6 +51,9 @@
     "summary": "СВОДКА",
     "tokensSummary": "{{input}} вх / {{output}} вых"
   },
+  "error": {
+    "goToSettings": "Перейти в Настройки → Providers"
+  },
   "tool": {
     "running": "Выполнение...",
     "awaitingApproval": "Ожидание одобрения",

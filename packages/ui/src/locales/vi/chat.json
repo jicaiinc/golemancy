@@ -51,6 +51,9 @@
     "summary": "TÓM TẮT",
     "tokensSummary": "{{input}} vào / {{output}} ra"
   },
+  "error": {
+    "goToSettings": "Đi tới Cài đặt → Providers"
+  },
   "tool": {
     "running": "Đang chạy...",
     "awaitingApproval": "Chờ phê duyệt",

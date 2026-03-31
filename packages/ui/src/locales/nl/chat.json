@@ -51,6 +51,9 @@
     "summary": "SAMENVATTING",
     "tokensSummary": "{{input}} in / {{output}} out"
   },
+  "error": {
+    "goToSettings": "Ga naar Instellingen → Providers"
+  },
   "tool": {
     "running": "Wordt uitgevoerd...",
     "awaitingApproval": "Wacht op goedkeuring",

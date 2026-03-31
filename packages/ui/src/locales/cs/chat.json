@@ -51,6 +51,9 @@
     "summary": "SHRNUTÍ",
     "tokensSummary": "{{input}} vst / {{output}} výst"
   },
+  "error": {
+    "goToSettings": "Přejít do Nastavení → Providers"
+  },
   "tool": {
     "running": "Provádění...",
     "awaitingApproval": "Čekání na schválení",

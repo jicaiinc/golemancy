@@ -51,6 +51,9 @@
     "summary": "摘要",
     "tokensSummary": "{{input}} 輸入 / {{output}} 輸出"
   },
+  "error": {
+    "goToSettings": "前往設定 → Providers"
+  },
   "tool": {
     "running": "執行中...",
     "awaitingApproval": "等待核准",
