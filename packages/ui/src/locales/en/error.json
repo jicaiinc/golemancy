@@ -4,7 +4,7 @@
   },
   "bootstrap": {
     "title": "Connection Failed",
-    "message": "Unable to connect to the local server. This may be a temporary issue."
+    "message": "Unable to connect to the local server. Don't worry, your data is safe."
   },
   "boundary": {
     "title": "Something Exploded",

@@ -72,7 +72,13 @@
     "baseUrlLabel": "기본 URL",
     "sdkTypeLabel": "SDK 유형",
     "empty": "프로바이더가 설정되지 않았습니다. \"+ 프로바이더 추가\"를 클릭하여 시작하세요.",
-    "customPlaceholder": "나의 프로바이더"
+    "customPlaceholder": "나의 프로바이더",
+    "testAndSave": "테스트 & 저장",
+    "testingConnection": "테스트 중...",
+    "configureProvider": "{{name}} 설정",
+    "configureCustom": "커스텀 프로바이더 설정",
+    "apiKeyRequired": "API 키 (필수)",
+    "modelsRequired": "모델 (최소 1개)"
   },
   "provider": {
     "testing": "테스트 중...",

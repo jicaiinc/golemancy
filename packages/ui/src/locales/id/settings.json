@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "TIPE SDK",
     "empty": "Belum ada provider yang dikonfigurasi. Klik \"+ Tambah Provider\" untuk memulai.",
-    "customPlaceholder": "Provider Saya"
+    "customPlaceholder": "Provider Saya",
+    "testAndSave": "Tes & Simpan",
+    "testingConnection": "Menguji...",
+    "configureProvider": "KONFIGURASI {{name}}",
+    "configureCustom": "KONFIGURASI PENYEDIA KUSTOM",
+    "apiKeyRequired": "KUNCI API (wajib)",
+    "modelsRequired": "MODEL (minimal satu)"
   },
   "provider": {
     "testing": "Menguji...",

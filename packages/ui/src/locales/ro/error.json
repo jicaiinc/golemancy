@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Ceva nu a funcționat. Vă rugăm să încercați din nou mai târziu."
   },
+  "bootstrap": {
+    "title": "Conexiune eșuată",
+    "message": "Nu s-a putut conecta la serverul local. Nu vă faceți griji, datele dumneavoastră sunt în siguranță."
+  },
   "boundary": {
     "title": "Ceva a explodat",
     "message": "A apărut o eroare neașteptată! Nu vă faceți griji, datele sunt în siguranță.",

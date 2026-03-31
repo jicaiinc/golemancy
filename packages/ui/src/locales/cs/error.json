@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Něco se pokazilo. Zkuste to prosím později."
   },
+  "bootstrap": {
+    "title": "Připojení selhalo",
+    "message": "Nelze se připojit k lokálnímu serveru. Nebojte se, vaše data jsou v bezpečí."
+  },
   "boundary": {
     "title": "Něco vybuchlo",
     "message": "Objevila se neočekávaná chyba! Nebojte se, vaše data jsou v bezpečí.",

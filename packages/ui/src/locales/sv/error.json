@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Något gick fel. Försök igen senare."
   },
+  "bootstrap": {
+    "title": "Anslutning misslyckades",
+    "message": "Kunde inte ansluta till den lokala servern. Oroa dig inte, dina data är säkra."
+  },
   "boundary": {
     "title": "Något exploderade",
     "message": "Ett oväntat fel dök upp! Oroa dig inte, din data är säker.",

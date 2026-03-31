@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "SDK TÜRÜ",
     "empty": "Yapılandırılmış sağlayıcı yok. Başlamak için \"+ Sağlayıcı Ekle\"ye tıklayın.",
-    "customPlaceholder": "Sağlayıcım"
+    "customPlaceholder": "Sağlayıcım",
+    "testAndSave": "Test Et ve Kaydet",
+    "testingConnection": "Test ediliyor...",
+    "configureProvider": "{{name}} YAPILANDIR",
+    "configureCustom": "ÖZEL SAĞLAYICI YAPILANDIR",
+    "apiKeyRequired": "API ANAHTARI (zorunlu)",
+    "modelsRequired": "MODELLER (en az bir)"
   },
   "provider": {
     "testing": "Test ediliyor...",

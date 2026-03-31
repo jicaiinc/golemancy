@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut."
   },
+  "bootstrap": {
+    "title": "Verbindung fehlgeschlagen",
+    "message": "Verbindung zum lokalen Server nicht möglich. Keine Sorge, Ihre Daten sind sicher."
+  },
   "boundary": {
     "title": "Etwas ist Explodiert",
     "message": "Ein wilder Fehler ist erschienen! Keine Sorge, Ihre Daten sind sicher.",

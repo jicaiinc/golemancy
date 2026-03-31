@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Er is iets misgegaan. Probeer het later opnieuw."
   },
+  "bootstrap": {
+    "title": "Verbinding mislukt",
+    "message": "Kan geen verbinding maken met de lokale server. Maak je geen zorgen, je gegevens zijn veilig."
+  },
   "boundary": {
     "title": "Er is Iets Ontploft",
     "message": "Een wilde fout verscheen! Geen zorgen, uw gegevens zijn veilig.",

@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "SDK-TYPE",
     "empty": "Geen providers geconfigureerd. Klik op \"+ Provider Toevoegen\" om te beginnen.",
-    "customPlaceholder": "Mijn Provider"
+    "customPlaceholder": "Mijn Provider",
+    "testAndSave": "Testen & Opslaan",
+    "testingConnection": "Testen...",
+    "configureProvider": "{{name}} CONFIGUREREN",
+    "configureCustom": "AANGEPASTE PROVIDER CONFIGUREREN",
+    "apiKeyRequired": "API-SLEUTEL (vereist)",
+    "modelsRequired": "MODELLEN (minstens één)"
   },
   "provider": {
     "testing": "Testen...",

@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "TIPO DE SDK",
     "empty": "No hay proveedores configurados. Haga clic en \"+ Agregar Proveedor\" para comenzar.",
-    "customPlaceholder": "Mi Proveedor"
+    "customPlaceholder": "Mi Proveedor",
+    "testAndSave": "Probar y Guardar",
+    "testingConnection": "Probando...",
+    "configureProvider": "CONFIGURAR {{name}}",
+    "configureCustom": "CONFIGURAR PROVEEDOR PERSONALIZADO",
+    "apiKeyRequired": "CLAVE API (obligatoria)",
+    "modelsRequired": "MODELOS (al menos uno)"
   },
   "provider": {
     "testing": "Probando...",

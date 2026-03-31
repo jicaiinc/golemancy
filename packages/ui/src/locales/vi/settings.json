@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "LOẠI SDK",
     "empty": "Chưa có provider nào được cấu hình. Nhấp \"+ Thêm Provider\" để bắt đầu.",
-    "customPlaceholder": "Provider Của Tôi"
+    "customPlaceholder": "Provider Của Tôi",
+    "testAndSave": "Kiểm tra & Lưu",
+    "testingConnection": "Đang kiểm tra...",
+    "configureProvider": "CẤU HÌNH {{name}}",
+    "configureCustom": "CẤU HÌNH NHÀ CUNG CẤP TÙY CHỈNH",
+    "apiKeyRequired": "KHÓA API (bắt buộc)",
+    "modelsRequired": "MÔ HÌNH (ít nhất một)"
   },
   "provider": {
     "testing": "Đang kiểm tra...",

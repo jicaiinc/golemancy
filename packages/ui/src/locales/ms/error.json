@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Sesuatu telah berlaku. Sila cuba lagi kemudian."
   },
+  "bootstrap": {
+    "title": "Sambungan Gagal",
+    "message": "Tidak dapat menyambung ke pelayan tempatan. Jangan risau, data anda selamat."
+  },
   "boundary": {
     "title": "Sesuatu Meletup",
     "message": "Ralat muncul secara tiba-tiba! Jangan risau, data anda selamat.",

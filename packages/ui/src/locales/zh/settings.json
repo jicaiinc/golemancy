@@ -72,7 +72,13 @@
     "baseUrlLabel": "基础 URL",
     "sdkTypeLabel": "SDK 类型",
     "empty": "暂无服务商。点击\"+ 添加服务商\"开始配置。",
-    "customPlaceholder": "我的服务商"
+    "customPlaceholder": "我的服务商",
+    "testAndSave": "测试并保存",
+    "testingConnection": "测试中...",
+    "configureProvider": "配置 {{name}}",
+    "configureCustom": "配置自定义服务商",
+    "apiKeyRequired": "API 密钥（必填）",
+    "modelsRequired": "模型（至少一个）"
   },
   "provider": {
     "testing": "测试中...",

@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "TIPO SDK",
     "empty": "Nessun provider configurato. Clicca \"+ Aggiungi Provider\" per iniziare.",
-    "customPlaceholder": "Il Mio Provider"
+    "customPlaceholder": "Il Mio Provider",
+    "testAndSave": "Testa e Salva",
+    "testingConnection": "Test in corso...",
+    "configureProvider": "CONFIGURA {{name}}",
+    "configureCustom": "CONFIGURA PROVIDER PERSONALIZZATO",
+    "apiKeyRequired": "CHIAVE API (obbligatoria)",
+    "modelsRequired": "MODELLI (almeno uno)"
   },
   "provider": {
     "testing": "Test in corso...",

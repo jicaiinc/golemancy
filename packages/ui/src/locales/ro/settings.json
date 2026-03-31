@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "TIP SDK",
     "empty": "Niciun furnizor configurat. Faceți clic pe \"+ Adăugare furnizor\" pentru a începe.",
-    "customPlaceholder": "Furnizorul meu"
+    "customPlaceholder": "Furnizorul meu",
+    "testAndSave": "Testează și Salvează",
+    "testingConnection": "Se testează...",
+    "configureProvider": "CONFIGUREAZĂ {{name}}",
+    "configureCustom": "CONFIGUREAZĂ FURNIZOR PERSONALIZAT",
+    "apiKeyRequired": "CHEIE API (obligatorie)",
+    "modelsRequired": "MODELE (cel puțin unul)"
   },
   "provider": {
     "testing": "Se testează...",

@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "ТИП SDK",
     "empty": "Провайдеры не настроены. Нажмите «+ Добавить провайдера», чтобы начать.",
-    "customPlaceholder": "Мой провайдер"
+    "customPlaceholder": "Мой провайдер",
+    "testAndSave": "Проверить и сохранить",
+    "testingConnection": "Проверка...",
+    "configureProvider": "НАСТРОИТЬ {{name}}",
+    "configureCustom": "НАСТРОИТЬ ПОЛЬЗОВАТЕЛЬСКОГО ПРОВАЙДЕРА",
+    "apiKeyRequired": "API-КЛЮЧ (обязательно)",
+    "modelsRequired": "МОДЕЛИ (минимум одна)"
   },
   "provider": {
     "testing": "Тестирование...",

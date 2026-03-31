@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "SDK-TYP",
     "empty": "Inga providers konfigurerade. Klicka \"+ Lägg till provider\" för att komma igång.",
-    "customPlaceholder": "Min provider"
+    "customPlaceholder": "Min provider",
+    "testAndSave": "Testa & Spara",
+    "testingConnection": "Testar...",
+    "configureProvider": "KONFIGURERA {{name}}",
+    "configureCustom": "KONFIGURERA ANPASSAD LEVERANTÖR",
+    "apiKeyRequired": "API-NYCKEL (krävs)",
+    "modelsRequired": "MODELLER (minst en)"
   },
   "provider": {
     "testing": "Testar...",

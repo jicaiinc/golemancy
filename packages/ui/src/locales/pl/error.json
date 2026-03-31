@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Coś poszło nie tak. Spróbuj ponownie później."
   },
+  "bootstrap": {
+    "title": "Połączenie nieudane",
+    "message": "Nie można połączyć się z lokalnym serwerem. Nie martw się, Twoje dane są bezpieczne."
+  },
   "boundary": {
     "title": "Coś wybuchło",
     "message": "Pojawił się niespodziewany błąd! Nie martw się, dane są bezpieczne.",

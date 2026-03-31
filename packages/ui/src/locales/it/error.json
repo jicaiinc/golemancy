@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Qualcosa è andato storto. Riprova più tardi."
   },
+  "bootstrap": {
+    "title": "Connessione fallita",
+    "message": "Impossibile connettersi al server locale. Non preoccuparti, i tuoi dati sono al sicuro."
+  },
   "boundary": {
     "title": "Qualcosa è Esploso",
     "message": "Un errore selvatico è apparso! Non preoccuparti, i tuoi dati sono al sicuro.",

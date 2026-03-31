@@ -38,11 +38,26 @@ function BootstrapError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex items-center justify-center h-screen bg-void">
       <div className="text-center max-w-[400px] p-8">
-        <div className="font-pixel text-[14px] text-accent-red mb-2">
-          {t('error:bootstrap.title', 'Connection Failed')}
+        {/* Pixel unplugged cable */}
+        <div className="font-mono text-accent-green text-[10px] leading-[10px] mb-6 select-none">
+          <pre>{`
+  ████████████████
+██                ██
+██    ██        ██  ██
+██    ██        ██  ██
+██                  ██
+██      ████████    ██
+██    ██        ██  ██
+  ██                ██
+    ████████████████
+          `.trim()}</pre>
         </div>
+
+        <h1 className="font-pixel text-[14px] text-accent-red mb-2">
+          {t('error:bootstrap.title', 'Connection Failed')}
+        </h1>
         <p className="text-[12px] text-text-secondary mb-4">
-          {t('error:bootstrap.message', 'Unable to connect to the local server. This may be a temporary issue.')}
+          {t('error:bootstrap.message', 'Unable to connect to the local server. Don\'t worry, your data is safe.')}
         </p>
         <PixelButton variant="primary" onClick={onRetry}>
           {t('common:button.retry', 'Retry')}

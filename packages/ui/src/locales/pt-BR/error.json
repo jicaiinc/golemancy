@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Algo deu errado. Por favor, tente novamente mais tarde."
   },
+  "bootstrap": {
+    "title": "Conexão falhou",
+    "message": "Não foi possível conectar ao servidor local. Não se preocupe, seus dados estão seguros."
+  },
   "boundary": {
     "title": "Algo Explodiu",
     "message": "Um erro inesperado apareceu! Não se preocupe, seus dados estão seguros.",

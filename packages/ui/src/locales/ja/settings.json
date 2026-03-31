@@ -72,7 +72,13 @@
     "baseUrlLabel": "ベース URL",
     "sdkTypeLabel": "SDK タイプ",
     "empty": "プロバイダーが設定されていません。「+ プロバイダーを追加」をクリックして始めましょう。",
-    "customPlaceholder": "マイプロバイダー"
+    "customPlaceholder": "マイプロバイダー",
+    "testAndSave": "テスト & 保存",
+    "testingConnection": "テスト中...",
+    "configureProvider": "{{name}} を設定",
+    "configureCustom": "カスタムプロバイダーを設定",
+    "apiKeyRequired": "API キー（必須）",
+    "modelsRequired": "モデル（1つ以上）"
   },
   "provider": {
     "testing": "テスト中...",

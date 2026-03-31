@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Bir \u015feyler ters gitti. L\u00fctfen daha sonra tekrar deneyin."
   },
+  "bootstrap": {
+    "title": "Bağlantı Başarısız",
+    "message": "Yerel sunucuya bağlanılamadı. Endişelenmeyin, verileriniz güvende."
+  },
   "boundary": {
     "title": "Bir \u015eey Patlad\u0131",
     "message": "Beklenmedik bir hata olu\u015ftu! Merak etmeyin, verileriniz g\u00fcvende.",

@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "TYP SDK",
     "empty": "Brak skonfigurowanych dostawców. Kliknij «+ Dodaj dostawcę», aby rozpocząć.",
-    "customPlaceholder": "Mój dostawca"
+    "customPlaceholder": "Mój dostawca",
+    "testAndSave": "Testuj i Zapisz",
+    "testingConnection": "Testowanie...",
+    "configureProvider": "KONFIGURUJ {{name}}",
+    "configureCustom": "KONFIGURUJ NIESTANDARDOWEGO DOSTAWCĘ",
+    "apiKeyRequired": "KLUCZ API (wymagany)",
+    "modelsRequired": "MODELE (co najmniej jeden)"
   },
   "provider": {
     "testing": "Testowanie...",

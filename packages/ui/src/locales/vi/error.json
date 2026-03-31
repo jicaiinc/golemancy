@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "\u0110\u00e3 x\u1ea3y ra l\u1ed7i. Vui l\u00f2ng th\u1eed l\u1ea1i sau."
   },
+  "bootstrap": {
+    "title": "Kết nối thất bại",
+    "message": "Không thể kết nối đến máy chủ cục bộ. Đừng lo, dữ liệu của bạn an toàn."
+  },
   "boundary": {
     "title": "C\u00f3 G\u00ec \u0110\u00f3 N\u1ed5 Tung",
     "message": "M\u1ed9t l\u1ed7i xu\u1ea5t hi\u1ec7n b\u1ea5t ng\u1edd! \u0110\u1eebng lo, d\u1eef li\u1ec7u c\u1ee7a b\u1ea1n v\u1eabn an to\u00e0n.",

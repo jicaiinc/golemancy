@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "May nangyaring mali. Pakisubukan muli mamaya."
   },
+  "bootstrap": {
+    "title": "Nabigo ang Koneksyon",
+    "message": "Hindi makakonekta sa lokal na server. Huwag mag-alala, ligtas ang iyong data."
+  },
   "boundary": {
     "title": "May Sumabog",
     "message": "May lumitaw na error! Huwag mag-alala, ligtas ang data mo.",

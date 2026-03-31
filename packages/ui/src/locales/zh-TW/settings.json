@@ -72,7 +72,13 @@
     "baseUrlLabel": "基礎 URL",
     "sdkTypeLabel": "SDK 類型",
     "empty": "尚無供應商。點擊「+ 新增供應商」開始設定。",
-    "customPlaceholder": "我的供應商"
+    "customPlaceholder": "我的供應商",
+    "testAndSave": "測試並儲存",
+    "testingConnection": "測試中...",
+    "configureProvider": "設定 {{name}}",
+    "configureCustom": "設定自訂服務商",
+    "apiKeyRequired": "API 金鑰（必填）",
+    "modelsRequired": "模型（至少一個）"
   },
   "provider": {
     "testing": "測試中...",

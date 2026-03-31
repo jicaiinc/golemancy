@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "URI NG SDK",
     "empty": "Walang naka-configure na provider. I-click ang \"+ Magdagdag ng Provider\" para magsimula.",
-    "customPlaceholder": "Aking Provider"
+    "customPlaceholder": "Aking Provider",
+    "testAndSave": "I-test at I-save",
+    "testingConnection": "Sinusubukan...",
+    "configureProvider": "I-CONFIGURE ANG {{name}}",
+    "configureCustom": "I-CONFIGURE ANG CUSTOM PROVIDER",
+    "apiKeyRequired": "API KEY (kinakailangan)",
+    "modelsRequired": "MGA MODEL (kahit isa)"
   },
   "provider": {
     "testing": "Tine-test...",

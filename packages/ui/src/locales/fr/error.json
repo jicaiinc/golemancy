@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Une erreur est survenue. Veuillez réessayer plus tard."
   },
+  "bootstrap": {
+    "title": "Connexion échouée",
+    "message": "Impossible de se connecter au serveur local. Ne vous inquiétez pas, vos données sont en sécurité."
+  },
   "boundary": {
     "title": "Quelque Chose a Explosé",
     "message": "Une erreur sauvage est apparue ! Pas d'inquiétude, vos données sont en sécurité.",

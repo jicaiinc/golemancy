@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "出了点问题，请稍后再试。"
   },
+  "bootstrap": {
+    "title": "连接失败",
+    "message": "无法连接到本地服务。别担心，你的数据是安全的。"
+  },
   "boundary": {
     "title": "出错了",
     "message": "遇到了一个错误！别担心，你的数据是安全的。",

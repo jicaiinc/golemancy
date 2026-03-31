@@ -72,7 +72,13 @@
     "baseUrlLabel": "BASE URL",
     "sdkTypeLabel": "TYP SDK",
     "empty": "Žádní poskytovatelé nejsou nakonfigurováni. Klikněte na «+ Přidat poskytovatele» pro začátek.",
-    "customPlaceholder": "Můj poskytovatel"
+    "customPlaceholder": "Můj poskytovatel",
+    "testAndSave": "Otestovat a uložit",
+    "testingConnection": "Testování...",
+    "configureProvider": "KONFIGUROVAT {{name}}",
+    "configureCustom": "KONFIGUROVAT VLASTNÍHO POSKYTOVATELE",
+    "apiKeyRequired": "API KLÍČ (povinné)",
+    "modelsRequired": "MODELY (alespoň jeden)"
   },
   "provider": {
     "testing": "Testování...",

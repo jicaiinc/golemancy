@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "Terjadi kesalahan. Silakan coba lagi nanti."
   },
+  "bootstrap": {
+    "title": "Koneksi Gagal",
+    "message": "Tidak dapat terhubung ke server lokal. Jangan khawatir, data Anda aman."
+  },
   "boundary": {
     "title": "Terjadi Ledakan",
     "message": "Ada error muncul secara tiba-tiba! Jangan khawatir, data Anda aman.",

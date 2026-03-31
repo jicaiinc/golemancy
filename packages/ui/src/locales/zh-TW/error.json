@@ -2,6 +2,10 @@
   "fallback": {
     "generic": "發生錯誤，請稍後再試。"
   },
+  "bootstrap": {
+    "title": "連接失敗",
+    "message": "無法連接到本機服務。別擔心，你的資料是安全的。"
+  },
   "boundary": {
     "title": "出錯了",
     "message": "遇到了一個錯誤！別擔心，你的資料是安全的。",
