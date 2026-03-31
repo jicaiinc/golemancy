@@ -61,6 +61,8 @@ export async function resolveModel(
         ? `Provider "${provider}" is not configured. Go to Settings → Providers to add it.`
         : 'No model configured. Go to Settings → Providers to set up a provider.',
       provider ? 'PROVIDER_NOT_CONFIGURED' : 'NO_PROVIDER_CONFIGURED',
+      422,
+      provider ? { provider } : undefined,
     )
   }
 
@@ -90,6 +92,8 @@ export async function resolveModel(
     throw new ConfigurationError(
       `API key for provider "${provider}" is not set. Go to Settings → Providers to configure it.`,
       'API_KEY_MISSING',
+      422,
+      { provider },
     )
   }
 

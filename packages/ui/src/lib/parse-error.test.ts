@@ -53,8 +53,8 @@ describe('parseErrorMessage', () => {
     expect(parseErrorMessage(error)).toEqual({ message: 'Something went wrong with the API' })
   })
 
-  it('returns code for ConfigurationError with PROVIDER_NOT_CONFIGURED', () => {
-    const error = new Error('422: {"error":"Provider \\"xxx\\" is not configured.","code":"PROVIDER_NOT_CONFIGURED"}')
+  it('returns code for ConfigurationError with PROVIDER_NOT_CONFIGURED and provider meta', () => {
+    const error = new Error('422: {"error":"Provider \\"google\\" is not configured.","code":"PROVIDER_NOT_CONFIGURED","provider":"google"}')
     expect(parseErrorMessage(error)).toEqual({ message: 'PROVIDER_NOT_CONFIGURED', code: 'PROVIDER_NOT_CONFIGURED' })
   })
 

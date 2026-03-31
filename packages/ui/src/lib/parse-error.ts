@@ -16,8 +16,10 @@ export function parseErrorMessage(error: Error): ParsedError {
     try {
       const body = JSON.parse(jsonMatch[1])
       // Prefer body.code for i18n lookup (ConfigurationError etc.)
+      // Pass extra fields (e.g. provider) as interpolation params
       if (body.code && SERVER_ERROR_CODE_RE.test(body.code)) {
-        return { message: i18next.t(`error:server.${body.code}`), code: body.code }
+        const { error: _e, code: _c, ...meta } = body
+        return { message: i18next.t(`error:server.${body.code}`, meta) as string, code: body.code }
       }
       if (body.error && body.error !== 'Internal Server Error') {
         // Server error codes are UPPER_SNAKE_CASE — translate via i18n
