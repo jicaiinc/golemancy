@@ -5,6 +5,8 @@ import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router'
 import type { Agent, AgentId, CompactRecord, Conversation, Team, TeamId, TargetType } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
+import { trackEvent } from '../../lib/analytics'
 import { useAppStore } from '../../stores'
 import { useRefreshConversationTasks } from '../../queries/conversation-tasks'
 import { getServices } from '../../services'
@@ -207,12 +209,17 @@ export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpa
       // Safe to call on normal completion too — no-op if no incomplete parts exist.
       sanitizeChatAfterAbort(conversation.id)
       refreshConversationTasks()
+      trackEvent(AnalyticsEvents.CHAT_RESPONSE_COMPLETED)
+    }
+    if ((prev === 'streaming' || prev === 'submitted') && status === 'error') {
+      trackEvent(AnalyticsEvents.CHAT_RESPONSE_FAILED)
     }
   }, [status, refreshConversationTasks, conversation.id])
 
   // --- Send handler ---
   const handleSend = useCallback(async (content: string, files?: FileUIPart[]) => {
     if (!currentProjectId || !chat) return
+    trackEvent(AnalyticsEvents.CHAT_MESSAGE_SUBMITTED, { has_files: !!files })
     setMaxStepsInfo(null)
 
     // Auto-title: if first message and user hasn't manually renamed

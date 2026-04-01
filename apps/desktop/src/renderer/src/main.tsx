@@ -2,6 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import * as Sentry from '@sentry/electron/renderer'
 import { setErrorCapture } from '@golemancy/ui/lib/error-reporting'
+import posthog from 'posthog-js/dist/module.full.no-external'
+import { setAnalyticsImpl } from '@golemancy/ui/lib/analytics'
 import { App } from '@golemancy/ui'
 
 // No integrations — Session Replay was removed (recording user screens in an AI app is unacceptable).
@@ -10,6 +12,8 @@ Sentry.init()
 setErrorCapture((error, context) => {
   Sentry.captureException(error, { extra: context })
 })
+
+setAnalyticsImpl(posthog)
 
 function getRendererContext(): Record<string, unknown> {
   return {

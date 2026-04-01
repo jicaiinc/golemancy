@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { PermissionMode, PermissionsConfig, PermissionsConfigFile, PermissionsConfigId, ProjectId, SandboxReadinessIssue, SandboxReadinessResult } from '@golemancy/shared'
-import { DEFAULT_PERMISSIONS_CONFIG, isSandboxRuntimeSupported, type SupportedPlatform } from '@golemancy/shared'
+import { DEFAULT_PERMISSIONS_CONFIG, AnalyticsEvents, isSandboxRuntimeSupported, type SupportedPlatform } from '@golemancy/shared'
 import { fetchJson, getBaseUrl } from '../../services/http/base'
 import { PixelCard, PixelButton, PixelInput, PixelModal, PixelToggle } from '../base'
 import { PixelDropdown } from '../base/PixelDropdown'
@@ -9,6 +9,7 @@ import { ExecutionModeCard, type ExecutionModeOption } from './ExecutionModeCard
 import { PathListEditor } from './PathListEditor'
 import { useServices, useCurrentProject, detectPlatform } from '../../hooks'
 import { useAppStore } from '../../stores'
+import { trackEvent } from '../../lib/analytics'
 
 interface PermissionsSettingsProps {
   projectId: ProjectId
@@ -107,6 +108,7 @@ export function PermissionsSettings({ projectId }: PermissionsSettingsProps) {
       await saveProjectRef(selectedConfigId)
       await loadConfigs()
     }
+    trackEvent(AnalyticsEvents.PERMISSIONS_MODE_CHANGED, { mode: newMode })
     showSavedIndicator()
   }
 

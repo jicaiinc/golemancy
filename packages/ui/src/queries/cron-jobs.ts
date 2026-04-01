@@ -1,7 +1,9 @@
 import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { CronJob, CronJobId, ProjectId } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
 import { getServices } from '../services'
 import { useAppStore } from '../stores'
+import { trackEvent } from '../lib/analytics'
 import { queryKeys } from './keys'
 
 export const cronJobListOptions = (projectId: ProjectId) =>
@@ -37,6 +39,7 @@ export function useCreateCronJob() {
     },
     onSuccess: () => {
       if (projectId) qc.invalidateQueries({ queryKey: queryKeys.cronJobs.all(projectId) })
+      trackEvent(AnalyticsEvents.CRON_JOB_CREATED)
     },
   })
 }

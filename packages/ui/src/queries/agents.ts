@@ -1,7 +1,9 @@
 import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Agent, AgentId, ProjectId } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
 import { getServices } from '../services'
 import { useAppStore } from '../stores'
+import { trackEvent } from '../lib/analytics'
 import { queryKeys } from './keys'
 
 export const agentListOptions = (projectId: ProjectId) =>
@@ -28,6 +30,7 @@ export function useCreateAgent() {
     },
     onSuccess: () => {
       if (projectId) qc.invalidateQueries({ queryKey: queryKeys.agents.all(projectId) })
+      trackEvent(AnalyticsEvents.AGENT_CREATED)
     },
   })
 }

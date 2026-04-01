@@ -7,6 +7,7 @@ import type { TokenRecordStorage } from '../storage/token-records'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel, buildSystemPromptOptions } from './model'
+import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
@@ -206,6 +207,14 @@ export function createSubAgentTool(
           stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           ...(modelMessages ? { messages: modelMessages } : { prompt: userContent }),
           abortSignal,
+          experimental_telemetry: getAITelemetryConfig({
+            functionId: 'sub-agent',
+            analyticsEnabled: settings.productAnalyticsEnabled,
+            distinctId: settings.analyticsDistinctId,
+            conversationId: childConversationId,
+            agentId: childAgent.id,
+            model: childAgent.modelConfig?.model,
+          }),
           onAbort: async ({ steps }) => {
             let inputTokens = 0, outputTokens = 0
             for (const step of steps) {

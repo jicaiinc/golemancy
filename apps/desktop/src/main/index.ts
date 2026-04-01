@@ -108,6 +108,9 @@ function startServer(): Promise<number> {
         }),
         // Pass Sentry config to server process
         ...getSentryEnvForServer(),
+        // Pass PostHog config to server process for LLM Analytics
+        POSTHOG_KEY: process.env.POSTHOG_KEY ?? '',
+        POSTHOG_HOST: process.env.POSTHOG_HOST ?? 'https://us.i.posthog.com',
       },
       execPath: execPathResolved,
       execArgv: app.isPackaged ? [] : ['--import', 'tsx'],

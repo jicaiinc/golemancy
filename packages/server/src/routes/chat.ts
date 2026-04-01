@@ -10,6 +10,7 @@ import type {
   AgentStatus,
 } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS, resolveAgentId } from '@golemancy/shared'
+import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -370,6 +371,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
               resolved,
               systemPrompt: agent.systemPrompt,
               signal: chatAbortController.signal,
+              analyticsEnabled: settings.productAnalyticsEnabled,
               onProgress: (info) => {
                 writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'progress', generatedChars: info.generatedChars } })
               },
@@ -435,6 +437,14 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           tools: hasTools ? allTools : undefined,
           stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           abortSignal: chatAbortController.signal,
+          experimental_telemetry: getAITelemetryConfig({
+            functionId: 'chat',
+            analyticsEnabled: settings.productAnalyticsEnabled,
+            distinctId: settings.analyticsDistinctId,
+            conversationId,
+            agentId: agent.id,
+            model: agent.modelConfig?.model,
+          }),
           onStepFinish: ({ usage, finishReason, toolCalls }) => {
             stepIndex++
             lastFinishReason = finishReason

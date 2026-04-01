@@ -37,6 +37,7 @@ import { initOpenToolsIPC } from './agent/builtin-tools/open-tools'
 import type { ProjectId } from '@golemancy/shared'
 import { logger } from './logger'
 import { initSentry, captureException, flush as flushSentry } from './sentry'
+import { initLLMAnalytics, shutdownLLMAnalytics } from './telemetry/posthog'
 import { removeProjectPythonEnv } from './runtime/python-manager'
 import { getBundledNodeBinDir, getBundledUvBinDir, getBundledPythonPath } from './runtime/paths'
 
@@ -46,6 +47,9 @@ function reportProgress(phase: string, startTime: number): void {
 
 async function main() {
   initSentry()
+  // LLM Analytics: only initialize when key exists AND user has opted in.
+  // Deferred until settings are loaded — see settingsStorage.get() below.
+  const posthogKey = process.env.POSTHOG_KEY
 
   const startTime = Date.now()
   const launchId = process.env.GOLEMANCY_LAUNCH_ID ?? null
@@ -149,6 +153,19 @@ async function main() {
     teamStorage,
   }
   const settingsStorage = new FileSettingsStorage()
+
+  // Initialize LLM Analytics only if key exists AND user has opted in
+  if (posthogKey) {
+    try {
+      const settings = await settingsStorage.get()
+      if (settings.productAnalyticsEnabled) {
+        initLLMAnalytics(posthogKey, process.env.POSTHOG_HOST ?? 'https://us.i.posthog.com')
+      }
+    } catch {
+      // settings not yet created — skip analytics
+    }
+  }
+
   const oauthManager = new OAuthManager(settingsStorage)
 
   // Expose executor so onProjectDeleting can abort running cron jobs
@@ -255,6 +272,7 @@ async function main() {
       cronScheduler.shutdown(),
     ])
     dbManager.closeAll()
+    await shutdownLLMAnalytics()
     logger.info('shutdown complete')
     await flushSentry()
     logger.flush()

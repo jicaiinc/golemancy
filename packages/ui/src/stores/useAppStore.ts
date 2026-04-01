@@ -15,6 +15,8 @@ import { getServices } from '../services'
 import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
 import { logBootstrapEvent } from '../lib/bootstrap-logging'
 import { captureError } from '../lib/error-reporting'
+import { initAnalytics, setAnalyticsEnabled, setAnalyticsContext, trackEvent } from '../lib/analytics'
+import { AnalyticsEvents } from '@golemancy/shared'
 import { queryClient } from '../queries/query-client'
 import { queryKeys } from '../queries/keys'
 import { agentListOptions } from '../queries/agents'
@@ -223,6 +225,7 @@ export const useAppStore = create<AppState>()(
       async selectProject(id: ProjectId) {
         const prevId = get().currentProjectId
         if (prevId === id) return
+        trackEvent(AnalyticsEvents.PROJECT_SELECTED)
 
         // Release idle Chat instances; keep streaming ones alive so
         // server-side execution completes and saves messages to DB.
@@ -308,6 +311,7 @@ export const useAppStore = create<AppState>()(
         const updated = await svc.projects.update(project.id, { defaultTargetType: 'agent', defaultTargetId: agent.id })
 
         set(s => ({ projects: [...s.projects, updated] }))
+        trackEvent(AnalyticsEvents.PROJECT_CREATED)
         return updated
       },
 
@@ -343,6 +347,7 @@ export const useAppStore = create<AppState>()(
         if (!service.createFromTemplate) throw new Error('createFromTemplate not supported')
         const project = await service.createFromTemplate(templateId, name)
         set(s => ({ projects: [...s.projects, project] }))
+        trackEvent(AnalyticsEvents.PROJECT_CREATED_FROM_TEMPLATE)
         return project
       },
 
@@ -411,6 +416,7 @@ export const useAppStore = create<AppState>()(
           conversationList: [...s.conversationList, toSummary(conv)],
           currentConversation: conv,
         }))
+        trackEvent(AnalyticsEvents.CONVERSATION_CREATED, { target_type: targetType })
         return conv
       },
 
@@ -524,6 +530,26 @@ export const useAppStore = create<AppState>()(
           if (settings.language) {
             i18next.changeLanguage(settings.language)
           }
+          // Initialize product analytics
+          let distinctId = settings.analyticsDistinctId
+          if (!distinctId) {
+            distinctId = crypto.randomUUID()
+            Promise.resolve(getServices().settings.update({ analyticsDistinctId: distinctId })).catch(() => {})
+          }
+          const posthogKey = import.meta.env.VITE_POSTHOG_KEY as string | undefined
+          if (posthogKey) {
+            initAnalytics(posthogKey, distinctId)
+            setAnalyticsContext({
+              app_version: window.electronAPI?.getAppVersion() ?? 'unknown',
+              platform: window.electronAPI?.getPlatformLabel() ?? 'unknown',
+              language: settings.language ?? 'en',
+              session_id: window.electronAPI?.getLaunchId?.() ?? 'unknown',
+            })
+            setAnalyticsEnabled(settings.productAnalyticsEnabled ?? false)
+            if (settings.productAnalyticsEnabled) {
+              trackEvent(AnalyticsEvents.APP_OPENED)
+            }
+          }
         } catch (err) {
           if (gen !== _settingsGen) return
           set({ settingsError: true })
@@ -548,6 +574,9 @@ export const useAppStore = create<AppState>()(
         }
         if (data.telemetryEnabled !== undefined) {
           window.electronAPI?.setTelemetryEnabled(data.telemetryEnabled)
+        }
+        if (data.productAnalyticsEnabled !== undefined) {
+          setAnalyticsEnabled(data.productAnalyticsEnabled)
         }
       },
 

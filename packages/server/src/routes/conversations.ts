@@ -190,6 +190,7 @@ export function createConversationRoutes(deps: ConversationRouteDeps) {
         resolved,
         systemPrompt: agent.systemPrompt,
         signal: c.req.raw.signal,
+        analyticsEnabled: settings.productAnalyticsEnabled,
       })
     } catch (err) {
       log.error({ err, conversationId: convId }, 'manual compact failed')

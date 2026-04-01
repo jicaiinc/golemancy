@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDocumentTitle, useTabParam } from '../../hooks'
 import type { ProviderSdkType, ProviderEntry, ThemeMode, StyleTheme, GlobalSettings, AgentModelConfig, OAuthFlowStatus } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
+import { trackEvent } from '../../lib/analytics'
 import { useAppStore } from '../../stores'
 import { useServices } from '../../hooks'
 import { PixelCard, PixelButton, PixelInput, PixelTabs } from '../../components'
@@ -475,6 +477,7 @@ function ProviderAddForm({ mode, providers, onSave, onCancel, onUpdate }: {
       const result = await services.settings.testProviderConfig!(entry)
       if (result.ok) {
         await onSave(slug, { ...entry, testStatus: 'ok' })
+        trackEvent(AnalyticsEvents.PROVIDER_TESTED, { provider: slug })
       } else {
         setTestError(result.error ?? t('provider.failed'))
       }
@@ -766,6 +769,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
       if (result.ok) {
         setTestLatency(result.latencyMs ?? 0)
         await onUpdate({ ...(updatedEntry ?? entry), testStatus: 'ok' })
+        trackEvent(AnalyticsEvents.PROVIDER_TESTED, { provider: providerKey })
       } else {
         setTestError(result.error ?? t('provider.failed'))
         await onUpdate({ ...(updatedEntry ?? entry), testStatus: 'error' })
@@ -1198,6 +1202,7 @@ function AboutTab() {
   const updateState = useAppStore(s => s.updateState)
   const notificationsEnabled = useAppStore(s => s.updateNotificationsEnabled)
   const setUpdateNotifications = useAppStore(s => s.setUpdateNotifications)
+  const settings = useAppStore(s => s.settings)
   const telemetryEnabled = useAppStore(s => s.settings?.telemetryEnabled ?? true)
   const updateSettings = useAppStore(s => s.updateSettings)
 
@@ -1345,6 +1350,23 @@ function AboutTab() {
           <div>
             <div className="text-[12px] text-text-primary">{t('general.telemetryLabel')}</div>
             <div className="text-[11px] text-text-dim mt-1">{t('general.telemetryDescription')}</div>
+          </div>
+        </label>
+      </PixelCard>
+
+      {/* Product Analytics */}
+      <PixelCard>
+        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('general.analytics')}</div>
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={settings?.productAnalyticsEnabled ?? false}
+            onChange={(e) => updateSettings({ productAnalyticsEnabled: e.target.checked })}
+            className="mt-0.5 accent-accent-green"
+          />
+          <div>
+            <div className="text-[12px] text-text-primary">{t('general.analyticsLabel')}</div>
+            <div className="text-[11px] text-text-dim mt-1">{t('general.analyticsDescription')}</div>
           </div>
         </label>
       </PixelCard>

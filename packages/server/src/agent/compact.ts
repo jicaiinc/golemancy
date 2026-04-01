@@ -1,6 +1,7 @@
 import { streamText, type ModelMessage, type UIMessage } from 'ai'
 import type { CompactRecord } from '@golemancy/shared'
 import { type ResolvedModel, buildSystemPromptOptions } from './model'
+import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:compact' })
@@ -21,6 +22,7 @@ export async function compactConversation(opts: {
   resolved: ResolvedModel
   systemPrompt: string
   signal?: AbortSignal
+  analyticsEnabled?: boolean
   onProgress?: (info: { generatedChars: number }) => void
 }): Promise<{ summary: string; inputTokens: number; outputTokens: number }> {
   log.info({ messageCount: opts.messages.length }, 'starting compact')
@@ -30,6 +32,7 @@ export async function compactConversation(opts: {
     ...buildSystemPromptOptions(opts.resolved, opts.systemPrompt),
     messages: [...opts.messages, { role: 'user', content: COMPACT_PROMPT }],
     abortSignal: opts.signal,
+    experimental_telemetry: getAITelemetryConfig({ functionId: 'compact', analyticsEnabled: opts.analyticsEnabled }),
   })
 
   let text = ''

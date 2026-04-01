@@ -1,7 +1,9 @@
 import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Team, TeamId, ProjectId } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
 import { getServices } from '../services'
 import { useAppStore } from '../stores'
+import { trackEvent } from '../lib/analytics'
 import { queryKeys } from './keys'
 
 export const teamListOptions = (projectId: ProjectId) =>
@@ -28,6 +30,7 @@ export function useCreateTeam() {
     },
     onSuccess: () => {
       if (projectId) qc.invalidateQueries({ queryKey: queryKeys.teams.all(projectId) })
+      trackEvent(AnalyticsEvents.TEAM_CREATED)
     },
   })
 }

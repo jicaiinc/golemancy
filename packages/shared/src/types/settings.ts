@@ -66,6 +66,8 @@ export interface GlobalSettings {
   onboardingCompleted?: boolean
   onboardingStep?: number
   telemetryEnabled?: boolean
+  productAnalyticsEnabled?: boolean
+  analyticsDistinctId?: string
 }
 
 export interface ProjectConfig {

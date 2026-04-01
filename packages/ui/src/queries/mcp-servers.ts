@@ -1,7 +1,9 @@
 import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { ProjectId, MCPServerConfig, MCPServerCreateData, MCPServerUpdateData } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
 import { getServices } from '../services'
 import { useAppStore } from '../stores'
+import { trackEvent } from '../lib/analytics'
 import { queryKeys } from './keys'
 
 export const mcpServerListOptions = (projectId: ProjectId) =>
@@ -28,6 +30,7 @@ export function useCreateMCPServer() {
     },
     onSuccess: () => {
       if (projectId) qc.invalidateQueries({ queryKey: queryKeys.mcpServers.all(projectId) })
+      trackEvent(AnalyticsEvents.MCP_SERVER_CREATED)
     },
   })
 }

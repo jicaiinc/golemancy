@@ -1,7 +1,9 @@
 import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { ProjectId, Skill, SkillId, SkillCreateData, SkillUpdateData } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
 import { getServices } from '../services'
 import { useAppStore } from '../stores'
+import { trackEvent } from '../lib/analytics'
 import { queryKeys } from './keys'
 
 export const skillListOptions = (projectId: ProjectId) =>
@@ -28,6 +30,7 @@ export function useCreateSkill() {
     },
     onSuccess: () => {
       if (projectId) qc.invalidateQueries({ queryKey: queryKeys.skills.all(projectId) })
+      trackEvent(AnalyticsEvents.SKILL_CREATED)
     },
   })
 }

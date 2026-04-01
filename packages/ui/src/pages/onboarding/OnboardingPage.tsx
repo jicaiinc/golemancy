@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import i18next from 'i18next'
 import type { AgentModelConfig, ProjectId, SpeechToTextSettings } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
+import { trackEvent } from '../../lib/analytics'
 import { useAppStore } from '../../stores'
 import { getServices } from '../../services/container'
 import { PixelButton, PixelProgress } from '../../components'
@@ -129,6 +131,7 @@ export function OnboardingPage() {
   // --- Navigation ---
   async function goNext() {
     if (!canProceed() || saving) return
+    if (step === 0) trackEvent(AnalyticsEvents.ONBOARDING_STARTED)
     setSaving(true)
     setStepError('')
     try {
@@ -158,6 +161,7 @@ export function OnboardingPage() {
 
   async function skipSetup() {
     try {
+      trackEvent(AnalyticsEvents.ONBOARDING_SKIPPED, { skipped_at_step: step })
       await updateSettings({ onboardingCompleted: true })
     } catch (err) {
       setStepError(err instanceof Error ? err.message : t('error.failedToSkip'))
@@ -218,6 +222,7 @@ export function OnboardingPage() {
     }
     setData(d => ({ ...d, createdProjectId: project.id }))
     await updateSettings({ onboardingCompleted: true, onboardingStep: 4 })
+    trackEvent(AnalyticsEvents.ONBOARDING_COMPLETED)
   }
 
   // --- Save provider entry (needed before OAuth flow or test) ---

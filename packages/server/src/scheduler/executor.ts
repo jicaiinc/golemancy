@@ -13,6 +13,7 @@ import type { WebSocketManager } from '../ws/handler'
 import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel, buildSystemPromptOptions } from '../agent/model'
+import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
 import { loadAgentTools } from '../agent/tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
@@ -183,6 +184,14 @@ export class CronJobExecutor {
         tools: hasTools ? allTools : undefined,
         stopWhen: hasTools ? stepCountIs(10) : undefined,
         abortSignal: abortController.signal,
+        experimental_telemetry: getAITelemetryConfig({
+          functionId: 'cron',
+          analyticsEnabled: settings.productAnalyticsEnabled,
+          distinctId: settings.analyticsDistinctId,
+          conversationId,
+          agentId: agent.id,
+          model: agent.modelConfig?.model,
+        }),
         onAbort: async ({ steps }) => {
           // Sum usage from completed steps (matches chat.ts pattern)
           let abortInput = 0, abortOutput = 0

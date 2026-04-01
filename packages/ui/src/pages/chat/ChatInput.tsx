@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback, useEffect, type KeyboardEvent, type DragEvent, type ClipboardEvent } from 'react'
 import type { FileUIPart } from 'ai'
 import type { TranscriptionId, ProjectId, ConversationId } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
+import { trackEvent } from '../../lib/analytics'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { PixelButton, PixelSpinner, ImageAttachIcon, CloseSmallIcon, CheckIcon, MicIcon, StopSquareIcon, VoiceWaveform } from '../../components'
@@ -166,6 +168,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
       return
     }
     try {
+      trackEvent(AnalyticsEvents.VOICE_RECORDING_STARTED)
       setTranscriptionError(null)
       setRecordingState('recording')
       await startRecording()
@@ -198,9 +201,11 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
           return prev + separator + record.text
         })
         setRecordingState('idle')
+        trackEvent(AnalyticsEvents.VOICE_TRANSCRIPTION_COMPLETED)
       } else if (record.status === 'failed') {
         setRecordingState('error')
         setTranscriptionError(record.error ?? t('input.transcriptionFailed'))
+        trackEvent(AnalyticsEvents.VOICE_TRANSCRIPTION_FAILED)
       } else {
         setRecordingState('idle')
       }
@@ -218,6 +223,7 @@ export function ChatInput({ onSend, onStop, isStreaming, disabled }: ChatInputPr
 
   const handleRetry = useCallback(async () => {
     if (!lastTranscriptionId) return
+    trackEvent(AnalyticsEvents.VOICE_TRANSCRIPTION_RETRIED)
     setRecordingState('transcribing')
     setTranscriptionError(null)
     try {

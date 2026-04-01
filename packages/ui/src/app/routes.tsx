@@ -6,6 +6,7 @@ import { ProjectLayout } from './layouts/ProjectLayout'
 import { useAppStore } from '../stores'
 import { PixelSpinner, PixelButton } from '../components'
 import { logBootstrapEvent } from '../lib/bootstrap-logging'
+import { trackPageView } from '../lib/analytics'
 import {
   ProjectListPage,
   DashboardPage,
@@ -160,6 +161,10 @@ function RoutedApp() {
   const navigate = useNavigate()
   const state = location.state as RouteLocationState | null
   const backgroundLocation = state?.backgroundLocation
+
+  useEffect(() => {
+    trackPageView(location.pathname)
+  }, [location.pathname])
 
   // Cmd+, / Ctrl+, from Electron menu → open Settings overlay
   useEffect(() => {
