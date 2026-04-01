@@ -4,11 +4,8 @@ import * as Sentry from '@sentry/electron/renderer'
 import { setErrorCapture } from '@golemancy/ui/lib/error-reporting'
 import { App } from '@golemancy/ui'
 
-Sentry.init({
-  integrations: [Sentry.replayIntegration()],
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-})
+// No integrations — Session Replay was removed (recording user screens in an AI app is unacceptable).
+Sentry.init()
 
 setErrorCapture((error, context) => {
   Sentry.captureException(error, { extra: context })
