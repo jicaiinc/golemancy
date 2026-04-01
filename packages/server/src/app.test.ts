@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createApp, type ServerDependencies } from './app'
 import type { Hono } from 'hono'
+import { resetProjectDeletionStateForTests } from './project-deletion'
 
 // Mock AI SDK modules used by chat route
 vi.mock('ai', () => ({
@@ -183,6 +184,7 @@ describe('HTTP API routes', () => {
   let deps: ReturnType<typeof createMockDeps>
 
   beforeEach(() => {
+    resetProjectDeletionStateForTests()
     deps = createMockDeps()
     app = createApp(deps as unknown as ServerDependencies)
   })

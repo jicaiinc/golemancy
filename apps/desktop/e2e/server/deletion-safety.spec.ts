@@ -109,4 +109,50 @@ test.describe('Deletion Safety', () => {
       expect(cronResponse.status()).toBe(404)
     }).toPass({ timeout: 5000 })
   })
+
+  test('sub-resource APIs return 404 immediately via isProjectBlocked guard', async ({ helper }) => {
+    // Create a fresh project with sub-resources
+    const proj = await helper.createProjectViaApi('Block Guard Test')
+    const agent = await helper.createAgentViaApi(proj.id, 'Guard Agent')
+    const skill = await helper.apiPost(`/api/projects/${proj.id}/skills`, {
+      name: 'Guard Skill',
+      description: 'test',
+      instructions: 'test',
+    })
+    const team = await helper.createTeamViaApi(proj.id, 'Guard Team', [
+      { agentId: agent.id },
+    ])
+
+    // Delete project (async — returns immediately, background cleanup follows)
+    const deleteResult = await helper.apiDelete(`/api/projects/${proj.id}`)
+    expect(deleteResult.ok).toBe(true)
+
+    // All sub-resource routes should return 404 IMMEDIATELY (middleware guard, no polling)
+    const endpoints = [
+      `/api/projects/${proj.id}/agents`,
+      `/api/projects/${proj.id}/agents/${agent.id}`,
+      `/api/projects/${proj.id}/skills`,
+      `/api/projects/${proj.id}/skills/${skill.id}`,
+      `/api/projects/${proj.id}/teams`,
+      `/api/projects/${proj.id}/teams/${team.id}`,
+      `/api/projects/${proj.id}/conversations`,
+      `/api/projects/${proj.id}/cron-jobs`,
+      `/api/projects/${proj.id}/mcp-servers`,
+      `/api/projects/${proj.id}/workspace`,
+      `/api/projects/${proj.id}/dashboard/summary`,
+      `/api/projects/${proj.id}/permissions-config`,
+      `/api/projects/${proj.id}/runtime/status`,
+    ]
+
+    for (const endpoint of endpoints) {
+      const res = await helper.apiGetRaw(endpoint)
+      expect(res.status(), `GET ${endpoint} should be 404`).toBe(404)
+    }
+
+    // POST should also be blocked
+    const postRes = await helper.apiPostRaw(`/api/projects/${proj.id}/agents`, {
+      name: 'Should Fail',
+    })
+    expect(postRes.status()).toBe(404)
+  })
 })

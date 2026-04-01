@@ -38,6 +38,7 @@ import { createOAuthRoutes } from './routes/oauth'
 import { logger } from './logger'
 import { captureException } from './sentry'
 import { ConfigurationError } from './agent/errors'
+import { isProjectBlocked } from './project-deletion'
 
 export interface ServerDependencies {
   projectStorage: IProjectService
@@ -127,6 +128,15 @@ export function createApp(deps: ServerDependencies, authToken?: string) {
     settingsStorage: deps.settingsStorage,
     onBeforeDelete: deps.onProjectDeleting,
   }))
+  // Guard all project sub-resource routes during async project deletion
+  app.use('/api/projects/:projectId/*', async (c, next) => {
+    const projectId = c.req.param('projectId')
+    if (projectId && isProjectBlocked(projectId)) {
+      return c.json({ error: 'Project not found' }, 404)
+    }
+    await next()
+  })
+
   app.route('/api/projects/:projectId/agents', createAgentRoutes({
     agentStorage: deps.agentStorage,
     projectStorage: deps.projectStorage,
