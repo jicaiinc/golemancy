@@ -40,6 +40,10 @@ export function initAnalytics(token: string, distinctId: string): void {
     person_profiles: 'identified_only',
     opt_out_capturing_by_default: true,
     property_denylist: PROPERTY_DENYLIST,
+    // Reduce network traffic: flush every 5s (max allowed, default 3s)
+    request_queue_config: { flush_interval_ms: 5000 },
+    // Disable feature flag polling — we don't use feature flags
+    advanced_disable_feature_flags: true,
   })
   _impl.identify(distinctId)
   _initialized = true

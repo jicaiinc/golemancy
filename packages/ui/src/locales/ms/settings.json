@@ -42,9 +42,9 @@
     "dark": "Gelap",
     "system": "Sistem",
     "language": "BAHASA",
-    "telemetry": "LAPORAN RANAP",
-    "telemetryLabel": "Hantar laporan ranap",
-    "telemetryDescription": "Bantu tingkatkan Golemancy dengan menghantar laporan ranap dan data ralat secara automatik. Laporan termasuk mesej ralat dan jejak tindanan. Kandungan perbualan tidak dikumpulkan.",
+    "telemetry": "PROGRAM PENAMBAHBAIKAN",
+    "telemetryLabel": "Bantu tingkatkan Golemancy",
+    "telemetryDescription": "Benarkan kami mengumpul data diagnostik dan penggunaan tanpa nama, termasuk laporan ranap dan penggunaan ciri, supaya kami dapat membetulkan isu dengan lebih pantas dan menambah baik produk. Tiada fail peribadi atau kandungan perbualan dikumpulkan.",
     "style": "GAYA",
     "stylePixel": "Piksel",
     "styleModern": "Moden"

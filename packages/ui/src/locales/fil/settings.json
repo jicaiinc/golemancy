@@ -42,9 +42,9 @@
     "dark": "Madilim",
     "system": "System",
     "language": "WIKA",
-    "telemetry": "PAG-UULAT NG CRASH",
-    "telemetryLabel": "Magpadala ng mga ulat ng crash",
-    "telemetryDescription": "Tulungang mapabuti ang Golemancy sa pamamagitan ng awtomatikong pagpapadala ng mga ulat ng crash at data ng error. Kasama sa mga ulat ang mga mensahe ng error at stack trace. Walang nilalaman ng pag-uusap ang kinokolekta.",
+    "telemetry": "PROGRAMA NG PAGPAPABUTI",
+    "telemetryLabel": "Tumulong na mapabuti ang Golemancy",
+    "telemetryDescription": "Payagan kaming mangolekta ng anonymous na diagnostic at usage data, kabilang ang mga crash report at paggamit ng feature, upang mas mabilis naming maayos ang mga isyu at mapabuti ang produkto. Walang personal na file o nilalaman ng pag-uusap ang kinokolekta.",
     "style": "ESTILO",
     "stylePixel": "Pixel",
     "styleModern": "Moderno"

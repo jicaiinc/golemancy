@@ -42,9 +42,9 @@
     "dark": "Ciemny",
     "system": "Systemowy",
     "language": "JĘZYK",
-    "telemetry": "RAPORTY O AWARIACH",
-    "telemetryLabel": "Wysyłaj raporty o awariach",
-    "telemetryDescription": "Pomóż ulepszyć Golemancy, automatycznie wysyłając raporty o awariach i dane o błędach. Raporty zawierają komunikaty o błędach i ślady stosu. Treści rozmów nie są zbierane.",
+    "telemetry": "PROGRAM ULEPSZEŃ",
+    "telemetryLabel": "Pomóż ulepszyć Golemancy",
+    "telemetryDescription": "Pozwól nam zbierać anonimowe dane diagnostyczne i dotyczące użytkowania, w tym raporty o awariach i wykorzystanie funkcji, abyśmy mogli szybciej naprawiać problemy i ulepszać produkt. Pliki osobiste ani treści rozmów nie są zbierane.",
     "style": "STYL",
     "stylePixel": "Piksel",
     "styleModern": "Nowoczesny"

@@ -42,9 +42,9 @@
     "dark": "Gelap",
     "system": "Sistem",
     "language": "BAHASA",
-    "telemetry": "LAPORAN CRASH",
-    "telemetryLabel": "Kirim laporan crash",
-    "telemetryDescription": "Bantu tingkatkan Golemancy dengan mengirim laporan crash dan data error secara otomatis. Laporan mencakup pesan error dan stack trace. Konten percakapan tidak dikumpulkan.",
+    "telemetry": "PROGRAM PENINGKATAN",
+    "telemetryLabel": "Bantu tingkatkan Golemancy",
+    "telemetryDescription": "Izinkan kami mengumpulkan data diagnostik dan penggunaan anonim, termasuk laporan error dan penggunaan fitur, agar kami dapat memperbaiki masalah lebih cepat dan meningkatkan produk. File pribadi atau konten percakapan tidak dikumpulkan.",
     "style": "GAYA",
     "stylePixel": "Piksel",
     "styleModern": "Modern"

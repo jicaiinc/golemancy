@@ -42,9 +42,9 @@
     "dark": "Mörkt",
     "system": "System",
     "language": "SPRÅK",
-    "telemetry": "KRASCHRAPPORTER",
-    "telemetryLabel": "Skicka kraschrapporter",
-    "telemetryDescription": "Hjälp till att förbättra Golemancy genom att automatiskt skicka kraschrapporter och feldata. Rapporter innehåller felmeddelanden och stackspår. Konversationsinnehåll samlas inte in.",
+    "telemetry": "FÖRBÄTTRINGSPROGRAM",
+    "telemetryLabel": "Hjälp till att förbättra Golemancy",
+    "telemetryDescription": "Tillåt oss att samla in anonym diagnostik- och användningsdata, inklusive kraschrapporter och funktionsanvändning, så att vi kan åtgärda problem snabbare och förbättra produkten. Inga personliga filer eller konversationsinnehåll samlas in.",
     "style": "STIL",
     "stylePixel": "Pixel",
     "styleModern": "Modern"

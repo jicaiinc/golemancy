@@ -42,9 +42,9 @@
     "dark": "深色",
     "system": "跟隨系統",
     "language": "語言",
-    "telemetry": "當機報告",
-    "telemetryLabel": "發送當機報告",
-    "telemetryDescription": "透過自動傳送當機報告和錯誤資料來協助改善 Golemancy。報告包含錯誤訊息和堆疊追蹤。不會收集對話內容。",
+    "telemetry": "改進計畫",
+    "telemetryLabel": "協助改進 Golemancy",
+    "telemetryDescription": "允許我們收集匿名的診斷資訊和使用資料，包括當機報告和功能使用情況，以便更快修復問題並持續改進產品。不會收集個人檔案或對話內容。",
     "style": "樣式",
     "stylePixel": "像素",
     "styleModern": "現代"

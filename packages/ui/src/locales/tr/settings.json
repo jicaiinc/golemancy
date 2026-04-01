@@ -42,9 +42,9 @@
     "dark": "Koyu",
     "system": "Sistem",
     "language": "DİL",
-    "telemetry": "ÇÖKME RAPORLARI",
-    "telemetryLabel": "Çökme raporları gönder",
-    "telemetryDescription": "Çökme raporlarını ve hata verilerini otomatik olarak göndererek Golemancy'yi iyileştirmeye yardımcı olun. Raporlar hata mesajlarını ve yığın izlerini içerir. Sohbet içerikleri toplanmaz.",
+    "telemetry": "İYİLEŞTİRME PROGRAMI",
+    "telemetryLabel": "Golemancy'yi iyileştirmeye yardım edin",
+    "telemetryDescription": "Sorunları daha hızlı çözmemiz ve ürünü geliştirmemiz için çökme raporları ve özellik kullanımı dahil anonim tanılama ve kullanım verilerini toplamamıza izin verin. Kişisel dosyalar veya sohbet içerikleri toplanmaz.",
     "style": "STİL",
     "stylePixel": "Piksel",
     "styleModern": "Modern"

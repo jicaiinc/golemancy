@@ -42,9 +42,9 @@
     "dark": "ダーク",
     "system": "システム",
     "language": "言語",
-    "telemetry": "クラッシュレポート",
-    "telemetryLabel": "クラッシュレポートを送信する",
-    "telemetryDescription": "クラッシュレポートとエラーデータを自動送信して、Golemancyの改善にご協力ください。レポートにはエラーメッセージとスタックトレースが含まれます。会話内容は収集されません。",
+    "telemetry": "改善プログラム",
+    "telemetryLabel": "Golemancy の改善に協力する",
+    "telemetryDescription": "クラッシュレポートや機能の使用状況を含む匿名の診断・利用データの収集を許可し、問題の迅速な修正と製品の改善に役立てます。個人ファイルや会話内容が収集されることはありません。",
     "style": "スタイル",
     "stylePixel": "ピクセル",
     "styleModern": "モダン"

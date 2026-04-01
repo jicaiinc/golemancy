@@ -42,9 +42,9 @@
     "dark": "Dunkel",
     "system": "System",
     "language": "SPRACHE",
-    "telemetry": "ABSTURZMELDUNGEN",
-    "telemetryLabel": "Absturzberichte senden",
-    "telemetryDescription": "Helfen Sie, Golemancy zu verbessern, indem Sie automatisch Absturzberichte und Fehlerdaten senden. Berichte enthalten Fehlermeldungen und Stack-Traces. Gesprächsinhalte werden nicht erfasst.",
+    "telemetry": "VERBESSERUNGSPROGRAMM",
+    "telemetryLabel": "Helfen Sie, Golemancy zu verbessern",
+    "telemetryDescription": "Erlauben Sie uns, anonyme Diagnose- und Nutzungsdaten zu erfassen, einschließlich Absturzberichten und Funktionsnutzung, damit wir Probleme schneller beheben und das Produkt verbessern können. Persönliche Dateien oder Gesprächsinhalte werden nicht erfasst.",
     "style": "STIL",
     "stylePixel": "Pixel",
     "styleModern": "Modern"

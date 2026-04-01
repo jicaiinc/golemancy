@@ -45,12 +45,9 @@
     "stylePixel": "Pixel",
     "styleModern": "Modern",
     "language": "LANGUAGE",
-    "telemetry": "CRASH REPORTING",
-    "telemetryLabel": "Send crash reports",
-    "telemetryDescription": "Help improve Golemancy by automatically sending crash reports and error data. Reports include error messages and stack traces. No conversation content is collected.",
-    "analytics": "PRODUCT ANALYTICS",
-    "analyticsLabel": "Send anonymous usage data",
-    "analyticsDescription": "Help improve Golemancy by sharing anonymous feature usage statistics. No conversation content, API keys, or personal data is ever collected."
+    "telemetry": "IMPROVEMENT PROGRAM",
+    "telemetryLabel": "Help improve Golemancy",
+    "telemetryDescription": "Allow us to collect anonymous diagnostics and usage data, including crash reports and feature usage, so we can fix issues faster and improve the product. No personal files or conversation content are collected."
   },
   "defaultModel": {
     "sectionTitle": "DEFAULT MODEL",

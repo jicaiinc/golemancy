@@ -42,9 +42,9 @@
     "dark": "深色",
     "system": "跟随系统",
     "language": "语言",
-    "telemetry": "崩溃报告",
-    "telemetryLabel": "发送崩溃报告",
-    "telemetryDescription": "通过自动发送崩溃报告和错误数据帮助改进 Golemancy。报告包含错误消息和堆栈跟踪。不会收集对话内容。",
+    "telemetry": "改进计划",
+    "telemetryLabel": "帮助改进 Golemancy",
+    "telemetryDescription": "允许我们收集匿名的诊断信息和使用数据，包括崩溃报告和功能使用情况，以便更快修复问题并持续改进产品。不会收集个人文件或对话内容。",
     "style": "样式",
     "stylePixel": "像素",
     "styleModern": "现代"

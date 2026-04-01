@@ -42,9 +42,9 @@
     "dark": "Tmavý",
     "system": "Systémový",
     "language": "JAZYK",
-    "telemetry": "HLÁŠENÍ O PÁDECH",
-    "telemetryLabel": "Odesílat hlášení o pádech",
-    "telemetryDescription": "Pomozte vylepšit Golemancy automatickým odesíláním hlášení o pádech a chybách. Hlášení zahrnují chybové zprávy a zásobníky volání. Obsah konverzací se neshromažďuje.",
+    "telemetry": "PROGRAM VYLEPŠOVÁNÍ",
+    "telemetryLabel": "Pomozte vylepšit Golemancy",
+    "telemetryDescription": "Povolte nám shromažďovat anonymní diagnostická a uživatelská data, včetně hlášení o pádech a využívání funkcí, abychom mohli rychleji opravovat problémy a vylepšovat produkt. Osobní soubory ani obsah konverzací se neshromažďují.",
     "style": "STYL",
     "stylePixel": "Pixel",
     "styleModern": "Moderní"

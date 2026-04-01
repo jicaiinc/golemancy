@@ -42,9 +42,9 @@
     "dark": "Donker",
     "system": "Systeem",
     "language": "TAAL",
-    "telemetry": "CRASHRAPPORTEN",
-    "telemetryLabel": "Crashrapporten verzenden",
-    "telemetryDescription": "Help Golemancy te verbeteren door automatisch crashrapporten en foutgegevens te verzenden. Rapporten bevatten foutmeldingen en stack traces. Gespreksinhoud wordt niet verzameld.",
+    "telemetry": "VERBETERINGSPROGRAMMA",
+    "telemetryLabel": "Help Golemancy te verbeteren",
+    "telemetryDescription": "Sta ons toe anonieme diagnose- en gebruiksgegevens te verzamelen, waaronder crashrapporten en functiegebruik, zodat we problemen sneller kunnen oplossen en het product kunnen verbeteren. Er worden geen persoonlijke bestanden of gespreksinhoud verzameld.",
     "style": "STIJL",
     "stylePixel": "Pixel",
     "styleModern": "Modern"

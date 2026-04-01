@@ -1337,36 +1337,19 @@ function AboutTab() {
         )}
       </PixelCard>
 
-      {/* Crash Reporting */}
+      {/* Telemetry (Crash Reporting + Product Analytics — single toggle) */}
       <PixelCard>
         <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('general.telemetry')}</div>
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={telemetryEnabled}
-            onChange={(e) => updateSettings({ telemetryEnabled: e.target.checked })}
+            onChange={(e) => updateSettings({ telemetryEnabled: e.target.checked, productAnalyticsEnabled: e.target.checked })}
             className="mt-0.5 accent-accent-green"
           />
           <div>
             <div className="text-[12px] text-text-primary">{t('general.telemetryLabel')}</div>
             <div className="text-[11px] text-text-dim mt-1">{t('general.telemetryDescription')}</div>
-          </div>
-        </label>
-      </PixelCard>
-
-      {/* Product Analytics */}
-      <PixelCard>
-        <div className="font-pixel text-[10px] text-text-secondary mb-3">{t('general.analytics')}</div>
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={settings?.productAnalyticsEnabled ?? true}
-            onChange={(e) => updateSettings({ productAnalyticsEnabled: e.target.checked })}
-            className="mt-0.5 accent-accent-green"
-          />
-          <div>
-            <div className="text-[12px] text-text-primary">{t('general.analyticsLabel')}</div>
-            <div className="text-[11px] text-text-dim mt-1">{t('general.analyticsDescription')}</div>
           </div>
         </label>
       </PixelCard>

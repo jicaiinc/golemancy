@@ -42,9 +42,9 @@
     "dark": "Escuro",
     "system": "Sistema",
     "language": "IDIOMA",
-    "telemetry": "RELATÓRIOS DE FALHA",
-    "telemetryLabel": "Enviar relatórios de falha",
-    "telemetryDescription": "Ajude a melhorar o Golemancy enviando automaticamente relatórios de falha e dados de erro. Os relatórios incluem mensagens de erro e rastreamentos de pilha. Conteúdo de conversa não é coletado.",
+    "telemetry": "PROGRAMA DE MELHORIA",
+    "telemetryLabel": "Ajude a melhorar o Golemancy",
+    "telemetryDescription": "Permita-nos coletar dados anônimos de diagnóstico e uso, incluindo relatórios de falhas e uso de recursos, para que possamos corrigir problemas mais rapidamente e melhorar o produto. Nenhum arquivo pessoal ou conteúdo de conversa é coletado.",
     "style": "ESTILO",
     "stylePixel": "Pixel",
     "styleModern": "Moderno"

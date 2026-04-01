@@ -42,9 +42,9 @@
     "dark": "다크",
     "system": "시스템",
     "language": "언어",
-    "telemetry": "충돌 보고",
-    "telemetryLabel": "충돌 보고서 전송",
-    "telemetryDescription": "충돌 보고서와 오류 데이터를 자동으로 전송하여 Golemancy 개선에 도움을 주세요. 보고서에는 오류 메시지와 스택 트레이스가 포함됩니다. 대화 내용은 수집되지 않습니다.",
+    "telemetry": "개선 프로그램",
+    "telemetryLabel": "Golemancy 개선에 참여",
+    "telemetryDescription": "충돌 보고서 및 기능 사용 현황을 포함한 익명 진단 및 사용 데이터 수집을 허용하여 문제를 더 빠르게 해결하고 제품을 개선할 수 있도록 합니다. 개인 파일이나 대화 내용은 수집되지 않습니다.",
     "style": "스타일",
     "stylePixel": "픽셀",
     "styleModern": "모던"

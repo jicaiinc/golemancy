@@ -42,9 +42,9 @@
     "dark": "Tối",
     "system": "Hệ thống",
     "language": "NGÔN NGỮ",
-    "telemetry": "BÁO CÁO SỰ CỐ",
-    "telemetryLabel": "Gửi báo cáo sự cố",
-    "telemetryDescription": "Giúp cải thiện Golemancy bằng cách tự động gửi báo cáo sự cố và dữ liệu lỗi. Báo cáo bao gồm thông báo lỗi và stack trace. Nội dung hội thoại không được thu thập.",
+    "telemetry": "CHƯƠNG TRÌNH CẢI TIẾN",
+    "telemetryLabel": "Giúp cải thiện Golemancy",
+    "telemetryDescription": "Cho phép chúng tôi thu thập dữ liệu chẩn đoán và sử dụng ẩn danh, bao gồm báo cáo lỗi và mức sử dụng tính năng, để chúng tôi có thể khắc phục sự cố nhanh hơn và cải thiện sản phẩm. Không thu thập tệp cá nhân hoặc nội dung cuộc trò chuyện.",
     "style": "KIỂU",
     "stylePixel": "Pixel",
     "styleModern": "Hiện đại"

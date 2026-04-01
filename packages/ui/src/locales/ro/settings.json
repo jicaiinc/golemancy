@@ -42,9 +42,9 @@
     "dark": "Întunecat",
     "system": "Sistem",
     "language": "LIMBĂ",
-    "telemetry": "RAPOARTE DE EROARE",
-    "telemetryLabel": "Trimite rapoarte de eroare",
-    "telemetryDescription": "Ajutați la îmbunătățirea Golemancy prin trimiterea automată a rapoartelor de eroare. Rapoartele includ mesaje de eroare și urme de stivă. Conținutul conversațiilor nu este colectat.",
+    "telemetry": "PROGRAM DE ÎMBUNĂTĂȚIRE",
+    "telemetryLabel": "Ajutați la îmbunătățirea Golemancy",
+    "telemetryDescription": "Permiteți-ne să colectăm date anonime de diagnostic și utilizare, inclusiv rapoarte de eroare și utilizarea funcțiilor, pentru a remedia problemele mai rapid și a îmbunătăți produsul. Nu sunt colectate fișiere personale sau conținut al conversațiilor.",
     "style": "STIL",
     "stylePixel": "Pixel",
     "styleModern": "Modern"
