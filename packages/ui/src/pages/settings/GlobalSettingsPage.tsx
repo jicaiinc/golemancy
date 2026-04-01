@@ -1360,7 +1360,7 @@ function AboutTab() {
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
-            checked={settings?.productAnalyticsEnabled ?? false}
+            checked={settings?.productAnalyticsEnabled ?? true}
             onChange={(e) => updateSettings({ productAnalyticsEnabled: e.target.checked })}
             className="mt-0.5 accent-accent-green"
           />

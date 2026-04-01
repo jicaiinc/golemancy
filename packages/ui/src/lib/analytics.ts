@@ -17,7 +17,7 @@ let _initialized = false
 const PROPERTY_DENYLIST = [
   'content', 'text', 'prompt', 'apiKey', 'baseUrl', 'path', 'instruction',
   'title', 'message', 'systemPrompt', 'description', 'name',
-  'token', 'refreshToken', 'accessToken', 'password', 'secret',
+  'refreshToken', 'accessToken', 'password', 'secret',
 ]
 
 /** Inject the PostHog instance (called by renderer entry, before init) */

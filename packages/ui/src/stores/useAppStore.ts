@@ -548,7 +548,7 @@ export const useAppStore = create<AppState>()(
               language: settings.language ?? 'en',
               session_id: window.electronAPI?.getLaunchId?.() ?? 'unknown',
             })
-            setAnalyticsEnabled(settings.productAnalyticsEnabled ?? false)
+            setAnalyticsEnabled(settings.productAnalyticsEnabled ?? true)
             if (settings.productAnalyticsEnabled) {
               trackEvent(AnalyticsEvents.APP_OPENED)
             }
