@@ -41,10 +41,7 @@ test.describe('Chat Advanced', () => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, cheapAgentId)
-    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
-    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
+    await helper.enterConversation(projectId, conv.id)
 
     // Send a message that triggers a long response
     await helper.sendChatMessage(
@@ -69,10 +66,7 @@ test.describe('Chat Advanced', () => {
     test.setTimeout(120_000)
 
     const conv = await helper.createConversationViaApi(projectId, bashAgentId)
-    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
-    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
+    await helper.enterConversation(projectId, conv.id)
 
     // Ask to run a simple command
     await helper.sendChatMessage('Run this bash command: echo GOLEMANCY_TEST_MARKER')

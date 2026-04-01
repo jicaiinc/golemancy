@@ -67,15 +67,12 @@ test.describe('Agent Persona', () => {
   }) => {
     test.setTimeout(120_000)
 
-    // Create a translator agent
-    await helper.navigateTo(`/projects/${projectId}/agents`)
-    await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
+    // Create a translator agent (use GPT for more deterministic French output)
+    const agent = await helper.createAgentViaApi(projectId, 'French Translator', {
+      systemPrompt: 'You are a French translator. When given English text, respond with ONLY the French translation. No explanations, no extra text, just the French translation.',
+      model: { provider: 'openai', model: 'gpt-5-mini' },
     })
-    const agentId = await helper.createAgent(
-      'French Translator',
-      'You are a French translator. When given English text, respond with ONLY the French translation. No explanations, no extra text, just the French translation.',
-    )
+    const agentId = agent.id
 
     // Create conversation via API and navigate into it
     const conv = await helper.createConversationViaApi(projectId, agentId)
