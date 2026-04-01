@@ -1,18 +1,16 @@
-# E2E 测试完整目录（479 个用例）
+# E2E 测试完整目录（474 个用例）
 
-> 生成时间：2026-03-18 | 85 个文件 | 479 个 test（含 7 个 skip）
+> 生成时间：2026-03-18 | 83 个文件 | 474 个 test（含 7 个 skip）
 
 ## 总览
 
 | 层级 | 文件数 | 用例数 | Skip | 需要 API Key | 运行命令示例 |
 |------|--------|-------|------|-------------|------------|
 | smoke | 30 | 152 | 7 | 否 | `test:e2e:only -- --project=smoke` |
-| server | 30 | 228 | 0 | 否* | `test:e2e:only -- --project=server` |
+| server | 28 | 223 | 0 | 否 | `test:e2e:only -- --project=server` |
 | ai | 24 | 92 | 0 | 是 | `test:e2e:only -- --project=ai` |
 | onboarding | 1 | 7 | 0 | 否 | `test:e2e:only -- --project=onboarding` |
-| **总计** | **85** | **479** | **7** | | |
-
-> *server 层的 `code-execution.spec.ts` 和 `cronjob-once-runtime.spec.ts` 需要 API key
+| **总计** | **83** | **474** | **7** | | |
 
 ---
 
@@ -381,13 +379,6 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 | 197 | cronjob-api | GET /cronjobs/:id/runs returns empty array initially | ✅ |
 | 198 | cronjob-api | DELETE /cronjobs/:id removes cron job and GET returns 404 | ✅ |
 
-### Cron Job 运行时
-
-| # | 文件 | 用例名 | 状态 |
-|---|------|--------|------|
-| 199 | cronjob-once-runtime | one-time cron job auto-runs, records history, and disables itself | ✅ |
-| 200 | cronjob-once-runtime | team-target cron job triggers delegation and stores the delegated run | ✅ |
-
 ### Dashboard API
 
 | # | 文件 | 用例名 | 状态 |
@@ -669,14 +660,6 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 | 375 | workspace-api | GET /workspace/file without path returns 400 | ✅ |
 | 376 | workspace-api | GET /workspace/file?path=nonexistent.txt returns 404 | ✅ |
 | 377 | workspace-api | DELETE /workspace/file without path returns 400 | ✅ |
-
-### 代码执行
-
-| # | 文件 | 用例名 | 状态 |
-|---|------|--------|------|
-| 378 | code-execution | execute echo command via bash tool | ✅ |
-| 379 | code-execution | execute Python code and verify output | ✅ |
-| 380 | code-execution | execute Node.js code and verify output | ✅ |
 
 ---
 
