@@ -10,6 +10,10 @@ import { initAutoUpdater, getUpdateState, checkForUpdatesNow, quitAndInstall, op
 import { initSentry, setTelemetryEnabled, getSentryEnvForServer, serverBreadcrumb, flushSentry, setServerStartupContext } from './sentry'
 import * as Sentry from '@sentry/electron/main'
 
+// PostHog Project API Key — public client key, safe to hardcode (same pattern as Sentry DEFAULT_DSN).
+// Override with POSTHOG_KEY env var for development/testing.
+const DEFAULT_POSTHOG_KEY = 'phc_D49rfixkiZwCXd2GQPPTjGxKNvPrPHoXN7jDiJxSFTJh'
+
 initSentry()
 
 // Monitor-only: logs without suppressing default crash-and-exit behavior
@@ -109,8 +113,11 @@ function startServer(): Promise<number> {
         // Pass Sentry config to server process
         ...getSentryEnvForServer(),
         // Pass PostHog config to server process for LLM Analytics
-        POSTHOG_KEY: process.env.POSTHOG_KEY ?? '',
-        POSTHOG_HOST: process.env.POSTHOG_HOST ?? 'https://us.i.posthog.com',
+        // Production only (matches Sentry pattern). Dev testing: VITE_FORCE_POSTHOG=1 pnpm dev
+        ...(app.isPackaged || process.env.VITE_FORCE_POSTHOG ? {
+          POSTHOG_KEY: process.env.POSTHOG_KEY || DEFAULT_POSTHOG_KEY,
+          POSTHOG_HOST: process.env.POSTHOG_HOST || 'https://us.i.posthog.com',
+        } : {}),
       },
       execPath: execPathResolved,
       execArgv: app.isPackaged ? [] : ['--import', 'tsx'],

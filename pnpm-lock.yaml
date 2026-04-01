@@ -210,9 +210,6 @@ importers:
       pino-roll:
         specifier: ^4.0.0
         version: 4.0.0
-      posthog-node:
-        specifier: ^5.28.9
-        version: 5.28.9
       zod:
         specifier: ^3
         version: 3.25.76
@@ -9901,7 +9898,7 @@ snapshots:
       '@electron/asar': 3.4.1
       debug: 4.4.3
       fs-extra: 7.0.1
-      lodash: 4.17.21
+      lodash: 4.17.23
       temp: 0.9.4
     optionalDependencies:
       '@electron/windows-sign': 1.2.2

@@ -536,7 +536,10 @@ export const useAppStore = create<AppState>()(
             distinctId = crypto.randomUUID()
             Promise.resolve(getServices().settings.update({ analyticsDistinctId: distinctId })).catch(() => {})
           }
-          const posthogKey = import.meta.env.VITE_POSTHOG_KEY as string | undefined
+          // PostHog: production only (matches Sentry). Dev testing: VITE_FORCE_POSTHOG=1 pnpm dev
+          const posthogKey = (import.meta.env.PROD || import.meta.env.VITE_FORCE_POSTHOG)
+            ? ((import.meta.env.VITE_POSTHOG_KEY as string | undefined) || 'phc_D49rfixkiZwCXd2GQPPTjGxKNvPrPHoXN7jDiJxSFTJh')
+            : undefined
           if (posthogKey) {
             initAnalytics(posthogKey, distinctId)
             setAnalyticsContext({
