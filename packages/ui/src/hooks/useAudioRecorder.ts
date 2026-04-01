@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface AudioRecorderState {
   isRecording: boolean
@@ -45,6 +45,11 @@ export function useAudioRecorder(): AudioRecorderState {
     setIsRecording(false)
     setDurationMs(0)
   }, [])
+
+  // Auto-cleanup on unmount (e.g. conversation switch destroys ChatInput)
+  useEffect(() => {
+    return () => cleanup()
+  }, [cleanup])
 
   const startRecording = useCallback(async () => {
     // Request microphone access — Electron handles macOS permission via IPC
