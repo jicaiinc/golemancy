@@ -16,14 +16,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ai-sdk/react": "^3.0.84",
+    "@ai-sdk/react": "^3.0.144",
     "@dagrejs/dagre": "^2.0.4",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/press-start-2p": "^5.2.7",
     "@golemancy/shared": "workspace:*",
     "@tanstack/react-query": "^5.95.2",
     "@xyflow/react": "^12.10.0",
-    "ai": "^6.0.82",
+    "ai": "^6.0.142",
     "cronstrue": "^3.12.0",
     "i18next": "25.8.13",
     "i18next-browser-languagedetector": "8.2.1",
