@@ -10,14 +10,12 @@ test.describe('Save Behavior Consistency', () => {
     await helper.goHome()
     projectId = await helper.createProject('Save Behavior Test')
 
-    // Create agent via UI
-    await helper.navigateTo(`/projects/${projectId}/agents`)
-    await expect(window.locator(SELECTORS.CREATE_AGENT_BTN)).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
+    // Create agent and skill via API (avoids UI modal timing issues)
+    const agent = await helper.createAgentViaApi(projectId, 'Save Test Agent', {
+      systemPrompt: 'Agent for save behavior testing.',
     })
-    agentId = await helper.createAgent('Save Test Agent', 'Agent for save behavior testing.')
+    agentId = agent.id
 
-    // Create a skill via API for the skills tab test
     const skill = await helper.apiPost(`/api/projects/${projectId}/skills`, {
       name: 'E2E Save Test Skill',
       description: 'Skill for save behavior test',
@@ -25,13 +23,14 @@ test.describe('Save Behavior Consistency', () => {
     })
     skillId = skill.id
 
-    // Navigate to agent detail
-    await window.evaluate(() => {
-      const store = (window as any).__GOLEMANCY_STORE__
-      if (store) store.getState().clearProject()
-    })
+    // Navigate to agent detail and reload to hydrate TQ with API-created data
     await helper.navigateTo(`/projects/${projectId}/agents/${agentId}`)
-    await expect(window.getByText('Save Test Agent')).toBeVisible({
+    await window.reload()
+    await window.waitForFunction(
+      () => (document.querySelector('#root')?.children.length ?? 0) > 0,
+      { timeout: TIMEOUTS.PAGE_LOAD },
+    )
+    await expect(window.locator('[data-testid="tab-general"]')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,
     })
   })
@@ -50,7 +49,7 @@ test.describe('Save Behavior Consistency', () => {
   })
 
   test('Skills tab: assign triggers auto-save', async ({ window, helper }) => {
-    // Switch to Skills tab
+    // Switch to Skills tab (page is on agent detail from beforeAll)
     await window.locator('[data-testid="tab-skills"]').click()
     await expect(window.getByText('ASSIGNED SKILLS')).toBeVisible({
       timeout: TIMEOUTS.PAGE_LOAD,

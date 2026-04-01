@@ -21,20 +21,19 @@ test.describe('Chat Navigation', () => {
 
   // ===== URL Sync =====
 
-  test('navigating to ?conv=id syncs currentConversation in store', async ({ helper }) => {
+  test('navigating to ?conv=id syncs currentConversation in store', async ({ helper, window }) => {
     const conv = await helper.apiPost(`/api/projects/${projectId}/conversations`, {
       targetType: 'agent',
       targetId: agent1Id,
       title: 'URL Sync Test',
     })
 
-    // Ensure currentProjectId is set before navigating to chat
-    // (selectConversation bails silently when currentProjectId is null)
-    await helper.navigateTo(`/projects/${projectId}`)
-    await helper.store.waitFor(
-      `state.currentProjectId === "${projectId}"`,
-      TIMEOUTS.PAGE_LOAD,
-    )
+    // Project was created via API (bypasses store). Force store to load it
+    // so selectConversation doesn't bail on null currentProjectId.
+    await window.evaluate(async (pid: string) => {
+      const store = (window as any).__GOLEMANCY_STORE__
+      if (store) await store.getState().selectProject(pid)
+    }, projectId)
 
     await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
 
