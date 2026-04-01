@@ -94,6 +94,7 @@ test.describe('Permission Modes & Tools', () => {
   })
 
   test('restricted mode cannot affect host paths outside the virtual workspace', async ({ helper }) => {
+    test.skip(process.platform === 'win32', 'Sandbox runtime isolation is not supported on Windows')
     test.setTimeout(120_000)
 
     const hostPath = path.join(os.tmpdir(), 'golemancy-restricted-host-write.txt')
@@ -127,6 +128,7 @@ test.describe('Permission Modes & Tools', () => {
   })
 
   test('sandbox mode blocks denied commands and preserves existing file', async ({ helper }) => {
+    test.skip(process.platform === 'win32', 'Sandbox runtime isolation is not supported on Windows')
     test.setTimeout(120_000)
 
     const relativePath = 'sandbox-rm-target.txt'
@@ -162,6 +164,7 @@ test.describe('Permission Modes & Tools', () => {
   })
 
   test('mode switching changes effective behavior immediately', async ({ helper }) => {
+    test.skip(process.platform === 'win32', 'Sandbox runtime isolation is not supported on Windows')
     test.setTimeout(180_000)
 
     const relativePath = 'mode-switch.txt'
