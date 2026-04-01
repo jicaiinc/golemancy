@@ -159,6 +159,19 @@ Playwright + Electron，85 个文件，479 个用例。测试文件在 `apps/des
 
 **完整用例目录**：`apps/desktop/e2e/test-catalog.md`（479 个用例按层级/模块/文件分类）
 **测试运行记录**：`apps/desktop/e2e/TEST-LOG.md`（每次测试更新）
+**执行报告**：`apps/desktop/e2e/reports/{YYYYMMDD}-{layers}.md`（每次 E2E 执行后生成）
+
+#### E2E 执行报告格式
+
+每次运行 E2E 测试后，必须在 `apps/desktop/e2e/reports/` 生成报告，文件名 `{YYYYMMDD}-{layers}.md`（如 `20260401-smoke-server.md`）。
+
+**结构**：
+
+1. **YAML Frontmatter** — `date`, `layers`, `duration`, `total/passed/flaky/skipped/failed`, `environment`（os/node/runner/workers）, `commit`
+2. **正文** — 按层级分组的文件级表格，每行：`# | 文件 | 用例数 | 通过 | 跳过 | Flaky | 状态 | 说明`，末尾小计行
+3. **备注** — flaky/skip/fail 根因分析，环境异常，与上次对比
+
+**状态图标**：✅ 全部通过 | ⚡ 有 flaky（重试后通过）| ⏭️ 全部跳过 | ❌ 有失败
 
 #### 4 个层级
 

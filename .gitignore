@@ -43,3 +43,4 @@ apps/desktop/electron-builder.win.yml
 /_docs/
 /_requirement/
 /_test-agent-sdk/
+/apps/desktop/e2e/reports/
