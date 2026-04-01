@@ -111,6 +111,7 @@ test.describe('Permission Network Restrictions', () => {
   })
 
   test('sandbox blocks requests to denylisted domains even if allowlisted', async ({ helper }) => {
+    test.skip(process.platform === 'win32', 'Sandbox network isolation is not supported on Windows')
     test.setTimeout(120_000)
 
     localServer.resetRequestCounts()

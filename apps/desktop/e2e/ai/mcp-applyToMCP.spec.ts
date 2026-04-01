@@ -90,6 +90,7 @@ test.describe('MCP applyToMCP Sandbox Wrapping', () => {
   test.skip(!hasApiKeys, 'AI tests require API keys in .env.e2e.local')
 
   test('applyToMCP=true wraps stdio MCP in sandbox and prevents host side effects', async ({ helper }) => {
+    test.skip(process.platform === 'win32', 'Sandbox runtime isolation is not supported on Windows')
     test.setTimeout(120_000)
 
     const setup = await setupApplyToMcpProject(helper, {

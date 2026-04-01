@@ -1,6 +1,9 @@
 import os from 'node:os'
 import { test, expect } from '../fixtures'
 import { TIMEOUTS } from '../constants'
+import { hasCommand } from '../fixtures/platform'
+
+const pythonCmd = hasCommand('python3') ? 'python3' : 'python'
 
 const hasApiKeys = !!(
   process.env.TEST_GOOGLE_API_KEY ||
@@ -189,7 +192,7 @@ test.describe('Sandbox Code Runtime', () => {
       sandboxProjectId,
       sandboxAgentId,
       'Python Test',
-      `Run this command exactly: python3 -c "print(7 * 6)" > ${relativePath}`,
+      `Run this command exactly: ${pythonCmd} -c "print(7 * 6)" > ${relativePath}`,
     )
     expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('42')
   })
@@ -219,7 +222,7 @@ test.describe('Sandbox Code Runtime', () => {
       sandboxProjectId,
       sandboxAgentId,
       'WriteFile Test',
-      `Run this command exactly: echo "SANDBOX_WRITE_CONTENT_99" > ${relativePath}`,
+      `Run this command exactly: echo SANDBOX_WRITE_CONTENT_99 > ${relativePath}`,
     )
     expect(helper.readWorkspaceFile(sandboxProjectId, relativePath).trim()).toBe('SANDBOX_WRITE_CONTENT_99')
   })
@@ -303,6 +306,7 @@ test.describe('Sandbox Code Runtime', () => {
   // ===== Restricted: virtual isolation (1 test) =====
 
   test('restricted: host writes outside the virtual workspace do not happen', async ({ helper }) => {
+    test.skip(process.platform === 'win32', 'Sandbox runtime isolation is not supported on Windows')
     test.setTimeout(120_000)
 
     const hostPath = `${os.tmpdir()}/golemancy-restricted-runtime-host.txt`
