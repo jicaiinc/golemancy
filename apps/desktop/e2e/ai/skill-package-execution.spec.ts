@@ -110,6 +110,71 @@ test.describe('Packaged Skill Execution', () => {
     expect(await helper.hasToolCall()).toBe(true)
   })
 
+  test('agent discovers and runs skill script from natural language instructions only', async ({ helper }) => {
+    test.setTimeout(180_000)
+
+    const marker = `SKILL_SCRIPT_DISCOVER_${Date.now()}`
+    const sideEffectPath = 'skill-script-discover-output.txt'
+    helper.removeWorkspaceFile(projectId, sideEffectPath)
+
+    const buffer = buildSkillZip({
+      directory: 'data-processor',
+      name: 'Data Processor',
+      description: 'A data processing utility',
+      instructions: [
+        'This skill comes with a bundled Python script.',
+        'To use this skill, find and execute the Python script included in the scripts folder.',
+        'The script outputs a unique marker — reply with only that marker.',
+      ].join(' '),
+      extraFiles: [
+        {
+          path: 'scripts/process_data.py',
+          content: [
+            'from pathlib import Path',
+            `marker = "${marker}"`,
+            `Path("${sideEffectPath}").write_text(marker, encoding="utf-8")`,
+            'print(marker)',
+          ].join('\n'),
+        },
+      ],
+    })
+
+    const upload = await helper.apiPostMultipartRaw(`/api/projects/${projectId}/skills/import-zip`, {
+      file: {
+        name: 'data-processor.zip',
+        mimeType: 'application/zip',
+        buffer,
+      },
+    })
+    expect(upload.status()).toBe(201)
+    const body = await upload.json()
+    const skillId = body.imported[0].id as string
+
+    const agent = await helper.createToolAgent(projectId, 'Script Discovery Agent', {
+      systemPrompt: 'You are a test assistant.',
+      builtinTools: {
+        bash: true,
+        browser: false,
+        task: false,
+        memory: false,
+        computer_use: false,
+      },
+    })
+    await helper.assignSkillToAgent(projectId, agent.id, skillId)
+
+    const conv = await helper.createConversationViaApi(projectId, agent.id, 'script discovery')
+    await helper.enterConversation(projectId, conv.id)
+    const response = await helper.sendAndWaitForResponse(
+      'Use the assigned skill named "Data Processor" and return the result.',
+      TIMEOUTS.AI_RESPONSE,
+    )
+
+    expect(response).toContain(marker)
+    expect(helper.workspaceFileExists(projectId, sideEffectPath)).toBe(true)
+    expect(helper.readWorkspaceFile(projectId, sideEffectPath).trim()).toBe(marker)
+    expect(await helper.hasToolCall()).toBe(true)
+  })
+
   test('packaged skill without scripts can still be loaded and used by the agent', async ({ helper }) => {
     test.setTimeout(120_000)
 
