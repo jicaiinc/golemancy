@@ -922,17 +922,27 @@ export class TestHelper {
     return this.createAgentViaApi(projectId, name, { ...opts })
   }
 
-  /** Create an agent using a smarter model (Tier B) */
+  /**
+   * Create a "smart" agent (Tier B).
+   *
+   * By default uses gpt-5-mini to keep test costs low.
+   * Pass `realSmart: true` when the test genuinely needs a top-tier model
+   * (e.g. complex multi-step tool calling, nuanced instruction following).
+   */
   async createSmartAgent(
     projectId: string,
     name: string,
-    opts: { systemPrompt?: string; builtinTools?: Record<string, unknown>; compactThreshold?: number } = {},
+    opts: { systemPrompt?: string; builtinTools?: Record<string, unknown>; compactThreshold?: number; realSmart?: boolean } = {},
   ): Promise<{ id: string; [key: string]: any }> {
+    const { realSmart = false, ...agentOpts } = opts
+    if (!realSmart) {
+      return this.createAgentViaApi(projectId, name, { ...agentOpts })
+    }
     const hasGoogleKey = !!process.env.TEST_GOOGLE_API_KEY
     const model = hasGoogleKey
       ? { provider: 'google', model: 'gemini-2.5-pro' }
       : { provider: 'openai', model: 'gpt-5.4' }
-    return this.createAgentViaApi(projectId, name, { ...opts, model })
+    return this.createAgentViaApi(projectId, name, { ...agentOpts, model })
   }
 
   /** Create an agent using a model that is more reliable for tool calling. */
