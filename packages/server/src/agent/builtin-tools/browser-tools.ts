@@ -13,14 +13,14 @@ const log = logger.child({ component: 'agent:builtin-tools:browser' })
 export const BROWSER_CANDIDATES: Record<string, string[] | ((prefixes: string[]) => string[])> = {
   darwin: [
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    '/Applications/Chromium.app/Contents/MacOS/Chromium',
     '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
   ],
   win32: (prefixes: string[]) => {
     const suffixes = [
       path.join('Google', 'Chrome', 'Application', 'chrome.exe'),
-      path.join('Chromium', 'Application', 'chrome.exe'),
       path.join('Microsoft', 'Edge', 'Application', 'msedge.exe'),
+      path.join('Chromium', 'Application', 'chrome.exe'),
     ]
     const candidates: string[] = []
     for (const suffix of suffixes) {

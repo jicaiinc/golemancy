@@ -31,8 +31,8 @@ describe('BROWSER_CANDIDATES', () => {
     const candidates = BROWSER_CANDIDATES.darwin as string[]
     expect(Array.isArray(candidates)).toBe(true)
     expect(candidates[0]).toContain('Google Chrome')
-    expect(candidates[1]).toContain('Chromium')
-    expect(candidates[2]).toContain('Microsoft Edge')
+    expect(candidates[1]).toContain('Microsoft Edge')
+    expect(candidates[2]).toContain('Chromium')
   })
 
   it('linux candidates are a static array starting with google-chrome', () => {
@@ -74,22 +74,22 @@ describe('getSystemBrowserPath', () => {
     expect(getSystemBrowserPath()).toBe('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
   })
 
-  it('falls back to Chromium on macOS when Chrome is missing', () => {
-    setPlatform('darwin')
-    mockExistsSync.mockImplementation((p: string) =>
-      p === '/Applications/Chromium.app/Contents/MacOS/Chromium',
-    )
-
-    expect(getSystemBrowserPath()).toBe('/Applications/Chromium.app/Contents/MacOS/Chromium')
-  })
-
-  it('falls back to Edge on macOS when Chrome and Chromium are missing', () => {
+  it('falls back to Edge on macOS when Chrome is missing', () => {
     setPlatform('darwin')
     mockExistsSync.mockImplementation((p: string) =>
       p === '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
     )
 
     expect(getSystemBrowserPath()).toBe('/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge')
+  })
+
+  it('falls back to Chromium on macOS when Chrome and Edge are missing', () => {
+    setPlatform('darwin')
+    mockExistsSync.mockImplementation((p: string) =>
+      p === '/Applications/Chromium.app/Contents/MacOS/Chromium',
+    )
+
+    expect(getSystemBrowserPath()).toBe('/Applications/Chromium.app/Contents/MacOS/Chromium')
   })
 
   it('returns undefined on macOS when no browser is found', () => {
@@ -121,7 +121,7 @@ describe('getSystemBrowserPath', () => {
     expect(getSystemBrowserPath()).toBe(chromePath)
   })
 
-  it('falls back to Edge on Windows when Chrome and Chromium are missing', () => {
+  it('falls back to Edge on Windows when Chrome is missing (Edge is pre-installed)', () => {
     setPlatform('win32')
     const edgePath = path.join('C:\\Program Files', 'Microsoft', 'Edge', 'Application', 'msedge.exe')
     process.env.PROGRAMFILES = 'C:\\Program Files'
