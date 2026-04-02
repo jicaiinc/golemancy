@@ -58,7 +58,7 @@ export interface AgentToolsResult {
  * Build the behavior directive that instructs the model to take action
  * proactively using available tools, rather than just describing plans.
  */
-function buildBehaviorDirective(): string {
+export function buildBehaviorDirective(): string {
   return [
     '## Execution Behavior',
     '',
@@ -85,7 +85,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
-  let instructions = buildBehaviorDirective()
+  let instructions = ''
   let actualMode: PermissionMode | undefined
   let degradation: ModeDegradation | undefined
 

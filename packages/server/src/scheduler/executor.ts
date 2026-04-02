@@ -14,7 +14,7 @@ import type { ActiveChatRegistry } from '../agent/active-chat-registry'
 import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel, buildSystemPromptOptions } from '../agent/model'
 import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
-import { loadAgentTools } from '../agent/tools'
+import { loadAgentTools, buildBehaviorDirective } from '../agent/tools'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 import { captureException } from '../sentry'
@@ -162,9 +162,8 @@ export class CronJobExecutor {
 
       toolCleanup = () => agentToolsResult.cleanup()
       const allTools = agentToolsResult.tools
-      const systemPrompt = agentToolsResult.instructions
-        ? agent.systemPrompt + '\n\n' + agentToolsResult.instructions
-        : agent.systemPrompt
+      const systemPromptParts = [agent.systemPrompt, buildBehaviorDirective(), agentToolsResult.instructions].filter(Boolean)
+      const systemPrompt = systemPromptParts.join('\n\n')
 
       // 8. Build messages for AI
       const uiMessages: UIMessage[] = [{

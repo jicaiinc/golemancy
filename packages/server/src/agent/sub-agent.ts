@@ -88,7 +88,7 @@ export function createSubAgentTool(
   oauthManager?: OAuthManager,
 ) {
   return tool({
-    description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}. Returns a sessionId in the result — pass it back in subsequent calls to maintain conversation context.`,
+    description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}. To continue a previous conversation with this sub-agent, pass the sessionId from the previous result.`,
     inputSchema: z.object({
       task: z.string().describe('The task to delegate'),
       context: z.string().optional().describe('Additional context'),
@@ -160,9 +160,9 @@ export function createSubAgentTool(
       try {
         const childResolved = await resolveModel(settings, childAgent.modelConfig, oauthManager)
 
-        const systemPrompt = childToolsResult.instructions
-          ? childAgent.systemPrompt + '\n\n' + childToolsResult.instructions
-          : childAgent.systemPrompt
+        const { buildBehaviorDirective } = await import('./tools')
+        const parts = [childAgent.systemPrompt, buildBehaviorDirective(), childToolsResult.instructions].filter(Boolean)
+        const systemPrompt = parts.join('\n\n')
 
         const hasTools = Object.keys(childToolsResult.tools).length > 0
 
@@ -355,9 +355,15 @@ export function createSubAgentTool(
           }
         }
 
-        // Final yield — becomes the persisted tool output
+        // Final yield — becomes the persisted tool output.
+        // Strip toolCalls/usage noise so the parent model sees a clean result.
         state.status = 'done'
-        yield state
+        yield {
+          agentName: state.agentName,
+          response: state.text || '(no output)',
+          sessionId: state.sessionId,
+          status: state.status,
+        }
       } finally {
         await childToolsResult.cleanup()
       }
