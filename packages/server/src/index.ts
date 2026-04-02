@@ -158,7 +158,7 @@ async function main() {
   if (posthogKey) {
     try {
       const settings = await settingsStorage.get()
-      if (settings.productAnalyticsEnabled) {
+      if (settings.productAnalyticsEnabled ?? true) {
         initLLMAnalytics(posthogKey, process.env.POSTHOG_HOST ?? 'https://us.i.posthog.com')
       }
     } catch {

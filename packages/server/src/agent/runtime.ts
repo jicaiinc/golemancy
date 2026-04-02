@@ -42,7 +42,7 @@ export async function runAgent(params: RunAgentParams) {
     abortSignal,
     experimental_telemetry: getAITelemetryConfig({
       functionId: 'runtime',
-      analyticsEnabled: settings.productAnalyticsEnabled,
+      analyticsEnabled: settings.productAnalyticsEnabled ?? true,
       distinctId: settings.analyticsDistinctId,
       conversationId: params.conversationId,
       agentId: agent.id,

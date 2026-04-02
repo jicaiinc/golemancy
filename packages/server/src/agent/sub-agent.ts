@@ -209,7 +209,7 @@ export function createSubAgentTool(
           abortSignal,
           experimental_telemetry: getAITelemetryConfig({
             functionId: 'sub-agent',
-            analyticsEnabled: settings.productAnalyticsEnabled,
+            analyticsEnabled: settings.productAnalyticsEnabled ?? true,
             distinctId: settings.analyticsDistinctId,
             conversationId: childConversationId,
             agentId: childAgent.id,

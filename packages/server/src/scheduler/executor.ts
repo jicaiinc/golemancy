@@ -186,7 +186,7 @@ export class CronJobExecutor {
         abortSignal: abortController.signal,
         experimental_telemetry: getAITelemetryConfig({
           functionId: 'cron',
-          analyticsEnabled: settings.productAnalyticsEnabled,
+          analyticsEnabled: settings.productAnalyticsEnabled ?? true,
           distinctId: settings.analyticsDistinctId,
           conversationId,
           agentId: agent.id,

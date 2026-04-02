@@ -371,7 +371,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
               resolved,
               systemPrompt: agent.systemPrompt,
               signal: chatAbortController.signal,
-              analyticsEnabled: settings.productAnalyticsEnabled,
+              analyticsEnabled: settings.productAnalyticsEnabled ?? true,
               onProgress: (info) => {
                 writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'progress', generatedChars: info.generatedChars } })
               },
@@ -439,7 +439,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
           abortSignal: chatAbortController.signal,
           experimental_telemetry: getAITelemetryConfig({
             functionId: 'chat',
-            analyticsEnabled: settings.productAnalyticsEnabled,
+            analyticsEnabled: settings.productAnalyticsEnabled ?? true,
             distinctId: settings.analyticsDistinctId,
             conversationId,
             agentId: agent.id,
