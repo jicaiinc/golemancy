@@ -36,16 +36,15 @@
     "dist:win": "bash ../../scripts/download-runtime.sh && electron-vite build && node ../../scripts/bundle-server.mjs && node ../../scripts/preflight-check.mjs --target win && electron-builder --win"
   },
   "dependencies": {
-    "@golemancy/shared": "workspace:*",
-    "@golemancy/ui": "workspace:*",
     "@sentry/electron": "^7.10.0",
     "electron-updater": "^6.8.3",
     "pino": "^10.3.1",
     "pino-roll": "^4.0.0",
-    "posthog-js": "^1.364.4",
     "tar": "^7.5.13"
   },
   "devDependencies": {
+    "@golemancy/shared": "workspace:*",
+    "@golemancy/ui": "workspace:*",
     "@playwright/test": "^1.52.0",
     "@sentry/vite-plugin": "^5.1.1",
     "@tailwindcss/postcss": "^4.1.0",
@@ -62,6 +61,7 @@
     "esbuild": "^0.25.12",
     "pino-pretty": "^13.1.3",
     "postcss": "^8.5.0",
+    "posthog-js": "^1.364.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.0",
