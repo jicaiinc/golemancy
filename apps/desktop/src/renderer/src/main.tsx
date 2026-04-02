@@ -6,8 +6,11 @@ import posthog from 'posthog-js/dist/module.full.no-external'
 import { setAnalyticsImpl } from '@golemancy/ui/lib/analytics'
 import { App } from '@golemancy/ui'
 
-// No integrations — Session Replay was removed (recording user screens in an AI app is unacceptable).
-Sentry.init()
+Sentry.init({
+  integrations: [Sentry.replayIntegration()],
+  replaysSessionSampleRate: 0,
+  replaysOnErrorSampleRate: 1.0,
+})
 
 setErrorCapture((error, context) => {
   Sentry.captureException(error, { extra: context })
