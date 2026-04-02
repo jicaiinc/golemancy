@@ -125,21 +125,17 @@ test.describe('Agent Persona', () => {
     })
     const agentId = agent.id
 
-    // Create conversation via API and navigate into it
+    // Create conversation via API and enter via store (properly switches conversation context)
     const conv = await helper.createConversationViaApi(projectId, agentId)
-    await helper.navigateTo(`/projects/${projectId}/chat?conv=${conv.id}`)
-    await expect(window.locator(SELECTORS.CHAT_INPUT)).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
+    await helper.enterConversation(projectId, conv.id)
 
     // Send a question (avoid math to prevent tool usage temptation)
     await helper.sendChatMessage('What is the largest ocean on Earth?')
     await helper.waitForResponse(TIMEOUTS.AI_RESPONSE)
 
-    // Get ONLY the last assistant message to avoid DOM contamination
-    // (waitForResponse collects ALL [data-role="assistant"] elements including stale ones from translator test)
-    const assistantSel = `${SELECTORS.CHAT_MESSAGE}[data-role="assistant"]`
-    const response = await window.locator(assistantSel).last().innerText()
+    // Get response from API by conversation ID to avoid DOM contamination
+    const msg = await helper.getLastAssistantMessage(projectId, conv.id)
+    const response = String(msg?.content ?? '')
 
     // Response should contain JSON structure
     expect(response).toContain('{')
