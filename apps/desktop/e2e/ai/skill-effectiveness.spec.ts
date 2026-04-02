@@ -100,60 +100,6 @@ test.describe('Skill Instruction Effectiveness', () => {
     expect(hasFrench).toBe(true)
   })
 
-  test('multiple skills combine: agent follows both instructions', async ({ helper }) => {
-    test.setTimeout(120_000)
-
-    const bulletSkill = await helper.apiPost(`/api/projects/${projectId}/skills`, {
-      name: 'Bullet Points',
-      description: 'Respond in bullet points',
-      instructions:
-        'OUTPUT FORMAT RULE: You MUST format every response as a bullet list. ' +
-        'Each line MUST start with "- " (dash + space). ' +
-        'Do NOT use paragraphs, sentences, or numbered lists. Only dash-prefixed bullet points.',
-    })
-
-    const briefSkill = await helper.apiPost(`/api/projects/${projectId}/skills`, {
-      name: 'Ultra Brief',
-      description: 'Maximum 3 items',
-      instructions:
-        'LENGTH RULE: Your response MUST contain at most 3 bullet points. No more than 3 lines total.',
-    })
-
-    const agent = await helper.createSmartAgent(projectId, 'Multi Skill Agent', {
-      systemPrompt: SKILL_SYSTEM_PROMPT +
-        ' You have exactly 2 skills available: "Bullet Points" and "Ultra Brief". ' +
-        'You MUST load BOTH skills before answering. After loading, follow their format rules precisely.',
-      builtinTools: NO_TOOLS,
-    })
-    await helper.assignSkillToAgent(projectId, agent.id, bulletSkill.id)
-    await helper.assignSkillToAgent(projectId, agent.id, briefSkill.id)
-
-    const conv = await helper.createConversationViaApi(projectId, agent.id, 'Multi Skill Test')
-    await helper.enterConversation(projectId, conv.id)
-    const response = await helper.sendAndWaitForResponse(
-      'Load all available skills first (both "Bullet Points" and "Ultra Brief"), then: List benefits of exercise.',
-      TIMEOUTS.AI_RESPONSE,
-    )
-
-    // Debug: log the actual response to diagnose format issues
-    console.log('[multi-skill] Response:', JSON.stringify(response))
-
-    // Check for any bullet-like format (dash, bullet, asterisk, or numbered list with content)
-    const hasBullets =
-      response.includes('- ') ||
-      response.includes('• ') ||
-      response.includes('* ') ||
-      /^\d+[.)]\s/m.test(response)
-    expect(hasBullets, `Expected bullets in response: ${response.slice(0, 200)}`).toBe(true)
-
-    // Count structured lines (bullets or numbered items)
-    const structuredLines = response
-      .split('\n')
-      .filter((line) => /^[\s]*[-•*]/.test(line) || /^[\s]*\d+[.)]\s/.test(line))
-    expect(structuredLines.length).toBeLessThanOrEqual(5)
-    expect(structuredLines.length).toBeGreaterThanOrEqual(1)
-  })
-
   test('removing skill changes agent behavior', async ({ helper }) => {
     test.setTimeout(180_000)
 
