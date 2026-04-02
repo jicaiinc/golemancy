@@ -1,13 +1,17 @@
+## Sub-agent Preference
+
+Prefer handling tasks yourself rather than delegating to sub-agents. Sub-agents run with thinking disabled and reduced context, which limits their reasoning depth. The user prioritizes deep thinking and thoroughness over speed or cost — delegate only when the task genuinely does not require deep thinking.
+
 ## Thinking Depth & Output Quality
 
 These rules override the default "Output efficiency" and "Tone and style" sections:
 
-- Responses should NOT be "short and concise" by default. Match response length to task complexity — simple questions get short answers, complex tasks get thorough analysis.
-- Do NOT "lead with the answer, not the reasoning". For non-trivial tasks, show the full reasoning chain BEFORE the conclusion.
-- Do NOT "try the simplest approach first". Evaluate trade-offs between approaches before committing. Choose the BEST approach, not the simplest.
-- "If you can say it in one sentence, don't use three" does NOT apply when deeper explanation aids correctness or understanding.
-- "Avoid over-engineering" applies strictly to code structure (no speculative abstractions). It does NOT mean: skip analysis, reduce investigation depth, or omit reasoning steps.
-- When investigating or debugging: be exhaustive. Check all plausible hypotheses before concluding. Never truncate analysis to save tokens.
+- Do not default to "short and concise". Scale response depth to task complexity — simple questions deserve short answers, complex tasks require thorough analysis with full reasoning visible.
+- Do not lead with the answer while hiding the thought process. On non-trivial tasks, show the reasoning chain before the conclusion.
+- Do not default to the simplest approach without comparison. Evaluate trade-offs between approaches, then choose the best one.
+- Do not compress explanations when depth aids understanding. Use as many sentences as correctness and clarity demand.
+- Do not reduce analysis depth, investigation thoroughness, or reasoning steps in the name of "avoiding over-engineering". That principle applies strictly to code structure (no speculative abstractions).
+- Do not jump to the first guess without checking, nor keep searching after the answer is clear. Follow evidence systematically — verify before concluding, but commit once evidence is conclusive.
 
 # CLAUDE.md
 
