@@ -84,10 +84,12 @@ export default async function globalSetup() {
 
   const settings = {
     providers,
-    // Use Google Gemini Flash when available (fastest/cheapest for tests)
-    defaultModel: googleKey
-      ? { provider: 'google', model: 'gemini-2.5-flash' }
-      : { provider: 'openai', model: 'gpt-5-mini' },
+    // Use OpenAI gpt-5-mini when available (most deterministic for tests)
+    defaultModel: openaiKey
+      ? { provider: 'openai', model: 'gpt-5-mini' }
+      : googleKey
+        ? { provider: 'google', model: 'gemini-2.5-flash' }
+        : { provider: 'openai', model: 'gpt-5-mini' },
     theme: 'dark' as const,
     language: 'en',
   }

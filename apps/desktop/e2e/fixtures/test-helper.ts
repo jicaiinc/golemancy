@@ -518,9 +518,11 @@ export class TestHelper {
     if (this.defaultModelCache) return this.defaultModelCache
 
     const settings = await this.apiGet('/api/settings')
-    const fallback = process.env.TEST_GOOGLE_API_KEY
-      ? { provider: 'google', model: 'gemini-2.5-flash' }
-      : { provider: 'openai', model: 'gpt-5-mini' }
+    const fallback = process.env.TEST_OPENAI_API_KEY
+      ? { provider: 'openai', model: 'gpt-5-mini' }
+      : process.env.TEST_GOOGLE_API_KEY
+        ? { provider: 'google', model: 'gemini-2.5-flash' }
+        : { provider: 'openai', model: 'gpt-5-mini' }
 
     const defaultModel = settings?.defaultModel
     if (

@@ -25,19 +25,25 @@ test.describe('PM Team Delegation', () => {
       computer_use: false,
     }
 
-    const pm = await helper.createAgentViaApi(projectId, 'Project Manager', {
+    const pm = await helper.createSmartAgent(projectId, 'Project Manager', {
       systemPrompt:
-        'You are a project manager. You must delegate to both specialists before answering. Ignore workspace state and project files. Your final response must have exactly two labeled lines, one starting with "Analyst:" and one starting with "Executor:". Copy each specialist output verbatim.',
+        'You are a project manager. You MUST delegate to BOTH team members before responding.\n' +
+        'Step 1: Use delegate_to_Analyst to get the analyst assessment.\n' +
+        'Step 2: Use delegate_to_Executor to get the executor assessment.\n' +
+        'Step 3: After receiving BOTH outputs, respond with exactly two labeled lines:\n' +
+        'Analyst: <paste analyst output verbatim>\n' +
+        'Executor: <paste executor output verbatim>\n' +
+        'Do NOT answer without delegating to BOTH members first.',
       builtinTools: noBuiltinTools,
     })
     const analyst = await helper.createAgentViaApi(projectId, 'Analyst', {
       systemPrompt:
-        'You are the analyst. Ignore workspace state, files, and tasks. For any delegated request, reply with exactly: ANALYST_TOKEN::market-validated',
+        'You are the analyst. For any request, reply with exactly this text and nothing else: ANALYST_TOKEN::market-validated',
       builtinTools: noBuiltinTools,
     })
     const executor = await helper.createAgentViaApi(projectId, 'Executor', {
       systemPrompt:
-        'You are the executor. Ignore workspace state, files, and tasks. Never ask follow-up questions. For any delegated request, reply with exactly: EXECUTOR_TOKEN::implementation-ready',
+        'You are the executor. For any request, reply with exactly this text and nothing else: EXECUTOR_TOKEN::implementation-ready',
       builtinTools: noBuiltinTools,
     })
 
@@ -55,7 +61,7 @@ test.describe('PM Team Delegation', () => {
     const { response, conversationId } = await helper.sendTeamChatViaUi(
       projectId,
       team.id,
-      'Can the Phoenix launch execute today? Ask both specialists and summarize their readiness in the required Analyst/Executor format using each specialist output verbatim.',
+      'Assess project readiness. Delegate to both the Analyst and the Executor, then report their outputs in the Analyst:/Executor: format.',
       TIMEOUTS.AI_RESPONSE,
     )
 

@@ -40,16 +40,17 @@ test.describe('Edge Cases', () => {
     test.skip(!hasApiKeys, 'AI tests require API keys in .env.e2e.local')
     test.setTimeout(120_000)
 
-    // Create an agent with bash enabled
-    const agent = await helper.createCheapAgent(projectId, 'Bash Workspace Agent', {
-      systemPrompt: 'Execute commands exactly as instructed. Do not add explanations.',
+    // Create an agent with bash enabled (use tool-calling tier for reliable bash execution)
+    const agent = await helper.createToolAgent(projectId, 'Bash Workspace Agent', {
+      systemPrompt:
+        'You are a command executor. You MUST use the bash tool to run any command the user gives you. Always execute the command immediately using the bash tool. Never explain or describe the command — just run it.',
       builtinTools: { bash: true },
     })
 
     const conv = await helper.createConversationViaApi(projectId, agent.id, 'Bash Workspace Test')
     await helper.enterConversation(projectId, conv.id)
     await helper.sendAndWaitForResponse(
-      'Run this bash command: echo "e2e_workspace_test_content" > workspace_e2e_test.txt',
+      'Use the bash tool to run: echo "e2e_workspace_test_content" > workspace_e2e_test.txt',
     )
 
     // Check workspace API for the file
