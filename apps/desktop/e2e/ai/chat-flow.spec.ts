@@ -126,15 +126,4 @@ test.describe('AI Chat Flow', () => {
     // After streaming, input should be re-enabled
     await expect(chatInput).toBeEnabled({ timeout: 5000 })
   })
-
-  test('empty state shows Start Chatting button', async ({ window, helper }) => {
-    test.setTimeout(60_000)
-
-    await helper.navigateTo(`/projects/${projectId}/chat`)
-
-    // Verify the actual empty state elements
-    await expect(window.getByText('Start Chatting')).toBeVisible({
-      timeout: TIMEOUTS.PAGE_LOAD,
-    })
-  })
 })

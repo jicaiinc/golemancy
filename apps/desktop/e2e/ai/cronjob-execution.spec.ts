@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures'
-import { SELECTORS, TIMEOUTS } from '../constants'
+import { TIMEOUTS } from '../constants'
 
 const hasApiKeys = !!(
   process.env.TEST_GOOGLE_API_KEY ||
@@ -44,7 +44,7 @@ test.describe('Cron Job Execution', () => {
 
   // ===== Manual trigger (3 tests) =====
 
-  test('create and manually trigger cron job', async ({ helper, window }) => {
+  test('create and manually trigger cron job', async ({ helper }) => {
     test.setTimeout(120_000)
 
     // Create a cron job
@@ -57,14 +57,8 @@ test.describe('Cron Job Execution', () => {
     })
     expect(job.id).toBeTruthy()
 
-    // Refresh store so ProjectLayout recognizes the API-created project
-    await helper.page.evaluate(async () => {
-      const store = (window as any).__GOLEMANCY_STORE__
-      if (store) await store.getState().loadProjects()
-    })
-    await helper.navigateTo(`/projects/${projectId}/cron`)
-    await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
-    await window.click(SELECTORS.CRON_TRIGGER_BTN)
+    // Trigger via API (not UI button — CRON_TRIGGER_BTN selector is not unique across jobs)
+    await helper.apiPost(`/api/projects/${projectId}/cron-jobs/${job.id}/trigger`, {})
 
     // Wait for the run to appear
     const runs = await pollUntil(
@@ -78,7 +72,7 @@ test.describe('Cron Job Execution', () => {
     expect(runs[0].triggeredBy).toBe('manual')
   })
 
-  test('verify cron job run completed successfully', async ({ helper, window }) => {
+  test('verify cron job run completed successfully', async ({ helper }) => {
     test.setTimeout(120_000)
 
     // Create and trigger a job
@@ -90,14 +84,8 @@ test.describe('Cron Job Execution', () => {
       instruction: 'Reply with OK',
     })
 
-    // Refresh store so ProjectLayout recognizes the API-created project
-    await helper.page.evaluate(async () => {
-      const store = (window as any).__GOLEMANCY_STORE__
-      if (store) await store.getState().loadProjects()
-    })
-    await helper.navigateTo(`/projects/${projectId}/cron`)
-    await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
-    await window.click(SELECTORS.CRON_TRIGGER_BTN)
+    // Trigger via API (not UI button — CRON_TRIGGER_BTN selector is not unique across jobs)
+    await helper.apiPost(`/api/projects/${projectId}/cron-jobs/${job.id}/trigger`, {})
 
     // Poll until run completes (not 'running' anymore)
     const runs = await pollUntil(
@@ -112,7 +100,7 @@ test.describe('Cron Job Execution', () => {
     expect(runs[0].conversationId).toBeTruthy()
   })
 
-  test('verify triggered conversation has messages', async ({ helper, window }) => {
+  test('verify triggered conversation has messages', async ({ helper }) => {
     test.setTimeout(120_000)
 
     // Create and trigger a job
@@ -124,14 +112,8 @@ test.describe('Cron Job Execution', () => {
       instruction: 'Reply with CRON_MESSAGE_TEST',
     })
 
-    // Refresh store so ProjectLayout recognizes the API-created project
-    await helper.page.evaluate(async () => {
-      const store = (window as any).__GOLEMANCY_STORE__
-      if (store) await store.getState().loadProjects()
-    })
-    await helper.navigateTo(`/projects/${projectId}/cron`)
-    await window.waitForSelector(SELECTORS.CRON_PAGE, { state: 'visible', timeout: TIMEOUTS.PAGE_LOAD })
-    await window.click(SELECTORS.CRON_TRIGGER_BTN)
+    // Trigger via API (not UI button — CRON_TRIGGER_BTN selector is not unique across jobs)
+    await helper.apiPost(`/api/projects/${projectId}/cron-jobs/${job.id}/trigger`, {})
 
     // Poll until run completes
     const runs = await pollUntil(
