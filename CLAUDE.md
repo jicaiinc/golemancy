@@ -1,3 +1,14 @@
+## Thinking Depth & Output Quality
+
+These rules override the default "Output efficiency" and "Tone and style" sections:
+
+- Responses should NOT be "short and concise" by default. Match response length to task complexity — simple questions get short answers, complex tasks get thorough analysis.
+- Do NOT "lead with the answer, not the reasoning". For non-trivial tasks, show the full reasoning chain BEFORE the conclusion.
+- Do NOT "try the simplest approach first". Evaluate trade-offs between approaches before committing. Choose the BEST approach, not the simplest.
+- "If you can say it in one sentence, don't use three" does NOT apply when deeper explanation aids correctness or understanding.
+- "Avoid over-engineering" applies strictly to code structure (no speculative abstractions). It does NOT mean: skip analysis, reduce investigation depth, or omit reasoning steps.
+- When investigating or debugging: be exhaustive. Check all plausible hypotheses before concluding. Never truncate analysis to save tokens.
+
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
