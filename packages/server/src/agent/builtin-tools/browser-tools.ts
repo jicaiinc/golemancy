@@ -1,13 +1,67 @@
+import { existsSync } from 'node:fs'
+import path from 'node:path'
 import type { ToolSet } from 'ai'
 import { createBrowserTools as createBrowserToolsImpl, type BrowserToolsConfig } from '@golemancy/tools/browser'
 import { logger } from '../../logger'
 
 const log = logger.child({ component: 'agent:builtin-tools:browser' })
 
+// ── System Browser Detection ─────────────────────────────────
+// Priority: Chrome → Chromium → Edge → undefined (falls back to Playwright cache)
+
+/** Per-platform candidate paths, checked in order. First match wins. */
+export const BROWSER_CANDIDATES: Record<string, string[] | ((prefixes: string[]) => string[])> = {
+  darwin: [
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
+    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+  ],
+  win32: (prefixes: string[]) => {
+    const suffixes = [
+      path.join('Google', 'Chrome', 'Application', 'chrome.exe'),
+      path.join('Chromium', 'Application', 'chrome.exe'),
+      path.join('Microsoft', 'Edge', 'Application', 'msedge.exe'),
+    ]
+    const candidates: string[] = []
+    for (const suffix of suffixes) {
+      for (const prefix of prefixes) {
+        candidates.push(path.join(prefix, suffix))
+      }
+    }
+    return candidates
+  },
+  linux: [
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    '/usr/bin/microsoft-edge',
+    '/usr/bin/microsoft-edge-stable',
+  ],
+}
+
+export function getSystemBrowserPath(): string | undefined {
+  const spec = BROWSER_CANDIDATES[process.platform]
+  if (!spec) return undefined
+
+  const candidates = typeof spec === 'function'
+    ? spec([process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)'], process.env.LOCALAPPDATA].filter(Boolean) as string[])
+    : spec
+
+  for (const p of candidates) {
+    if (existsSync(p)) {
+      log.info({ executablePath: p }, 'detected system browser')
+      return p
+    }
+  }
+  return undefined
+}
+
 /** Default browser tool config when only `browser: true` is set */
 const DEFAULT_BROWSER_CONFIG: BrowserToolsConfig = {
   driver: 'playwright',
   headless: false,
+  executablePath: getSystemBrowserPath(),
 }
 
 export interface BrowserToolsResult {
