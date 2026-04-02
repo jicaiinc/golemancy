@@ -62,7 +62,7 @@ function buildBehaviorDirective(): string {
   return [
     '## Execution Behavior',
     '',
-    'You are an autonomous agent. Act, don\'t narrate.',
+    'Act, don\'t narrate.',
     '',
     '- **Do not restate what the user said** — just do it. Go straight to execution using your available tools.',
     '- **Lead with action, not reasoning.** Call tools first, explain after. Try the simplest approach first.',
