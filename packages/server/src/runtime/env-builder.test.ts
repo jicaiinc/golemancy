@@ -17,8 +17,8 @@ vi.mock('../logger', () => ({
   logger: { child: () => ({ debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }) },
 }))
 
-import { buildRuntimeEnv, buildMCPRuntimeEnv } from './env-builder'
-import { getBundledNodeBinDir, getBundledPythonPath, getBundledUvBinDir, getBundledCertFilePath } from './paths'
+import { buildRuntimeEnv } from './env-builder'
+import { getBundledNodeBinDir, getBundledUvBinDir, getBundledCertFilePath } from './paths'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -116,99 +116,4 @@ describe('buildRuntimeEnv', () => {
     expect(result.PIP_USE_DEPRECATED).toBeUndefined()
   })
 
-})
-
-describe('buildMCPRuntimeEnv', () => {
-  it('returns empty object when no bundled runtimes available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue(null)
-    vi.mocked(getBundledUvBinDir).mockReturnValue(null)
-    vi.mocked(getBundledPythonPath).mockReturnValue(null)
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result).toEqual({})
-  })
-
-  it('returns PATH with bundled node prepended when available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result.PATH).toBe('/bundled/node/bin:/usr/bin')
-  })
-
-  it('returns PATH with both node and uv when both available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
-    vi.mocked(getBundledUvBinDir).mockReturnValue('/bundled/uv')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result.PATH).toBe('/bundled/node/bin:/bundled/uv:/usr/bin')
-  })
-
-  it('returns PATH with uv only when node not available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue(null)
-    vi.mocked(getBundledUvBinDir).mockReturnValue('/bundled/uv')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result.PATH).toBe('/bundled/uv:/usr/bin')
-    expect(result).not.toHaveProperty('npm_config_cache')
-  })
-
-  it('includes bundled Python bin dir in PATH when available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue(null)
-    vi.mocked(getBundledUvBinDir).mockReturnValue(null)
-    vi.mocked(getBundledPythonPath).mockReturnValue('/bundled/python/bin/python3.13')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result.PATH).toBe('/bundled/python/bin:/usr/bin')
-  })
-
-  it('includes all three runtimes in correct order: node > uv > python', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
-    vi.mocked(getBundledUvBinDir).mockReturnValue('/bundled/uv')
-    vi.mocked(getBundledPythonPath).mockReturnValue('/bundled/python/bin/python3.13')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result.PATH).toBe('/bundled/node/bin:/bundled/uv:/bundled/python/bin:/usr/bin')
-  })
-
-  it('returns non-empty when only Python is available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue(null)
-    vi.mocked(getBundledUvBinDir).mockReturnValue(null)
-    vi.mocked(getBundledPythonPath).mockReturnValue('/bundled/python/bin/python3.13')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result.PATH).toBe('/bundled/python/bin:/usr/bin')
-  })
-
-  it('includes npm cache when bundled node available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result.npm_config_cache).toBe('/data/runtime/cache/npm')
-  })
-
-  it('does NOT include Python venv env vars (PIP_CACHE_DIR, VIRTUAL_ENV)', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
-    vi.mocked(getBundledPythonPath).mockReturnValue('/bundled/python/bin/python3.13')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result).not.toHaveProperty('PIP_CACHE_DIR')
-    expect(result).not.toHaveProperty('VIRTUAL_ENV')
-  })
-
-  it('sets SSL_CERT_FILE when bundled cert is available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
-    vi.mocked(getBundledCertFilePath).mockReturnValue('/bundled/python/certifi/cacert.pem')
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result.SSL_CERT_FILE).toBe('/bundled/python/certifi/cacert.pem')
-  })
-
-  it('does not set SSL_CERT_FILE when bundled cert is not available', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
-    vi.mocked(getBundledCertFilePath).mockReturnValue(null)
-    const result = buildMCPRuntimeEnv('/usr/bin')
-    expect(result).not.toHaveProperty('SSL_CERT_FILE')
-  })
-
-  it('uses process.env.PATH when basePath not provided', () => {
-    vi.mocked(getBundledNodeBinDir).mockReturnValue('/bundled/node/bin')
-    const saved = process.env.PATH
-    process.env.PATH = '/test/path'
-    try {
-      const result = buildMCPRuntimeEnv()
-      expect(result.PATH).toContain('/test/path')
-    } finally {
-      process.env.PATH = saved
-    }
-  })
 })

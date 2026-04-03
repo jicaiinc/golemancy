@@ -39,7 +39,7 @@ import { logger } from './logger'
 import { initSentry, captureException, flush as flushSentry } from './sentry'
 import { initLLMAnalytics, shutdownLLMAnalytics } from './telemetry/posthog'
 import { removeProjectPythonEnv } from './runtime/python-manager'
-import { getBundledNodeBinDir, getBundledUvBinDir, getBundledPythonPath } from './runtime/paths'
+import { runtimeEnvManager } from './runtime/runtime-env-manager'
 
 function reportProgress(phase: string, startTime: number): void {
   try { process.send?.({ type: 'startup-progress', phase, elapsedMs: Date.now() - startTime }) } catch {}
@@ -84,39 +84,9 @@ async function main() {
     }
   }
 
-  // Prepend bundled runtime bin dirs to process.env.PATH so that all subprocess
-  // spawns (including @ai-sdk/mcp which overwrites custom env.PATH with
-  // process.env.PATH) can find bundled binaries.
-  // Final PATH order: bundledUvBin → bundledNodeBin → bundledPythonBin → shellPath → original GUI PATH
-  const bundledNodeBin = getBundledNodeBinDir()
-  if (bundledNodeBin && !process.env.PATH?.includes(bundledNodeBin)) {
-    process.env.PATH = [bundledNodeBin, process.env.PATH ?? ''].join(path.delimiter)
-    logger.info({ bundledNodeBin }, 'prepended bundled node bin to process.env.PATH')
-  }
-
-  const bundledUvBin = getBundledUvBinDir()
-  if (bundledUvBin && !process.env.PATH?.includes(bundledUvBin)) {
-    process.env.PATH = [bundledUvBin, process.env.PATH ?? ''].join(path.delimiter)
-    logger.info({ bundledUvBin }, 'prepended bundled uv bin to process.env.PATH')
-  }
-
-  const bundledPythonBin = getBundledPythonPath() ? path.dirname(getBundledPythonPath()!) : null
-  if (bundledPythonBin && !process.env.PATH?.includes(bundledPythonBin)) {
-    process.env.PATH = [bundledPythonBin, process.env.PATH ?? ''].join(path.delimiter)
-    logger.info({ bundledPythonBin }, 'prepended bundled python bin to process.env.PATH')
-  }
-
-  // Configure uv to use bundled Python and isolate its cache
-  const bundledPython = getBundledPythonPath()
-  if (bundledPython && !process.env.UV_PYTHON) {
-    process.env.UV_PYTHON = bundledPython
-    process.env.UV_PYTHON_DOWNLOADS = 'never'
-    logger.info({ bundledPython }, 'set UV_PYTHON to bundled Python (downloads disabled)')
-  }
-  if (!process.env.UV_CACHE_DIR) {
-    process.env.UV_CACHE_DIR = path.join(getDataDir(), 'runtime', 'cache', 'uv')
-    logger.info({ uvCacheDir: process.env.UV_CACHE_DIR }, 'set UV_CACHE_DIR')
-  }
+  // Inject bundled runtime paths (PATH, UV_*, SSL_CERT_FILE, npm_config_cache)
+  // into process.env so all subprocess spawns can find bundled binaries.
+  runtimeEnvManager.augmentProcessEnv()
   reportProgress('path-augmented', startTime)
 
   const port = parseInt(process.env.PORT ?? '3883', 10)

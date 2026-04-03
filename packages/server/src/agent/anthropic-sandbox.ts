@@ -6,7 +6,7 @@ import type { Sandbox, CommandResult } from 'bash-tool'
 import type { SandboxConfig } from '@golemancy/shared'
 import { validatePathAsync, type PathOperation } from './validate-path'
 import { checkCommandBlacklist, type CommandBlacklistConfig } from './check-command-blacklist'
-import { getSafeEnv } from './safe-env'
+import { stripSecrets } from '../runtime/strip-secrets'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:anthropic-sandbox' })
@@ -159,7 +159,7 @@ export class AnthropicSandbox implements Sandbox {
     return new Promise((resolve, reject) => {
       const child = spawn('bash', ['-c', wrappedCommand], {
         cwd: this.workspaceRoot,
-        env: { ...getSafeEnv(), ...this.runtimeEnv },
+        env: { ...stripSecrets(process.env), ...this.runtimeEnv },
         stdio: ['ignore', 'pipe', 'pipe'],
       })
 

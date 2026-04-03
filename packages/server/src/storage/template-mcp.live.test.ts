@@ -17,7 +17,6 @@ import { PROJECT_TEMPLATES } from '@golemancy/shared'
 import type { ChildProcess } from 'node:child_process'
 import { createMCPClient } from '@ai-sdk/mcp'
 import { Experimental_StdioMCPTransport } from '@ai-sdk/mcp/mcp-stdio'
-import { buildMCPRuntimeEnv } from '../runtime/env-builder'
 
 // ── Config ──────────────────────────────────────────────────
 
@@ -36,22 +35,21 @@ function resolveArgs(args: string[]): string[] {
 /**
  * Build a clean env for spawning MCP child processes.
  *
- * MCPPool uses `{ ...process.env, ...mcpRuntimeEnv, ...server.env }` which
- * leaks vitest/pnpm env vars (npm_config_*, VITEST, etc.) into child
- * processes. Some MCP servers (e.g. open-websearch) are sensitive to these —
- * pnpm's npm_config_* vars change the npx cache hash, potentially resolving
- * to a different (broken) package version.
+ * MCPPool uses `{ ...process.env, ...server.env }` which leaks vitest/pnpm
+ * env vars (npm_config_*, VITEST, etc.) into child processes. Some MCP servers
+ * (e.g. open-websearch) are sensitive to these — pnpm's npm_config_* vars
+ * change the npx cache hash, potentially resolving to a different (broken)
+ * package version.
  *
  * We build a minimal env with only what MCP servers need:
- * - PATH from buildMCPRuntimeEnv (includes bundled Node.js)
- * - npm_config_cache from buildMCPRuntimeEnv
+ * - PATH from process.env (augmentProcessEnv() has already set bundled bins)
+ * - npm_config_cache from process.env
  * - HOME (required by npm/uvx for config/cache paths)
  * - Essential system vars
  */
 function buildCleanEnv(): Record<string, string> {
-  const mcpEnv = buildMCPRuntimeEnv()
   const env: Record<string, string> = {
-    PATH: mcpEnv.PATH || process.env.PATH || '',
+    PATH: process.env.PATH || '',
     HOME: process.env.HOME || '',
     USER: process.env.USER || '',
     SHELL: process.env.SHELL || '/bin/sh',
@@ -59,8 +57,14 @@ function buildCleanEnv(): Record<string, string> {
     TERM: process.env.TERM || 'xterm-256color',
     PORT: '0',
   }
-  if (mcpEnv.npm_config_cache) {
-    env.npm_config_cache = mcpEnv.npm_config_cache
+  if (process.env.npm_config_cache) {
+    env.npm_config_cache = process.env.npm_config_cache
+  }
+  if (process.env.SSL_CERT_FILE) {
+    env.SSL_CERT_FILE = process.env.SSL_CERT_FILE
+  }
+  if (process.env.UV_PYTHON) {
+    env.UV_PYTHON = process.env.UV_PYTHON
   }
   // XDG dirs needed by uvx
   if (process.env.XDG_DATA_HOME) env.XDG_DATA_HOME = process.env.XDG_DATA_HOME

@@ -20,7 +20,7 @@ import { SandboxUnavailableError } from '../errors'
 import { sandboxPool } from '../sandbox-pool'
 import { resolvePermissionsConfig } from '../resolve-permissions'
 import { permissionsToSandboxConfig } from '../permissions-adapter'
-import { buildRuntimeEnv } from '../../runtime/env-builder'
+import { runtimeEnvManager } from '../../runtime/runtime-env-manager'
 import { getProjectPath } from '../../utils/paths'
 import { logger } from '../../logger'
 
@@ -65,7 +65,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
         try {
           const workspaceDir = await ensureWorkspaceDir(options.projectId)
           const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
-          const runtimeEnv = buildRuntimeEnv(options.projectId)
+          const runtimeEnv = runtimeEnvManager.getProjectEnvOverlay(options.projectId)
           log.debug(
             { projectId: options.projectId, workspaceDir, platform, deniedCommands: sandboxConfig.deniedCommands.length },
             'GuardedSandbox setup: workspace ready, config resolved',
@@ -81,7 +81,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
       try {
         const workspaceDir = await ensureWorkspaceDir(options.projectId)
         const sandboxConfig = permissionsToSandboxConfig(resolved!.config)
-        const runtimeEnv = buildRuntimeEnv(options.projectId)
+        const runtimeEnv = runtimeEnvManager.getProjectEnvOverlay(options.projectId)
 
         // Bridge to existing SandboxPool API
         const bridgedConfig: ResolvedBashToolConfig = {
@@ -116,7 +116,7 @@ async function createBashToolForMode(options?: BuiltinToolOptions) {
         ? await ensureWorkspaceDir(options.projectId)
         : process.cwd()
       const runtimeEnv = options?.projectId
-        ? { ...buildRuntimeEnv(options.projectId) }
+        ? { ...runtimeEnvManager.getProjectEnvOverlay(options.projectId) }
         : {}
       log.debug({ workspaceDir, runtimeEnv, projectId: options?.projectId }, 'unrestricted mode: built runtime env')
       const sandbox = new NativeSandbox({ workspaceRoot: workspaceDir, runtimeEnv })

@@ -61,7 +61,7 @@ export function toShellCommand(command: string): ShellCommandResult {
  *
  * @param command  The command to spawn (e.g., "npx", "node", "/path/to/bin")
  * @param args     The arguments array
- * @param pathEnv  Optional PATH override (e.g., from buildMCPRuntimeEnv).
+ * @param pathEnv  Optional PATH override (e.g., from server.env).
  *                 Falls back to process.env.PATH.
  * @param cwd      Optional working directory for resolving relative commands
  *                 (e.g., ./bin/tool). Falls back to server process cwd.

@@ -170,25 +170,29 @@ describe('GuardedSandbox', () => {
   // ── executeCommand: env ────────────────────────────────────
 
   describe('executeCommand env', () => {
-    it('uses getSafeEnv() not process.env', async () => {
+    it('uses stripSecrets() not raw process.env', async () => {
       const { spawn } = await import('node:child_process')
-      const sandbox = makeSandbox()
-      await sandbox.executeCommand('echo hello')
 
-      const spawnCall = vi.mocked(spawn).mock.calls[0]
-      const envArg = (spawnCall[2] as { env: Record<string, string> }).env
-
-      // getSafeEnv filters to allowlisted keys — it should NOT contain
-      // arbitrary process.env keys like a random test marker
-      const markerKey = '__GUARDED_SANDBOX_TEST_MARKER__'
-      process.env[markerKey] = 'should-not-appear'
+      // stripSecrets is blacklist-based — it strips known sensitive keys
+      // but allows arbitrary non-sensitive keys through
+      const sensitiveKey = 'ANTHROPIC_API_KEY'
+      const safeKey = '__GUARDED_SANDBOX_SAFE_MARKER__'
+      process.env[sensitiveKey] = 'sk-ant-secret'
+      process.env[safeKey] = 'should-appear'
       try {
-        const sandbox2 = makeSandbox()
-        await sandbox2.executeCommand('echo test')
-        const env2 = (vi.mocked(spawn).mock.calls[1]![2] as { env: Record<string, string> }).env
-        expect(env2[markerKey]).toBeUndefined()
+        const sandbox = makeSandbox()
+        await sandbox.executeCommand('echo hello')
+
+        const spawnCall = vi.mocked(spawn).mock.calls[0]
+        const envArg = (spawnCall[2] as { env: Record<string, string> }).env
+
+        // Sensitive keys should be stripped
+        expect(envArg[sensitiveKey]).toBeUndefined()
+        // Non-sensitive keys should pass through
+        expect(envArg[safeKey]).toBe('should-appear')
       } finally {
-        delete process.env[markerKey]
+        delete process.env[sensitiveKey]
+        delete process.env[safeKey]
       }
     })
 

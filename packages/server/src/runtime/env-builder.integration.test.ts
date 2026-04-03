@@ -2,14 +2,14 @@
  * Env builder integration tests — real PATH construction.
  *
  * These tests use real path functions (no mocks) to verify
- * buildRuntimeEnv and buildMCPRuntimeEnv behavior.
+ * buildRuntimeEnv behavior.
  */
 import { describe, it, expect, afterAll } from 'vitest'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { spawn, spawnSync } from 'node:child_process'
 
-import { buildRuntimeEnv, buildMCPRuntimeEnv } from './env-builder'
+import { buildRuntimeEnv } from './env-builder'
 import {
   getProjectPythonEnvBinPath,
   getProjectPythonEnvPath,
@@ -156,38 +156,3 @@ describe('buildRuntimeEnv integration', () => {
   })
 })
 
-describe('buildMCPRuntimeEnv integration', () => {
-  it('returns empty object in dev mode (no bundled node)', () => {
-    const saved = process.env.GOLEMANCY_NODE_PATH
-    delete process.env.GOLEMANCY_NODE_PATH
-
-    const env = buildMCPRuntimeEnv('/usr/bin')
-    expect(env).toEqual({})
-
-    if (saved !== undefined) process.env.GOLEMANCY_NODE_PATH = saved
-  })
-
-  it('returns PATH with bundled node when GOLEMANCY_NODE_PATH set', () => {
-    const saved = process.env.GOLEMANCY_NODE_PATH
-    process.env.GOLEMANCY_NODE_PATH = '/tmp/fake-node/node'
-
-    const env = buildMCPRuntimeEnv('/usr/bin')
-    expect(env.PATH).toBe('/tmp/fake-node:/usr/bin')
-    expect(env.npm_config_cache).toBe(getNpmCachePath())
-
-    if (saved !== undefined) process.env.GOLEMANCY_NODE_PATH = saved
-    else delete process.env.GOLEMANCY_NODE_PATH
-  })
-
-  it('does NOT include Python-related env vars', () => {
-    const saved = process.env.GOLEMANCY_NODE_PATH
-    process.env.GOLEMANCY_NODE_PATH = '/tmp/fake-node/node'
-
-    const env = buildMCPRuntimeEnv('/usr/bin')
-    expect(env).not.toHaveProperty('PIP_CACHE_DIR')
-    expect(env).not.toHaveProperty('VIRTUAL_ENV')
-
-    if (saved !== undefined) process.env.GOLEMANCY_NODE_PATH = saved
-    else delete process.env.GOLEMANCY_NODE_PATH
-  })
-})

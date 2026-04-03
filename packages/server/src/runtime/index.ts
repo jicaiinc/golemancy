@@ -1,5 +1,7 @@
-export { buildRuntimeEnv, buildMCPRuntimeEnv } from './env-builder'
+export { buildRuntimeEnv } from './env-builder'
 export type { RuntimeEnvVars } from './env-builder'
+export { stripSecrets, isSecretKey } from './strip-secrets'
+export { runtimeEnvManager, RuntimeEnvManager } from './runtime-env-manager'
 export {
   getBundledPythonPath,
   getBundledNodeBinDir,

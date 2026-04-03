@@ -1,8 +1,7 @@
-import { delimiter, dirname } from 'node:path'
+import { delimiter } from 'node:path'
 import {
   getBundledCertFilePath,
   getBundledNodeBinDir,
-  getBundledPythonPath,
   getBundledUvBinDir,
   getProjectPythonEnvPath,
   getProjectPythonEnvBinPath,
@@ -81,46 +80,6 @@ export function buildRuntimeEnv(projectId: string, basePath?: string): RuntimeEn
   if (certFile) env.PIP_USE_DEPRECATED = 'legacy-certs'
 
   log.debug({ projectId, env }, 'built runtime env')
-
-  return env
-}
-
-/**
- * Build environment for MCP server subprocess.
- * Injects bundled Node.js and uv PATH, plus npm config (no Python venv).
- *
- * Used by: mcp-pool.ts buildTransport()
- *
- * @param basePath - Base PATH to extend (defaults to process.env.PATH)
- * @returns Partial env vars to merge, or empty object if no bundled runtimes
- */
-export function buildMCPRuntimeEnv(basePath?: string): Record<string, string> {
-  const nodeBinDir = getBundledNodeBinDir()
-  const uvBinDir = getBundledUvBinDir()
-  const pythonPath = getBundledPythonPath()
-  const pythonBinDir = pythonPath ? dirname(pythonPath) : null
-
-  if (!nodeBinDir && !uvBinDir && !pythonBinDir) return {}
-
-  const currentPath = basePath ?? process.env.PATH ?? ''
-  const pathParts: string[] = []
-  if (nodeBinDir) pathParts.push(nodeBinDir)
-  if (uvBinDir) pathParts.push(uvBinDir)
-  if (pythonBinDir) pathParts.push(pythonBinDir)
-  pathParts.push(currentPath)
-
-  const env: Record<string, string> = {
-    PATH: pathParts.join(delimiter),
-  }
-  if (nodeBinDir) env.npm_config_cache = getNpmCachePath()
-
-  // SSL certificate bundle for bundled Python's statically-compiled OpenSSL.
-  // Python MCP servers spawned via uvx inherit the bundled Python and need this
-  // for any HTTPS requests (API calls, webhooks, etc.).
-  const certFile = getBundledCertFilePath()
-  if (certFile) env.SSL_CERT_FILE = certFile
-
-  log.debug({ env }, 'built MCP runtime env')
 
   return env
 }

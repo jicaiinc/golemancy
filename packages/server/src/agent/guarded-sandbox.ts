@@ -5,7 +5,7 @@ import type { Sandbox, CommandResult } from 'bash-tool'
 import type { SandboxConfig } from '@golemancy/shared'
 import { validatePathAsync, type PathOperation } from './validate-path'
 import { checkCommandBlacklist, CommandBlockedError, type CommandBlacklistConfig } from './check-command-blacklist'
-import { getSafeEnv } from './safe-env'
+import { stripSecrets } from '../runtime/strip-secrets'
 import { toShellCommand, normalizeCwd } from '../runtime/spawn'
 import { logger } from '../logger'
 
@@ -101,7 +101,7 @@ export class GuardedSandbox implements Sandbox {
   private spawnCommand(command: string): Promise<CommandResult> {
     return new Promise((resolve, reject) => {
       const { shell, args, spawnOptions } = toShellCommand(command)
-      const env = { ...getSafeEnv(), ...this.runtimeEnv }
+      const env = { ...stripSecrets(process.env), ...this.runtimeEnv }
       const cwd = normalizeCwd(this.workspaceRoot)
       log.trace({ shell, cwd, hasPath: !!env.PATH, hasComspec: !!env.COMSPEC }, 'spawning child process')
       const child = spawn(shell, args, {

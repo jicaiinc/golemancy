@@ -13,8 +13,8 @@ import { isSandboxRuntimeSupported } from '@golemancy/shared'
 import type { MCPLoadOptions } from './mcp'
 import { sandboxPool } from './sandbox-pool'
 import { permissionsToSandboxConfig } from './permissions-adapter'
-import { buildMCPRuntimeEnv } from '../runtime/env-builder'
 import { toWinSpawn, normalizeCwd } from '../runtime/spawn'
+import { runtimeEnvManager } from '../runtime/runtime-env-manager'
 import { logger } from '../logger'
 import { captureException } from '../sentry'
 
@@ -528,19 +528,20 @@ export class MCPPool {
         }
       }
 
-      // Inject bundled Node.js env (PATH, npm cache) for stdio MCP servers.
-      // Computed before toWinSpawn so command resolution uses the same PATH.
-      const mcpRuntimeEnv = buildMCPRuntimeEnv()
-      const transportEnv = Object.keys(mcpRuntimeEnv).length > 0 || server.env
-        ? { ...process.env, ...mcpRuntimeEnv, ...server.env } as Record<string, string>
-        : undefined
+      // Always pass full process.env to bypass @ai-sdk/mcp's internal env whitelist
+      // (getEnvironment() only inherits 6 default vars when customEnv is undefined).
+      // augmentProcessEnv() has already set PATH, UV_*, SSL_CERT_FILE, npm_config_cache.
+      if (!runtimeEnvManager.isAugmented) {
+        log.warn({ name: server.name }, 'process.env has not been augmented by RuntimeEnvManager — bundled runtimes may be unavailable for MCP server')
+      }
+      const transportEnv = { ...process.env, ...(server.env ?? {}) } as Record<string, string>
 
       // Windows: wrap through cmd.exe for .cmd/.bat script compatibility.
       // @ai-sdk/mcp's StdioMCPTransport hardcodes shell: false, so commands
       // like "npx" (actually npx.cmd) fail with ENOENT without this.
       // Use the same effective PATH/PATHEXT the transport will run with
       // (server.env can override bundled runtime PATH).
-      const effectivePath = server.env?.PATH ?? mcpRuntimeEnv.PATH
+      const effectivePath = server.env?.PATH ?? process.env.PATH
       const resolved = toWinSpawn(effectiveCommand, effectiveArgs, effectivePath, effectiveCwd)
       if (resolved.command !== effectiveCommand) {
         log.info(
