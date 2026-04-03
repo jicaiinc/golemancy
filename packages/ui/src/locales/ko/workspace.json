@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "아티팩트",
-    "refreshBtn": "새로고침"
+    "refreshBtn": "새로고침",
+    "openInFileManager": "{{fileManager}}에서 열기"
   },
   "deleteModal": {
     "title": "파일 삭제",

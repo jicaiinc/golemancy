@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Artifak",
-    "refreshBtn": "Muat Semula"
+    "refreshBtn": "Muat Semula",
+    "openInFileManager": "Buka dalam {{fileManager}}"
   },
   "deleteModal": {
     "title": "Padam Fail",

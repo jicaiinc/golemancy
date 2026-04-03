@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Artifacts",
-    "refreshBtn": "Refresh"
+    "refreshBtn": "Refresh",
+    "openInFileManager": "Open in {{fileManager}}"
   },
   "deleteModal": {
     "title": "Delete File",

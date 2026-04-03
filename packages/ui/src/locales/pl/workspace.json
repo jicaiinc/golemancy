@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Artefakty",
-    "refreshBtn": "Odśwież"
+    "refreshBtn": "Odśwież",
+    "openInFileManager": "Otwórz w {{fileManager}}"
   },
   "deleteModal": {
     "title": "Usuń plik",

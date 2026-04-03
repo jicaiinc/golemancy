@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Artefacten",
-    "refreshBtn": "Vernieuwen"
+    "refreshBtn": "Vernieuwen",
+    "openInFileManager": "Openen in {{fileManager}}"
   },
   "deleteModal": {
     "title": "Bestand Verwijderen",

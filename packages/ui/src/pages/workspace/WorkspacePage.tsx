@@ -2,11 +2,17 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../stores'
-import { useCurrentProject } from '../../hooks'
+import { useCurrentProject, detectPlatform } from '../../hooks'
 import { PixelButton, PixelModal } from '../../components'
 import { staggerContainer, staggerItem } from '../../lib/motion'
 import { FileTree } from './FileTree'
 import { FilePreview } from './FilePreview'
+
+const FILE_MANAGER_NAME: Record<string, string> = {
+  darwin: 'Finder',
+  win32: 'Explorer',
+  linux: 'Files',
+}
 
 export function WorkspacePage() {
   const { t } = useTranslation(['workspace', 'common'])
@@ -53,6 +59,16 @@ export function WorkspacePage() {
         <PixelButton variant="ghost" size="sm" data-testid="workspace-refresh-btn" onClick={handleRefresh}>
           {t('workspace:page.refreshBtn')}
         </PixelButton>
+        {window.electronAPI?.openWorkspaceFolder && (
+          <PixelButton
+            variant="ghost"
+            size="sm"
+            data-testid="workspace-open-folder-btn"
+            onClick={() => projectId && window.electronAPI?.openWorkspaceFolder(projectId, currentPath)}
+          >
+            {t('workspace:page.openInFileManager', { fileManager: FILE_MANAGER_NAME[detectPlatform()] ?? 'Files' })}
+          </PixelButton>
+        )}
       </motion.div>
 
       {/* Split layout */}

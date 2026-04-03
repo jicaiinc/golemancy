@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "文件",
-    "refreshBtn": "刷新"
+    "refreshBtn": "刷新",
+    "openInFileManager": "在 {{fileManager}} 中打开"
   },
   "deleteModal": {
     "title": "删除文件",

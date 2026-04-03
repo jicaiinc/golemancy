@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Artefak",
-    "refreshBtn": "Segarkan"
+    "refreshBtn": "Segarkan",
+    "openInFileManager": "Buka di {{fileManager}}"
   },
   "deleteModal": {
     "title": "Hapus File",

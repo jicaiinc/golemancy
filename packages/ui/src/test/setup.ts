@@ -34,6 +34,7 @@ Object.defineProperty(window, 'matchMedia', {
   getPlatformLabel: () => 'Test',
   openNewWindow: vi.fn(),
   openPath: vi.fn(),
+  openWorkspaceFolder: vi.fn(),
   openExternalUrl: vi.fn(),
   requestMicrophoneAccess: vi.fn().mockResolvedValue('granted'),
   onUpdateState: vi.fn().mockReturnValue(() => {}),

@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "アーティファクト",
-    "refreshBtn": "更新"
+    "refreshBtn": "更新",
+    "openInFileManager": "{{fileManager}} で開く"
   },
   "deleteModal": {
     "title": "ファイルを削除",

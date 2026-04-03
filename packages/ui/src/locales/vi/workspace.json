@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "S\u1ea3n Ph\u1ea9m",
-    "refreshBtn": "L\u00e0m M\u1edbi"
+    "refreshBtn": "L\u00e0m M\u1edbi",
+    "openInFileManager": "M\u1edf trong {{fileManager}}"
   },
   "deleteModal": {
     "title": "X\u00f3a File",

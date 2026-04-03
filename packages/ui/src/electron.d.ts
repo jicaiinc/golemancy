@@ -14,6 +14,7 @@ interface ElectronAPI {
   getLaunchId?: () => string | null
   openNewWindow: (projectId?: string) => Promise<void>
   openPath: (fullPath: string) => Promise<string>
+  openWorkspaceFolder: (projectId: string, relativePath: string) => Promise<string>
   requestMicrophoneAccess: () => Promise<string>
   getAppVersion: () => string | null
   getPlatformLabel: () => string | null

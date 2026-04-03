@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Artefakter",
-    "refreshBtn": "Uppdatera"
+    "refreshBtn": "Uppdatera",
+    "openInFileManager": "Öppna i {{fileManager}}"
   },
   "deleteModal": {
     "title": "Radera fil",

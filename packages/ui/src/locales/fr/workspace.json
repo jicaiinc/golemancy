@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Artefacts",
-    "refreshBtn": "Actualiser"
+    "refreshBtn": "Actualiser",
+    "openInFileManager": "Ouvrir dans {{fileManager}}"
   },
   "deleteModal": {
     "title": "Supprimer le Fichier",

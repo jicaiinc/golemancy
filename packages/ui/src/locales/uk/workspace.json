@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Артефакти",
-    "refreshBtn": "Оновити"
+    "refreshBtn": "Оновити",
+    "openInFileManager": "Відкрити у {{fileManager}}"
   },
   "deleteModal": {
     "title": "Видалити файл",

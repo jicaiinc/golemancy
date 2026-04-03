@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Mga Artifact",
-    "refreshBtn": "I-refresh"
+    "refreshBtn": "I-refresh",
+    "openInFileManager": "Buksan sa {{fileManager}}"
   },
   "deleteModal": {
     "title": "I-delete ang File",

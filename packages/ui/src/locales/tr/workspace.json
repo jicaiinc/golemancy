@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Eserler",
-    "refreshBtn": "Yenile"
+    "refreshBtn": "Yenile",
+    "openInFileManager": "{{fileManager}}'da aç"
   },
   "deleteModal": {
     "title": "Dosyay\u0131 Sil",

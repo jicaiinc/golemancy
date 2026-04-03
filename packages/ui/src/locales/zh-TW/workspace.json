@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "檔案",
-    "refreshBtn": "重新整理"
+    "refreshBtn": "重新整理",
+    "openInFileManager": "在 {{fileManager}} 中開啟"
   },
   "deleteModal": {
     "title": "刪除檔案",

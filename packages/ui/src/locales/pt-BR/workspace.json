@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Artefatos",
-    "refreshBtn": "Atualizar"
+    "refreshBtn": "Atualizar",
+    "openInFileManager": "Abrir no {{fileManager}}"
   },
   "deleteModal": {
     "title": "Excluir Arquivo",

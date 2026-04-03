@@ -3,7 +3,7 @@ import { join, resolve, sep } from 'path'
 import { homedir } from 'os'
 import { fork, type ChildProcess } from 'child_process'
 import { randomUUID } from 'crypto'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync } from 'fs'
 import { logger } from './logger'
 import { needsResourceExtraction, extractResources, createSetupWindow } from './setup'
 import { initAutoUpdater, getUpdateState, checkForUpdatesNow, quitAndInstall, openReleaseUrl } from './updater'
@@ -587,6 +587,17 @@ app.whenReady().then(async () => {
       throw new Error('Cannot open paths outside data directory')
     }
     return shell.openPath(resolved)
+  })
+
+  ipcMain.handle('workspace:openFolder', async (_event, projectId: string, relativePath: string) => {
+    const dataDir = process.env.GOLEMANCY_DATA_DIR || join(homedir(), '.golemancy')
+    const wsDir = resolve(join(dataDir, 'projects', projectId, 'workspace', relativePath || '.'))
+    // Security: ensure resolved path is under the data directory
+    if (!wsDir.startsWith(dataDir + sep)) {
+      throw new Error('Cannot open paths outside data directory')
+    }
+    mkdirSync(wsDir, { recursive: true })
+    return shell.openPath(wsDir)
   })
 
   ipcMain.on('renderer:error', (_event, payload) => {
