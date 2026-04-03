@@ -5,6 +5,7 @@ import {
   getBundledUvBinDir,
   getBundledCertFilePath,
   getNpmCachePath,
+  getGlobalBinDir,
 } from './paths'
 import { buildRuntimeEnv } from './env-builder'
 import { getDataDir } from '../utils/paths'
@@ -53,6 +54,13 @@ export class RuntimeEnvManager {
     // Prepend order: node → uv → python
     // Final PATH:    python → uv → node → original
     const prependDirs: string[] = []
+
+    // Global bin dir for runtime shims (e.g., realpath polyfill on macOS < 13).
+    // Added first → ends up after bundled dirs when reversed → lowest priority.
+    const globalBinDir = getGlobalBinDir()
+    if (!currentPath.includes(globalBinDir)) {
+      prependDirs.push(globalBinDir)
+    }
 
     const nodeBinDir = getBundledNodeBinDir()
     if (nodeBinDir && !currentPath.includes(nodeBinDir)) {

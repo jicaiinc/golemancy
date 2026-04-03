@@ -126,6 +126,17 @@ export function getBundledUvBinDir(): string | null {
   return null
 }
 
+/**
+ * Global bin directory for runtime shims: ~/.golemancy/runtime/bin/
+ *
+ * Contains platform-specific shims (e.g., `realpath` polyfill for macOS < 13).
+ * Added to process.env.PATH in augmentProcessEnv() so all subprocesses
+ * (MCP servers, bash tools) can find them.
+ */
+export function getGlobalBinDir(): string {
+  return path.join(getGlobalRuntimeDir(), 'bin')
+}
+
 // ── Per-Project Runtime Paths (read-write, ~/.golemancy/projects/{id}/) ──
 
 /**

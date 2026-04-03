@@ -7,6 +7,7 @@ vi.mock('./paths', () => ({
   getBundledNodeBinDir: vi.fn(() => null),
   getBundledPythonPath: vi.fn(() => null),
   getBundledUvBinDir: vi.fn(() => null),
+  getGlobalBinDir: vi.fn(() => '/data/runtime/bin'),
   getProjectPythonEnvPath: vi.fn((id: string) => `/data/projects/${id}/runtime/python-env`),
   getProjectPythonEnvBinPath: vi.fn((id: string) => `/data/projects/${id}/runtime/python-env/bin`),
   getPipCachePath: vi.fn(() => '/data/runtime/cache/pip'),

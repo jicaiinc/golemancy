@@ -40,6 +40,7 @@ import { initSentry, captureException, flush as flushSentry } from './sentry'
 import { initLLMAnalytics, shutdownLLMAnalytics } from './telemetry/posthog'
 import { removeProjectPythonEnv } from './runtime/python-manager'
 import { runtimeEnvManager } from './runtime/runtime-env-manager'
+import { ensureRealpathPolyfill } from './runtime/ensure-realpath'
 
 function reportProgress(phase: string, startTime: number): void {
   try { process.send?.({ type: 'startup-progress', phase, elapsedMs: Date.now() - startTime }) } catch {}
@@ -95,6 +96,7 @@ async function main() {
   const dataDir = getDataDir()
   logger.debug({ dataDir }, 'ensuring data directory exists')
   await fs.mkdir(dataDir, { recursive: true })
+  ensureRealpathPolyfill()
   reportProgress('datadir-ready', startTime)
 
   // Per-project database manager (lazy-loads DBs on first access)

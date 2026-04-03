@@ -11,9 +11,11 @@ export {
   getProjectPythonEnvPath,
   getProjectPythonEnvBinPath,
   getGlobalRuntimeDir,
+  getGlobalBinDir,
   getPipCachePath,
   getNpmCachePath,
 } from './paths'
+export { ensureRealpathPolyfill } from './ensure-realpath'
 export {
   initProjectPythonEnv,
   removeProjectPythonEnv,
