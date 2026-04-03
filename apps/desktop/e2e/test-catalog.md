@@ -1,16 +1,16 @@
-# E2E 测试完整目录（474 个用例）
+# E2E 测试完整目录（479 个用例）
 
-> 生成时间：2026-03-18 | 83 个文件 | 474 个 test（含 7 个 skip）
+> 生成时间：2026-04-03 | 84 个文件 | 479 个用例（含 7 个 skip）
 
 ## 总览
 
 | 层级 | 文件数 | 用例数 | Skip | 需要 API Key | 运行命令示例 |
 |------|--------|-------|------|-------------|------------|
 | smoke | 30 | 152 | 7 | 否 | `test:e2e:only -- --project=smoke` |
-| server | 28 | 223 | 0 | 否 | `test:e2e:only -- --project=server` |
-| ai | 24 | 92 | 0 | 是 | `test:e2e:only -- --project=ai` |
+| server | 28 | 224 | 0 | 否 | `test:e2e:only -- --project=server` |
+| ai | 25 | 96 | 0 | 是 | `test:e2e:only -- --project=ai` |
 | onboarding | 1 | 7 | 0 | 否 | `test:e2e:only -- --project=onboarding` |
-| **总计** | **83** | **474** | **7** | | |
+| **总计** | **84** | **479** | **7** | | |
 
 ---
 
@@ -91,7 +91,7 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
 | 30 | agent-config | navigate to agent detail page | ✅ |
-| 31 | agent-config | Info tab shows agent details | ✅ |
+| 31 | agent-config | General tab shows agent details | ✅ |
 | 32 | agent-config | switch to Skills tab | ✅ |
 | 33 | agent-config | switch to Tools tab and verify Bash toggle | ✅ |
 | 34 | agent-config | switch to MCP tab | ✅ |
@@ -246,7 +246,7 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 | 118 | settings | providers tab shows configured providers | ✅ |
 | 119 | settings | add provider button is visible | ✅ |
 | 120 | settings | add provider shows preset options | ✅ |
-| 121 | settings | add preset provider creates a new provider card | ✅ |
+| 121 | settings | add preset provider shows configure form | ✅ |
 | 122 | settings | custom provider flow | ✅ |
 | 123 | settings | general tab is default | ✅ |
 | 124 | settings-advanced | theme switch updates store | ✅ |
@@ -296,7 +296,7 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 
 ---
 
-## Server 层（30 文件 / 228 用例）
+## Server 层（28 文件 / 224 用例）
 
 ### Agent API
 
@@ -318,22 +318,22 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 | 161 | browser-tool-config | POST agent without builtinTools gets storage defaults (bash only) | ✅ |
 | 162 | browser-tool-config | PATCH agent can toggle builtinTools.browser | ✅ |
 
-### Chat UI
-
-| # | 文件 | 用例名 | 状态 |
-|---|------|--------|------|
-| 163 | chat-ui | chat page loads and shows empty state | ✅ |
-| 164 | chat-ui | start chat shows chat input | ✅ |
-| 165 | chat-ui | type and send a user message | ✅ |
-
 ### Chat 导航
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 166 | chat-navigation | navigating to ?conv=id syncs currentConversation in store | ✅ |
-| 167 | chat-navigation | PATCH empty conversation targetType/targetId switches agent | ✅ |
-| 168 | chat-navigation | conversation with messages supports creating a new conversation for different agent | ✅ |
-| 169 | chat-navigation | PATCH conversation to team target type | ✅ |
+| 163 | chat-navigation | navigating to ?conv=id syncs currentConversation in store | ✅ |
+| 164 | chat-navigation | PATCH empty conversation targetType/targetId switches agent | ✅ |
+| 165 | chat-navigation | conversation with messages supports creating a new conversation for different agent | ✅ |
+| 166 | chat-navigation | PATCH conversation to team target type | ✅ |
+
+### Chat UI
+
+| # | 文件 | 用例名 | 状态 |
+|---|------|--------|------|
+| 167 | chat-ui | chat page loads and shows empty state | ✅ |
+| 168 | chat-ui | start chat shows chat input | ✅ |
+| 169 | chat-ui | type and send a user message | ✅ |
 
 ### Conversation API
 
@@ -383,318 +383,328 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 201 | dashboard-api | dashboard summary returns valid structure | ✅ |
-| 202 | dashboard-api | dashboard summary with timeRange param | ✅ |
-| 203 | dashboard-api | token-by-model returns array | ✅ |
-| 204 | dashboard-api | token-by-agent returns array | ✅ |
-| 205 | dashboard-api | token-trend returns 24 hourly entries for today | ✅ |
-| 206 | dashboard-api | runtime-status returns valid structure | ✅ |
-| 207 | dashboard-api | global dashboard summary returns valid structure | ✅ |
-| 208 | dashboard-api | global dashboard token-by-project returns array with at least 1 project | ✅ |
-| 209 | dashboard-api | global dashboard runtime-status returns valid structure | ✅ |
+| 199 | dashboard-api | dashboard summary returns valid structure | ✅ |
+| 200 | dashboard-api | dashboard summary with timeRange param | ✅ |
+| 201 | dashboard-api | token-by-model returns array | ✅ |
+| 202 | dashboard-api | token-by-agent returns array | ✅ |
+| 203 | dashboard-api | token-trend returns 24 hourly entries for today | ✅ |
+| 204 | dashboard-api | runtime-status returns valid structure | ✅ |
+| 205 | dashboard-api | global dashboard summary returns valid structure | ✅ |
+| 206 | dashboard-api | global dashboard token-by-project returns array with at least 1 project | ✅ |
+| 207 | dashboard-api | global dashboard runtime-status returns valid structure | ✅ |
 
 ### Dashboard 完整
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 210 | dashboard-full | GET summary with timeRange=today | ✅ |
-| 211 | dashboard-full | GET summary with timeRange=7d | ✅ |
-| 212 | dashboard-full | GET summary with timeRange=30d | ✅ |
-| 213 | dashboard-full | GET summary with no timeRange param | ✅ |
-| 214 | dashboard-full | GET token-by-model with timeRange=today | ✅ |
-| 215 | dashboard-full | GET token-by-model with timeRange=7d | ✅ |
-| 216 | dashboard-full | GET token-by-model with timeRange=30d | ✅ |
-| 217 | dashboard-full | GET token-by-model with no timeRange | ✅ |
-| 218 | dashboard-full | GET token-by-agent with timeRange=today | ✅ |
-| 219 | dashboard-full | GET token-by-agent with timeRange=7d | ✅ |
-| 220 | dashboard-full | GET token-by-agent with timeRange=30d | ✅ |
-| 221 | dashboard-full | GET token-by-agent with no timeRange | ✅ |
-| 222 | dashboard-full | GET agent-stats returns array | ✅ |
-| 223 | dashboard-full | GET agent-stats with timeRange=7d | ✅ |
-| 224 | dashboard-full | GET recent-chats returns array | ✅ |
-| 225 | dashboard-full | GET recent-chats with limit respects limit | ✅ |
-| 226 | dashboard-full | GET token-trend with timeRange=today returns 24 entries | ✅ |
-| 227 | dashboard-full | GET token-trend with timeRange=7d | ✅ |
-| 228 | dashboard-full | GET token-trend with timeRange=30d | ✅ |
-| 229 | dashboard-full | GET /api/dashboard/token-by-model returns array | ✅ |
-| 230 | dashboard-full | GET /api/dashboard/token-by-agent returns array | ✅ |
-| 231 | dashboard-full | GET /api/dashboard/token-trend with timeRange=7d returns array | ✅ |
+| 208 | dashboard-full | GET summary with timeRange=today | ✅ |
+| 209 | dashboard-full | GET summary with timeRange=7d | ✅ |
+| 210 | dashboard-full | GET summary with timeRange=30d | ✅ |
+| 211 | dashboard-full | GET summary with no timeRange param | ✅ |
+| 212 | dashboard-full | GET token-by-model with timeRange=today | ✅ |
+| 213 | dashboard-full | GET token-by-model with timeRange=7d | ✅ |
+| 214 | dashboard-full | GET token-by-model with timeRange=30d | ✅ |
+| 215 | dashboard-full | GET token-by-model with no timeRange | ✅ |
+| 216 | dashboard-full | GET token-by-agent with timeRange=today | ✅ |
+| 217 | dashboard-full | GET token-by-agent with timeRange=7d | ✅ |
+| 218 | dashboard-full | GET token-by-agent with timeRange=30d | ✅ |
+| 219 | dashboard-full | GET token-by-agent with no timeRange | ✅ |
+| 220 | dashboard-full | GET agent-stats returns array | ✅ |
+| 221 | dashboard-full | GET agent-stats with timeRange=7d | ✅ |
+| 222 | dashboard-full | GET recent-chats returns array | ✅ |
+| 223 | dashboard-full | GET recent-chats with limit respects limit | ✅ |
+| 224 | dashboard-full | GET token-trend with timeRange=today returns 24 entries | ✅ |
+| 225 | dashboard-full | GET token-trend with timeRange=7d | ✅ |
+| 226 | dashboard-full | GET token-trend with timeRange=30d | ✅ |
+| 227 | dashboard-full | GET /api/dashboard/token-by-model returns array | ✅ |
+| 228 | dashboard-full | GET /api/dashboard/token-by-agent returns array | ✅ |
+| 229 | dashboard-full | GET /api/dashboard/token-trend with timeRange=7d returns array | ✅ |
 
 ### 删除安全
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 232 | deletion-safety | deleting agent leaves orphan reference in team — team GET still works | ✅ |
-| 233 | deletion-safety | deleting agent leaves orphan reference in cron — cron GET still works | ✅ |
-| 234 | deletion-safety | deleting team leaves orphan reference in cron — cron GET still works | ✅ |
-| 235 | deletion-safety | deleting project cascades — all sub-resource APIs return 404 | ✅ |
+| 230 | deletion-safety | deleting agent leaves orphan reference in team — team GET still works | ✅ |
+| 231 | deletion-safety | deleting agent leaves orphan reference in cron — cron GET still works | ✅ |
+| 232 | deletion-safety | deleting team leaves orphan reference in cron — cron GET still works | ✅ |
+| 233 | deletion-safety | deleting project cascades — all sub-resource APIs return 404 | ✅ |
+| 234 | deletion-safety | sub-resource APIs return 404 immediately via isProjectBlocked guard | ✅ |
 
 ### MCP API
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 236 | mcp-api | POST /mcp creates a stdio server | ✅ |
-| 237 | mcp-api | POST /mcp creates an SSE server | ✅ |
-| 238 | mcp-api | GET /mcp lists both servers | ✅ |
-| 239 | mcp-api | GET /mcp/:name returns server by name | ✅ |
-| 240 | mcp-api | PATCH /mcp/:name updates description | ✅ |
-| 241 | mcp-api | POST /mcp/:name/test tests connectivity | ✅ |
-| 242 | mcp-api | POST /mcp with duplicate name returns 409 | ✅ |
-| 243 | mcp-api | DELETE /mcp/:name deletes unreferenced server | ✅ |
-| 244 | mcp-api | DELETE /mcp/:name returns 409 when referenced by agent | ✅ |
+| 235 | mcp-api | POST /mcp creates a stdio server | ✅ |
+| 236 | mcp-api | POST /mcp creates an SSE server | ✅ |
+| 237 | mcp-api | GET /mcp lists both servers | ✅ |
+| 238 | mcp-api | GET /mcp/:name returns server by name | ✅ |
+| 239 | mcp-api | PATCH /mcp/:name updates description | ✅ |
+| 240 | mcp-api | POST /mcp/:name/test tests connectivity | ✅ |
+| 241 | mcp-api | POST /mcp with duplicate name returns 409 | ✅ |
+| 242 | mcp-api | DELETE /mcp/:name deletes unreferenced server | ✅ |
+| 243 | mcp-api | DELETE /mcp/:name returns 409 when referenced by agent | ✅ |
 
 ### Memory API
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 245 | memory-api | POST /memories creates a memory with required fields | ✅ |
-| 246 | memory-api | POST /memories creates a memory with all optional fields | ✅ |
-| 247 | memory-api | GET /memories lists memories for agent | ✅ |
-| 248 | memory-api | PATCH /memories/:id updates content | ✅ |
-| 249 | memory-api | PATCH /memories/:id updates tags | ✅ |
-| 250 | memory-api | PATCH /memories/:id pins a memory | ✅ |
-| 251 | memory-api | PATCH /memories/:id unpins a memory | ✅ |
-| 252 | memory-api | POST /memories with priority 0 succeeds | ✅ |
-| 253 | memory-api | POST /memories with priority 5 succeeds | ✅ |
-| 254 | memory-api | POST /memories with priority 6 returns 400 | ✅ |
-| 255 | memory-api | POST /memories with negative priority returns 400 | ✅ |
-| 256 | memory-api | POST /memories with empty content returns 400 | ✅ |
-| 257 | memory-api | POST /memories with whitespace-only content returns 400 | ✅ |
-| 258 | memory-api | DELETE /memories/:id removes a memory | ✅ |
+| 244 | memory-api | POST /memories creates a memory with required fields | ✅ |
+| 245 | memory-api | POST /memories creates a memory with all optional fields | ✅ |
+| 246 | memory-api | GET /memories lists memories for agent | ✅ |
+| 247 | memory-api | PATCH /memories/:id updates content | ✅ |
+| 248 | memory-api | PATCH /memories/:id updates tags | ✅ |
+| 249 | memory-api | PATCH /memories/:id pins a memory | ✅ |
+| 250 | memory-api | PATCH /memories/:id unpins a memory | ✅ |
+| 251 | memory-api | POST /memories with priority 0 succeeds | ✅ |
+| 252 | memory-api | POST /memories with priority 5 succeeds | ✅ |
+| 253 | memory-api | POST /memories with priority 6 returns 400 | ✅ |
+| 254 | memory-api | POST /memories with negative priority returns 400 | ✅ |
+| 255 | memory-api | POST /memories with empty content returns 400 | ✅ |
+| 256 | memory-api | POST /memories with whitespace-only content returns 400 | ✅ |
+| 257 | memory-api | DELETE /memories/:id removes a memory | ✅ |
 
 ### 消息上传
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 259 | message-uploads | saving a message with base64 image extracts upload | ✅ |
-| 260 | message-uploads | GET /uploads/:filename returns correct content for valid upload | ✅ |
-| 261 | message-uploads | GET /uploads with path traversal returns 400 | ✅ |
-| 262 | message-uploads | GET /uploads with invalid filename format returns 400 | ✅ |
+| 258 | message-uploads | saving a message with base64 image extracts upload | ✅ |
+| 259 | message-uploads | GET /uploads/:filename returns correct content for valid upload | ✅ |
+| 260 | message-uploads | GET /uploads with path traversal returns 400 | ✅ |
+| 261 | message-uploads | GET /uploads with invalid filename format returns 400 | ✅ |
 
 ### Permission Modes
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 263 | permission-modes | navigate to project settings and see Permissions tab | ✅ |
-| 264 | permission-modes | Permissions tab renders permissions settings component | ✅ |
-| 265 | permission-modes | MCP tab on agent shows warning when mode is not sandbox | ✅ |
+| 262 | permission-modes | navigate to project settings and see Permissions tab | ✅ |
+| 263 | permission-modes | Permissions tab renders permissions settings component | ✅ |
+| 264 | permission-modes | MCP tab on agent shows warning when mode is not sandbox | ✅ |
 
 ### Permission API
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 266 | permissions-api | POST creates restricted config | ✅ |
-| 267 | permissions-api | POST creates sandbox config with settings | ✅ |
-| 268 | permissions-api | POST creates unrestricted config | ✅ |
-| 269 | permissions-api | GET / lists all 3 configs | ✅ |
-| 270 | permissions-api | GET /:id returns config with correct fields | ✅ |
-| 271 | permissions-api | PATCH /:id updates mode | ✅ |
-| 272 | permissions-api | POST /:id/duplicate creates a copy with new title | ✅ |
-| 273 | permissions-api | DELETE /:id removes config | ✅ |
-| 274 | permissions-api | POST with invalid mode returns 400 | ✅ |
+| 265 | permissions-api | POST creates restricted config | ✅ |
+| 266 | permissions-api | POST creates sandbox config with settings | ✅ |
+| 267 | permissions-api | POST creates unrestricted config | ✅ |
+| 268 | permissions-api | GET / lists all 3 configs | ✅ |
+| 269 | permissions-api | GET /:id returns config with correct fields | ✅ |
+| 270 | permissions-api | PATCH /:id updates mode | ✅ |
+| 271 | permissions-api | POST /:id/duplicate creates a copy with new title | ✅ |
+| 272 | permissions-api | DELETE /:id removes config | ✅ |
+| 273 | permissions-api | POST with invalid mode returns 400 | ✅ |
 
 ### Project/Agent 生命周期
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 275 | project-agent-lifecycle | POST /projects creates project with id and name | ✅ |
-| 276 | project-agent-lifecycle | GET /projects/:id returns all expected fields | ✅ |
-| 277 | project-agent-lifecycle | PATCH /projects/:id updates name and description | ✅ |
-| 278 | project-agent-lifecycle | GET /projects/:id verifies updated fields | ✅ |
-| 279 | project-agent-lifecycle | creates agents and sets defaultTargetId | ✅ |
-| 280 | project-agent-lifecycle | DELETE agent1 cascades: clears defaultTargetId and legacy defaultAgentId | ✅ |
-| 281 | project-agent-lifecycle | PATCH project icon is persisted | ✅ |
-| 282 | project-agent-lifecycle | creates conversation tied to agent2 | ✅ |
-| 283 | project-agent-lifecycle | DELETE /projects/:id removes project | ✅ |
-| 284 | project-agent-lifecycle | GET /projects/:id returns 404 after deletion | ✅ |
+| 274 | project-agent-lifecycle | POST /projects creates project with id and name | ✅ |
+| 275 | project-agent-lifecycle | GET /projects/:id returns all expected fields | ✅ |
+| 276 | project-agent-lifecycle | PATCH /projects/:id updates name and description | ✅ |
+| 277 | project-agent-lifecycle | GET /projects/:id verifies updated fields | ✅ |
+| 278 | project-agent-lifecycle | creates agents and sets defaultTargetId | ✅ |
+| 279 | project-agent-lifecycle | DELETE agent1 cascades: clears defaultTargetId and legacy defaultAgentId | ✅ |
+| 280 | project-agent-lifecycle | PATCH project icon is persisted | ✅ |
+| 281 | project-agent-lifecycle | creates conversation tied to agent2 | ✅ |
+| 282 | project-agent-lifecycle | DELETE /projects/:id removes project | ✅ |
+| 283 | project-agent-lifecycle | GET /projects/:id returns 404 after deletion | ✅ |
 
 ### Runtime API
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 285 | runtime-api | GET /runtime/status returns python and node keys | ✅ |
-| 286 | runtime-api | GET /runtime/python/packages returns array | ✅ |
-| 287 | runtime-api | GET /api/health returns ok status | ✅ |
-| 288 | runtime-api | GET /dashboard/runtime-status returns structure with runningChats | ✅ |
+| 284 | runtime-api | GET /runtime/status returns python and node keys | ✅ |
+| 285 | runtime-api | GET /runtime/python/packages returns array | ✅ |
+| 286 | runtime-api | GET /api/health returns ok status | ✅ |
+| 287 | runtime-api | GET /dashboard/runtime-status returns structure with runningChats | ✅ |
 
 ### Runtime 扩展
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 289 | runtime-extended | pip install a package | ✅ |
-| 290 | runtime-extended | pip install with invalid package name returns 400 | ✅ |
-| 291 | runtime-extended | pip install with empty packages array returns 400 | ✅ |
-| 292 | runtime-extended | pip uninstall a package | ✅ |
-| 293 | runtime-extended | pip uninstall with invalid package name returns 400 | ✅ |
-| 294 | runtime-extended | venv reset | ✅ |
+| 288 | runtime-extended | pip install a package | ✅ |
+| 289 | runtime-extended | pip install with invalid package name returns 400 | ✅ |
+| 290 | runtime-extended | pip install with empty packages array returns 400 | ✅ |
+| 291 | runtime-extended | pip uninstall a package | ✅ |
+| 292 | runtime-extended | pip uninstall with invalid package name returns 400 | ✅ |
+| 293 | runtime-extended | venv reset | ✅ |
 
 ### Runtime 管理
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 295 | runtime-management | model config tab shows provider and model selectors | ✅ |
-| 296 | runtime-management | model config tab shows provider select and compact threshold | ✅ |
-| 297 | runtime-management | save model config changes and verify persistence | ✅ |
-| 298 | runtime-management | general tab shows project info and working directory | ✅ |
+| 294 | runtime-management | model config tab shows provider and model selectors | ✅ |
+| 295 | runtime-management | model config tab shows provider select and compact threshold | ✅ |
+| 296 | runtime-management | save model config changes and verify persistence | ✅ |
+| 297 | runtime-management | general tab shows project info and working directory | ✅ |
 
 ### Sandbox Readiness
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 299 | sandbox-readiness | GET /sandbox/readiness returns correct structure | ✅ |
-| 300 | sandbox-readiness | GET /sandbox/readiness with projectId returns structure | ✅ |
-| 301 | sandbox-readiness | issues array items have correct shape when present | ✅ |
-| 302 | sandbox-readiness | available is true when no issues | ✅ |
-| 303 | sandbox-readiness | readiness with non-existent projectId still returns structure | ✅ |
+| 298 | sandbox-readiness | GET /sandbox/readiness returns correct structure | ✅ |
+| 299 | sandbox-readiness | GET /sandbox/readiness with projectId returns structure | ✅ |
+| 300 | sandbox-readiness | issues array items have correct shape when present | ✅ |
+| 301 | sandbox-readiness | available is true when no issues | ✅ |
+| 302 | sandbox-readiness | readiness with non-existent projectId still returns structure | ✅ |
 
 ### Settings API
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 304 | settings-api | GET /api/settings returns object with providers | ✅ |
-| 305 | settings-api | PATCH /api/settings updates a field | ✅ |
-| 306 | settings-api | GET /api/settings verifies updated field persisted | ✅ |
-| 307 | settings-api | PATCH /api/settings adds custom provider entry | ✅ |
-| 308 | settings-api | GET /api/settings verifies custom provider exists | ✅ |
-| 309 | settings-api | PATCH /api/settings removes custom provider | ✅ |
+| 303 | settings-api | GET /api/settings returns object with providers | ✅ |
+| 304 | settings-api | PATCH /api/settings updates a field | ✅ |
+| 305 | settings-api | GET /api/settings verifies updated field persisted | ✅ |
+| 306 | settings-api | PATCH /api/settings adds custom provider entry | ✅ |
+| 307 | settings-api | GET /api/settings verifies custom provider exists | ✅ |
+| 308 | settings-api | PATCH /api/settings removes custom provider | ✅ |
 
 ### Skill API
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 310 | skill-api | POST /skills creates a skill | ✅ |
-| 311 | skill-api | GET /skills lists skills including created one | ✅ |
-| 312 | skill-api | GET /skills/:id returns full skill | ✅ |
-| 313 | skill-api | PATCH /skills/:id updates name and instructions | ✅ |
-| 314 | skill-api | POST /skills creates a second skill | ✅ |
-| 315 | skill-api | DELETE /skills/:id deletes unreferenced skill | ✅ |
-| 316 | skill-api | DELETE /skills/:id returns 409 when skill is referenced by agent | ✅ |
-| 317 | skill-api | POST /skills with empty name returns 400 | ✅ |
-| 318 | skill-api | GET /skills lists only non-deleted skills | ✅ |
+| 309 | skill-api | POST /skills creates a skill | ✅ |
+| 310 | skill-api | GET /skills lists skills including created one | ✅ |
+| 311 | skill-api | GET /skills/:id returns full skill | ✅ |
+| 312 | skill-api | PATCH /skills/:id updates name and instructions | ✅ |
+| 313 | skill-api | POST /skills creates a second skill | ✅ |
+| 314 | skill-api | DELETE /skills/:id deletes unreferenced skill | ✅ |
+| 315 | skill-api | DELETE /skills/:id returns 409 when skill is referenced by agent | ✅ |
+| 316 | skill-api | POST /skills with empty name returns 400 | ✅ |
+| 317 | skill-api | GET /skills lists only non-deleted skills | ✅ |
 
 ### Skills 导入
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 319 | skills-import-zip | imports a packaged skill with bundled scripts and assets | ✅ |
-| 320 | skills-import-zip | imports a packaged skill without a scripts directory | ✅ |
-| 321 | skills-import-zip | invalid zip upload returns an error without importing any skills | ✅ |
+| 318 | skills-import-zip | imports a packaged skill with bundled scripts and assets | ✅ |
+| 319 | skills-import-zip | imports a packaged skill without a scripts directory | ✅ |
+| 320 | skills-import-zip | invalid zip upload returns an error without importing any skills | ✅ |
 
 ### Team API
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 322 | team-api | POST /teams creates a team with members | ✅ |
-| 323 | team-api | GET /teams lists teams including created one | ✅ |
-| 324 | team-api | GET /teams/:id returns full team with members | ✅ |
-| 325 | team-api | PATCH /teams/:id updates name and description | ✅ |
-| 326 | team-api | PATCH /teams/:id updates members | ✅ |
-| 327 | team-api | POST /teams/:id/clone creates a copy | ✅ |
-| 328 | team-api | POST /teams/:id/clone returns 400 for empty name | ✅ |
-| 329 | team-api | POST /teams/:id/clone returns 400 for name over 100 chars | ✅ |
-| 330 | team-api | GET /teams/:id/layout returns layout (empty initially) | ✅ |
-| 331 | team-api | PUT /teams/:id/layout saves and returns layout | ✅ |
-| 332 | team-api | DELETE /teams/:id removes the team | ✅ |
-| 333 | team-api | DELETE /teams/:id clears project defaultTargetId if pointing to team | ✅ |
-| 334 | team-api | GET /teams/:id returns 404 for non-existent team | ✅ |
+| 321 | team-api | POST /teams creates a team with members | ✅ |
+| 322 | team-api | GET /teams lists teams including created one | ✅ |
+| 323 | team-api | GET /teams/:id returns full team with members | ✅ |
+| 324 | team-api | PATCH /teams/:id updates name and description | ✅ |
+| 325 | team-api | PATCH /teams/:id updates members | ✅ |
+| 326 | team-api | POST /teams/:id/clone creates a copy | ✅ |
+| 327 | team-api | POST /teams/:id/clone returns 400 for empty name | ✅ |
+| 328 | team-api | POST /teams/:id/clone returns 400 for name over 100 chars | ✅ |
+| 329 | team-api | GET /teams/:id/layout returns layout (empty initially) | ✅ |
+| 330 | team-api | PUT /teams/:id/layout saves and returns layout | ✅ |
+| 331 | team-api | DELETE /teams/:id removes the team | ✅ |
+| 332 | team-api | DELETE /teams/:id clears project defaultTargetId if pointing to team | ✅ |
+| 333 | team-api | GET /teams/:id returns 404 for non-existent team | ✅ |
 
 ### 模板创建
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 335 | template-creation | POST /projects/from-template creates writing-assistant project | ✅ |
-| 336 | template-creation | writing-assistant has 1 agent (Writer) | ✅ |
-| 337 | template-creation | writing-assistant has 5 skills | ✅ |
-| 338 | template-creation | writing-assistant has 1 MCP server (fetch) | ✅ |
-| 339 | template-creation | writing-assistant has no teams | ✅ |
-| 340 | template-creation | POST /projects/from-template creates deep-research project | ✅ |
-| 341 | template-creation | deep-research has 3 agents with correct roles | ✅ |
-| 342 | template-creation | deep-research has 4 skills | ✅ |
-| 343 | template-creation | deep-research has 1 team with 3 members | ✅ |
-| 344 | template-creation | deep-research has 3 MCP servers | ✅ |
-| 345 | template-creation | deep-research has 1 cron job (disabled) | ✅ |
-| 346 | template-creation | POST /projects/from-template returns 404 for unknown template | ✅ |
-| 347 | template-creation | POST /projects/from-template returns 400 without templateId | ✅ |
-| 348 | template-creation | POST /projects still creates a blank project (no template) | ✅ |
-| 349 | template-creation | cleanup: delete test projects | ✅ |
+| 334 | template-creation | POST /projects/from-template creates writing-assistant project | ✅ |
+| 335 | template-creation | writing-assistant has 1 agent (Writer) | ✅ |
+| 336 | template-creation | writing-assistant has 5 skills | ✅ |
+| 337 | template-creation | writing-assistant has 1 MCP server (fetch) | ✅ |
+| 338 | template-creation | writing-assistant has no teams | ✅ |
+| 339 | template-creation | POST /projects/from-template creates deep-research project | ✅ |
+| 340 | template-creation | deep-research has 3 agents with correct roles | ✅ |
+| 341 | template-creation | deep-research has 4 skills | ✅ |
+| 342 | template-creation | deep-research has 1 team with 3 members | ✅ |
+| 343 | template-creation | deep-research has 3 MCP servers | ✅ |
+| 344 | template-creation | deep-research has 1 cron job (disabled) | ✅ |
+| 345 | template-creation | POST /projects/from-template returns 404 for unknown template | ✅ |
+| 346 | template-creation | POST /projects/from-template returns 400 without templateId | ✅ |
+| 347 | template-creation | POST /projects still creates a blank project (no template) | ✅ |
+| 348 | template-creation | cleanup: delete test projects | ✅ |
 
 ### 模板全量
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 350 | template-creation-all | smart-secretary template creates correct structure | ✅ |
-| 351 | template-creation-all | translator template creates correct structure | ✅ |
-| 352 | template-creation-all | knowledge-explorer template creates correct structure | ✅ |
-| 353 | template-creation-all | life-manager template creates correct structure | ✅ |
-| 354 | template-creation-all | doc-hub template creates correct structure | ✅ |
-| 355 | template-creation-all | social-media-ops template creates correct structure | ✅ |
-| 356 | template-creation-all | customer-service template creates correct structure | ✅ |
-| 357 | template-creation-all | legal-compliance template creates correct structure | ✅ |
-| 358 | template-creation-all | product-mgmt template creates correct structure | ✅ |
-| 359 | template-creation-all | recruitment template creates correct structure | ✅ |
-| 360 | template-creation-all | content-marketing template creates correct structure | ✅ |
-| 361 | template-creation-all | seo-optimizer template creates correct structure | ✅ |
-| 362 | template-creation-all | sales-pipeline template creates correct structure | ✅ |
-| 363 | template-creation-all | financial-mgmt template creates correct structure | ✅ |
-| 364 | template-creation-all | data-analytics template creates correct structure | ✅ |
-| 365 | template-creation-all | academic-research template creates correct structure | ✅ |
-| 366 | template-creation-all | cleanup: delete all test projects | ✅ |
+| 349 | template-creation-all | smart-secretary template creates correct structure | ✅ |
+| 350 | template-creation-all | translator template creates correct structure | ✅ |
+| 351 | template-creation-all | knowledge-explorer template creates correct structure | ✅ |
+| 352 | template-creation-all | life-manager template creates correct structure | ✅ |
+| 353 | template-creation-all | doc-hub template creates correct structure | ✅ |
+| 354 | template-creation-all | social-media-ops template creates correct structure | ✅ |
+| 355 | template-creation-all | customer-service template creates correct structure | ✅ |
+| 356 | template-creation-all | legal-compliance template creates correct structure | ✅ |
+| 357 | template-creation-all | product-mgmt template creates correct structure | ✅ |
+| 358 | template-creation-all | recruitment template creates correct structure | ✅ |
+| 359 | template-creation-all | content-marketing template creates correct structure | ✅ |
+| 360 | template-creation-all | seo-optimizer template creates correct structure | ✅ |
+| 361 | template-creation-all | sales-pipeline template creates correct structure | ✅ |
+| 362 | template-creation-all | financial-mgmt template creates correct structure | ✅ |
+| 363 | template-creation-all | data-analytics template creates correct structure | ✅ |
+| 364 | template-creation-all | academic-research template creates correct structure | ✅ |
+| 365 | template-creation-all | cleanup: delete all test projects | ✅ |
 
 ### 模板 MCP 验证
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 367 | template-mcp-validation | all templates use consistent fetch server naming | ✅ |
-| 368 | template-mcp-validation | deep-research playwright package is consistent with other templates | ✅ |
-| 369 | template-mcp-validation | all MCP servers have description fields | ✅ |
-| 370 | template-mcp-validation | open-websearch version specifier is consistent | ✅ |
-| 371 | template-mcp-validation | template agent count is sane (every template has at least 1 agent) | ✅ |
+| 366 | template-mcp-validation | all templates use consistent fetch server naming | ✅ |
+| 367 | template-mcp-validation | deep-research playwright package is consistent with other templates | ✅ |
+| 368 | template-mcp-validation | all MCP servers have description fields | ✅ |
+| 369 | template-mcp-validation | open-websearch version specifier is consistent | ✅ |
+| 370 | template-mcp-validation | template agent count is sane (every template has at least 1 agent) | ✅ |
 
 ### Workspace API
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 372 | workspace-api | GET /workspace lists root directory as array | ✅ |
-| 373 | workspace-api | GET /workspace response entries are valid objects | ✅ |
-| 374 | workspace-api | GET /workspace?path=nonexistent returns empty array | ✅ |
-| 375 | workspace-api | GET /workspace/file without path returns 400 | ✅ |
-| 376 | workspace-api | GET /workspace/file?path=nonexistent.txt returns 404 | ✅ |
-| 377 | workspace-api | DELETE /workspace/file without path returns 400 | ✅ |
+| 371 | workspace-api | GET /workspace lists root directory as array | ✅ |
+| 372 | workspace-api | GET /workspace response entries are valid objects | ✅ |
+| 373 | workspace-api | GET /workspace?path=nonexistent returns empty array | ✅ |
+| 374 | workspace-api | GET /workspace/file without path returns 400 | ✅ |
+| 375 | workspace-api | GET /workspace/file?path=nonexistent.txt returns 404 | ✅ |
+| 376 | workspace-api | DELETE /workspace/file without path returns 400 | ✅ |
 
 ---
 
-## AI 层（24 文件 / 92 用例）
+## AI 层（25 文件 / 96 用例）
 
 ### Chat 流程
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 381 | chat-flow | send message and receive real AI response | ✅ |
-| 382 | chat-flow | thinking indicator appears while waiting for response | ✅ |
-| 383 | chat-flow | multi-turn conversation retains context | ✅ |
-| 384 | chat-flow | chat input disabled during streaming and re-enabled after | ✅ |
-| 385 | chat-flow | empty state shows agent cards for quick start | ✅ |
+| 377 | chat-flow | send message and receive real AI response | ✅ |
+| 378 | chat-flow | thinking indicator appears while waiting for response | ✅ |
+| 379 | chat-flow | multi-turn conversation retains context | ✅ |
+| 380 | chat-flow | chat input disabled during streaming and re-enabled after | ✅ |
 
 ### Chat 高级
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 386 | chat-advanced | Stop button interrupts streaming and re-enables input | ✅ |
-| 387 | chat-advanced | tool call block appears in chat when bash tool is used | ✅ |
-| 388 | chat-advanced | manual compact via API returns 201 after chat messages | ✅ |
+| 381 | chat-advanced | Stop button interrupts streaming and re-enables input | ✅ |
+| 382 | chat-advanced | tool call block appears in chat when bash tool is used | ✅ |
+| 383 | chat-advanced | manual compact via API returns 201 after chat messages | ✅ |
 
 ### Chat 生命周期
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 389 | chat-lifecycle | create conversation and send message via API | ✅ |
-| 390 | chat-lifecycle | verify conversation messages contain user and assistant | ✅ |
-| 391 | chat-lifecycle | verify agent status after chat completes | ✅ |
-| 392 | chat-lifecycle | verify runtime-status structure | ✅ |
-| 393 | chat-lifecycle | delete conversation and verify messages deleted | ✅ |
-| 394 | chat-lifecycle | chat with primary agent | ✅ |
-| 395 | chat-lifecycle | chat with secondary agent | ✅ |
-| 396 | chat-lifecycle | dashboard shows independent token counts for each agent | ✅ |
+| 384 | chat-lifecycle | create conversation and send message | ✅ |
+| 385 | chat-lifecycle | verify conversation messages contain user and assistant | ✅ |
+| 386 | chat-lifecycle | verify agent status after chat completes | ✅ |
+| 387 | chat-lifecycle | verify runtime-status structure | ✅ |
+| 388 | chat-lifecycle | delete conversation and verify messages deleted | ✅ |
+| 389 | chat-lifecycle | chat with primary agent | ✅ |
+| 390 | chat-lifecycle | chat with secondary agent | ✅ |
+| 391 | chat-lifecycle | dashboard shows independent token counts for each agent | ✅ |
+
+### Chat 中断
+
+| # | 文件 | 用例名 | 状态 |
+|---|------|--------|------|
+| 392 | chat-abort | abort mid-stream: agent status returns to idle and active count drops to 0 | ✅ |
+| 393 | chat-abort | abort mid-stream: token usage is recorded for completed steps | ✅ |
+| 394 | chat-abort | abort mid-stream: partial assistant message is not persisted | ✅ |
+| 395 | chat-abort | abort then recover: new chat works normally after abort | ✅ |
+| 396 | chat-abort | sub-agent abort: team chat abort returns all agents to idle | ✅ |
 
 ### Agent 角色
 
@@ -724,14 +734,14 @@ pnpm --filter @golemancy/desktop test:e2e:only -- --project=smoke
 |---|------|--------|------|
 | 404 | skill-effectiveness | JSON format skill: agent responds in JSON | ✅ |
 | 405 | skill-effectiveness | French language skill: agent responds in French | ✅ |
-| 406 | skill-effectiveness | multiple skills combine: agent follows both instructions | ✅ |
-| 407 | skill-effectiveness | removing skill changes agent behavior | ✅ |
+| 406 | skill-effectiveness | removing skill changes agent behavior | ✅ |
 
 ### Skill 包执行
 
 | # | 文件 | 用例名 | 状态 |
 |---|------|--------|------|
-| 408 | skill-package-execution | packaged skill with scripts can be imported and executed by the agent | ✅ |
+| 407 | skill-package-execution | packaged skill with scripts can be imported and executed by the agent | ✅ |
+| 408 | skill-package-execution | agent discovers and runs skill script from natural language instructions only | ✅ |
 | 409 | skill-package-execution | packaged skill without scripts can still be loaded and used by the agent | ✅ |
 
 ### Task 工具

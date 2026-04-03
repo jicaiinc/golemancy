@@ -170,7 +170,7 @@ Vitest: jsdom (UI), Node (server). Tests co-located (`*.test.{ts,tsx}`). UI setu
 
 ### E2E Testing
 
-Playwright + Electron，85 个文件，479 个用例。测试文件在 `apps/desktop/e2e/`。
+Playwright + Electron，84 个文件，479 个用例。测试文件在 `apps/desktop/e2e/`。
 
 **完整用例目录**：`apps/desktop/e2e/test-catalog.md`（479 个用例按层级/模块/文件分类）
 **测试运行记录**：`apps/desktop/e2e/TEST-LOG.md`（每次测试更新）
@@ -194,7 +194,7 @@ Playwright + Electron，85 个文件，479 个用例。测试文件在 `apps/des
 |------|--------|-------------|------|
 | smoke | 30 | 否 | UI 渲染、交互、导航 |
 | server | 28 | 否 | API CRUD、数据验证 |
-| ai | 24 | 是 | AI 对话、工具调用、token 计量 |
+| ai | 25 | 是 | AI 对话、工具调用、token 计量 |
 | onboarding | 1 | 否 | 独立 Electron 实例，空 data dir |
 
 #### 运行方式（推荐单文件运行）

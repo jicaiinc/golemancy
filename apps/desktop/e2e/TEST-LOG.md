@@ -178,3 +178,19 @@
 - Google + OpenAI: ~$0.19
 - 纯 Google: ~$0.36
 - OAuth（ChatGPT 订阅）: $0（配额内）
+
+---
+
+### 2026-04-03 — 目录对齐（无运行）
+
+文档校准：`test-catalog.md` 从源码重新生成，修正所有计数。
+
+| 变更 | 旧 | 新 | 说明 |
+|------|----|----|------|
+| 总文件数 | 83 | 84 | +1: ai/chat-abort.spec.ts |
+| 总用例数 | 474 | 479 | 净 +5（见下） |
+| server 层 | 223 | 224 | +1: deletion-safety 新增 isProjectBlocked guard 测试 |
+| ai 层文件 | 24 | 25 | +1: chat-abort（5 个用例） |
+| ai 层用例 | 92 | 96 | +5 新增, -1 chat-flow, -1 skill-effectiveness, +1 skill-package-execution |
+
+> 注：自 2026-03-15 初始全量验证以来未执行新的全量运行。上述变更通过源码 `grep` 校准，非测试执行结果。
