@@ -1,7 +1,8 @@
-import { delimiter } from 'node:path'
+import { delimiter, dirname } from 'node:path'
 import {
   getBundledCertFilePath,
   getBundledNodeBinDir,
+  getBundledPythonPath,
   getBundledUvBinDir,
   getProjectPythonEnvPath,
   getProjectPythonEnvBinPath,
@@ -96,19 +97,28 @@ export function buildRuntimeEnv(projectId: string, basePath?: string): RuntimeEn
 export function buildMCPRuntimeEnv(basePath?: string): Record<string, string> {
   const nodeBinDir = getBundledNodeBinDir()
   const uvBinDir = getBundledUvBinDir()
+  const pythonPath = getBundledPythonPath()
+  const pythonBinDir = pythonPath ? dirname(pythonPath) : null
 
-  if (!nodeBinDir && !uvBinDir) return {}
+  if (!nodeBinDir && !uvBinDir && !pythonBinDir) return {}
 
   const currentPath = basePath ?? process.env.PATH ?? ''
   const pathParts: string[] = []
   if (nodeBinDir) pathParts.push(nodeBinDir)
   if (uvBinDir) pathParts.push(uvBinDir)
+  if (pythonBinDir) pathParts.push(pythonBinDir)
   pathParts.push(currentPath)
 
   const env: Record<string, string> = {
     PATH: pathParts.join(delimiter),
   }
   if (nodeBinDir) env.npm_config_cache = getNpmCachePath()
+
+  // SSL certificate bundle for bundled Python's statically-compiled OpenSSL.
+  // Python MCP servers spawned via uvx inherit the bundled Python and need this
+  // for any HTTPS requests (API calls, webhooks, etc.).
+  const certFile = getBundledCertFilePath()
+  if (certFile) env.SSL_CERT_FILE = certFile
 
   log.debug({ env }, 'built MCP runtime env')
 
