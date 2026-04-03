@@ -9,6 +9,8 @@ const SAFE_ENV_KEYS = new Set([
   'TZ', 'TMPDIR', 'XDG_RUNTIME_DIR',
   'NODE_ENV', 'NODE_OPTIONS',
   'SSL_CERT_FILE',
+  // uv/uvx — set by server startup (index.ts) to pin bundled Python + cache location
+  'UV_PYTHON', 'UV_PYTHON_DOWNLOADS', 'UV_CACHE_DIR',
   // Windows
   'USERPROFILE', 'USERNAME', 'HOMEDRIVE', 'HOMEPATH',
   'SYSTEMROOT', 'WINDIR', 'COMSPEC', 'PATHEXT',

@@ -87,7 +87,7 @@ async function main() {
   // Prepend bundled runtime bin dirs to process.env.PATH so that all subprocess
   // spawns (including @ai-sdk/mcp which overwrites custom env.PATH with
   // process.env.PATH) can find bundled binaries.
-  // Final PATH order: bundledUvBin → bundledNodeBin → shellPath → original GUI PATH
+  // Final PATH order: bundledUvBin → bundledNodeBin → bundledPythonBin → shellPath → original GUI PATH
   const bundledNodeBin = getBundledNodeBinDir()
   if (bundledNodeBin && !process.env.PATH?.includes(bundledNodeBin)) {
     process.env.PATH = [bundledNodeBin, process.env.PATH ?? ''].join(path.delimiter)
@@ -98,6 +98,12 @@ async function main() {
   if (bundledUvBin && !process.env.PATH?.includes(bundledUvBin)) {
     process.env.PATH = [bundledUvBin, process.env.PATH ?? ''].join(path.delimiter)
     logger.info({ bundledUvBin }, 'prepended bundled uv bin to process.env.PATH')
+  }
+
+  const bundledPythonBin = getBundledPythonPath() ? path.dirname(getBundledPythonPath()!) : null
+  if (bundledPythonBin && !process.env.PATH?.includes(bundledPythonBin)) {
+    process.env.PATH = [bundledPythonBin, process.env.PATH ?? ''].join(path.delimiter)
+    logger.info({ bundledPythonBin }, 'prepended bundled python bin to process.env.PATH')
   }
 
   // Configure uv to use bundled Python and isolate its cache
