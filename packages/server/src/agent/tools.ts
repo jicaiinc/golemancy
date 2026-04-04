@@ -70,6 +70,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
+  const builtinToolNames: string[] = []
   let actualMode: PermissionMode | undefined
   let degradation: ModeDegradation | undefined
 
@@ -144,6 +145,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     })
     if (builtinResult) {
       Object.assign(tools, builtinResult.tools)
+      builtinToolNames.push(...Object.keys(builtinResult.tools))
       cleanups.push(builtinResult.cleanup)
       actualMode = builtinResult.actualMode
       if (builtinResult.degradation) {
@@ -182,6 +184,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
       : settings.defaultModel ?? agent.modelConfig
     instr_env = buildEnvironmentInstructions({
       agentName: agent.name,
+      projectId,
       workspaceDir,
       platform: process.platform,
       permissionMode: actualMode,
@@ -212,6 +215,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     const workspaceDir = path.join(getProjectPath(projectId), 'workspace')
     const openTools = createOpenTools({ workspaceRoot: workspaceDir })
     Object.assign(tools, openTools)
+    builtinToolNames.push(...Object.keys(openTools))
 
     instr_fileOpening = buildOpenInstructions()
 
@@ -282,7 +286,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   // MIDDLE: tool capabilities (reference material)
   // TAIL: workflow & memory (high recency weight for loaded memories)
 
-  // Combine team instruction + delegation under a single ## Your Team heading
+  // Combine team instruction + delegation under a single # Your Team heading
   let instr_team: string | undefined
   if (instr_teamRaw || instr_delegation) {
     const parts: string[] = ['# Your Team']
@@ -298,15 +302,24 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     instr_team = parts.join('\n\n')
   }
 
-  const instructionParts = [
+  // Consolidate built-in tool sub-sections under a single # Built-in Tools heading
+  let instr_builtin: string | undefined
+  {
+    const subSections = [instr_bash, instr_toolPriority, instr_fileOpening, instr_browser]
+      .filter((s): s is string => !!s)
+    if (builtinToolNames.length > 0) {
+      const header = `# Built-in Tools\n\nYou have ${builtinToolNames.length} built-in tool${builtinToolNames.length === 1 ? '' : 's'}: ${builtinToolNames.join(', ')}.`
+      instr_builtin = [header, ...subSections].join('\n\n')
+    }
+  }
+
+  // Collect, filter, then number top-level sections
+  const rawParts = [
     // HEAD — identity & context
     instr_env,
     instr_team,
     // MIDDLE — tool capabilities
-    instr_bash,
-    instr_toolPriority,
-    instr_fileOpening,
-    instr_browser,
+    instr_builtin,
     instr_mcp,
     instr_skills,
     // TAIL — workflow & memory
@@ -314,6 +327,16 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     instr_memoryBase,
     instr_memoryContext,
   ].filter((s): s is string => !!s)
+
+  // Apply section numbering to top-level headings (# → # N.)
+  let sectionNum = 0
+  const instructionParts = rawParts.map(s => {
+    if (s.startsWith('# ')) {
+      sectionNum++
+      return s.replace(/^# /, `# ${sectionNum}. `)
+    }
+    return s
+  })
 
   log.debug(
     { agentId: agent.id, agentName: agent.name, toolCount: Object.keys(tools).length },
@@ -333,7 +356,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 }
 
 function buildToolPriorityInstructions(): string {
-  return `# Tool Priority
+  return `## Tool Priority
 
 - To read files, use \`readFile\` instead of \`cat\` or \`head\` in bash.
 - To write files, use \`writeFile\` instead of \`echo >\` or heredoc in bash.

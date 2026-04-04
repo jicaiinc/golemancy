@@ -136,7 +136,7 @@ export function createOpenTools(ctx: OpenToolsContext): ToolSet {
 
 export function buildOpenInstructions(): string {
   return [
-    '# File Opening',
+    '## File Opening',
     '',
     'You have an `OpenFile` tool to open files with the system\'s default application.',
     'Always use `OpenFile` instead of shell commands like `open` (macOS), `xdg-open` (Linux), or `start` (Windows).',

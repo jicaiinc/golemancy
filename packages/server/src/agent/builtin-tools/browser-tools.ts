@@ -78,7 +78,7 @@ export interface BrowserToolsResult {
  */
 export function buildBrowserInstructions(): string {
   return [
-    '# Browser',
+    '## Browser',
     '',
     'You can control a browser to interact with web pages.',
     'Primary browser tools: browser_navigate, browser_snapshot, browser_click, browser_type, browser_fill, browser_screenshot.',

@@ -221,33 +221,47 @@ export interface BashRuntimeInfo {
  */
 export function buildBashInstructions(mode: PermissionMode, hasProject: boolean, platform?: SupportedPlatform, runtime?: BashRuntimeInfo): string {
   const lines: string[] = []
-  lines.push('# Bash Environment')
+  lines.push('## Bash')
   lines.push('')
 
   switch (mode) {
     case 'restricted':
       if (hasProject) {
-        lines.push('You are running in **restricted** mode with a virtual filesystem:')
+        lines.push('Mode: **restricted** — virtual filesystem sandbox.')
+        lines.push('')
+        lines.push('Layout:')
         lines.push('- `/workspace` — your working directory (read-write, persistent)')
         lines.push('- `/project` — project configuration and skills (read-only)')
         lines.push('')
-        lines.push('All file operations and command execution happen within this sandbox.')
+        lines.push('Limitations:')
+        lines.push('- No access to the host filesystem — all file operations are sandboxed')
+        lines.push('- Cannot execute native system binaries')
+        lines.push('- Network access is unrestricted within the sandbox')
+        lines.push('')
         lines.push('Write files and install packages in `/workspace`.')
         lines.push('Python is available in the sandbox. Use `pip install` to add packages as needed.')
       } else {
-        lines.push('You are running in **restricted** mode with a virtual sandbox.')
-        lines.push('File operations are confined to the sandbox environment.')
+        lines.push('Mode: **restricted** — virtual filesystem sandbox.')
+        lines.push('')
+        lines.push('Limitations:')
+        lines.push('- No access to the host filesystem — all file operations are sandboxed')
+        lines.push('- Cannot execute native system binaries')
+        lines.push('')
         lines.push('Python is available in the sandbox. Use `pip install` to add packages as needed.')
       }
       break
 
     case 'sandbox':
       if (platform && !isSandboxRuntimeSupported(platform)) {
-        lines.push('You are running in **sandbox** mode with application-level guardrails.')
-        lines.push('Commands are checked against a blacklist and filesystem access is validated against permissions config.')
+        lines.push('Mode: **sandbox** — application-level guardrails.')
         if (hasProject) {
           lines.push('Your working directory is the project workspace.')
         }
+        lines.push('')
+        lines.push('Limitations:')
+        lines.push('- Filesystem: read/write restricted to workspace and paths allowed by permissions config')
+        lines.push('- Network: outbound connections governed by permissions config allow/deny rules')
+        lines.push('- Commands: checked against a deny list before execution; blocked commands will fail')
         if (platform === 'win32') {
           lines.push('')
           lines.push('**Windows environment:**')
@@ -256,20 +270,30 @@ export function buildBashInstructions(mode: PermissionMode, hasProject: boolean,
           lines.push('- PowerShell cmdlets are also available if PowerShell is installed')
         }
       } else {
-        lines.push('You are running in **sandbox** mode with OS-level isolation.')
+        lines.push('Mode: **sandbox** — OS-level isolation.')
         if (hasProject) {
           lines.push('Your working directory is the project workspace.')
-          lines.push('Filesystem and network access are governed by the project\'s permissions config.')
         }
+        lines.push('')
+        lines.push('Limitations:')
+        lines.push('- Filesystem: read/write restricted to workspace and paths allowed by permissions config')
+        lines.push('- Network: outbound connections governed by permissions config allow/deny rules')
+        lines.push('- Commands: checked against a deny list before execution; blocked commands will fail')
       }
       appendRuntimeLines(lines, runtime)
       break
 
     case 'unrestricted':
-      lines.push('You are running in **unrestricted** mode with full system access.')
+      lines.push('Mode: **unrestricted** — full host system access.')
       if (hasProject) {
         lines.push('Your working directory is the project workspace.')
       }
+      lines.push('')
+      lines.push('No restrictions:')
+      lines.push('- Filesystem: full read/write access to the entire host system')
+      lines.push('- Network: unrestricted outbound connections')
+      lines.push('- Commands: all commands are allowed without restriction')
+      lines.push('')
       lines.push('Exercise caution — avoid destructive operations on system files or directories outside the workspace.')
       if (platform === 'win32') {
         lines.push('')

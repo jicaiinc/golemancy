@@ -98,7 +98,7 @@ describe('buildBashInstructions', () => {
     it('includes full system access text', () => {
       const result = buildBashInstructions('unrestricted', true)
       expect(result).toContain('**unrestricted**')
-      expect(result).toContain('full system access')
+      expect(result).toContain('full host system access')
     })
 
     it('includes Windows shell guidance on win32', () => {

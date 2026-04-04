@@ -35,7 +35,8 @@ describe('buildEnvironmentInstructions', () => {
       platform: 'linux',
       permissionMode: 'unrestricted',
     })
-    expect(result).toContain('Exercise caution')
+    expect(result).toContain('CAUTION')
+    expect(result).toContain('unrestricted mode')
   })
 
   it('omits permission section when mode is undefined', () => {
@@ -65,7 +66,8 @@ describe('buildEnvironmentInstructions', () => {
       model: 'claude-sonnet-4-20250514',
     })
     expect(result).toContain('- Model: claude-sonnet-4-20250514')
-    expect(result).not.toContain('(')
+    // Model line should NOT contain provider parens; timezone parens are OK
+    expect(result).toMatch(/Model: claude-sonnet-4-20250514\n/)
   })
 
   it('omits model line when not provided', () => {
@@ -89,6 +91,7 @@ describe('buildEnvironmentInstructions', () => {
       agentName: 'Test',
       platform: 'darwin',
     })
-    expect(result).toContain('- Date: 2026-04-05')
+    expect(result).toContain('- Date: 2026-04-05 01:00')
+    expect(result).toMatch(/Date: .+\(.+\)/)  // timezone in parens
   })
 })

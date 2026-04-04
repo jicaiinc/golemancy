@@ -359,10 +359,11 @@ describe('loadAgentTools', () => {
     expect(result.tools).toHaveProperty('delegate_to_agent-child')
     // No OpenFile — actualMode is 'restricted', not 'sandbox'
     expect(result.tools).not.toHaveProperty('OpenFile')
-    // Instructions include skill instructions + bash environment instructions
+    // Instructions include skill instructions + built-in tools (with bash inside)
     const joined = result.instructions.join('\n\n')
     expect(joined).toContain('skill instructions')
-    expect(joined).toContain('# Bash Environment')
+    expect(joined).toMatch(/# \d+\. Built-in Tools/)  // numbered consolidated section
+    expect(joined).toContain('## Bash')               // sub-section within built-in
 
     // Skills and bash are fully decoupled — no skill data passed to builtin
     expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {
