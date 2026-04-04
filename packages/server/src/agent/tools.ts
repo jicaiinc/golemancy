@@ -116,6 +116,9 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         Object.assign(tools, mcpResult.tools)
         // No cleanup pushed — pool manages MCP connections
       }
+      if (mcpResult.instructions) {
+        instructionParts.push(mcpResult.instructions)
+      }
     }
   }
 

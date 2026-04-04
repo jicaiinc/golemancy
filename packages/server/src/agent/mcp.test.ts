@@ -66,6 +66,7 @@ describe('loadAgentMcpTools', () => {
   it('returns empty result for empty server list', async () => {
     const result = await loadAgentMcpTools([])
     expect(result.tools).toEqual({})
+    expect(result.instructions).toBe('')
     expect(result.warnings).toEqual([])
   })
 
@@ -75,6 +76,7 @@ describe('loadAgentMcpTools', () => {
       makeServer({ name: 'another', enabled: false }),
     ])
     expect(result.tools).toEqual({})
+    expect(result.instructions).toBe('')
     expect(mocks.getTools).not.toHaveBeenCalled()
   })
 
@@ -383,6 +385,76 @@ describe('loadAgentMcpTools', () => {
       expect(result.warnings).not.toContainEqual(
         expect.stringContaining('running without sandbox isolation'),
       )
+    })
+  })
+
+  // ── MCP Instructions Tests ──────────────────────────────
+
+  describe('instructions', () => {
+    it('includes server name and tool names for a single server', async () => {
+      mocks.getTools.mockResolvedValue({
+        tools: { readFile: { execute: vi.fn() }, writeFile: { execute: vi.fn() } },
+      })
+
+      const result = await loadAgentMcpTools([makeServer({ name: 'filesystem' })])
+
+      expect(result.instructions).toContain('## MCP Server Tools')
+      expect(result.instructions).toContain('### filesystem (2 tools)')
+      expect(result.instructions).toContain('readFile')
+      expect(result.instructions).toContain('writeFile')
+    })
+
+    it('includes server description when provided', async () => {
+      mocks.getTools.mockResolvedValue({
+        tools: { search: { execute: vi.fn() } },
+      })
+
+      const result = await loadAgentMcpTools([
+        makeServer({ name: 'sentry', description: 'Error tracking and monitoring.' }),
+      ])
+
+      expect(result.instructions).toContain('### sentry (1 tool)')
+      expect(result.instructions).toContain('Error tracking and monitoring.')
+    })
+
+    it('groups tools by server when multiple servers loaded', async () => {
+      mocks.getTools
+        .mockResolvedValueOnce({ tools: { search: { execute: vi.fn() } } })
+        .mockResolvedValueOnce({ tools: { query: { execute: vi.fn() } } })
+
+      const result = await loadAgentMcpTools([
+        makeServer({ name: 'sentry', description: 'Error tracking.' }),
+        makeServer({ name: 'posthog', description: 'Product analytics.', command: '/usr/bin/other' }),
+      ])
+
+      expect(result.instructions).toContain('### sentry')
+      expect(result.instructions).toContain('Error tracking.')
+      expect(result.instructions).toContain('Tools: sentry_search')
+      expect(result.instructions).toContain('### posthog')
+      expect(result.instructions).toContain('Product analytics.')
+      expect(result.instructions).toContain('Tools: posthog_query')
+    })
+
+    it('excludes failed servers from instructions', async () => {
+      mocks.getTools
+        .mockResolvedValueOnce({ tools: {}, error: 'connection refused' })
+        .mockResolvedValueOnce({ tools: { okTool: { execute: vi.fn() } } })
+
+      const result = await loadAgentMcpTools([
+        makeServer({ name: 'broken' }),
+        makeServer({ name: 'working', command: '/usr/bin/other' }),
+      ])
+
+      expect(result.instructions).not.toContain('broken')
+      expect(result.instructions).toContain('### working')
+    })
+
+    it('returns empty instructions when all servers fail', async () => {
+      mocks.getTools.mockResolvedValue({ tools: {}, error: 'timeout' })
+
+      const result = await loadAgentMcpTools([makeServer({ name: 'dead' })])
+
+      expect(result.instructions).toBe('')
     })
   })
 })

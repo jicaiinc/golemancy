@@ -16,6 +16,8 @@ export interface MCPLoadOptions {
 
 export interface MCPLoadResult {
   tools: ToolSet
+  /** Instructions for the agent system prompt — server descriptions + tool grouping. */
+  instructions: string
   /** Warnings about servers that failed to load (for UI display, not for agent context). */
   warnings: string[]
 }
@@ -35,7 +37,7 @@ export async function loadAgentMcpTools(
 ): Promise<MCPLoadResult> {
   const warnings: string[] = []
   const enabled = mcpServers.filter(s => s.enabled)
-  if (enabled.length === 0) return { tools: {}, warnings }
+  if (enabled.length === 0) return { tools: {}, instructions: '', warnings }
 
   const mode = options?.resolvedPermissions.mode
   const platform = process.platform as SupportedPlatform
@@ -58,7 +60,7 @@ export async function loadAgentMcpTools(
     filtered = enabled
   }
 
-  if (filtered.length === 0) return { tools: {}, warnings }
+  if (filtered.length === 0) return { tools: {}, instructions: '', warnings }
 
   // ── shouldSandbox Decision Log (Requirement #22) ────────
   const shouldSandbox = !!(
@@ -87,17 +89,49 @@ export async function loadAgentMcpTools(
 
   // ── Pool-based tool loading ─────────────────────────────
   const allTools: ToolSet = {}
+  const serverToolGroups: Array<{ name: string; description?: string; toolNames: string[] }> = []
 
   for (const server of filtered) {
     const result = await mcpPool.getTools(server, options)
     if (result.error) {
       warnings.push(`MCP server "${server.name}" failed to load: ${result.error}`)
     }
+    const toolNames: string[] = []
     for (const [toolName, toolDef] of Object.entries(result.tools)) {
       const rawName = filtered.length > 1 ? `${server.name}_${toolName}` : toolName
-      allTools[sanitizeToolName(rawName)] = toolDef
+      const finalName = sanitizeToolName(rawName)
+      allTools[finalName] = toolDef
+      toolNames.push(finalName)
+    }
+    if (toolNames.length > 0) {
+      serverToolGroups.push({ name: server.name, description: server.description, toolNames })
     }
   }
 
-  return { tools: allTools, warnings }
+  const instructions = buildMcpInstructions(serverToolGroups)
+  return { tools: allTools, instructions, warnings }
+}
+
+/**
+ * Build a system prompt section that groups MCP tools by server,
+ * giving the agent a high-level overview of available MCP capabilities.
+ */
+function buildMcpInstructions(
+  servers: Array<{ name: string; description?: string; toolNames: string[] }>,
+): string {
+  if (servers.length === 0) return ''
+
+  const lines: string[] = ['## MCP Server Tools', '']
+
+  for (const server of servers) {
+    const count = server.toolNames.length
+    lines.push(`### ${server.name} (${count} ${count === 1 ? 'tool' : 'tools'})`)
+    if (server.description) {
+      lines.push(server.description)
+    }
+    lines.push(`Tools: ${server.toolNames.join(', ')}`)
+    lines.push('')
+  }
+
+  return lines.join('\n').trimEnd()
 }
