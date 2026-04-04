@@ -43,17 +43,19 @@ export class SqliteConversationTaskStorage implements ITaskService {
     subject: string
     description?: string
     activeForm?: string
+    status?: 'pending' | 'in_progress'
   }): Promise<ConversationTask> {
     const db = this.getProjectDb(projectId)
     const id = generateId('task')
     const now = new Date().toISOString()
+    const status = data.status ?? 'pending'
 
     await db.insert(schema.conversationTasks).values({
       id,
       conversationId,
       subject: data.subject,
       description: data.description ?? '',
-      status: 'pending',
+      status,
       activeForm: data.activeForm,
       blocks: [],
       blockedBy: [],
@@ -68,7 +70,7 @@ export class SqliteConversationTaskStorage implements ITaskService {
       conversationId,
       subject: data.subject,
       description: data.description ?? '',
-      status: 'pending',
+      status,
       activeForm: data.activeForm,
       blocks: [],
       blockedBy: [],
