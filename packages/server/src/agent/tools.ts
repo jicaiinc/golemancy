@@ -70,9 +70,22 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
-  const instructionParts: string[] = []
   let actualMode: PermissionMode | undefined
   let degradation: ModeDegradation | undefined
+
+  // Instruction sections — collected during tool loading, assembled in semantic order at the end.
+  let instr_skills: string | undefined
+  let instr_mcp: string | undefined
+  let instr_bash: string | undefined
+  let instr_toolPriority: string | undefined
+  let instr_browser: string | undefined
+  let instr_env: string | undefined
+  let instr_delegation: string | undefined
+  let instr_fileOpening: string | undefined
+  let instr_task: string | undefined
+  let instr_memoryBase: string | undefined
+  let instr_memoryContext: string | undefined
+  let instr_teamRaw: string | undefined  // raw user instruction (without heading)
 
   // 1. Skills — returns only the `skill` selector tool
   if (agent.skillIds?.length > 0) {
@@ -80,7 +93,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     if (skillResult) {
       Object.assign(tools, skillResult.tools)  // only { skill }
       if (skillResult.instructions) {
-        instructionParts.push(skillResult.instructions)
+        instr_skills = skillResult.instructions
       }
       cleanups.push(skillResult.cleanup)
     }
@@ -117,7 +130,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         // No cleanup pushed — pool manages MCP connections
       }
       if (mcpResult.instructions) {
-        instructionParts.push(mcpResult.instructions)
+        instr_mcp = mcpResult.instructions
       }
     }
   }
@@ -142,17 +155,17 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 
       // Bash instructions — inform agent about sandbox mode and filesystem layout
       if (agent.builtinTools?.bash !== false) {
-        instructionParts.push(buildBashInstructions(builtinResult.actualMode, !!projectId, process.platform as SupportedPlatform, runtimeEnvManager.getRuntimeInfo()))
+        instr_bash = buildBashInstructions(builtinResult.actualMode, !!projectId, process.platform as SupportedPlatform, runtimeEnvManager.getRuntimeInfo())
 
         // Tool priority — prefer dedicated tools over bash equivalents
         if (builtinResult.tools['readFile'] || builtinResult.tools['writeFile']) {
-          instructionParts.push(buildToolPriorityInstructions())
+          instr_toolPriority = buildToolPriorityInstructions()
         }
       }
 
       // Browser instructions — brief guidance on browser capabilities
       if (agent.builtinTools?.browser) {
-        instructionParts.push(buildBrowserInstructions())
+        instr_browser = buildBrowserInstructions()
       }
     }
   }
@@ -167,14 +180,14 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     const effectiveConfig = (agent.modelConfig?.provider && settings.providers?.[agent.modelConfig.provider])
       ? agent.modelConfig
       : settings.defaultModel ?? agent.modelConfig
-    instructionParts.push(buildEnvironmentInstructions({
+    instr_env = buildEnvironmentInstructions({
       agentName: agent.name,
       workspaceDir,
       platform: process.platform,
       permissionMode: actualMode,
       model: effectiveConfig?.model,
       provider: effectiveConfig?.provider,
-    }))
+    })
   }
 
   // 4. Sub-agents — derived from Team members (direct children of current agent)
@@ -189,7 +202,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     Object.assign(tools, subAgentResult.tools)
 
     // Delegation guidance — help parent agent write effective sub-agent prompts
-    instructionParts.push(buildDelegationInstructions(directChildren, allAgents))
+    instr_delegation = buildDelegationGuidelines()
   }
 
   // 5. Open file tool — sandbox-only: `open` is blocked by Seatbelt, so we provide IPC bypass
@@ -200,7 +213,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     const openTools = createOpenTools({ workspaceRoot: workspaceDir })
     Object.assign(tools, openTools)
 
-    instructionParts.push(buildOpenInstructions())
+    instr_fileOpening = buildOpenInstructions()
 
     log.debug('loaded open file built-in tools')
   }
@@ -214,7 +227,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     })
     Object.assign(tools, taskTools)
 
-    instructionParts.push(buildTaskInstructions())
+    instr_task = buildTaskInstructions()
 
     log.debug('loaded task built-in tools')
   }
@@ -235,7 +248,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     Object.assign(tools, memoryTools)
 
     // Base memory guidelines — always injected so agent knows it can save memories
-    instructionParts.push(buildMemoryBaseInstructions())
+    instr_memoryBase = buildMemoryBaseInstructions()
 
     // Memory context (status + loaded memories) — only when memories exist
     try {
@@ -245,12 +258,12 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         maxAutoLoad,
       )
       if (totalCount > 0 || pinned.length > 0) {
-        instructionParts.push(buildMemoryContextInstructions({
+        instr_memoryContext = buildMemoryContextInstructions({
           pinned: pinned.map(m => ({ id: m.id, content: m.content, priority: m.priority, tags: m.tags })),
           autoLoaded: autoLoaded.map(m => ({ id: m.id, content: m.content, priority: m.priority, tags: m.tags })),
           totalCount,
           maxAutoLoad,
-        }))
+        })
       }
     } catch (err) {
       log.warn({ err, agentId: agent.id }, 'failed to load agent memories')
@@ -261,8 +274,46 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 
   // 8. Team instruction — injected into leader agent context
   if (params.teamInstruction) {
-    instructionParts.push(`## Team Context\n${params.teamInstruction}`)
+    instr_teamRaw = params.teamInstruction
   }
+
+  // ── Assemble instructions in semantic order ──────────────────
+  // HEAD: identity & context (high primacy weight)
+  // MIDDLE: tool capabilities (reference material)
+  // TAIL: workflow & memory (high recency weight for loaded memories)
+
+  // Combine team instruction + delegation under a single ## Your Team heading
+  let instr_team: string | undefined
+  if (instr_teamRaw || instr_delegation) {
+    const parts: string[] = ['## Your Team']
+    // Teammates intro — list names so agent knows who delegate_to_* tools correspond to
+    if (directChildren && directChildren.length > 0) {
+      const names = directChildren
+        .map(c => allAgents.find(a => a.id === c.agentId)?.name)
+        .filter(Boolean)
+      parts.push(`You have ${names.length} teammate${names.length === 1 ? '' : 's'} (sub-agents): ${names.join(', ')}.\nUse the corresponding \`delegate_to_*\` tools to assign them tasks.`)
+    }
+    if (instr_teamRaw) parts.push(`### Team Instruction\n\n${instr_teamRaw}`)
+    if (instr_delegation) parts.push(instr_delegation)
+    instr_team = parts.join('\n\n')
+  }
+
+  const instructionParts = [
+    // HEAD — identity & context
+    instr_env,
+    instr_team,
+    // MIDDLE — tool capabilities
+    instr_bash,
+    instr_toolPriority,
+    instr_fileOpening,
+    instr_browser,
+    instr_mcp,
+    instr_skills,
+    // TAIL — workflow & memory
+    instr_task,
+    instr_memoryBase,
+    instr_memoryContext,
+  ].filter((s): s is string => !!s)
 
   log.debug(
     { agentId: agent.id, agentName: agent.name, toolCount: Object.keys(tools).length },
@@ -289,20 +340,12 @@ function buildToolPriorityInstructions(): string {
 - Reserve bash for commands that require shell execution (installing packages, running scripts, git operations).`
 }
 
-function buildDelegationInstructions(children: TeamMember[], allAgents: Agent[]): string {
-  const names = children
-    .map(c => allAgents.find(a => a.id === c.agentId)?.name)
-    .filter(Boolean)
+function buildDelegationGuidelines(): string {
+  return `### Delegating to Sub-agents
 
-  const lines: string[] = []
-  lines.push('## Delegating to Sub-agents')
-  lines.push('')
-  lines.push(`You have ${names.length} sub-agent(s) available: ${names.join(', ')}.`)
-  lines.push('')
-  lines.push('When delegating a task:')
-  lines.push('- Provide sufficient context — the sub-agent does not share your conversation history.')
-  lines.push('- Include specific file paths (absolute), known constraints, and what you have already tried or ruled out.')
-  lines.push('- State the expected output format (e.g., a code change, a summary, a file path).')
-  lines.push('- Avoid single-sentence prompts — a well-scoped task description saves round trips.')
-  return lines.join('\n')
+When delegating a task:
+- Provide sufficient context — the sub-agent does not share your conversation history.
+- Include specific file paths (absolute), known constraints, and what you have already tried or ruled out.
+- State the expected output format (e.g., a code change, a summary, a file path).
+- Avoid single-sentence prompts — a well-scoped task description saves round trips.`
 }
