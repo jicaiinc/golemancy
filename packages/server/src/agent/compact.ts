@@ -105,6 +105,9 @@ export async function compactConversation(opts: {
   }
 
   const summary = formatCompactSummary(text)
+  if (!summary) {
+    throw new Error('Compact failed: model returned a response but the extracted summary is empty')
+  }
   return { summary, inputTokens, outputTokens }
 }
 

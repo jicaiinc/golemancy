@@ -159,14 +159,21 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 
   // 3.5. Environment info — platform, date, model, per-mode safety guidance
   {
-    const workspaceDir = projectId ? path.join(getProjectPath(projectId), 'workspace') : undefined
+    // restricted mode: agent sees /workspace, not the host path
+    const workspaceDir = projectId
+      ? (actualMode === 'restricted' ? '/workspace' : path.join(getProjectPath(projectId), 'workspace'))
+      : undefined
+    // Mirror resolveModel fallback so prompt shows the actual model, not the stale config
+    const effectiveConfig = (agent.modelConfig?.provider && settings.providers?.[agent.modelConfig.provider])
+      ? agent.modelConfig
+      : settings.defaultModel ?? agent.modelConfig
     instructionParts.push(buildEnvironmentInstructions({
       agentName: agent.name,
       workspaceDir,
       platform: process.platform,
       permissionMode: actualMode,
-      model: agent.modelConfig?.model,
-      provider: agent.modelConfig?.provider,
+      model: effectiveConfig?.model,
+      provider: effectiveConfig?.provider,
     }))
   }
 

@@ -109,9 +109,10 @@ describe('formatCompactSummary', () => {
     expect(result).toBe('Just a plain summary without any tags.')
   })
 
-  it('handles empty summary tags gracefully', () => {
+  it('returns empty string for empty summary tags (caller must validate)', () => {
     const raw = '<analysis>thinking</analysis>\n<summary>\n</summary>'
     const result = formatCompactSummary(raw)
+    // formatCompactSummary itself returns '' — compactConversation rejects this with an error
     expect(result).toBe('')
   })
 })

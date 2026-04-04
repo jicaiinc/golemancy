@@ -10,6 +10,14 @@ export interface EnvironmentInfoOptions {
   provider?: string
 }
 
+function getLocalDate(): string {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export function buildEnvironmentInstructions(opts: EnvironmentInfoOptions): string {
   const lines: string[] = []
   lines.push('## Environment')
@@ -24,7 +32,7 @@ export function buildEnvironmentInstructions(opts: EnvironmentInfoOptions): stri
     const modelDisplay = opts.provider ? `${opts.model} (${opts.provider})` : opts.model
     lines.push(`- Model: ${modelDisplay}`)
   }
-  lines.push(`- Date: ${new Date().toISOString().slice(0, 10)}`)
+  lines.push(`- Date: ${getLocalDate()}`)
   if (opts.permissionMode) {
     lines.push(`- Permission mode: ${opts.permissionMode}`)
   }
