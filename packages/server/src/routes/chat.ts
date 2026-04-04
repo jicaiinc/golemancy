@@ -20,7 +20,7 @@ import type { WebSocketManager } from '../ws/handler'
 import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel, buildSystemPromptOptions } from '../agent/model'
 import { ConfigurationError } from '../agent/errors'
-import { loadAgentTools, buildBehaviorDirective } from '../agent/tools'
+import { loadAgentTools } from '../agent/tools'
 import { buildMessagesForModel, compactConversation } from '../agent/compact'
 import { generateId } from '../utils/ids'
 import { extractUploads, rehydrateUploadsForAI } from '../utils/message-parts'
@@ -281,7 +281,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
     })
 
     const allTools = agentToolsResult.tools
-    const systemPromptParts = [agent.systemPrompt, buildBehaviorDirective(), agentToolsResult.instructions].filter(Boolean)
+    const systemPromptParts = [agent.systemPrompt, ...agentToolsResult.instructions].filter(Boolean)
     const systemPrompt = systemPromptParts.join('\n\n')
 
     // Rehydrate upload references/HTTP URLs back to data URLs for AI consumption

@@ -225,7 +225,7 @@ describe('loadAgentTools', () => {
 
     expect(createOpenTools).toHaveBeenCalledWith({ workspaceRoot: '/tmp/test-project/workspace' })
     expect(result.tools).toHaveProperty('OpenFile')
-    expect(result.instructions).toContain('File Opening')
+    expect(result.instructions.join('\n\n')).toContain('File Opening')
   })
 
   it('skips open file tools in sandbox mode on unsupported platform (Windows)', async () => {
@@ -360,8 +360,9 @@ describe('loadAgentTools', () => {
     // No OpenFile — actualMode is 'restricted', not 'sandbox'
     expect(result.tools).not.toHaveProperty('OpenFile')
     // Instructions include skill instructions + bash environment instructions
-    expect(result.instructions).toContain('skill instructions')
-    expect(result.instructions).toContain('## Bash Environment')
+    const joined = result.instructions.join('\n\n')
+    expect(joined).toContain('skill instructions')
+    expect(joined).toContain('## Bash Environment')
 
     // Skills and bash are fully decoupled — no skill data passed to builtin
     expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {

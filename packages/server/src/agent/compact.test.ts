@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import type { UIMessage, CompactRecord } from '@golemancy/shared'
-import { buildMessagesForModel } from './compact'
+import { buildMessagesForModel, formatCompactSummary } from './compact'
 
 // compactConversation uses streamText from 'ai' — tested via mock
 vi.mock('ai', async (importOriginal) => {
@@ -87,6 +87,32 @@ describe('compactConversation', () => {
       resolved: { model: {} as any },
       systemPrompt: 'sys',
     })).rejects.toThrow('Compact failed: model returned empty response')
+  })
+})
+
+describe('formatCompactSummary', () => {
+  it('extracts content from <summary> tags', () => {
+    const raw = '<analysis>\nThinking about the conversation...\n</analysis>\n\n<summary>\n## Primary Request\nUser wanted X.\n\n## Pending Tasks\nStill need Y.\n</summary>'
+    const result = formatCompactSummary(raw)
+    expect(result).toBe('## Primary Request\nUser wanted X.\n\n## Pending Tasks\nStill need Y.')
+  })
+
+  it('strips <analysis> when <summary> tags are missing', () => {
+    const raw = '<analysis>\nSome thinking\n</analysis>\n\nHere is the actual summary.'
+    const result = formatCompactSummary(raw)
+    expect(result).toBe('Here is the actual summary.')
+  })
+
+  it('returns raw text when no tags are present', () => {
+    const raw = 'Just a plain summary without any tags.'
+    const result = formatCompactSummary(raw)
+    expect(result).toBe('Just a plain summary without any tags.')
+  })
+
+  it('handles empty summary tags gracefully', () => {
+    const raw = '<analysis>thinking</analysis>\n<summary>\n</summary>'
+    const result = formatCompactSummary(raw)
+    expect(result).toBe('')
   })
 })
 

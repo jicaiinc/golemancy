@@ -9,6 +9,7 @@ import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel, buildSystemPromptOptions } from './model'
 import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
+import { buildSubAgentInstructions } from './builtin-tools/sub-agent-instructions'
 import { generateId } from '../utils/ids'
 import { logger } from '../logger'
 
@@ -86,6 +87,7 @@ export function createSubAgentTool(
   allTeamMembers?: TeamMember[],
   memoryStorage?: SqliteMemoryStorage,
   oauthManager?: OAuthManager,
+  parentAgentName?: string,
 ) {
   return tool({
     description: `Delegate task to sub-agent "${childAgent.name}": ${childAgent.description}. To continue a previous conversation with this sub-agent, pass the sessionId from the previous result.`,
@@ -160,8 +162,8 @@ export function createSubAgentTool(
       try {
         const childResolved = await resolveModel(settings, childAgent.modelConfig, oauthManager)
 
-        const { buildBehaviorDirective } = await import('./tools')
-        const parts = [childAgent.systemPrompt, buildBehaviorDirective(), childToolsResult.instructions].filter(Boolean)
+        const subAgentInstr = parentAgentName ? buildSubAgentInstructions(parentAgentName) : undefined
+        const parts = [childAgent.systemPrompt, ...childToolsResult.instructions, subAgentInstr].filter(Boolean)
         const systemPrompt = parts.join('\n\n')
 
         const hasTools = Object.keys(childToolsResult.tools).length > 0
@@ -407,7 +409,7 @@ export function createSubAgentToolSet(
     }
 
     const toolName = sanitizeToolName(`delegate_to_${childAgent.id}`)
-    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage, allTeamMembers, memoryStorage, oauthManager)
+    tools[toolName] = createSubAgentTool(childAgent, allAgents, settings, projectId, loadTools, mcpStorage, permissionsConfigStorage, conversationId, conversationStorage, taskStorage, tokenRecordStorage, onTokenUsage, allTeamMembers, memoryStorage, oauthManager, agent.name)
 
     log.debug(
       { childAgent: childAgent.name, toolName },

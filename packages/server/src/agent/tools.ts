@@ -14,6 +14,7 @@ import { createTaskTools, buildTaskInstructions } from './builtin-tools/task-too
 import { createMemoryTools, buildMemoryBaseInstructions, buildMemoryContextInstructions } from './builtin-tools/memory-tools'
 import { buildBashInstructions } from './builtin-tools/bash-tools'
 import { buildBrowserInstructions } from './builtin-tools/browser-tools'
+import { buildEnvironmentInstructions } from './builtin-tools/env-info'
 import { createOpenTools, buildOpenInstructions } from './builtin-tools/open-tools'
 import { resolvePermissionsConfig } from './resolve-permissions'
 import { getProjectPath } from '../utils/paths'
@@ -44,7 +45,8 @@ export interface LoadAgentToolsParams {
 
 export interface AgentToolsResult {
   tools: ToolSet
-  instructions: string
+  /** Instruction sections to append to the system prompt. Join with '\n\n' when assembling. */
+  instructions: string[]
   /** Warnings about tools that failed to load (for UI display, not for agent context). */
   warnings: string[]
   /** The actual permission mode used (may differ from configured if degraded) */
@@ -54,23 +56,6 @@ export interface AgentToolsResult {
   cleanup: () => Promise<void>
 }
 
-/**
- * Build the behavior directive that instructs the model to take action
- * proactively using available tools, rather than just describing plans.
- */
-export function buildBehaviorDirective(): string {
-  return [
-    '## Execution Behavior',
-    '',
-    'Act, don\'t narrate.',
-    '',
-    '- **Do not restate what the user said** — just do it. Go straight to execution using your available tools.',
-    '- **Lead with action, not reasoning.** Call tools first, explain after. Try the simplest approach first.',
-    '- **Keep text output brief and direct.** If you can say it in one sentence, don\'t use three. Spend tokens on tool calls, not commentary.',
-    '- **Do not ask for permission or confirmation** before each step. Execute multi-step tasks sequentially without pausing for approval.',
-    '- Only ask the user for clarification when the request is genuinely ambiguous and you cannot make a reasonable assumption.',
-  ].join('\n')
-}
 
 /**
  * Unified entry point: load all tools for an agent (skills, MCP, built-in, sub-agents).
@@ -85,7 +70,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   const tools: ToolSet = {}
   const warnings: string[] = []
   const cleanups: Array<() => Promise<void>> = []
-  let instructions = ''
+  const instructionParts: string[] = []
   let actualMode: PermissionMode | undefined
   let degradation: ModeDegradation | undefined
 
@@ -95,7 +80,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     if (skillResult) {
       Object.assign(tools, skillResult.tools)  // only { skill }
       if (skillResult.instructions) {
-        instructions = instructions + '\n\n' + skillResult.instructions
+        instructionParts.push(skillResult.instructions)
       }
       cleanups.push(skillResult.cleanup)
     }
@@ -154,16 +139,32 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 
       // Bash instructions — inform agent about sandbox mode and filesystem layout
       if (agent.builtinTools?.bash !== false) {
-        const bashInstr = buildBashInstructions(builtinResult.actualMode, !!projectId, process.platform as SupportedPlatform, runtimeEnvManager.getRuntimeInfo())
-        instructions = instructions ? instructions + '\n\n' + bashInstr : bashInstr
+        instructionParts.push(buildBashInstructions(builtinResult.actualMode, !!projectId, process.platform as SupportedPlatform, runtimeEnvManager.getRuntimeInfo()))
+
+        // Tool priority — prefer dedicated tools over bash equivalents
+        if (builtinResult.tools['readFile'] || builtinResult.tools['writeFile']) {
+          instructionParts.push(buildToolPriorityInstructions())
+        }
       }
 
       // Browser instructions — brief guidance on browser capabilities
       if (agent.builtinTools?.browser) {
-        const browserInstr = buildBrowserInstructions()
-        instructions = instructions ? instructions + '\n\n' + browserInstr : browserInstr
+        instructionParts.push(buildBrowserInstructions())
       }
     }
+  }
+
+  // 3.5. Environment info — platform, date, model, per-mode safety guidance
+  {
+    const workspaceDir = projectId ? path.join(getProjectPath(projectId), 'workspace') : undefined
+    instructionParts.push(buildEnvironmentInstructions({
+      agentName: agent.name,
+      workspaceDir,
+      platform: process.platform,
+      permissionMode: actualMode,
+      model: agent.modelConfig?.model,
+      provider: agent.modelConfig?.provider,
+    }))
   }
 
   // 4. Sub-agents — derived from Team members (direct children of current agent)
@@ -176,6 +177,9 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
       directChildren, params.teamMembers, memoryStorage, params.oauthManager,
     )
     Object.assign(tools, subAgentResult.tools)
+
+    // Delegation guidance — help parent agent write effective sub-agent prompts
+    instructionParts.push(buildDelegationInstructions(directChildren, allAgents))
   }
 
   // 5. Open file tool — sandbox-only: `open` is blocked by Seatbelt, so we provide IPC bypass
@@ -186,8 +190,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     const openTools = createOpenTools({ workspaceRoot: workspaceDir })
     Object.assign(tools, openTools)
 
-    const openInstr = buildOpenInstructions()
-    instructions = instructions ? instructions + '\n\n' + openInstr : openInstr
+    instructionParts.push(buildOpenInstructions())
 
     log.debug('loaded open file built-in tools')
   }
@@ -201,9 +204,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     })
     Object.assign(tools, taskTools)
 
-    // Task instructions — usage guidelines for task management
-    const taskInstr = buildTaskInstructions()
-    instructions = instructions ? instructions + '\n\n' + taskInstr : taskInstr
+    instructionParts.push(buildTaskInstructions())
 
     log.debug('loaded task built-in tools')
   }
@@ -224,8 +225,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     Object.assign(tools, memoryTools)
 
     // Base memory guidelines — always injected so agent knows it can save memories
-    const memoryBaseInstr = buildMemoryBaseInstructions()
-    instructions = instructions ? instructions + '\n\n' + memoryBaseInstr : memoryBaseInstr
+    instructionParts.push(buildMemoryBaseInstructions())
 
     // Memory context (status + loaded memories) — only when memories exist
     try {
@@ -235,13 +235,12 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         maxAutoLoad,
       )
       if (totalCount > 0 || pinned.length > 0) {
-        const memoryContextInstr = buildMemoryContextInstructions({
+        instructionParts.push(buildMemoryContextInstructions({
           pinned: pinned.map(m => ({ id: m.id, content: m.content, priority: m.priority, tags: m.tags })),
           autoLoaded: autoLoaded.map(m => ({ id: m.id, content: m.content, priority: m.priority, tags: m.tags })),
           totalCount,
           maxAutoLoad,
-        })
-        instructions = instructions + '\n\n' + memoryContextInstr
+        }))
       }
     } catch (err) {
       log.warn({ err, agentId: agent.id }, 'failed to load agent memories')
@@ -252,8 +251,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 
   // 8. Team instruction — injected into leader agent context
   if (params.teamInstruction) {
-    const teamInstr = `## Team Context\n${params.teamInstruction}`
-    instructions = instructions ? instructions + '\n\n' + teamInstr : teamInstr
+    instructionParts.push(`## Team Context\n${params.teamInstruction}`)
   }
 
   log.debug(
@@ -263,7 +261,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 
   return {
     tools,
-    instructions,
+    instructions: instructionParts,
     warnings,
     actualMode,
     degradation,
@@ -271,4 +269,30 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
       await Promise.all(cleanups.map(fn => fn().catch(() => {})))
     },
   }
+}
+
+function buildToolPriorityInstructions(): string {
+  return `## Tool Priority
+
+- To read files, use \`readFile\` instead of \`cat\` or \`head\` in bash.
+- To write files, use \`writeFile\` instead of \`echo >\` or heredoc in bash.
+- Reserve bash for commands that require shell execution (installing packages, running scripts, git operations).`
+}
+
+function buildDelegationInstructions(children: TeamMember[], allAgents: Agent[]): string {
+  const names = children
+    .map(c => allAgents.find(a => a.id === c.agentId)?.name)
+    .filter(Boolean)
+
+  const lines: string[] = []
+  lines.push('## Delegating to Sub-agents')
+  lines.push('')
+  lines.push(`You have ${names.length} sub-agent(s) available: ${names.join(', ')}.`)
+  lines.push('')
+  lines.push('When delegating a task:')
+  lines.push('- Provide sufficient context — the sub-agent does not share your conversation history.')
+  lines.push('- Include specific file paths (absolute), known constraints, and what you have already tried or ruled out.')
+  lines.push('- State the expected output format (e.g., a code change, a summary, a file path).')
+  lines.push('- Avoid single-sentence prompts — a well-scoped task description saves round trips.')
+  return lines.join('\n')
 }
