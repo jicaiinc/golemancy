@@ -324,14 +324,24 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
     instr_memoryContext,
   ].filter((s): s is string => !!s)
 
-  // Apply section numbering to top-level headings (# → # N.)
+  // Apply section numbering: # → # N., ## → ## N.M.
   let sectionNum = 0
+  let subNum = 0
   const instructionParts = rawParts.map(s => {
     if (s.startsWith('# ')) {
       sectionNum++
-      return s.replace(/^# /, `# ${sectionNum}. `)
+      subNum = 0
     }
-    return s
+    return s.split('\n').map(line => {
+      if (line.startsWith('# ')) {
+        return line.replace(/^# /, `# ${sectionNum}. `)
+      }
+      if (line.startsWith('## ')) {
+        subNum++
+        return line.replace(/^## /, `## ${sectionNum}.${subNum}. `)
+      }
+      return line
+    }).join('\n')
   })
 
   log.debug(

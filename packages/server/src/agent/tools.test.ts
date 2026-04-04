@@ -362,8 +362,8 @@ describe('loadAgentTools', () => {
     // Instructions include skill instructions + built-in tools (with bash inside)
     const joined = result.instructions.join('\n\n')
     expect(joined).toContain('skill instructions')
-    expect(joined).toMatch(/# \d+\. Built-in Tools/)  // numbered consolidated section
-    expect(joined).toContain('## Bash')               // sub-section within built-in
+    expect(joined).toMatch(/# \d+\. Built-in Tools/)     // numbered consolidated section
+    expect(joined).toMatch(/## \d+\.\d+\. Bash/)        // numbered sub-section within built-in
 
     // Skills and bash are fully decoupled — no skill data passed to builtin
     expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {
