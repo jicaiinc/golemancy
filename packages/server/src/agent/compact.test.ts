@@ -67,6 +67,28 @@ describe('compactConversation', () => {
     expect(onProgress).toHaveBeenCalledWith({ generatedChars: 4 })
   })
 
+  it('throws when formatted summary is empty (non-empty raw with empty summary tags)', async () => {
+    const { streamText } = await import('ai')
+
+    // Model returns analysis but empty summary — raw text is non-empty, but extracted summary is ''
+    const mockStream = (async function* () {
+      yield '<analysis>thinking</analysis>\n<summary>\n</summary>'
+    })()
+
+    vi.mocked(streamText).mockReturnValue({
+      textStream: mockStream,
+      totalUsage: Promise.resolve({ inputTokens: 50, outputTokens: 20 }),
+      finishReason: Promise.resolve('stop'),
+    } as any)
+
+    const { compactConversation } = await import('./compact')
+
+    await expect(compactConversation({
+      messages: [{ role: 'user', content: 'x' }] as any,
+      resolved: { model: {} as any },
+    })).rejects.toThrow('extracted summary is empty')
+  })
+
   it('throws when model returns empty response', async () => {
     const { streamText } = await import('ai')
 
