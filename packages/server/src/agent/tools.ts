@@ -285,7 +285,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   // Combine team instruction + delegation under a single ## Your Team heading
   let instr_team: string | undefined
   if (instr_teamRaw || instr_delegation) {
-    const parts: string[] = ['## Your Team']
+    const parts: string[] = ['# Your Team']
     // Teammates intro — list names so agent knows who delegate_to_* tools correspond to
     if (directChildren && directChildren.length > 0) {
       const names = directChildren
@@ -293,7 +293,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
         .filter(Boolean)
       parts.push(`You have ${names.length} teammate${names.length === 1 ? '' : 's'} (sub-agents): ${names.join(', ')}.\nUse the corresponding \`delegate_to_*\` tools to assign them tasks.`)
     }
-    if (instr_teamRaw) parts.push(`### Team Instruction\n\n${instr_teamRaw}`)
+    if (instr_teamRaw) parts.push(`## Team Instruction\n\n${instr_teamRaw}`)
     if (instr_delegation) parts.push(instr_delegation)
     instr_team = parts.join('\n\n')
   }
@@ -333,7 +333,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
 }
 
 function buildToolPriorityInstructions(): string {
-  return `## Tool Priority
+  return `# Tool Priority
 
 - To read files, use \`readFile\` instead of \`cat\` or \`head\` in bash.
 - To write files, use \`writeFile\` instead of \`echo >\` or heredoc in bash.
@@ -341,7 +341,7 @@ function buildToolPriorityInstructions(): string {
 }
 
 function buildDelegationGuidelines(): string {
-  return `### Delegating to Sub-agents
+  return `## Delegating to Sub-agents
 
 When delegating a task:
 - Provide sufficient context — the sub-agent does not share your conversation history.

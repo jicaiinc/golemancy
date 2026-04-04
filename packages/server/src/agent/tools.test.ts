@@ -362,7 +362,7 @@ describe('loadAgentTools', () => {
     // Instructions include skill instructions + bash environment instructions
     const joined = result.instructions.join('\n\n')
     expect(joined).toContain('skill instructions')
-    expect(joined).toContain('## Bash Environment')
+    expect(joined).toContain('# Bash Environment')
 
     // Skills and bash are fully decoupled — no skill data passed to builtin
     expect(loadBuiltinTools).toHaveBeenCalledWith({ bash: true }, {

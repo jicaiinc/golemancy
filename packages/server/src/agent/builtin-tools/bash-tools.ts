@@ -221,7 +221,7 @@ export interface BashRuntimeInfo {
  */
 export function buildBashInstructions(mode: PermissionMode, hasProject: boolean, platform?: SupportedPlatform, runtime?: BashRuntimeInfo): string {
   const lines: string[] = []
-  lines.push('## Bash Environment')
+  lines.push('# Bash Environment')
   lines.push('')
 
   switch (mode) {

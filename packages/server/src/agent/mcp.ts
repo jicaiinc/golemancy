@@ -121,11 +121,11 @@ function buildMcpInstructions(
 ): string {
   if (servers.length === 0) return ''
 
-  const lines: string[] = ['## MCP Server Tools', '']
+  const lines: string[] = ['# MCP Server Tools', '']
 
   for (const server of servers) {
     const count = server.toolNames.length
-    lines.push(`### ${server.name} (${count} ${count === 1 ? 'tool' : 'tools'})`)
+    lines.push(`## ${server.name} (${count} ${count === 1 ? 'tool' : 'tools'})`)
     if (server.description) {
       lines.push(server.description)
     }

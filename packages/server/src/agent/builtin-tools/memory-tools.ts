@@ -134,7 +134,7 @@ export function createMemoryTools(ctx: MemoryToolsContext): ToolSet {
  */
 export function buildMemoryBaseInstructions(): string {
   const lines: string[] = []
-  lines.push('## Your Memory Bank')
+  lines.push('# Your Memory Bank')
   lines.push('')
   lines.push('You have 4 tools: MemorySave, MemorySearch, MemoryUpdate, MemoryDelete.')
   lines.push('Priority scale: 0 (Archive) → 3 (Normal, default) → 5 (Critical).')
@@ -144,7 +144,7 @@ export function buildMemoryBaseInstructions(): string {
   lines.push('When a memory becomes outdated, update it rather than creating a new one.')
   lines.push('Pinned memories are controlled by the user — do not ask to unpin them.')
   lines.push('')
-  lines.push('### Memory Guidelines')
+  lines.push('## Memory Guidelines')
   lines.push('')
   lines.push('**When to save a memory:**')
   lines.push('- User preferences or corrections that should persist across conversations')
@@ -180,7 +180,7 @@ export function buildMemoryContextInstructions(data: {
   const notLoaded = totalCount - pinned.length - autoLoaded.length
 
   const lines: string[] = []
-  lines.push('### Memory Status')
+  lines.push('## Memory Status')
   lines.push(`- Total memories: ${totalCount}`)
   lines.push(`- Pinned: ${pinned.length} (always loaded, bypass auto-load limit)`)
   lines.push(`- Auto-load limit: ${maxAutoLoad}`)
@@ -192,7 +192,7 @@ export function buildMemoryContextInstructions(data: {
 
   if (pinned.length > 0) {
     lines.push('')
-    lines.push('### Pinned Memories (always loaded)')
+    lines.push('## Pinned Memories (always loaded)')
     for (const m of pinned) {
       const tagStr = m.tags.length > 0 ? ` ${m.tags.map(t => `#${t}`).join(' ')}` : ''
       lines.push(`[${m.id}] (pinned, priority:${m.priority})${tagStr}: ${m.content}`)
@@ -201,7 +201,7 @@ export function buildMemoryContextInstructions(data: {
 
   if (autoLoaded.length > 0) {
     lines.push('')
-    lines.push(`### Auto-loaded Memories (top ${autoLoaded.length} by priority + recency)`)
+    lines.push(`## Auto-loaded Memories (top ${autoLoaded.length} by priority + recency)`)
     for (const m of autoLoaded) {
       const tagStr = m.tags.length > 0 ? ` ${m.tags.map(t => `#${t}`).join(' ')}` : ''
       lines.push(`[${m.id}] (priority:${m.priority})${tagStr}: ${m.content}`)

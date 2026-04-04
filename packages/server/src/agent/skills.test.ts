@@ -54,7 +54,8 @@ describe('loadAgentSkillTools', () => {
     const result = await loadAgentSkillTools(projId, ['skill-abc'])
     expect(result).not.toBeNull()
     expect(result!.tools).toHaveProperty('skill')
-    expect(result!.instructions).toBe('')
+    expect(result!.instructions).toContain('# Skills')
+    expect(result!.instructions).toContain('skill-abc')
     expect(typeof result!.cleanup).toBe('function')
 
     // Cleanup should not throw

@@ -398,8 +398,8 @@ describe('loadAgentMcpTools', () => {
 
       const result = await loadAgentMcpTools([makeServer({ name: 'filesystem' })])
 
-      expect(result.instructions).toContain('## MCP Server Tools')
-      expect(result.instructions).toContain('### filesystem (2 tools)')
+      expect(result.instructions).toContain('# MCP Server Tools')
+      expect(result.instructions).toContain('## filesystem (2 tools)')
       expect(result.instructions).toContain('readFile')
       expect(result.instructions).toContain('writeFile')
     })
@@ -413,7 +413,7 @@ describe('loadAgentMcpTools', () => {
         makeServer({ name: 'sentry', description: 'Error tracking and monitoring.' }),
       ])
 
-      expect(result.instructions).toContain('### sentry (1 tool)')
+      expect(result.instructions).toContain('## sentry (1 tool)')
       expect(result.instructions).toContain('Error tracking and monitoring.')
     })
 
@@ -427,10 +427,10 @@ describe('loadAgentMcpTools', () => {
         makeServer({ name: 'posthog', description: 'Product analytics.', command: '/usr/bin/other' }),
       ])
 
-      expect(result.instructions).toContain('### sentry')
+      expect(result.instructions).toContain('## sentry')
       expect(result.instructions).toContain('Error tracking.')
       expect(result.instructions).toContain('Tools: sentry_search')
-      expect(result.instructions).toContain('### posthog')
+      expect(result.instructions).toContain('## posthog')
       expect(result.instructions).toContain('Product analytics.')
       expect(result.instructions).toContain('Tools: posthog_query')
     })
@@ -446,7 +446,7 @@ describe('loadAgentMcpTools', () => {
       ])
 
       expect(result.instructions).not.toContain('broken')
-      expect(result.instructions).toContain('### working')
+      expect(result.instructions).toContain('## working')
     })
 
     it('returns empty instructions when all servers fail', async () => {

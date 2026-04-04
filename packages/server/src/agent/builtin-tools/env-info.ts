@@ -20,7 +20,7 @@ function getLocalDate(): string {
 
 export function buildEnvironmentInstructions(opts: EnvironmentInfoOptions): string {
   const lines: string[] = []
-  lines.push('## Environment')
+  lines.push('# Environment')
   lines.push('')
   lines.push(`- Agent: ${opts.agentName}`)
   if (opts.workspaceDir) {

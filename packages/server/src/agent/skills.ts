@@ -33,7 +33,7 @@ export async function loadAgentSkillTools(
   const cleanup = () => fs.rm(tempDir, { recursive: true, force: true }).catch(() => {})
 
   const pathMap = new Map<string, string>() // sandboxPath -> absolutePath
-  let linkedCount = 0
+  const linkedSkillIds: string[] = []
   for (const skillId of skillIds) {
     validateId(skillId)
     const source = path.join(projectSkillsDir, skillId)
@@ -42,11 +42,12 @@ export async function loadAgentSkillTools(
       await fs.access(source)
       await fs.symlink(source, target, 'dir')
       pathMap.set(`./skills/${skillId}`, source)
-      linkedCount++
+      linkedSkillIds.push(skillId)
     } catch {
       log.warn({ skillId, projectId }, 'skill directory not found, skipping')
     }
   }
+  const linkedCount = linkedSkillIds.length
 
   if (linkedCount === 0) {
     await cleanup()
@@ -55,7 +56,7 @@ export async function loadAgentSkillTools(
 
   try {
     // 2. Discover skills and create skill selector tool
-    const { skill, files, instructions } = await createSkillTool({ skillsDirectory: tempDir })
+    const { skill, files } = await createSkillTool({ skillsDirectory: tempDir })
 
     log.debug(
       { projectId, skillCount: linkedCount, fileCount: Object.keys(files).length },
@@ -97,12 +98,20 @@ export async function loadAgentSkillTools(
 
     // NOTE: Do NOT clean up tempDir here — bash-tool reads skill files lazily
     // when the tool is invoked during streaming. Caller must call cleanup() after stream ends.
-    // Return empty instructions — bash-tool generates sandbox-relative paths that don't exist.
-    // The skill tool description + execute result already provide all info the model needs.
-    return { tools: { skill: wrappedSkill }, instructions: '', cleanup }
+    const instructions = buildSkillInstructions(linkedSkillIds)
+    return { tools: { skill: wrappedSkill }, instructions, cleanup }
   } catch (e) {
     log.error({ err: e, projectId }, 'failed to create skill tools')
     await cleanup()
     return null
   }
+}
+
+function buildSkillInstructions(skillIds: string[]): string {
+  return [
+    '# Skills',
+    '',
+    `You have a \`skill\` tool to load and execute project skills.`,
+    `${skillIds.length} skill${skillIds.length === 1 ? '' : 's'} available: ${skillIds.join(', ')}.`,
+  ].join('\n')
 }

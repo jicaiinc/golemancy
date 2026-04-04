@@ -232,7 +232,7 @@ describe('buildBrowserInstructions', () => {
   it('returns a non-empty string with browser guidance', () => {
     const instructions = buildBrowserInstructions()
 
-    expect(instructions).toContain('## Browser')
+    expect(instructions).toContain('# Browser')
     expect(instructions).toContain('browser_navigate')
     expect(instructions).toContain('browser_snapshot')
   })

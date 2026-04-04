@@ -7,7 +7,7 @@
  * - How to behave (absolute paths, concise reporting)
  */
 export function buildSubAgentInstructions(parentAgentName: string): string {
-  return `## Sub-agent Context
+  return `# Sub-agent Context
 
 You are running as a sub-agent delegated by "${parentAgentName}".
 
