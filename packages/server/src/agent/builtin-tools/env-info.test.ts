@@ -28,7 +28,7 @@ describe('buildEnvironmentInstructions', () => {
     expect(result).toContain('permissions config')
   })
 
-  it('shows caution in unrestricted mode', () => {
+  it('shows caution with wait-for-confirmation in unrestricted interactive mode', () => {
     const result = buildEnvironmentInstructions({
       agentName: 'Test',
       workspaceDir: '/some/path',
@@ -36,7 +36,21 @@ describe('buildEnvironmentInstructions', () => {
       permissionMode: 'unrestricted',
     })
     expect(result).toContain('CAUTION')
-    expect(result).toContain('unrestricted mode')
+    expect(result).toContain('wait for confirmation')
+    expect(result).not.toContain('sending external API requests')
+  })
+
+  it('shows caution without wait-for-confirmation in unrestricted automated mode', () => {
+    const result = buildEnvironmentInstructions({
+      agentName: 'Test',
+      workspaceDir: '/some/path',
+      platform: 'linux',
+      permissionMode: 'unrestricted',
+      isAutomated: true,
+    })
+    expect(result).toContain('CAUTION')
+    expect(result).toContain('Log what you are doing')
+    expect(result).not.toContain('wait for confirmation')
   })
 
   it('omits permission section when mode is undefined', () => {

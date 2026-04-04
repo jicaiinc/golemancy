@@ -41,6 +41,8 @@ export interface LoadAgentToolsParams {
   teamMembers?: TeamMember[]
   teamInstruction?: string
   oauthManager?: OAuthManager
+  /** When true, suppress interactive-only guidance like "wait for confirmation" (cron jobs). */
+  isAutomated?: boolean
 }
 
 export interface AgentToolsResult {
@@ -190,6 +192,7 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
       permissionMode: actualMode,
       model: effectiveConfig?.model,
       provider: effectiveConfig?.provider,
+      isAutomated: params.isAutomated,
     })
   }
 

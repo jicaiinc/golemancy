@@ -9,6 +9,8 @@ export interface EnvironmentInfoOptions {
   permissionMode?: PermissionMode
   model?: string
   provider?: string
+  /** When true, suppress "wait for confirmation" guidance (cron jobs, automated pipelines). */
+  isAutomated?: boolean
 }
 
 function getLocalDateTime(): string {
@@ -47,8 +49,12 @@ export function buildEnvironmentInstructions(opts: EnvironmentInfoOptions): stri
   if (opts.permissionMode === 'unrestricted') {
     lines.push('')
     lines.push('CAUTION: You are running in unrestricted mode — no sandbox or permission guardrails are active.')
-    lines.push('Before any destructive or hard-to-reverse operation, state what you intend to do and wait for confirmation.')
-    lines.push('This includes: deleting files, overwriting data, modifying system configs, sending external API requests.')
+    if (opts.isAutomated) {
+      lines.push('Log what you are doing before destructive operations (deleting files, overwriting data, modifying system configs), then proceed.')
+    } else {
+      lines.push('Before any destructive or hard-to-reverse operation, state what you intend to do and wait for confirmation.')
+      lines.push('This includes: deleting files, overwriting data, modifying system configs.')
+    }
   } else if (opts.permissionMode === 'sandbox') {
     lines.push('')
     lines.push('Filesystem and network access are governed by the project\'s permissions config.')

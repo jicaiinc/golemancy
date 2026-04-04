@@ -158,6 +158,7 @@ export class CronJobExecutor {
         teamMembers,
         teamInstruction,
         oauthManager: this.deps.oauthManager,
+        isAutomated: true,
       })
 
       toolCleanup = () => agentToolsResult.cleanup()
