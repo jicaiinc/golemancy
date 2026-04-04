@@ -290,12 +290,8 @@ export async function loadAgentTools(params: LoadAgentToolsParams): Promise<Agen
   let instr_team: string | undefined
   if (instr_teamRaw || instr_delegation) {
     const parts: string[] = ['# Your Team']
-    // Teammates intro — list names so agent knows who delegate_to_* tools correspond to
     if (directChildren && directChildren.length > 0) {
-      const names = directChildren
-        .map(c => allAgents.find(a => a.id === c.agentId)?.name)
-        .filter(Boolean)
-      parts.push(`You have ${names.length} teammate${names.length === 1 ? '' : 's'} (sub-agents): ${names.join(', ')}.\nUse the corresponding \`delegate_to_*\` tools to assign them tasks.`)
+      parts.push(buildTeammatesSummary(directChildren, allAgents, params.teamMembers))
     }
     if (instr_teamRaw) parts.push(`## Team Instruction\n\n${instr_teamRaw}`)
     if (instr_delegation) parts.push(instr_delegation)
@@ -371,4 +367,60 @@ When delegating a task:
 - Include specific file paths (absolute), known constraints, and what you have already tried or ruled out.
 - State the expected output format (e.g., a code change, a summary, a file path).
 - Avoid single-sentence prompts — a well-scoped task description saves round trips.`
+}
+
+function buildTeammatesSummary(
+  directChildren: TeamMember[],
+  allAgents: Agent[],
+  allTeamMembers?: TeamMember[],
+): string {
+  const lines: string[] = []
+  lines.push(`You have ${directChildren.length} teammate${directChildren.length === 1 ? '' : 's'} (sub-agents). Use the corresponding \`delegate_to_*\` tools to assign them tasks.`)
+
+  for (const child of directChildren) {
+    const childAgent = allAgents.find(a => a.id === child.agentId)
+    if (!childAgent) continue
+
+    const desc = childAgent.description ? ` — ${childAgent.description}` : ''
+    lines.push('')
+    lines.push(`- **${childAgent.name}**${desc}`)
+
+    const caps: string[] = []
+
+    // Built-in capabilities (skip task/memory — every agent has them)
+    if (childAgent.builtinTools) {
+      const builtins: string[] = []
+      if (childAgent.builtinTools.bash !== false) builtins.push('bash')
+      if (childAgent.builtinTools.browser) builtins.push('browser')
+      if (childAgent.builtinTools.computer_use) builtins.push('computer_use')
+      if (builtins.length > 0) caps.push(builtins.join(', '))
+    }
+
+    // MCP servers
+    if (childAgent.mcpServers && childAgent.mcpServers.length > 0) {
+      caps.push(`MCP: ${childAgent.mcpServers.join(', ')}`)
+    }
+
+    // Skills
+    if (childAgent.skillIds && childAgent.skillIds.length > 0) {
+      caps.push(`Skills: ${childAgent.skillIds.join(', ')}`)
+    }
+
+    // Sub-agents (grandchildren — names only)
+    if (allTeamMembers) {
+      const grandchildNames = allTeamMembers
+        .filter(m => m.parentAgentId === child.agentId)
+        .map(gc => allAgents.find(a => a.id === gc.agentId)?.name)
+        .filter(Boolean)
+      if (grandchildNames.length > 0) {
+        caps.push(`Sub-agents: ${grandchildNames.join(', ')}`)
+      }
+    }
+
+    if (caps.length > 0) {
+      lines.push(`  ${caps.join(' | ')}`)
+    }
+  }
+
+  return lines.join('\n')
 }
