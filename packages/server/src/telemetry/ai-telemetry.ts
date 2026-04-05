@@ -1,24 +1,28 @@
-import { isLLMAnalyticsInitialized } from './posthog'
+import { withTracing } from '@posthog/ai/vercel'
+import { getLLMAnalyticsClient } from './posthog'
 
-export function getAITelemetryConfig(params: {
-  functionId: string
-  analyticsEnabled?: boolean
-  distinctId?: string
-  conversationId?: string
-  agentId?: string
-  model?: string
-}) {
-  const metadata: Record<string, string> = {}
-  if (params.distinctId) metadata.posthog_distinct_id = params.distinctId
-  if (params.conversationId) metadata.conversation_id = params.conversationId
-  if (params.agentId) metadata.agent_id = params.agentId
-  if (params.model) metadata.model = params.model
+export function wrapModelForAnalytics<T>(
+  model: T,
+  params: {
+    functionId: string
+    analyticsEnabled?: boolean
+    distinctId?: string
+    conversationId?: string
+    agentId?: string
+  },
+): T {
+  const client = getLLMAnalyticsClient()
+  if (!client || !(params.analyticsEnabled ?? false)) return model
 
-  return {
-    isEnabled: isLLMAnalyticsInitialized() && (params.analyticsEnabled ?? false),
-    functionId: params.functionId,
-    recordInputs: false,
-    recordOutputs: false,
-    metadata,
-  }
+  // withTracing preserves the model type at runtime; cast to satisfy
+  // the @posthog/ai LanguageModel union which re-exports from @ai-sdk/provider
+  return withTracing(model as Parameters<typeof withTracing>[0], client, {
+    posthogDistinctId: params.distinctId,
+    posthogPrivacyMode: true,
+    posthogProperties: {
+      functionId: params.functionId,
+      ...(params.conversationId && { conversation_id: params.conversationId }),
+      ...(params.agentId && { agent_id: params.agentId }),
+    },
+  }) as T
 }

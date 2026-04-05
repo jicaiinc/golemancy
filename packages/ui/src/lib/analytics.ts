@@ -66,6 +66,27 @@ export function trackEvent(event: AnalyticsEventName, properties?: Record<string
   _impl.capture(event, properties)
 }
 
+// ── Daily active heartbeat ─────────────────────────────────────────
+// Sends one `app_active` event per calendar day when the app is visible.
+// Ensures accurate DAU tracking even for long-running desktop apps.
+
+let _lastActiveDate = ''
+
+export function startDailyActiveTracking(): void {
+  _checkDailyActive()
+  document.addEventListener('visibilitychange', _checkDailyActive)
+  setInterval(_checkDailyActive, 30 * 60 * 1000)
+}
+
+function _checkDailyActive(): void {
+  if (!_initialized || !_impl) return
+  if (document.visibilityState !== 'visible') return
+  const today = new Date().toISOString().slice(0, 10)
+  if (today === _lastActiveDate) return
+  _lastActiveDate = today
+  _impl.capture(AnalyticsEvents.APP_ACTIVE)
+}
+
 /** Track a page view (sanitizes dynamic IDs from path) */
 export function trackPageView(path: string): void {
   if (!_initialized || !_impl) return

@@ -10,7 +10,7 @@ import type {
   AgentStatus,
 } from '@golemancy/shared'
 import { DEFAULT_COMPACT_THRESHOLD, DEFAULT_MAX_STEPS, resolveAgentId } from '@golemancy/shared'
-import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
+import { wrapModelForAnalytics } from '../telemetry/ai-telemetry'
 import type { SqliteConversationTaskStorage } from '../storage/tasks'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { TokenRecordStorage } from '../storage/token-records'
@@ -371,6 +371,7 @@ export function createChatRoutes(deps: ChatRouteDeps) {
               systemPrompt: agent.systemPrompt,
               signal: chatAbortController.signal,
               analyticsEnabled: settings.productAnalyticsEnabled ?? true,
+              distinctId: settings.analyticsDistinctId,
               onProgress: (info) => {
                 writer.write({ type: 'data-compact' as `data-${string}`, data: { status: 'progress', generatedChars: info.generatedChars } })
               },
@@ -429,21 +430,21 @@ export function createChatRoutes(deps: ChatRouteDeps) {
 
         let stepIndex = 0
         let lastFinishReason: string | undefined
+        const wrappedModel = wrapModelForAnalytics(resolved.model, {
+          functionId: 'chat',
+          analyticsEnabled: settings.productAnalyticsEnabled ?? true,
+          distinctId: settings.analyticsDistinctId,
+          conversationId,
+          agentId: agent.id,
+        })
+
         const result = streamText({
-          model: resolved.model,
+          model: wrappedModel,
           ...buildSystemPromptOptions(resolved, systemPrompt),
           messages: modelMessages,
           tools: hasTools ? allTools : undefined,
           stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           abortSignal: chatAbortController.signal,
-          experimental_telemetry: getAITelemetryConfig({
-            functionId: 'chat',
-            analyticsEnabled: settings.productAnalyticsEnabled ?? true,
-            distinctId: settings.analyticsDistinctId,
-            conversationId,
-            agentId: agent.id,
-            model: agent.modelConfig?.model,
-          }),
           onStepFinish: ({ usage, finishReason, toolCalls }) => {
             stepIndex++
             lastFinishReason = finishReason

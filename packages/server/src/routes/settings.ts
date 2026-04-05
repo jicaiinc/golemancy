@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import type { ISettingsService, ProviderSdkType } from '@golemancy/shared'
 import { generateText } from 'ai'
-import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
+import { wrapModelForAnalytics } from '../telemetry/ai-telemetry'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'routes:settings' })
@@ -107,11 +107,10 @@ export function createSettingsRoutes(storage: ISettingsService) {
 
       try {
         await generateText({
-          model,
+          model: wrapModelForAnalytics(model, { functionId: 'provider-test' }),
           prompt: 'Say "ok"',
           maxOutputTokens: 20,
           abortSignal: controller.signal,
-          experimental_telemetry: getAITelemetryConfig({ functionId: 'provider-test' }),
           ...(isOAuthModel ? { providerOptions: { openai: { store: false, instructions: 'You are a helpful assistant.' } } } : {}),
         })
       } finally {
@@ -170,11 +169,10 @@ export function createSettingsRoutes(storage: ISettingsService) {
 
       try {
         await generateText({
-          model,
+          model: wrapModelForAnalytics(model, { functionId: 'provider-test' }),
           prompt: 'Say "ok"',
           maxOutputTokens: 20,
           abortSignal: controller.signal,
-          experimental_telemetry: getAITelemetryConfig({ functionId: 'provider-test' }),
           // Codex Responses API: store=false + instructions required
           ...(isOAuthModel ? { providerOptions: { openai: { store: false, instructions: 'You are a helpful assistant.' } } } : {}),
         })

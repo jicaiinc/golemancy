@@ -1,24 +1,18 @@
-import { NodeSDK } from '@opentelemetry/sdk-node'
-import { resourceFromAttributes } from '@opentelemetry/resources'
-import { PostHogTraceExporter } from '@posthog/ai/otel'
+import { PostHog } from 'posthog-node'
 
-let sdk: NodeSDK | null = null
+let client: PostHog | null = null
 
 export function initLLMAnalytics(apiKey: string, host: string): void {
-  if (sdk) return
-  sdk = new NodeSDK({
-    resource: resourceFromAttributes({ 'service.name': 'golemancy-server' }),
-    traceExporter: new PostHogTraceExporter({ apiKey, host }),
-  })
-  sdk.start()
+  if (client) return
+  client = new PostHog(apiKey, { host, flushAt: 10, flushInterval: 5000 })
 }
 
-export function shutdownLLMAnalytics(): Promise<void> {
-  if (!sdk) return Promise.resolve()
-  const timeout = new Promise<void>(r => setTimeout(r, 5000))
-  return Promise.race([sdk.shutdown(), timeout])
+export function getLLMAnalyticsClient(): PostHog | null {
+  return client
 }
 
-export function isLLMAnalyticsInitialized(): boolean {
-  return sdk !== null
+export async function shutdownLLMAnalytics(): Promise<void> {
+  if (!client) return
+  await client.shutdown()
+  client = null
 }

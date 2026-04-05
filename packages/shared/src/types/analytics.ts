@@ -1,6 +1,7 @@
 export const AnalyticsEvents = {
   // App lifecycle
   APP_OPENED: 'app_opened',
+  APP_ACTIVE: 'app_active',
   ROUTE_VIEWED: 'route_viewed',
 
   // Onboarding

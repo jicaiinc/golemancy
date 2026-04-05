@@ -7,7 +7,7 @@ import type { TokenRecordStorage } from '../storage/token-records'
 import type { SqliteMemoryStorage } from '../storage/memories'
 import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel, buildSystemPromptOptions } from './model'
-import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
+import { wrapModelForAnalytics } from '../telemetry/ai-telemetry'
 import type { LoadAgentToolsParams, AgentToolsResult } from './tools'
 import { buildSubAgentInstructions } from './builtin-tools/sub-agent-instructions'
 import { generateId } from '../utils/ids'
@@ -202,21 +202,21 @@ export function createSubAgentTool(
           modelMessages = await convertToModelMessages(allUIMessages, { ignoreIncompleteToolCalls: true })
         }
 
+        const wrappedModel = wrapModelForAnalytics(childResolved.model, {
+          functionId: 'sub-agent',
+          analyticsEnabled: settings.productAnalyticsEnabled ?? true,
+          distinctId: settings.analyticsDistinctId,
+          conversationId: childConversationId,
+          agentId: childAgent.id,
+        })
+
         const result = streamText({
-          model: childResolved.model,
+          model: wrappedModel,
           ...buildSystemPromptOptions(childResolved, systemPrompt),
           tools: hasTools ? childToolsResult.tools : undefined,
           stopWhen: hasTools ? stepCountIs(DEFAULT_MAX_STEPS) : undefined,
           ...(modelMessages ? { messages: modelMessages } : { prompt: userContent }),
           abortSignal,
-          experimental_telemetry: getAITelemetryConfig({
-            functionId: 'sub-agent',
-            analyticsEnabled: settings.productAnalyticsEnabled ?? true,
-            distinctId: settings.analyticsDistinctId,
-            conversationId: childConversationId,
-            agentId: childAgent.id,
-            model: childAgent.modelConfig?.model,
-          }),
           onAbort: async ({ steps }) => {
             let inputTokens = 0, outputTokens = 0
             for (const step of steps) {

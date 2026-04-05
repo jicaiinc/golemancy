@@ -15,7 +15,7 @@ import { getServices } from '../services'
 import { destroyChat, destroyAllChats, releaseIdleChats } from '../lib/chat-instances'
 import { logBootstrapEvent } from '../lib/bootstrap-logging'
 import { captureError } from '../lib/error-reporting'
-import { initAnalytics, setAnalyticsEnabled, setAnalyticsContext, trackEvent } from '../lib/analytics'
+import { initAnalytics, setAnalyticsEnabled, setAnalyticsContext, trackEvent, startDailyActiveTracking } from '../lib/analytics'
 import { AnalyticsEvents } from '@golemancy/shared'
 import { queryClient } from '../queries/query-client'
 import { queryKeys } from '../queries/keys'
@@ -549,6 +549,7 @@ export const useAppStore = create<AppState>()(
               session_id: window.electronAPI?.getLaunchId?.() ?? 'unknown',
             })
             setAnalyticsEnabled(settings.productAnalyticsEnabled ?? true)
+            startDailyActiveTracking()
             if (settings.productAnalyticsEnabled ?? true) {
               trackEvent(AnalyticsEvents.APP_OPENED)
             }

@@ -3,7 +3,7 @@ import type { Agent, ConversationId, GlobalSettings } from '@golemancy/shared'
 import { DEFAULT_MAX_STEPS } from '@golemancy/shared'
 import type { OAuthManager } from '../auth/oauth-manager'
 import { resolveModel, buildSystemPromptOptions } from './model'
-import { getAITelemetryConfig } from '../telemetry/ai-telemetry'
+import { wrapModelForAnalytics } from '../telemetry/ai-telemetry'
 import { logger } from '../logger'
 
 const log = logger.child({ component: 'agent:runtime' })
@@ -33,21 +33,21 @@ export async function runAgent(params: RunAgentParams) {
 
   const resolved = await resolveModel(settings, agent.modelConfig, params.oauthManager)
 
+  const model = wrapModelForAnalytics(resolved.model, {
+    functionId: 'runtime',
+    analyticsEnabled: settings.productAnalyticsEnabled ?? true,
+    distinctId: settings.analyticsDistinctId,
+    conversationId: params.conversationId,
+    agentId: agent.id,
+  })
+
   const result = streamText({
-    model: resolved.model,
+    model,
     ...buildSystemPromptOptions(resolved, agent.systemPrompt),
     messages,
     tools,
     stopWhen: stepCountIs(DEFAULT_MAX_STEPS),
     abortSignal,
-    experimental_telemetry: getAITelemetryConfig({
-      functionId: 'runtime',
-      analyticsEnabled: settings.productAnalyticsEnabled ?? true,
-      distinctId: settings.analyticsDistinctId,
-      conversationId: params.conversationId,
-      agentId: agent.id,
-      model: agent.modelConfig?.model,
-    }),
     onStepFinish: ({ toolCalls, usage }) => {
       if (onEvent) {
         if (toolCalls) {
