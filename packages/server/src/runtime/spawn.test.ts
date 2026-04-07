@@ -14,6 +14,10 @@ const mockExistsSync = vi.mocked(existsSync)
 // ── Platform helpers ──────────────────────────────────────
 
 const originalPlatform = process.platform
+// Tests that depend on path.isAbsolute/path.resolve/path.delimiter using Windows
+// semantics can only pass on actual Windows — Node's path module is determined at
+// compile time, not by process.platform.
+const needsRealWindows = originalPlatform !== 'win32'
 
 function setPlatform(platform: string): void {
   Object.defineProperty(process, 'platform', { value: platform, writable: true, configurable: true })
@@ -120,14 +124,14 @@ describe('resolveWindowsCommand', () => {
       expect(resolveWindowsCommand('C:\\tools\\mytool')).toBe('cmd-wrap')
     })
 
-    it('returns direct when file exists without extension', () => {
+    it.skipIf(needsRealWindows)('returns direct when file exists without extension', () => {
       mockExistsSync.mockImplementation((p) =>
         p.toString() === 'C:\\tools\\mytool',
       )
       expect(resolveWindowsCommand('C:\\tools\\mytool')).toBe('direct')
     })
 
-    it('resolves relative path against provided cwd', () => {
+    it.skipIf(needsRealWindows)('resolves relative path against provided cwd', () => {
       mockExistsSync.mockImplementation((p) => {
         const s = p.toString()
         // .exe exists at the transport cwd, not the server process cwd
@@ -147,7 +151,7 @@ describe('resolveWindowsCommand', () => {
   describe('bare command — PATH + PATHEXT resolution', () => {
     const testPath = 'C:\\bundled\\node;C:\\system'
 
-    it('returns direct when .exe is found first in PATHEXT order', () => {
+    it.skipIf(needsRealWindows)('returns direct when .exe is found first in PATHEXT order', () => {
       process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
       mockExistsSync.mockImplementation((p) => {
         const s = p.toString()
@@ -175,7 +179,7 @@ describe('resolveWindowsCommand', () => {
       expect(resolveWindowsCommand('npx', testPath)).toBe('cmd-wrap')
     })
 
-    it('returns direct when only .exe exists (node case)', () => {
+    it.skipIf(needsRealWindows)('returns direct when only .exe exists (node case)', () => {
       process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
       mockExistsSync.mockImplementation((p) =>
         p.toString() === 'C:\\bundled\\node\\node.EXE',
@@ -193,7 +197,7 @@ describe('resolveWindowsCommand', () => {
       expect(resolveWindowsCommand('tool', testPath)).toBe('cmd-wrap')
     })
 
-    it('falls through to second PATH dir when first has no match', () => {
+    it.skipIf(needsRealWindows)('falls through to second PATH dir when first has no match', () => {
       process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
       mockExistsSync.mockImplementation((p) =>
         p.toString() === 'C:\\system\\tool.EXE',
@@ -251,7 +255,7 @@ describe('toWinSpawn', () => {
       expect(result.args).toEqual(['run'])
     })
 
-    it('resolves relative .cmd path to absolute for cmd.exe', () => {
+    it.skipIf(needsRealWindows)('resolves relative .cmd path to absolute for cmd.exe', () => {
       delete process.env.COMSPEC
       process.env.PATHEXT = '.COM;.EXE;.BAT;.CMD'
       mockExistsSync.mockImplementation((p) =>
@@ -266,7 +270,7 @@ describe('toWinSpawn', () => {
       expect(result.args[2]).toBe('--flag')
     })
 
-    it('normalizes forward slashes in absolute .cmd path', () => {
+    it.skipIf(needsRealWindows)('normalizes forward slashes in absolute .cmd path', () => {
       delete process.env.COMSPEC
       mockExistsSync.mockImplementation((p) =>
         p.toString().endsWith('.cmd'),
