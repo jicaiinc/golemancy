@@ -25,13 +25,6 @@ GitHub: https://github.com/jicaiinc/golemancy | Domain: golemancy.ai | Copyright
 
 ## Rules
 
-**绝对禁令：**
-- **永远不要动 git** — 可以查看，但绝对不允许提交代码
-- **Plan mode 用中文**
-
-**Fact-Based Analysis**: 需要分析时，必须查阅实际证据（官方文档、WebSearch、Context7、源码），不要依赖训练知识。
-
-
 **`__guidelines/` 目录只读** — 未经用户允许不得新增、修改或删除。每个主题独立子文件夹，格式 `{topic}-{YYYYMMDD}`。当前内容：`__guidelines/i18n-20260302/`（翻译基准 + 开发规范）。
 
 ### Critical Library Choices
@@ -99,7 +92,7 @@ Four top-level abstractions: **Project** (container), **Agent** (core unit), **T
 
 **System prompt** = `agent.systemPrompt` + skill instructions + memory context + team instruction (injected as `## Team Context`)
 
-**Team** = single-parent tree of `TeamMember { agentId, role, parentAgentId? }`. Agents decoupled from Teams (same agent can join multiple teams). Conversation scoped to Team via `conversation.teamId` activates sub-agent delegation; CronJob also supports `teamId`. Details in `_team/team.md`.
+**Team** = single-parent tree of `TeamMember { agentId, role, parentAgentId? }`. Agents decoupled from Teams (same agent can join multiple teams). Conversation scoped to Team via `conversation.teamId` activates sub-agent delegation; CronJob also supports `teamId`. Details in `/Users/cai/.claude/_docs/team.md`.
 
 ### Electron ↔ Server
 
@@ -244,29 +237,3 @@ pnpm --filter @golemancy/desktop test:e2e:all    # all tiers (needs API keys)
 
 E2E pitfalls: macOS GUI 不继承 PATH → `GOLEMANCY_FORK_EXEC_PATH`; Playwright 下 `app.getAppPath()` returns `out/main/` → `GOLEMANCY_ROOT_DIR`. Store exposed as `window.__GOLEMANCY_STORE__` (non-production).
 
-## Team
-
-Full process: `_team/team.md`. **NEVER use Plan Mode to start a team.** 如果从上个会话恢复且 summary 提到"团队"，第一时间通过 TeamCreate 重建团队。
-
-### 创建团队
-
-**必须使用 `TeamCreate` 工具**（deferred tool，需先 `ToolSearch` 加载）：
-
-```
-1. ToolSearch: query "select:TeamCreate,SendMessage" → 加载 schema
-2. TeamCreate: 创建团队（自动创建 task list）
-3. Agent: 带 team_name 参数派出 teammates
-4. SendMessage: 与 teammates 通信协调
-```
-
-**绝对不要用裸 Agent + TaskCreate 模拟团队。**
-
-### 关键规则
-
-- **Step 0**: Team Lead 必须复述所有需求 → 用户确认 → 保存到 `_requirement/{YYYYMMDD-HHmm}-{name}.md`
-- **12 roles** / **5 phases** (Step 0 → Design → Implement → Test → Review). Design artifacts 保存到 `_design/{YYYYMMDD-HHmm}-{name}/`
-- Team Lead 只协调，不写代码
-- 每个 task 完成后 Team Lead 必须亲自验证代码
-- 独立任务并行执行；用 `blockedBy` 管理依赖
-- **Escalation**: Design 阶段 strict（任何歧义必须上报用户）；Implement/Test 阶段 autonomous（仅基础性阻塞才上报）
-- **Fact Checker is mandatory** — 技术选型必须通过 WebSearch / Context7 / 源码验证
