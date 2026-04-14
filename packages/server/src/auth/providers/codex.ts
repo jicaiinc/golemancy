@@ -8,6 +8,8 @@ export const CODEX_OAUTH_CONFIG: OAuthProviderConfig = {
   redirectUri: 'http://localhost:1455/auth/callback',
   scope: 'openid profile email offline_access api.connectors.read api.connectors.invoke',
   apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+  callbackPort: 1455,
+  sdkType: 'codex',
 }
 
 /** Extra query parameters for Codex OAuth authorization URL. */

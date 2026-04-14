@@ -291,6 +291,7 @@ describe('resolveModel', () => {
               tokenEndpoint: 'https://auth.openai.com/oauth/token',
               scope: 'openid',
               apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+              sdkType: 'codex',
             },
           },
         },
@@ -329,6 +330,7 @@ describe('resolveModel', () => {
               tokenEndpoint: 'https://auth.openai.com/oauth/token',
               scope: 'openid',
               apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+              sdkType: 'codex',
             },
           },
         },
@@ -363,6 +365,7 @@ describe('resolveModel', () => {
               tokenEndpoint: 'https://auth.openai.com/oauth/token',
               scope: 'openid',
               apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+              sdkType: 'codex',
             },
           },
         },
@@ -397,6 +400,7 @@ describe('resolveModel', () => {
               tokenEndpoint: 'https://auth.openai.com/oauth/token',
               scope: 'openid',
               apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+              sdkType: 'codex',
             },
           },
         },
@@ -410,6 +414,80 @@ describe('resolveModel', () => {
         baseURL: undefined,
       })
       expect(result.useInstructionsParam).toBeUndefined()
+    })
+
+    it('resolves openai-compat OAuth via .chat() — Golemancy runtime path', async () => {
+      const settings = makeSettings({
+        providers: {
+          'golemancy-auto': {
+            name: 'Golemancy',
+            sdkType: 'openai',
+            models: ['golemancy/auto'],
+            oauth: {
+              accessToken: 'sb-access-token',
+              refreshToken: 'sb-refresh-token',
+              expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+            },
+            oauthConfig: {
+              flowType: 'authorization_code',
+              clientId: 'golemancy-desktop',
+              authEndpoint: 'https://www.golemancy.ai/auth/desktop/authorize',
+              tokenEndpoint: 'https://www.golemancy.ai/api/auth/desktop/token',
+              scope: 'api',
+              apiBaseUrl: 'https://runtime.golemancy.ai/v1',
+              sdkType: 'openai-compat',
+            },
+          },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'golemancy-auto', model: 'golemancy/auto' }
+      const result = await resolveModel(settings, agentConfig)
+
+      // Golemancy must NOT touch the Codex Responses API.
+      expect(mocks.openaiFactory.responses).not.toHaveBeenCalled()
+      // Standard OpenAI chat completions, no headers, baseURL = runtime data plane.
+      expect(mocks.createOpenAI).toHaveBeenCalledWith({
+        apiKey: 'sb-access-token',
+        baseURL: 'https://runtime.golemancy.ai/v1',
+      })
+      expect(mocks.openaiFactory.chat).toHaveBeenCalledWith('golemancy/auto')
+      expect(result.model).toBe(mocks.openaiChatModel)
+      // Crucially: no providerOptions.openai.store, no useInstructionsParam.
+      expect(result.useInstructionsParam).toBeUndefined()
+      expect(result.providerOptions).toBeUndefined()
+    })
+
+    it('falls back to codex sdkType for legacy persisted configs without sdkType (back-compat)', async () => {
+      const settings = makeSettings({
+        providers: {
+          codex: {
+            name: 'OpenAI Codex',
+            sdkType: 'openai',
+            models: ['gpt-5.3-codex'],
+            oauth: {
+              accessToken: 'legacy-token',
+              refreshToken: 'r',
+              expiresAt: new Date(Date.now() + 3600_000).toISOString(),
+            },
+            // Legacy oauthConfig: real Codex clientId, no sdkType field.
+            oauthConfig: {
+              flowType: 'authorization_code',
+              clientId: 'app_EMoamEEZ73f0CkXaXp7hrann',
+              authEndpoint: 'https://auth.openai.com/oauth/authorize',
+              tokenEndpoint: 'https://auth.openai.com/oauth/token',
+              scope: 'openid',
+              apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+            },
+          },
+        },
+      })
+      const agentConfig: AgentModelConfig = { provider: 'codex', model: 'gpt-5.3-codex' }
+      const result = await resolveModel(settings, agentConfig)
+
+      // Should still hit Codex Responses API via clientId-based fallback.
+      expect(mocks.openaiFactory.responses).toHaveBeenCalledWith('gpt-5.3-codex')
+      expect(result.useInstructionsParam).toBe(true)
+      expect(result.providerOptions).toEqual({ openai: { store: false } })
     })
   })
 })

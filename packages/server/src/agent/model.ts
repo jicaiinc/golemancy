@@ -1,6 +1,7 @@
 import type { LanguageModel, streamText } from 'ai'
-import type { GlobalSettings, AgentModelConfig } from '@golemancy/shared'
+import type { GlobalSettings, AgentModelConfig, OAuthSdkType } from '@golemancy/shared'
 import type { OAuthManager } from '../auth/oauth-manager'
+import { CODEX_OAUTH_CONFIG } from '../auth/providers/codex'
 import { logger } from '../logger'
 import { ConfigurationError } from './errors'
 
@@ -72,19 +73,37 @@ export async function resolveModel(
       ? await oauthManager.getValidToken(provider)
       : entry.oauth.accessToken
     const { createOpenAI } = await import('@ai-sdk/openai')
-    log.info({ provider, model, sdkType: entry.sdkType, auth: 'oauth', apiPath: 'responses' }, 'resolving model via OAuth (Responses API)')
+
+    // Pick the OAuth API shape. Legacy Codex configs may lack `sdkType` —
+    // fall back via clientId so existing connections keep working.
+    const oauthSdkType: OAuthSdkType = entry.oauthConfig.sdkType
+      ?? (entry.oauthConfig.clientId === CODEX_OAUTH_CONFIG.clientId ? 'codex' : 'openai-compat')
+
+    if (oauthSdkType === 'codex') {
+      log.info({ provider, model, sdkType: entry.sdkType, auth: 'oauth', apiPath: 'responses' }, 'resolving model via OAuth (Codex Responses API)')
+      return {
+        model: createOpenAI({
+          apiKey: accessToken,
+          baseURL: entry.oauthConfig.apiBaseUrl,
+          headers: entry.oauth.accountId
+            ? { 'ChatGPT-Account-Id': entry.oauth.accountId }
+            : undefined,
+        }).responses(model),
+        // Codex API does not support store parameter — must be false
+        providerOptions: { openai: { store: false } },
+        // Codex Responses API requires system prompt via `instructions` providerOption
+        useInstructionsParam: true,
+      }
+    }
+
+    // openai-compat: Golemancy runtime + any OpenAI-compatible chat completions
+    // proxy that accepts the OAuth access token as a Bearer credential.
+    log.info({ provider, model, sdkType: entry.sdkType, auth: 'oauth', apiPath: 'chat' }, 'resolving model via OAuth (OpenAI-compatible chat)')
     return {
       model: createOpenAI({
         apiKey: accessToken,
         baseURL: entry.oauthConfig.apiBaseUrl,
-        headers: entry.oauth.accountId
-          ? { 'ChatGPT-Account-Id': entry.oauth.accountId }
-          : undefined,
-      }).responses(model),
-      // Codex API does not support store parameter — must be false
-      providerOptions: { openai: { store: false } },
-      // Codex Responses API requires system prompt via `instructions` providerOption
-      useInstructionsParam: true,
+      }).chat(model),
     }
   }
 

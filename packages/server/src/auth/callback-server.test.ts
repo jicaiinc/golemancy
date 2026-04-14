@@ -30,93 +30,141 @@ describe('callback-server', () => {
     await wait(500) // ensure port is released
   })
 
-  it('resolves with authorization code on valid callback', async () => {
-    const state = 'test-state-123'
-    const { promise, close } = startCallbackServer(state, 10000)
-    closeFn = close
-    // Track promise to avoid unhandled rejection
-    caughtResult = promise.catch(() => 'rejected')
+  describe('dynamic port (port=0, default)', () => {
+    it('binds to an OS-assigned port and reports it via listening', async () => {
+      const { promise, close, listening } = startCallbackServer('s', { timeoutMs: 10000 })
+      closeFn = close
+      caughtResult = promise.catch(() => 'rejected')
 
-    await wait(300)
+      const port = await listening
+      expect(port).toBeGreaterThan(0)
+      expect(port).not.toBe(1455) // OS picks an ephemeral port, not Codex-legacy
 
-    const code = 'auth-code-abc'
-    const res = await httpGet(1455, `/auth/callback?code=${code}&state=${state}`)
-    expect(res.statusCode).toBe(200)
-    expect(res.body).toContain('Authentication successful')
+      const res = await httpGet(port, `/auth/callback?code=abc&state=s`)
+      expect(res.statusCode).toBe(200)
+      expect(res.body).toContain('Authorized')
 
-    const result = await promise
-    expect(result.code).toBe(code)
-    closeFn = undefined // already settled
-    caughtResult = undefined
+      const result = await promise
+      expect(result.code).toBe('abc')
+      closeFn = undefined
+      caughtResult = undefined
+    })
+
+    it('uses port=0 when opts is omitted entirely', async () => {
+      const { close, listening, promise } = startCallbackServer('s')
+      closeFn = close
+      caughtResult = promise.catch(() => 'rejected')
+
+      const port = await listening
+      expect(port).toBeGreaterThan(0)
+      expect(port).not.toBe(1455)
+    })
+
+    it('two concurrent dynamic-port servers bind to different ports without conflict', async () => {
+      const a = startCallbackServer('a', { timeoutMs: 10000 })
+      const b = startCallbackServer('b', { timeoutMs: 10000 })
+      const aRej = a.promise.catch(() => 'rejected')
+      const bRej = b.promise.catch(() => 'rejected')
+
+      const [portA, portB] = await Promise.all([a.listening, b.listening])
+      expect(portA).not.toBe(portB)
+      expect(portA).toBeGreaterThan(0)
+      expect(portB).toBeGreaterThan(0)
+
+      a.close()
+      b.close()
+      await aRej
+      await bRej
+    })
   })
 
-  it('rejects on state mismatch and stays running until close', async () => {
-    const state = 'correct-state'
-    const { promise, close } = startCallbackServer(state, 10000)
-    closeFn = close
-    caughtResult = promise.catch(() => 'rejected')
+  describe('fixed port (Codex-legacy 1455)', () => {
+    it('binds to 1455 when explicitly requested', async () => {
+      const { promise, close, listening } = startCallbackServer('s', { port: 1455, timeoutMs: 10000 })
+      closeFn = close
+      caughtResult = promise.catch(() => 'rejected')
 
-    await wait(300)
+      const port = await listening
+      expect(port).toBe(1455)
 
-    const res = await httpGet(1455, '/auth/callback?code=abc&state=wrong-state')
-    expect(res.statusCode).toBe(400)
-    expect(res.body).toContain('State mismatch')
+      const res = await httpGet(1455, `/auth/callback?code=abc&state=s`)
+      expect(res.statusCode).toBe(200)
 
-    close()
-    closeFn = undefined
+      await promise
+      closeFn = undefined
+      caughtResult = undefined
+    })
 
-    const outcome = await caughtResult
-    expect(outcome).toBe('rejected')
-    caughtResult = undefined
+    it('handles /cancel endpoint on fixed port', async () => {
+      const { promise, close, listening } = startCallbackServer('state', { port: 1455, timeoutMs: 10000 })
+      closeFn = close
+      const rejection = promise.catch(err => err as Error)
+
+      await listening
+
+      const res = await httpGet(1455, '/cancel')
+      expect(res.statusCode).toBe(200)
+
+      const err = await rejection
+      expect(err).toBeInstanceOf(Error)
+      expect(err.message).toContain('cancelled')
+      closeFn = undefined
+      caughtResult = undefined
+    }, 15000)
   })
 
-  it('handles /cancel endpoint', async () => {
-    const { promise, close } = startCallbackServer('state', 10000)
-    closeFn = close
-    const rejection = promise.catch(err => err as Error)
+  describe('error paths', () => {
+    it('rejects on state mismatch and stays running until close', async () => {
+      const { promise, close, listening } = startCallbackServer('correct-state', { timeoutMs: 10000 })
+      closeFn = close
+      caughtResult = promise.catch(() => 'rejected')
 
-    await wait(300)
+      const port = await listening
 
-    const res = await httpGet(1455, '/cancel')
-    expect(res.statusCode).toBe(200)
+      const res = await httpGet(port, '/auth/callback?code=abc&state=wrong-state')
+      expect(res.statusCode).toBe(400)
+      expect(res.body).toContain('State mismatch')
 
-    const err = await rejection
-    expect(err).toBeInstanceOf(Error)
-    expect(err.message).toContain('cancelled')
-    closeFn = undefined
-    caughtResult = undefined
-  }, 15000)
+      close()
+      closeFn = undefined
 
-  it('rejects on OAuth error parameter', async () => {
-    const { promise, close } = startCallbackServer('state', 10000)
-    closeFn = close
-    const rejection = promise.catch(err => err as Error)
+      const outcome = await caughtResult
+      expect(outcome).toBe('rejected')
+      caughtResult = undefined
+    })
 
-    await wait(300)
+    it('rejects on OAuth error parameter', async () => {
+      const { promise, close, listening } = startCallbackServer('state', { timeoutMs: 10000 })
+      closeFn = close
+      const rejection = promise.catch(err => err as Error)
 
-    const res = await httpGet(1455, '/auth/callback?error=access_denied')
-    expect(res.statusCode).toBe(400)
+      const port = await listening
 
-    const err = await rejection
-    expect(err).toBeInstanceOf(Error)
-    expect(err.message).toContain('access_denied')
-    closeFn = undefined
-    caughtResult = undefined
-  })
+      const res = await httpGet(port, '/auth/callback?error=access_denied')
+      expect(res.statusCode).toBe(400)
 
-  it('returns 404 for unknown paths', async () => {
-    const { promise, close } = startCallbackServer('state', 10000)
-    closeFn = close
-    caughtResult = promise.catch(() => 'rejected')
+      const err = await rejection
+      expect(err).toBeInstanceOf(Error)
+      expect(err.message).toContain('access_denied')
+      closeFn = undefined
+      caughtResult = undefined
+    })
 
-    await wait(300)
+    it('returns 404 for unknown paths', async () => {
+      const { promise, close, listening } = startCallbackServer('state', { timeoutMs: 10000 })
+      closeFn = close
+      caughtResult = promise.catch(() => 'rejected')
 
-    const res = await httpGet(1455, '/unknown')
-    expect(res.statusCode).toBe(404)
+      const port = await listening
 
-    close()
-    closeFn = undefined
-    await caughtResult
-    caughtResult = undefined
+      const res = await httpGet(port, '/unknown')
+      expect(res.statusCode).toBe(404)
+
+      close()
+      closeFn = undefined
+      await caughtResult
+      caughtResult = undefined
+    })
+
   })
 })

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import fs from 'node:fs/promises'
 import type { GlobalSettings, ISettingsService } from '@golemancy/shared'
 import { readJson, writeJson } from './base'
 import { getDataDir } from '../utils/paths'
@@ -12,9 +13,45 @@ const DEFAULT_SETTINGS: GlobalSettings = {
   styleTheme: 'pixel',
 }
 
+// One-shot Windows warning — settings.json is rewritten on every change, so
+// without this flag we'd spam the log with "skipped chmod" every save.
+let warnedWindowsChmod = false
+
+/**
+ * Tighten settings.json permissions to user-only (0600). settings.json carries
+ * OAuth refresh tokens — restrict reads to the running user.
+ *
+ * - POSIX (macOS/Linux): chmod 600. On failure (rare — readonly fs?), warn but
+ *   don't fail the write — the data is still safer-than-default and a failed
+ *   chmod shouldn't lose the user's settings.
+ * - Windows: `fs.chmod` only toggles the read-only bit, not POSIX semantics.
+ *   We rely on `%APPDATA%` ACL inheritance instead and emit a single startup-
+ *   level warning so the difference is observable in logs.
+ */
+async function tightenSettingsPerms(filePath: string): Promise<void> {
+  if (process.platform === 'win32') {
+    if (!warnedWindowsChmod) {
+      warnedWindowsChmod = true
+      log.warn({ filePath }, 'Windows: chmod 600 skipped, relying on %APPDATA% ACL')
+    }
+    return
+  }
+  try {
+    await fs.chmod(filePath, 0o600)
+  } catch (err) {
+    log.warn({ err, filePath }, 'failed to chmod 600 on settings.json')
+  }
+}
+
 export class FileSettingsStorage implements ISettingsService {
   private get settingsPath() {
     return path.join(getDataDir(), 'settings.json')
+  }
+
+  /** Write settings.json and tighten its permissions in one step. */
+  private async writeSettings(data: GlobalSettings): Promise<void> {
+    await writeJson(this.settingsPath, data)
+    await tightenSettingsPerms(this.settingsPath)
   }
 
   async get(): Promise<GlobalSettings> {
@@ -36,8 +73,8 @@ export class FileSettingsStorage implements ISettingsService {
         }
       }
       merged.providers = record
-      // Write migrated data back
-      await writeJson(this.settingsPath, merged)
+      // Write migrated data back through the perm-tightening path.
+      await this.writeSettings(merged as GlobalSettings)
       log.info('migrated v1 providers array to v2 Record format')
     }
 
@@ -54,7 +91,7 @@ export class FileSettingsStorage implements ISettingsService {
         delete (updated as unknown as Record<string, unknown>)[key]
       }
     }
-    await writeJson(this.settingsPath, updated)
+    await this.writeSettings(updated)
     return updated
   }
 

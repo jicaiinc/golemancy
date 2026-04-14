@@ -616,9 +616,21 @@ app.whenReady().then(async () => {
   })
 
   ipcMain.handle('shell:openExternal', async (_event, url: string) => {
-    // Security: only allow https URLs (OAuth endpoints, etc.)
-    if (!url.startsWith('https://')) {
-      throw new Error('Only HTTPS URLs are allowed')
+    // Security: allow https everywhere + http only to loopback (local dev).
+    // Rejects file:/smb:/javascript: and arbitrary http hosts (open-redirector
+    // protection). Loopback allowlist matches RFC 8252 §7.3 + web side CORS
+    // allowlist in golemancy_platform/apps/web/src/lib/env.ts.
+    let parsed: URL
+    try {
+      parsed = new URL(url)
+    } catch {
+      throw new Error('Invalid URL')
+    }
+    const LOOPBACK_HOSTS = new Set(['127.0.0.1', '[::1]', 'localhost'])
+    const isHttps = parsed.protocol === 'https:'
+    const isLoopbackHttp = parsed.protocol === 'http:' && LOOPBACK_HOSTS.has(parsed.hostname)
+    if (!isHttps && !isLoopbackHttp) {
+      throw new Error(`URL not allowed (scheme=${parsed.protocol}, host=${parsed.hostname})`)
     }
     await shell.openExternal(url)
   })

@@ -1011,7 +1011,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
                 onClick={startOAuthFlow}
                 className="w-full py-2.5 px-5 border-2 border-accent-green bg-gradient-to-br from-[#1a3a1a] to-[#0d2a0d] text-accent-green font-mono text-[13px] font-semibold cursor-pointer hover:from-[#1f4a1f] hover:to-[#0f350f] hover:shadow-[0_0_12px_rgba(107,203,119,0.2)] transition-all tracking-wide"
               >
-                {t('provider.oauthSignIn', { provider: 'ChatGPT' })}
+                {t('provider.oauthSignIn', { provider: entry.name })}
               </button>
               <p className="text-[9px] text-text-dim mt-2 leading-relaxed">{t('provider.oauthSubscriptionHint')}</p>
             </>
@@ -1038,7 +1038,7 @@ function ProviderCard({ providerKey, entry, onUpdate, onDelete }: {
               <div className="flex items-center gap-2.5">
                 <span className="inline-block w-2 h-2 bg-accent-green shadow-[0_0_6px_rgba(107,203,119,0.5)]" />
                 <span className="text-[12px] text-accent-green font-medium">{t('provider.oauthConnected')}</span>
-                {entry.oauth?.accountId && (
+                {entry.oauth?.accountId && entry.oauthConfig?.sdkType === 'codex' && (
                   <span className="text-[10px] text-text-dim">ChatGPT Plus</span>
                 )}
                 <div className="ml-auto">

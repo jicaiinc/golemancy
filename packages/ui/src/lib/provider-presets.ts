@@ -8,6 +8,16 @@ export interface ProviderPreset {
   oauthConfig?: OAuthProviderConfig
 }
 
+/**
+ * Golemancy base URLs resolved from Vite env vars; defaults fall back to prod.
+ * Override via `.env.local` at the monorepo root for local dev, e.g.:
+ *   VITE_GOLEMANCY_WEB_URL=http://127.0.0.1:3000
+ *   VITE_GOLEMANCY_RUNTIME_URL=http://127.0.0.1:8080
+ * Kept in lockstep with backend `packages/server/src/auth/providers/golemancy.ts`.
+ */
+const GOLEMANCY_WEB_URL = (import.meta.env.VITE_GOLEMANCY_WEB_URL as string | undefined) ?? 'https://www.golemancy.ai'
+const GOLEMANCY_RUNTIME_URL = (import.meta.env.VITE_GOLEMANCY_RUNTIME_URL as string | undefined) ?? 'https://runtime.golemancy.ai'
+
 export const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
   anthropic: { name: 'Anthropic', sdkType: 'anthropic', defaultModels: ['claude-opus-4-6', 'claude-sonnet-4-6', 'claude-haiku-4-5'] },
   openai: { name: 'OpenAI', sdkType: 'openai', defaultModels: ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano', 'o4-mini', 'o3'] },
@@ -23,6 +33,26 @@ export const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
       redirectUri: 'http://localhost:1455/auth/callback',
       scope: 'openid profile email offline_access api.connectors.read api.connectors.invoke',
       apiBaseUrl: 'https://chatgpt.com/backend-api/codex',
+      callbackPort: 1455,
+      sdkType: 'codex',
+    },
+  },
+  golemancy: {
+    name: 'Golemancy',
+    sdkType: 'openai-compatible',
+    defaultModels: ['golemancy/auto'],
+    oauthConfig: {
+      flowType: 'authorization_code',
+      clientId: 'golemancy-desktop',
+      authEndpoint: `${GOLEMANCY_WEB_URL}/auth/desktop/authorize`,
+      tokenEndpoint: `${GOLEMANCY_WEB_URL}/api/auth/desktop/token`,
+      // redirectUri + callbackPort intentionally omitted → callback-server
+      // picks an OS-assigned dynamic port per RFC 8252 §7.3 (avoids collision
+      // with Codex's fixed 1455). buildRedirectUri assembles the final URI.
+      scope: 'api',
+      apiBaseUrl: `${GOLEMANCY_RUNTIME_URL}/v1`,
+      callbackPath: '/auth/callback',
+      sdkType: 'openai-compat',
     },
   },
   google: { name: 'Google', sdkType: 'google', defaultModels: ['gemini-3.1-pro-preview', 'gemini-3-flash-preview', 'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'] },

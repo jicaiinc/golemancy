@@ -3,6 +3,7 @@ import type { FileSettingsStorage } from '../storage/settings'
 import { generateCodeVerifier, generateCodeChallenge, generateState } from './pkce'
 import { startCallbackServer } from './callback-server'
 import { CODEX_AUTH_EXTRA_PARAMS, CODEX_OAUTH_CONFIG } from './providers/codex'
+import { buildRedirectUri } from './redirect-uri'
 import { TokenRefreshScheduler } from './token-refresh'
 import { logger } from '../logger'
 
@@ -11,6 +12,8 @@ const log = logger.child({ component: 'auth:oauth-manager' })
 interface ActiveFlow {
   state: string
   codeVerifier: string
+  /** redirect_uri sent in the authorize URL — must be reused verbatim during code exchange. */
+  redirectUri: string
   close: () => void
 }
 
@@ -74,17 +77,30 @@ export class OAuthManager {
     const codeVerifier = generateCodeVerifier()
     const codeChallenge = generateCodeChallenge(codeVerifier)
 
-    // Start callback server
-    const { promise: callbackPromise, close } = startCallbackServer(state)
-    this.activeFlows.set(slug, { state, codeVerifier, close })
+    // Codex back-compat: legacy persisted configs may lack `callbackPort`.
+    // Detect by clientId and fall back to 1455; everything else gets dynamic (0).
+    const isCodex = config.clientId === CODEX_OAUTH_CONFIG.clientId
+    const port = config.callbackPort ?? (isCodex ? 1455 : 0)
+
+    const { promise: callbackPromise, close, listening } = startCallbackServer(state, { port })
+    let actualPort: number
+    try {
+      actualPort = await listening
+    } catch (err) {
+      close()
+      this.flowStatus.set(slug, { status: 'error', error: err instanceof Error ? err.message : String(err) })
+      throw err
+    }
+
+    const redirectUri = buildRedirectUri(config, actualPort)
+
+    this.activeFlows.set(slug, { state, codeVerifier, redirectUri, close })
     this.flowStatus.set(slug, { status: 'pending' })
 
-    // Build authorization URL — apply Codex-specific params only when provider is Codex
-    const isCodex = config.clientId === CODEX_OAUTH_CONFIG.clientId
     const params = new URLSearchParams({
       client_id: config.clientId,
       response_type: 'code',
-      redirect_uri: config.redirectUri ?? 'http://localhost:1455/auth/callback',
+      redirect_uri: redirectUri,
       scope: config.scope,
       state,
       code_challenge: codeChallenge,
@@ -93,13 +109,13 @@ export class OAuthManager {
     })
     const authUrl = `${config.authEndpoint}?${params}`
 
-    log.info({ slug }, 'OAuth flow started')
+    log.info({ slug, port: actualPort, dynamicPort: port === 0 }, 'OAuth flow started')
 
     // Background: wait for callback, exchange code for token
     callbackPromise
       .then(async ({ code }) => {
         log.info({ slug }, 'received OAuth callback, exchanging code for token')
-        await this.exchangeCodeForToken(slug, code, codeVerifier)
+        await this.exchangeCodeForToken(slug, code, codeVerifier, redirectUri)
       })
       .catch((err) => {
         const message = err instanceof Error ? err.message : String(err)
@@ -273,7 +289,12 @@ export class OAuthManager {
 
   // --- Private ---
 
-  private async exchangeCodeForToken(slug: string, code: string, codeVerifier: string): Promise<void> {
+  private async exchangeCodeForToken(
+    slug: string,
+    code: string,
+    codeVerifier: string,
+    redirectUri: string,
+  ): Promise<void> {
     const settings = await this.settingsStorage.get()
     const entry = settings.providers[slug]
     if (!entry?.oauthConfig) {
@@ -289,7 +310,7 @@ export class OAuthManager {
         client_id: config.clientId,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: config.redirectUri ?? 'http://localhost:1455/auth/callback',
+        redirect_uri: redirectUri,
         code_verifier: codeVerifier,
       }),
     })
