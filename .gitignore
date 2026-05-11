@@ -8,10 +8,6 @@
 .codex/
 .mcp.json
 
-# Local reference documents
-_docs/
-_decisions/
-
 # macOS / system
 .DS_Store
 Thumbs.db
