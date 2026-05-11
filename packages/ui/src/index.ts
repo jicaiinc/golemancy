@@ -1,7 +1,0 @@
-export { App } from './app/App'
-export { useAppStore } from './stores'
-export { useCurrentProject, useServices } from './hooks'
-export { getServices, configureServices, ServiceProvider, createMockServices } from './services'
-export type { ServiceContainer } from './services'
-export * from './components'
-export * from './lib/motion'
