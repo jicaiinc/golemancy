@@ -8,6 +8,10 @@
 .codex/
 .mcp.json
 
+# Local planning/docs
+/_*/
+/_*.md
+
 # macOS / system
 .DS_Store
 Thumbs.db
