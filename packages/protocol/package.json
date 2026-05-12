@@ -1,0 +1,25 @@
+{
+  "name": "@golemancy/protocol",
+  "version": "0.2.0-rebuild.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "clean": "rimraf .turbo .tsbuildinfo"
+  },
+  "dependencies": {
+    "@golemancy/shared": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.3"
+  }
+}

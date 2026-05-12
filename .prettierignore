@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/build
+**/.turbo
+**/.cache
+**/target
+**/coverage
+**/migrations
+**/.next
+pnpm-lock.yaml
+_*/

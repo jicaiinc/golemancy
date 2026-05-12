@@ -1,0 +1,132 @@
+{
+  "account": {
+    "logout": "Log out",
+    "personal": "Personal account",
+    "rateLimits": "Rate limits remaining",
+    "settings": "Settings"
+  },
+  "composer": {
+    "attach": "Attach",
+    "dictate": "Dictate",
+    "mention": "Mention",
+    "placeholder": "What should we build in golemancy?",
+    "send": "Send",
+    "skills": "Skills"
+  },
+  "home": {
+    "bestPractices": "Best practices",
+    "heroSub": "A local-first AI workbench. Production-grade workflows you can ship.",
+    "heroTitle": "From AI generation, to AI delivery.",
+    "shuffle": "Shuffle"
+  },
+  "settings": {
+    "appearance": {
+      "theme": {
+        "dark": "Dark",
+        "hint": "Switch between light and dark. Follows the system by default.",
+        "label": "Theme",
+        "light": "Light",
+        "system": "System"
+      },
+      "typography": {
+        "density": "Density",
+        "densityValue": "Comfortable",
+        "interface": "Interface font",
+        "label": "Typography",
+        "mono": "Mono font",
+        "monoDesc": "Used in Shell, code blocks and diffs."
+      },
+      "workbench": {
+        "dots": {
+          "desc": "Tiny indicators for running, approval needed, and errors.",
+          "title": "Show sidebar status dots"
+        },
+        "label": "Workbench",
+        "reduceMotion": "Reduce motion"
+      }
+    },
+    "backToApp": "Back to app",
+    "general": {
+      "general": {
+        "label": "General"
+      },
+      "language": {
+        "auto": "Auto detect",
+        "desc": "Language for the app UI.",
+        "title": "Language"
+      },
+      "launchAtLogin": {
+        "title": "Launch at login"
+      },
+      "menuBar": {
+        "desc": "Keep Golemancy reachable from the macOS menu bar.",
+        "title": "Show in menu bar"
+      },
+      "openDestination": {
+        "desc": "Where files and folders open by default.",
+        "title": "Default open destination"
+      },
+      "permissions": {
+        "autoReview": {
+          "desc": "Golemancy reviews requests for elevated access automatically. Auto-review can make mistakes.",
+          "title": "Auto-review"
+        },
+        "default": {
+          "desc": "Read and edit files inside the workspace. Ask for additional access when needed.",
+          "title": "Default permissions"
+        },
+        "fullAccess": {
+          "desc": "Run with full access — edit any file and reach the network without approval. Significantly increases risk of leaks.",
+          "title": "Full access"
+        },
+        "label": "Permissions"
+      },
+      "workMode": {
+        "builder": {
+          "sub": "Show tool calls, runs, and approvals",
+          "title": "For builders"
+        },
+        "everyday": {
+          "sub": "Same power, less technical chrome",
+          "title": "For everyday work"
+        },
+        "hint": "Choose how much technical detail Golemancy shows.",
+        "label": "Work mode"
+      }
+    },
+    "nav": {
+      "about": "About",
+      "appearance": "Appearance",
+      "browser": "Browser profiles",
+      "general": "General",
+      "hooks": "Hooks",
+      "localData": "Local data",
+      "mcp": "MCP servers",
+      "providers": "Providers",
+      "security": "Security",
+      "toolsSkills": "Tools & Skills",
+      "usage": "Usage & billing"
+    }
+  },
+  "sidebar": {
+    "automations": "Automations",
+    "filter": "Filter",
+    "newChat": "New chat",
+    "newProject": "New project",
+    "noChats": "No chats",
+    "pinned": "Pinned",
+    "projects": "Projects",
+    "search": "Search",
+    "settings": "Settings",
+    "skills": "Skills"
+  },
+  "sidecar": {
+    "failed": "sidecar: failed — {{reason}}",
+    "healthFailed": "sidecar: ready, /health failed",
+    "probing": "sidecar: ready, probing…",
+    "ready": "sidecar: OK · pid {{pid}}",
+    "restarting": "sidecar: restarting (attempt {{attempt}})",
+    "starting": "sidecar: starting…",
+    "stopped": "sidecar: stopped"
+  }
+}

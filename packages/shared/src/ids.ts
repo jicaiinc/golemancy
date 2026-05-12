@@ -1,0 +1,9 @@
+export type RunId = string & { readonly __brand: 'RunId' };
+export type MessageId = string & { readonly __brand: 'MessageId' };
+export type ToolCallId = string & { readonly __brand: 'ToolCallId' };
+export type ThreadId = string & { readonly __brand: 'ThreadId' };
+export type ProjectId = string & { readonly __brand: 'ProjectId' };
+export type ProviderId = string & { readonly __brand: 'ProviderId' };
+export type SkillId = string & { readonly __brand: 'SkillId' };
+export type McpServerId = string & { readonly __brand: 'McpServerId' };
+export type BrowserProfileId = string & { readonly __brand: 'BrowserProfileId' };

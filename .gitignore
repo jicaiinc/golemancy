@@ -37,6 +37,20 @@ build/
 out/
 coverage/
 release/
+target/
+
+# Tauri generated capability/schema and icon outputs
+apps/desktop/src-tauri/gen/
+apps/desktop/src-tauri/icons/*.png
+apps/desktop/src-tauri/icons/*.ico
+apps/desktop/src-tauri/icons/*.icns
+apps/desktop/src-tauri/icons/android/
+apps/desktop/src-tauri/icons/ios/
+!apps/desktop/src-tauri/icons/source.png
+
+# WXT generated and build output
+.wxt/
+.output/
 
 # Logs
 *.log

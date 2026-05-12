@@ -1,0 +1,32 @@
+{
+  "name": "@golemancy/monorepo",
+  "private": true,
+  "version": "0.2.0-rebuild.0",
+  "description": "Local-first AI workbench desktop client (Golemancy 0.2 rebuild)",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.19.0",
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "dev": "turbo run dev --parallel",
+    "clean": "turbo run clean && rimraf node_modules/.cache .turbo",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "i18n:extract": "pnpm --filter @golemancy/i18n run extract"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.5.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.21.0"
+  }
+}

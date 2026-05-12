@@ -1,0 +1,25 @@
+[package]
+name = "golemancy-desktop"
+version = "0.2.0-rebuild.0"
+description = "Golemancy local-first AI workbench desktop shell"
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "golemancy_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+keyring = "3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+log = "0.4"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
