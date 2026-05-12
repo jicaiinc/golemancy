@@ -45,7 +45,7 @@ export function createApp(deps: AppDeps): Hono {
   registerThreadsRoutes(app, deps.runtime);
   registerProvidersRoutes(app);
   registerToolsRoutes(app);
-  registerBrowserRoutes(app);
+  registerBrowserRoutes(app, deps.runtime);
   registerMcpRoutes(app);
   registerSettingsRoutes(app);
   registerSecretsRoutes(app, deps.runtime);

@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { createDb, type GolemancyDb, repositories } from '@golemancy/db';
 import { AgentsSdkEngine } from '@golemancy/runtime';
 import type { ProviderConfig, ProviderId } from '@golemancy/shared';
+import { BrowserBridge } from './browser-bridge.js';
 import type { RunBroadcaster } from './run-broadcaster.js';
 import { SecretStore } from './secret-store.js';
 
@@ -23,6 +24,7 @@ export type RuntimeContext = {
   };
   readonly engine: AgentsSdkEngine;
   readonly defaultProvider: ProviderConfig;
+  readonly browserBridge: BrowserBridge;
   readonly inFlight: Map<string, RunSlot>;
   readonly secretStore: SecretStore;
 };
@@ -57,6 +59,7 @@ export function createRuntimeContext(dbPath: string): RuntimeContext {
     },
     engine: new AgentsSdkEngine(),
     defaultProvider: DEFAULT_PROVIDER,
+    browserBridge: new BrowserBridge(),
     inFlight: new Map(),
     secretStore: new SecretStore(),
   };

@@ -9,7 +9,7 @@ export function registerConfigRoute(app: Hono, deps: AppDeps): void {
       features: {
         runtime: 'stub',
         providers: [],
-        browserBridge: false,
+        browserBridge: true,
         mcp: false,
       },
     }),

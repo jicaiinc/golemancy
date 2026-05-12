@@ -13,7 +13,19 @@ export async function writeNativeHostRuntime({
 }: HandshakeWriteOptions): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   const tmpPath = `${path}.${process.pid}.tmp`;
-  await writeFile(tmpPath, JSON.stringify(runtime, null, 2), { mode: 0o600 });
+  await writeFile(
+    tmpPath,
+    JSON.stringify(
+      {
+        ...runtime,
+        apiBaseUrl: runtime.url,
+        authToken: runtime.token,
+      },
+      null,
+      2,
+    ),
+    { mode: 0o600 },
+  );
   const { rename } = await import('node:fs/promises');
   await rename(tmpPath, path);
 }
