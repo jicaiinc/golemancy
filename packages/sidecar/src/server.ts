@@ -11,6 +11,7 @@ import { registerToolsRoutes } from './routes/tools.js';
 import { registerBrowserRoutes } from './routes/browser.js';
 import { registerMcpRoutes } from './routes/mcp.js';
 import { registerSettingsRoutes } from './routes/settings.js';
+import { registerSecretsRoutes } from './routes/secrets.js';
 import type { RuntimeContext } from './runtime-context.js';
 
 export type AppDeps = {
@@ -47,6 +48,7 @@ export function createApp(deps: AppDeps): Hono {
   registerBrowserRoutes(app);
   registerMcpRoutes(app);
   registerSettingsRoutes(app);
+  registerSecretsRoutes(app, deps.runtime);
 
   app.notFound((c) => c.json({ error: 'not_found', path: c.req.path }, 404));
   app.onError((err, c) => {

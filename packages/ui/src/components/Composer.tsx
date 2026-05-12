@@ -8,6 +8,7 @@ export type ComposerProps = {
   projectName?: string;
   modelLabel?: string;
   modelStatus?: 'ok' | 'unknown' | 'error';
+  disabled?: boolean;
   onSubmit?: (text: string) => void;
 };
 
@@ -17,6 +18,7 @@ export function Composer({
   projectName = 'golemancy',
   modelLabel = 'Claude Sonnet 4.5',
   modelStatus = 'ok',
+  disabled = false,
   onSubmit,
 }: ComposerProps) {
   const t = useT();
@@ -25,18 +27,19 @@ export function Composer({
     placeholder ?? t('composer.placeholder', 'What should we build in golemancy?');
 
   const handleSubmit = () => {
-    if (!value.trim() || !onSubmit) return;
+    if (disabled || !value.trim() || !onSubmit) return;
     onSubmit(value);
     setValue('');
   };
 
   return (
-    <div className="composer">
+    <div className="composer" data-disabled={disabled || undefined}>
       <textarea
         className="composer__input"
         placeholder={effectivePlaceholder}
         rows={2}
         value={value}
+        disabled={disabled}
         onChange={(e) => setValue(e.currentTarget.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -82,6 +85,7 @@ export function Composer({
             className="send"
             title={t('composer.send', 'Send')}
             onClick={handleSubmit}
+            disabled={disabled || !value.trim()}
           >
             <Icons.ArrowUp size={15} />
           </button>

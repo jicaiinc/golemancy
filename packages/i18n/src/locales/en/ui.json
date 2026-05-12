@@ -12,13 +12,17 @@
       "placeholder": "Send a message to Golemancy"
     },
     "errors": {
-      "missingKey": "OpenAI API key is not set. Add it in Settings → Providers."
+      "createFailed": "Failed to start the run: {{detail}}",
+      "engine": "Model returned an error: {{detail}}",
+      "missingKey": "OpenAI API key is not set. Add it in Settings → Providers.",
+      "streamFailed": "Stream interrupted: {{detail}}"
     },
     "status": {
       "awaitingKey": "Reading OpenAI key from keychain…",
       "streaming": "Waiting for response…"
     },
-    "title": "Chat"
+    "title": "Chat",
+    "untitled": "(untitled)"
   },
   "composer": {
     "attach": "Attach",
@@ -143,6 +147,7 @@
   },
   "sidebar": {
     "automations": "Automations",
+    "chats": "Chats",
     "filter": "Filter",
     "newChat": "New chat",
     "newProject": "New project",
@@ -151,7 +156,8 @@
     "projects": "Projects",
     "search": "Search",
     "settings": "Settings",
-    "skills": "Skills"
+    "skills": "Skills",
+    "untitledChat": "(untitled)"
   },
   "sidecar": {
     "failed": "sidecar: failed — {{reason}}",

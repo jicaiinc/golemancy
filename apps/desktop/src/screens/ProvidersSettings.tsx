@@ -1,10 +1,15 @@
 import { useT } from '@golemancy/ui';
 import { useEffect, useState } from 'react';
-import { SECRET_KEYS, secretDelete, secretGet, secretSet } from '../lib/secret.js';
+import type { ApiClient } from '../lib/api-client.js';
+import { SECRET_ACCOUNTS, deleteSecret, getSecretStatus, saveSecret } from '../lib/secret.js';
 
 type KeyState = 'loading' | 'absent' | 'present' | 'editing' | 'saving' | 'error';
 
-export function ProvidersSettingsSection() {
+export type ProvidersSettingsSectionProps = {
+  apiClient: ApiClient | null;
+};
+
+export function ProvidersSettingsSection({ apiClient }: ProvidersSettingsSectionProps) {
   const t = useT();
   const [state, setState] = useState<KeyState>('loading');
   const [draft, setDraft] = useState('');
@@ -12,14 +17,15 @@ export function ProvidersSettingsSection() {
   const [maskedHint, setMaskedHint] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!apiClient) return;
     let cancelled = false;
     void (async () => {
       try {
-        const value = await secretGet(SECRET_KEYS.openaiApiKey);
+        const status = await getSecretStatus(apiClient, SECRET_ACCOUNTS.openaiApiKey);
         if (cancelled) return;
-        if (value) {
+        if (status.present) {
           setState('present');
-          setMaskedHint(mask(value));
+          setMaskedHint(status.masked ?? null);
         } else {
           setState('absent');
         }
@@ -32,15 +38,15 @@ export function ProvidersSettingsSection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [apiClient]);
 
   const save = async () => {
-    if (!draft.trim()) return;
+    if (!apiClient || !draft.trim()) return;
     setState('saving');
     setError(null);
     try {
-      await secretSet(SECRET_KEYS.openaiApiKey, draft.trim());
-      setMaskedHint(mask(draft.trim()));
+      const res = await saveSecret(apiClient, SECRET_ACCOUNTS.openaiApiKey, draft.trim());
+      setMaskedHint(res.masked ?? null);
       setDraft('');
       setState('present');
     } catch (err) {
@@ -50,8 +56,9 @@ export function ProvidersSettingsSection() {
   };
 
   const remove = async () => {
+    if (!apiClient) return;
     try {
-      await secretDelete(SECRET_KEYS.openaiApiKey);
+      await deleteSecret(apiClient, SECRET_ACCOUNTS.openaiApiKey);
       setMaskedHint(null);
       setDraft('');
       setState('absent');
@@ -70,7 +77,7 @@ export function ProvidersSettingsSection() {
           <p className="sgroup__hint">
             {t(
               'settings.providers.openai.hint',
-              'Stored in the OS keychain. The sidecar reads it per request and never persists it.',
+              'Stored in the OS keychain. The sidecar reads it just-in-time and never exposes plaintext over HTTP.',
             )}
           </p>
         </header>
@@ -108,7 +115,7 @@ export function ProvidersSettingsSection() {
                 <div className="srow__desc">
                   {t(
                     'settings.providers.openai.inputHint',
-                    'Paste a key that starts with sk-. It will be encrypted at rest by the OS keychain.',
+                    'Paste a key that starts with sk-. The sidecar saves it to the OS keychain.',
                   )}
                 </div>
               </div>
@@ -132,7 +139,7 @@ export function ProvidersSettingsSection() {
                 <button
                   type="button"
                   className="select"
-                  disabled={!draft.trim() || state === 'saving'}
+                  disabled={!draft.trim() || state === 'saving' || !apiClient}
                   onClick={() => void save()}
                 >
                   {state === 'saving'
@@ -161,11 +168,6 @@ export function ProvidersSettingsSection() {
       </section>
     </>
   );
-}
-
-function mask(value: string): string {
-  if (value.length <= 8) return '••••';
-  return `${value.slice(0, 4)}••••${value.slice(-4)}`;
 }
 
 function formatError(err: unknown): string {

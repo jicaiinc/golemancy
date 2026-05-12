@@ -1,19 +1,24 @@
 import { randomUUID } from 'node:crypto';
-import type { RunEvent, RunId, RunUsage } from '@golemancy/shared';
-import type { EngineRunInput } from '@golemancy/runtime';
+import type { RunEvent, RunId, RunUsage, ToolMode } from '@golemancy/shared';
 import type { RuntimeContext } from './runtime-context.js';
 
 export type ExecutorInput = {
-  readonly engineInput: EngineRunInput;
-  readonly threadId: string;
   readonly runId: string;
+  readonly threadId: string;
+  readonly engineMessages: ReadonlyArray<{
+    role: 'system' | 'user' | 'assistant' | 'tool';
+    content: string;
+  }>;
+  readonly model: string;
+  readonly toolMode: ToolMode;
+  readonly controller: AbortController;
 };
 
-// Background driver: pulls events from the engine generator, persists each
-// event + final state to SQLite, broadcasts events to live SSE subscribers,
-// and finalises the run row + assistant message. Caller is expected to have
-// already inserted the user message and seeded `inFlight[runId]` with a
-// broadcaster + controller before calling.
+// Background driver: resolves the provider secret JIT, pulls events from the
+// engine generator, persists each event + final state to SQLite, broadcasts
+// to live SSE subscribers, and finalises the run row + assistant message.
+// Caller is expected to have already inserted the user message and seeded
+// `inFlight[runId]` with a broadcaster + controller before calling.
 export async function executeRun(ctx: RuntimeContext, input: ExecutorInput): Promise<void> {
   const slot = ctx.inFlight.get(input.runId);
   if (!slot) return;
@@ -37,29 +42,52 @@ export async function executeRun(ctx: RuntimeContext, input: ExecutorInput): Pro
     return sequence;
   };
 
-  try {
-    for await (const event of ctx.engine.run(input.engineInput)) {
-      const seq = await persist(event);
-
-      if (event.type === 'text_delta') {
-        assistantContent += event.delta;
-      } else if (event.type === 'usage') {
-        usage = event.usage;
-      } else if (event.type === 'error') {
-        errorMessage = event.error;
-      }
-
-      slot.broadcaster.emit(event, seq);
-    }
-  } catch (err) {
-    errorMessage = err instanceof Error ? err.message : String(err);
+  const emitFailure = async (message: string) => {
     const failure: RunEvent = {
       type: 'error',
       runId: input.runId as RunId,
-      error: errorMessage,
+      error: message,
     };
     const seq = await persist(failure);
     slot.broadcaster.emit(failure, seq);
+    errorMessage = message;
+  };
+
+  try {
+    const provider = ctx.defaultProvider;
+    const secretRef = provider.secretRef;
+    if (!secretRef) {
+      await emitFailure('provider has no secretRef configured');
+    } else {
+      const apiKey = await ctx.secretStore.get(secretRef);
+      if (!apiKey) {
+        await emitFailure(
+          `secret "${secretRef}" is not set — open Settings → Providers to configure`,
+        );
+      } else {
+        for await (const event of ctx.engine.run({
+          runId: input.runId,
+          provider,
+          model: input.model,
+          toolMode: input.toolMode,
+          messages: input.engineMessages,
+          signal: input.controller.signal,
+          apiKey,
+        })) {
+          const seq = await persist(event);
+          if (event.type === 'text_delta') {
+            assistantContent += event.delta;
+          } else if (event.type === 'usage') {
+            usage = event.usage;
+          } else if (event.type === 'error') {
+            errorMessage = event.error;
+          }
+          slot.broadcaster.emit(event, seq);
+        }
+      }
+    }
+  } catch (err) {
+    await emitFailure(err instanceof Error ? err.message : String(err));
   }
 
   try {

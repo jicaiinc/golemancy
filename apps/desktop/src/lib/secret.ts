@@ -1,21 +1,46 @@
-import { invoke } from '@tauri-apps/api/core';
+import { API_PATHS, type SecretStatusResponse, type SetSecretResponse, type DeleteSecretResponse } from '@golemancy/protocol';
+import type { ApiClient } from './api-client.js';
 
-// Well-known keychain entries owned by the desktop app.
-// M1 transports the resolved value to the sidecar inside POST /runs.
-// See _decisions/secret-transport.zh.md for the production target.
-export const SECRET_KEYS = {
+// Centralised account names. The sidecar owns the actual keychain reads via
+// `security` CLI subprocess; the UI never holds the plaintext beyond the
+// in-form input value that is POSTed once and then dropped.
+export const SECRET_ACCOUNTS = {
   openaiApiKey: 'openai.apiKey',
 } as const;
+export type SecretAccount = (typeof SECRET_ACCOUNTS)[keyof typeof SECRET_ACCOUNTS];
 
-export async function secretGet(key: string): Promise<string | null> {
-  const value = await invoke<string | null>('secret_get', { key });
-  return value ?? null;
+export async function getSecretStatus(
+  client: ApiClient,
+  account: string,
+): Promise<SecretStatusResponse> {
+  return client.getJson<SecretStatusResponse>(API_PATHS.secretStatus(account));
 }
 
-export async function secretSet(key: string, value: string): Promise<void> {
-  await invoke('secret_set', { key, value });
+export async function saveSecret(
+  client: ApiClient,
+  account: string,
+  value: string,
+): Promise<SetSecretResponse> {
+  const res = await client.fetch(API_PATHS.secret(account), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`PUT secret failed: ${res.status} ${text}`);
+  }
+  return (await res.json()) as SetSecretResponse;
 }
 
-export async function secretDelete(key: string): Promise<void> {
-  await invoke('secret_delete', { key });
+export async function deleteSecret(
+  client: ApiClient,
+  account: string,
+): Promise<DeleteSecretResponse> {
+  const res = await client.fetch(API_PATHS.secret(account), { method: 'DELETE' });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`DELETE secret failed: ${res.status} ${text}`);
+  }
+  return (await res.json()) as DeleteSecretResponse;
 }

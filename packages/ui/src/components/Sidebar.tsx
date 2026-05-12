@@ -49,12 +49,21 @@ export type ProjectEntry = {
 
 export type SidebarNavKey = 'new' | 'search' | 'skills' | 'automations';
 
+export type SidebarThreadEntry = {
+  id: string;
+  title: string | null;
+};
+
 export type SidebarProps = {
   activeNav?: SidebarNavKey;
   projects?: ReadonlyArray<ProjectEntry>;
   pinned?: ReadonlyArray<{ id: string; name: string; kbd?: string }>;
+  threads?: ReadonlyArray<SidebarThreadEntry>;
+  activeThreadId?: string | null;
   onSelectNav?: (nav: SidebarNavKey) => void;
   onOpenSettings?: () => void;
+  onSelectThread?: (id: string) => void;
+  onNewChat?: () => void;
 };
 
 const DEFAULT_PROJECTS: ReadonlyArray<ProjectEntry> = [
@@ -80,8 +89,12 @@ export function Sidebar({
   activeNav = 'new',
   projects = DEFAULT_PROJECTS,
   pinned = DEFAULT_PINNED,
+  threads,
+  activeThreadId,
   onSelectNav,
   onOpenSettings,
+  onSelectThread,
+  onNewChat,
 }: SidebarProps) {
   const t = useT();
   const [openProj, setOpenProj] = useState<Record<string, boolean>>({
@@ -102,8 +115,11 @@ export function Sidebar({
             icon={<Icons.NewChat size={16} />}
             label={t('sidebar.newChat', 'New chat')}
             kbd="⌘N"
-            active={activeNav === 'new'}
-            onClick={() => onSelectNav?.('new')}
+            active={activeNav === 'new' && activeThreadId == null}
+            onClick={() => {
+              onSelectNav?.('new');
+              onNewChat?.();
+            }}
           />
           <SideRow
             icon={<Icons.Search size={16} />}
@@ -125,6 +141,23 @@ export function Sidebar({
             onClick={() => onSelectNav?.('automations')}
           />
         </div>
+
+        {threads && threads.length > 0 ? (
+          <>
+            <SectionLabel>{t('sidebar.chats', 'Chats')}</SectionLabel>
+            <div className="side-group">
+              {threads.map((th) => (
+                <SideRow
+                  key={th.id}
+                  icon={<Icons.ChatDot size={14} />}
+                  label={th.title ?? t('sidebar.untitledChat', '(untitled)')}
+                  active={activeThreadId === th.id}
+                  onClick={() => onSelectThread?.(th.id)}
+                />
+              ))}
+            </div>
+          </>
+        ) : null}
 
         <SectionLabel>{t('sidebar.pinned', 'Pinned')}</SectionLabel>
         <div className="side-group">

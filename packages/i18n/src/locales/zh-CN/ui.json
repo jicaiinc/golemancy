@@ -12,13 +12,17 @@
       "placeholder": "发消息给 Golemancy"
     },
     "errors": {
-      "missingKey": "尚未配置 OpenAI API key,请在 设置 → 模型供应商 中添加。"
+      "createFailed": "运行启动失败：{{detail}}",
+      "engine": "模型返回错误：{{detail}}",
+      "missingKey": "尚未配置 OpenAI API key,请在 设置 → 模型供应商 中添加。",
+      "streamFailed": "流式中断：{{detail}}"
     },
     "status": {
-      "awaitingKey": "正在从钥匙串读取 OpenAI key…",
+      "awaitingKey": "正在确认 OpenAI key 是否已配置…",
       "streaming": "等待响应中…"
     },
-    "title": "对话"
+    "title": "对话",
+    "untitled": "(未命名)"
   },
   "composer": {
     "attach": "附件",
@@ -143,6 +147,7 @@
   },
   "sidebar": {
     "automations": "自动化",
+    "chats": "对话",
     "filter": "筛选",
     "newChat": "新建对话",
     "newProject": "新建项目",
@@ -151,7 +156,8 @@
     "projects": "项目",
     "search": "搜索",
     "settings": "设置",
-    "skills": "技能"
+    "skills": "技能",
+    "untitledChat": "(未命名)"
   },
   "sidecar": {
     "failed": "sidecar: 失败 — {{reason}}",

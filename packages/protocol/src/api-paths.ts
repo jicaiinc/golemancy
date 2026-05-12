@@ -17,6 +17,8 @@ export const API_PATHS = {
   mcpServers: '/mcp/servers',
   mcpServerReload: (id: string) => `/mcp/servers/${encodeURIComponent(id)}/reload`,
   settings: '/settings',
+  secret: (account: string) => `/settings/secrets/${encodeURIComponent(account)}`,
+  secretStatus: (account: string) => `/settings/secrets/${encodeURIComponent(account)}/status`,
 } as const;
 
 export const AUTH_HEADER = 'Authorization';

@@ -388,6 +388,137 @@ button {
 .send:hover {
   opacity: 0.88;
 }
+.send:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.composer[data-disabled] .composer__input {
+  opacity: 0.6;
+}
+
+/* ─── Chat pane (inline thread view) ───────── */
+.chat-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+.chat-pane__header {
+  flex-shrink: 0;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.chat-pane__title {
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-pane__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 24px 12px;
+}
+.chat-pane__inner {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chat-pane__composer {
+  flex-shrink: 0;
+  padding: 12px 24px 20px;
+  background: var(--bg);
+}
+.chat-pane__composer-inner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.bubble-row {
+  display: flex;
+  width: 100%;
+}
+.bubble-row--user {
+  justify-content: flex-end;
+}
+.bubble-row--assistant,
+.bubble-row--system,
+.bubble-row--tool {
+  justify-content: stretch;
+}
+.bubble {
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+/* User: right-aligned chip-style bubble. */
+.bubble--user {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--surface-hover);
+  color: var(--text);
+}
+/* Assistant: full-width, no bubble chrome — same canvas as the page. */
+.bubble--assistant {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 0 4px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+.bubble--system {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 0;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 12.5px;
+  font-style: italic;
+}
+.bubble--tool {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-sunken);
+  color: var(--text-2);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12.5px;
+}
+.bubble[data-pending] {
+  opacity: 0.96;
+}
+.bubble[data-error] {
+  color: #dc2626;
+}
+.bubble--user[data-error] {
+  background: rgba(220, 38, 38, 0.08);
+}
+.bubble__caret {
+  margin-left: 2px;
+  opacity: 0.55;
+  animation: bubble-caret 1s steps(2, end) infinite;
+}
+@keyframes bubble-caret {
+  50% {
+    opacity: 0;
+  }
+}
 
 /* Best practices */
 .best {

@@ -8,7 +8,6 @@ import {
   type RunStatus,
   type RunSummary,
 } from '@golemancy/protocol';
-import type { ProviderId } from '@golemancy/shared';
 import type { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { RunBroadcaster } from '../run-broadcaster.js';
@@ -23,10 +22,6 @@ export function registerRunsRoutes(app: Hono, ctx: RuntimeContext): void {
       return c.json({ error: 'invalid_request', detail: parsed.error.format() }, 400);
     }
     const body = parsed.data;
-    if (!body.apiKey) {
-      return c.json({ error: 'missing_api_key' }, 400);
-    }
-
     const now = new Date().toISOString();
     const threadId =
       body.threadId ?? (await createThread(ctx, body.projectId ?? null, body.prompt ?? null));
@@ -80,15 +75,10 @@ export function registerRunsRoutes(app: Hono, ctx: RuntimeContext): void {
     const executorInput: ExecutorInput = {
       runId,
       threadId,
-      engineInput: {
-        runId,
-        provider,
-        model,
-        toolMode,
-        messages: engineMessages,
-        signal: controller.signal,
-        apiKey: body.apiKey,
-      },
+      engineMessages,
+      model,
+      toolMode,
+      controller,
     };
 
     // Fire-and-forget. SSE subscribers attach via GET /runs/:id/events.

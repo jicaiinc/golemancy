@@ -20,10 +20,6 @@ export const CreateRunRequestSchema = z
     toolMode: z.enum(['auto', 'native', 'prompted', 'disabled']).optional(),
     prompt: z.string().optional(),
     messages: z.array(ChatMessageInputSchema).optional(),
-    // M1: UI fetches the API key from the OS keychain via Tauri and inlines
-    // it per request. This will move to a sidecar JIT secret fetch in M3.
-    // See _decisions/secret-transport.zh.md.
-    apiKey: z.string().min(1).optional(),
   })
   .refine((v) => Boolean(v.prompt || (v.messages && v.messages.length > 0)), {
     message: 'either prompt or messages is required',

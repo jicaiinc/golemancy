@@ -6,3 +6,4 @@ export * from './tools.js';
 export * from './browser.js';
 export * from './mcp.js';
 export * from './settings.js';
+export * from './secrets.js';
