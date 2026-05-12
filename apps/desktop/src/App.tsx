@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   AccountPopover,
   Home,
@@ -10,11 +10,16 @@ import {
   type SettingsSectionId,
   type Translator,
 } from '@golemancy/ui';
-import type { HealthResponse } from '@golemancy/protocol';
+import type { HealthResponse, ListThreadsResponse, ThreadSummary } from '@golemancy/protocol';
 import { useSidecarStatus, type SidecarStatus } from './lib/sidecar';
-import { createApiClient, isReady } from './lib/api-client';
+import { createApiClient, isReady, type ApiClient } from './lib/api-client';
+import { ChatScreen, type ChatIntent } from './screens/Chat';
+import { ProvidersSettingsSection } from './screens/ProvidersSettings';
 
-type Screen = { kind: 'home' } | { kind: 'settings'; section: SettingsSectionId };
+type Screen =
+  | { kind: 'home' }
+  | { kind: 'chat'; intent: ChatIntent }
+  | { kind: 'settings'; section: SettingsSectionId };
 
 type HealthState = 'unknown' | 'probing' | 'ok' | 'fail';
 
@@ -57,6 +62,7 @@ function describeStatus(
   }
 }
 
+// TODO(release): M0 验收占位，生产 release 前必须删除（含 <SidecarPill /> 挂载点与相关 i18n key）。
 function SidecarPill() {
   const t = useT();
   const status = useSidecarStatus();
@@ -88,7 +94,7 @@ function SidecarPill() {
     <div
       style={{
         position: 'fixed',
-        top: 12,
+        bottom: 12,
         right: 12,
         zIndex: 10,
         padding: '4px 10px',
@@ -107,7 +113,20 @@ function SidecarPill() {
 
 export function App() {
   const [screen, setScreen] = useState<Screen>({ kind: 'home' });
-  const [accountOpen, setAccountOpen] = useState(false);
+  const [accountOpen] = useState(false);
+  const status = useSidecarStatus();
+  const apiClient = isReady(status)
+    ? createApiClient({ url: status.url, token: status.token })
+    : null;
+
+  const startNewChat = useCallback((prompt: string) => {
+    if (!prompt.trim()) return;
+    setScreen({ kind: 'chat', intent: { kind: 'new', prompt } });
+  }, []);
+
+  const resumeChat = useCallback((threadId: string) => {
+    setScreen({ kind: 'chat', intent: { kind: 'resume', threadId } });
+  }, []);
 
   return (
     <I18nProvider>
@@ -120,25 +139,94 @@ export function App() {
               onOpenSettings={() => setScreen({ kind: 'settings', section: 'general' })}
             />
             <main className="main">
-              <Home />
+              <Home composer={{ onSubmit: startNewChat }} />
+              <RecentThreadsPanel apiClient={apiClient} onResume={resumeChat} />
             </main>
             {accountOpen ? (
-              <div
-                style={{ position: 'absolute', left: 24, bottom: 54, zIndex: 5 }}
-                onMouseLeave={() => setAccountOpen(false)}
-              >
+              <div style={{ position: 'absolute', left: 24, bottom: 54, zIndex: 5 }}>
                 <AccountPopover email="hi@jicai.us" />
               </div>
             ) : null}
           </div>
+        ) : screen.kind === 'chat' ? (
+          <ChatScreen intent={screen.intent} onBackHome={() => setScreen({ kind: 'home' })} />
         ) : (
           <SettingsScreen
             section={screen.section}
             onSelectSection={(section) => setScreen({ kind: 'settings', section })}
             onBack={() => setScreen({ kind: 'home' })}
+            renderSection={(id) => (id === 'provider' ? <ProvidersSettingsSection /> : null)}
           />
         )}
       </ThemeProvider>
     </I18nProvider>
+  );
+}
+
+function RecentThreadsPanel({
+  apiClient,
+  onResume,
+}: {
+  apiClient: ApiClient | null;
+  onResume: (threadId: string) => void;
+}) {
+  const t = useT();
+  const [threads, setThreads] = useState<ThreadSummary[]>([]);
+
+  useEffect(() => {
+    if (!apiClient) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const data = await apiClient.getJson<ListThreadsResponse>('/threads');
+        if (!cancelled) setThreads(data.threads.slice(0, 6));
+      } catch {
+        if (!cancelled) setThreads([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [apiClient]);
+
+  if (threads.length === 0) return null;
+
+  return (
+    <section
+      style={{
+        padding: '12px 24px 24px',
+        borderTop: '1px solid var(--border, rgba(255,255,255,0.08))',
+      }}
+    >
+      <h3 style={{ fontSize: 12, opacity: 0.7, margin: '0 0 8px', fontWeight: 600 }}>
+        {t('home.recentThreads.title', 'Recent threads')}
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {threads.map((th) => (
+          <button
+            type="button"
+            key={th.id}
+            onClick={() => onResume(th.id)}
+            style={{
+              textAlign: 'left',
+              background: 'transparent',
+              border: '1px solid var(--border, rgba(255,255,255,0.08))',
+              borderRadius: 6,
+              padding: '8px 10px',
+              cursor: 'pointer',
+              fontSize: 13,
+              color: 'inherit',
+            }}
+          >
+            <div style={{ fontWeight: 500 }}>
+              {th.title ?? t('home.recentThreads.untitled', '(untitled)')}
+            </div>
+            <div style={{ fontSize: 11, opacity: 0.55 }}>
+              {new Date(th.updatedAt).toLocaleString()}
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }

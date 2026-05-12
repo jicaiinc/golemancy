@@ -47,11 +47,7 @@ export function Composer({
       />
       <div className="composer__bar">
         <div className="composer__left">
-          <button
-            type="button"
-            className="chip chip--icon"
-            title={t('composer.attach', 'Attach')}
-          >
+          <button type="button" className="chip chip--icon" title={t('composer.attach', 'Attach')}>
             <Icons.Plus size={15} />
           </button>
           <button type="button" className="chip">

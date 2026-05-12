@@ -58,7 +58,11 @@ export type SidebarProps = {
 };
 
 const DEFAULT_PROJECTS: ReadonlyArray<ProjectEntry> = [
-  { id: 'golemancy', name: 'golemancy', chats: ['Rebuild v0.2 brief', 'Onboarding copy', 'Provider model matrix'] },
+  {
+    id: 'golemancy',
+    name: 'golemancy',
+    chats: ['Rebuild v0.2 brief', 'Onboarding copy', 'Provider model matrix'],
+  },
   { id: 'colawd', name: 'colawd', chats: [] },
   { id: 'colawd2', name: 'colawd2', chats: ['Retention review prep'] },
   { id: 'caiyongji2026', name: 'caiyongji2026', chats: [] },

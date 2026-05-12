@@ -17,7 +17,16 @@ const ART: Record<PracticeArtKind, ReactNode> = {
       <rect x="14" y="24" width="48" height="2" rx="1" fill="var(--art-line-soft)" />
       <rect x="14" y="29" width="44" height="2" rx="1" fill="var(--art-line-soft)" />
       <rect x="14" y="42" width="20" height="8" rx="1.5" fill="var(--brand)" />
-      <rect x="76" y="22" width="36" height="36" rx="3" fill="none" stroke="var(--art-line)" strokeWidth="1" />
+      <rect
+        x="76"
+        y="22"
+        width="36"
+        height="36"
+        rx="3"
+        fill="none"
+        stroke="var(--art-line)"
+        strokeWidth="1"
+      />
       <path d="M82 50 L90 40 L96 46 L106 32" stroke="var(--brand)" strokeWidth="1.5" fill="none" />
     </svg>
   ),
@@ -47,7 +56,16 @@ const ART: Record<PracticeArtKind, ReactNode> = {
   ),
   flow: (
     <svg viewBox="0 0 120 72" style={{ width: '100%', height: '100%', display: 'block' }}>
-      {([[14, 20], [54, 20], [94, 20], [14, 52], [54, 52], [94, 52]] as const).map(([x, y], i) => (
+      {(
+        [
+          [14, 20],
+          [54, 20],
+          [94, 20],
+          [14, 52],
+          [54, 52],
+          [94, 52],
+        ] as const
+      ).map(([x, y], i) => (
         <rect
           key={`${x}-${y}`}
           x={x}
@@ -79,11 +97,7 @@ const ART: Record<PracticeArtKind, ReactNode> = {
   data: (
     <svg viewBox="0 0 120 72" style={{ width: '100%', height: '100%', display: 'block' }}>
       <ellipse cx="60" cy="18" rx="34" ry="8" fill="var(--art-fill)" stroke="var(--art-line)" />
-      <path
-        d="M26 18 V40 a34 8 0 0 0 68 0 V18"
-        fill="var(--art-fill)"
-        stroke="var(--art-line)"
-      />
+      <path d="M26 18 V40 a34 8 0 0 0 68 0 V18" fill="var(--art-fill)" stroke="var(--art-line)" />
       <path d="M26 32 a34 8 0 0 0 68 0" fill="none" stroke="var(--art-line)" />
       <rect x="48" y="50" width="24" height="14" rx="2" fill="var(--brand)" />
       <path d="M40 57 H 48 M72 57 H 80" stroke="var(--art-line)" />

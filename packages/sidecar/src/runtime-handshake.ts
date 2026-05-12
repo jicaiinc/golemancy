@@ -7,7 +7,10 @@ export type HandshakeWriteOptions = {
   readonly runtime: NativeHostRuntime;
 };
 
-export async function writeNativeHostRuntime({ path, runtime }: HandshakeWriteOptions): Promise<void> {
+export async function writeNativeHostRuntime({
+  path,
+  runtime,
+}: HandshakeWriteOptions): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   const tmpPath = `${path}.${process.pid}.tmp`;
   await writeFile(tmpPath, JSON.stringify(runtime, null, 2), { mode: 0o600 });

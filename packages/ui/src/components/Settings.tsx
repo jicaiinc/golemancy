@@ -51,17 +51,72 @@ export type SettingsSectionId =
   | 'usage'
   | 'about';
 
-const NAV: ReadonlyArray<{ id: SettingsSectionId; labelKey: string; fallback: string; icon: ReactNode }> = [
-  { id: 'general', labelKey: 'settings.nav.general', fallback: 'General', icon: <Icons.Settings size={15} /> },
-  { id: 'appear', labelKey: 'settings.nav.appearance', fallback: 'Appearance', icon: <Icons.Sun size={15} /> },
-  { id: 'provider', labelKey: 'settings.nav.providers', fallback: 'Providers', icon: <Icons.Sparkle size={15} /> },
-  { id: 'tools', labelKey: 'settings.nav.toolsSkills', fallback: 'Tools & Skills', icon: <Icons.Tool size={15} /> },
-  { id: 'browser', labelKey: 'settings.nav.browser', fallback: 'Browser profiles', icon: <Icons.Globe size={15} /> },
-  { id: 'mcp', labelKey: 'settings.nav.mcp', fallback: 'MCP servers', icon: <Icons.Layers size={15} /> },
-  { id: 'hooks', labelKey: 'settings.nav.hooks', fallback: 'Hooks', icon: <Icons.Hook size={15} /> },
-  { id: 'data', labelKey: 'settings.nav.localData', fallback: 'Local data', icon: <Icons.Database size={15} /> },
-  { id: 'security', labelKey: 'settings.nav.security', fallback: 'Security', icon: <Icons.Shield size={15} /> },
-  { id: 'usage', labelKey: 'settings.nav.usage', fallback: 'Usage & billing', icon: <Icons.Gauge size={15} /> },
+const NAV: ReadonlyArray<{
+  id: SettingsSectionId;
+  labelKey: string;
+  fallback: string;
+  icon: ReactNode;
+}> = [
+  {
+    id: 'general',
+    labelKey: 'settings.nav.general',
+    fallback: 'General',
+    icon: <Icons.Settings size={15} />,
+  },
+  {
+    id: 'appear',
+    labelKey: 'settings.nav.appearance',
+    fallback: 'Appearance',
+    icon: <Icons.Sun size={15} />,
+  },
+  {
+    id: 'provider',
+    labelKey: 'settings.nav.providers',
+    fallback: 'Providers',
+    icon: <Icons.Sparkle size={15} />,
+  },
+  {
+    id: 'tools',
+    labelKey: 'settings.nav.toolsSkills',
+    fallback: 'Tools & Skills',
+    icon: <Icons.Tool size={15} />,
+  },
+  {
+    id: 'browser',
+    labelKey: 'settings.nav.browser',
+    fallback: 'Browser profiles',
+    icon: <Icons.Globe size={15} />,
+  },
+  {
+    id: 'mcp',
+    labelKey: 'settings.nav.mcp',
+    fallback: 'MCP servers',
+    icon: <Icons.Layers size={15} />,
+  },
+  {
+    id: 'hooks',
+    labelKey: 'settings.nav.hooks',
+    fallback: 'Hooks',
+    icon: <Icons.Hook size={15} />,
+  },
+  {
+    id: 'data',
+    labelKey: 'settings.nav.localData',
+    fallback: 'Local data',
+    icon: <Icons.Database size={15} />,
+  },
+  {
+    id: 'security',
+    labelKey: 'settings.nav.security',
+    fallback: 'Security',
+    icon: <Icons.Shield size={15} />,
+  },
+  {
+    id: 'usage',
+    labelKey: 'settings.nav.usage',
+    fallback: 'Usage & billing',
+    icon: <Icons.Gauge size={15} />,
+  },
   { id: 'about', labelKey: 'settings.nav.about', fallback: 'About', icon: <Icons.Doc size={15} /> },
 ];
 
@@ -69,12 +124,17 @@ export type SettingsScreenProps = {
   section?: SettingsSectionId;
   onSelectSection?: (id: SettingsSectionId) => void;
   onBack?: () => void;
+  // Apps can inject section content that is not part of the design-system
+  // library — typically when wiring OS-level services (Tauri keychain,
+  // file system) that this package must stay agnostic of.
+  renderSection?: (id: SettingsSectionId) => ReactNode | null | undefined;
 };
 
 export function SettingsScreen({
   section = 'general',
   onSelectSection,
   onBack,
+  renderSection,
 }: SettingsScreenProps) {
   const t = useT();
   return (
@@ -101,16 +161,24 @@ export function SettingsScreen({
       </aside>
       <main className="settings__main">
         <div className="settings__inner">
-          <SettingsContent section={section} />
+          <SettingsContent section={section} renderSection={renderSection} />
         </div>
       </main>
     </div>
   );
 }
 
-function SettingsContent({ section }: { section: SettingsSectionId }) {
+function SettingsContent({
+  section,
+  renderSection,
+}: {
+  section: SettingsSectionId;
+  renderSection?: (id: SettingsSectionId) => ReactNode | null | undefined;
+}) {
   if (section === 'general') return <GeneralSection />;
   if (section === 'appear') return <AppearanceSection />;
+  const injected = renderSection?.(section);
+  if (injected) return <>{injected}</>;
   const t = useT();
   const label = NAV.find((s) => s.id === section);
   return <h2 className="page__title">{label ? t(label.labelKey, label.fallback) : section}</h2>;
@@ -264,25 +332,22 @@ function GeneralSection() {
       <h2 className="page__title">{t('settings.nav.general', 'General')}</h2>
       <SettingsGroup
         label={t('settings.general.workMode.label', 'Work mode')}
-        hint={t('settings.general.workMode.hint', 'Choose how much technical detail Golemancy shows.')}
+        hint={t(
+          'settings.general.workMode.hint',
+          'Choose how much technical detail Golemancy shows.',
+        )}
       >
         <div className="mode-grid">
           <ModeCard
             icon={<Icons.Tool size={20} />}
             title={t('settings.general.workMode.builder.title', 'For builders')}
-            sub={t(
-              'settings.general.workMode.builder.sub',
-              'Show tool calls, runs, and approvals',
-            )}
+            sub={t('settings.general.workMode.builder.sub', 'Show tool calls, runs, and approvals')}
             active
           />
           <ModeCard
             icon={<Icons.Sparkle size={20} />}
             title={t('settings.general.workMode.everyday.title', 'For everyday work')}
-            sub={t(
-              'settings.general.workMode.everyday.sub',
-              'Same power, less technical chrome',
-            )}
+            sub={t('settings.general.workMode.everyday.sub', 'Same power, less technical chrome')}
           />
         </div>
       </SettingsGroup>

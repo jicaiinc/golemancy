@@ -15,7 +15,9 @@
     "clean": "rimraf .turbo .tsbuildinfo"
   },
   "dependencies": {
-    "@golemancy/shared": "workspace:*"
+    "@golemancy/shared": "workspace:*",
+    "@openai/agents": "^0.11.4",
+    "openai": "^6.37.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

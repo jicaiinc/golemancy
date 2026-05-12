@@ -5,6 +5,21 @@
     "rateLimits": "剩余速率限制",
     "settings": "设置"
   },
+  "chat": {
+    "backHome": "← 首页",
+    "composer": {
+      "busy": "正在生成…",
+      "placeholder": "发消息给 Golemancy"
+    },
+    "errors": {
+      "missingKey": "尚未配置 OpenAI API key,请在 设置 → 模型供应商 中添加。"
+    },
+    "status": {
+      "awaitingKey": "正在从钥匙串读取 OpenAI key…",
+      "streaming": "等待响应中…"
+    },
+    "title": "对话"
+  },
   "composer": {
     "attach": "附件",
     "dictate": "语音输入",
@@ -17,6 +32,10 @@
     "bestPractices": "最佳实践",
     "heroSub": "",
     "heroTitle": "从 AI 生成,到 AI 交付。",
+    "recentThreads": {
+      "title": "最近的对话",
+      "untitled": "(未命名)"
+    },
     "shuffle": "换一组"
   },
   "settings": {
@@ -106,6 +125,20 @@
       "security": "安全",
       "toolsSkills": "工具与技能",
       "usage": "用量与计费"
+    },
+    "providers": {
+      "openai": {
+        "cancel": "取消",
+        "hint": "存储于操作系统钥匙串。sidecar 仅在每次请求时读取,不会持久化。",
+        "inputHint": "粘贴以 sk- 开头的密钥。会由系统钥匙串加密保存。",
+        "keyLabel": "API key",
+        "remove": "删除",
+        "replace": "更换",
+        "save": "保存",
+        "saving": "保存中…",
+        "title": "OpenAI"
+      },
+      "title": "模型供应商"
     }
   },
   "sidebar": {

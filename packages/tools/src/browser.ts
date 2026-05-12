@@ -12,9 +12,7 @@ export type BrowserActionRequest = {
   readonly timeoutMs?: number;
 };
 
-export type BrowserActionResult =
-  | { ok: true; result: unknown }
-  | { ok: false; error: string };
+export type BrowserActionResult = { ok: true; result: unknown } | { ok: false; error: string };
 
 export interface BrowserBridgeClient {
   execute(req: BrowserActionRequest, signal: AbortSignal): Promise<BrowserActionResult>;

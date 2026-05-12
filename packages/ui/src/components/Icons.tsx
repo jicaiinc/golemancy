@@ -132,7 +132,9 @@ export const Icons = {
   Shield: makeIcon('M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3z'),
   Layers: makeIcon('m12 2 10 5-10 5L2 7l10-5zM2 12l10 5 10-5M2 17l10 5 10-5'),
   Hook: makeIcon('M9 17V8a4 4 0 1 1 8 0v9a4 4 0 0 1-8 0z'),
-  Doc: makeIcon('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M8 13h8M8 17h5'),
+  Doc: makeIcon(
+    'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM14 2v6h6M8 13h8M8 17h5',
+  ),
   Database: makeIcon(
     <>
       <ellipse cx="12" cy="5" rx="9" ry="3" />

@@ -1,13 +1,6 @@
 import { useEffect } from 'react';
 import { initReactI18next, useTranslation as useI18nextTranslation } from 'react-i18next';
-import {
-  i18next,
-  initI18n,
-  setLocale,
-  defaultNS,
-  supportedLocales,
-  type Locale,
-} from './index.js';
+import { i18next, initI18n, setLocale, defaultNS, supportedLocales, type Locale } from './index.js';
 import { detectLocale, setStoredLocale } from './storage.js';
 
 let reactBindingInstalled = false;
@@ -23,11 +16,7 @@ ensureReactBinding();
 
 export type { Locale };
 
-export type Translator = (
-  key: string,
-  fallback: string,
-  vars?: Record<string, unknown>,
-) => string;
+export type Translator = (key: string, fallback: string, vars?: Record<string, unknown>) => string;
 
 export function useT(): Translator {
   const { t } = useI18nextTranslation(defaultNS);

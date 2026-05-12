@@ -5,16 +5,19 @@ import { bearerAuth } from './auth.js';
 import { registerHealthRoute } from './routes/health.js';
 import { registerConfigRoute } from './routes/config.js';
 import { registerRunsRoutes } from './routes/runs.js';
+import { registerThreadsRoutes } from './routes/threads.js';
 import { registerProvidersRoutes } from './routes/providers.js';
 import { registerToolsRoutes } from './routes/tools.js';
 import { registerBrowserRoutes } from './routes/browser.js';
 import { registerMcpRoutes } from './routes/mcp.js';
 import { registerSettingsRoutes } from './routes/settings.js';
+import type { RuntimeContext } from './runtime-context.js';
 
 export type AppDeps = {
   readonly version: string;
   readonly token: string;
   readonly startedAt: Date;
+  readonly runtime: RuntimeContext;
 };
 
 export function createApp(deps: AppDeps): Hono {
@@ -23,7 +26,12 @@ export function createApp(deps: AppDeps): Hono {
   app.use(
     '*',
     cors({
-      origin: ['http://127.0.0.1', 'http://localhost', 'tauri://localhost', 'app://localhost'],
+      origin: (origin) => {
+        if (!origin) return undefined;
+        if (origin === 'tauri://localhost' || origin === 'app://localhost') return origin;
+        if (/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(origin)) return origin;
+        return undefined;
+      },
       credentials: false,
     }),
   );
@@ -32,7 +40,8 @@ export function createApp(deps: AppDeps): Hono {
 
   registerHealthRoute(app, deps);
   registerConfigRoute(app, deps);
-  registerRunsRoutes(app);
+  registerRunsRoutes(app, deps.runtime);
+  registerThreadsRoutes(app, deps.runtime);
   registerProvidersRoutes(app);
   registerToolsRoutes(app);
   registerBrowserRoutes(app);

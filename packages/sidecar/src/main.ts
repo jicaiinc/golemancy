@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server';
 import { generateBearerToken } from './auth.js';
 import { loadConfig } from './config.js';
 import { clearNativeHostRuntime, writeNativeHostRuntime } from './runtime-handshake.js';
+import { createRuntimeContext } from './runtime-context.js';
 import { createApp } from './server.js';
 
 async function main() {
@@ -12,7 +13,8 @@ async function main() {
 
   const token = generateBearerToken();
   const startedAt = new Date();
-  const app = createApp({ version: config.version, token, startedAt });
+  const runtime = createRuntimeContext(config.dbPath);
+  const app = createApp({ version: config.version, token, startedAt, runtime });
 
   const server = serve(
     { fetch: app.fetch, hostname: config.host, port: config.port },
@@ -34,7 +36,11 @@ async function main() {
   );
 
   const shutdown = async () => {
+    for (const slot of runtime.inFlight.values()) {
+      slot.controller.abort();
+    }
     await clearNativeHostRuntime(config.nativeHostRuntimePath);
+    runtime.db.close();
     server.close();
     process.exit(0);
   };

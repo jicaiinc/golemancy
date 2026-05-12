@@ -3,8 +3,5 @@
   "identifier": "default",
   "description": "Default capability for the Golemancy desktop shell",
   "windows": ["main"],
-  "permissions": [
-    "core:default",
-    "shell:default"
-  ]
+  "permissions": ["core:default", "shell:default"]
 }

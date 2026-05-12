@@ -5,6 +5,8 @@ export const API_PATHS = {
   runEvents: (runId: string) => `/runs/${encodeURIComponent(runId)}/events`,
   runCancel: (runId: string) => `/runs/${encodeURIComponent(runId)}/cancel`,
   toolApprove: (toolCallId: string) => `/tools/${encodeURIComponent(toolCallId)}/approve`,
+  threads: '/threads',
+  threadMessages: (threadId: string) => `/threads/${encodeURIComponent(threadId)}/messages`,
   providers: '/providers',
   providersTest: '/providers/test',
   browserStatus: '/browser/status',

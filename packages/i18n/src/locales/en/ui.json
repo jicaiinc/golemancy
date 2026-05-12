@@ -5,6 +5,21 @@
     "rateLimits": "Rate limits remaining",
     "settings": "Settings"
   },
+  "chat": {
+    "backHome": "← Home",
+    "composer": {
+      "busy": "Streaming…",
+      "placeholder": "Send a message to Golemancy"
+    },
+    "errors": {
+      "missingKey": "OpenAI API key is not set. Add it in Settings → Providers."
+    },
+    "status": {
+      "awaitingKey": "Reading OpenAI key from keychain…",
+      "streaming": "Waiting for response…"
+    },
+    "title": "Chat"
+  },
   "composer": {
     "attach": "Attach",
     "dictate": "Dictate",
@@ -17,6 +32,10 @@
     "bestPractices": "Best practices",
     "heroSub": "A local-first AI workbench. Production-grade workflows you can ship.",
     "heroTitle": "From AI generation, to AI delivery.",
+    "recentThreads": {
+      "title": "Recent threads",
+      "untitled": "(untitled)"
+    },
     "shuffle": "Shuffle"
   },
   "settings": {
@@ -106,6 +125,20 @@
       "security": "Security",
       "toolsSkills": "Tools & Skills",
       "usage": "Usage & billing"
+    },
+    "providers": {
+      "openai": {
+        "cancel": "Cancel",
+        "hint": "Stored in the OS keychain. The sidecar reads it per request and never persists it.",
+        "inputHint": "Paste a key that starts with sk-. It will be encrypted at rest by the OS keychain.",
+        "keyLabel": "API key",
+        "remove": "Remove",
+        "replace": "Replace",
+        "save": "Save",
+        "saving": "Saving…",
+        "title": "OpenAI"
+      },
+      "title": "Providers"
     }
   },
   "sidebar": {

@@ -24,7 +24,7 @@ export const ProviderConfigSchema = z.object({
   secretRef: z.string().optional(),
   toolMode: z.enum(['auto', 'native', 'prompted', 'disabled']),
   capabilities: ProviderCapabilitiesSchema,
-  providerOptions: z.record(z.unknown()).optional(),
+  providerOptions: z.record(z.string(), z.unknown()).optional(),
 });
 export type ProviderConfigDto = z.infer<typeof ProviderConfigSchema>;
 

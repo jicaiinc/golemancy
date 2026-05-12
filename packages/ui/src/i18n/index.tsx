@@ -9,12 +9,7 @@ import {
   type Locale,
   type Translator,
 } from '@golemancy/i18n/react';
-import {
-  defaultLocale,
-  detectLocale,
-  getStoredLocale,
-  setStoredLocale,
-} from '@golemancy/i18n';
+import { defaultLocale, detectLocale, getStoredLocale, setStoredLocale } from '@golemancy/i18n';
 
 export type { Locale, Translator };
 export {

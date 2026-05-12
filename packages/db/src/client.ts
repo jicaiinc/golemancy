@@ -1,5 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { drizzle, type SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
+import { bootstrapSchema } from './bootstrap.js';
 import * as schema from './schema/index.js';
 
 export type GolemancyDb = SqliteRemoteDatabase<typeof schema> & { close(): void };
@@ -7,13 +8,18 @@ export type GolemancyDb = SqliteRemoteDatabase<typeof schema> & { close(): void 
 export type DbOptions = {
   readonly path: string;
   readonly readonly?: boolean;
+  readonly bootstrap?: boolean;
 };
 
 export function createDb(options: DbOptions): GolemancyDb {
-  const sqlite = new DatabaseSync(options.path, { readOnly: options.readonly ?? false });
+  const readonly = options.readonly ?? false;
+  const sqlite = new DatabaseSync(options.path, { readOnly: readonly });
   sqlite.exec('PRAGMA journal_mode = WAL;');
   sqlite.exec('PRAGMA foreign_keys = ON;');
   sqlite.exec('PRAGMA busy_timeout = 5000;');
+  if (!readonly && (options.bootstrap ?? true)) {
+    bootstrapSchema(sqlite);
+  }
 
   type SqliteParam = string | number | bigint | null | Uint8Array;
   const proxy = drizzle(
