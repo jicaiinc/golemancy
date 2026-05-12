@@ -29,14 +29,17 @@ node_modules/
 .cache/
 .turbo/
 .vite/
+.wxt/
 *.tsbuildinfo
 
 # Build outputs
 dist/
 build/
 out/
+.output/
 coverage/
 release/
+target/
 
 # Logs
 *.log
