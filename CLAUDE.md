@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Golemancy 0.2 rebuild baseline. A local-first AI workbench desktop client — Tauri shell, React + Vite UI, Node 24 sidecar, local Hono API, SQLite, MV3 browser extension. v0.1 source was wiped in `cfb2698` and is intentionally not migrated. Treat 0.2 as a clean rewrite; v0.1 install state is considered incompatible (see `_decisions/release-compatibility-considerations.zh.md`).
 
-The authoritative product / architecture brief lives in `_docs/local-desktop-agent-product-architecture.zh.md` and `_docs/ui-designer-handoff.zh.md`; the technology boundaries are in `_decisions/desktop-technical-decisions.md` and `_decisions/cloud-technical-decisions.md` (cloud is out of scope for this repo). These dirs are gitignored (`/_*/`) — they are local planning docs, not commits.
+The authoritative product / architecture brief lives in `_docs/local-desktop-agent-product-architecture.zh.md` and `_docs/ui-designer-handoff.zh.md`; the technology boundaries are in `_decisions/desktop-technical-decisions.md` and `_decisions/cloud-technical-decisions.md` (cloud is out of scope for this repo). The dataDir layout — what lives under `~/.golemancy/`, per-type ownership (DB / Keychain / blob CAS / attachments / cache / logs), and backup/export boundaries — is in `_decisions/desktop-data-storage-layout.zh.md`. These dirs are gitignored (`/_*/`) — they are local planning docs, not commits.
 
 ## Tooling baseline
 
