@@ -13,7 +13,10 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
-    "test": "turbo run test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
     "dev": "turbo run dev --parallel",
     "clean": "turbo run clean && rimraf node_modules/.cache .turbo",
     "format": "prettier --write .",
@@ -22,11 +25,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
+    "@playwright/test": "^1.60.0",
+    "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9.18.0",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
     "turbo": "^2.5.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.21.0"
+    "typescript-eslint": "^8.21.0",
+    "vitest": "^4.1.6"
   }
 }

@@ -59,7 +59,22 @@ Generated PNG/ICNS/ICO files are gitignored (see root `.gitignore`).
 
 ### Tests
 
-No test runner is wired up yet. The architecture doc calls for Vitest (unit) + Playwright (UI/browser) + real packaged-Tauri smoke tests; add `vitest`/`playwright` deps per package when introducing the first test. Do not retrofit a runner casually — pick one package, add it there, document in this file.
+Vitest is wired at the workspace root for the current unit/integration layer:
+
+```sh
+pnpm test
+pnpm test:coverage
+```
+
+Current coverage is intentionally on existing product boundaries: protocol schemas/path builders, runtime event mapping and provider engine resolution, tool registry/approval bridge, SQLite repositories, sidecar auth/routes/browser bridge, desktop API/SSE helpers, i18n locale storage, and extension native-host wiring.
+
+Playwright is wired for the auxiliary desktop web smoke path:
+
+```sh
+pnpm test:e2e
+```
+
+This is **not** the final desktop validation substitute. Real packaged-Tauri smoke tests still belong to M7 and must validate the Tauri shell, supervised Node 24 sidecar, SQLite, secure storage, SSE, shell/CLI execution, browser extension bridge, and native messaging registration.
 
 ## Architecture (the big picture)
 

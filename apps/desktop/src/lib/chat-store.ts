@@ -2,8 +2,10 @@ import {
   API_PATHS,
   type CreateRunResponse,
   type ListMessagesResponse,
+  type ListProjectsResponse,
   type ListThreadsResponse,
   type MessageDto,
+  type ProjectSummary,
   type SecretStatusResponse,
   type ThreadSummary,
 } from '@golemancy/protocol';
@@ -17,6 +19,7 @@ export type StreamState = 'idle' | 'awaiting_key' | 'streaming' | 'error';
 
 export type ChatError =
   | { kind: 'missing_key' }
+  | { kind: 'no_project' }
   | { kind: 'create_failed'; detail: string }
   | { kind: 'stream_failed'; detail: string }
   | { kind: 'engine'; detail: string };
@@ -29,9 +32,19 @@ export type ChatThreadState = {
   error: ChatError | null;
 };
 
-const NEW_KEY = '__new__';
+export type ActiveRef =
+  | { kind: 'draft'; projectId: string }
+  | { kind: 'thread'; threadId: string }
+  | null;
 
-const emptyThread = (threadId: string | null): ChatThreadState => ({
+export type SessionStatus = 'idle' | 'processing' | 'unread';
+
+export type DraftSummary = {
+  projectId: string;
+  createdAt: string;
+};
+
+const emptyState = (threadId: string | null): ChatThreadState => ({
   threadId,
   messages: [],
   assistantDraft: '',
@@ -39,77 +52,294 @@ const emptyThread = (threadId: string | null): ChatThreadState => ({
   error: null,
 });
 
+const draftKey = (projectId: string): string => `draft:${projectId}`;
+const threadKey = (threadId: string): string => `thread:${threadId}`;
+
 export type ChatStore = {
-  readonly threads: ThreadSummary[];
+  readonly projects: ProjectSummary[];
+  readonly threadsByProject: Record<string, ThreadSummary[]>;
+  readonly drafts: Record<string, DraftSummary | undefined>;
   readonly chats: Record<string, ChatThreadState>;
-  readonly activeThreadId: string | null;
-  readonly selectThread: (id: string) => void;
-  readonly newChat: () => void;
+  readonly sessionStatus: Record<string, SessionStatus>;
+  readonly activeRef: ActiveRef;
+  readonly activeProjectId: string | null;
+  readonly refresh: () => Promise<void>;
+  readonly createProject: (name?: string) => Promise<ProjectSummary | null>;
+  readonly renameProject: (id: string, name: string) => Promise<void>;
+  readonly deleteProject: (id: string) => Promise<void>;
+  readonly newDraftInProject: (projectId: string) => void;
+  readonly selectThread: (threadId: string) => void;
+  readonly selectDraft: (projectId: string) => void;
+  readonly clearActive: () => void;
+  readonly renameThread: (id: string, title: string) => Promise<void>;
+  readonly deleteThread: (id: string) => Promise<void>;
   readonly sendMessage: (prompt: string) => Promise<void>;
-  readonly refreshThreads: () => Promise<void>;
 };
 
-// Owns chat state for the whole app. Lives at App scope so streaming continues
-// when the user switches threads or returns to the home composer.
+function groupByProject(threads: ThreadSummary[]): Record<string, ThreadSummary[]> {
+  const out: Record<string, ThreadSummary[]> = {};
+  for (const t of threads) {
+    if (!t.projectId) continue;
+    (out[t.projectId] ??= []).push(t);
+  }
+  return out;
+}
+
 export function useChatStore(apiClient: ApiClient | null): ChatStore {
-  const [threads, setThreads] = useState<ThreadSummary[]>([]);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [threadsByProject, setThreadsByProject] = useState<Record<string, ThreadSummary[]>>({});
+  const [drafts, setDrafts] = useState<Record<string, DraftSummary | undefined>>({});
   const [chats, setChats] = useState<Record<string, ChatThreadState>>({});
-  const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+  const [sessionStatus, setSessionStatus] = useState<Record<string, SessionStatus>>({});
+  const [activeRef, setActiveRef] = useState<ActiveRef>(null);
   const hydratedRef = useRef<Set<string>>(new Set());
+  const activeRefLatest = useRef<ActiveRef>(null);
+  activeRefLatest.current = activeRef;
 
   const patchChat = useCallback((key: string, patch: Partial<ChatThreadState>) => {
     setChats((prev) => {
-      const curr = prev[key] ?? emptyThread(key === NEW_KEY ? null : key);
+      const curr = prev[key] ?? emptyState(null);
       return { ...prev, [key]: { ...curr, ...patch } };
     });
   }, []);
 
-  const refreshThreads = useCallback(async () => {
+  const setStatus = useCallback((threadId: string, status: SessionStatus) => {
+    setSessionStatus((prev) => {
+      if (status === 'idle') {
+        if (!(threadId in prev)) return prev;
+        const { [threadId]: _drop, ...rest } = prev;
+        return rest;
+      }
+      if (prev[threadId] === status) return prev;
+      return { ...prev, [threadId]: status };
+    });
+  }, []);
+
+  const refresh = useCallback(async () => {
     if (!apiClient) return;
     try {
-      const data = await apiClient.getJson<ListThreadsResponse>(API_PATHS.threads);
-      setThreads(data.threads);
+      const [projectsResp, threadsResp] = await Promise.all([
+        apiClient.getJson<ListProjectsResponse>(API_PATHS.projects),
+        apiClient.getJson<ListThreadsResponse>(API_PATHS.threads),
+      ]);
+      setProjects(projectsResp.projects);
+      setThreadsByProject(groupByProject(threadsResp.threads));
     } catch {
-      // Swallow — sidebar tolerates an empty list.
+      // sidebar tolerates empty; supervisor will retry handshake separately.
     }
   }, [apiClient]);
 
   useEffect(() => {
-    void refreshThreads();
-  }, [refreshThreads]);
+    void refresh();
+  }, [refresh]);
 
-  const selectThread = useCallback(
-    (id: string) => {
-      setActiveThreadId(id);
-      if (!apiClient || hydratedRef.current.has(id)) return;
-      hydratedRef.current.add(id);
-      void (async () => {
-        try {
-          const list = await apiClient.getJson<ListMessagesResponse>(
-            API_PATHS.threadMessages(id),
-          );
-          patchChat(id, { messages: list.messages, threadId: id });
-        } catch (err) {
-          patchChat(id, {
-            threadId: id,
-            streamState: 'error',
-            error: { kind: 'stream_failed', detail: formatError(err) },
-          });
-        }
-      })();
+  const createProject = useCallback(
+    async (name?: string): Promise<ProjectSummary | null> => {
+      if (!apiClient) return null;
+      const trimmed = (name ?? '').trim() || 'New project';
+      try {
+        const resp = await apiClient.postJson<{ project: ProjectSummary }>(API_PATHS.projects, {
+          name: trimmed,
+        });
+        setProjects((prev) => [resp.project, ...prev]);
+        return resp.project;
+      } catch {
+        return null;
+      }
+    },
+    [apiClient],
+  );
+
+  const renameProject = useCallback(
+    async (id: string, name: string) => {
+      if (!apiClient) return;
+      try {
+        const resp = await apiClient.fetch(API_PATHS.project(id), {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name }),
+        });
+        if (!resp.ok) return;
+        const data = (await resp.json()) as { project: ProjectSummary };
+        setProjects((prev) => prev.map((p) => (p.id === id ? data.project : p)));
+      } catch {
+        // ignore
+      }
+    },
+    [apiClient],
+  );
+
+  const deleteProject = useCallback(
+    async (id: string) => {
+      if (!apiClient) return;
+      try {
+        await apiClient.fetch(API_PATHS.project(id), { method: 'DELETE' });
+        setProjects((prev) => prev.filter((p) => p.id !== id));
+        setThreadsByProject((prev) => {
+          const { [id]: _drop, ...rest } = prev;
+          return rest;
+        });
+        setDrafts((prev) => {
+          const { [id]: _drop, ...rest } = prev;
+          return rest;
+        });
+        setActiveRef((curr) => {
+          if (!curr) return curr;
+          if (curr.kind === 'draft' && curr.projectId === id) return null;
+          if (curr.kind === 'thread') {
+            const owner = Object.entries(threadsByProject).find(([pid, list]) =>
+              pid === id && list.some((t) => t.id === curr.threadId),
+            );
+            if (owner) return null;
+          }
+          return curr;
+        });
+      } catch {
+        // ignore
+      }
+    },
+    [apiClient, threadsByProject],
+  );
+
+  const newDraftInProject = useCallback((projectId: string) => {
+    setDrafts((prev) => ({
+      ...prev,
+      [projectId]: prev[projectId] ?? { projectId, createdAt: new Date().toISOString() },
+    }));
+    setChats((prev) => {
+      const key = draftKey(projectId);
+      if (prev[key]) return prev;
+      return { ...prev, [key]: emptyState(null) };
+    });
+    setActiveRef({ kind: 'draft', projectId });
+  }, []);
+
+  const selectDraft = useCallback(
+    (projectId: string) => {
+      if (!drafts[projectId]) {
+        newDraftInProject(projectId);
+        return;
+      }
+      setActiveRef({ kind: 'draft', projectId });
+    },
+    [drafts, newDraftInProject],
+  );
+
+  const hydrateThread = useCallback(
+    async (threadId: string) => {
+      if (!apiClient || hydratedRef.current.has(threadId)) return;
+      hydratedRef.current.add(threadId);
+      try {
+        const list = await apiClient.getJson<ListMessagesResponse>(
+          API_PATHS.threadMessages(threadId),
+        );
+        patchChat(threadKey(threadId), { threadId, messages: list.messages });
+      } catch (err) {
+        patchChat(threadKey(threadId), {
+          threadId,
+          streamState: 'error',
+          error: { kind: 'stream_failed', detail: formatError(err) },
+        });
+      }
     },
     [apiClient, patchChat],
   );
 
-  const newChat = useCallback(() => {
-    setActiveThreadId(null);
+  const selectThread = useCallback(
+    (threadId: string) => {
+      setActiveRef({ kind: 'thread', threadId });
+      setStatus(threadId, 'idle');
+      void hydrateThread(threadId);
+    },
+    [hydrateThread, setStatus],
+  );
+
+  const clearActive = useCallback(() => {
+    setActiveRef(null);
   }, []);
+
+  const renameThread = useCallback(
+    async (id: string, title: string) => {
+      if (!apiClient) return;
+      try {
+        const resp = await apiClient.fetch(API_PATHS.thread(id), {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title }),
+        });
+        if (!resp.ok) return;
+        const data = (await resp.json()) as { thread: ThreadSummary };
+        setThreadsByProject((prev) => {
+          const out: Record<string, ThreadSummary[]> = {};
+          for (const [pid, list] of Object.entries(prev)) {
+            out[pid] = list.map((t) => (t.id === id ? data.thread : t));
+          }
+          return out;
+        });
+      } catch {
+        // ignore
+      }
+    },
+    [apiClient],
+  );
+
+  const deleteThread = useCallback(
+    async (id: string) => {
+      if (!apiClient) return;
+      try {
+        await apiClient.fetch(API_PATHS.thread(id), { method: 'DELETE' });
+        setThreadsByProject((prev) => {
+          const out: Record<string, ThreadSummary[]> = {};
+          for (const [pid, list] of Object.entries(prev)) {
+            out[pid] = list.filter((t) => t.id !== id);
+          }
+          return out;
+        });
+        setChats((prev) => {
+          const key = threadKey(id);
+          if (!(key in prev)) return prev;
+          const { [key]: _drop, ...rest } = prev;
+          return rest;
+        });
+        setStatus(id, 'idle');
+        setActiveRef((curr) =>
+          curr && curr.kind === 'thread' && curr.threadId === id ? null : curr,
+        );
+      } catch {
+        // ignore
+      }
+    },
+    [apiClient, setStatus],
+  );
 
   const sendMessage = useCallback(
     async (prompt: string) => {
       if (!apiClient || !prompt.trim()) return;
-      const existingThreadId = activeThreadId;
-      const targetKey = existingThreadId ?? NEW_KEY;
+      const current = activeRefLatest.current;
+      if (!current) return; // composer is gated by activeRef in the UI
+
+      let projectId: string;
+      let existingThreadId: string | null = null;
+      let workingKey: string;
+
+      if (current.kind === 'thread') {
+        existingThreadId = current.threadId;
+        workingKey = threadKey(existingThreadId);
+        const owner = Object.entries(threadsByProject).find(([_, list]) =>
+          list.some((t) => t.id === existingThreadId),
+        );
+        if (!owner) {
+          patchChat(workingKey, {
+            streamState: 'error',
+            error: { kind: 'create_failed', detail: 'thread has no project' },
+          });
+          return;
+        }
+        projectId = owner[0];
+      } else {
+        projectId = current.projectId;
+        workingKey = draftKey(projectId);
+      }
 
       const optimisticMsg: MessageDto = {
         id: `optimistic-${Date.now()}`,
@@ -121,10 +351,10 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
       };
 
       setChats((prev) => {
-        const curr = prev[targetKey] ?? emptyThread(existingThreadId);
+        const curr = prev[workingKey] ?? emptyState(existingThreadId);
         return {
           ...prev,
-          [targetKey]: {
+          [workingKey]: {
             ...curr,
             messages: [...curr.messages, optimisticMsg],
             assistantDraft: '',
@@ -134,20 +364,16 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
         };
       });
 
-      // Pre-flight: ask the sidecar if the provider's secret is set. Avoids
-      // spending a POST /runs round-trip on a run we already know will fail,
-      // and surfaces the "missing_key" UX immediately. The sidecar never
-      // ships the value back — just `{ present, masked }`.
       try {
         const status = await apiClient.getJson<SecretStatusResponse>(
           API_PATHS.secretStatus(SECRET_ACCOUNTS.openaiApiKey),
         );
         if (!status.present) {
-          patchChat(targetKey, { streamState: 'error', error: { kind: 'missing_key' } });
+          patchChat(workingKey, { streamState: 'error', error: { kind: 'missing_key' } });
           return;
         }
       } catch (err) {
-        patchChat(targetKey, {
+        patchChat(workingKey, {
           streamState: 'error',
           error: { kind: 'create_failed', detail: formatError(err) },
         });
@@ -158,32 +384,55 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
       try {
         runResponse = await apiClient.postJson<CreateRunResponse>(API_PATHS.runs, {
           threadId: existingThreadId ?? undefined,
+          projectId,
           prompt,
         });
       } catch (err) {
-        patchChat(targetKey, {
+        patchChat(workingKey, {
           streamState: 'error',
           error: { kind: 'create_failed', detail: formatError(err) },
         });
         return;
       }
 
-      const finalKey = runResponse.threadId;
-      // Promote __new__ slot to its real thread id once the server assigns one.
-      if (targetKey !== finalKey) {
+      const finalThreadId = runResponse.threadId;
+      const finalKey = threadKey(finalThreadId);
+
+      if (workingKey !== finalKey) {
         setChats((prev) => {
-          const transient = prev[targetKey];
+          const transient = prev[workingKey];
           if (!transient) return prev;
-          const { [targetKey]: _drop, ...rest } = prev;
-          return { ...rest, [finalKey]: { ...transient, threadId: finalKey } };
+          const { [workingKey]: _drop, ...rest } = prev;
+          return { ...rest, [finalKey]: { ...transient, threadId: finalThreadId } };
         });
-        hydratedRef.current.add(finalKey);
-        // Only follow the new thread if the user was still on the composer.
-        if (existingThreadId === null && activeThreadId === null) {
-          setActiveThreadId(finalKey);
+        hydratedRef.current.add(finalThreadId);
+        if (current.kind === 'draft') {
+          setDrafts((prev) => {
+            const { [projectId]: _drop, ...rest } = prev;
+            return rest;
+          });
+          const newThread: ThreadSummary = {
+            id: finalThreadId,
+            title: prompt.slice(0, 64),
+            projectId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          setThreadsByProject((prev) => {
+            const list = prev[projectId] ?? [];
+            if (list.some((t) => t.id === finalThreadId)) return prev;
+            return { ...prev, [projectId]: [newThread, ...list] };
+          });
+          if (
+            activeRefLatest.current?.kind === 'draft' &&
+            activeRefLatest.current.projectId === projectId
+          ) {
+            setActiveRef({ kind: 'thread', threadId: finalThreadId });
+          }
         }
       }
 
+      setStatus(finalThreadId, 'processing');
       patchChat(finalKey, { streamState: 'streaming', assistantDraft: '', error: null });
 
       try {
@@ -208,18 +457,24 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
             break;
           }
         }
+        const stillActive =
+          activeRefLatest.current?.kind === 'thread' &&
+          activeRefLatest.current.threadId === finalThreadId;
+
         if (engineError !== null) {
           patchChat(finalKey, {
             streamState: 'error',
             error: { kind: 'engine', detail: engineError },
             assistantDraft: '',
           });
-          await refreshThreads();
+          setStatus(finalThreadId, stillActive ? 'idle' : 'unread');
+          void refresh();
           return;
         }
+
         try {
           const list = await apiClient.getJson<ListMessagesResponse>(
-            API_PATHS.threadMessages(finalKey),
+            API_PATHS.threadMessages(finalThreadId),
           );
           patchChat(finalKey, {
             messages: list.messages,
@@ -229,20 +484,59 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
         } catch {
           patchChat(finalKey, { assistantDraft: '', streamState: 'idle' });
         }
-        await refreshThreads();
+        setStatus(finalThreadId, stillActive ? 'idle' : 'unread');
+        void refresh();
       } catch (err) {
+        const stillActive =
+          activeRefLatest.current?.kind === 'thread' &&
+          activeRefLatest.current.threadId === finalThreadId;
         patchChat(finalKey, {
           streamState: 'error',
           error: { kind: 'stream_failed', detail: formatError(err) },
           assistantDraft: '',
         });
+        setStatus(finalThreadId, stillActive ? 'idle' : 'unread');
       }
     },
-    [activeThreadId, apiClient, patchChat, refreshThreads],
+    [apiClient, threadsByProject, patchChat, refresh, setStatus],
   );
 
-  return { threads, chats, activeThreadId, selectThread, newChat, sendMessage, refreshThreads };
+  // Derive activeProjectId from activeRef + thread→project lookup.
+  const activeProjectId: string | null = (() => {
+    if (!activeRef) return null;
+    if (activeRef.kind === 'draft') return activeRef.projectId;
+    for (const [pid, list] of Object.entries(threadsByProject)) {
+      if (list.some((t) => t.id === activeRef.threadId)) return pid;
+    }
+    return null;
+  })();
+
+  return {
+    projects,
+    threadsByProject,
+    drafts,
+    chats,
+    sessionStatus,
+    activeRef,
+    activeProjectId,
+    refresh,
+    createProject,
+    renameProject,
+    deleteProject,
+    newDraftInProject,
+    selectThread,
+    selectDraft,
+    clearActive,
+    renameThread,
+    deleteThread,
+    sendMessage,
+  };
 }
+
+export const chatKeyForActive = (ref: ActiveRef): string | null => {
+  if (!ref) return null;
+  return ref.kind === 'thread' ? threadKey(ref.threadId) : draftKey(ref.projectId);
+};
 
 function parseRunEvent(raw: string): RunEvent | null {
   try {

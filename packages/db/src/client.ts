@@ -31,8 +31,13 @@ export function createDb(options: DbOptions): GolemancyDb {
         return { rows: [] };
       }
       if (method === 'get') {
+        // drizzle-orm/sqlite-proxy treats `rows` as a SINGLE tuple here, not an
+        // array of tuples — see drizzle's mapGetResult(rows): `const row = rows`.
+        // For "no row" we must pass nullish so the `!row` short-circuit fires;
+        // an empty array would synthesize a row of all-undefined columns.
         const row = stmt.get(...args) as Record<string, unknown> | undefined;
-        return { rows: row ? [Object.values(row)] : [] };
+        if (row === undefined) return { rows: undefined as unknown as unknown[] };
+        return { rows: Object.values(row) as unknown[] };
       }
       const rows = stmt.all(...args) as Array<Record<string, unknown>>;
       return { rows: rows.map((r) => Object.values(r)) };

@@ -6,6 +6,7 @@ import { registerHealthRoute } from './routes/health.js';
 import { registerConfigRoute } from './routes/config.js';
 import { registerRunsRoutes } from './routes/runs.js';
 import { registerThreadsRoutes } from './routes/threads.js';
+import { registerProjectsRoutes } from './routes/projects.js';
 import { registerProvidersRoutes } from './routes/providers.js';
 import { registerToolsRoutes } from './routes/tools.js';
 import { registerBrowserRoutes } from './routes/browser.js';
@@ -43,6 +44,7 @@ export function createApp(deps: AppDeps): Hono {
   registerConfigRoute(app, deps);
   registerRunsRoutes(app, deps.runtime);
   registerThreadsRoutes(app, deps.runtime);
+  registerProjectsRoutes(app, deps.runtime);
   registerProvidersRoutes(app);
   registerToolsRoutes(app);
   registerBrowserRoutes(app, deps.runtime);

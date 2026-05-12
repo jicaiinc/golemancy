@@ -15,13 +15,14 @@ export type ComposerProps = {
 export function Composer({
   placeholder,
   initialValue = '',
-  projectName = 'golemancy',
+  projectName,
   modelLabel = 'Claude Sonnet 4.5',
   modelStatus = 'ok',
   disabled = false,
   onSubmit,
 }: ComposerProps) {
   const t = useT();
+  const displayProjectName = projectName ?? t('composer.noProject', 'No project');
   const [value, setValue] = useState(initialValue);
   const effectivePlaceholder =
     placeholder ?? t('composer.placeholder', 'What should we build in golemancy?');
@@ -59,7 +60,7 @@ export function Composer({
           </button>
           <button type="button" className="chip">
             <Icons.Project size={13} />
-            <span>{projectName}</span>
+            <span>{displayProjectName}</span>
             <Icons.ChevDown size={11} />
           </button>
           <button type="button" className="chip">

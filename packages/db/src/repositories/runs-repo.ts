@@ -16,7 +16,10 @@ export class RunsRepo {
   }
 
   async insert(row: NewRunRow): Promise<RunRow> {
-    return this.db.insert(runs).values(row).returning().get();
+    await this.db.insert(runs).values(row).run();
+    const out = await this.get(row.id);
+    if (!out) throw new Error('runs.insert: row not visible after write');
+    return out;
   }
 
   async listByThread(threadId: string, limit = 50): Promise<RunRow[]> {

@@ -15,7 +15,7 @@ export class MessagesRepo {
   constructor(private readonly db: GolemancyDb) {}
 
   async insert(row: NewMessage): Promise<MessageRow> {
-    return this.db
+    await this.db
       .insert(messages)
       .values({
         id: row.id,
@@ -25,8 +25,10 @@ export class MessagesRepo {
         content: row.content,
         providerMetadata: row.providerMetadata ?? null,
       })
-      .returning()
-      .get();
+      .run();
+    const out = await this.db.select().from(messages).where(eq(messages.id, row.id)).get();
+    if (!out) throw new Error('messages.insert: row not visible after write');
+    return out;
   }
 
   async listByThread(threadId: string): Promise<MessageRow[]> {

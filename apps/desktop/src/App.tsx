@@ -8,12 +8,14 @@ import {
   ThemeProvider,
   useT,
   type SettingsSectionId,
+  type SidebarProjectEntry,
+  type SidebarThreadEntry,
   type Translator,
 } from '@golemancy/ui';
 import type { HealthResponse } from '@golemancy/protocol';
 import { useSidecarStatus, type SidecarStatus } from './lib/sidecar';
 import { createApiClient, isReady } from './lib/api-client';
-import { useChatStore } from './lib/chat-store';
+import { chatKeyForActive, useChatStore } from './lib/chat-store';
 import { ChatPanel } from './screens/Chat';
 import { ProvidersSettingsSection } from './screens/ProvidersSettings';
 
@@ -119,10 +121,50 @@ export function App() {
   );
 
   const store = useChatStore(apiClient);
-  const activeChat = store.activeThreadId ? store.chats[store.activeThreadId] : null;
-  const activeThreadSummary = store.activeThreadId
-    ? store.threads.find((th) => th.id === store.activeThreadId) ?? null
-    : null;
+
+  const sidebarProjects: SidebarProjectEntry[] = store.projects.map((p) => ({
+    id: p.id,
+    name: p.name,
+  }));
+  const sidebarThreadsByProject: Record<string, SidebarThreadEntry[]> = Object.fromEntries(
+    Object.entries(store.threadsByProject).map(([pid, list]) => [
+      pid,
+      list.map((t) => ({
+        id: t.id,
+        title: t.title,
+        status: store.sessionStatus[t.id] ?? 'idle',
+      })),
+    ]),
+  );
+
+  const activeKey = chatKeyForActive(store.activeRef);
+  const activeChat = activeKey ? store.chats[activeKey] ?? null : null;
+
+  const activeProjectName =
+    store.activeProjectId != null
+      ? store.projects.find((p) => p.id === store.activeProjectId)?.name ?? null
+      : null;
+
+  const activeThreadTitle = (() => {
+    const ref = store.activeRef;
+    if (!ref || ref.kind !== 'thread') return null;
+    for (const list of Object.values(store.threadsByProject)) {
+      const hit = list.find((t) => t.id === ref.threadId);
+      if (hit) return hit.title;
+    }
+    return null;
+  })();
+
+  const onTopNewChat = () => {
+    const target = store.activeProjectId ?? store.projects[0]?.id ?? null;
+    if (!target) {
+      void store.createProject().then((p) => {
+        if (p) store.newDraftInProject(p.id);
+      });
+      return;
+    }
+    store.newDraftInProject(target);
+  };
 
   return (
     <I18nProvider>
@@ -132,21 +174,46 @@ export function App() {
           <div className="app">
             <Sidebar
               activeNav="new"
-              threads={store.threads.map((th) => ({ id: th.id, title: th.title }))}
-              activeThreadId={store.activeThreadId}
+              projects={sidebarProjects}
+              threadsByProject={sidebarThreadsByProject}
+              drafts={store.drafts}
+              activeRef={store.activeRef}
               onOpenSettings={() => setScreen({ kind: 'settings', section: 'general' })}
-              onNewChat={() => store.newChat()}
+              onTopNewChat={onTopNewChat}
+              onCreateProject={() => {
+                void store.createProject().then((p) => {
+                  if (p) store.newDraftInProject(p.id);
+                });
+              }}
+              onRenameProject={(id, name) => void store.renameProject(id, name)}
+              onDeleteProject={(id) => void store.deleteProject(id)}
+              onNewChatInProject={(pid) => store.newDraftInProject(pid)}
               onSelectThread={(id) => store.selectThread(id)}
+              onSelectDraft={(pid) => store.selectDraft(pid)}
+              onRenameThread={(id, title) => void store.renameThread(id, title)}
+              onDeleteThread={(id) => void store.deleteThread(id)}
             />
             <main className="main">
               {activeChat ? (
                 <ChatPanel
                   state={activeChat}
-                  title={activeThreadSummary?.title ?? null}
+                  title={activeThreadTitle}
+                  projectName={activeProjectName}
+                  isDraft={store.activeRef?.kind === 'draft'}
                   onSubmit={(text) => void store.sendMessage(text)}
                 />
               ) : (
-                <Home composer={{ onSubmit: (text) => void store.sendMessage(text) }} />
+                <Home
+                  composer={{
+                    projectName: activeProjectName ?? undefined,
+                    onSubmit: (text) => {
+                      if (!store.activeProjectId) {
+                        onTopNewChat();
+                      }
+                      void store.sendMessage(text);
+                    },
+                  }}
+                />
               )}
             </main>
             {accountOpen ? (

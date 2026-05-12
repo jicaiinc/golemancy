@@ -6,27 +6,38 @@ import type { ChatError, ChatThreadState } from '../lib/chat-store.js';
 export type ChatPanelProps = {
   state: ChatThreadState;
   title: string | null;
+  projectName: string | null;
+  isDraft: boolean;
   onSubmit: (text: string) => void;
 };
 
-export function ChatPanel({ state, title, onSubmit }: ChatPanelProps) {
+export function ChatPanel({ state, title, projectName, isDraft, onSubmit }: ChatPanelProps) {
   const t = useT();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const busy = state.streamState === 'streaming' || state.streamState === 'awaiting_key';
 
-  // Auto-scroll to bottom whenever the message list or live draft grows.
   useEffect(() => {
     const node = scrollRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;
   }, [state.messages.length, state.assistantDraft, state.streamState]);
 
+  const headerTitle = (() => {
+    if (isDraft && projectName) {
+      return t('chat.draftIn', 'New chat · {{project}}', { project: projectName });
+    }
+    if (title) return title;
+    if (isDraft) return t('chat.draft', 'New chat');
+    return t('chat.untitled', '(untitled)');
+  })();
+
   return (
     <section className="chat-pane">
       <header className="chat-pane__header">
-        <span className="chat-pane__title">
-          {title ?? t('chat.untitled', '(untitled)')}
-        </span>
+        <span className="chat-pane__title">{headerTitle}</span>
+        {projectName && !isDraft ? (
+          <span className="chat-pane__project">· {projectName}</span>
+        ) : null}
       </header>
 
       <div className="chat-pane__scroll" ref={scrollRef}>
@@ -60,6 +71,7 @@ export function ChatPanel({ state, title, onSubmit }: ChatPanelProps) {
           <Composer
             onSubmit={onSubmit}
             disabled={busy}
+            projectName={projectName ?? undefined}
             placeholder={
               busy
                 ? t('chat.composer.busy', 'Streaming…')
@@ -106,6 +118,11 @@ function renderError(
       return t(
         'chat.errors.missingKey',
         'OpenAI API key is not set. Add it in Settings → Providers.',
+      );
+    case 'no_project':
+      return t(
+        'chat.errors.noProject',
+        'No project selected. Create one in the sidebar first.',
       );
     case 'create_failed':
       return t('chat.errors.createFailed', 'Failed to start the run: {{detail}}', {

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useT } from '../i18n/index.js';
 import { Icons } from './Icons.js';
 import { Logo } from './Logo.js';
@@ -41,66 +41,131 @@ function SectionLabel({ children, trailing }: { children: ReactNode; trailing?: 
   );
 }
 
-export type ProjectEntry = {
+export type SidebarNavKey = 'new' | 'search' | 'skills' | 'automations';
+
+export type SidebarProjectEntry = {
   id: string;
   name: string;
-  chats: ReadonlyArray<string>;
 };
-
-export type SidebarNavKey = 'new' | 'search' | 'skills' | 'automations';
 
 export type SidebarThreadEntry = {
   id: string;
   title: string | null;
+  status: 'idle' | 'processing' | 'unread';
 };
+
+export type SidebarDraftEntry = {
+  projectId: string;
+};
+
+export type SidebarActiveRef =
+  | { kind: 'draft'; projectId: string }
+  | { kind: 'thread'; threadId: string }
+  | null;
 
 export type SidebarProps = {
   activeNav?: SidebarNavKey;
-  projects?: ReadonlyArray<ProjectEntry>;
-  pinned?: ReadonlyArray<{ id: string; name: string; kbd?: string }>;
-  threads?: ReadonlyArray<SidebarThreadEntry>;
-  activeThreadId?: string | null;
+  projects: ReadonlyArray<SidebarProjectEntry>;
+  threadsByProject: Readonly<Record<string, ReadonlyArray<SidebarThreadEntry>>>;
+  drafts: Readonly<Record<string, SidebarDraftEntry | undefined>>;
+  activeRef: SidebarActiveRef;
   onSelectNav?: (nav: SidebarNavKey) => void;
   onOpenSettings?: () => void;
-  onSelectThread?: (id: string) => void;
-  onNewChat?: () => void;
+  onTopNewChat?: () => void;
+  onCreateProject?: () => void;
+  onRenameProject?: (id: string, name: string) => void;
+  onDeleteProject?: (id: string) => void;
+  onNewChatInProject?: (projectId: string) => void;
+  onSelectThread?: (threadId: string) => void;
+  onSelectDraft?: (projectId: string) => void;
+  onRenameThread?: (id: string, title: string) => void;
+  onDeleteThread?: (id: string) => void;
 };
 
-const DEFAULT_PROJECTS: ReadonlyArray<ProjectEntry> = [
-  {
-    id: 'golemancy',
-    name: 'golemancy',
-    chats: ['Rebuild v0.2 brief', 'Onboarding copy', 'Provider model matrix'],
-  },
-  { id: 'colawd', name: 'colawd', chats: [] },
-  { id: 'colawd2', name: 'colawd2', chats: ['Retention review prep'] },
-  { id: 'caiyongji2026', name: 'caiyongji2026', chats: [] },
-  { id: 'zzaship', name: 'zzaship', chats: [] },
-  { id: 'nanowhisper', name: 'nanowhisper', chats: [] },
-  { id: 'playground', name: 'Playground', chats: [] },
-];
+function useOutsideClick<T extends HTMLElement>(handler: () => void) {
+  const ref = useRef<T | null>(null);
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target as Node)) handler();
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [handler]);
+  return ref;
+}
 
-const DEFAULT_PINNED = [
-  { id: 'design-kit', name: 'Design system kit', kbd: '⌘1' },
-  { id: 'retention', name: 'Weekly retention review', kbd: '⌘2' },
-] as const;
+type MenuItem = { label: string; onSelect: () => void; danger?: boolean };
+
+function RowMenu({ items, onClose }: { items: MenuItem[]; onClose: () => void }) {
+  const ref = useOutsideClick<HTMLDivElement>(onClose);
+  return (
+    <div className="row-menu" ref={ref} role="menu">
+      {items.map((it, i) => (
+        <button
+          key={i}
+          type="button"
+          role="menuitem"
+          className="row-menu__item"
+          data-danger={it.danger || undefined}
+          onClick={(e) => {
+            e.stopPropagation();
+            it.onSelect();
+            onClose();
+          }}
+        >
+          {it.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function StatusDot({ status }: { status: SidebarThreadEntry['status'] }) {
+  if (status === 'processing') return <span className="session-spinner" aria-label="processing" />;
+  if (status === 'unread') return <span className="session-unread" aria-label="unread" />;
+  return <Icons.ChatDot size={14} />;
+}
 
 export function Sidebar({
   activeNav = 'new',
-  projects = DEFAULT_PROJECTS,
-  pinned = DEFAULT_PINNED,
-  threads,
-  activeThreadId,
+  projects,
+  threadsByProject,
+  drafts,
+  activeRef,
   onSelectNav,
   onOpenSettings,
+  onTopNewChat,
+  onCreateProject,
+  onRenameProject,
+  onDeleteProject,
+  onNewChatInProject,
   onSelectThread,
-  onNewChat,
+  onSelectDraft,
+  onRenameThread,
+  onDeleteThread,
 }: SidebarProps) {
   const t = useT();
-  const [openProj, setOpenProj] = useState<Record<string, boolean>>({
-    golemancy: true,
-    colawd2: false,
-  });
+  const [openProj, setOpenProj] = useState<Record<string, boolean>>({});
+  const [menu, setMenu] = useState<{ kind: 'project' | 'thread'; id: string } | null>(null);
+  const [renaming, setRenaming] = useState<{ kind: 'project' | 'thread'; id: string } | null>(null);
+
+  // Auto-expand projects that contain the active session (or a draft).
+  useEffect(() => {
+    if (!activeRef) return;
+    const expandId =
+      activeRef.kind === 'draft'
+        ? activeRef.projectId
+        : findProjectIdForThread(threadsByProject, activeRef.threadId);
+    if (expandId) setOpenProj((o) => ({ ...o, [expandId]: true }));
+  }, [activeRef, threadsByProject]);
+
+  const submitRename = (kind: 'project' | 'thread', id: string, value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (kind === 'project') onRenameProject?.(id, trimmed);
+    else onRenameThread?.(id, trimmed);
+  };
 
   return (
     <aside className="sidebar">
@@ -115,10 +180,10 @@ export function Sidebar({
             icon={<Icons.NewChat size={16} />}
             label={t('sidebar.newChat', 'New chat')}
             kbd="⌘N"
-            active={activeNav === 'new' && activeThreadId == null}
+            active={activeNav === 'new' && activeRef === null}
             onClick={() => {
               onSelectNav?.('new');
-              onNewChat?.();
+              onTopNewChat?.();
             }}
           />
           <SideRow
@@ -142,89 +207,215 @@ export function Sidebar({
           />
         </div>
 
-        {threads && threads.length > 0 ? (
-          <>
-            <SectionLabel>{t('sidebar.chats', 'Chats')}</SectionLabel>
-            <div className="side-group">
-              {threads.map((th) => (
-                <SideRow
-                  key={th.id}
-                  icon={<Icons.ChatDot size={14} />}
-                  label={th.title ?? t('sidebar.untitledChat', '(untitled)')}
-                  active={activeThreadId === th.id}
-                  onClick={() => onSelectThread?.(th.id)}
-                />
-              ))}
-            </div>
-          </>
-        ) : null}
+        <div className="projects-zone">
+          <SectionLabel
+            trailing={
+              <div className="side-section__actions projects-zone__actions">
+                <button
+                  className="ghost-icon"
+                  type="button"
+                  title={t('sidebar.newProject', 'New project')}
+                  onClick={onCreateProject}
+                >
+                  <Icons.FolderPlus size={14} />
+                </button>
+              </div>
+            }
+          >
+            {t('sidebar.projects', 'Projects')}
+          </SectionLabel>
 
-        <SectionLabel>{t('sidebar.pinned', 'Pinned')}</SectionLabel>
-        <div className="side-group">
-          {pinned.map((p) => (
-            <SideRow key={p.id} icon={<Icons.Pin size={15} />} label={p.name} kbd={p.kbd} />
-          ))}
-        </div>
-
-        <SectionLabel
-          trailing={
-            <div className="side-section__actions">
-              <button className="ghost-icon" type="button" title={t('sidebar.filter', 'Filter')}>
-                <Icons.Filter size={14} />
-              </button>
-              <button
-                className="ghost-icon"
-                type="button"
-                title={t('sidebar.newProject', 'New project')}
-              >
-                <Icons.Folder size={14} />
-              </button>
-            </div>
-          }
-        >
-          {t('sidebar.projects', 'Projects')}
-        </SectionLabel>
-
-        <div className="side-group">
-          {projects.map((p) => (
-            <div key={p.id}>
-              <button
-                type="button"
-                className="side-row side-row--project"
-                onClick={() => setOpenProj((o) => ({ ...o, [p.id]: !o[p.id] }))}
-              >
-                <span className="side-row__icon">
-                  <span className="chev" data-open={openProj[p.id] || undefined}>
-                    <Icons.ChevRight size={12} />
-                  </span>
-                </span>
-                <Icons.Project size={15} />
-                <span className="side-row__label">{p.name}</span>
-                <span className="proj-actions">
-                  <span className="ghost-icon">
-                    <Icons.More size={14} />
-                  </span>
-                  <span className="ghost-icon">
-                    <Icons.Edit size={14} />
-                  </span>
-                </span>
-              </button>
-              {openProj[p.id] ? (
-                <div className="proj-chats">
-                  {p.chats.length === 0 ? (
-                    <div className="proj-empty">{t('sidebar.noChats', 'No chats')}</div>
-                  ) : (
-                    p.chats.map((c) => (
-                      <button key={c} type="button" className="side-row side-row--chat">
-                        <Icons.ChatDot size={14} />
-                        <span className="side-row__label">{c}</span>
+          <div className="side-group">
+            {projects.length === 0 ? (
+              <div className="proj-empty">
+                {t('sidebar.noProjects', 'No projects yet — click + to create one.')}
+              </div>
+            ) : null}
+            {projects.map((p) => {
+              const threads = threadsByProject[p.id] ?? [];
+              const draft = drafts[p.id];
+              const isOpen = openProj[p.id] ?? true;
+              const isActiveProject =
+                (activeRef?.kind === 'draft' && activeRef.projectId === p.id) ||
+                (activeRef?.kind === 'thread' &&
+                  threads.some((t) => t.id === activeRef.threadId));
+              const isRenaming = renaming?.kind === 'project' && renaming.id === p.id;
+              return (
+                <div key={p.id}>
+                  <div
+                    className="side-row side-row--project"
+                    data-active={isActiveProject || undefined}
+                    onClick={() => setOpenProj((o) => ({ ...o, [p.id]: !isOpen }))}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setOpenProj((o) => ({ ...o, [p.id]: !isOpen }));
+                      }
+                    }}
+                  >
+                    <span className="side-row__icon">
+                      <span className="chev" data-open={isOpen || undefined}>
+                        <Icons.ChevRight size={12} />
+                      </span>
+                    </span>
+                    <Icons.Project size={15} />
+                    {isRenaming ? (
+                      <InlineRename
+                        initial={p.name}
+                        onSubmit={(v) => {
+                          submitRename('project', p.id, v);
+                          setRenaming(null);
+                        }}
+                        onCancel={() => setRenaming(null)}
+                      />
+                    ) : (
+                      <span className="side-row__label">{p.name}</span>
+                    )}
+                    <span className="proj-actions">
+                      <button
+                        type="button"
+                        className="ghost-icon"
+                        title={t('sidebar.projectMore', 'More')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMenu((m) =>
+                            m?.kind === 'project' && m.id === p.id
+                              ? null
+                              : { kind: 'project', id: p.id },
+                          );
+                        }}
+                      >
+                        <Icons.More size={14} />
                       </button>
-                    ))
-                  )}
+                      <button
+                        type="button"
+                        className="ghost-icon"
+                        title={t('sidebar.newChatHere', 'New chat in project')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNewChatInProject?.(p.id);
+                          setOpenProj((o) => ({ ...o, [p.id]: true }));
+                        }}
+                      >
+                        <Icons.NewChat size={14} />
+                      </button>
+                    </span>
+                    {menu?.kind === 'project' && menu.id === p.id ? (
+                      <RowMenu
+                        items={[
+                          {
+                            label: t('sidebar.rename', 'Rename'),
+                            onSelect: () => setRenaming({ kind: 'project', id: p.id }),
+                          },
+                          {
+                            label: t('sidebar.delete', 'Delete'),
+                            danger: true,
+                            onSelect: () => onDeleteProject?.(p.id),
+                          },
+                        ]}
+                        onClose={() => setMenu(null)}
+                      />
+                    ) : null}
+                  </div>
+
+                  {isOpen ? (
+                    <div className="proj-chats">
+                      {draft ? (
+                        <button
+                          type="button"
+                          className="side-row side-row--chat"
+                          data-active={
+                            activeRef?.kind === 'draft' && activeRef.projectId === p.id
+                              ? true
+                              : undefined
+                          }
+                          onClick={() => onSelectDraft?.(p.id)}
+                        >
+                          <Icons.Edit size={13} />
+                          <span className="side-row__label side-row__label--muted">
+                            {t('sidebar.draft', 'New chat (draft)')}
+                          </span>
+                        </button>
+                      ) : null}
+                      {threads.length === 0 && !draft ? (
+                        <div className="proj-empty">{t('sidebar.noChats', 'No chats')}</div>
+                      ) : null}
+                      {threads.map((th) => {
+                        const isActive =
+                          activeRef?.kind === 'thread' && activeRef.threadId === th.id;
+                        const isThreadRenaming =
+                          renaming?.kind === 'thread' && renaming.id === th.id;
+                        return (
+                          <div key={th.id} className="thread-row-wrap">
+                            <button
+                              type="button"
+                              className="side-row side-row--chat"
+                              data-active={isActive || undefined}
+                              onClick={() => onSelectThread?.(th.id)}
+                            >
+                              <span className="side-row__icon">
+                                <StatusDot status={th.status} />
+                              </span>
+                              {isThreadRenaming ? (
+                                <InlineRename
+                                  initial={th.title ?? ''}
+                                  onSubmit={(v) => {
+                                    submitRename('thread', th.id, v);
+                                    setRenaming(null);
+                                  }}
+                                  onCancel={() => setRenaming(null)}
+                                />
+                              ) : (
+                                <span className="side-row__label">
+                                  {th.title ?? t('sidebar.untitledChat', '(untitled)')}
+                                </span>
+                              )}
+                              <span className="thread-actions">
+                                <button
+                                  type="button"
+                                  className="ghost-icon"
+                                  title={t('sidebar.threadMore', 'More')}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMenu((m) =>
+                                      m?.kind === 'thread' && m.id === th.id
+                                        ? null
+                                        : { kind: 'thread', id: th.id },
+                                    );
+                                  }}
+                                >
+                                  <Icons.More size={13} />
+                                </button>
+                              </span>
+                            </button>
+                            {menu?.kind === 'thread' && menu.id === th.id ? (
+                              <RowMenu
+                                items={[
+                                  {
+                                    label: t('sidebar.rename', 'Rename'),
+                                    onSelect: () =>
+                                      setRenaming({ kind: 'thread', id: th.id }),
+                                  },
+                                  {
+                                    label: t('sidebar.delete', 'Delete'),
+                                    danger: true,
+                                    onSelect: () => onDeleteThread?.(th.id),
+                                  },
+                                ]}
+                                onClose={() => setMenu(null)}
+                              />
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -237,4 +428,50 @@ export function Sidebar({
       </div>
     </aside>
   );
+}
+
+function InlineRename({
+  initial,
+  onSubmit,
+  onCancel,
+}: {
+  initial: string;
+  onSubmit: (value: string) => void;
+  onCancel: () => void;
+}) {
+  const [value, setValue] = useState(initial);
+  const ref = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    ref.current?.focus();
+    ref.current?.select();
+  }, []);
+  return (
+    <input
+      ref={ref}
+      className="inline-rename"
+      value={value}
+      onChange={(e) => setValue(e.currentTarget.value)}
+      onClick={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onSubmit(value);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          onCancel();
+        }
+      }}
+      onBlur={() => onSubmit(value)}
+    />
+  );
+}
+
+function findProjectIdForThread(
+  byProject: Readonly<Record<string, ReadonlyArray<SidebarThreadEntry>>>,
+  threadId: string,
+): string | null {
+  for (const [pid, list] of Object.entries(byProject)) {
+    if (list.some((t) => t.id === threadId)) return pid;
+  }
+  return null;
 }

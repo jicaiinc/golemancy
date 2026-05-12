@@ -11,10 +11,13 @@
       "busy": "Streaming…",
       "placeholder": "Send a message to Golemancy"
     },
+    "draft": "New chat",
+    "draftIn": "New chat · {{project}}",
     "errors": {
       "createFailed": "Failed to start the run: {{detail}}",
       "engine": "Model returned an error: {{detail}}",
       "missingKey": "OpenAI API key is not set. Add it in Settings → Providers.",
+      "noProject": "No project selected. Create one in the sidebar first.",
       "streamFailed": "Stream interrupted: {{detail}}"
     },
     "status": {
@@ -28,6 +31,7 @@
     "attach": "Attach",
     "dictate": "Dictate",
     "mention": "Mention",
+    "noProject": "No project",
     "placeholder": "What should we build in golemancy?",
     "send": "Send",
     "skills": "Skills"
@@ -148,15 +152,22 @@
   "sidebar": {
     "automations": "Automations",
     "chats": "Chats",
+    "delete": "Delete",
+    "draft": "New chat (draft)",
     "filter": "Filter",
     "newChat": "New chat",
+    "newChatHere": "New chat in project",
     "newProject": "New project",
     "noChats": "No chats",
+    "noProjects": "No projects yet — click + to create one.",
     "pinned": "Pinned",
+    "projectMore": "More",
     "projects": "Projects",
+    "rename": "Rename",
     "search": "Search",
     "settings": "Settings",
     "skills": "Skills",
+    "threadMore": "More",
     "untitledChat": "(untitled)"
   },
   "sidecar": {

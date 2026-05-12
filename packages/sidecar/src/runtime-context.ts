@@ -15,6 +15,7 @@ export type RunSlot = {
 export type RuntimeContext = {
   readonly db: GolemancyDb;
   readonly repos: {
+    readonly projects: repositories.ProjectsRepo;
     readonly threads: repositories.ThreadsRepo;
     readonly runs: repositories.RunsRepo;
     readonly runEvents: repositories.RunEventsRepo;
@@ -50,6 +51,7 @@ export function createRuntimeContext(dbPath: string): RuntimeContext {
   return {
     db,
     repos: {
+      projects: new repositories.ProjectsRepo(db),
       threads: new repositories.ThreadsRepo(db),
       runs: new repositories.RunsRepo(db),
       runEvents: new repositories.RunEventsRepo(db),

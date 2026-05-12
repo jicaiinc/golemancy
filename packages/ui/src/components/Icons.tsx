@@ -62,6 +62,12 @@ export const Icons = {
   ),
   Pin: makeIcon('M12 17v5M5 12V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5l-3 3v2H8v-2l-3-3z'),
   Folder: makeIcon('M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z'),
+  FolderPlus: makeIcon(
+    <>
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+      <path d="M12 11v6M9 14h6" />
+    </>,
+  ),
   Project: makeIcon(
     <>
       <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
