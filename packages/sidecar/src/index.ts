@@ -1,4 +1,3 @@
-export * from './server.js';
-export * from './auth.js';
-export * from './runtime-handshake.js';
-export * from './config.js';
+export { createSidecarApp, createSidecarContext, type SidecarContext } from "./app";
+export { BrowserBridge, type BrowserActionRequest, type BrowserProfile, type NativeFrame } from "./browser-bridge";
+export { loadConfig, type SidecarConfig } from "./config";

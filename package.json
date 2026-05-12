@@ -1,32 +1,26 @@
 {
-  "name": "@golemancy/monorepo",
+  "name": "golemancy",
+  "version": "0.2.0",
   "private": true,
-  "version": "0.2.0-rebuild.0",
-  "description": "Local-first AI workbench desktop client (Golemancy 0.2 rebuild)",
   "type": "module",
-  "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=10.0.0"
-  },
   "packageManager": "pnpm@10.19.0",
   "scripts": {
-    "build": "turbo run build",
-    "typecheck": "turbo run typecheck",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "dev": "turbo run dev --parallel",
-    "clean": "turbo run clean && rimraf node_modules/.cache .turbo",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "i18n:extract": "pnpm --filter @golemancy/i18n run extract"
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "i18n:extract": "lingui extract",
+    "i18n:compile": "lingui compile --typescript",
+    "dev:desktop": "pnpm --filter @golemancy/desktop tauri:dev",
+    "build:desktop": "pnpm --filter @golemancy/desktop tauri:build",
+    "sidecar:dev": "pnpm --filter @golemancy/sidecar dev:serve"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
-    "eslint": "^9.18.0",
-    "prettier": "^3.4.2",
-    "rimraf": "^6.0.1",
-    "turbo": "^2.5.0",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.21.0"
+    "@lingui/cli": "^5.9.5",
+    "@lingui/format-po": "^5.9.5",
+    "@types/node": "^24.10.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
   }
 }

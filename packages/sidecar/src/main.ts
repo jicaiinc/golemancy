@@ -1,48 +1,28 @@
-import { serve } from '@hono/node-server';
-import { generateBearerToken } from './auth.js';
-import { loadConfig } from './config.js';
-import { clearNativeHostRuntime, writeNativeHostRuntime } from './runtime-handshake.js';
-import { createApp } from './server.js';
+import { serve } from "@hono/node-server";
+import { createSidecarApp, createSidecarContext } from "./app";
+import { loadConfig } from "./config";
 
-async function main() {
-  const config = loadConfig({
-    host: process.env.GOLEMANCY_HOST,
-    port: process.env.GOLEMANCY_PORT ? Number(process.env.GOLEMANCY_PORT) : undefined,
-  });
+const config = loadConfig();
+const context = createSidecarContext(config);
+const app = createSidecarApp(context);
 
-  const token = generateBearerToken();
-  const startedAt = new Date();
-  const app = createApp({ version: config.version, token, startedAt });
+const server = serve({
+  fetch: app.fetch,
+  hostname: config.host,
+  port: config.port,
+});
 
-  const server = serve(
-    { fetch: app.fetch, hostname: config.host, port: config.port },
-    async (info) => {
-      const url = `http://${info.address}:${info.port}`;
-      await writeNativeHostRuntime({
-        path: config.nativeHostRuntimePath,
-        runtime: {
-          url,
-          token,
-          pid: process.pid,
-          version: config.version,
-          writtenAt: startedAt.toISOString(),
-        },
-      });
-      // Single, parseable line so the desktop shell can capture the URL/token on first stdout flush.
-      process.stdout.write(`GOLEMANCY_SIDECAR_READY ${JSON.stringify({ url, token })}\n`);
-    },
-  );
+console.info(`Golemancy sidecar listening on http://${config.host}:${config.port}`);
 
-  const shutdown = async () => {
-    await clearNativeHostRuntime(config.nativeHostRuntimePath);
-    server.close();
+function shutdown(signal: NodeJS.Signals): void {
+  console.info(`Golemancy sidecar received ${signal}; shutting down`);
+  server.close(async () => {
+    context.runManager.dispose();
+    await context.runtimeEngines.dispose();
+    context.database.close();
     process.exit(0);
-  };
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
+  });
 }
 
-main().catch((err) => {
-  console.error('[sidecar] fatal:', err);
-  process.exit(1);
-});
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);

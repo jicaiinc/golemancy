@@ -1,8 +1,0 @@
-{
-  "extends": "./.wxt/tsconfig.json",
-  "compilerOptions": {
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
-    "types": ["chrome"]
-  },
-  "include": ["entrypoints/**/*", "src/**/*", "wxt.config.ts", ".wxt/wxt.d.ts"]
-}

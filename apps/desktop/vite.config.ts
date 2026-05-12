@@ -1,20 +1,20 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { lingui } from "@lingui/vite-plugin";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
-// https://v2.tauri.app/start/frontend/vite/
 export default defineConfig({
-  plugins: [react()],
-  clearScreen: false,
+  plugins: [
+    react({
+      babel: {
+        plugins: ["@lingui/babel-plugin-lingui-macro"],
+      },
+    }),
+    lingui(),
+  ],
   server: {
+    host: "127.0.0.1",
     port: 5173,
     strictPort: true,
-    host: '127.0.0.1',
   },
-  envPrefix: ['VITE_', 'TAURI_ENV_'],
-  build: {
-    target: 'es2022',
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: true,
-  },
+  clearScreen: false,
 });

@@ -1,28 +1,43 @@
-import { homedir } from 'node:os';
-import { join } from 'node:path';
-import { NATIVE_HOST_DIR_NAME, NATIVE_HOST_RUNTIME_FILENAME } from '@golemancy/protocol';
+import { homedir } from "node:os";
+import { join } from "node:path";
+import type { RuntimeEnvironment } from "@golemancy/shared";
 
-export type SidecarConfig = {
-  readonly host: string;
-  readonly port: number;
-  readonly version: string;
-  readonly nativeHostRuntimePath: string;
-  readonly dbPath: string;
-};
+export interface SidecarConfig {
+  appVersion: string;
+  environment: RuntimeEnvironment;
+  host: string;
+  port: number;
+  authToken: string;
+  dataDir: string;
+  openaiApiKey?: string;
+}
 
-export function loadConfig(overrides: Partial<SidecarConfig> = {}): SidecarConfig {
-  const home = homedir();
-  const dataDir = join(home, NATIVE_HOST_DIR_NAME);
+export function loadConfig(env: NodeJS.ProcessEnv = process.env): SidecarConfig {
+  const port = Number.parseInt(env.GOLEMANCY_LOCAL_API_PORT ?? "47650", 10);
+  if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+    throw new Error(`Invalid GOLEMANCY_LOCAL_API_PORT: ${env.GOLEMANCY_LOCAL_API_PORT}`);
+  }
+
+  const authToken = env.GOLEMANCY_LOCAL_AUTH_TOKEN;
+  if (!authToken || authToken.length < 24) {
+    throw new Error("GOLEMANCY_LOCAL_AUTH_TOKEN must be provided and at least 24 characters long");
+  }
+
   return {
-    host: overrides.host ?? '127.0.0.1',
-    port: overrides.port ?? 0,
-    version: overrides.version ?? readPackageVersion(),
-    nativeHostRuntimePath:
-      overrides.nativeHostRuntimePath ?? join(dataDir, NATIVE_HOST_RUNTIME_FILENAME),
-    dbPath: overrides.dbPath ?? join(dataDir, 'golemancy.sqlite'),
+    appVersion: env.npm_package_version ?? "0.2.0",
+    environment: parseEnvironment(env.NODE_ENV),
+    host: env.GOLEMANCY_LOCAL_API_HOST ?? "127.0.0.1",
+    port,
+    authToken,
+    dataDir: env.GOLEMANCY_DATA_DIR ?? join(homedir(), ".golemancy", "dev"),
+    openaiApiKey: env.GOLEMANCY_OPENAI_API_KEY,
   };
 }
 
-function readPackageVersion(): string {
-  return process.env.GOLEMANCY_VERSION ?? '0.2.0-rebuild.0';
+function parseEnvironment(value: string | undefined): RuntimeEnvironment {
+  if (value === "production" || value === "test") {
+    return value;
+  }
+
+  return "development";
 }

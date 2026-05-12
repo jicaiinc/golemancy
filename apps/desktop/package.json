@@ -1,33 +1,36 @@
 {
   "name": "@golemancy/desktop",
-  "version": "0.2.0-rebuild.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "tauri": "tauri",
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "clean": "rimraf .turbo .tsbuildinfo dist src-tauri/target"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@golemancy/i18n": "workspace:*",
     "@golemancy/protocol": "workspace:*",
-    "@golemancy/shared": "workspace:*",
     "@golemancy/ui": "workspace:*",
-    "@tauri-apps/api": "^2.2.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@lingui/react": "^5.9.5",
+    "@tauri-apps/api": "^2.9.0",
+    "lucide-react": "^0.554.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.2.4",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "rimraf": "^6.0.1",
-    "typescript": "^5.7.3",
-    "vite": "^6.0.7"
+    "@lingui/babel-plugin-lingui-macro": "^5.9.5",
+    "@lingui/vite-plugin": "^5.9.5",
+    "@tauri-apps/cli": "^2.9.3",
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2",
+    "vitest": "^4.0.8"
   }
 }

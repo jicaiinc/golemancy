@@ -1,0 +1,459 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-05-12 12:23+0800\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: zh-CN\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: apps/desktop/src/app.tsx
+msgid "Theme and language switching"
+msgstr "主题和语言切换"
+
+#: apps/desktop/src/app.tsx
+msgid "Web content policy"
+msgstr "Web 内容策略"
+
+#: apps/desktop/src/app.tsx
+msgid "Landing page"
+msgstr "落地页"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Light"
+msgstr "浅色"
+
+#: apps/desktop/src/app.tsx
+msgid "Investor-ready PPT from a one-line brief"
+msgstr "从一句简报生成可见投资人的 PPT"
+
+#: apps/desktop/src/app.tsx
+msgid "Desktop UI can connect to 127.0.0.1 local runtime endpoints."
+msgstr "桌面界面可以连接 127.0.0.1 本地运行时端点。"
+
+#: apps/desktop/src/app.tsx
+msgid "Inputs, tools, approvals, delivery history."
+msgstr "输入、工具、审批、交付历史。"
+
+#: apps/desktop/src/app.tsx
+msgid "Waiting for local runtime"
+msgstr "等待本地运行时"
+
+#: apps/desktop/src/app.tsx
+msgid "Degraded"
+msgstr "降级"
+
+#: apps/desktop/src/app.tsx
+msgid "New chat composer"
+msgstr "新对话输入框"
+
+#: apps/desktop/src/app.tsx
+msgid "Theme and language controls for the desktop workbench."
+msgstr "桌面工作台的主题和语言控制。"
+
+#: apps/desktop/src/app.tsx
+msgid "Available controls"
+msgstr "可用控制项"
+
+#: apps/desktop/src/app.tsx
+msgid "Bearer token generated for this desktop session"
+msgstr "已为本次桌面会话生成 Bearer token"
+
+#: apps/desktop/src/app.tsx
+msgid "A local-first AI workbench for controlled, production-grade delivery workflows."
+msgstr "面向可控、生产级交付流程的本地优先 AI 工作台。"
+
+#: apps/desktop/src/app.tsx
+msgid "Runtime refresh"
+msgstr "运行时刷新"
+
+#: apps/desktop/src/app.tsx
+msgid "Decision brief with sources and boundaries"
+msgstr "带来源和边界的决策简报"
+
+#: apps/desktop/src/app.tsx
+msgid "Search"
+msgstr "搜索"
+
+#: apps/desktop/src/app.tsx
+msgid "No saved chats yet"
+msgstr "还没有保存的对话"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Security"
+msgstr "安全"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Appearance"
+msgstr "外观"
+
+#: apps/desktop/src/app.tsx
+msgid "Node"
+msgstr "Node"
+
+#: apps/desktop/src/app.tsx
+msgid "Local runtime boundary"
+msgstr "本地运行时边界"
+
+#: apps/desktop/src/app.tsx
+msgid "Runtime data dir"
+msgstr "运行时数据目录"
+
+#: apps/desktop/src/app.tsx
+msgid "Environment"
+msgstr "环境"
+
+#: apps/desktop/src/app.tsx
+msgid "Research"
+msgstr "研究"
+
+#: apps/desktop/src/app.tsx
+msgid "Workflow"
+msgstr "工作流"
+
+#: apps/desktop/src/app.tsx
+msgid "Storage"
+msgstr "存储"
+
+#: apps/desktop/src/app.tsx
+msgid "Ship a credible product site in an hour"
+msgstr "一小时内交付可信的产品网站"
+
+#: apps/desktop/src/app.tsx
+msgid "Desktop mode"
+msgstr "桌面模式"
+
+#: apps/desktop/src/app.tsx
+msgid "Back to app"
+msgstr "返回应用"
+
+#: apps/desktop/src/app.tsx
+msgid "production"
+msgstr "生产"
+
+#: apps/desktop/src/app.tsx
+msgid "Local-first trust boundaries that are real in the current desktop client."
+msgstr "当前桌面客户端真实采用的本地优先信任边界。"
+
+#: apps/desktop/src/app.tsx
+msgid "Version"
+msgstr "版本"
+
+#: apps/desktop/src/app.tsx
+msgid "Automations"
+msgstr "自动化"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Unknown"
+msgstr "未知"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Runtime"
+msgstr "运行时"
+
+#: apps/desktop/src/app.tsx
+msgid "One workspace on this Mac"
+msgstr "这台 Mac 上的一个工作区"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Active"
+msgstr "当前使用"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Theme"
+msgstr "主题"
+
+#: apps/desktop/src/app.tsx
+msgid "Live local sidecar and component health."
+msgstr "本地 sidecar 和组件健康状态。"
+
+#: apps/desktop/src/app.tsx
+msgid "Template, copy, implementation, launch checks."
+msgstr "模板、文案、实现、上线检查。"
+
+#: apps/desktop/src/app.tsx
+msgid "New project"
+msgstr "新项目"
+
+#. placeholder {0}: response.status
+#: apps/desktop/src/app.tsx
+msgid "Runtime health request failed with HTTP {0}"
+msgstr "运行时健康检查请求失败，HTTP {0}"
+
+#: apps/desktop/src/app.tsx
+msgid "Golemancy home"
+msgstr "Golemancy 首页"
+
+#: apps/desktop/src/app.tsx
+msgid "New chat"
+msgstr "新对话"
+
+#: apps/desktop/src/app.tsx
+msgid "Mention"
+msgstr "提及"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Checking"
+msgstr "检查中"
+
+#: apps/desktop/src/app.tsx
+msgid "Started"
+msgstr "启动时间"
+
+#: apps/desktop/src/app.tsx
+msgid "Solutions"
+msgstr "解决方案"
+
+#: apps/desktop/src/app.tsx
+msgid "Product"
+msgstr "产品"
+
+#: apps/desktop/src/app.tsx
+msgid "Waiting for Tauri runtime"
+msgstr "等待 Tauri 运行时"
+
+#: apps/desktop/src/app.tsx
+msgid "Refresh"
+msgstr "刷新"
+
+#: apps/desktop/src/app.tsx
+msgid "Manual health refresh for the local sidecar"
+msgstr "手动刷新本地 sidecar 健康状态"
+
+#: apps/desktop/src/app.tsx
+msgid "SQLite path"
+msgstr "SQLite 路径"
+
+#: apps/desktop/src/app.tsx
+msgid "Not active"
+msgstr "未启用"
+
+#: apps/desktop/src/app.tsx
+msgid "Dictate"
+msgstr "语音输入"
+
+#: apps/desktop/src/app.tsx
+msgid "Attach files"
+msgstr "附加文件"
+
+#: apps/desktop/src/app.tsx
+msgid "Waiting for SQLite"
+msgstr "等待 SQLite"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Current project"
+msgstr "当前项目"
+
+#: apps/desktop/src/app.tsx
+msgid "Search, compare, cite, review gaps."
+msgstr "搜索、对比、引用、复核缺口。"
+
+#: apps/desktop/src/app.tsx
+msgid "What should we build in golemancy?"
+msgstr "我们要在 golemancy 里构建什么？"
+
+#: apps/desktop/src/app.tsx
+msgid "Golemancy navigation"
+msgstr "Golemancy 导航"
+
+#: apps/desktop/src/app.tsx
+msgid "Unable to reach the local runtime"
+msgstr "无法连接本地运行时"
+
+#: apps/desktop/src/app.tsx
+msgid "Default model"
+msgstr "默认模型"
+
+#: apps/desktop/src/app.tsx
+msgid "Authentication"
+msgstr "认证"
+
+#: apps/desktop/src/app.tsx
+msgid "Skills"
+msgstr "技能"
+
+#: apps/desktop/src/app.tsx
+msgid "Send message"
+msgstr "发送消息"
+
+#: apps/desktop/src/app.tsx
+msgid "Workspace"
+msgstr "工作区"
+
+#: apps/desktop/src/app.tsx
+msgid "test"
+msgstr "测试"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Dark"
+msgstr "深色"
+
+#: apps/desktop/src/app.tsx
+msgid "Turn repeat work into a controlled run"
+msgstr "将重复工作转成受控运行"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Connected"
+msgstr "已连接"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Best practices"
+msgstr "最佳实践"
+
+#: apps/desktop/src/app.tsx
+msgid "From AI generation, to AI delivery."
+msgstr "从 AI 生成，到 AI 交付。"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Components"
+msgstr "组件"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Not connected"
+msgstr "未连接"
+
+#: apps/desktop/src/app.tsx
+msgid "Error"
+msgstr "错误"
+
+#: apps/desktop/src/app.tsx
+msgid "Settings menu"
+msgstr "设置菜单"
+
+#: apps/desktop/src/app.tsx
+msgid "Primary"
+msgstr "主要"
+
+#: apps/desktop/src/app.tsx
+msgid "Uptime"
+msgstr "运行时长"
+
+#: apps/desktop/src/app.tsx
+msgid "API origin"
+msgstr "API 源"
+
+#: apps/desktop/src/app.tsx
+msgid "Local-first workbench"
+msgstr "本地优先工作台"
+
+#: apps/desktop/src/app.tsx
+msgid "App version"
+msgstr "应用版本"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Settings"
+msgstr "设置"
+
+#: apps/desktop/src/app.tsx
+msgid "Status"
+msgstr "状态"
+
+#: apps/desktop/src/app.tsx
+msgid "Outline, evidence, narrative, editable slides."
+msgstr "大纲、证据、叙事、可编辑幻灯片。"
+
+#: apps/desktop/src/app.tsx
+msgid "Product and runtime version details."
+msgstr "产品和运行时版本详情。"
+
+#: apps/desktop/src/app.tsx
+msgid "Health"
+msgstr "健康状态"
+
+#: apps/desktop/src/app.tsx
+msgid "Local desktop"
+msgstr "本地桌面"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "About"
+msgstr "关于"
+
+#: apps/desktop/src/app.tsx
+msgid "Schema version"
+msgstr "Schema 版本"
+
+#: apps/desktop/src/app.tsx
+msgid "Language"
+msgstr "语言"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "General"
+msgstr "通用"
+
+#: apps/desktop/src/app.tsx
+msgid "development"
+msgstr "开发"
+
+#: apps/desktop/src/app.tsx
+msgid "Last error"
+msgstr "最近错误"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Local data"
+msgstr "本地数据"
+
+#: apps/desktop/src/app.tsx
+msgid "Message"
+msgstr "消息"
+
+#: apps/desktop/src/app.tsx
+msgid "Read-only locations currently used by the local desktop runtime."
+msgstr "当前本地桌面运行时使用的只读位置。"
+
+#: apps/desktop/src/app.tsx
+msgid "No detail reported"
+msgstr "未报告详情"
+
+#: apps/desktop/src/app.tsx
+msgid "Migrations applied this boot"
+msgstr "本次启动应用的迁移数"
+
+#: apps/desktop/src/app.tsx
+msgid "Settings sections"
+msgstr "设置分区"
+
+#: apps/desktop/src/app.tsx
+msgid "Pitch deck"
+msgstr "融资演示文稿"
+
+#: apps/desktop/src/app.tsx
+msgid "Only settings that exist in the current product path are shown here."
+msgstr "这里只显示当前产品路径中真实存在的设置。"
+
+#: apps/desktop/src/app.tsx
+msgid "OK"
+msgstr "正常"
+
+#: apps/desktop/src/app.tsx
+msgid "Waiting for runtime health response"
+msgstr "等待运行时健康响应"

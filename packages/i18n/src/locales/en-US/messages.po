@@ -1,0 +1,459 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-05-12 12:23+0800\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en-US\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: apps/desktop/src/app.tsx
+msgid "Theme and language switching"
+msgstr "Theme and language switching"
+
+#: apps/desktop/src/app.tsx
+msgid "Web content policy"
+msgstr "Web content policy"
+
+#: apps/desktop/src/app.tsx
+msgid "Landing page"
+msgstr "Landing page"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Light"
+msgstr "Light"
+
+#: apps/desktop/src/app.tsx
+msgid "Investor-ready PPT from a one-line brief"
+msgstr "Investor-ready PPT from a one-line brief"
+
+#: apps/desktop/src/app.tsx
+msgid "Desktop UI can connect to 127.0.0.1 local runtime endpoints."
+msgstr "Desktop UI can connect to 127.0.0.1 local runtime endpoints."
+
+#: apps/desktop/src/app.tsx
+msgid "Inputs, tools, approvals, delivery history."
+msgstr "Inputs, tools, approvals, delivery history."
+
+#: apps/desktop/src/app.tsx
+msgid "Waiting for local runtime"
+msgstr "Waiting for local runtime"
+
+#: apps/desktop/src/app.tsx
+msgid "Degraded"
+msgstr "Degraded"
+
+#: apps/desktop/src/app.tsx
+msgid "New chat composer"
+msgstr "New chat composer"
+
+#: apps/desktop/src/app.tsx
+msgid "Theme and language controls for the desktop workbench."
+msgstr "Theme and language controls for the desktop workbench."
+
+#: apps/desktop/src/app.tsx
+msgid "Available controls"
+msgstr "Available controls"
+
+#: apps/desktop/src/app.tsx
+msgid "Bearer token generated for this desktop session"
+msgstr "Bearer token generated for this desktop session"
+
+#: apps/desktop/src/app.tsx
+msgid "A local-first AI workbench for controlled, production-grade delivery workflows."
+msgstr "A local-first AI workbench for controlled, production-grade delivery workflows."
+
+#: apps/desktop/src/app.tsx
+msgid "Runtime refresh"
+msgstr "Runtime refresh"
+
+#: apps/desktop/src/app.tsx
+msgid "Decision brief with sources and boundaries"
+msgstr "Decision brief with sources and boundaries"
+
+#: apps/desktop/src/app.tsx
+msgid "Search"
+msgstr "Search"
+
+#: apps/desktop/src/app.tsx
+msgid "No saved chats yet"
+msgstr "No saved chats yet"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Security"
+msgstr "Security"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Appearance"
+msgstr "Appearance"
+
+#: apps/desktop/src/app.tsx
+msgid "Node"
+msgstr "Node"
+
+#: apps/desktop/src/app.tsx
+msgid "Local runtime boundary"
+msgstr "Local runtime boundary"
+
+#: apps/desktop/src/app.tsx
+msgid "Runtime data dir"
+msgstr "Runtime data dir"
+
+#: apps/desktop/src/app.tsx
+msgid "Environment"
+msgstr "Environment"
+
+#: apps/desktop/src/app.tsx
+msgid "Research"
+msgstr "Research"
+
+#: apps/desktop/src/app.tsx
+msgid "Workflow"
+msgstr "Workflow"
+
+#: apps/desktop/src/app.tsx
+msgid "Storage"
+msgstr "Storage"
+
+#: apps/desktop/src/app.tsx
+msgid "Ship a credible product site in an hour"
+msgstr "Ship a credible product site in an hour"
+
+#: apps/desktop/src/app.tsx
+msgid "Desktop mode"
+msgstr "Desktop mode"
+
+#: apps/desktop/src/app.tsx
+msgid "Back to app"
+msgstr "Back to app"
+
+#: apps/desktop/src/app.tsx
+msgid "production"
+msgstr "production"
+
+#: apps/desktop/src/app.tsx
+msgid "Local-first trust boundaries that are real in the current desktop client."
+msgstr "Local-first trust boundaries that are real in the current desktop client."
+
+#: apps/desktop/src/app.tsx
+msgid "Version"
+msgstr "Version"
+
+#: apps/desktop/src/app.tsx
+msgid "Automations"
+msgstr "Automations"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Unknown"
+msgstr "Unknown"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Runtime"
+msgstr "Runtime"
+
+#: apps/desktop/src/app.tsx
+msgid "One workspace on this Mac"
+msgstr "One workspace on this Mac"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Active"
+msgstr "Active"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Theme"
+msgstr "Theme"
+
+#: apps/desktop/src/app.tsx
+msgid "Live local sidecar and component health."
+msgstr "Live local sidecar and component health."
+
+#: apps/desktop/src/app.tsx
+msgid "Template, copy, implementation, launch checks."
+msgstr "Template, copy, implementation, launch checks."
+
+#: apps/desktop/src/app.tsx
+msgid "New project"
+msgstr "New project"
+
+#. placeholder {0}: response.status
+#: apps/desktop/src/app.tsx
+msgid "Runtime health request failed with HTTP {0}"
+msgstr "Runtime health request failed with HTTP {0}"
+
+#: apps/desktop/src/app.tsx
+msgid "Golemancy home"
+msgstr "Golemancy home"
+
+#: apps/desktop/src/app.tsx
+msgid "New chat"
+msgstr "New chat"
+
+#: apps/desktop/src/app.tsx
+msgid "Mention"
+msgstr "Mention"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Checking"
+msgstr "Checking"
+
+#: apps/desktop/src/app.tsx
+msgid "Started"
+msgstr "Started"
+
+#: apps/desktop/src/app.tsx
+msgid "Solutions"
+msgstr "Solutions"
+
+#: apps/desktop/src/app.tsx
+msgid "Product"
+msgstr "Product"
+
+#: apps/desktop/src/app.tsx
+msgid "Waiting for Tauri runtime"
+msgstr "Waiting for Tauri runtime"
+
+#: apps/desktop/src/app.tsx
+msgid "Refresh"
+msgstr "Refresh"
+
+#: apps/desktop/src/app.tsx
+msgid "Manual health refresh for the local sidecar"
+msgstr "Manual health refresh for the local sidecar"
+
+#: apps/desktop/src/app.tsx
+msgid "SQLite path"
+msgstr "SQLite path"
+
+#: apps/desktop/src/app.tsx
+msgid "Not active"
+msgstr "Not active"
+
+#: apps/desktop/src/app.tsx
+msgid "Dictate"
+msgstr "Dictate"
+
+#: apps/desktop/src/app.tsx
+msgid "Attach files"
+msgstr "Attach files"
+
+#: apps/desktop/src/app.tsx
+msgid "Waiting for SQLite"
+msgstr "Waiting for SQLite"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Current project"
+msgstr "Current project"
+
+#: apps/desktop/src/app.tsx
+msgid "Search, compare, cite, review gaps."
+msgstr "Search, compare, cite, review gaps."
+
+#: apps/desktop/src/app.tsx
+msgid "What should we build in golemancy?"
+msgstr "What should we build in golemancy?"
+
+#: apps/desktop/src/app.tsx
+msgid "Golemancy navigation"
+msgstr "Golemancy navigation"
+
+#: apps/desktop/src/app.tsx
+msgid "Unable to reach the local runtime"
+msgstr "Unable to reach the local runtime"
+
+#: apps/desktop/src/app.tsx
+msgid "Default model"
+msgstr "Default model"
+
+#: apps/desktop/src/app.tsx
+msgid "Authentication"
+msgstr "Authentication"
+
+#: apps/desktop/src/app.tsx
+msgid "Skills"
+msgstr "Skills"
+
+#: apps/desktop/src/app.tsx
+msgid "Send message"
+msgstr "Send message"
+
+#: apps/desktop/src/app.tsx
+msgid "Workspace"
+msgstr "Workspace"
+
+#: apps/desktop/src/app.tsx
+msgid "test"
+msgstr "test"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Dark"
+msgstr "Dark"
+
+#: apps/desktop/src/app.tsx
+msgid "Turn repeat work into a controlled run"
+msgstr "Turn repeat work into a controlled run"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Connected"
+msgstr "Connected"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Best practices"
+msgstr "Best practices"
+
+#: apps/desktop/src/app.tsx
+msgid "From AI generation, to AI delivery."
+msgstr "From AI generation, to AI delivery."
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Components"
+msgstr "Components"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Not connected"
+msgstr "Not connected"
+
+#: apps/desktop/src/app.tsx
+msgid "Error"
+msgstr "Error"
+
+#: apps/desktop/src/app.tsx
+msgid "Settings menu"
+msgstr "Settings menu"
+
+#: apps/desktop/src/app.tsx
+msgid "Primary"
+msgstr "Primary"
+
+#: apps/desktop/src/app.tsx
+msgid "Uptime"
+msgstr "Uptime"
+
+#: apps/desktop/src/app.tsx
+msgid "API origin"
+msgstr "API origin"
+
+#: apps/desktop/src/app.tsx
+msgid "Local-first workbench"
+msgstr "Local-first workbench"
+
+#: apps/desktop/src/app.tsx
+msgid "App version"
+msgstr "App version"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Settings"
+msgstr "Settings"
+
+#: apps/desktop/src/app.tsx
+msgid "Status"
+msgstr "Status"
+
+#: apps/desktop/src/app.tsx
+msgid "Outline, evidence, narrative, editable slides."
+msgstr "Outline, evidence, narrative, editable slides."
+
+#: apps/desktop/src/app.tsx
+msgid "Product and runtime version details."
+msgstr "Product and runtime version details."
+
+#: apps/desktop/src/app.tsx
+msgid "Health"
+msgstr "Health"
+
+#: apps/desktop/src/app.tsx
+msgid "Local desktop"
+msgstr "Local desktop"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "About"
+msgstr "About"
+
+#: apps/desktop/src/app.tsx
+msgid "Schema version"
+msgstr "Schema version"
+
+#: apps/desktop/src/app.tsx
+msgid "Language"
+msgstr "Language"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "General"
+msgstr "General"
+
+#: apps/desktop/src/app.tsx
+msgid "development"
+msgstr "development"
+
+#: apps/desktop/src/app.tsx
+msgid "Last error"
+msgstr "Last error"
+
+#: apps/desktop/src/app.tsx
+#: apps/desktop/src/app.tsx
+msgid "Local data"
+msgstr "Local data"
+
+#: apps/desktop/src/app.tsx
+msgid "Message"
+msgstr "Message"
+
+#: apps/desktop/src/app.tsx
+msgid "Read-only locations currently used by the local desktop runtime."
+msgstr "Read-only locations currently used by the local desktop runtime."
+
+#: apps/desktop/src/app.tsx
+msgid "No detail reported"
+msgstr "No detail reported"
+
+#: apps/desktop/src/app.tsx
+msgid "Migrations applied this boot"
+msgstr "Migrations applied this boot"
+
+#: apps/desktop/src/app.tsx
+msgid "Settings sections"
+msgstr "Settings sections"
+
+#: apps/desktop/src/app.tsx
+msgid "Pitch deck"
+msgstr "Pitch deck"
+
+#: apps/desktop/src/app.tsx
+msgid "Only settings that exist in the current product path are shown here."
+msgstr "Only settings that exist in the current product path are shown here."
+
+#: apps/desktop/src/app.tsx
+msgid "OK"
+msgstr "OK"
+
+#: apps/desktop/src/app.tsx
+msgid "Waiting for runtime health response"
+msgstr "Waiting for runtime health response"

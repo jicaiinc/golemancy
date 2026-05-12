@@ -1,7 +1,8 @@
-export * from './registry.js';
-export * from './approval.js';
-export * from './shell.js';
-export * from './cli-agent.js';
-export * from './mcp.js';
-export * from './skills.js';
-export * from './browser.js';
+export type ToolExecutionKind = "shell" | "cli-agent" | "mcp" | "skill" | "browser";
+
+export interface ToolRegistryEntry {
+  id: string;
+  kind: ToolExecutionKind;
+  label: string;
+  requiresApproval: boolean;
+}

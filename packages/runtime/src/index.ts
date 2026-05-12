@@ -1,4 +1,16 @@
-export * from './engine.js';
-export * from './provider-registry.js';
-export * from './capability-test.js';
-export * from './engines/index.js';
+import { OpenAIAgentsRuntimeEngine } from "./openai-agents";
+
+export type {
+  ResolvedRuntimeProviderConfig,
+  RunEventDraft,
+  RuntimeEngine,
+  RuntimeEngineDescriptor,
+  RuntimeEventSink,
+  RuntimeRunRequest,
+  RuntimeRunResult,
+} from "./types";
+export { RuntimeEngineError, createRunEventDraft } from "./types";
+export { RuntimeEngineRegistry } from "./registry";
+export { OpenAIAgentsRuntimeEngine, emitMappedEvent, toAgentInput } from "./openai-agents";
+
+export const initialRuntimeEngines = [new OpenAIAgentsRuntimeEngine()];
