@@ -7,7 +7,7 @@ import {
   type ProjectSummary,
 } from '@golemancy/protocol';
 import type { Hono } from 'hono';
-import type { RuntimeContext } from '../runtime-context.js';
+import { drainRunsForThreads, type RuntimeContext } from '../runtime-context.js';
 
 export function registerProjectsRoutes(app: Hono, ctx: RuntimeContext): void {
   app.get(API_PATHS.projects, async (c) => {
@@ -68,6 +68,15 @@ export function registerProjectsRoutes(app: Hono, ctx: RuntimeContext): void {
     if (!id) return c.json({ error: 'missing_project_id' }, 400);
     const existing = await ctx.repos.projects.get(id);
     if (!existing) return c.json({ error: 'not_found' }, 404);
+    // Abort + drain any in-flight runs under this project before SQLite's
+    // ON DELETE CASCADE wipes their rows; otherwise the executor's tail-end
+    // INSERTs would hit FK errors and leave SSE subscribers without a
+    // termination event.
+    const threads = await ctx.repos.threads.listByProject(id);
+    await drainRunsForThreads(
+      ctx,
+      threads.map((t) => t.id),
+    );
     await ctx.repos.projects.remove(id);
     return c.json({ ok: true });
   });

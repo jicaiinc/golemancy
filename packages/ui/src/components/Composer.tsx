@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useT } from '../i18n/index.js';
 import { Icons } from './Icons.js';
+
+export type ComposerProjectOption = {
+  id: string;
+  name: string;
+};
 
 export type ComposerProps = {
   placeholder?: string;
@@ -10,6 +15,10 @@ export type ComposerProps = {
   modelStatus?: 'ok' | 'unknown' | 'error';
   disabled?: boolean;
   onSubmit?: (text: string) => void;
+  projects?: ReadonlyArray<ComposerProjectOption>;
+  activeProjectId?: string | null;
+  onSelectProject?: (projectId: string) => void;
+  onCreateProject?: () => void;
 };
 
 export function Composer({
@@ -20,10 +29,27 @@ export function Composer({
   modelStatus = 'ok',
   disabled = false,
   onSubmit,
+  projects,
+  activeProjectId,
+  onSelectProject,
+  onCreateProject,
 }: ComposerProps) {
   const t = useT();
   const displayProjectName = projectName ?? t('composer.noProject', 'No project');
   const [value, setValue] = useState(initialValue);
+  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
+  const projectMenuRef = useRef<HTMLDivElement | null>(null);
+  const projectSwitchable = !!(projects && (onSelectProject || onCreateProject));
+
+  useEffect(() => {
+    if (!projectMenuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (!projectMenuRef.current) return;
+      if (!projectMenuRef.current.contains(e.target as Node)) setProjectMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [projectMenuOpen]);
   const effectivePlaceholder =
     placeholder ?? t('composer.placeholder', 'What should we build in golemancy?');
 
@@ -58,11 +84,53 @@ export function Composer({
             <Icons.Skills size={13} />
             <span>{t('composer.skills', 'Skills')}</span>
           </button>
-          <button type="button" className="chip">
-            <Icons.Project size={13} />
-            <span>{displayProjectName}</span>
-            <Icons.ChevDown size={11} />
-          </button>
+          <div className="composer__project" ref={projectMenuRef}>
+            <button
+              type="button"
+              className="chip"
+              onClick={() =>
+                projectSwitchable ? setProjectMenuOpen((open) => !open) : undefined
+              }
+              aria-haspopup={projectSwitchable ? 'menu' : undefined}
+              aria-expanded={projectSwitchable ? projectMenuOpen : undefined}
+            >
+              <Icons.Project size={13} />
+              <span>{displayProjectName}</span>
+              <Icons.ChevDown size={11} />
+            </button>
+            {projectSwitchable && projectMenuOpen ? (
+              <div className="row-menu composer__project-menu" role="menu">
+                {projects!.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    role="menuitem"
+                    className="row-menu__item"
+                    data-active={p.id === activeProjectId || undefined}
+                    onClick={() => {
+                      setProjectMenuOpen(false);
+                      if (p.id !== activeProjectId) onSelectProject?.(p.id);
+                    }}
+                  >
+                    {p.name}
+                  </button>
+                ))}
+                {onCreateProject ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="row-menu__item row-menu__item--accent"
+                    onClick={() => {
+                      setProjectMenuOpen(false);
+                      onCreateProject();
+                    }}
+                  >
+                    + {t('composer.newProject', 'New project')}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
           <button type="button" className="chip">
             <Icons.At size={13} />
             <span>{t('composer.mention', 'Mention')}</span>

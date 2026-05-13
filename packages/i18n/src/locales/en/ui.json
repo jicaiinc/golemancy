@@ -31,6 +31,7 @@
     "attach": "Attach",
     "dictate": "Dictate",
     "mention": "Mention",
+    "newProject": "New project",
     "noProject": "No project",
     "placeholder": "What should we build in golemancy?",
     "send": "Send",
@@ -168,6 +169,7 @@
     "settings": "Settings",
     "skills": "Skills",
     "threadMore": "More",
+    "unassigned": "Unassigned",
     "untitledChat": "(untitled)"
   },
   "sidecar": {

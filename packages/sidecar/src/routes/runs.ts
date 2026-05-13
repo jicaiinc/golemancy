@@ -70,7 +70,11 @@ export function registerRunsRoutes(app: Hono, ctx: RuntimeContext): void {
 
     const broadcaster = new RunBroadcaster();
     const controller = new AbortController();
-    ctx.inFlight.set(runId, { broadcaster, controller });
+    let resolveDone!: () => void;
+    const done = new Promise<void>((r) => {
+      resolveDone = r;
+    });
+    ctx.inFlight.set(runId, { broadcaster, controller, done, resolveDone });
 
     const executorInput: ExecutorInput = {
       runId,

@@ -58,6 +58,7 @@ const threadKey = (threadId: string): string => `thread:${threadId}`;
 export type ChatStore = {
   readonly projects: ProjectSummary[];
   readonly threadsByProject: Record<string, ThreadSummary[]>;
+  readonly unassignedThreads: ThreadSummary[];
   readonly drafts: Record<string, DraftSummary | undefined>;
   readonly chats: Record<string, ChatThreadState>;
   readonly sessionStatus: Record<string, SessionStatus>;
@@ -76,18 +77,29 @@ export type ChatStore = {
   readonly sendMessage: (prompt: string) => Promise<void>;
 };
 
-function groupByProject(threads: ThreadSummary[]): Record<string, ThreadSummary[]> {
-  const out: Record<string, ThreadSummary[]> = {};
+// Threads created by older clients (or any DB upgrade path) can have a null
+// projectId. We keep them in a separate bucket so the sidebar can still surface
+// them — silently dropping these would make pre-existing chats unreachable.
+function groupByProject(threads: ThreadSummary[]): {
+  byProject: Record<string, ThreadSummary[]>;
+  unassigned: ThreadSummary[];
+} {
+  const byProject: Record<string, ThreadSummary[]> = {};
+  const unassigned: ThreadSummary[] = [];
   for (const t of threads) {
-    if (!t.projectId) continue;
-    (out[t.projectId] ??= []).push(t);
+    if (!t.projectId) {
+      unassigned.push(t);
+      continue;
+    }
+    (byProject[t.projectId] ??= []).push(t);
   }
-  return out;
+  return { byProject, unassigned };
 }
 
 export function useChatStore(apiClient: ApiClient | null): ChatStore {
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [threadsByProject, setThreadsByProject] = useState<Record<string, ThreadSummary[]>>({});
+  const [unassignedThreads, setUnassignedThreads] = useState<ThreadSummary[]>([]);
   const [drafts, setDrafts] = useState<Record<string, DraftSummary | undefined>>({});
   const [chats, setChats] = useState<Record<string, ChatThreadState>>({});
   const [sessionStatus, setSessionStatus] = useState<Record<string, SessionStatus>>({});
@@ -123,7 +135,9 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
         apiClient.getJson<ListThreadsResponse>(API_PATHS.threads),
       ]);
       setProjects(projectsResp.projects);
-      setThreadsByProject(groupByProject(threadsResp.threads));
+      const grouped = groupByProject(threadsResp.threads);
+      setThreadsByProject(grouped.byProject);
+      setUnassignedThreads(grouped.unassigned);
     } catch {
       // sidebar tolerates empty; supervisor will retry handshake separately.
     }
@@ -276,6 +290,7 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
           }
           return out;
         });
+        setUnassignedThreads((prev) => prev.map((t) => (t.id === id ? data.thread : t)));
       } catch {
         // ignore
       }
@@ -295,6 +310,7 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
           }
           return out;
         });
+        setUnassignedThreads((prev) => prev.filter((t) => t.id !== id));
         setChats((prev) => {
           const key = threadKey(id);
           if (!(key in prev)) return prev;
@@ -315,8 +331,34 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
   const sendMessage = useCallback(
     async (prompt: string) => {
       if (!apiClient || !prompt.trim()) return;
-      const current = activeRefLatest.current;
-      if (!current) return; // composer is gated by activeRef in the UI
+
+      // If the composer fires with no active ref (Home blank state),
+      // synthesize a draft against the most-recently-active project, or
+      // create one. We must promote the new ref synchronously and use a
+      // local `current` — setActiveRef alone wouldn't flush before the
+      // next read of activeRefLatest.current.
+      let current = activeRefLatest.current;
+      if (!current) {
+        let fallbackProjectId: string | null = projects[0]?.id ?? null;
+        if (!fallbackProjectId) {
+          const created = await createProject();
+          if (!created) return;
+          fallbackProjectId = created.id;
+        }
+        const pid = fallbackProjectId;
+        setDrafts((prev) =>
+          prev[pid]
+            ? prev
+            : { ...prev, [pid]: { projectId: pid, createdAt: new Date().toISOString() } },
+        );
+        setChats((prev) =>
+          prev[draftKey(pid)] ? prev : { ...prev, [draftKey(pid)]: emptyState(null) },
+        );
+        const nextRef: ActiveRef = { kind: 'draft', projectId: pid };
+        setActiveRef(nextRef);
+        activeRefLatest.current = nextRef;
+        current = nextRef;
+      }
 
       let projectId: string;
       let existingThreadId: string | null = null;
@@ -498,7 +540,7 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
         setStatus(finalThreadId, stillActive ? 'idle' : 'unread');
       }
     },
-    [apiClient, threadsByProject, patchChat, refresh, setStatus],
+    [apiClient, projects, createProject, threadsByProject, patchChat, refresh, setStatus],
   );
 
   // Derive activeProjectId from activeRef + thread→project lookup.
@@ -514,6 +556,7 @@ export function useChatStore(apiClient: ApiClient | null): ChatStore {
   return {
     projects,
     threadsByProject,
+    unassignedThreads,
     drafts,
     chats,
     sessionStatus,

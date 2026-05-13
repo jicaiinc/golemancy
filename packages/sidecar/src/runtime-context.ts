@@ -10,6 +10,11 @@ import { SecretStore } from './secret-store.js';
 export type RunSlot = {
   readonly broadcaster: RunBroadcaster;
   readonly controller: AbortController;
+  // Resolves once the executor's finally block has run (broadcaster closed,
+  // inFlight entry removed). Cascade-delete handlers wait on this so they can
+  // tear down threads/runs without racing the executor's last writes.
+  readonly done: Promise<void>;
+  readonly resolveDone: () => void;
 };
 
 export type RuntimeContext = {
@@ -44,6 +49,37 @@ const DEFAULT_PROVIDER: ProviderConfig = {
   secretRef: 'openai.apiKey',
   capabilities: { streaming: true, nativeToolCalling: true },
 };
+
+// Aborts every in-flight run whose run row references one of `threadIds`, then
+// waits (bounded) for the executors' finally blocks to flush. Callers use this
+// before cascade-deleting threads or projects so the executor can't keep
+// persisting events/messages against rows that are about to be deleted.
+export async function drainRunsForThreads(
+  ctx: RuntimeContext,
+  threadIds: readonly string[],
+  timeoutMs = 3000,
+): Promise<void> {
+  if (threadIds.length === 0) return;
+  const drains: Promise<void>[] = [];
+  for (const tid of threadIds) {
+    const runs = await ctx.repos.runs.listByThread(tid);
+    for (const r of runs) {
+      const slot = ctx.inFlight.get(r.id);
+      if (slot) {
+        slot.controller.abort();
+        drains.push(slot.done);
+      }
+    }
+  }
+  if (drains.length === 0) return;
+  await Promise.race([
+    Promise.all(drains).then(() => undefined),
+    new Promise<void>((resolve) => {
+      const t = setTimeout(resolve, timeoutMs);
+      t.unref?.();
+    }),
+  ]);
+}
 
 export function createRuntimeContext(dbPath: string): RuntimeContext {
   mkdirSync(dirname(dbPath), { recursive: true });

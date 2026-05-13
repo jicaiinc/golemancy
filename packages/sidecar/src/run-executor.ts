@@ -117,5 +117,6 @@ export async function executeRun(ctx: RuntimeContext, input: ExecutorInput): Pro
   } finally {
     slot.broadcaster.close();
     ctx.inFlight.delete(input.runId);
+    slot.resolveDone();
   }
 }

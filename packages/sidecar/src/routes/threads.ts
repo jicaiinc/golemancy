@@ -7,7 +7,7 @@ import {
   type ThreadSummary,
 } from '@golemancy/protocol';
 import type { Hono } from 'hono';
-import type { RuntimeContext } from '../runtime-context.js';
+import { drainRunsForThreads, type RuntimeContext } from '../runtime-context.js';
 
 function toSummary(t: {
   id: string;
@@ -73,6 +73,8 @@ export function registerThreadsRoutes(app: Hono, ctx: RuntimeContext): void {
     if (!threadId) return c.json({ error: 'missing_thread_id' }, 400);
     const existing = await ctx.repos.threads.get(threadId);
     if (!existing) return c.json({ error: 'not_found' }, 404);
+    // Same guard as DELETE /projects/:id — let executors flush before cascade.
+    await drainRunsForThreads(ctx, [threadId]);
     await ctx.repos.threads.remove(threadId);
     return c.json({ ok: true });
   });

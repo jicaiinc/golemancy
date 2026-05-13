@@ -67,6 +67,7 @@ export type SidebarProps = {
   activeNav?: SidebarNavKey;
   projects: ReadonlyArray<SidebarProjectEntry>;
   threadsByProject: Readonly<Record<string, ReadonlyArray<SidebarThreadEntry>>>;
+  unassignedThreads?: ReadonlyArray<SidebarThreadEntry>;
   drafts: Readonly<Record<string, SidebarDraftEntry | undefined>>;
   activeRef: SidebarActiveRef;
   onSelectNav?: (nav: SidebarNavKey) => void;
@@ -131,6 +132,7 @@ export function Sidebar({
   activeNav = 'new',
   projects,
   threadsByProject,
+  unassignedThreads = [],
   drafts,
   activeRef,
   onSelectNav,
@@ -417,6 +419,82 @@ export function Sidebar({
             })}
           </div>
         </div>
+
+        {unassignedThreads.length > 0 ? (
+          <>
+            <SectionLabel>{t('sidebar.unassigned', 'Unassigned')}</SectionLabel>
+            <div className="side-group">
+              {unassignedThreads.map((th) => {
+                const isActive =
+                  activeRef?.kind === 'thread' && activeRef.threadId === th.id;
+                const isThreadRenaming =
+                  renaming?.kind === 'thread' && renaming.id === th.id;
+                return (
+                  <div key={th.id} className="thread-row-wrap">
+                    <button
+                      type="button"
+                      className="side-row side-row--chat"
+                      data-active={isActive || undefined}
+                      onClick={() => onSelectThread?.(th.id)}
+                    >
+                      <span className="side-row__icon">
+                        <StatusDot status={th.status} />
+                      </span>
+                      {isThreadRenaming ? (
+                        <InlineRename
+                          initial={th.title ?? ''}
+                          onSubmit={(v) => {
+                            const trimmed = v.trim();
+                            if (trimmed) onRenameThread?.(th.id, trimmed);
+                            setRenaming(null);
+                          }}
+                          onCancel={() => setRenaming(null)}
+                        />
+                      ) : (
+                        <span className="side-row__label">
+                          {th.title ?? t('sidebar.untitledChat', '(untitled)')}
+                        </span>
+                      )}
+                      <span className="thread-actions">
+                        <button
+                          type="button"
+                          className="ghost-icon"
+                          title={t('sidebar.threadMore', 'More')}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setMenu((m) =>
+                              m?.kind === 'thread' && m.id === th.id
+                                ? null
+                                : { kind: 'thread', id: th.id },
+                            );
+                          }}
+                        >
+                          <Icons.More size={13} />
+                        </button>
+                      </span>
+                    </button>
+                    {menu?.kind === 'thread' && menu.id === th.id ? (
+                      <RowMenu
+                        items={[
+                          {
+                            label: t('sidebar.rename', 'Rename'),
+                            onSelect: () => setRenaming({ kind: 'thread', id: th.id }),
+                          },
+                          {
+                            label: t('sidebar.delete', 'Delete'),
+                            danger: true,
+                            onSelect: () => onDeleteThread?.(th.id),
+                          },
+                        ]}
+                        onClose={() => setMenu(null)}
+                      />
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        ) : null}
       </div>
 
       <div className="sidebar__bottom">

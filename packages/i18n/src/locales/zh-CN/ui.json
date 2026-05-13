@@ -31,6 +31,7 @@
     "attach": "附件",
     "dictate": "语音输入",
     "mention": "提及",
+    "newProject": "新建项目",
     "noProject": "无项目",
     "placeholder": "我们在 Golemancy 里要做点什么?",
     "send": "发送",
@@ -168,6 +169,7 @@
     "settings": "设置",
     "skills": "技能",
     "threadMore": "更多",
+    "unassigned": "未分组",
     "untitledChat": "(未命名)"
   },
   "sidecar": {

@@ -275,6 +275,22 @@ button {
 .row-menu__item[data-danger] {
   color: #dc2626;
 }
+.row-menu__item[data-active] {
+  background: var(--surface-hover);
+  font-weight: 600;
+}
+.row-menu__item--accent {
+  color: var(--brand);
+}
+
+.composer__project {
+  position: relative;
+}
+.composer__project-menu {
+  left: 0;
+  bottom: calc(100% + 4px);
+  min-width: 180px;
+}
 
 .inline-rename {
   flex: 1;

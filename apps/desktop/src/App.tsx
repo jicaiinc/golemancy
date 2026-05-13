@@ -122,6 +122,16 @@ export function App() {
 
   const store = useChatStore(apiClient);
 
+  // Pin the chip to the project that will actually receive the message.
+  // Without this, the Home composer reads "No project" while sendMessage
+  // silently falls back to projects[0].
+  useEffect(() => {
+    if (store.activeRef !== null) return;
+    const first = store.projects[0];
+    if (!first) return;
+    store.newDraftInProject(first.id);
+  }, [store.activeRef, store.projects, store.newDraftInProject]);
+
   const sidebarProjects: SidebarProjectEntry[] = store.projects.map((p) => ({
     id: p.id,
     name: p.name,
@@ -136,9 +146,21 @@ export function App() {
       })),
     ]),
   );
+  const sidebarUnassignedThreads: SidebarThreadEntry[] = store.unassignedThreads.map((t) => ({
+    id: t.id,
+    title: t.title,
+    status: store.sessionStatus[t.id] ?? 'idle',
+  }));
 
   const activeKey = chatKeyForActive(store.activeRef);
   const activeChat = activeKey ? store.chats[activeKey] ?? null : null;
+  const isEmptyDraft =
+    store.activeRef?.kind === 'draft' &&
+    activeChat !== null &&
+    activeChat.messages.length === 0 &&
+    activeChat.streamState === 'idle' &&
+    !activeChat.assistantDraft;
+  const showHome = !activeChat || isEmptyDraft;
 
   const activeProjectName =
     store.activeProjectId != null
@@ -152,7 +174,8 @@ export function App() {
       const hit = list.find((t) => t.id === ref.threadId);
       if (hit) return hit.title;
     }
-    return null;
+    const orphan = store.unassignedThreads.find((t) => t.id === ref.threadId);
+    return orphan?.title ?? null;
   })();
 
   const onTopNewChat = () => {
@@ -176,6 +199,7 @@ export function App() {
               activeNav="new"
               projects={sidebarProjects}
               threadsByProject={sidebarThreadsByProject}
+              unassignedThreads={sidebarUnassignedThreads}
               drafts={store.drafts}
               activeRef={store.activeRef}
               onOpenSettings={() => setScreen({ kind: 'settings', section: 'general' })}
@@ -194,25 +218,28 @@ export function App() {
               onDeleteThread={(id) => void store.deleteThread(id)}
             />
             <main className="main">
-              {activeChat ? (
+              {showHome ? (
+                <Home
+                  composer={{
+                    projectName: activeProjectName ?? undefined,
+                    onSubmit: (text) => void store.sendMessage(text),
+                    projects: sidebarProjects,
+                    activeProjectId: store.activeProjectId,
+                    onSelectProject: (pid) => store.newDraftInProject(pid),
+                    onCreateProject: () => {
+                      void store.createProject().then((p) => {
+                        if (p) store.newDraftInProject(p.id);
+                      });
+                    },
+                  }}
+                />
+              ) : (
                 <ChatPanel
-                  state={activeChat}
+                  state={activeChat!}
                   title={activeThreadTitle}
                   projectName={activeProjectName}
                   isDraft={store.activeRef?.kind === 'draft'}
                   onSubmit={(text) => void store.sendMessage(text)}
-                />
-              ) : (
-                <Home
-                  composer={{
-                    projectName: activeProjectName ?? undefined,
-                    onSubmit: (text) => {
-                      if (!store.activeProjectId) {
-                        onTopNewChat();
-                      }
-                      void store.sendMessage(text);
-                    },
-                  }}
                 />
               )}
             </main>
