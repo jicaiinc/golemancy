@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Globale Instellingen"
+  },
+  "tabs": {
+    "general": "Algemeen",
+    "providers": "Providers",
+    "speech": "Spraak",
+    "about": "Over"
+  },
+  "about": {
+    "slogan": "Roep een AI-team op dat voor je werkt",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "UPDATES",
+    "checkForUpdates": "Updatemeldingen",
+    "upToDate": "Je bent up-to-date — v{{version}}",
+    "available": "UPDATE BESCHIKBAAR",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Downloaden voor {{platform}}",
+    "downloadGeneric": "Downloaden",
+    "checking": "Controleren op updates...",
+    "downloading": "Update downloaden... {{percent}}%",
+    "downloaded": "Een bijgewerkte versie van Golemancy v{{version}} is beschikbaar.",
+    "seeChangelog": "Bekijk changelog",
+    "restart": "Herstarten",
+    "restartConfirm": "Er zijn {{count}} actieve AI-sessies. Toch herstarten?",
+    "checkNow": "Nu controleren",
+    "retryCheck": "Opnieuw proberen",
+    "error": "Update-controle mislukt: {{message}}"
+  },
+  "general": {
+    "appearance": "UITERLIJK",
+    "light": "Licht",
+    "dark": "Donker",
+    "system": "Systeem",
+    "language": "TAAL",
+    "telemetry": "VERBETERINGSPROGRAMMA",
+    "telemetryLabel": "Help Golemancy te verbeteren",
+    "telemetryDescription": "Sta ons toe anonieme diagnose- en gebruiksgegevens te verzamelen, waaronder crashrapporten en functiegebruik, zodat we problemen sneller kunnen oplossen en het product kunnen verbeteren. Er worden geen persoonlijke bestanden of gespreksinhoud verzameld.",
+    "style": "STIJL",
+    "stylePixel": "Pixel",
+    "styleModern": "Modern"
+  },
+  "defaultModel": {
+    "sectionTitle": "STANDAARDMODEL",
+    "description": "Wordt gebruikt bij het aanmaken van nieuwe projecten en agenten.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Geen --",
+    "selectProviderFirst": "-- Selecteer eerst een provider --",
+    "noModels": "Geen modellen beschikbaar",
+    "saved": "Opgeslagen!",
+    "orphaned": "De provider van het geconfigureerde model is niet meer beschikbaar. Selecteer een nieuwe.",
+    "autoSwitched": "Het standaardmodel is automatisch gewijzigd omdat de vorige provider is verwijderd."
+  },
+  "providers": {
+    "sectionTitle": "PROVIDERS",
+    "addProvider": "+ Provider Toevoegen",
+    "selectProvider": "PROVIDER SELECTEREN",
+    "customProvider": "AANGEPASTE PROVIDER",
+    "custom": "Aangepast",
+    "anyEndpoint": "elk eindpunt",
+    "nameLabel": "NAAM",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "SDK-TYPE",
+    "empty": "Geen providers geconfigureerd. Klik op \"+ Provider Toevoegen\" om te beginnen.",
+    "customPlaceholder": "Mijn Provider",
+    "testAndSave": "Testen & Opslaan",
+    "testingConnection": "Testen...",
+    "configureProvider": "{{name}} CONFIGUREREN",
+    "configureCustom": "AANGEPASTE PROVIDER CONFIGUREREN",
+    "apiKeyRequired": "API-SLEUTEL (vereist)",
+    "modelsRequired": "MODELLEN (minstens één)"
+  },
+  "provider": {
+    "testing": "Testen...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Mislukt",
+    "untested": "Niet getest",
+    "noKey": "Geen Key",
+    "retest": "Opnieuw testen",
+    "test": "Test",
+    "del": "Verw.",
+    "deleteConfirm": "{{name}} verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "niet ingesteld",
+    "hide": "Verbergen",
+    "show": "Tonen",
+    "urlLabel": "URL:",
+    "modelsCount": "Modellen ({{count}})",
+    "addModel": "+ Model Toevoegen",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (optioneel)",
+    "hideKey": "Key Verbergen",
+    "showKey": "Key Tonen",
+    "oauthSectionTitle": "INLOGGEN",
+    "oauthActive": "Actief",
+    "oauthSignIn": "Inloggen met {{provider}}",
+    "oauthConnected": "Verbonden",
+    "oauthDisconnect": "Verbinding verbreken",
+    "oauthPending": "Wachten op authenticatie in de browser...",
+    "oauthPendingHint": "Voltooi het inloggen in uw browser en keer hier dan terug.",
+    "oauthCancel": "Annuleren",
+    "oauthError": "Authenticatie mislukt",
+    "oauthOrApiKey": "Of gebruik API Key",
+    "oauthNoApiFees": "GEEN API-KOSTEN",
+    "oauthSubscriptionHint": "Gebruikt uw ChatGPT Plus / Pro-abonnement. Geen extra API-kosten.",
+    "oauthTokenExpiry": "Token wordt automatisch vernieuwd. Verloopt over {{minutes}} min."
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

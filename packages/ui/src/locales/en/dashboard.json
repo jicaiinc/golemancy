@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Dashboard",
+    "descriptionFallback": "Project overview",
+    "loading": "Loading dashboard..."
+  },
+  "tokenUsage": {
+    "title": "TOKEN USAGE"
+  },
+  "chart": {
+    "noData": "No token data available",
+    "tooltipIn": "In: {{tokens}}",
+    "tooltipOut": "Out: {{tokens}}",
+    "legendInput": "Input",
+    "legendOutput": "Output"
+  },
+  "tabs": {
+    "trend": "Trend",
+    "byAgent": "By Agent",
+    "byModel": "By Model",
+    "byProject": "By Project"
+  },
+  "table": {
+    "colName": "Name",
+    "colTotal": "Total",
+    "colInput": "Input",
+    "colOutput": "Output",
+    "colCalls": "Calls",
+    "colRatio": "Ratio",
+    "titleByAgent": "TOKEN BY AGENT",
+    "titleByModel": "TOKEN BY MODEL",
+    "titleByProject": "TOKEN BY PROJECT"
+  },
+  "timeRange": {
+    "today": "Today",
+    "sevenDays": "7 Days",
+    "thirtyDays": "30 Days",
+    "allTime": "All Time"
+  },
+  "summary": {
+    "totalTokens": "Total Tokens",
+    "inputTokens": "Input Tokens",
+    "outputTokens": "Output Tokens",
+    "apiCalls": "API Calls"
+  },
+  "overview": {
+    "agents": "AGENTS",
+    "recentChats": "RECENT CHATS",
+    "viewAll": "View All \u2192",
+    "noAgents": "No agents",
+    "noRecentChats": "No recent chats",
+    "chatStats": "{{count}} msgs \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "ACTIVITY",
+    "tabActive": "Active ({{count}})",
+    "tabScheduled": "Scheduled ({{count}})",
+    "tabRecent": "Recent",
+    "badgeChat": "Chat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "No active runs",
+    "noScheduledRuns": "No scheduled runs",
+    "noRecentActivity": "No recent activity",
+    "openLink": "OPEN \u2192",
+    "tokenCount": "{{tokens}} tokens"
+  },
+  "global": {
+    "title": "Global Dashboard",
+    "subtitle": "Cross-project overview",
+    "topProjects": "TOP PROJECTS",
+    "noProjectData": "No project data",
+    "projectStats": "{{tokens}} tokens \u00B7 {{calls}} calls"
+  }
+}

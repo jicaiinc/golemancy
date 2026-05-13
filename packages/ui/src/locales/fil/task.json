@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Mga Conversation Task",
+    "taskCount_one": "{{count}} task sa kabuuan",
+    "taskCount_other": "{{count}} task sa kabuuan"
+  },
+  "loading": "Nilo-load ang mga task...",
+  "empty": {
+    "noTasks": "Walang nahanap na task"
+  },
+  "openChat": "BUKSAN ANG CHAT \u2192",
+  "detail": {
+    "description": "PAGLALARAWAN",
+    "blockedBy": "BINA-BLOCK NG",
+    "metadata": "METADATA"
+  },
+  "status": {
+    "pending": "naghihintay",
+    "in_progress": "ginagawa",
+    "completed": "tapos na",
+    "deleted": "na-delete"
+  }
+}

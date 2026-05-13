@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Konu\u015fma G\u00f6revleri",
+    "taskCount_one": "toplam {{count}} g\u00f6rev",
+    "taskCount_other": "toplam {{count}} g\u00f6rev"
+  },
+  "loading": "G\u00f6revler y\u00fckleniyor...",
+  "empty": {
+    "noTasks": "G\u00f6rev bulunamad\u0131"
+  },
+  "openChat": "SOHBET\u0130 A\u00c7 \u2192",
+  "detail": {
+    "description": "A\u00c7IKLAMA",
+    "blockedBy": "ENGELLEYEN",
+    "metadata": "META VER\u0130"
+  },
+  "status": {
+    "pending": "bekliyor",
+    "in_progress": "devam ediyor",
+    "completed": "tamamland\u0131",
+    "deleted": "silindi"
+  }
+}

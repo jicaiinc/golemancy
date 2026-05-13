@@ -1,0 +1,53 @@
+{
+  "categories": {
+    "starter": "Pemula",
+    "productivity": "Produktivitas",
+    "research": "Riset",
+    "creative": "Kreatif",
+    "development": "Pengembangan"
+  },
+  "ui": {
+    "chooseTemplate": "Pilih template",
+    "blankProject": "Proyek Kosong",
+    "blankProjectDescription": "Mulai dari awal dengan agent default",
+    "fromTemplate": "Dari Template",
+    "fromTemplateDescription": "Agen, keterampilan & alat yang sudah dikonfigurasi",
+    "featured": "Unggulan",
+    "allCategories": "Semua",
+    "selectToPreview": "Pilih template untuk melihat detail",
+    "statsLine": "{{templates}} template · {{agents}} agen · {{skills}} keterampilan",
+    "labelAgents": "Agen",
+    "labelSkills": "Keterampilan",
+    "labelTools": "Alat",
+    "labelTeams": "Tim",
+    "labelAutomations": "Otomatisasi",
+    "sectionAgents": "Agen",
+    "sectionTeams": "Tim"
+  },
+  "projects": {
+    "writing-assistant": {
+      "name": "Asisten Penulisan",
+      "description": "Ahli penulisan AI untuk email, blog, media sosial, dan semua jenis konten"
+    },
+    "deep-research": {
+      "name": "Riset Mendalam",
+      "description": "Tim multi-agen untuk riset mendalam, analisis kompetitif, dan laporan tren"
+    },
+    "smart-secretary": { "name": "Sekretaris Cerdas", "description": "Kelola email, kalender, tugas, dan aliran informasi Anda agar bisa fokus pada pekerjaan inti" },
+    "translator": { "name": "Penerjemah", "description": "Mitra komunikasi multibahasa yang sadar konteks, bukan sekadar terjemahan kata per kata" },
+    "knowledge-explorer": { "name": "Penjelajah Pengetahuan", "description": "Kumpulkan informasi, atur pengetahuan, dan panduan perjalanan belajar Anda" },
+    "life-manager": { "name": "Manajer Kehidupan", "description": "Perencanaan perjalanan, perbandingan harga, saran resep, dan tugas kehidupan sehari-hari" },
+    "doc-hub": { "name": "Pusat Dokumen", "description": "Pusat pemrosesan AI untuk dokumen PDF, Word, Excel, dan PowerPoint" },
+    "content-marketing": { "name": "Pemasaran Konten", "description": "Pipeline konten lengkap dari pemilihan topik hingga penulisan dan distribusi multi-platform" },
+    "social-media-ops": { "name": "Operasi Media Sosial", "description": "Pusat operasi AI untuk akun media sosial multi-platform" },
+    "seo-optimizer": { "name": "Pengoptimal SEO", "description": "SEO teknis, SEO konten, dan optimasi pencarian AI (GEO/AEO)" },
+    "sales-pipeline": { "name": "Pipeline Penjualan", "description": "Asisten penjualan siklus penuh dari penemuan prospek hingga tindak lanjut kesepakatan" },
+    "customer-service": { "name": "Layanan Pelanggan", "description": "Dukungan pelanggan otomatis dari klasifikasi tiket hingga balasan cerdas" },
+    "financial-mgmt": { "name": "Manajemen Keuangan", "description": "Pembukuan, pengajuan pajak, manajemen faktur, dan analisis keuangan" },
+    "legal-compliance": { "name": "Hukum & Kepatuhan", "description": "Tinjauan kontrak, penandaan risiko klausul, dan pemeriksaan kepatuhan" },
+    "data-analytics": { "name": "Analitik Data", "description": "Analitik siklus penuh dari data mentah hingga wawasan visual" },
+    "product-mgmt": { "name": "Manajemen Produk", "description": "Analisis persyaratan, penulisan PRD, perencanaan roadmap, dan pelacakan kemajuan" },
+    "recruitment": { "name": "Rekrutmen", "description": "Penulisan deskripsi pekerjaan, penyaringan resume, desain wawancara, dan evaluasi kandidat" },
+    "academic-research": { "name": "Penelitian Akademik", "description": "Pencarian literatur, analisis makalah, pembuatan hipotesis, desain eksperimen, dan bantuan penulisan" }
+  }
+}

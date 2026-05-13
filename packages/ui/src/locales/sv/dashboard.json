@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Översikt",
+    "descriptionFallback": "Projektöversikt",
+    "loading": "Laddar översikt..."
+  },
+  "tokenUsage": {
+    "title": "TOKENANVÄNDNING"
+  },
+  "chart": {
+    "noData": "Ingen tokendata tillgänglig",
+    "tooltipIn": "In: {{tokens}}",
+    "tooltipOut": "Ut: {{tokens}}",
+    "legendInput": "Indata",
+    "legendOutput": "Utdata"
+  },
+  "tabs": {
+    "trend": "Trend",
+    "byAgent": "Per agent",
+    "byModel": "Per modell",
+    "byProject": "Per projekt"
+  },
+  "table": {
+    "colName": "Namn",
+    "colTotal": "Totalt",
+    "colInput": "Indata",
+    "colOutput": "Utdata",
+    "colCalls": "Anrop",
+    "colRatio": "Andel",
+    "titleByAgent": "TOKEN PER AGENT",
+    "titleByModel": "TOKEN PER MODELL",
+    "titleByProject": "TOKEN PER PROJEKT"
+  },
+  "timeRange": {
+    "today": "Idag",
+    "sevenDays": "7 dagar",
+    "thirtyDays": "30 dagar",
+    "allTime": "All tid"
+  },
+  "summary": {
+    "totalTokens": "Totala tokens",
+    "inputTokens": "Indata-tokens",
+    "outputTokens": "Utdata-tokens",
+    "apiCalls": "API-anrop"
+  },
+  "overview": {
+    "agents": "AGENTER",
+    "recentChats": "SENASTE CHATTAR",
+    "viewAll": "Visa alla \u2192",
+    "noAgents": "Inga agenter",
+    "noRecentChats": "Inga senaste chattar",
+    "chatStats": "{{count}} meddelanden \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "AKTIVITET",
+    "tabActive": "Aktiva ({{count}})",
+    "tabScheduled": "Schemalagda ({{count}})",
+    "tabRecent": "Senaste",
+    "badgeChat": "Chatt",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Inga aktiva körningar",
+    "noScheduledRuns": "Inga schemalagda körningar",
+    "noRecentActivity": "Ingen senaste aktivitet",
+    "openLink": "ÖPPNA \u2192",
+    "tokenCount": "{{tokens}} tokens"
+  },
+  "global": {
+    "title": "Global översikt",
+    "subtitle": "Översikt över alla projekt",
+    "topProjects": "TOPPROJEKT",
+    "noProjectData": "Ingen projektdata",
+    "projectStats": "{{tokens}} tokens \u00B7 {{calls}} anrop"
+  }
+}

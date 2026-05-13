@@ -1,0 +1,51 @@
+{
+  "label": {
+    "projectName": "PROJEKTNAMN",
+    "description": "BESKRIVNING",
+    "icon": "IKON",
+    "projectId": "PROJEKT-ID"
+  },
+  "list": {
+    "title": "Alla projekt",
+    "subtitle_one": "{{count}} projekt i din arbetsyta",
+    "subtitle_other": "{{count}} projekt i din arbetsyta",
+    "newBtn": "+ Nytt projekt",
+    "empty": "Inga projekt ännu",
+    "createFirst": "Skapa ditt första projekt",
+    "openInWindow": "Öppna i nytt fönster",
+    "clone": "Klona projekt",
+    "agents_one": "{{count}} agent",
+    "agents_other": "{{count}} agenter",
+    "running_one": "{{count}} kör",
+    "running_other": "{{count}} kör"
+  },
+  "create": {
+    "modalTitle": "Skapa nytt projekt",
+    "createBtn": "Skapa projekt",
+    "namePlaceholder": "Mitt fantastiska projekt",
+    "descPlaceholder": "Vad handlar detta projekt om?",
+    "errorGeneric": "Det gick inte att skapa projektet",
+    "noDefaultModel": "Standardmodell måste konfigureras innan du skapar från mall.",
+    "goToSettings": "Gå till inställningar"
+  },
+  "settings": {
+    "title": "Projektinställningar",
+    "savedMsg": "Sparat!",
+    "clickToCopy": "Klicka för att kopiera",
+    "tabs": {
+      "general": "Allmänt",
+      "permissions": "Behörigheter"
+    },
+    "general": {
+      "sectionTitle": "GRUNDLÄGGANDE INFO",
+      "saveBtn": "Spara ändringar",
+      "deleteBtn": "Radera projekt",
+      "deleteConfirm": "Är du säker på att du vill radera detta projekt?",
+      "defaultLabel": "STANDARD-AGENT / TEAM",
+      "defaultDesc": "Standardagent eller team för nya konversationer.",
+      "defaultNone": "Inget",
+      "defaultTeamsGroup": "Team",
+      "defaultAgentsGroup": "Agenter"
+    }
+  }
+}

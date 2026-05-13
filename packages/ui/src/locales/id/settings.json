@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Pengaturan Global"
+  },
+  "tabs": {
+    "general": "Umum",
+    "providers": "Provider",
+    "speech": "Ucapan",
+    "about": "Tentang"
+  },
+  "about": {
+    "slogan": "Panggil Tim AI yang Bekerja Untukmu",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "PEMBARUAN",
+    "checkForUpdates": "Notifikasi pembaruan",
+    "upToDate": "Anda sudah menggunakan versi terbaru — v{{version}}",
+    "available": "PEMBARUAN TERSEDIA",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Unduh untuk {{platform}}",
+    "downloadGeneric": "Unduh",
+    "checking": "Memeriksa pembaruan...",
+    "downloading": "Mengunduh pembaruan... {{percent}}%",
+    "downloaded": "Versi terbaru Golemancy v{{version}} tersedia.",
+    "seeChangelog": "Lihat changelog",
+    "restart": "Mulai Ulang",
+    "restartConfirm": "Ada {{count}} sesi AI aktif. Mulai ulang tetap saja?",
+    "checkNow": "Periksa sekarang",
+    "retryCheck": "Coba Lagi",
+    "error": "Pemeriksaan pembaruan gagal: {{message}}"
+  },
+  "general": {
+    "appearance": "TAMPILAN",
+    "light": "Terang",
+    "dark": "Gelap",
+    "system": "Sistem",
+    "language": "BAHASA",
+    "telemetry": "PROGRAM PENINGKATAN",
+    "telemetryLabel": "Bantu tingkatkan Golemancy",
+    "telemetryDescription": "Izinkan kami mengumpulkan data diagnostik dan penggunaan anonim, termasuk laporan error dan penggunaan fitur, agar kami dapat memperbaiki masalah lebih cepat dan meningkatkan produk. File pribadi atau konten percakapan tidak dikumpulkan.",
+    "style": "GAYA",
+    "stylePixel": "Piksel",
+    "styleModern": "Modern"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODEL DEFAULT",
+    "description": "Digunakan saat membuat proyek dan agent baru.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Tidak ada --",
+    "selectProviderFirst": "-- Pilih provider terlebih dahulu --",
+    "noModels": "Tidak ada model tersedia",
+    "saved": "Tersimpan!",
+    "orphaned": "Provider model yang dikonfigurasi sudah tidak tersedia. Silakan pilih yang baru.",
+    "autoSwitched": "Model default otomatis diubah karena provider sebelumnya telah dihapus."
+  },
+  "providers": {
+    "sectionTitle": "PROVIDER",
+    "addProvider": "+ Tambah Provider",
+    "selectProvider": "PILIH PROVIDER",
+    "customProvider": "PROVIDER KUSTOM",
+    "custom": "Kustom",
+    "anyEndpoint": "endpoint apa saja",
+    "nameLabel": "NAMA",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TIPE SDK",
+    "empty": "Belum ada provider yang dikonfigurasi. Klik \"+ Tambah Provider\" untuk memulai.",
+    "customPlaceholder": "Provider Saya",
+    "testAndSave": "Tes & Simpan",
+    "testingConnection": "Menguji...",
+    "configureProvider": "KONFIGURASI {{name}}",
+    "configureCustom": "KONFIGURASI PENYEDIA KUSTOM",
+    "apiKeyRequired": "KUNCI API (wajib)",
+    "modelsRequired": "MODEL (minimal satu)"
+  },
+  "provider": {
+    "testing": "Menguji...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Gagal",
+    "untested": "Belum diuji",
+    "noKey": "Tidak Ada Key",
+    "retest": "Uji Ulang",
+    "test": "Uji",
+    "del": "Hapus",
+    "deleteConfirm": "Hapus {{name}}? Tindakan ini tidak dapat dibatalkan.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "belum diatur",
+    "hide": "Sembunyikan",
+    "show": "Tampilkan",
+    "urlLabel": "URL:",
+    "modelsCount": "Model ({{count}})",
+    "addModel": "+ Tambah Model",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opsional)",
+    "hideKey": "Sembunyikan Key",
+    "showKey": "Tampilkan Key",
+    "oauthSectionTitle": "MASUK",
+    "oauthActive": "Aktif",
+    "oauthSignIn": "Masuk dengan {{provider}}",
+    "oauthConnected": "Terhubung",
+    "oauthDisconnect": "Putus sambungan",
+    "oauthPending": "Menunggu autentikasi di browser...",
+    "oauthPendingHint": "Selesaikan login di browser Anda, lalu kembali ke sini.",
+    "oauthCancel": "Batal",
+    "oauthError": "Autentikasi gagal",
+    "oauthOrApiKey": "Atau gunakan API Key",
+    "oauthNoApiFees": "TANPA BIAYA API",
+    "oauthSubscriptionHint": "Menggunakan langganan ChatGPT Plus / Pro Anda. Tanpa biaya API tambahan.",
+    "oauthTokenExpiry": "Token diperbarui otomatis. Kedaluwarsa dalam {{minutes}} menit."
+  },
+  "threshold": {
+    "tokens": "token"
+  }
+}

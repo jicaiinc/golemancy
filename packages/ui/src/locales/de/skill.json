@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Skills",
+    "skillCount_one": "{{count}} Skill",
+    "skillCount_other": "{{count}} Skills",
+    "newSkillBtn": "+ Neuer Skill"
+  },
+  "tabs": {
+    "installed": "Installiert",
+    "marketplace": "Marketplace"
+  },
+  "import": {
+    "noValidFiles": "Keine .md- oder .zip-Dateien gefunden. Ziehen Sie Markdown- oder Zip-Dateien zum Importieren.",
+    "importedCount_one": "{{count}} Skill importiert",
+    "importedCount_other": "{{count}} Skills importiert",
+    "importError": "Skills konnten nicht importiert werden"
+  },
+  "deleteError": {
+    "inUse_one": "Skill \"{{name}}\" ist {{count}} Agenten zugewiesen. Entfernen Sie zuerst die Zuweisung.",
+    "inUse_other": "Skill \"{{name}}\" ist {{count}} Agenten zugewiesen. Entfernen Sie zuerst die Zuweisung.",
+    "generic": "Skill konnte nicht gelöscht werden"
+  },
+  "loading": "Skills laden...",
+  "empty": {
+    "title": "Noch keine Skills",
+    "createFirstBtn": "Erstellen Sie Ihren ersten Skill"
+  },
+  "comingSoon": "Demnächst",
+  "form": {
+    "newTitle": "Neuer Skill",
+    "editTitle": "Skill bearbeiten",
+    "nameLabel": "NAME",
+    "descriptionLabel": "BESCHREIBUNG",
+    "instructionsLabel": "ANWEISUNGEN",
+    "instructionsPlaceholder": "Schreiben Sie die Skill-Anweisungen in Markdown..."
+  }
+}

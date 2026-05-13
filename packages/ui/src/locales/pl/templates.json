@@ -1,0 +1,53 @@
+{
+  "categories": {
+    "starter": "Podstawowy",
+    "productivity": "Produktywność",
+    "research": "Badania",
+    "creative": "Kreatywny",
+    "development": "Rozwój"
+  },
+  "ui": {
+    "chooseTemplate": "Wybierz szablon",
+    "blankProject": "Pusty projekt",
+    "blankProjectDescription": "Zacznij od zera z domyślnym agentem",
+    "fromTemplate": "Z szablonu",
+    "fromTemplateDescription": "Wstępnie skonfigurowane agenty, umiejętności i narzędzia",
+    "featured": "Polecane",
+    "allCategories": "Wszystkie",
+    "selectToPreview": "Wybierz szablon, aby zobaczyć szczegóły",
+    "statsLine": "{{templates}} szablonów · {{agents}} agentów · {{skills}} umiejętności",
+    "labelAgents": "Agenty",
+    "labelSkills": "Umiejętności",
+    "labelTools": "Narzędzia",
+    "labelTeams": "Zespoły",
+    "labelAutomations": "Automatyzacje",
+    "sectionAgents": "Agenty",
+    "sectionTeams": "Zespoły"
+  },
+  "projects": {
+    "writing-assistant": {
+      "name": "Asystent Pisania",
+      "description": "AI ekspert od pisania e-maili, blogów, postów w mediach społecznościowych i wszelkich treści"
+    },
+    "deep-research": {
+      "name": "Dogłębne Badania",
+      "description": "Wieloagentowy zespół do dogłębnych badań, analizy konkurencji i raportów trendów"
+    },
+    "smart-secretary": { "name": "Inteligentny Sekretarz", "description": "Zarządzaj emailami, kalendarzem, zadaniami i przepływem informacji, aby skupić się na kluczowej pracy" },
+    "translator": { "name": "Tłumacz", "description": "Partner do komunikacji wielojęzycznej uwzględniający kontekst, nie tylko tłumaczenie słowo po słowie" },
+    "knowledge-explorer": { "name": "Odkrywca Wiedzy", "description": "Zbieraj informacje, organizuj wiedzę i kieruj swoją podróżą edukacyjną" },
+    "life-manager": { "name": "Menedżer Życia", "description": "Planowanie podróży, porównywanie cen, sugestie przepisów i codzienne zadania" },
+    "doc-hub": { "name": "Centrum Dokumentów", "description": "AI centrum przetwarzania dokumentów PDF, Word, Excel i PowerPoint" },
+    "content-marketing": { "name": "Marketing Treści", "description": "Kompletny pipeline treści od wyboru tematu przez pisanie do dystrybucji na wielu platformach" },
+    "social-media-ops": { "name": "Zarządzanie Social Media", "description": "AI centrum operacji dla kont w mediach społecznościowych na wielu platformach" },
+    "seo-optimizer": { "name": "Optymalizator SEO", "description": "Techniczne SEO, SEO treści i optymalizacja wyszukiwania AI (GEO/AEO)" },
+    "sales-pipeline": { "name": "Lejek Sprzedaży", "description": "Asystent sprzedaży pełnego cyklu od odkrycia leadów do finalizacji transakcji" },
+    "customer-service": { "name": "Obsługa Klienta", "description": "Automatyczna obsługa klienta od klasyfikacji zgłoszeń do inteligentnych odpowiedzi" },
+    "financial-mgmt": { "name": "Zarządzanie Finansami", "description": "Księgowość, składanie podatków, zarządzanie fakturami i analiza finansowa" },
+    "legal-compliance": { "name": "Prawo i Zgodność", "description": "Przegląd umów, oznaczanie ryzyk klauzul i sprawdzanie zgodności" },
+    "data-analytics": { "name": "Analityka Danych", "description": "Analityka pełnego cyklu od surowych danych do wizualnych wniosków" },
+    "product-mgmt": { "name": "Zarządzanie Produktem", "description": "Analiza wymagań, pisanie PRD, planowanie roadmapy i śledzenie postępów" },
+    "recruitment": { "name": "Rekrutacja", "description": "Pisanie opisów stanowisk, screening CV, projektowanie rozmów kwalifikacyjnych i ocena kandydatów" },
+    "academic-research": { "name": "Badania Naukowe", "description": "Przeszukiwanie literatury, analiza prac, generowanie hipotez, projektowanie eksperymentów i wsparcie pisania" }
+  }
+}

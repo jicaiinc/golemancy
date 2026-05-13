@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "全域設定"
+  },
+  "tabs": {
+    "general": "一般",
+    "providers": "供應商",
+    "speech": "語音",
+    "about": "關於"
+  },
+  "about": {
+    "slogan": "召喚一支為你效力的 AI 團隊",
+    "links": {
+      "website": "官網",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "更新",
+    "checkForUpdates": "更新通知",
+    "upToDate": "已是最新版本 — v{{version}}",
+    "available": "有新版本",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "下載 {{platform}} 版",
+    "downloadGeneric": "下載",
+    "checking": "檢查更新中...",
+    "downloading": "下載中... {{percent}}%",
+    "downloaded": "Golemancy v{{version}} 新版本已就緒。",
+    "seeChangelog": "查看更新日誌",
+    "restart": "重新啟動",
+    "restartConfirm": "目前有 {{count}} 個活躍 AI 工作階段，確定重新啟動？",
+    "checkNow": "立即檢查",
+    "retryCheck": "重試",
+    "error": "更新檢查失敗：{{message}}"
+  },
+  "general": {
+    "appearance": "外觀",
+    "light": "淺色",
+    "dark": "深色",
+    "system": "跟隨系統",
+    "language": "語言",
+    "telemetry": "改進計畫",
+    "telemetryLabel": "協助改進 Golemancy",
+    "telemetryDescription": "允許我們收集匿名的診斷資訊和使用資料，包括當機報告和功能使用情況，以便更快修復問題並持續改進產品。不會收集個人檔案或對話內容。",
+    "style": "樣式",
+    "stylePixel": "像素",
+    "styleModern": "現代"
+  },
+  "defaultModel": {
+    "sectionTitle": "預設模型",
+    "description": "建立新專案和 Agent 時使用的預設模型。",
+    "providerLabel": "供應商",
+    "modelLabel": "模型",
+    "noProvider": "-- 無 --",
+    "selectProviderFirst": "-- 請先選擇供應商 --",
+    "noModels": "無可用模型",
+    "saved": "已儲存！",
+    "orphaned": "目前模型的供應商已無法使用，請重新選擇。",
+    "autoSwitched": "由於先前的供應商已被移除，預設模型已自動更換。"
+  },
+  "providers": {
+    "sectionTitle": "供應商",
+    "addProvider": "+ 新增供應商",
+    "selectProvider": "選擇供應商",
+    "customProvider": "自訂供應商",
+    "custom": "自訂",
+    "anyEndpoint": "任意端點",
+    "nameLabel": "名稱",
+    "baseUrlLabel": "基礎 URL",
+    "sdkTypeLabel": "SDK 類型",
+    "empty": "尚無供應商。點擊「+ 新增供應商」開始設定。",
+    "customPlaceholder": "我的供應商",
+    "testAndSave": "測試並儲存",
+    "testingConnection": "測試中...",
+    "configureProvider": "設定 {{name}}",
+    "configureCustom": "設定自訂服務商",
+    "apiKeyRequired": "API 金鑰（必填）",
+    "modelsRequired": "模型（至少一個）"
+  },
+  "provider": {
+    "testing": "測試中...",
+    "ok": "正常",
+    "okLatency": "正常 ({{latency}}ms)",
+    "failed": "失敗",
+    "untested": "未測試",
+    "noKey": "無金鑰",
+    "retest": "重新測試",
+    "test": "測試",
+    "del": "刪除",
+    "deleteConfirm": "刪除 {{name}}？此操作無法復原。",
+    "apiKeyLabel": "API 金鑰：",
+    "notSet": "未設定",
+    "hide": "隱藏",
+    "show": "顯示",
+    "urlLabel": "URL：",
+    "modelsCount": "模型 ({{count}})",
+    "addModel": "+ 新增模型",
+    "apiKeyInputLabel": "API 金鑰",
+    "baseUrlOptional": "基礎 URL（選填）",
+    "hideKey": "隱藏金鑰",
+    "showKey": "顯示金鑰",
+    "oauthSectionTitle": "登入",
+    "oauthActive": "已啟用",
+    "oauthSignIn": "使用 {{provider}} 登入",
+    "oauthConnected": "已連線",
+    "oauthDisconnect": "中斷連線",
+    "oauthPending": "等待在瀏覽器中完成驗證...",
+    "oauthPendingHint": "在瀏覽器中完成登入後，返回此處。",
+    "oauthCancel": "取消",
+    "oauthError": "驗證失敗",
+    "oauthOrApiKey": "或使用 API 金鑰",
+    "oauthNoApiFees": "無 API 費用",
+    "oauthSubscriptionHint": "使用您的 ChatGPT Plus / Pro 訂閱，無額外 API 費用。",
+    "oauthTokenExpiry": "Token 自動更新，{{minutes}} 分鐘後到期。"
+  },
+  "threshold": {
+    "tokens": "Token"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Pano",
+    "descriptionFallback": "Projeye genel bak\u0131\u015f",
+    "loading": "Pano y\u00fckleniyor..."
+  },
+  "tokenUsage": {
+    "title": "TOKEN KULLANIMI"
+  },
+  "chart": {
+    "noData": "Token verisi mevcut de\u011fil",
+    "tooltipIn": "Giri\u015f: {{tokens}}",
+    "tooltipOut": "\u00c7\u0131k\u0131\u015f: {{tokens}}",
+    "legendInput": "Giri\u015f",
+    "legendOutput": "\u00c7\u0131k\u0131\u015f"
+  },
+  "tabs": {
+    "trend": "E\u011filim",
+    "byAgent": "Ajana G\u00f6re",
+    "byModel": "Modele G\u00f6re",
+    "byProject": "Projeye G\u00f6re"
+  },
+  "table": {
+    "colName": "Ad",
+    "colTotal": "Toplam",
+    "colInput": "Giri\u015f",
+    "colOutput": "\u00c7\u0131k\u0131\u015f",
+    "colCalls": "\u00c7a\u011fr\u0131",
+    "colRatio": "Oran",
+    "titleByAgent": "AJANA G\u00d6RE TOKEN",
+    "titleByModel": "MODELE G\u00d6RE TOKEN",
+    "titleByProject": "PROJEYE G\u00d6RE TOKEN"
+  },
+  "timeRange": {
+    "today": "Bug\u00fcn",
+    "sevenDays": "7 G\u00fcn",
+    "thirtyDays": "30 G\u00fcn",
+    "allTime": "T\u00fcm Zamanlar"
+  },
+  "summary": {
+    "totalTokens": "Toplam Token",
+    "inputTokens": "Giri\u015f Token",
+    "outputTokens": "\u00c7\u0131k\u0131\u015f Token",
+    "apiCalls": "API \u00c7a\u011fr\u0131lar\u0131"
+  },
+  "overview": {
+    "agents": "AJANLAR",
+    "recentChats": "SON SOHBETLER",
+    "viewAll": "T\u00fcm\u00fcn\u00fc G\u00f6r \u2192",
+    "noAgents": "Ajan yok",
+    "noRecentChats": "Son sohbet yok",
+    "chatStats": "{{count}} mesaj \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "AKT\u0130V\u0130TE",
+    "tabActive": "Aktif ({{count}})",
+    "tabScheduled": "Zamanlanm\u0131\u015f ({{count}})",
+    "tabRecent": "Son",
+    "badgeChat": "Sohbet",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Aktif \u00e7al\u0131\u015fma yok",
+    "noScheduledRuns": "Zamanlanm\u0131\u015f \u00e7al\u0131\u015fma yok",
+    "noRecentActivity": "Son aktivite yok",
+    "openLink": "A\u00c7 \u2192",
+    "tokenCount": "{{tokens}} token"
+  },
+  "global": {
+    "title": "Genel Pano",
+    "subtitle": "Projeler aras\u0131 genel bak\u0131\u015f",
+    "topProjects": "EN \u0130Y\u0130 PROJELER",
+    "noProjectData": "Proje verisi yok",
+    "projectStats": "{{tokens}} token \u00B7 {{calls}} \u00e7a\u011fr\u0131"
+  }
+}

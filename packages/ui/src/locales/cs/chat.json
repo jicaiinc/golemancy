@@ -1,0 +1,76 @@
+{
+  "newChatTitle": "Nový chat",
+  "header": {
+    "hideHistory": "Skrýt historii chatu",
+    "showHistory": "Zobrazit historii chatu",
+    "new": "+ Nový",
+    "clickToRename": "Klikněte pro přejmenování",
+    "teams": "Týmy",
+    "agents": "Agenti"
+  },
+  "sidebar": {
+    "newChat": "+ Nový chat",
+    "noConversations": "Žádné konverzace",
+    "filter": "Filtrovat",
+    "showCron": "Naplánované úlohy",
+    "showSubAgent": "Pod-agenti"
+  },
+  "window": {
+    "startConversation": "Zahájit konverzaci...",
+    "compacting": "Komprimace",
+    "thinking": "Přemýšlení",
+    "imageMsgTitle": "Obrázek",
+    "maxStepsReached": "Agent dosáhl maximálního limitu kroků ({{steps}}/{{maxSteps}}). Odešlete zprávu pro pokračování."
+  },
+  "empty": {
+    "readyToChat": "Připraveno k chatu",
+    "description": "Zahajte novou konverzaci nebo vyberte existující z postranního panelu.",
+    "startChatting": "Zahájit chat",
+    "noMainAgent": "Žádný hlavní agent",
+    "configureText": "Nakonfigurujte hlavního agenta v <a>Nastavení projektu</a> pro zahájení chatu."
+  },
+  "input": {
+    "placeholder": "Napište zprávu...",
+    "dropPlaceholder": "Přetáhněte obrázky sem...",
+    "attachImage": "Přiložit obrázek",
+    "recordAudio": "Nahrát zvuk",
+    "sttNotConfigured": "Rozpoznávání řeči zatím není nakonfigurováno.",
+    "configureStt": "Nakonfigurovat",
+    "transcribing": "Transkripce...",
+    "transcriptionFailed": "Transkripce selhala",
+    "startRecordingFailed": "Nepodařilo se zahájit nahrávání",
+    "retryFailed": "Opakovaný pokus selhal"
+  },
+  "message": {
+    "reasoning": "Uvažování",
+    "untitledFile": "Bez názvu",
+    "copy": "Kopírovat"
+  },
+  "compact": {
+    "title": "KONVERZACE KOMPRIMOVÁNA",
+    "summary": "SHRNUTÍ",
+    "tokensSummary": "{{input}} vst / {{output}} výst"
+  },
+  "error": {
+    "goToSettings": "Přejít do Nastavení → Poskytovatelé"
+  },
+  "tool": {
+    "running": "Provádění...",
+    "awaitingApproval": "Čekání na schválení",
+    "approved": "Schváleno",
+    "done": "Hotovo",
+    "denied": "Zamítnuto",
+    "input": "VSTUP",
+    "output": "VÝSTUP",
+    "error": "CHYBA",
+    "task": "ÚKOL",
+    "session": "RELACE",
+    "tools": "NÁSTROJE",
+    "toolCountRunning": "[{{running}}/{{total}} nástrojů]",
+    "toolCountDone": "[{{total}} nástrojů]",
+    "taskCreate": "Vytvořit úkol",
+    "taskGet": "Získat úkol",
+    "taskList": "Seznam úkolů",
+    "taskUpdate": "Aktualizovat úkol"
+  }
+}

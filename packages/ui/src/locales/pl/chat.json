@@ -1,0 +1,76 @@
+{
+  "newChatTitle": "Nowy czat",
+  "header": {
+    "hideHistory": "Ukryj historię czatu",
+    "showHistory": "Pokaż historię czatu",
+    "new": "+ Nowy",
+    "clickToRename": "Kliknij, aby zmienić nazwę",
+    "teams": "Zespoły",
+    "agents": "Agenci"
+  },
+  "sidebar": {
+    "newChat": "+ Nowy czat",
+    "noConversations": "Brak rozmów",
+    "filter": "Filtruj",
+    "showCron": "Zadania cron",
+    "showSubAgent": "Pod-agenci"
+  },
+  "window": {
+    "startConversation": "Rozpocznij rozmowę...",
+    "compacting": "Kompresja",
+    "thinking": "Myślenie",
+    "imageMsgTitle": "Obraz",
+    "maxStepsReached": "Agent osiągnął maksymalny limit kroków ({{steps}}/{{maxSteps}}). Wyślij wiadomość, aby kontynuować."
+  },
+  "empty": {
+    "readyToChat": "Gotowy do rozmowy",
+    "description": "Rozpocznij nową rozmowę lub wybierz istniejącą z panelu bocznego.",
+    "startChatting": "Rozpocznij czat",
+    "noMainAgent": "Brak agenta głównego",
+    "configureText": "Skonfiguruj agenta głównego w <a>Ustawieniach projektu</a>, aby rozpocząć czat."
+  },
+  "input": {
+    "placeholder": "Wpisz wiadomość...",
+    "dropPlaceholder": "Upuść obrazy tutaj...",
+    "attachImage": "Załącz obraz",
+    "recordAudio": "Nagraj dźwięk",
+    "sttNotConfigured": "Rozpoznawanie mowy nie zostało jeszcze skonfigurowane.",
+    "configureStt": "Skonfiguruj",
+    "transcribing": "Transkrypcja...",
+    "transcriptionFailed": "Transkrypcja nie powiodła się",
+    "startRecordingFailed": "Nie udało się rozpocząć nagrywania",
+    "retryFailed": "Ponowna próba nie powiodła się"
+  },
+  "message": {
+    "reasoning": "Rozumowanie",
+    "untitledFile": "Bez tytułu",
+    "copy": "Kopiuj"
+  },
+  "compact": {
+    "title": "ROZMOWA SKOMPRESOWANA",
+    "summary": "PODSUMOWANIE",
+    "tokensSummary": "{{input}} wej / {{output}} wyj"
+  },
+  "error": {
+    "goToSettings": "Przejdź do Ustawienia → Dostawcy"
+  },
+  "tool": {
+    "running": "Wykonywanie...",
+    "awaitingApproval": "Oczekiwanie na zatwierdzenie",
+    "approved": "Zatwierdzone",
+    "done": "Gotowe",
+    "denied": "Odrzucone",
+    "input": "WEJŚCIE",
+    "output": "WYJŚCIE",
+    "error": "BŁĄD",
+    "task": "ZADANIE",
+    "session": "SESJA",
+    "tools": "NARZĘDZIA",
+    "toolCountRunning": "[{{running}}/{{total}} narzędzi]",
+    "toolCountDone": "[{{total}} narzędzi]",
+    "taskCreate": "Utwórz zadanie",
+    "taskGet": "Pobierz zadanie",
+    "taskList": "Lista zadań",
+    "taskUpdate": "Zaktualizuj zadanie"
+  }
+}

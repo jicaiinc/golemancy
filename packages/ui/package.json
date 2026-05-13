@@ -1,31 +1,56 @@
 {
   "name": "@golemancy/ui",
-  "version": "0.2.0-rebuild.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
-    },
-    "./styles.css": "./src/styles/global.css"
+    ".": "./src/index.ts",
+    "./styles": "./src/styles/global.css",
+    "./lib/error-reporting": "./src/lib/error-reporting.ts",
+    "./lib/analytics": "./src/lib/analytics.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit",
-    "clean": "rimraf .turbo .tsbuildinfo"
+    "build": "vite build",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@golemancy/i18n": "workspace:*",
-    "@golemancy/protocol": "workspace:*",
+    "@ai-sdk/react": "^3.0.144",
+    "@dagrejs/dagre": "^2.0.4",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/press-start-2p": "^5.2.7",
     "@golemancy/shared": "workspace:*",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@tanstack/react-query": "^5.95.2",
+    "@xyflow/react": "^12.10.0",
+    "ai": "^6.0.142",
+    "cronstrue": "^3.12.0",
+    "i18next": "25.8.13",
+    "i18next-browser-languagedetector": "8.2.1",
+    "motion": "^12.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-i18next": "16.5.4",
+    "react-router": "^7.0.0",
+    "streamdown": "^2.4.0",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "rimraf": "^6.0.1",
-    "typescript": "^5.7.3"
+    "@tailwindcss/postcss": "^4.1.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/dagre": "^0.7.53",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.8.0",
+    "vite": "^6.0.0",
+    "vitest": "^4.1.0"
   }
 }

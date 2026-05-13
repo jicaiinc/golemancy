@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "edit": "Edit",
+    "add": "Add",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "create": "Create",
+    "creating": "Creating...",
+    "refresh": "Refresh",
+    "send": "Send",
+    "stop": "Stop",
+    "dismiss": "Dismiss",
+    "done": "Done",
+    "copy": "Copy"
+  },
+  "status": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "time": {
+    "justNow": "just now",
+    "minsAgo_one": "{{count}}m ago",
+    "minsAgo_other": "{{count}}m ago",
+    "hoursAgo_one": "{{count}}h ago",
+    "hoursAgo_other": "{{count}}h ago",
+    "daysAgo_one": "{{count}}d ago",
+    "daysAgo_other": "{{count}}d ago",
+    "now": "now",
+    "inMins_one": "in {{count}}m",
+    "inMins_other": "in {{count}}m",
+    "inHours_one": "in {{count}}h",
+    "inHours_other": "in {{count}}h",
+    "inDays_one": "in {{count}}d",
+    "inDays_other": "in {{count}}d",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Delete",
+    "deleteMessage": "This action cannot be undone.",
+    "areYouSure": "Are you sure?"
+  },
+  "empty": {
+    "noData": "No data"
+  },
+  "list": {
+    "noneConfigured": "None configured"
+  },
+  "label": {
+    "name": "Name",
+    "description": "Description",
+    "type": "Type",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "dropZone": {
+    "releaseToDrop": "Release to drop",
+    "dragAndDrop": "Drag & drop files here, or click to upload",
+    "accepts": "Accepts: {{extensions}}"
+  }
+}

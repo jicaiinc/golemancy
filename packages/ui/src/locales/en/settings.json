@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Global Settings"
+  },
+  "tabs": {
+    "general": "General",
+    "providers": "Providers",
+    "speech": "Speech",
+    "about": "About"
+  },
+  "about": {
+    "slogan": "Summon an AI Team to Work for You",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "UPDATES",
+    "checkForUpdates": "Update notifications",
+    "upToDate": "You're up to date — v{{version}}",
+    "available": "UPDATE AVAILABLE",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "checking": "Checking for updates...",
+    "downloading": "Downloading update... {{percent}}%",
+    "downloaded": "An updated version of Golemancy v{{version}} is available.",
+    "seeChangelog": "See changelog",
+    "restart": "Restart",
+    "restartConfirm": "There are {{count}} active AI sessions. Restart anyway?",
+    "download": "Download for {{platform}}",
+    "downloadGeneric": "Download",
+    "checkNow": "Check now",
+    "retryCheck": "Retry",
+    "error": "Update check failed: {{message}}"
+  },
+  "general": {
+    "appearance": "APPEARANCE",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "style": "STYLE",
+    "stylePixel": "Pixel",
+    "styleModern": "Modern",
+    "language": "LANGUAGE",
+    "telemetry": "IMPROVEMENT PROGRAM",
+    "telemetryLabel": "Help improve Golemancy",
+    "telemetryDescription": "Allow us to collect anonymous diagnostics and usage data, including crash reports and feature usage, so we can fix issues faster and improve the product. No personal files or conversation content are collected."
+  },
+  "defaultModel": {
+    "sectionTitle": "DEFAULT MODEL",
+    "description": "Used when creating new projects and agents.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- None --",
+    "selectProviderFirst": "-- Select provider first --",
+    "noModels": "No models available",
+    "saved": "Saved!",
+    "orphaned": "The configured model's provider is no longer available. Please select a new one.",
+    "autoSwitched": "Default model was automatically changed because the previous provider was removed."
+  },
+  "providers": {
+    "sectionTitle": "PROVIDERS",
+    "addProvider": "+ Add Provider",
+    "selectProvider": "SELECT PROVIDER",
+    "customProvider": "CUSTOM PROVIDER",
+    "custom": "Custom",
+    "anyEndpoint": "any endpoint",
+    "nameLabel": "NAME",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "SDK TYPE",
+    "empty": "No providers configured. Click \"+ Add Provider\" to get started.",
+    "customPlaceholder": "My Provider",
+    "testAndSave": "Test & Save",
+    "testingConnection": "Testing...",
+    "configureProvider": "CONFIGURE {{name}}",
+    "configureCustom": "CONFIGURE CUSTOM PROVIDER",
+    "apiKeyRequired": "API KEY (required)",
+    "modelsRequired": "MODELS (at least one)"
+  },
+  "provider": {
+    "testing": "Testing...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Failed",
+    "untested": "Untested",
+    "noKey": "No Key",
+    "retest": "Re-test",
+    "test": "Test",
+    "del": "Del",
+    "deleteConfirm": "Delete {{name}}? This cannot be undone.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "not set",
+    "hide": "Hide",
+    "show": "Show",
+    "urlLabel": "URL:",
+    "modelsCount": "Models ({{count}})",
+    "addModel": "+ Add Model",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (optional)",
+    "hideKey": "Hide Key",
+    "showKey": "Show Key",
+    "oauthSectionTitle": "SIGN IN",
+    "oauthActive": "Active",
+    "oauthSignIn": "Sign in with {{provider}}",
+    "oauthConnected": "Connected",
+    "oauthDisconnect": "Disconnect",
+    "oauthPending": "Waiting for authentication in browser...",
+    "oauthPendingHint": "Complete the login in your browser, then return here.",
+    "oauthCancel": "Cancel",
+    "oauthError": "Authentication failed",
+    "oauthOrApiKey": "Or use API Key",
+    "oauthNoApiFees": "NO API FEES",
+    "oauthSubscriptionHint": "Uses your ChatGPT Plus / Pro subscription. No additional API charges.",
+    "oauthTokenExpiry": "Token auto-refreshes. Expires in {{minutes}} min."
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

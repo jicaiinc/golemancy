@@ -1,0 +1,136 @@
+{
+  "label": {
+    "name": "NAZWA",
+    "agentName": "NAZWA AGENTA",
+    "description": "OPIS",
+    "systemPrompt": "PROMPT SYSTEMOWY",
+    "provider": "DOSTAWCA",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "bezczynny",
+    "running": "działa",
+    "error": "błąd",
+    "paused": "wstrzymany"
+  },
+  "noProviders": "Brak skonfigurowanych dostawców",
+  "noModels": "Brak dostępnych modeli",
+  "savedMsg": "Zapisano!",
+  "list": {
+    "title": "Agenci",
+    "subtitle_one": "{{count}} agent w tym projekcie",
+    "subtitle_few": "{{count}} agentów w tym projekcie",
+    "subtitle_many": "{{count}} agentów w tym projekcie",
+    "subtitle_other": "{{count}} agentów w tym projekcie",
+    "newBtn": "+ Nowy agent",
+    "clone": "Sklonuj agenta",
+    "empty": "Brak agentów",
+    "createFirst": "Utwórz pierwszego agenta"
+  },
+  "count": {
+    "skills_one": "{{count}} umiejętność",
+    "skills_few": "{{count}} umiejętności",
+    "skills_many": "{{count}} umiejętności",
+    "skills_other": "{{count}} umiejętności",
+    "tools_one": "{{count}} narzędzie",
+    "tools_few": "{{count}} narzędzia",
+    "tools_many": "{{count}} narzędzi",
+    "tools_other": "{{count}} narzędzi",
+    "mcpServers_one": "{{count}} serwer MCP",
+    "mcpServers_few": "{{count}} serwery MCP",
+    "mcpServers_many": "{{count}} serwerów MCP",
+    "mcpServers_other": "{{count}} serwerów MCP"
+  },
+  "create": {
+    "modalTitle": "Utwórz nowego agenta",
+    "createBtn": "Utwórz agenta",
+    "namePlaceholder": "np. Asystent badawczy",
+    "descPlaceholder": "Co robi ten agent?",
+    "promptPlaceholder": "Jesteś pomocnym asystentem, który..."
+  },
+  "detail": {
+    "notFound": "Nie znaleziono agenta.",
+    "backToAgents": "< Powrót do agentów",
+    "backBtn": "< Agenci",
+    "tabs": {
+      "general": "Ogólne",
+      "modelConfig": "Konfiguracja modelu",
+      "skills": "Umiejętności",
+      "tools": "Narzędzia",
+      "memory": "Pamięć"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFORMACJE",
+    "deleteBtn": "Usuń agenta",
+    "deleteConfirm": "Czy na pewno chcesz usunąć tego agenta?"
+  },
+  "modelConfig": {
+    "sectionTitle": "KONFIGURACJA MODELU",
+    "compactLabel": "PRÓG KOMPRESJI"
+  },
+  "skills": {
+    "assigned": "PRZYPISANE UMIEJĘTNOŚCI",
+    "noneAssigned": "Ten agent nie ma przypisanych umiejętności.",
+    "addSection": "DODAJ UMIEJĘTNOŚĆ",
+    "noneInProject": "Brak umiejętności w projekcie",
+    "goTo": "Przejdź do umiejętności",
+    "manage": "Zarządzaj umiejętnościami →"
+  },
+  "tools": {
+    "builtinSection": "WBUDOWANE NARZĘDZIA",
+    "comingSoon": "WKRÓTCE",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
+    "customSection": "NIESTANDARDOWE NARZĘDZIA",
+    "bashDesc": "Wykonywanie poleceń Bash, odczyt i zapis plików",
+    "browserDesc": "Sterowanie przeglądarką w celu automatyzacji",
+    "computerUseDesc": "Automatyzacja pulpitu i sterowanie systemem",
+    "taskDesc": "Tworzenie i zarządzanie zadaniami w rozmowie",
+    "memoryDesc": "Trwały bank pamięci między rozmowami"
+  },
+  "mcp": {
+    "warningTitle": "⚠ OSTRZEŻENIE",
+    "warningText": "Zewnętrzne serwery MCP mogą uzyskać dostęp do plików na komputerze lub je modyfikować.",
+    "enableSandboxHint": "Włącz «Zastosuj do MCP» w Ustawienia > Uprawnienia, aby izolować serwery MCP.",
+    "sandboxUnavailable": "Polecenia zewnętrznych serwerów MCP mogą ominąć zabezpieczenia sandbox w systemie Windows.",
+    "assigned": "PRZYPISANE SERWERY MCP",
+    "noneAssigned": "Ten agent nie ma przypisanych serwerów MCP.",
+    "addSection": "DODAJ SERWER MCP",
+    "noneInProject": "Brak serwerów MCP w projekcie",
+    "goTo": "Przejdź do serwerów MCP",
+    "manage": "Zarządzaj serwerami MCP →",
+    "restricted": "Ograniczony"
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Odziedziczony",
+    "capabilities": "MOŻLIWOŚCI",
+    "openDetail": "Otwórz szczegóły"
+  },
+  "memory": {
+    "sectionTitle": "WSPOMNIENIA",
+    "pinnedSection": "PRZYPIĘTE",
+    "pinnedHint": "zawsze załadowane",
+    "autoLoadedSection": "AUTOMATYCZNIE ZAŁADOWANE",
+    "notLoadedSection": "NIEZAŁADOWANE",
+    "notLoadedCount_one": "{{count}} wspomnienie",
+    "notLoadedCount_few": "{{count}} wspomnienia",
+    "notLoadedCount_many": "{{count}} wspomnień",
+    "notLoadedCount_other": "{{count}} wspomnień",
+    "cutoffLine": "próg automatycznego ładowania",
+    "addBtn": "+ Dodaj wspomnienie",
+    "addTitle": "DODAJ WSPOMNIENIE",
+    "contentPlaceholder": "Co agent powinien zapamiętać?",
+    "tagsPlaceholder": "Tagi (oddzielone przecinkami)",
+    "empty": "Brak wspomnień. Dodaj wspomnienia, aby zachować wiedzę między rozmowami.",
+    "statusLine": "{{pinned}} przypiętych | Automatyczne ładowanie: {{autoLoaded}}/{{limit}} | {{total}} łącznie",
+    "priority": "Priorytet",
+    "pinned": "Przypięte",
+    "pin": "Przypnij",
+    "unpin": "Odepnij"
+  }
+}

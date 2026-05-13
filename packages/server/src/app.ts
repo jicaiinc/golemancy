@@ -1,0 +1,213 @@
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { bodyLimit } from 'hono/body-limit'
+import { pinoLogger } from 'hono-pino'
+import type {
+  IProjectService, IAgentService, IConversationService, ITaskService,
+  ISkillService, ISettingsService, IDashboardService, IGlobalDashboardService, ICronJobService,
+  IMCPService, IPermissionsConfigService, ITeamService, ProjectId,
+} from '@golemancy/shared'
+import type { SqliteCronJobRunStorage } from './storage/cron-job-runs'
+import type { TokenRecordStorage } from './storage/token-records'
+import type { CompactRecordStorage } from './storage/compact-records'
+import type { SqliteMemoryStorage } from './storage/memories'
+import type { SpeechStorage } from './storage/speech'
+import type { WebSocketManager } from './ws/handler'
+import type { ActiveChatRegistry } from './agent/active-chat-registry'
+import type { OAuthManager } from './auth/oauth-manager'
+import { createProjectRoutes } from './routes/projects'
+import { createAgentRoutes } from './routes/agents'
+import { createConversationRoutes } from './routes/conversations'
+import { createChatRoutes } from './routes/chat'
+import { createTaskRoutes } from './routes/tasks'
+import { createWorkspaceRoutes } from './routes/workspace'
+import { createSettingsRoutes } from './routes/settings'
+import { createDashboardRoutes } from './routes/dashboard'
+import { createGlobalDashboardRoutes } from './routes/global-dashboard'
+import { createSkillRoutes } from './routes/skills'
+import { createCronJobRoutes } from './routes/cronjobs'
+import { createMCPRoutes } from './routes/mcp'
+import { createPermissionsConfigRoutes } from './routes/permissions-config'
+import { createRuntimeRoutes } from './routes/runtime'
+import { createSandboxRoutes } from './routes/sandbox'
+import { createUploadRoutes } from './routes/uploads'
+import { createMemoryRoutes } from './routes/memories'
+import { createTeamRoutes } from './routes/teams'
+import { createSpeechRoutes } from './routes/speech'
+import { createOAuthRoutes } from './routes/oauth'
+import { logger } from './logger'
+import { captureException } from './sentry'
+import { ConfigurationError } from './agent/errors'
+import { isProjectBlocked } from './project-deletion'
+
+export interface ServerDependencies {
+  projectStorage: IProjectService
+  agentStorage: IAgentService
+  conversationStorage: IConversationService
+  taskStorage: ITaskService
+  skillStorage: ISkillService
+  settingsStorage: ISettingsService
+  dashboardService: IDashboardService
+  globalDashboardService?: IGlobalDashboardService
+  cronJobStorage: ICronJobService
+  cronJobRunStorage: SqliteCronJobRunStorage
+  mcpStorage: IMCPService
+  permissionsConfigStorage: IPermissionsConfigService
+  tokenRecordStorage: TokenRecordStorage
+  compactRecordStorage: CompactRecordStorage
+  memoryStorage: SqliteMemoryStorage
+  teamStorage: ITeamService
+  speechStorage?: SpeechStorage
+  wsManager?: WebSocketManager
+  activeChatRegistry?: ActiveChatRegistry
+  oauthManager?: OAuthManager
+  onProjectDeleting?: (id: ProjectId) => Promise<void>
+}
+
+export function createApp(deps: ServerDependencies, authToken?: string) {
+  const app = new Hono()
+
+  // Request body size limit: 50 MB (chat may send images as base64; server is local-only with auth token)
+  app.use('/api/*', bodyLimit({ maxSize: 50 * 1024 * 1024 }))
+
+  // SEC-03: Restrict CORS to localhost origins only
+  app.use('/api/*', cors({
+    origin: (origin) => {
+      return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
+        ? origin
+        : undefined
+    },
+  }))
+
+  // Structured HTTP request/response logging via hono-pino
+  app.use('/api/*', pinoLogger({
+    pino: logger,
+    http: {
+      onReqBindings: (c) => ({
+        req: { url: c.req.path, method: c.req.method },
+      }),
+    },
+  }))
+
+  // SEC-07: Validate Bearer token on all /api/* routes
+  if (authToken) {
+    app.use('/api/*', async (c, next) => {
+      const header = c.req.header('Authorization')
+      if (header !== `Bearer ${authToken}`) {
+        return c.json({ error: 'Unauthorized' }, 401)
+      }
+      await next()
+    })
+  }
+
+  // W1: Global error handler — structured JSON, no stack leaks in production
+  app.onError((err, c) => {
+    if (err instanceof ConfigurationError) {
+      logger.warn({ code: err.code, method: c.req.method, path: c.req.path }, err.message)
+      return c.json({ error: err.message, code: err.code, ...err.meta }, err.statusCode as 422)
+    }
+    logger.error({ err, method: c.req.method, path: c.req.path }, 'unhandled error')
+    captureException(err, { method: c.req.method, path: c.req.path })
+    return c.json({
+      error: 'Internal Server Error',
+      ...(process.env.NODE_ENV === 'development' ? { message: err.message } : {}),
+    }, 500)
+  })
+
+  app.get('/api/health', (c) => {
+    return c.json({ status: 'ok', timestamp: new Date().toISOString() })
+  })
+
+  app.get('/api/active-chats/count', (c) => {
+    const count = deps.activeChatRegistry?.size ?? 0
+    return c.json({ count })
+  })
+
+  app.route('/api/projects', createProjectRoutes({
+    projectStorage: deps.projectStorage,
+    settingsStorage: deps.settingsStorage,
+    onBeforeDelete: deps.onProjectDeleting,
+  }))
+  // Guard all project sub-resource routes during async project deletion
+  app.use('/api/projects/:projectId/*', async (c, next) => {
+    const projectId = c.req.param('projectId')
+    if (projectId && isProjectBlocked(projectId)) {
+      return c.json({ error: 'Project not found' }, 404)
+    }
+    await next()
+  })
+
+  app.route('/api/projects/:projectId/agents', createAgentRoutes({
+    agentStorage: deps.agentStorage,
+    projectStorage: deps.projectStorage,
+  }))
+  app.route('/api/projects/:projectId/agents/:agentId/memories', createMemoryRoutes(deps.memoryStorage))
+  app.route('/api/projects/:projectId/conversations', createConversationRoutes({
+    conversationStorage: deps.conversationStorage,
+    tokenRecordStorage: deps.tokenRecordStorage,
+    compactRecordStorage: deps.compactRecordStorage,
+    agentStorage: deps.agentStorage,
+    settingsStorage: deps.settingsStorage,
+    teamStorage: deps.teamStorage,
+    oauthManager: deps.oauthManager,
+  }))
+  app.route('/api/projects/:projectId/tasks', createTaskRoutes(deps.taskStorage))
+  app.route('/api/projects/:projectId/workspace', createWorkspaceRoutes())
+  app.route('/api/projects/:projectId/skills', createSkillRoutes({
+    skillStorage: deps.skillStorage,
+    agentStorage: deps.agentStorage,
+  }))
+  app.route('/api/projects/:projectId/mcp-servers', createMCPRoutes({
+    mcpStorage: deps.mcpStorage,
+    agentStorage: deps.agentStorage,
+    projectStorage: deps.projectStorage,
+    permissionsConfigStorage: deps.permissionsConfigStorage,
+  }))
+  app.route('/api/projects/:projectId/teams', createTeamRoutes({
+    teamStorage: deps.teamStorage,
+    projectStorage: deps.projectStorage,
+  }))
+
+  app.route('/api/chat', createChatRoutes({
+    agentStorage: deps.agentStorage,
+    projectStorage: deps.projectStorage,
+    conversationStorage: deps.conversationStorage,
+    settingsStorage: deps.settingsStorage,
+    mcpStorage: deps.mcpStorage,
+    permissionsConfigStorage: deps.permissionsConfigStorage,
+    taskStorage: deps.taskStorage as import('./storage/tasks').SqliteConversationTaskStorage,
+    memoryStorage: deps.memoryStorage,
+    tokenRecordStorage: deps.tokenRecordStorage,
+    compactRecordStorage: deps.compactRecordStorage,
+    activeChatRegistry: deps.activeChatRegistry,
+    wsManager: deps.wsManager,
+    teamStorage: deps.teamStorage,
+    oauthManager: deps.oauthManager,
+  }))
+  app.route('/api/settings', createSettingsRoutes(deps.settingsStorage))
+  app.route('/api/projects/:projectId/cron-jobs', createCronJobRoutes({
+    storage: deps.cronJobStorage,
+    runStorage: deps.cronJobRunStorage,
+  }))
+  app.route('/api/projects/:projectId/dashboard', createDashboardRoutes(deps.dashboardService))
+  if (deps.globalDashboardService) {
+    app.route('/api/dashboard', createGlobalDashboardRoutes(deps.globalDashboardService))
+  }
+  app.route('/api/projects/:projectId/permissions-config', createPermissionsConfigRoutes(deps.permissionsConfigStorage))
+  app.route('/api/projects/:projectId/runtime', createRuntimeRoutes())
+  app.route('/api/sandbox', createSandboxRoutes())
+  app.route('/api/projects/:projectId/uploads', createUploadRoutes())
+
+  if (deps.speechStorage) {
+    app.route('/api/speech', createSpeechRoutes({
+      storage: deps.speechStorage,
+      settingsStorage: deps.settingsStorage,
+    }))
+  }
+
+  if (deps.oauthManager) {
+    app.route('/api/auth/oauth', createOAuthRoutes(deps.oauthManager))
+  }
+
+  return app
+}

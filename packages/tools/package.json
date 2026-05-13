@@ -1,25 +1,28 @@
 {
   "name": "@golemancy/tools",
-  "version": "0.2.0-rebuild.0",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
-    }
+    ".": "./src/index.ts",
+    "./browser": "./src/browser/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit",
-    "clean": "rimraf .turbo .tsbuildinfo"
+    "build": "tsc --build",
+    "lint": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@golemancy/shared": "workspace:*"
+    "@golemancy/shared": "workspace:*",
+    "agent-browser": "0.14.0",
+    "ai": "^6.0.149",
+    "playwright-core": "^1.57.0",
+    "zod": "^3"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
-    "rimraf": "^6.0.1",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8",
+    "vitest": "^3"
   }
 }

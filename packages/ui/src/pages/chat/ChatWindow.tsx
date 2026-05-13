@@ -1,0 +1,480 @@
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
+import { useChat } from '@ai-sdk/react'
+import type { UIMessage, FileUIPart } from 'ai'
+import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useLocation } from 'react-router'
+import type { Agent, AgentId, CompactRecord, Conversation, Team, TeamId, TargetType } from '@golemancy/shared'
+import { AnalyticsEvents } from '@golemancy/shared'
+import { trackEvent } from '../../lib/analytics'
+import { useAppStore } from '../../stores'
+import { useRefreshConversationTasks } from '../../queries/conversation-tasks'
+import { getServices } from '../../services'
+import { encodeTeamValue, decodeSelectValue } from '../../lib/team-select'
+import { PixelButton, PixelSpinner, PixelNotificationBanner, SidebarToggleIcon } from '../../components'
+import { parseErrorMessage } from '../../lib/parse-error'
+import { staggerContainer, staggerItem } from '../../lib/motion'
+import { getOrCreateChat, sanitizeChatAfterAbort } from '../../lib/chat-instances'
+import { MessageBubble } from './MessageBubble'
+import { CompactBoundary } from './CompactBoundary'
+import { ChatInput } from './ChatInput'
+
+/** Truncate text to maxLen at word boundary for auto-title */
+function generateAutoTitle(text: string, maxLen = 50): string {
+  const trimmed = text.trim()
+  if (trimmed.length <= maxLen) return trimmed
+  const truncated = trimmed.slice(0, maxLen)
+  const lastSpace = truncated.lastIndexOf(' ')
+  return (lastSpace > 20 ? truncated.slice(0, lastSpace) : truncated) + '...'
+}
+
+/** Get Electron server config, or null when running without Electron */
+function getServerConfig(): { baseUrl: string; token: string } | null {
+  const baseUrl = window.electronAPI?.getServerBaseUrl()
+  const token = window.electronAPI?.getServerToken()
+  return baseUrl && token ? { baseUrl, token } : null
+}
+
+interface ChatWindowProps {
+  conversation: Conversation
+  agent: Agent | undefined
+  agents: Agent[]
+  teams: Team[]
+  chatHistoryExpanded: boolean
+  onToggleChatHistory: () => void
+  onNewChat: () => void
+  canNewChat: boolean
+  onSwitchAgent: (targetType: TargetType, targetId: AgentId | TeamId) => void
+  onUsageUpdate?: (usage: { inputTokens: number; outputTokens: number }) => void
+  onContextUpdate?: (contextTokens: number) => void
+  onCompactingChange?: (compacting: boolean) => void
+  onBusyChange?: (busy: boolean) => void
+  externalCompacting?: boolean
+}
+
+export function ChatWindow({ conversation, agent, agents, teams, chatHistoryExpanded, onToggleChatHistory, onNewChat, canNewChat, onSwitchAgent, onUsageUpdate, onContextUpdate, onCompactingChange, onBusyChange, externalCompacting }: ChatWindowProps) {
+  const { t } = useTranslation(['chat', 'common'])
+  const navigate = useNavigate()
+  const location = useLocation()
+  const deleteConversation = useAppStore(s => s.deleteConversation)
+  const selectConversation = useAppStore(s => s.selectConversation)
+  const updateConversationTitle = useAppStore(s => s.updateConversationTitle)
+  const currentProjectId = useAppStore(s => s.currentProjectId)
+
+  // --- Inline title editing ---
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [titleValue, setTitleValue] = useState('')
+  const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
+  const [toolWarnings, setToolWarnings] = useState<string[]>([])
+  const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set())
+  const [maxStepsInfo, setMaxStepsInfo] = useState<{ steps: number; maxSteps: number } | null>(null)
+  const [compactRecords, setCompactRecords] = useState<CompactRecord[]>(conversation.compactRecords ?? [])
+  const [compacting, setCompacting] = useState(false)
+  const titleInputRef = useRef<HTMLInputElement>(null)
+
+  // Sync compactRecords when conversation is reloaded externally (e.g. after StatusBar Compact Now)
+  useEffect(() => {
+    if (conversation.compactRecords) {
+      setCompactRecords(conversation.compactRecords)
+    }
+  }, [conversation.compactRecords])
+
+  const handleTitleClick = useCallback(() => {
+    setTitleValue(conversation.title)
+    setEditingTitle(true)
+    setTimeout(() => titleInputRef.current?.select(), 0)
+  }, [conversation.title])
+
+  const handleTitleSave = useCallback(() => {
+    setEditingTitle(false)
+    const trimmed = titleValue.trim()
+    if (trimmed && trimmed !== conversation.title) {
+      updateConversationTitle(conversation.id, trimmed)
+      setTitleManuallyEdited(true)
+    }
+  }, [titleValue, conversation.title, conversation.id, updateConversationTitle])
+
+  const handleTitleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleTitleSave()
+    if (e.key === 'Escape') setEditingTitle(false)
+  }, [handleTitleSave])
+
+  // --- Delete confirmation ---
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const serverConfig = useMemo(getServerConfig, [])
+  const useServer = !!serverConfig
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Get or create the Chat instance (survives unmount/remount)
+  const chat = useMemo(() => {
+    if (!currentProjectId) return null
+    return getOrCreateChat({
+      conversationId: conversation.id,
+      projectId: currentProjectId,
+      targetType: conversation.targetType,
+      targetId: conversation.targetId,
+      initialMessages: conversation.messages,
+      serverConfig,
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Re-resolve Chat when the conversation target changes.
+  // Empty conversations can switch agent/team before the first message.
+  }, [conversation.id, conversation.targetType, conversation.targetId, currentProjectId, serverConfig])
+
+  // SAFETY: chat is null only when currentProjectId is null,
+  // but ChatWindow is only rendered inside ProjectLayout which guarantees a project is selected.
+  const {
+    messages,
+    status,
+    error,
+    clearError,
+    stop,
+    sendMessage: chatSendMessage,
+  } = useChat({ chat: chat! })
+
+  // Capture transient MCP/tool loading warnings and token usage from server via onData.
+  // onData is typed as private in AbstractChat but needs to be set externally.
+  useEffect(() => {
+    if (!chat) return
+    setToolWarnings([]);
+    setMaxStepsInfo(null);
+    (chat as any).onData = (part: { type: string; data?: Record<string, unknown>; transient?: boolean }) => {
+      if (part.type === 'data-warning' && part.transient && part.data?.message) {
+        const msg = String(part.data!.message)
+        setToolWarnings(prev => prev.includes(msg) ? prev : [...prev, msg])
+      }
+      if (part.type === 'data-usage' && part.data) {
+        if (onUsageUpdate) {
+          onUsageUpdate({
+            inputTokens: (part.data.inputTokens as number) ?? 0,
+            outputTokens: (part.data.outputTokens as number) ?? 0,
+          })
+        }
+        if (onContextUpdate && part.data.contextTokens != null) {
+          onContextUpdate(part.data.contextTokens as number)
+        }
+      }
+      if (part.type === 'data-max_steps_reached' && part.data) {
+        setMaxStepsInfo({
+          steps: part.data.steps as number,
+          maxSteps: part.data.maxSteps as number,
+        })
+      }
+      if (part.type === 'data-compact' && part.data) {
+        if (part.data.status === 'started') {
+          setCompacting(true)
+          onCompactingChange?.(true)
+        } else if (part.data.status === 'completed') {
+          setCompacting(false)
+          onCompactingChange?.(false)
+          if (part.data.record) {
+            setCompactRecords(prev => [...prev, part.data!.record as CompactRecord])
+          }
+        } else if (part.data.status === 'failed' || part.data.status === 'aborted') {
+          setCompacting(false)
+          onCompactingChange?.(false)
+        }
+      }
+    }
+    return () => { (chat as any).onData = undefined }
+  }, [chat, onUsageUpdate, onContextUpdate, onCompactingChange, currentProjectId, conversation.id])
+
+  // Track whether this component mounted with pre-existing messages (loaded from cache).
+  // If so, skip the stagger entrance animation to avoid a multi-second delay.
+  const [shouldAnimateStagger] = useState(() => messages.length === 0)
+
+  // Auto-scroll to bottom — also triggers during streaming (content updates
+  // within the last message don't change messages.length, so we need status).
+  // Use 'instant' on initial mount to avoid a visible scroll animation when
+  // loading a conversation with existing messages.
+  const lastMsgPartsLength = messages[messages.length - 1]?.parts?.length ?? 0
+
+  const hasScrolledRef = useRef(false)
+  useEffect(() => {
+    const behavior = hasScrolledRef.current ? 'smooth' : 'instant'
+    messagesEndRef.current?.scrollIntoView({ behavior })
+    hasScrolledRef.current = true
+  }, [messages.length, status, lastMsgPartsLength])
+
+  // Refresh conversation tasks after streaming completes.
+  // Agent may have created/updated tasks via built-in TaskCreate/TaskUpdate tools.
+  const refreshConversationTasks = useRefreshConversationTasks()
+  const prevStatusRef = useRef(status)
+  useEffect(() => {
+    const prev = prevStatusRef.current
+    prevStatusRef.current = status
+    if ((prev === 'streaming' || prev === 'submitted') && status === 'ready') {
+      // Sanitize Chat instance: strip incomplete tool-invocation parts left by abort.
+      // Safe to call on normal completion too — no-op if no incomplete parts exist.
+      sanitizeChatAfterAbort(conversation.id)
+      refreshConversationTasks()
+      trackEvent(AnalyticsEvents.CHAT_RESPONSE_COMPLETED)
+    }
+    if ((prev === 'streaming' || prev === 'submitted') && status === 'error') {
+      trackEvent(AnalyticsEvents.CHAT_RESPONSE_FAILED)
+    }
+  }, [status, refreshConversationTasks, conversation.id])
+
+  // --- Send handler ---
+  const handleSend = useCallback(async (content: string, files?: FileUIPart[]) => {
+    if (!currentProjectId || !chat) return
+    trackEvent(AnalyticsEvents.CHAT_MESSAGE_SUBMITTED, { has_files: !!files })
+    setMaxStepsInfo(null)
+
+    // Auto-title: if first message and user hasn't manually renamed
+    const isFirstMessage = messages.length === 0
+    if (isFirstMessage && !titleManuallyEdited) {
+      const autoTitle = content ? generateAutoTitle(content) : t('window.imageMsgTitle')
+      updateConversationTitle(conversation.id, autoTitle)
+    }
+
+    if (useServer) {
+      if (content && files) {
+        chatSendMessage({ text: content, files })
+      } else if (files) {
+        chatSendMessage({ files })
+      } else {
+        chatSendMessage({ text: content })
+      }
+    } else {
+      // Mock mode: call service, then sync back to Chat
+      const svc = getServices()
+      await svc.conversations.sendMessage(currentProjectId, conversation.id, content)
+      const updated = await svc.conversations.getById(currentProjectId, conversation.id)
+      if (updated) {
+        chat.messages = updated.messages.map(m => ({
+          id: m.id,
+          role: m.role,
+          parts: m.parts as UIMessage['parts'],
+        }))
+        // Update store: currentConversation detail + sidebar metadata
+        useAppStore.setState(s => {
+          const { messages, compactRecords, ...summary } = updated
+          return {
+            currentConversation: updated,
+            conversationList: s.conversationList.map(c => c.id === conversation.id ? summary : c),
+          }
+        })
+      }
+    }
+  }, [useServer, chatSendMessage, currentProjectId, conversation.id, chat, messages.length, updateConversationTitle, titleManuallyEdited, t])
+
+  const handleDelete = useCallback(async () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      return
+    }
+    setConfirmDelete(false)
+    await deleteConversation(conversation.id)
+    selectConversation(null)
+  }, [confirmDelete, deleteConversation, selectConversation, conversation.id])
+
+
+  // --- Derived display state ---
+  const teamForConv = conversation.targetType === 'team' ? teams.find(t => t.id === conversation.targetId) : undefined
+  const displayLabel = teamForConv ? `@${teamForConv.name}` : agent ? `@${agent.name}` : null
+  const isBusy = status === 'submitted' || status === 'streaming'
+  const prevBusyRef = useRef(isBusy)
+  useEffect(() => {
+    if (prevBusyRef.current !== isBusy) {
+      prevBusyRef.current = isBusy
+      onBusyChange?.(isBusy)
+    }
+  }, [isBusy, onBusyChange])
+  const lastMsg = messages[messages.length - 1]
+  const hasVisibleContent = lastMsg?.role === 'assistant' &&
+    lastMsg.parts.some(p => {
+      switch (p.type) {
+        case 'text':
+          return (p as { text: string }).text.length > 0
+        case 'reasoning':
+        case 'step-start':
+        case 'dynamic-tool':
+        case 'file':
+        case 'source-url':
+        case 'source-document':
+          return true
+        default:
+          return p.type.startsWith('tool-')
+      }
+    })
+  const showThinking = isBusy && !hasVisibleContent
+
+  return (
+    <div data-testid="chat-window" className="flex-1 flex flex-col min-h-0">
+      {/* Header — 3-section layout: left (toggle + new), center (title), right (actions) */}
+      <div className="flex items-center px-4 py-3 border-b-2 border-border-dim bg-deep">
+        {/* Left: toggle + new chat */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            className="text-text-secondary hover:text-text-primary transition-colors p-1"
+            onClick={onToggleChatHistory}
+            title={chatHistoryExpanded ? t('header.hideHistory') : t('header.showHistory')}
+          >
+            <SidebarToggleIcon className="w-[18px] h-[16px]" />
+          </button>
+          {!chatHistoryExpanded && (
+            <PixelButton size="sm" variant="ghost" onClick={onNewChat} disabled={!canNewChat}>
+              {t('header.new')}
+            </PixelButton>
+          )}
+        </div>
+
+        {/* Center: title (centered with flex-1, double-click to rename) */}
+        <div className="flex-1 flex items-center justify-center gap-2 min-w-0 px-2">
+          {editingTitle ? (
+            <input
+              ref={titleInputRef}
+              className="font-pixel text-[10px] text-text-primary bg-deep border-2 border-accent-blue px-2 py-0.5 outline-none text-center w-full max-w-[300px]"
+              value={titleValue}
+              onChange={e => setTitleValue(e.target.value)}
+              onBlur={handleTitleSave}
+              onKeyDown={handleTitleKeyDown}
+            />
+          ) : (
+            <h2
+              className="font-pixel text-[10px] text-text-primary truncate cursor-pointer hover:text-accent-blue transition-colors"
+              onClick={handleTitleClick}
+              title={t('header.clickToRename')}
+            >
+              {conversation.title}
+            </h2>
+          )}
+          {!editingTitle && (
+            messages.length === 0 && (agents.length > 1 || teams.length > 0) ? (
+              <select
+                className="text-[11px] text-accent-blue font-mono bg-deep border-2 border-border-dim px-1 py-0.5 outline-none cursor-pointer shrink-0"
+                value={conversation.targetType === 'team' ? encodeTeamValue(conversation.targetId as TeamId) : conversation.targetId}
+                onChange={e => {
+                  const parsed = decodeSelectValue(e.target.value)
+                  if (!parsed) return
+                  onSwitchAgent(parsed.targetType, parsed.targetId)
+                }}
+              >
+                {teams.length > 0 && (
+                  <optgroup label={t('header.teams')}>
+                    {teams.map(tm => (
+                      <option key={tm.id} value={encodeTeamValue(tm.id)}>{tm.name}</option>
+                    ))}
+                  </optgroup>
+                )}
+                <optgroup label={t('header.agents')}>
+                  {agents.map(a => (
+                    <option key={a.id} value={a.id}>@{a.name}</option>
+                  ))}
+                </optgroup>
+              </select>
+            ) : (
+              <span className="text-[11px] text-accent-blue font-mono shrink-0">
+                {displayLabel}
+              </span>
+            )
+          )}
+        </div>
+
+        {/* Right: actions */}
+        <div className="shrink-0 flex items-center gap-1">
+          {confirmDelete ? (
+            <div className="flex items-center gap-1">
+              <PixelButton size="sm" variant="danger" onClick={handleDelete}>
+                {t('common:button.confirm')}
+              </PixelButton>
+              <PixelButton size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
+                {t('common:button.cancel')}
+              </PixelButton>
+            </div>
+          ) : (
+            <PixelButton size="sm" variant="ghost" onClick={handleDelete}>
+              {t('common:button.delete')}
+            </PixelButton>
+          )}
+        </div>
+      </div>
+
+      {/* Error banner */}
+      {error && (() => {
+        const parsed = parseErrorMessage(error)
+        const isProviderError = parsed.code === 'PROVIDER_NOT_CONFIGURED' || parsed.code === 'NO_PROVIDER_CONFIGURED' || parsed.code === 'API_KEY_MISSING'
+        return (
+          <PixelNotificationBanner severity="error" onDismiss={clearError}>
+            {parsed.message}
+            {isProviderError && (
+              <>
+                {' '}
+                <button
+                  type="button"
+                  className="underline hover:text-text-primary transition-colors cursor-pointer"
+                  onClick={() => navigate('/settings?tab=providers', { state: { backgroundLocation: location } })}
+                >
+                  {t('error.goToSettings')}
+                </button>
+              </>
+            )}
+          </PixelNotificationBanner>
+        )
+      })()}
+
+      {/* MCP / tool loading warnings */}
+      {toolWarnings.filter(w => !dismissedWarnings.has(w)).map((warning) => (
+        <PixelNotificationBanner
+          key={warning}
+          severity="warning"
+          onDismiss={() => setDismissedWarnings(prev => new Set(prev).add(warning))}
+        >
+          {warning}
+        </PixelNotificationBanner>
+      ))}
+
+      {/* Max steps reached warning */}
+      {maxStepsInfo && (
+        <PixelNotificationBanner severity="warning" onDismiss={() => setMaxStepsInfo(null)}>
+          {t('window.maxStepsReached', { steps: maxStepsInfo.steps, maxSteps: maxStepsInfo.maxSteps })}
+        </PixelNotificationBanner>
+      )}
+
+      {/* Messages area */}
+      <div className="flex-1 overflow-y-auto px-4 py-3">
+        {messages.length === 0 && !isBusy ? (
+          <div data-testid="chat-empty-prompt" className="flex items-center justify-center h-full">
+            <p className="text-[12px] text-text-dim font-mono">
+              {t('window.startConversation')}
+            </p>
+          </div>
+        ) : (
+          <motion.div {...staggerContainer} initial={shouldAnimateStagger ? 'initial' : false} animate="animate">
+            {messages.map((msg: UIMessage) => {
+              const compactAfter = compactRecords.find(cr => cr.boundaryMessageId === msg.id)
+              return (
+                <motion.div key={msg.id} {...staggerItem}>
+                  <MessageBubble message={msg} chatStatus={status} />
+                  {compactAfter && <CompactBoundary compact={compactAfter} />}
+                </motion.div>
+              )
+            })}
+
+            {/* Compacting indicator */}
+            {(compacting || externalCompacting) && (
+              <div data-testid="chat-compacting" className="my-3 border-2 border-accent-purple/50 bg-accent-purple/5 px-3 py-2">
+                <PixelSpinner size="sm" label={t('window.compacting')} />
+              </div>
+            )}
+
+            {/* Thinking indicator */}
+            {showThinking && !compacting && !externalCompacting && (
+              <div data-testid="chat-thinking" className="flex items-start my-2">
+                <div className="px-3 py-2 border-2 border-border-dim bg-surface">
+                  <PixelSpinner size="sm" label={t('window.thinking')} />
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <ChatInput onSend={handleSend} onStop={stop} isStreaming={isBusy} disabled={isBusy} />
+    </div>
+  )
+}

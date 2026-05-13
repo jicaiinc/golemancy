@@ -1,0 +1,51 @@
+{
+  "label": {
+    "projectName": "NOME DO PROJETO",
+    "description": "DESCRIÇÃO",
+    "icon": "ÍCONE",
+    "projectId": "ID DO PROJETO"
+  },
+  "list": {
+    "title": "Todos os Projetos",
+    "subtitle_one": "{{count}} projeto no seu espaço de trabalho",
+    "subtitle_other": "{{count}} projetos no seu espaço de trabalho",
+    "newBtn": "+ Novo Projeto",
+    "empty": "Nenhum projeto ainda",
+    "createFirst": "Crie Seu Primeiro Projeto",
+    "openInWindow": "Abrir em Nova Janela",
+    "clone": "Clonar Projeto",
+    "agents_one": "{{count}} agente",
+    "agents_other": "{{count}} agentes",
+    "running_one": "{{count}} em execução",
+    "running_other": "{{count}} em execução"
+  },
+  "create": {
+    "modalTitle": "Criar Novo Projeto",
+    "createBtn": "Criar Projeto",
+    "namePlaceholder": "Meu Projeto Incrível",
+    "descPlaceholder": "Sobre o que é este projeto?",
+    "errorGeneric": "Falha ao criar projeto",
+    "noDefaultModel": "O modelo padrão deve ser configurado antes de criar a partir de um modelo.",
+    "goToSettings": "Ir para Configurações"
+  },
+  "settings": {
+    "title": "Configurações do Projeto",
+    "savedMsg": "Salvo!",
+    "clickToCopy": "Clique para copiar",
+    "tabs": {
+      "general": "Geral",
+      "permissions": "Permissões"
+    },
+    "general": {
+      "sectionTitle": "INFORMAÇÕES BÁSICAS",
+      "saveBtn": "Salvar Alterações",
+      "deleteBtn": "Excluir Projeto",
+      "deleteConfirm": "Tem certeza de que deseja excluir este projeto?",
+      "defaultLabel": "AGENT / EQUIPE PADRÃO",
+      "defaultDesc": "O Agent ou equipe padrão para novas conversas.",
+      "defaultNone": "Nenhum",
+      "defaultTeamsGroup": "Equipes",
+      "defaultAgentsGroup": "Agents"
+    }
+  }
+}

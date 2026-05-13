@@ -1,0 +1,126 @@
+{
+  "label": {
+    "name": "NAMN",
+    "agentName": "AGENTNAMN",
+    "description": "BESKRIVNING",
+    "systemPrompt": "SYSTEMPROMPT",
+    "provider": "PROVIDER",
+    "model": "MODELL"
+  },
+  "statusLabel": {
+    "idle": "vilande",
+    "running": "kör",
+    "error": "fel",
+    "paused": "pausad"
+  },
+  "noProviders": "Inga providers konfigurerade",
+  "noModels": "Inga modeller tillgängliga",
+  "savedMsg": "Sparat!",
+  "list": {
+    "title": "Agenter",
+    "subtitle_one": "{{count}} agent i detta projekt",
+    "subtitle_other": "{{count}} agenter i detta projekt",
+    "newBtn": "+ Ny agent",
+    "clone": "Klona agent",
+    "empty": "Inga agenter ännu",
+    "createFirst": "Skapa din första agent"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skills",
+    "tools_one": "{{count}} verktyg",
+    "tools_other": "{{count}} verktyg",
+    "mcpServers_one": "{{count}} MCP-server",
+    "mcpServers_other": "{{count}} MCP-servrar"
+  },
+  "create": {
+    "modalTitle": "Skapa ny agent",
+    "createBtn": "Skapa agent",
+    "namePlaceholder": "t.ex. Forskningsassistent",
+    "descPlaceholder": "Vad gör denna agent?",
+    "promptPlaceholder": "Du är en hjälpsam assistent som..."
+  },
+  "detail": {
+    "notFound": "Agent hittades inte.",
+    "backToAgents": "< Tillbaka till agenter",
+    "backBtn": "< Agenter",
+    "tabs": {
+      "general": "Allmänt",
+      "modelConfig": "Modellkonfiguration",
+      "skills": "Skills",
+      "tools": "Verktyg",
+      "memory": "Minne"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Radera agent",
+    "deleteConfirm": "Är du säker på att du vill radera denna agent?"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODELLKONFIGURATION",
+    "compactLabel": "KOMPRIMERINGSSTRÖSKEL"
+  },
+  "skills": {
+    "assigned": "TILLDELADE SKILLS",
+    "noneAssigned": "Inga skills tilldelade till denna agent.",
+    "addSection": "LÄGG TILL SKILL",
+    "noneInProject": "Inga skills i detta projekt",
+    "goTo": "Gå till Skills",
+    "manage": "Hantera Skills →"
+  },
+  "tools": {
+    "builtinSection": "INBYGGDA VERKTYG",
+    "comingSoon": "KOMMER SNART",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
+    "customSection": "ANPASSADE VERKTYG",
+    "bashDesc": "Kör bash-kommandon, läs och skriv filer",
+    "browserDesc": "Styr webbläsare för automatisering",
+    "computerUseDesc": "Skrivbordsautomatisering och systemkontroll",
+    "taskDesc": "Skapa och hantera uppgifter i konversationen",
+    "memoryDesc": "Beständig minnesbank mellan konversationer"
+  },
+  "mcp": {
+    "warningTitle": "⚠ VARNING",
+    "warningText": "Tredjepartsservrar för MCP kan komma åt eller ändra filer på din dator.",
+    "enableSandboxHint": "Aktivera \"Tillämpa på MCP\" i Inställningar > Behörigheter för att sandboxa MCP-servrar.",
+    "sandboxUnavailable": "Tredjepartskommandon från MCP-servrar kan kringgå sandbox-skyddet på Windows.",
+    "assigned": "TILLDELADE MCP-SERVRAR",
+    "noneAssigned": "Inga MCP-servrar tilldelade till denna agent.",
+    "addSection": "LÄGG TILL MCP-SERVER",
+    "noneInProject": "Inga MCP-servrar i detta projekt",
+    "goTo": "Gå till MCP Servers",
+    "manage": "Hantera MCP Servers →",
+    "restricted": "Begränsad"
+  },
+  "panel": {
+    "modelLabel": "MODELL",
+    "inherited": "Ärvd",
+    "capabilities": "FÖRMÅGOR",
+    "openDetail": "Öppna detaljer"
+  },
+  "memory": {
+    "sectionTitle": "MINNEN",
+    "pinnedSection": "FÄSTA",
+    "pinnedHint": "alltid laddade",
+    "autoLoadedSection": "AUTOMATISKT LADDADE",
+    "notLoadedSection": "INTE LADDADE",
+    "notLoadedCount_one": "{{count}} minne",
+    "notLoadedCount_other": "{{count}} minnen",
+    "cutoffLine": "gräns för automatisk laddning",
+    "addBtn": "+ Lägg till minne",
+    "addTitle": "LÄGG TILL MINNE",
+    "contentPlaceholder": "Vad ska agenten komma ihåg?",
+    "tagsPlaceholder": "Taggar (kommaseparerade)",
+    "empty": "Inga minnen ännu. Lägg till minnen för att bevara kunskap mellan konversationer.",
+    "statusLine": "{{pinned}} fästa | Automatisk laddning: {{autoLoaded}}/{{limit}} | {{total}} totalt",
+    "priority": "Prioritet",
+    "pinned": "Fäst",
+    "pin": "Fäst",
+    "unpin": "Lossa"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "page": {
+    "title": "Задачи разговора",
+    "taskCount_one": "{{count}} задача всего",
+    "taskCount_few": "{{count}} задачи всего",
+    "taskCount_many": "{{count}} задач всего",
+    "taskCount_other": "{{count}} задач всего"
+  },
+  "loading": "Загрузка задач...",
+  "empty": {
+    "noTasks": "Задачи не найдены"
+  },
+  "openChat": "ОТКРЫТЬ ЧАТ →",
+  "detail": {
+    "description": "ОПИСАНИЕ",
+    "blockedBy": "ЗАБЛОКИРОВАНО",
+    "metadata": "МЕТАДАННЫЕ"
+  },
+  "status": {
+    "pending": "ожидание",
+    "in_progress": "выполняется",
+    "completed": "завершено",
+    "deleted": "удалено"
+  }
+}

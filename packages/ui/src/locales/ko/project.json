@@ -1,0 +1,51 @@
+{
+  "label": {
+    "projectName": "프로젝트 이름",
+    "description": "설명",
+    "icon": "아이콘",
+    "projectId": "프로젝트 ID"
+  },
+  "list": {
+    "title": "모든 프로젝트",
+    "subtitle_one": "워크스페이스에 {{count}}개의 프로젝트",
+    "subtitle_other": "워크스페이스에 {{count}}개의 프로젝트",
+    "newBtn": "+ 새 프로젝트",
+    "empty": "프로젝트가 없습니다",
+    "createFirst": "첫 번째 프로젝트 생성",
+    "openInWindow": "새 창에서 열기",
+    "clone": "프로젝트 복제",
+    "agents_one": "{{count}}개 Agent",
+    "agents_other": "{{count}}개 Agent",
+    "running_one": "{{count}}개 실행 중",
+    "running_other": "{{count}}개 실행 중"
+  },
+  "create": {
+    "modalTitle": "새 프로젝트 생성",
+    "createBtn": "프로젝트 생성",
+    "namePlaceholder": "나의 멋진 프로젝트",
+    "descPlaceholder": "이 프로젝트는 무엇에 관한 것인가요?",
+    "errorGeneric": "프로젝트 생성에 실패했습니다",
+    "noDefaultModel": "템플릿에서 생성하기 전에 기본 모델을 설정해야 합니다.",
+    "goToSettings": "설정으로 이동"
+  },
+  "settings": {
+    "title": "프로젝트 설정",
+    "savedMsg": "저장되었습니다!",
+    "clickToCopy": "클릭하여 복사",
+    "tabs": {
+      "general": "기본 정보",
+      "permissions": "권한"
+    },
+    "general": {
+      "sectionTitle": "기본 정보",
+      "saveBtn": "변경 사항 저장",
+      "deleteBtn": "프로젝트 삭제",
+      "deleteConfirm": "이 프로젝트를 삭제하시겠습니까?",
+      "defaultLabel": "기본 AGENT / 팀",
+      "defaultDesc": "새 대화에 사용되는 기본 Agent 또는 팀.",
+      "defaultNone": "없음",
+      "defaultTeamsGroup": "팀",
+      "defaultAgentsGroup": "Agent"
+    }
+  }
+}

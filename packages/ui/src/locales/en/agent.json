@@ -1,0 +1,126 @@
+{
+  "label": {
+    "name": "NAME",
+    "agentName": "AGENT NAME",
+    "description": "DESCRIPTION",
+    "systemPrompt": "SYSTEM PROMPT",
+    "provider": "PROVIDER",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "idle",
+    "running": "running",
+    "error": "error",
+    "paused": "paused"
+  },
+  "noProviders": "No providers configured",
+  "noModels": "No models available",
+  "savedMsg": "Saved!",
+  "list": {
+    "title": "Agents",
+    "subtitle_one": "{{count}} agent in this project",
+    "subtitle_other": "{{count}} agents in this project",
+    "newBtn": "+ New Agent",
+    "clone": "Clone Agent",
+    "empty": "No agents yet",
+    "createFirst": "Create Your First Agent"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skills",
+    "tools_one": "{{count}} tool",
+    "tools_other": "{{count}} tools",
+    "mcpServers_one": "{{count}} MCP server",
+    "mcpServers_other": "{{count}} MCP servers"
+  },
+  "create": {
+    "modalTitle": "Create New Agent",
+    "createBtn": "Create Agent",
+    "namePlaceholder": "e.g. Research Assistant",
+    "descPlaceholder": "What does this agent do?",
+    "promptPlaceholder": "You are a helpful assistant that..."
+  },
+  "detail": {
+    "notFound": "Agent not found.",
+    "backToAgents": "< Back to Agents",
+    "backBtn": "< Agents",
+    "tabs": {
+      "general": "General",
+      "modelConfig": "Model Config",
+      "skills": "Skills",
+      "tools": "Tools",
+      "memory": "Memory"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Delete Agent",
+    "deleteConfirm": "Are you sure you want to delete this agent?"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODEL CONFIG",
+    "compactLabel": "COMPACT THRESHOLD"
+  },
+  "skills": {
+    "assigned": "ASSIGNED SKILLS",
+    "noneAssigned": "No skills assigned to this agent.",
+    "addSection": "ADD SKILL",
+    "noneInProject": "No skills in this project",
+    "goTo": "Go to Skills",
+    "manage": "Manage Skills →"
+  },
+  "tools": {
+    "builtinSection": "BUILT-IN TOOLS",
+    "comingSoon": "COMING SOON",
+    "customSection": "CUSTOM TOOLS",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
+    "bashDesc": "Execute bash commands, read and write files",
+    "browserDesc": "Control web browser for automation",
+    "computerUseDesc": "Desktop automation and system control",
+    "taskDesc": "Create and manage tasks within the conversation",
+    "memoryDesc": "Persistent memory bank across conversations"
+  },
+  "mcp": {
+    "warningTitle": "⚠ WARNING",
+    "warningText": "Third-party MCP servers may access or modify files on your computer.",
+    "enableSandboxHint": "Enable \"Apply to MCP\" in Settings > Permissions to sandbox MCP servers.",
+    "sandboxUnavailable": "Third-party MCP server commands may bypass sandbox protections on Windows.",
+    "assigned": "ASSIGNED MCP SERVERS",
+    "noneAssigned": "No MCP servers assigned to this agent.",
+    "addSection": "ADD MCP SERVER",
+    "noneInProject": "No MCP servers in this project",
+    "goTo": "Go to MCP Servers",
+    "manage": "Manage MCP Servers →",
+    "restricted": "Restricted"
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Inherited",
+    "capabilities": "CAPABILITIES",
+    "openDetail": "Open Detail"
+  },
+  "memory": {
+    "sectionTitle": "MEMORIES",
+    "pinnedSection": "PINNED",
+    "pinnedHint": "always loaded",
+    "autoLoadedSection": "AUTO-LOADED",
+    "notLoadedSection": "NOT LOADED",
+    "notLoadedCount_one": "{{count}} memory",
+    "notLoadedCount_other": "{{count}} memories",
+    "cutoffLine": "auto-load cutoff",
+    "addBtn": "+ Add Memory",
+    "addTitle": "ADD MEMORY",
+    "contentPlaceholder": "What should the agent remember?",
+    "tagsPlaceholder": "Tags (comma-separated)",
+    "empty": "No memories yet. Add memories to persist knowledge across conversations.",
+    "statusLine": "{{pinned}} pinned | Auto-load: {{autoLoaded}}/{{limit}} | {{total}} total",
+    "priority": "Priority",
+    "pinned": "Pinned",
+    "pin": "Pin",
+    "unpin": "Unpin"
+  }
+}

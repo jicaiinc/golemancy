@@ -1,0 +1,126 @@
+{
+  "label": {
+    "name": "名稱",
+    "agentName": "AGENT 名稱",
+    "description": "說明",
+    "systemPrompt": "系統提示詞",
+    "provider": "供應商",
+    "model": "模型"
+  },
+  "statusLabel": {
+    "idle": "閒置",
+    "running": "執行中",
+    "error": "錯誤",
+    "paused": "已暫停"
+  },
+  "noProviders": "未設定供應商",
+  "noModels": "無可用模型",
+  "savedMsg": "已儲存！",
+  "list": {
+    "title": "Agent",
+    "subtitle_one": "該專案有 {{count}} 個 Agent",
+    "subtitle_other": "該專案有 {{count}} 個 Agent",
+    "newBtn": "+ 新建 Agent",
+    "clone": "複製 Agent",
+    "empty": "尚無 Agent",
+    "createFirst": "建立第一個 Agent"
+  },
+  "count": {
+    "skills_one": "{{count}} 個技能",
+    "skills_other": "{{count}} 個技能",
+    "tools_one": "{{count}} 個工具",
+    "tools_other": "{{count}} 個工具",
+    "mcpServers_one": "{{count}} 個 MCP 伺服器",
+    "mcpServers_other": "{{count}} 個 MCP 伺服器"
+  },
+  "create": {
+    "modalTitle": "建立新 Agent",
+    "createBtn": "建立 Agent",
+    "namePlaceholder": "例如：研究助手",
+    "descPlaceholder": "這個 Agent 做什麼？",
+    "promptPlaceholder": "你是一個有用的助手..."
+  },
+  "detail": {
+    "notFound": "Agent 未找到。",
+    "backToAgents": "< 返回 Agent 列表",
+    "backBtn": "< Agent",
+    "tabs": {
+      "general": "基本資訊",
+      "modelConfig": "模型設定",
+      "skills": "技能",
+      "tools": "工具",
+      "memory": "記憶"
+    }
+  },
+  "general": {
+    "sectionTitle": "基本資訊",
+    "deleteBtn": "刪除 Agent",
+    "deleteConfirm": "確定要刪除這個 Agent 嗎？"
+  },
+  "modelConfig": {
+    "sectionTitle": "模型設定",
+    "compactLabel": "壓縮閾值"
+  },
+  "skills": {
+    "assigned": "已指派技能",
+    "noneAssigned": "該 Agent 未指派技能。",
+    "addSection": "新增技能",
+    "noneInProject": "專案中尚無技能",
+    "goTo": "前往技能頁面",
+    "manage": "管理技能 →"
+  },
+  "tools": {
+    "builtinSection": "內建工具",
+    "comingSoon": "即將推出",
+    "bashName": "Bash",
+    "browserName": "瀏覽器",
+    "computerUseName": "電腦操控",
+    "taskName": "任務",
+    "memoryName": "記憶",
+    "customSection": "自訂工具",
+    "bashDesc": "執行 Bash 指令，讀寫檔案",
+    "browserDesc": "控制瀏覽器進行自動化操作",
+    "computerUseDesc": "桌面自動化和系統控制",
+    "taskDesc": "在對話中建立和管理任務",
+    "memoryDesc": "跨對話持久化記憶庫"
+  },
+  "mcp": {
+    "warningTitle": "⚠ 警告",
+    "warningText": "第三方 MCP 伺服器可能會存取或修改你電腦上的檔案。",
+    "enableSandboxHint": "在設定 > 權限中啟用「套用到 MCP」以對 MCP 伺服器進行沙盒隔離。",
+    "sandboxUnavailable": "第三方 MCP 伺服器命令可能會繞過沙盒保護（Windows）。",
+    "assigned": "已指派 MCP 伺服器",
+    "noneAssigned": "該 Agent 未指派 MCP 伺服器。",
+    "addSection": "新增 MCP 伺服器",
+    "noneInProject": "專案中尚無 MCP 伺服器",
+    "goTo": "前往 MCP 伺服器頁面",
+    "manage": "管理 MCP 伺服器 →",
+    "restricted": "受限"
+  },
+  "panel": {
+    "modelLabel": "模型",
+    "inherited": "繼承",
+    "capabilities": "能力",
+    "openDetail": "檢視詳情"
+  },
+  "memory": {
+    "sectionTitle": "記憶",
+    "pinnedSection": "已釘選",
+    "pinnedHint": "始終載入",
+    "autoLoadedSection": "自動載入",
+    "notLoadedSection": "未載入",
+    "notLoadedCount_one": "{{count}} 條記憶",
+    "notLoadedCount_other": "{{count}} 條記憶",
+    "cutoffLine": "自動載入分界線",
+    "addBtn": "+ 新增記憶",
+    "addTitle": "新增記憶",
+    "contentPlaceholder": "Agent 應該記住什麼？",
+    "tagsPlaceholder": "標籤（逗號分隔）",
+    "empty": "尚無記憶。新增記憶以在對話間持久化知識。",
+    "statusLine": "{{pinned}} 已釘選 | 自動載入: {{autoLoaded}}/{{limit}} | 共 {{total}} 條",
+    "priority": "優先順序",
+    "pinned": "已釘選",
+    "pin": "釘選",
+    "unpin": "取消釘選"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "對話任務",
+    "taskCount_one": "共 {{count}} 個任務",
+    "taskCount_other": "共 {{count}} 個任務"
+  },
+  "loading": "載入任務...",
+  "empty": {
+    "noTasks": "未找到任務"
+  },
+  "openChat": "開啟對話 →",
+  "detail": {
+    "description": "說明",
+    "blockedBy": "被阻擋",
+    "metadata": "中繼資料"
+  },
+  "status": {
+    "pending": "待處理",
+    "in_progress": "進行中",
+    "completed": "已完成",
+    "deleted": "已刪除"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Dashboard",
+    "descriptionFallback": "Projectoverzicht",
+    "loading": "Dashboard laden..."
+  },
+  "tokenUsage": {
+    "title": "TOKEN-GEBRUIK"
+  },
+  "chart": {
+    "noData": "Geen tokengegevens beschikbaar",
+    "tooltipIn": "In: {{tokens}}",
+    "tooltipOut": "Out: {{tokens}}",
+    "legendInput": "Input",
+    "legendOutput": "Output"
+  },
+  "tabs": {
+    "trend": "Trend",
+    "byAgent": "Per Agent",
+    "byModel": "Per Model",
+    "byProject": "Per Project"
+  },
+  "table": {
+    "colName": "Naam",
+    "colTotal": "Totaal",
+    "colInput": "Input",
+    "colOutput": "Output",
+    "colCalls": "Aanroepen",
+    "colRatio": "Verhouding",
+    "titleByAgent": "TOKEN PER AGENT",
+    "titleByModel": "TOKEN PER MODEL",
+    "titleByProject": "TOKEN PER PROJECT"
+  },
+  "timeRange": {
+    "today": "Vandaag",
+    "sevenDays": "7 Dagen",
+    "thirtyDays": "30 Dagen",
+    "allTime": "Alles"
+  },
+  "summary": {
+    "totalTokens": "Totaal Token",
+    "inputTokens": "Input Token",
+    "outputTokens": "Output Token",
+    "apiCalls": "API-Aanroepen"
+  },
+  "overview": {
+    "agents": "AGENTEN",
+    "recentChats": "RECENTE CHATS",
+    "viewAll": "Alles Bekijken \u2192",
+    "noAgents": "Geen agenten",
+    "noRecentChats": "Geen recente chats",
+    "chatStats": "{{count}} ber. \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "ACTIVITEIT",
+    "tabActive": "Actief ({{count}})",
+    "tabScheduled": "Gepland ({{count}})",
+    "tabRecent": "Recent",
+    "badgeChat": "Chat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Geen actieve uitvoeringen",
+    "noScheduledRuns": "Geen geplande uitvoeringen",
+    "noRecentActivity": "Geen recente activiteit",
+    "openLink": "OPENEN \u2192",
+    "tokenCount": "{{tokens}} tokens"
+  },
+  "global": {
+    "title": "Globaal Dashboard",
+    "subtitle": "Projectoverstijgend overzicht",
+    "topProjects": "TOPPROJECTEN",
+    "noProjectData": "Geen projectgegevens",
+    "projectStats": "{{tokens}} tokens \u00B7 {{calls}} aanroepen"
+  }
+}

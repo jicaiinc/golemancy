@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Cài Đặt Chung"
+  },
+  "tabs": {
+    "general": "Chung",
+    "providers": "Provider",
+    "speech": "Giọng nói",
+    "about": "Giới thiệu"
+  },
+  "about": {
+    "slogan": "Triệu hồi đội AI làm việc cho bạn",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "CẬP NHẬT",
+    "checkForUpdates": "Thông báo cập nhật",
+    "upToDate": "Bạn đang dùng phiên bản mới nhất — v{{version}}",
+    "available": "CÓ BẢN CẬP NHẬT",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Tải xuống cho {{platform}}",
+    "downloadGeneric": "Tải xuống",
+    "checking": "Đang kiểm tra cập nhật...",
+    "downloading": "Đang tải cập nhật... {{percent}}%",
+    "downloaded": "Phần mềm Golemancy v{{version}} đã có bản cập nhật mới.",
+    "seeChangelog": "Xem changelog",
+    "restart": "Khởi Động Lại",
+    "restartConfirm": "Có {{count}} phiên AI đang hoạt động. Khởi động lại?",
+    "checkNow": "Kiểm tra ngay",
+    "retryCheck": "Thử Lại",
+    "error": "Kiểm tra cập nhật thất bại: {{message}}"
+  },
+  "general": {
+    "appearance": "GIAO DIỆN",
+    "light": "Sáng",
+    "dark": "Tối",
+    "system": "Hệ thống",
+    "language": "NGÔN NGỮ",
+    "telemetry": "CHƯƠNG TRÌNH CẢI TIẾN",
+    "telemetryLabel": "Giúp cải thiện Golemancy",
+    "telemetryDescription": "Cho phép chúng tôi thu thập dữ liệu chẩn đoán và sử dụng ẩn danh, bao gồm báo cáo lỗi và mức sử dụng tính năng, để chúng tôi có thể khắc phục sự cố nhanh hơn và cải thiện sản phẩm. Không thu thập tệp cá nhân hoặc nội dung cuộc trò chuyện.",
+    "style": "KIỂU",
+    "stylePixel": "Pixel",
+    "styleModern": "Hiện đại"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODEL MẶC ĐỌNH",
+    "description": "Được sử dụng khi tạo dự án và agent mới.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Không có --",
+    "selectProviderFirst": "-- Chọn provider trước --",
+    "noModels": "Không có model khả dụng",
+    "saved": "Đã lưu!",
+    "orphaned": "Provider của model đã cấu hình không còn khả dụng. Vui lòng chọn provider mới.",
+    "autoSwitched": "Model mặc định đã được tự động thay đổi do provider trước đó đã bị xóa."
+  },
+  "providers": {
+    "sectionTitle": "PROVIDER",
+    "addProvider": "+ Thêm Provider",
+    "selectProvider": "CHỌN PROVIDER",
+    "customProvider": "PROVIDER TÙY CHỈNH",
+    "custom": "Tùy chỉnh",
+    "anyEndpoint": "endpoint bất kỳ",
+    "nameLabel": "TÊN",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "LOẠI SDK",
+    "empty": "Chưa có provider nào được cấu hình. Nhấp \"+ Thêm Provider\" để bắt đầu.",
+    "customPlaceholder": "Provider Của Tôi",
+    "testAndSave": "Kiểm tra & Lưu",
+    "testingConnection": "Đang kiểm tra...",
+    "configureProvider": "CẤU HÌNH {{name}}",
+    "configureCustom": "CẤU HÌNH NHÀ CUNG CẤP TÙY CHỈNH",
+    "apiKeyRequired": "KHÓA API (bắt buộc)",
+    "modelsRequired": "MÔ HÌNH (ít nhất một)"
+  },
+  "provider": {
+    "testing": "Đang kiểm tra...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Thất bại",
+    "untested": "Chưa kiểm tra",
+    "noKey": "Không Có Key",
+    "retest": "Kiểm Tra Lại",
+    "test": "Kiểm Tra",
+    "del": "Xóa",
+    "deleteConfirm": "Xóa {{name}}? Thao tác này không thể hoàn tác.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "chưa thiết lập",
+    "hide": "Ẩn",
+    "show": "Hiển",
+    "urlLabel": "URL:",
+    "modelsCount": "Model ({{count}})",
+    "addModel": "+ Thêm Model",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (tùy chọn)",
+    "hideKey": "Ẩn Key",
+    "showKey": "Hiển Key",
+    "oauthSectionTitle": "ĐĂNG NHẬP",
+    "oauthActive": "Đang hoạt động",
+    "oauthSignIn": "Đăng nhập với {{provider}}",
+    "oauthConnected": "Đã kết nối",
+    "oauthDisconnect": "Ngắt kết nối",
+    "oauthPending": "Đang chờ xác thực trên trình duyệt...",
+    "oauthPendingHint": "Hoàn tất đăng nhập trên trình duyệt của bạn, rồi quay lại đây.",
+    "oauthCancel": "Hủy",
+    "oauthError": "Xác thực thất bại",
+    "oauthOrApiKey": "Hoặc sử dụng API Key",
+    "oauthNoApiFees": "KHÔNG PHÍ API",
+    "oauthSubscriptionHint": "Sử dụng đăng ký ChatGPT Plus / Pro của bạn. Không có phí API bổ sung.",
+    "oauthTokenExpiry": "Token tự động làm mới. Hết hạn sau {{minutes}} phút."
+  },
+  "threshold": {
+    "tokens": "token"
+  }
+}

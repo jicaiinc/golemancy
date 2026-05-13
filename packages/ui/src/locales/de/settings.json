@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Globale Einstellungen"
+  },
+  "tabs": {
+    "general": "Allgemein",
+    "providers": "Provider",
+    "speech": "Sprache",
+    "about": "Über"
+  },
+  "about": {
+    "slogan": "Beschwöre ein AI-Team, das für dich arbeitet",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "AKTUALISIERUNGEN",
+    "checkForUpdates": "Update-Benachrichtigungen",
+    "upToDate": "Sie sind auf dem neuesten Stand — v{{version}}",
+    "available": "UPDATE VERFÜGBAR",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Herunterladen für {{platform}}",
+    "downloadGeneric": "Herunterladen",
+    "checking": "Nach Updates suchen...",
+    "downloading": "Update wird heruntergeladen... {{percent}}%",
+    "downloaded": "Eine aktualisierte Version von Golemancy v{{version}} ist verfügbar.",
+    "seeChangelog": "Änderungsprotokoll anzeigen",
+    "restart": "Neu starten",
+    "restartConfirm": "Es laufen {{count}} aktive AI-Sitzungen. Trotzdem neu starten?",
+    "checkNow": "Jetzt prüfen",
+    "retryCheck": "Erneut versuchen",
+    "error": "Update-Prüfung fehlgeschlagen: {{message}}"
+  },
+  "general": {
+    "appearance": "ERSCHEINUNGSBILD",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System",
+    "language": "SPRACHE",
+    "telemetry": "VERBESSERUNGSPROGRAMM",
+    "telemetryLabel": "Helfen Sie, Golemancy zu verbessern",
+    "telemetryDescription": "Erlauben Sie uns, anonyme Diagnose- und Nutzungsdaten zu erfassen, einschließlich Absturzberichten und Funktionsnutzung, damit wir Probleme schneller beheben und das Produkt verbessern können. Persönliche Dateien oder Gesprächsinhalte werden nicht erfasst.",
+    "style": "STIL",
+    "stylePixel": "Pixel",
+    "styleModern": "Modern"
+  },
+  "defaultModel": {
+    "sectionTitle": "STANDARDMODELL",
+    "description": "Wird beim Erstellen neuer Projekte und Agenten verwendet.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODELL",
+    "noProvider": "-- Keiner --",
+    "selectProviderFirst": "-- Zuerst Provider auswählen --",
+    "noModels": "Keine Modelle verfügbar",
+    "saved": "Gespeichert!",
+    "orphaned": "Der Provider des konfigurierten Modells ist nicht mehr verfügbar. Bitte wählen Sie einen neuen aus.",
+    "autoSwitched": "Das Standardmodell wurde automatisch geändert, da der vorherige Provider entfernt wurde."
+  },
+  "providers": {
+    "sectionTitle": "PROVIDER",
+    "addProvider": "+ Provider hinzufügen",
+    "selectProvider": "PROVIDER AUSWÄHLEN",
+    "customProvider": "BENUTZERDEFINIERTER PROVIDER",
+    "custom": "Benutzerdefiniert",
+    "anyEndpoint": "beliebiger Endpunkt",
+    "nameLabel": "NAME",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "SDK-TYP",
+    "empty": "Keine Provider konfiguriert. Klicken Sie auf \"+ Provider hinzufügen\" um loszulegen.",
+    "customPlaceholder": "Mein Provider",
+    "testAndSave": "Testen & Speichern",
+    "testingConnection": "Teste...",
+    "configureProvider": "{{name}} KONFIGURIEREN",
+    "configureCustom": "BENUTZERDEFINIERTEN ANBIETER KONFIGURIEREN",
+    "apiKeyRequired": "API-SCHLÜSSEL (erforderlich)",
+    "modelsRequired": "MODELLE (mindestens eins)"
+  },
+  "provider": {
+    "testing": "Test läuft...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Fehlgeschlagen",
+    "untested": "Nicht getestet",
+    "noKey": "Kein Key",
+    "retest": "Erneut testen",
+    "test": "Test",
+    "del": "Lösch.",
+    "deleteConfirm": "{{name}} löschen? Dies kann nicht rückgängig gemacht werden.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "nicht gesetzt",
+    "hide": "Ausblenden",
+    "show": "Anzeigen",
+    "urlLabel": "URL:",
+    "modelsCount": "Modelle ({{count}})",
+    "addModel": "+ Modell hinzufügen",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (optional)",
+    "hideKey": "Key ausblenden",
+    "showKey": "Key anzeigen",
+    "oauthSectionTitle": "ANMELDEN",
+    "oauthActive": "Aktiv",
+    "oauthSignIn": "Mit {{provider}} anmelden",
+    "oauthConnected": "Verbunden",
+    "oauthDisconnect": "Trennen",
+    "oauthPending": "Warte auf Authentifizierung im Browser...",
+    "oauthPendingHint": "Schließen Sie die Anmeldung im Browser ab und kehren Sie dann hierher zurück.",
+    "oauthCancel": "Abbrechen",
+    "oauthError": "Authentifizierung fehlgeschlagen",
+    "oauthOrApiKey": "Oder API Key verwenden",
+    "oauthNoApiFees": "KEINE API-GEBÜHREN",
+    "oauthSubscriptionHint": "Verwendet Ihr ChatGPT Plus / Pro Abonnement. Keine zusätzlichen API-Kosten.",
+    "oauthTokenExpiry": "Token wird automatisch erneuert. Läuft in {{minutes}} Min. ab."
+  },
+  "threshold": {
+    "tokens": "Token"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Beceriler",
+    "skillCount_one": "{{count}} beceri",
+    "skillCount_other": "{{count}} beceri",
+    "newSkillBtn": "+ Yeni Beceri"
+  },
+  "tabs": {
+    "installed": "Y\u00fckl\u00fc",
+    "marketplace": "Ma\u011faza"
+  },
+  "import": {
+    "noValidFiles": ".md veya .zip dosyas\u0131 bulunamad\u0131. Beceri i\u00e7e aktarmak i\u00e7in markdown veya zip dosyalar\u0131 s\u00fcr\u00fckleyin.",
+    "importedCount_one": "{{count}} beceri i\u00e7e aktar\u0131ld\u0131",
+    "importedCount_other": "{{count}} beceri i\u00e7e aktar\u0131ld\u0131",
+    "importError": "Beceriler i\u00e7e aktar\u0131lamad\u0131"
+  },
+  "deleteError": {
+    "inUse_one": "\"{{name}}\" becerisi {{count}} ajana atanm\u0131\u015f. \u00d6nce atamay\u0131 kald\u0131r\u0131n.",
+    "inUse_other": "\"{{name}}\" becerisi {{count}} ajana atanm\u0131\u015f. \u00d6nce atamay\u0131 kald\u0131r\u0131n.",
+    "generic": "Beceri silinemedi"
+  },
+  "loading": "Beceriler y\u00fckleniyor...",
+  "empty": {
+    "title": "Hen\u00fcz beceri yok",
+    "createFirstBtn": "\u0130lk Becerinizi Olu\u015fturun"
+  },
+  "comingSoon": "Yak\u0131nda",
+  "form": {
+    "newTitle": "Yeni Beceri",
+    "editTitle": "Beceriyi D\u00fczenle",
+    "nameLabel": "AD",
+    "descriptionLabel": "A\u00c7IKLAMA",
+    "instructionsLabel": "TAL\u0130MATLAR",
+    "instructionsPlaceholder": "Beceri talimatlar\u0131n\u0131 markdown olarak yaz\u0131n..."
+  }
+}

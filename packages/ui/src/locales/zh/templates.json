@@ -1,0 +1,53 @@
+{
+  "categories": {
+    "starter": "入门",
+    "productivity": "效率",
+    "research": "研究",
+    "creative": "创意",
+    "development": "开发"
+  },
+  "ui": {
+    "chooseTemplate": "选择模板",
+    "blankProject": "空白项目",
+    "blankProjectDescription": "从零开始，使用默认 Agent",
+    "fromTemplate": "从模板创建",
+    "fromTemplateDescription": "预配置的 Agent、技能和工具",
+    "featured": "精选",
+    "allCategories": "全部",
+    "selectToPreview": "选择模板以查看详情",
+    "statsLine": "{{templates}} 个模板 · {{agents}} 个 Agent · {{skills}} 个技能",
+    "labelAgents": "Agent",
+    "labelSkills": "技能",
+    "labelTools": "工具",
+    "labelTeams": "团队",
+    "labelAutomations": "自动化",
+    "sectionAgents": "Agent",
+    "sectionTeams": "团队"
+  },
+  "projects": {
+    "writing-assistant": {
+      "name": "写作助手",
+      "description": "AI 写作专家，胜任邮件、博客、社交媒体等各类内容创作"
+    },
+    "deep-research": {
+      "name": "深度研究",
+      "description": "多 Agent 团队协作，专注深度调研、竞品分析和趋势报告"
+    },
+    "smart-secretary": { "name": "智能秘书", "description": "管理邮件、日历、待办事项和信息流，让你专注于核心工作" },
+    "translator": { "name": "翻译助手", "description": "具备上下文理解的多语言沟通伙伴，不只是逐字翻译" },
+    "knowledge-explorer": { "name": "知识探索者", "description": "收集信息、整理知识，引导你的学习旅程" },
+    "life-manager": { "name": "生活管家", "description": "出行规划、比价、菜谱推荐和日常生活事务处理" },
+    "doc-hub": { "name": "文档中枢", "description": "PDF、Word、Excel 和 PowerPoint 文档的 AI 处理中心" },
+    "content-marketing": { "name": "内容营销", "description": "从选题到写作再到多平台分发的完整内容流水线" },
+    "social-media-ops": { "name": "社媒运营", "description": "多平台社交媒体账号的 AI 运营中心" },
+    "seo-optimizer": { "name": "SEO 优化师", "description": "技术 SEO、内容 SEO 和 AI 搜索优化（GEO/AEO）" },
+    "sales-pipeline": { "name": "销售流程", "description": "从线索发现到成交跟进的全周期销售助手" },
+    "customer-service": { "name": "客户服务", "description": "从工单分类到智能回复的自动化客户支持" },
+    "financial-mgmt": { "name": "财务管理", "description": "记账、报税、发票管理和财务分析" },
+    "legal-compliance": { "name": "法务合规", "description": "合同审查、条款风险标注和合规检查" },
+    "data-analytics": { "name": "数据分析", "description": "从原始数据到可视化洞察的全周期分析" },
+    "product-mgmt": { "name": "产品管理", "description": "需求分析、PRD 写作、路线图规划和进度跟踪" },
+    "recruitment": { "name": "招聘助手", "description": "职位描述撰写、简历筛选、面试设计和候选人评估" },
+    "academic-research": { "name": "学术研究", "description": "文献检索、论文分析、假设生成、实验设计和写作辅助" }
+  }
+}

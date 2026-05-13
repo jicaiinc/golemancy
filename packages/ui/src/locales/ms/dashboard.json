@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Papan Pemuka",
+    "descriptionFallback": "Ringkasan projek",
+    "loading": "Memuatkan papan pemuka..."
+  },
+  "tokenUsage": {
+    "title": "PENGGUNAAN TOKEN"
+  },
+  "chart": {
+    "noData": "Tiada data token tersedia",
+    "tooltipIn": "Masuk: {{tokens}}",
+    "tooltipOut": "Keluar: {{tokens}}",
+    "legendInput": "Input",
+    "legendOutput": "Output"
+  },
+  "tabs": {
+    "trend": "Trend",
+    "byAgent": "Mengikut Agen",
+    "byModel": "Mengikut Model",
+    "byProject": "Mengikut Projek"
+  },
+  "table": {
+    "colName": "Nama",
+    "colTotal": "Jumlah",
+    "colInput": "Input",
+    "colOutput": "Output",
+    "colCalls": "Panggilan",
+    "colRatio": "Nisbah",
+    "titleByAgent": "TOKEN MENGIKUT AGEN",
+    "titleByModel": "TOKEN MENGIKUT MODEL",
+    "titleByProject": "TOKEN MENGIKUT PROJEK"
+  },
+  "timeRange": {
+    "today": "Hari Ini",
+    "sevenDays": "7 Hari",
+    "thirtyDays": "30 Hari",
+    "allTime": "Sepanjang Masa"
+  },
+  "summary": {
+    "totalTokens": "Jumlah Token",
+    "inputTokens": "Token Input",
+    "outputTokens": "Token Output",
+    "apiCalls": "Panggilan API"
+  },
+  "overview": {
+    "agents": "AGEN",
+    "recentChats": "CHAT TERBAHARU",
+    "viewAll": "Lihat Semua \u2192",
+    "noAgents": "Tiada agen",
+    "noRecentChats": "Tiada chat terbaharu",
+    "chatStats": "{{count}} mesej \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "AKTIVITI",
+    "tabActive": "Aktif ({{count}})",
+    "tabScheduled": "Dijadualkan ({{count}})",
+    "tabRecent": "Terkini",
+    "badgeChat": "Chat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Tiada pelaksanaan aktif",
+    "noScheduledRuns": "Tiada pelaksanaan dijadualkan",
+    "noRecentActivity": "Tiada aktiviti terkini",
+    "openLink": "BUKA \u2192",
+    "tokenCount": "{{tokens}} token"
+  },
+  "global": {
+    "title": "Papan Pemuka Global",
+    "subtitle": "Ringkasan merentasi projek",
+    "topProjects": "PROJEK TERATAS",
+    "noProjectData": "Tiada data projek",
+    "projectStats": "{{tokens}} token \u00B7 {{calls}} panggilan"
+  }
+}

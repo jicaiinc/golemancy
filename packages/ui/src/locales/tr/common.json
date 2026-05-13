@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "\u0130ptal",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "saved": "Kaydedildi",
+    "delete": "Sil",
+    "deleting": "Siliniyor...",
+    "edit": "D\u00fczenle",
+    "add": "Ekle",
+    "confirm": "Onayla",
+    "retry": "Tekrar Dene",
+    "back": "Geri",
+    "next": "\u0130leri",
+    "close": "Kapat",
+    "create": "Olu\u015ftur",
+    "creating": "Olu\u015fturuluyor...",
+    "refresh": "Yenile",
+    "send": "G\u00f6nder",
+    "stop": "Durdur",
+    "dismiss": "Kapat",
+    "done": "Tamam",
+    "copy": "Kopyala"
+  },
+  "status": {
+    "loading": "Y\u00fckleniyor...",
+    "error": "Hata",
+    "success": "Ba\u015far\u0131l\u0131"
+  },
+  "time": {
+    "justNow": "az \u00f6nce",
+    "minsAgo_one": "{{count}} dk \u00f6nce",
+    "minsAgo_other": "{{count}} dk \u00f6nce",
+    "hoursAgo_one": "{{count}} sa \u00f6nce",
+    "hoursAgo_other": "{{count}} sa \u00f6nce",
+    "daysAgo_one": "{{count}} g\u00fcn \u00f6nce",
+    "daysAgo_other": "{{count}} g\u00fcn \u00f6nce",
+    "now": "\u015fimdi",
+    "inMins_one": "{{count}} dk i\u00e7inde",
+    "inMins_other": "{{count}} dk i\u00e7inde",
+    "inHours_one": "{{count}} sa i\u00e7inde",
+    "inHours_other": "{{count}} sa i\u00e7inde",
+    "inDays_one": "{{count}} g\u00fcn i\u00e7inde",
+    "inDays_other": "{{count}} g\u00fcn i\u00e7inde",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Sil",
+    "deleteMessage": "Bu i\u015flem geri al\u0131namaz.",
+    "areYouSure": "Emin misiniz?"
+  },
+  "empty": {
+    "noData": "Veri yok"
+  },
+  "list": {
+    "noneConfigured": "Hen\u00fcz yap\u0131land\u0131r\u0131lmad\u0131"
+  },
+  "label": {
+    "name": "Ad",
+    "description": "A\u00e7\u0131klama",
+    "type": "T\u00fcr",
+    "enabled": "Etkin",
+    "disabled": "Devre D\u0131\u015f\u0131"
+  },
+  "dropZone": {
+    "releaseToDrop": "Y\u00fcklemek i\u00e7in b\u0131rak\u0131n",
+    "dragAndDrop": "Dosyalar\u0131 buraya s\u00fcr\u00fckleyin veya y\u00fcklemek i\u00e7in t\u0131klay\u0131n",
+    "accepts": "Kabul edilen: {{extensions}}"
+  }
+}

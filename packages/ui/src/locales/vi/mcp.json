@@ -1,0 +1,60 @@
+{
+  "page": {
+    "title": "MCP Server",
+    "serverCount_one": "{{count}} server",
+    "serverCount_other": "{{count}} server",
+    "newServerBtn": "+ Server Mới"
+  },
+  "tabs": {
+    "installed": "Đã cài",
+    "marketplace": "Marketplace"
+  },
+  "warning": {
+    "restrictedBadge": "RESTRICTED",
+    "restrictedMsg": "Chế độ restricted: MCP server stdio bị vô hiệu hóa và sẽ không được tải",
+    "riskBadge": "CẢNH BÁO",
+    "riskMsg": "MCP server bên thứ ba có thể truy cập hoặc chỉnh sửa file trên máy tính của bạn.",
+    "applyToMcpHint": "Bật \"Apply to MCP\" trong Cài đặt > Permissions để sandbox MCP server.",
+    "sandboxUnavailable": "Các lệnh máy chủ MCP của bên thứ ba có thể vượt qua bảo vệ sandbox trên Windows."
+  },
+  "import": {
+    "invalidFormat": "Định dạng không hợp lệ: cần { mcpServers: { ... } }",
+    "noServers": "Không tìm thấy server trong file cấu hình",
+    "importedCount_one": "Đã nhập {{count}} MCP server",
+    "importedCount_other": "Đã nhập {{count}} MCP server",
+    "parseError": "Không thể phân tích file cấu hình"
+  },
+  "server": {
+    "testing": "Đang kiểm tra...",
+    "testOk_one": "OK ({{count}} công cụ)",
+    "testOk_other": "OK ({{count}} công cụ)",
+    "connectionFailed": "Kết nối thất bại",
+    "testFailed": "Kiểm tra thất bại",
+    "blockedRestricted": "Bị chặn bởi chế độ restricted — server stdio không được tải khi chạy",
+    "usedByAgents_one": "Được sử dụng bởi {{count}} agent",
+    "usedByAgents_other": "Được sử dụng bởi {{count}} agent",
+    "deleteErrorInUse_one": "MCP server \"{{name}}\" đang được sử dụng bởi {{count}} agent. Hãy xóa tham chiếu trước.",
+    "deleteErrorInUse_other": "MCP server \"{{name}}\" đang được sử dụng bởi {{count}} agent. Hãy xóa tham chiếu trước.",
+    "deleteError": "Không thể xóa MCP server",
+    "testBtn": "Kiểm tra"
+  },
+  "empty": {
+    "title": "Chưa có MCP server nào được cấu hình",
+    "addFirstBtn": "Thêm Server Đầu Tiên"
+  },
+  "loading": "Đang tải MCP server...",
+  "comingSoon": "Sắp Ra Mắt",
+  "form": {
+    "newTitle": "MCP Server Mới",
+    "editTitle": "Sửa MCP Server",
+    "nameLabel": "TÊN",
+    "descriptionLabel": "MÔ TẢ",
+    "transportLabel": "TRANSPORT",
+    "commandLabel": "LỆNH",
+    "argsLabel": "ARGS (cách nhau bằng dấu cách)",
+    "envLabel": "ENV (KEY=VALUE mỗi dòng)",
+    "cwdLabel": "CWD",
+    "urlLabel": "URL",
+    "headersLabel": "HEADERS (Key: Value mỗi dòng)"
+  }
+}

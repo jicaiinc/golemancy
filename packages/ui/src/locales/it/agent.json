@@ -1,0 +1,126 @@
+{
+  "label": {
+    "name": "NOME",
+    "agentName": "NOME AGENTE",
+    "description": "DESCRIZIONE",
+    "systemPrompt": "PROMPT DI SISTEMA",
+    "provider": "PROVIDER",
+    "model": "MODELLO"
+  },
+  "statusLabel": {
+    "idle": "inattivo",
+    "running": "in esecuzione",
+    "error": "errore",
+    "paused": "in pausa"
+  },
+  "noProviders": "Nessun provider configurato",
+  "noModels": "Nessun modello disponibile",
+  "savedMsg": "Salvato!",
+  "list": {
+    "title": "Agenti",
+    "subtitle_one": "{{count}} agente in questo progetto",
+    "subtitle_other": "{{count}} agenti in questo progetto",
+    "newBtn": "+ Nuovo Agente",
+    "clone": "Clona Agente",
+    "empty": "Nessun agente",
+    "createFirst": "Crea il Tuo Primo Agente"
+  },
+  "count": {
+    "skills_one": "{{count}} skill",
+    "skills_other": "{{count}} skill",
+    "tools_one": "{{count}} strumento",
+    "tools_other": "{{count}} strumenti",
+    "mcpServers_one": "{{count}} server MCP",
+    "mcpServers_other": "{{count}} server MCP"
+  },
+  "create": {
+    "modalTitle": "Crea Nuovo Agente",
+    "createBtn": "Crea Agente",
+    "namePlaceholder": "es. Assistente di Ricerca",
+    "descPlaceholder": "Cosa fa questo agente?",
+    "promptPlaceholder": "Sei un assistente utile che..."
+  },
+  "detail": {
+    "notFound": "Agente non trovato.",
+    "backToAgents": "< Torna agli Agenti",
+    "backBtn": "< Agenti",
+    "tabs": {
+      "general": "Generale",
+      "modelConfig": "Config. Modello",
+      "skills": "Skill",
+      "tools": "Strumenti",
+      "memory": "Memoria"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Elimina Agente",
+    "deleteConfirm": "Sei sicuro di voler eliminare questo agente?"
+  },
+  "modelConfig": {
+    "sectionTitle": "CONFIG. MODELLO",
+    "compactLabel": "SOGLIA DI COMPATTAZIONE"
+  },
+  "skills": {
+    "assigned": "SKILL ASSEGNATE",
+    "noneAssigned": "Nessuna skill assegnata a questo agente.",
+    "addSection": "AGGIUNGI SKILL",
+    "noneInProject": "Nessuna skill in questo progetto",
+    "goTo": "Vai alle Skill",
+    "manage": "Gestisci Skill →"
+  },
+  "tools": {
+    "builtinSection": "STRUMENTI INTEGRATI",
+    "comingSoon": "PROSSIMAMENTE",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Controllo Computer",
+    "taskName": "Attività",
+    "memoryName": "Memoria",
+    "customSection": "STRUMENTI PERSONALIZZATI",
+    "bashDesc": "Esegui comandi bash, leggi e scrivi file",
+    "browserDesc": "Controlla il browser web per l'automazione",
+    "computerUseDesc": "Automazione desktop e controllo di sistema",
+    "taskDesc": "Crea e gestisci attività nella conversazione",
+    "memoryDesc": "Banca di memoria persistente tra le conversazioni"
+  },
+  "mcp": {
+    "warningTitle": "⚠ ATTENZIONE",
+    "warningText": "I server MCP di terze parti possono accedere o modificare file sul computer.",
+    "enableSandboxHint": "Attiva \"Applica a MCP\" in Impostazioni > Permessi per sandboxare i server MCP.",
+    "sandboxUnavailable": "I comandi dei server MCP di terze parti possono aggirare le protezioni sandbox su Windows.",
+    "assigned": "SERVER MCP ASSEGNATI",
+    "noneAssigned": "Nessun server MCP assegnato a questo agente.",
+    "addSection": "AGGIUNGI SERVER MCP",
+    "noneInProject": "Nessun server MCP in questo progetto",
+    "goTo": "Vai ai Server MCP",
+    "manage": "Gestisci Server MCP →",
+    "restricted": "Limitato"
+  },
+  "panel": {
+    "modelLabel": "MODELLO",
+    "inherited": "Ereditato",
+    "capabilities": "CAPACITÀ",
+    "openDetail": "Apri Dettaglio"
+  },
+  "memory": {
+    "sectionTitle": "MEMORIE",
+    "pinnedSection": "FISSATE",
+    "pinnedHint": "sempre caricate",
+    "autoLoadedSection": "CARICATE AUTOMATICAMENTE",
+    "notLoadedSection": "NON CARICATE",
+    "notLoadedCount_one": "{{count}} memoria",
+    "notLoadedCount_other": "{{count}} memorie",
+    "cutoffLine": "limite di caricamento automatico",
+    "addBtn": "+ Aggiungi Memoria",
+    "addTitle": "AGGIUNGI MEMORIA",
+    "contentPlaceholder": "Cosa deve ricordare l'agente?",
+    "tagsPlaceholder": "Tag (separati da virgole)",
+    "empty": "Nessuna memoria. Aggiungi memorie per conservare le conoscenze tra le conversazioni.",
+    "statusLine": "{{pinned}} fissate | Caricamento auto: {{autoLoaded}}/{{limit}} | {{total}} totale",
+    "priority": "Priorità",
+    "pinned": "Fissata",
+    "pin": "Fissa",
+    "unpin": "Rimuovi"
+  }
+}

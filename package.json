@@ -1,38 +1,23 @@
 {
-  "name": "@golemancy/monorepo",
+  "name": "golemancy",
   "private": true,
-  "version": "0.2.0-rebuild.0",
-  "description": "Local-first AI workbench desktop client (Golemancy 0.2 rebuild)",
-  "type": "module",
-  "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=10.0.0"
-  },
   "packageManager": "pnpm@10.19.0",
   "scripts": {
-    "build": "turbo run build",
-    "typecheck": "turbo run typecheck",
-    "lint": "turbo run lint",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test",
-    "dev": "turbo run dev --parallel",
-    "clean": "turbo run clean && rimraf node_modules/.cache .turbo",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "i18n:extract": "pnpm --filter @golemancy/i18n run extract"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "test:e2e": "pnpm --filter @golemancy/desktop test:e2e",
+    "test:e2e:ai": "pnpm --filter @golemancy/desktop test:e2e:ai",
+    "test:live": "pnpm --filter @golemancy/server test:live",
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "test:build": "node --test scripts/preflight-check.test.mjs scripts/bundle-server.test.mjs scripts/bundle-server-lockfile.test.mjs scripts/pack-resources.test.mjs",
+    "pack": "turbo build && pnpm --filter @golemancy/desktop run pack",
+    "dist": "turbo build && pnpm --filter @golemancy/desktop run dist",
+    "verify": "pnpm lint && pnpm test && pnpm build && pnpm --filter @golemancy/desktop download-runtime && pnpm --filter @golemancy/desktop bundle-server && pnpm --filter @golemancy/desktop preflight-check && node scripts/smoke-test-local.mjs && pnpm test:build"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
-    "@playwright/test": "^1.60.0",
-    "@vitest/coverage-v8": "^4.1.6",
-    "eslint": "^9.18.0",
-    "prettier": "^3.4.2",
-    "rimraf": "^6.0.1",
-    "turbo": "^2.5.0",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.21.0",
-    "vitest": "^4.1.6"
+    "turbo": "^2.8.0",
+    "typescript": "^5.8.0"
   }
 }

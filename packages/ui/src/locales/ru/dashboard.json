@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Панель",
+    "descriptionFallback": "Обзор проекта",
+    "loading": "Загрузка панели..."
+  },
+  "tokenUsage": {
+    "title": "ИСПОЛЬЗОВАНИЕ ТОКЕНОВ"
+  },
+  "chart": {
+    "noData": "Нет данных о токенах",
+    "tooltipIn": "Вх: {{tokens}}",
+    "tooltipOut": "Вых: {{tokens}}",
+    "legendInput": "Входные",
+    "legendOutput": "Выходные"
+  },
+  "tabs": {
+    "trend": "Тренд",
+    "byAgent": "По агентам",
+    "byModel": "По моделям",
+    "byProject": "По проектам"
+  },
+  "table": {
+    "colName": "Название",
+    "colTotal": "Всего",
+    "colInput": "Входные",
+    "colOutput": "Выходные",
+    "colCalls": "Вызовы",
+    "colRatio": "Соотношение",
+    "titleByAgent": "ТОКЕНЫ ПО АГЕНТАМ",
+    "titleByModel": "ТОКЕНЫ ПО МОДЕЛЯМ",
+    "titleByProject": "ТОКЕНЫ ПО ПРОЕКТАМ"
+  },
+  "timeRange": {
+    "today": "Сегодня",
+    "sevenDays": "7 дней",
+    "thirtyDays": "30 дней",
+    "allTime": "За всё время"
+  },
+  "summary": {
+    "totalTokens": "Всего токенов",
+    "inputTokens": "Входные токены",
+    "outputTokens": "Выходные токены",
+    "apiCalls": "API вызовы"
+  },
+  "overview": {
+    "agents": "АГЕНТЫ",
+    "recentChats": "НЕДАВНИЕ ЧАТЫ",
+    "viewAll": "Все \u2192",
+    "noAgents": "Нет агентов",
+    "noRecentChats": "Нет недавних чатов",
+    "chatStats": "{{count}} сообщ \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "АКТИВНОСТЬ",
+    "tabActive": "Активные ({{count}})",
+    "tabScheduled": "Запланированные ({{count}})",
+    "tabRecent": "Недавние",
+    "badgeChat": "Чат",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Нет активных запусков",
+    "noScheduledRuns": "Нет запланированных запусков",
+    "noRecentActivity": "Нет недавней активности",
+    "openLink": "ОТКРЫТЬ \u2192",
+    "tokenCount": "{{tokens}} токенов"
+  },
+  "global": {
+    "title": "Глобальная панель",
+    "subtitle": "Обзор всех проектов",
+    "topProjects": "ЛУЧШИЕ ПРОЕКТЫ",
+    "noProjectData": "Нет данных о проектах",
+    "projectStats": "{{tokens}} токенов \u00B7 {{calls}} вызовов"
+  }
+}

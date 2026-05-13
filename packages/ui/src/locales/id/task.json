@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Tugas Percakapan",
+    "taskCount_one": "{{count}} tugas total",
+    "taskCount_other": "{{count}} tugas total"
+  },
+  "loading": "Memuat tugas...",
+  "empty": {
+    "noTasks": "Tidak ada tugas ditemukan"
+  },
+  "openChat": "BUKA CHAT \u2192",
+  "detail": {
+    "description": "DESKRIPSI",
+    "blockedBy": "DIBLOKIR OLEH",
+    "metadata": "METADATA"
+  },
+  "status": {
+    "pending": "menunggu",
+    "in_progress": "sedang berjalan",
+    "completed": "selesai",
+    "deleted": "dihapus"
+  }
+}

@@ -1,10 +1,7 @@
-export * from './components/Logo.js';
-export * from './components/Sidebar.js';
-export * from './components/AccountPopover.js';
-export * from './components/Composer.js';
-export * from './components/Home.js';
-export * from './components/PracticeCard.js';
-export * from './components/Settings.js';
-export * from './components/Icons.js';
-export * from './theme/ThemeProvider.js';
-export * from './i18n/index.js';
+export { App } from './app/App'
+export { useAppStore } from './stores'
+export { useCurrentProject, useServices } from './hooks'
+export { getServices, configureServices, ServiceProvider, createMockServices } from './services'
+export type { ServiceContainer } from './services'
+export * from './components'
+export * from './lib/motion'

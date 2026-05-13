@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "대화 작업",
+    "taskCount_one": "총 {{count}}개 작업",
+    "taskCount_other": "총 {{count}}개 작업"
+  },
+  "loading": "작업 로딩 중...",
+  "empty": {
+    "noTasks": "작업을 찾을 수 없습니다"
+  },
+  "openChat": "채팅 열기 →",
+  "detail": {
+    "description": "설명",
+    "blockedBy": "차단 대상",
+    "metadata": "메타데이터"
+  },
+  "status": {
+    "pending": "대기 중",
+    "in_progress": "진행 중",
+    "completed": "완료",
+    "deleted": "삭제됨"
+  }
+}

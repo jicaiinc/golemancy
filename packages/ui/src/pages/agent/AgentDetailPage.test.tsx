@@ -1,0 +1,344 @@
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { MemoryRouter, Route, Routes } from 'react-router'
+import { AgentDetailPage } from './AgentDetailPage'
+import { useAppStore } from '../../stores'
+import { useAgents, useUpdateAgent, useDeleteAgent } from '../../queries/agents'
+import { configureServices } from '../../services/container'
+import type { ServiceContainer } from '../../services/container'
+import type { Agent, AgentId, ProjectId, GlobalSettings, Project } from '@golemancy/shared'
+
+vi.mock('../../queries/agents', () => ({
+  useAgents: vi.fn(),
+  useUpdateAgent: vi.fn(),
+  useDeleteAgent: vi.fn(),
+}))
+
+vi.mock('../../queries/skills', () => ({
+  useSkills: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+}))
+
+vi.mock('../../queries/mcp-servers', () => ({
+  useMCPServers: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+}))
+
+vi.mock('../../queries/memories', () => ({
+  useMemories: vi.fn().mockReturnValue({ data: [], isLoading: false }),
+  useCreateMemory: vi.fn().mockReturnValue({ mutateAsync: vi.fn() }),
+  useUpdateMemory: vi.fn().mockReturnValue({ mutate: vi.fn() }),
+  useDeleteMemory: vi.fn().mockReturnValue({ mutate: vi.fn() }),
+}))
+
+vi.mock('motion/react', () => ({
+  motion: {
+    div: ({ children, ...props }: any) => {
+      const { initial, animate, exit, transition, variants, ...rest } = props
+      return <div {...rest}>{children}</div>
+    },
+  },
+  AnimatePresence: ({ children }: any) => <>{children}</>,
+}))
+
+const PROJECT_ID = 'proj-ad1' as ProjectId
+const AGENT_ID = 'agent-ad1' as AgentId
+const now = new Date().toISOString()
+
+const baseSettings: GlobalSettings = {
+  providers: {
+    openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
+  },
+  theme: 'dark',
+}
+
+const testProject: Project = {
+  id: PROJECT_ID,
+  name: 'Test Project',
+  description: 'A test project',
+  icon: 'sword',
+  config: {},
+  agentCount: 1,
+  activeAgentCount: 0,
+  lastActivityAt: now,
+  createdAt: now,
+  updatedAt: now,
+}
+
+function makeAgent(overrides?: Partial<Agent>): Agent {
+  return {
+    id: AGENT_ID,
+    projectId: PROJECT_ID,
+    name: 'Test Agent',
+    description: 'A test agent for unit tests',
+    status: 'idle',
+    systemPrompt: 'You are a helpful assistant.',
+    modelConfig: { provider: 'openai', model: 'gpt-4o' },
+    skillIds: [],
+    tools: [],
+
+    mcpServers: [],
+    builtinTools: {},
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  }
+}
+
+function createTestServices(): ServiceContainer {
+  return {
+    projects: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), clone: vi.fn() },
+    agents: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), clone: vi.fn() },
+    conversations: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), sendMessage: vi.fn(), saveMessage: vi.fn(), getMessages: vi.fn(), searchMessages: vi.fn(), delete: vi.fn() },
+    tasks: { list: vi.fn(), getById: vi.fn() },
+    workspace: { listDir: vi.fn(), readFile: vi.fn(), deleteFile: vi.fn(), getFileUrl: vi.fn() },
+    settings: { get: vi.fn(), update: vi.fn(), testProvider: vi.fn() },
+    cronJobs: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn() },
+    skills: { list: vi.fn(), getById: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), importZip: vi.fn() },
+    mcp: { list: vi.fn(), getByName: vi.fn(), create: vi.fn(), update: vi.fn(), delete: vi.fn(), resolveNames: vi.fn() },
+    dashboard: { getSummary: vi.fn(), getAgentStats: vi.fn(), getRecentChats: vi.fn(), getTokenTrend: vi.fn(), getTokenByModel: vi.fn(), getTokenByAgent: vi.fn(), getRuntimeStatus: vi.fn() },
+    globalDashboard: {
+      getSummary: vi.fn().mockResolvedValue({ todayTokens: { total: 0, input: 0, output: 0, callCount: 0 }, totalAgents: 0, activeChats: 0, totalChats: 0 }),
+      getTokenByModel: vi.fn().mockResolvedValue([]),
+      getTokenByAgent: vi.fn().mockResolvedValue([]),
+      getTokenByProject: vi.fn().mockResolvedValue([]),
+      getTokenTrend: vi.fn().mockResolvedValue([]),
+      getRuntimeStatus: vi.fn().mockResolvedValue({ runningChats: [], runningCrons: [], upcoming: [], recentCompleted: [] }),
+    },
+    permissionsConfig: {
+      list: vi.fn().mockResolvedValue([]),
+      getById: vi.fn().mockResolvedValue(null),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      duplicate: vi.fn(),
+    },
+    speech: {} as any,
+    memories: {} as any,
+    teams: {} as any,
+  }
+}
+
+function renderAtRoute(agentId: string = AGENT_ID) {
+  return render(
+    <MemoryRouter initialEntries={[`/projects/${PROJECT_ID}/agents/${agentId}`]}>
+      <Routes>
+        <Route path="/projects/:projectId/agents/:agentId" element={<AgentDetailPage />} />
+        <Route path="/projects/:projectId/agents" element={<div>Agent List</div>} />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
+describe('AgentDetailPage', () => {
+  beforeEach(() => {
+    configureServices(createTestServices())
+    useAppStore.setState({
+      settings: baseSettings,
+      projects: [testProject],
+      currentProjectId: PROJECT_ID,
+    })
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent()], isLoading: false } as any)
+    vi.mocked(useUpdateAgent).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue(undefined) } as any)
+    vi.mocked(useDeleteAgent).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue(undefined) } as any)
+  })
+
+  it('shows "not found" when agent does not exist', () => {
+    vi.mocked(useAgents).mockReturnValue({ data: [], isLoading: false } as any)
+    renderAtRoute()
+    expect(screen.getByText('Agent not found.')).toBeInTheDocument()
+  })
+
+  it('renders agent name and description', () => {
+    renderAtRoute()
+    expect(screen.getByText('Test Agent')).toBeInTheDocument()
+    expect(screen.getByText('A test agent for unit tests')).toBeInTheDocument()
+  })
+
+  it('shows agent status badge', () => {
+    renderAtRoute()
+    expect(screen.getByText('idle')).toBeInTheDocument()
+  })
+
+  it('renders all 6 tab labels', () => {
+    renderAtRoute()
+    expect(screen.getByText('General')).toBeInTheDocument()
+    expect(screen.getByText('Model Config')).toBeInTheDocument()
+    expect(screen.getByText('Skills')).toBeInTheDocument()
+    expect(screen.getByText('Tools')).toBeInTheDocument()
+    expect(screen.getByText('MCP')).toBeInTheDocument()
+    expect(screen.getByText('Memory')).toBeInTheDocument()
+  })
+
+  it('shows stats (skills, tools, MCP servers counts)', () => {
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent({
+      skillIds: ['s1' as any, 's2' as any],
+      tools: [{ id: 't1', name: 'tool1', description: 'desc', parameters: {} }] as any,
+      mcpServers: ['mcp1'],
+    })], isLoading: false } as any)
+    renderAtRoute()
+    expect(screen.getByText('2 skills')).toBeInTheDocument()
+    expect(screen.getByText('1 tool')).toBeInTheDocument()
+    expect(screen.getByText('1 MCP server')).toBeInTheDocument()
+  })
+
+  it('renders General tab with Info section', () => {
+    renderAtRoute()
+    // General tab is default — shows Info section
+    expect(screen.getByText('INFO')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Test Agent')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('A test agent for unit tests')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('You are a helpful assistant.')).toBeInTheDocument()
+  })
+
+  it('renders Model Config tab with MODEL CONFIG section', async () => {
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Model Config'))
+    await waitFor(() => {
+      expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+    })
+  })
+
+  it('Save button calls updateAgent', async () => {
+    const mockMutate = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useUpdateAgent).mockReturnValue({ mutateAsync: mockMutate } as any)
+    renderAtRoute()
+
+    const saveButton = screen.getByText('Save')
+    fireEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith({ id: AGENT_ID, data: expect.objectContaining({
+        name: 'Test Agent',
+        description: 'A test agent for unit tests',
+        systemPrompt: 'You are a helpful assistant.',
+      }) })
+    })
+  })
+
+  it('Delete Agent button calls deleteAgent after confirmation', async () => {
+    const mockMutate = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useDeleteAgent).mockReturnValue({ mutateAsync: mockMutate } as any)
+    renderAtRoute()
+
+    // First click shows confirmation
+    fireEvent.click(screen.getByText('Delete Agent'))
+    expect(mockMutate).not.toHaveBeenCalled()
+    expect(screen.getByText('Are you sure you want to delete this agent?')).toBeInTheDocument()
+
+    // Confirm click actually deletes
+    fireEvent.click(screen.getByText('Confirm'))
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith(AGENT_ID)
+    })
+  })
+
+  it('displays running status with correct badge', () => {
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent({ status: 'running' })], isLoading: false } as any)
+    renderAtRoute()
+    expect(screen.getByText('running')).toBeInTheDocument()
+  })
+
+  it('shows model name when agent has model configured', () => {
+    vi.mocked(useAgents).mockReturnValue({ data: [makeAgent({ modelConfig: { provider: 'openai', model: 'gpt-4-turbo' } })], isLoading: false } as any)
+    renderAtRoute()
+    expect(screen.getByText('gpt-4-turbo')).toBeInTheDocument()
+  })
+
+  it('switches to Tools tab and shows built-in tools', async () => {
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Tools'))
+    await waitFor(() => {
+      expect(screen.getByText('Bash')).toBeInTheDocument()
+      expect(screen.getByText('Browser')).toBeInTheDocument()
+      expect(screen.getByText('Computer Use')).toBeInTheDocument()
+    })
+  })
+
+  it('switches to MCP tab and shows empty state', async () => {
+    renderAtRoute()
+    fireEvent.click(screen.getByText('MCP'))
+    await waitFor(() => {
+      expect(screen.getByText('No MCP servers assigned to this agent.')).toBeInTheDocument()
+    })
+  })
+
+  it('Model Config tab auto-saves on provider change', async () => {
+    const mockMutate = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useUpdateAgent).mockReturnValue({ mutateAsync: mockMutate } as any)
+    useAppStore.setState({
+      settings: {
+        ...baseSettings,
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o'], testStatus: 'ok' },
+          anthropic: { name: 'Anthropic', sdkType: 'anthropic', apiKey: 'sk-ant', models: ['claude-sonnet-4-20250514'], testStatus: 'ok' },
+        },
+      },
+    })
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Model Config'))
+
+    await waitFor(() => {
+      expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+    })
+
+    // Change provider to Anthropic
+    const providerSelect = screen.getByDisplayValue('OpenAI')
+    fireEvent.change(providerSelect, { target: { value: 'anthropic' } })
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith({ id: AGENT_ID, data: expect.objectContaining({
+        modelConfig: { provider: 'anthropic', model: 'claude-sonnet-4-20250514' },
+      }) })
+    })
+  })
+
+  it('Model Config tab auto-saves on model change', async () => {
+    const mockMutate = vi.fn().mockResolvedValue(undefined)
+    vi.mocked(useUpdateAgent).mockReturnValue({ mutateAsync: mockMutate } as any)
+    useAppStore.setState({
+      settings: {
+        ...baseSettings,
+        providers: {
+          openai: { name: 'OpenAI', sdkType: 'openai', apiKey: 'sk-test', models: ['gpt-4o', 'gpt-4o-mini'], testStatus: 'ok' },
+        },
+      },
+    })
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Model Config'))
+
+    await waitFor(() => {
+      expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+    })
+
+    // Change model
+    const modelSelect = screen.getByDisplayValue('gpt-4o')
+    fireEvent.change(modelSelect, { target: { value: 'gpt-4o-mini' } })
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith({ id: AGENT_ID, data: expect.objectContaining({
+        modelConfig: { provider: 'openai', model: 'gpt-4o-mini' },
+      }) })
+    })
+  })
+
+  it('Model Config tab has no Save button', async () => {
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Model Config'))
+
+    await waitFor(() => {
+      expect(screen.getByText('MODEL CONFIG')).toBeInTheDocument()
+    })
+
+    // Should not have a Save/Saving button in Model Config tab
+    const buttons = screen.queryAllByRole('button')
+    const saveButtons = buttons.filter(b => b.textContent === 'Save' || b.textContent === 'Saving...')
+    expect(saveButtons).toHaveLength(0)
+  })
+
+  it('switches to Skills tab and shows empty state', async () => {
+    renderAtRoute()
+    fireEvent.click(screen.getByText('Skills'))
+    await waitFor(() => {
+      expect(screen.getByText('No skills assigned to this agent.')).toBeInTheDocument()
+    })
+  })
+})

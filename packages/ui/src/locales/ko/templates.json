@@ -1,0 +1,53 @@
+{
+  "categories": {
+    "starter": "입문",
+    "productivity": "생산성",
+    "research": "리서치",
+    "creative": "창의적",
+    "development": "개발"
+  },
+  "ui": {
+    "chooseTemplate": "템플릿 선택",
+    "blankProject": "빈 프로젝트",
+    "blankProjectDescription": "기본 에이전트로 처음부터 시작하기",
+    "fromTemplate": "템플릿에서",
+    "fromTemplateDescription": "사전 구성된 에이전트, 스킬 및 도구",
+    "featured": "추천",
+    "allCategories": "전체",
+    "selectToPreview": "템플릿을 선택하여 세부 정보 확인",
+    "statsLine": "{{templates}} 템플릿 · {{agents}} 에이전트 · {{skills}} 스킬",
+    "labelAgents": "에이전트",
+    "labelSkills": "스킬",
+    "labelTools": "도구",
+    "labelTeams": "팀",
+    "labelAutomations": "자동화",
+    "sectionAgents": "에이전트",
+    "sectionTeams": "팀"
+  },
+  "projects": {
+    "writing-assistant": {
+      "name": "글쓰기 어시스턴트",
+      "description": "이메일, 블로그, 소셜 미디어 등 모든 유형의 콘텐츠를 위한 AI 글쓰기 전문가"
+    },
+    "deep-research": {
+      "name": "심층 리서치",
+      "description": "심층 조사, 경쟁 분석, 트렌드 리포트를 위한 멀티 에이전트 팀"
+    },
+    "smart-secretary": { "name": "스마트 비서", "description": "이메일, 캘린더, 할 일, 정보 흐름을 관리하여 핵심 업무에 집중할 수 있게 도와드립니다" },
+    "translator": { "name": "번역가", "description": "문맥을 이해하는 다국어 소통 파트너, 단순한 단어별 번역이 아닙니다" },
+    "knowledge-explorer": { "name": "지식 탐험가", "description": "정보를 수집하고 지식을 정리하며 학습 여정을 안내합니다" },
+    "life-manager": { "name": "라이프 매니저", "description": "여행 계획, 가격 비교, 레시피 제안, 일상 생활 업무" },
+    "doc-hub": { "name": "문서 허브", "description": "PDF, Word, Excel, PowerPoint 문서를 위한 AI 처리 센터" },
+    "content-marketing": { "name": "콘텐츠 마케팅", "description": "주제 선정부터 작성, 멀티 플랫폼 배포까지 완전한 콘텐츠 파이프라인" },
+    "social-media-ops": { "name": "소셜 미디어 운영", "description": "멀티 플랫폼 소셜 미디어 계정을 위한 AI 운영 센터" },
+    "seo-optimizer": { "name": "SEO 최적화 도구", "description": "기술 SEO, 콘텐츠 SEO, AI 검색 최적화(GEO/AEO)" },
+    "sales-pipeline": { "name": "영업 파이프라인", "description": "리드 발굴부터 거래 팔로업까지 풀사이클 영업 어시스턴트" },
+    "customer-service": { "name": "고객 서비스", "description": "티켓 분류부터 스마트 답변까지 자동화된 고객 지원" },
+    "financial-mgmt": { "name": "재무 관리", "description": "부기, 세금 신고, 청구서 관리, 재무 분석" },
+    "legal-compliance": { "name": "법률 및 컴플라이언스", "description": "계약 검토, 조항 리스크 표시, 컴플라이언스 점검" },
+    "data-analytics": { "name": "데이터 분석", "description": "원시 데이터부터 시각적 인사이트까지 풀사이클 분석" },
+    "product-mgmt": { "name": "제품 관리", "description": "요구사항 분석, PRD 작성, 로드맵 계획, 진행 상황 추적" },
+    "recruitment": { "name": "채용", "description": "직무 기술서 작성, 이력서 스크리닝, 면접 설계, 지원자 평가" },
+    "academic-research": { "name": "학술 연구", "description": "문헌 검색, 논문 분석, 가설 생성, 실험 설계, 작성 지원" }
+  }
+}

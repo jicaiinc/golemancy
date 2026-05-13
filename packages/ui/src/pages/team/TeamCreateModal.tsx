@@ -1,0 +1,79 @@
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
+import { useTranslation } from 'react-i18next'
+import { useCreateTeam } from '../../queries/teams'
+import { PixelModal, PixelButton, PixelInput } from '../../components'
+
+interface Props {
+  open: boolean
+  onClose: () => void
+}
+
+export function TeamCreateModal({ open, onClose }: Props) {
+  const { t } = useTranslation('team')
+  const { projectId } = useParams<{ projectId: string }>()
+  const createTeam = useCreateTeam()
+  const navigate = useNavigate()
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  function reset() {
+    setName('')
+    setDescription('')
+  }
+
+  async function handleSubmit() {
+    if (!name.trim()) return
+    setSaving(true)
+    try {
+      const team = await createTeam.mutateAsync({
+        name: name.trim(),
+        description: description.trim(),
+        instruction: '',
+        members: [],
+      })
+      reset()
+      onClose()
+      navigate(`/projects/${projectId}/teams/${team.id}`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <PixelModal
+      open={open}
+      onClose={onClose}
+      title={t('create.modalTitle')}
+      size="md"
+      footer={
+        <>
+          <PixelButton data-testid="team-cancel-btn" variant="ghost" onClick={onClose}>{t('common:button.cancel')}</PixelButton>
+          <PixelButton data-testid="team-create-btn" variant="primary" disabled={!name.trim() || saving} onClick={handleSubmit}>
+            {saving ? t('common:button.creating') : t('create.createBtn')}
+          </PixelButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <PixelInput
+          data-testid="team-name-input"
+          label={t('create.nameLabel')}
+          placeholder={t('create.namePlaceholder')}
+          value={name}
+          onChange={e => setName(e.target.value)}
+          autoFocus
+        />
+
+        <PixelInput
+          data-testid="team-desc-input"
+          label={t('create.descLabel')}
+          placeholder={t('create.descPlaceholder')}
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+        />
+      </div>
+    </PixelModal>
+  )
+}

@@ -1,0 +1,126 @@
+{
+  "label": {
+    "name": "NAME",
+    "agentName": "AGENT-NAME",
+    "description": "BESCHREIBUNG",
+    "systemPrompt": "SYSTEM-PROMPT",
+    "provider": "PROVIDER",
+    "model": "MODELL"
+  },
+  "statusLabel": {
+    "idle": "Leerlauf",
+    "running": "Läuft",
+    "error": "Fehler",
+    "paused": "Pausiert"
+  },
+  "noProviders": "Keine Provider konfiguriert",
+  "noModels": "Keine Modelle verfügbar",
+  "savedMsg": "Gespeichert!",
+  "list": {
+    "title": "Agenten",
+    "subtitle_one": "{{count}} Agent in diesem Projekt",
+    "subtitle_other": "{{count}} Agenten in diesem Projekt",
+    "newBtn": "+ Neuer Agent",
+    "clone": "Agent klonen",
+    "empty": "Noch keine Agenten",
+    "createFirst": "Erstellen Sie Ihren ersten Agenten"
+  },
+  "count": {
+    "skills_one": "{{count}} Skill",
+    "skills_other": "{{count}} Skills",
+    "tools_one": "{{count}} Werkzeug",
+    "tools_other": "{{count}} Werkzeuge",
+    "mcpServers_one": "{{count}} MCP-Server",
+    "mcpServers_other": "{{count}} MCP-Server"
+  },
+  "create": {
+    "modalTitle": "Neuen Agenten erstellen",
+    "createBtn": "Agent erstellen",
+    "namePlaceholder": "z.B. Recherche-Assistent",
+    "descPlaceholder": "Was macht dieser Agent?",
+    "promptPlaceholder": "Du bist ein hilfreicher Assistent, der..."
+  },
+  "detail": {
+    "notFound": "Agent nicht gefunden.",
+    "backToAgents": "< Zurück zu Agenten",
+    "backBtn": "< Agenten",
+    "tabs": {
+      "general": "Allgemein",
+      "modelConfig": "Modellkonfiguration",
+      "skills": "Skills",
+      "tools": "Werkzeuge",
+      "memory": "Gedächtnis"
+    }
+  },
+  "general": {
+    "sectionTitle": "INFO",
+    "deleteBtn": "Agent löschen",
+    "deleteConfirm": "Diesen Agenten wirklich löschen?"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODELLKONFIGURATION",
+    "compactLabel": "KOMPRIMIERUNGSSCHWELLE"
+  },
+  "skills": {
+    "assigned": "ZUGEWIESENE SKILLS",
+    "noneAssigned": "Keine Skills diesem Agenten zugewiesen.",
+    "addSection": "SKILL HINZUFÜGEN",
+    "noneInProject": "Keine Skills in diesem Projekt",
+    "goTo": "Zu Skills",
+    "manage": "Skills verwalten →"
+  },
+  "tools": {
+    "builtinSection": "INTEGRIERTE WERKZEUGE",
+    "comingSoon": "DEMNÄCHST",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computerbedienung",
+    "taskName": "Aufgabe",
+    "memoryName": "Gedächtnis",
+    "customSection": "BENUTZERDEFINIERTE WERKZEUGE",
+    "bashDesc": "Bash-Befehle ausführen, Dateien lesen und schreiben",
+    "browserDesc": "Webbrowser für Automatisierung steuern",
+    "computerUseDesc": "Desktop-Automatisierung und Systemsteuerung",
+    "taskDesc": "Aufgaben in der Konversation erstellen und verwalten",
+    "memoryDesc": "Persistenter Wissensspeicher über Konversationen hinweg"
+  },
+  "mcp": {
+    "warningTitle": "⚠ WARNUNG",
+    "warningText": "MCP-Server von Drittanbietern können auf Dateien auf Ihrem Computer zugreifen oder diese ändern.",
+    "enableSandboxHint": "Aktivieren Sie \"Auf MCP anwenden\" unter Einstellungen > Berechtigungen, um MCP-Server zu sandboxen.",
+    "sandboxUnavailable": "Drittanbieter-MCP-Serverbefehle können den Sandbox-Schutz unter Windows umgehen.",
+    "assigned": "ZUGEWIESENE MCP-SERVER",
+    "noneAssigned": "Keine MCP-Server diesem Agenten zugewiesen.",
+    "addSection": "MCP-SERVER HINZUFÜGEN",
+    "noneInProject": "Keine MCP-Server in diesem Projekt",
+    "goTo": "Zu MCP-Servern",
+    "manage": "MCP-Server verwalten →",
+    "restricted": "Eingeschränkt"
+  },
+  "panel": {
+    "modelLabel": "MODELL",
+    "inherited": "Vererbt",
+    "capabilities": "FÄHIGKEITEN",
+    "openDetail": "Detail öffnen"
+  },
+  "memory": {
+    "sectionTitle": "ERINNERUNGEN",
+    "pinnedSection": "ANGEPINNT",
+    "pinnedHint": "immer geladen",
+    "autoLoadedSection": "AUTOMATISCH GELADEN",
+    "notLoadedSection": "NICHT GELADEN",
+    "notLoadedCount_one": "{{count}} Erinnerung",
+    "notLoadedCount_other": "{{count}} Erinnerungen",
+    "cutoffLine": "Auto-Lade-Grenze",
+    "addBtn": "+ Erinnerung hinzufügen",
+    "addTitle": "ERINNERUNG HINZUFÜGEN",
+    "contentPlaceholder": "Was soll sich der Agent merken?",
+    "tagsPlaceholder": "Tags (kommagetrennt)",
+    "empty": "Noch keine Erinnerungen. Fügen Sie Erinnerungen hinzu, um Wissen über Konversationen hinweg zu speichern.",
+    "statusLine": "{{pinned}} angepinnt | Auto-Laden: {{autoLoaded}}/{{limit}} | {{total}} gesamt",
+    "priority": "Priorität",
+    "pinned": "Angepinnt",
+    "pin": "Anpinnen",
+    "unpin": "Lösen"
+  }
+}

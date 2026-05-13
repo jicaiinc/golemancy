@@ -1,0 +1,95 @@
+/* Override React Flow defaults for pixel art style */
+:root:not(.theme-modern) .react-flow__node {
+  border-radius: 0 !important;
+}
+
+:root:not(.theme-modern) .react-flow__handle {
+  border-radius: 0 !important;
+}
+
+.react-flow__handle {
+  width: 8px !important;
+  height: 8px !important;
+  background: var(--color-border-bright) !important;
+  border: 2px solid var(--color-border-dim) !important;
+}
+
+.react-flow__handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+}
+
+.react-flow__handle:hover {
+  background: var(--color-accent-cyan) !important;
+}
+
+.react-flow__handle-connecting {
+  background: var(--color-accent-green) !important;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+/* Controls */
+.react-flow__controls {
+  box-shadow: none !important;
+  border: 2px solid var(--color-border-dim) !important;
+}
+
+:root:not(.theme-modern) .react-flow__controls {
+  border-radius: 0 !important;
+}
+
+.react-flow__controls-button {
+  width: 32px !important;
+  height: 32px !important;
+  background: var(--color-surface) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--color-border-dim) !important;
+  color: var(--color-text-secondary) !important;
+  box-shadow: var(--shadow-raised) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--color-elevated) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none !important;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor !important;
+}
+
+/* Minimap */
+.react-flow__minimap {
+  background: color-mix(in srgb, var(--color-deep) 90%, transparent) !important;
+  border: 2px solid var(--color-border-dim) !important;
+  box-shadow: var(--shadow-drop) !important;
+}
+
+/* Background */
+.react-flow__background {
+  background: var(--color-void) !important;
+}
+
+/* Selection box */
+.react-flow__selection {
+  border: 2px solid var(--color-accent-blue) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+/* Connection line during drag */
+.react-flow__connection-path {
+  stroke: #22D3EE !important;
+  stroke-width: 2 !important;
+  stroke-dasharray: 4 4 !important;
+}

@@ -1,0 +1,25 @@
+{
+  "page": {
+    "title": "Úkoly konverzace",
+    "taskCount_one": "{{count}} úkol celkem",
+    "taskCount_few": "{{count}} úkoly celkem",
+    "taskCount_many": "{{count}} úkolů celkem",
+    "taskCount_other": "{{count}} úkolů celkem"
+  },
+  "loading": "Načítání úkolů...",
+  "empty": {
+    "noTasks": "Žádné úkoly nenalezeny"
+  },
+  "openChat": "OTEVŘÍT CHAT →",
+  "detail": {
+    "description": "POPIS",
+    "blockedBy": "BLOKOVÁNO",
+    "metadata": "METADATA"
+  },
+  "status": {
+    "pending": "čekající",
+    "in_progress": "probíhající",
+    "completed": "dokončeno",
+    "deleted": "smazáno"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "label": {
+    "projectName": "НАЗВА ПРОЄКТУ",
+    "description": "ОПИС",
+    "icon": "ІКОНКА",
+    "projectId": "ID ПРОЄКТУ"
+  },
+  "list": {
+    "title": "Усі проєкти",
+    "subtitle_one": "{{count}} проєкт у вашому просторі",
+    "subtitle_few": "{{count}} проєкти у вашому просторі",
+    "subtitle_many": "{{count}} проєктів у вашому просторі",
+    "subtitle_other": "{{count}} проєктів у вашому просторі",
+    "newBtn": "+ Новий проєкт",
+    "empty": "Проєктів поки немає",
+    "createFirst": "Створіть перший проєкт",
+    "openInWindow": "Відкрити у новому вікні",
+    "clone": "Клонувати проєкт",
+    "agents_one": "{{count}} агент",
+    "agents_few": "{{count}} агенти",
+    "agents_many": "{{count}} агентів",
+    "agents_other": "{{count}} агентів",
+    "running_one": "{{count}} працює",
+    "running_few": "{{count}} працюють",
+    "running_many": "{{count}} працюють",
+    "running_other": "{{count}} працюють"
+  },
+  "create": {
+    "modalTitle": "Створити новий проєкт",
+    "createBtn": "Створити проєкт",
+    "namePlaceholder": "Мій проєкт",
+    "descPlaceholder": "Про що цей проєкт?",
+    "errorGeneric": "Не вдалося створити проєкт",
+    "noDefaultModel": "Перед створенням із шаблону необхідно налаштувати модель за замовчуванням.",
+    "goToSettings": "Перейти до налаштувань"
+  },
+  "settings": {
+    "title": "Налаштування проєкту",
+    "savedMsg": "Збережено!",
+    "clickToCopy": "Натисніть для копіювання",
+    "tabs": {
+      "general": "Основне",
+      "permissions": "Дозволи"
+    },
+    "general": {
+      "sectionTitle": "ОСНОВНА ІНФОРМАЦІЯ",
+      "saveBtn": "Зберегти зміни",
+      "deleteBtn": "Видалити проєкт",
+      "deleteConfirm": "Ви впевнені, що хочете видалити цей проєкт?",
+      "defaultLabel": "АГЕНТ / КОМАНДА ЗА ЗАМОВЧУВАННЯМ",
+      "defaultDesc": "Агент або команда за замовчуванням для нових бесід.",
+      "defaultNone": "Немає",
+      "defaultTeamsGroup": "Команди",
+      "defaultAgentsGroup": "Агенти"
+    }
+  }
+}

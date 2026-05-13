@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "Konversationsuppgifter",
+    "taskCount_one": "{{count}} uppgift totalt",
+    "taskCount_other": "{{count}} uppgifter totalt"
+  },
+  "loading": "Laddar uppgifter...",
+  "empty": {
+    "noTasks": "Inga uppgifter hittades"
+  },
+  "openChat": "ÖPPNA CHATT →",
+  "detail": {
+    "description": "BESKRIVNING",
+    "blockedBy": "BLOCKERAD AV",
+    "metadata": "METADATA"
+  },
+  "status": {
+    "pending": "väntande",
+    "in_progress": "pågår",
+    "completed": "slutförd",
+    "deleted": "raderad"
+  }
+}

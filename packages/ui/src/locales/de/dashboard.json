@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Dashboard",
+    "descriptionFallback": "Projektübersicht",
+    "loading": "Dashboard laden..."
+  },
+  "tokenUsage": {
+    "title": "TOKEN-NUTZUNG"
+  },
+  "chart": {
+    "noData": "Keine Token-Daten verfügbar",
+    "tooltipIn": "In: {{tokens}}",
+    "tooltipOut": "Out: {{tokens}}",
+    "legendInput": "Input",
+    "legendOutput": "Output"
+  },
+  "tabs": {
+    "trend": "Trend",
+    "byAgent": "Nach Agent",
+    "byModel": "Nach Modell",
+    "byProject": "Nach Projekt"
+  },
+  "table": {
+    "colName": "Name",
+    "colTotal": "Gesamt",
+    "colInput": "Input",
+    "colOutput": "Output",
+    "colCalls": "Aufrufe",
+    "colRatio": "Verhältnis",
+    "titleByAgent": "TOKEN NACH AGENT",
+    "titleByModel": "TOKEN NACH MODELL",
+    "titleByProject": "TOKEN NACH PROJEKT"
+  },
+  "timeRange": {
+    "today": "Heute",
+    "sevenDays": "7 Tage",
+    "thirtyDays": "30 Tage",
+    "allTime": "Gesamt"
+  },
+  "summary": {
+    "totalTokens": "Token Gesamt",
+    "inputTokens": "Input-Token",
+    "outputTokens": "Output-Token",
+    "apiCalls": "API-Aufrufe"
+  },
+  "overview": {
+    "agents": "AGENTEN",
+    "recentChats": "LETZTE CHATS",
+    "viewAll": "Alle anzeigen \u2192",
+    "noAgents": "Keine Agenten",
+    "noRecentChats": "Keine aktuellen Chats",
+    "chatStats": "{{count}} Nachr. \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "AKTIVITÄT",
+    "tabActive": "Aktiv ({{count}})",
+    "tabScheduled": "Geplant ({{count}})",
+    "tabRecent": "Kürzlich",
+    "badgeChat": "Chat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Keine aktiven Ausführungen",
+    "noScheduledRuns": "Keine geplanten Ausführungen",
+    "noRecentActivity": "Keine aktuelle Aktivität",
+    "openLink": "ÖFFNEN \u2192",
+    "tokenCount": "{{tokens}} Token"
+  },
+  "global": {
+    "title": "Globales Dashboard",
+    "subtitle": "Projektübergreifende Übersicht",
+    "topProjects": "TOP-PROJEKTE",
+    "noProjectData": "Keine Projektdaten",
+    "projectStats": "{{tokens}} Token \u00B7 {{calls}} Aufrufe"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "categories": {
+    "starter": "Panimula",
+    "productivity": "Produktibidad",
+    "research": "Pananaliksik",
+    "creative": "Malikhain",
+    "development": "Pagpapaunlad"
+  },
+  "ui": {
+    "chooseTemplate": "Pumili ng template",
+    "blankProject": "Blankong Proyekto",
+    "blankProjectDescription": "Magsimula mula sa simula gamit ang isang default na agent",
+    "fromTemplate": "Mula sa Template",
+    "fromTemplateDescription": "Mga pre-configured na ahente, kasanayan at kagamitan",
+    "featured": "Itinatampok",
+    "allCategories": "Lahat",
+    "selectToPreview": "Pumili ng template para makita ang mga detalye",
+    "statsLine": "{{templates}} template · {{agents}} ahente · {{skills}} kasanayan",
+    "labelAgents": "Mga Ahente",
+    "labelSkills": "Mga Kasanayan",
+    "labelTools": "Mga Kagamitan",
+    "labelTeams": "Mga Koponan",
+    "labelAutomations": "Mga Automation",
+    "sectionAgents": "Mga Ahente",
+    "sectionTeams": "Mga Koponan"
+  },
+  "projects": {
+    "writing-assistant": {
+      "name": "Katulong sa Pagsusulat",
+      "description": "AI na eksperto sa pagsusulat ng email, blog, social media, at lahat ng uri ng nilalaman"
+    },
+    "deep-research": {
+      "name": "Malalimang Pananaliksik",
+      "description": "Multi-agent na koponan para sa malalimang pananaliksik, pagsusuri ng kompetisyon, at mga ulat ng trend"
+    },
+    "smart-secretary": { "name": "Matalinong Kalihim", "description": "Pamahalaan ang iyong mga email, kalendaryo, gawain, at daloy ng impormasyon para makapag-focus ka sa pangunahing trabaho" },
+    "translator": { "name": "Tagasalin", "description": "Context-aware na multilingual na kasama sa komunikasyon, hindi lang word-by-word na pagsasalin" },
+    "knowledge-explorer": { "name": "Mananaliksik ng Kaalaman", "description": "Mangalap ng impormasyon, mag-organisa ng kaalaman, at gabayan ang iyong paglalakbay sa pagkatuto" },
+    "life-manager": { "name": "Tagapamahalang Pamumuhay", "description": "Pagpaplano ng biyahe, paghahambing ng presyo, mungkahi ng resipe, at mga pang-araw-araw na gawain" },
+    "doc-hub": { "name": "Sentro ng Dokumento", "description": "AI processing center para sa mga dokumento ng PDF, Word, Excel, at PowerPoint" },
+    "content-marketing": { "name": "Marketing ng Nilalaman", "description": "Kumpletong content pipeline mula sa pagpili ng paksa hanggang sa pagsusulat at multi-platform na pamamahagi" },
+    "social-media-ops": { "name": "Operasyon ng Social Media", "description": "AI operations center para sa mga multi-platform na social media account" },
+    "seo-optimizer": { "name": "SEO Optimizer", "description": "Technical SEO, content SEO, at AI search optimization (GEO/AEO)" },
+    "sales-pipeline": { "name": "Pipeline ng Benta", "description": "Full-cycle na katulong sa benta mula sa paghahanap ng lead hanggang sa follow-up ng deal" },
+    "customer-service": { "name": "Serbisyong Pangkustomer", "description": "Automated na suporta sa kostumer mula sa pag-classify ng ticket hanggang sa matalinong mga tugon" },
+    "financial-mgmt": { "name": "Pamamahala ng Pananalapi", "description": "Bookkeeping, paghahain ng buwis, pamamahala ng invoice, at pagsusuri ng pananalapi" },
+    "legal-compliance": { "name": "Legal at Pagsunod", "description": "Pagsusuri ng kontrata, pagmamarka ng panganib ng sugnay, at mga tseke ng pagsunod" },
+    "data-analytics": { "name": "Pagsusuri ng Data", "description": "Full-cycle analytics mula sa raw data hanggang sa visual na pananaw" },
+    "product-mgmt": { "name": "Pamamahala ng Produkto", "description": "Pagsusuri ng mga kinakailangan, pagsusulat ng PRD, pagpaplano ng roadmap, at pagsubaybay ng progreso" },
+    "recruitment": { "name": "Rekrutamento", "description": "Pagsusulat ng paglalarawan ng trabaho, pagsala ng resume, disenyo ng panayam, at pagsusuri ng kandidato" },
+    "academic-research": { "name": "Akademikong Pananaliksik", "description": "Paghahanap ng literatura, pagsusuri ng papel, pagbuo ng hypothesis, disenyo ng eksperimento, at tulong sa pagsusulat" }
+  }
+}

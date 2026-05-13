@@ -1,0 +1,76 @@
+{
+  "newChatTitle": "New Chat",
+  "header": {
+    "hideHistory": "Hide chat history",
+    "showHistory": "Show chat history",
+    "new": "+ New",
+    "clickToRename": "Click to rename",
+    "teams": "Teams",
+    "agents": "Agents"
+  },
+  "sidebar": {
+    "newChat": "+ New Chat",
+    "noConversations": "No conversations",
+    "filter": "Filter",
+    "showCron": "Cron jobs",
+    "showSubAgent": "Sub-agents"
+  },
+  "window": {
+    "startConversation": "Start the conversation...",
+    "compacting": "Compacting",
+    "thinking": "Thinking",
+    "imageMsgTitle": "Image message",
+    "maxStepsReached": "Agent reached the maximum step limit ({{steps}}/{{maxSteps}}). Send another message to continue."
+  },
+  "empty": {
+    "readyToChat": "Ready to chat",
+    "description": "Start a new conversation or select one from the sidebar.",
+    "startChatting": "Start Chatting",
+    "noMainAgent": "No Main Agent",
+    "configureText": "Configure a Main Agent in <a>Project Settings</a> to start chatting."
+  },
+  "input": {
+    "placeholder": "Type a message...",
+    "dropPlaceholder": "Drop images here...",
+    "attachImage": "Attach image",
+    "recordAudio": "Record audio",
+    "sttNotConfigured": "Speech-to-text is not configured yet.",
+    "configureStt": "Configure",
+    "transcribing": "Transcribing...",
+    "transcriptionFailed": "Transcription failed",
+    "startRecordingFailed": "Failed to start recording",
+    "retryFailed": "Retry failed"
+  },
+  "message": {
+    "reasoning": "Reasoning",
+    "untitledFile": "Untitled file",
+    "copy": "Copy"
+  },
+  "compact": {
+    "title": "CONVERSATION COMPACTED",
+    "summary": "SUMMARY",
+    "tokensSummary": "{{input}} in / {{output}} out"
+  },
+  "error": {
+    "goToSettings": "Go to Settings → Providers"
+  },
+  "tool": {
+    "running": "Running...",
+    "awaitingApproval": "Awaiting approval",
+    "approved": "Approved",
+    "done": "Done",
+    "denied": "Denied",
+    "input": "INPUT",
+    "output": "OUTPUT",
+    "error": "ERROR",
+    "task": "TASK",
+    "session": "SESSION",
+    "tools": "TOOLS",
+    "toolCountRunning": "[{{running}}/{{total}} tools]",
+    "toolCountDone": "[{{total}} tools]",
+    "taskCreate": "Create Task",
+    "taskGet": "Get Task",
+    "taskList": "List Tasks",
+    "taskUpdate": "Update Task"
+  }
+}

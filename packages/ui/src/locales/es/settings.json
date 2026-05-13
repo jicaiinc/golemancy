@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Configuración Global"
+  },
+  "tabs": {
+    "general": "General",
+    "providers": "Proveedores",
+    "speech": "Voz",
+    "about": "Acerca de"
+  },
+  "about": {
+    "slogan": "Invoca un equipo AI que trabaje para ti",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "ACTUALIZACIONES",
+    "checkForUpdates": "Notificaciones de actualización",
+    "upToDate": "Estás al día — v{{version}}",
+    "available": "ACTUALIZACIÓN DISPONIBLE",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Descargar para {{platform}}",
+    "downloadGeneric": "Descargar",
+    "checking": "Buscando actualizaciones...",
+    "downloading": "Descargando actualización... {{percent}}%",
+    "downloaded": "Hay una versión actualizada de Golemancy v{{version}} disponible.",
+    "seeChangelog": "Ver changelog",
+    "restart": "Reiniciar",
+    "restartConfirm": "Hay {{count}} sesiones de AI activas. ¿Reiniciar de todas formas?",
+    "checkNow": "Comprobar ahora",
+    "retryCheck": "Reintentar",
+    "error": "Error al buscar actualizaciones: {{message}}"
+  },
+  "general": {
+    "appearance": "APARIENCIA",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "language": "IDIOMA",
+    "telemetry": "PROGRAMA DE MEJORA",
+    "telemetryLabel": "Ayuda a mejorar Golemancy",
+    "telemetryDescription": "Permítenos recopilar datos anónimos de diagnóstico y uso, incluyendo informes de fallos y uso de funciones, para que podamos solucionar problemas más rápido y mejorar el producto. No se recopilan archivos personales ni contenido de conversaciones.",
+    "style": "ESTILO",
+    "stylePixel": "Píxel",
+    "styleModern": "Moderno"
+  },
+  "defaultModel": {
+    "sectionTitle": "MODELO PREDETERMINADO",
+    "description": "Se usa al crear nuevos proyectos y agentes.",
+    "providerLabel": "PROVEEDOR",
+    "modelLabel": "MODELO",
+    "noProvider": "-- Ninguno --",
+    "selectProviderFirst": "-- Seleccione proveedor primero --",
+    "noModels": "No hay modelos disponibles",
+    "saved": "¡Guardado!",
+    "orphaned": "El proveedor del modelo configurado ya no está disponible. Seleccione uno nuevo.",
+    "autoSwitched": "El modelo predeterminado se cambió automáticamente porque el proveedor anterior fue eliminado."
+  },
+  "providers": {
+    "sectionTitle": "PROVEEDORES",
+    "addProvider": "+ Agregar Proveedor",
+    "selectProvider": "SELECCIONAR PROVEEDOR",
+    "customProvider": "PROVEEDOR PERSONALIZADO",
+    "custom": "Personalizado",
+    "anyEndpoint": "cualquier endpoint",
+    "nameLabel": "NOMBRE",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "TIPO DE SDK",
+    "empty": "No hay proveedores configurados. Haga clic en \"+ Agregar Proveedor\" para comenzar.",
+    "customPlaceholder": "Mi Proveedor",
+    "testAndSave": "Probar y Guardar",
+    "testingConnection": "Probando...",
+    "configureProvider": "CONFIGURAR {{name}}",
+    "configureCustom": "CONFIGURAR PROVEEDOR PERSONALIZADO",
+    "apiKeyRequired": "CLAVE API (obligatoria)",
+    "modelsRequired": "MODELOS (al menos uno)"
+  },
+  "provider": {
+    "testing": "Probando...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Falló",
+    "untested": "Sin probar",
+    "noKey": "Sin Key",
+    "retest": "Re-probar",
+    "test": "Probar",
+    "del": "Elim",
+    "deleteConfirm": "¿Eliminar {{name}}? Esta acción no se puede deshacer.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "no configurada",
+    "hide": "Ocultar",
+    "show": "Mostrar",
+    "urlLabel": "URL:",
+    "modelsCount": "Modelos ({{count}})",
+    "addModel": "+ Agregar Modelo",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opcional)",
+    "hideKey": "Ocultar Key",
+    "showKey": "Mostrar Key",
+    "oauthSectionTitle": "INICIAR SESIÓN",
+    "oauthActive": "Activo",
+    "oauthSignIn": "Iniciar sesión con {{provider}}",
+    "oauthConnected": "Conectado",
+    "oauthDisconnect": "Desconectar",
+    "oauthPending": "Esperando autenticación en el navegador...",
+    "oauthPendingHint": "Completa el inicio de sesión en tu navegador y vuelve aquí.",
+    "oauthCancel": "Cancelar",
+    "oauthError": "Autenticación fallida",
+    "oauthOrApiKey": "O usar API Key",
+    "oauthNoApiFees": "SIN CARGOS DE API",
+    "oauthSubscriptionHint": "Usa tu suscripción ChatGPT Plus / Pro. Sin cargos adicionales de API.",
+    "oauthTokenExpiry": "Token se actualiza automáticamente. Expira en {{minutes}} min."
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

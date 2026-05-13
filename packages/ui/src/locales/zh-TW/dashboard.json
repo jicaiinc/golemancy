@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "儀表板",
+    "descriptionFallback": "專案概覽",
+    "loading": "載入儀表板..."
+  },
+  "tokenUsage": {
+    "title": "TOKEN 用量"
+  },
+  "chart": {
+    "noData": "尚無 Token 資料",
+    "tooltipIn": "輸入：{{tokens}}",
+    "tooltipOut": "輸出：{{tokens}}",
+    "legendInput": "輸入",
+    "legendOutput": "輸出"
+  },
+  "tabs": {
+    "trend": "趨勢",
+    "byAgent": "依 Agent",
+    "byModel": "依模型",
+    "byProject": "依專案"
+  },
+  "table": {
+    "colName": "名稱",
+    "colTotal": "總計",
+    "colInput": "輸入",
+    "colOutput": "輸出",
+    "colCalls": "呼叫次數",
+    "colRatio": "佔比",
+    "titleByAgent": "TOKEN（依 AGENT）",
+    "titleByModel": "TOKEN（依模型）",
+    "titleByProject": "TOKEN（依專案）"
+  },
+  "timeRange": {
+    "today": "今天",
+    "sevenDays": "7 天",
+    "thirtyDays": "30 天",
+    "allTime": "全部"
+  },
+  "summary": {
+    "totalTokens": "總 Token",
+    "inputTokens": "輸入 Token",
+    "outputTokens": "輸出 Token",
+    "apiCalls": "API 呼叫"
+  },
+  "overview": {
+    "agents": "AGENT",
+    "recentChats": "最近對話",
+    "viewAll": "檢視全部 \u2192",
+    "noAgents": "尚無 Agent",
+    "noRecentChats": "尚無最近對話",
+    "chatStats": "{{count}} 則訊息 \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "活動",
+    "tabActive": "進行中 ({{count}})",
+    "tabScheduled": "已排程 ({{count}})",
+    "tabRecent": "最近",
+    "badgeChat": "對話",
+    "badgeCron": "排程",
+    "noActiveRuns": "無正在執行的任務",
+    "noScheduledRuns": "無已排程的任務",
+    "noRecentActivity": "尚無最近活動",
+    "openLink": "開啟 \u2192",
+    "tokenCount": "{{tokens}} Token"
+  },
+  "global": {
+    "title": "全域儀表板",
+    "subtitle": "跨專案概覽",
+    "topProjects": "熱門專案",
+    "noProjectData": "尚無專案資料",
+    "projectStats": "{{tokens}} Token \u00B7 {{calls}} 次呼叫"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Global Settings"
+  },
+  "tabs": {
+    "general": "Pangkalahatan",
+    "providers": "Mga Provider",
+    "speech": "Pagsasalita",
+    "about": "Tungkol"
+  },
+  "about": {
+    "slogan": "Tawagin ang AI Team na Magtatrabaho Para sa Iyo",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "MGA UPDATE",
+    "checkForUpdates": "Mga notification sa update",
+    "upToDate": "Na-update ka na — v{{version}}",
+    "available": "MAY AVAILABLE NA UPDATE",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "I-download para sa {{platform}}",
+    "downloadGeneric": "I-download",
+    "checking": "Sinusuri ang mga update...",
+    "downloading": "Dina-download ang update... {{percent}}%",
+    "downloaded": "Available na ang updated na bersyon ng Golemancy v{{version}}.",
+    "seeChangelog": "Tingnan ang changelog",
+    "restart": "I-restart",
+    "restartConfirm": "May {{count}} aktibong AI session. I-restart pa rin?",
+    "checkNow": "Suriin ngayon",
+    "retryCheck": "Subukan Muli",
+    "error": "Nabigo ang pagsusuri ng update: {{message}}"
+  },
+  "general": {
+    "appearance": "HITSURA",
+    "light": "Maliwanag",
+    "dark": "Madilim",
+    "system": "System",
+    "language": "WIKA",
+    "telemetry": "PROGRAMA NG PAGPAPABUTI",
+    "telemetryLabel": "Tumulong na mapabuti ang Golemancy",
+    "telemetryDescription": "Payagan kaming mangolekta ng anonymous na diagnostic at usage data, kabilang ang mga crash report at paggamit ng feature, upang mas mabilis naming maayos ang mga isyu at mapabuti ang produkto. Walang personal na file o nilalaman ng pag-uusap ang kinokolekta.",
+    "style": "ESTILO",
+    "stylePixel": "Pixel",
+    "styleModern": "Moderno"
+  },
+  "defaultModel": {
+    "sectionTitle": "DEFAULT MODEL",
+    "description": "Ginagamit kapag gumagawa ng bagong project at agent.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODEL",
+    "noProvider": "-- Wala --",
+    "selectProviderFirst": "-- Pumili muna ng provider --",
+    "noModels": "Walang available na model",
+    "saved": "Na-save!",
+    "orphaned": "Hindi na available ang provider ng naka-configure na model. Pumili ng bago.",
+    "autoSwitched": "Awtomatikong pinalitan ang default model dahil inalis ang dating provider."
+  },
+  "providers": {
+    "sectionTitle": "MGA PROVIDER",
+    "addProvider": "+ Magdagdag ng Provider",
+    "selectProvider": "PUMILI NG PROVIDER",
+    "customProvider": "CUSTOM PROVIDER",
+    "custom": "Custom",
+    "anyEndpoint": "anumang endpoint",
+    "nameLabel": "PANGALAN",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "URI NG SDK",
+    "empty": "Walang naka-configure na provider. I-click ang \"+ Magdagdag ng Provider\" para magsimula.",
+    "customPlaceholder": "Aking Provider",
+    "testAndSave": "I-test at I-save",
+    "testingConnection": "Sinusubukan...",
+    "configureProvider": "I-CONFIGURE ANG {{name}}",
+    "configureCustom": "I-CONFIGURE ANG CUSTOM PROVIDER",
+    "apiKeyRequired": "API KEY (kinakailangan)",
+    "modelsRequired": "MGA MODEL (kahit isa)"
+  },
+  "provider": {
+    "testing": "Tine-test...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Nabigo",
+    "untested": "Hindi pa na-test",
+    "noKey": "Walang Key",
+    "retest": "I-test Muli",
+    "test": "I-test",
+    "del": "I-delete",
+    "deleteConfirm": "I-delete ang {{name}}? Hindi na maibabalik ito.",
+    "apiKeyLabel": "API Key:",
+    "notSet": "hindi pa nakatakda",
+    "hide": "Itago",
+    "show": "Ipakita",
+    "urlLabel": "URL:",
+    "modelsCount": "Mga Model ({{count}})",
+    "addModel": "+ Magdagdag ng Model",
+    "apiKeyInputLabel": "API KEY",
+    "baseUrlOptional": "BASE URL (opsyonal)",
+    "hideKey": "Itago ang Key",
+    "showKey": "Ipakita ang Key",
+    "oauthSectionTitle": "MAG-SIGN IN",
+    "oauthActive": "Aktibo",
+    "oauthSignIn": "Mag-sign in sa {{provider}}",
+    "oauthConnected": "Nakakonekta",
+    "oauthDisconnect": "I-disconnect",
+    "oauthPending": "Naghihintay ng authentication sa browser...",
+    "oauthPendingHint": "Kumpletuhin ang login sa iyong browser, tapos bumalik dito.",
+    "oauthCancel": "Kanselahin",
+    "oauthError": "Nabigo ang authentication",
+    "oauthOrApiKey": "O gamitin ang API Key",
+    "oauthNoApiFees": "WALANG API FEES",
+    "oauthSubscriptionHint": "Gumagamit ng iyong ChatGPT Plus / Pro subscription. Walang karagdagang API charges.",
+    "oauthTokenExpiry": "Awtomatikong nire-refresh ang Token. Mag-e-expire sa loob ng {{minutes}} min."
+  },
+  "threshold": {
+    "tokens": "token"
+  }
+}

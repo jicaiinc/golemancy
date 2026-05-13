@@ -1,0 +1,76 @@
+{
+  "button": {
+    "cancel": "Anulare",
+    "save": "Salvare",
+    "saving": "Se salvează...",
+    "saved": "Salvat",
+    "delete": "Ștergere",
+    "deleting": "Se șterge...",
+    "edit": "Editare",
+    "add": "Adăugare",
+    "confirm": "Confirmare",
+    "retry": "Reîncercare",
+    "back": "Înapoi",
+    "next": "Înainte",
+    "close": "Închidere",
+    "create": "Creare",
+    "creating": "Se creează...",
+    "refresh": "Reîmprospătare",
+    "send": "Trimitere",
+    "stop": "Oprire",
+    "dismiss": "Respingere",
+    "done": "Gata",
+    "copy": "Copiere"
+  },
+  "status": {
+    "loading": "Se încarcă...",
+    "error": "Eroare",
+    "success": "Succes"
+  },
+  "time": {
+    "justNow": "chiar acum",
+    "minsAgo_one": "acum {{count}}m",
+    "minsAgo_few": "acum {{count}}m",
+    "minsAgo_other": "acum {{count}}m",
+    "hoursAgo_one": "acum {{count}}h",
+    "hoursAgo_few": "acum {{count}}h",
+    "hoursAgo_other": "acum {{count}}h",
+    "daysAgo_one": "acum {{count}}z",
+    "daysAgo_few": "acum {{count}}z",
+    "daysAgo_other": "acum {{count}}z",
+    "now": "acum",
+    "inMins_one": "în {{count}}m",
+    "inMins_few": "în {{count}}m",
+    "inMins_other": "în {{count}}m",
+    "inHours_one": "în {{count}}h",
+    "inHours_few": "în {{count}}h",
+    "inHours_other": "în {{count}}h",
+    "inDays_one": "în {{count}}z",
+    "inDays_few": "în {{count}}z",
+    "inDays_other": "în {{count}}z",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Ștergere",
+    "deleteMessage": "Această acțiune nu poate fi anulată.",
+    "areYouSure": "Sunteți sigur?"
+  },
+  "empty": {
+    "noData": "Nu există date"
+  },
+  "list": {
+    "noneConfigured": "Nimic configurat"
+  },
+  "label": {
+    "name": "Nume",
+    "description": "Descriere",
+    "type": "Tip",
+    "enabled": "Activat",
+    "disabled": "Dezactivat"
+  },
+  "dropZone": {
+    "releaseToDrop": "Eliberați pentru a încărca",
+    "dragAndDrop": "Trageți și plasați fișierele aici, sau faceți clic pentru a încărca",
+    "accepts": "Acceptă: {{extensions}}"
+  }
+}

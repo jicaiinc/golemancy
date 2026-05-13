@@ -1,0 +1,106 @@
+{
+  "loading": "Đang tải quyền...",
+  "section": {
+    "permissionMode": "CHẾĐỘ QUYỀN",
+    "configuration": "CẤU HÌNH"
+  },
+  "modes": {
+    "restricted": {
+      "name": "Restricted",
+      "subtitle": "Chỉ Bash, không có sandbox",
+      "description": "Môi trường thực thi tối thiểu. Không có sandbox runtime, không hỗ trợ MCP.",
+      "badge": "Hạn chế"
+    },
+    "sandbox": {
+      "name": "Sandbox",
+      "subtitle": "Cô lập có thể cấu hình",
+      "description": "Sandbox runtime với các hạn chế filesystem, mạng và lệnh có thể cấu hình.",
+      "subtitleWindows": "Bảo vệ có thể cấu hình",
+      "descriptionWindows": "Bảo vệ hệ thống tệp, lệnh và biến môi trường với các hạn chế có thể cấu hình.",
+      "badge": "Đề xuất"
+    },
+    "unrestricted": {
+      "name": "Unrestricted",
+      "subtitle": "Truy cập hệ thống đầy đủ",
+      "description": "Không có hạn chế sandbox. Tất cả lệnh chạy với quyền hệ thống đầy đủ.",
+      "badge": "Rủi ro"
+    }
+  },
+  "config": {
+    "default": "Mặc định",
+    "selectConfig": "Chọn cấu hình...",
+    "saveAs": "Lưu Như...",
+    "rename": "Đổi Tên",
+    "resetToDefault": "Đặt Lại Về Mặc Định",
+    "saved": "Đã lưu!",
+    "editingDefault": "Đang chỉnh sửa giá trị mặc định. Nhấp Lưu để tạo cấu hình mới có tên."
+  },
+  "modal": {
+    "unrestrictedTitle": "Bật Chế Độ Unrestricted?",
+    "unrestrictedBody": "Thao tác này loại bỏ mọi bảo vệ sandbox. AI agent sẽ có toàn quyền truy cập hệ thống của bạn, bao gồm:",
+    "unrestrictedReadWrite": "Đọc/ghi bất kỳ file nào trên máy tính của bạn",
+    "unrestrictedExecute": "Thực thi bất kỳ lệnh hệ thống nào",
+    "unrestrictedNetwork": "Truy cập mạng không giới hạn",
+    "unrestrictedSysconfig": "Thay đổi cấu hình hệ thống",
+    "unrestrictedFooter": "Chỉ sử dụng cho phát triển cục bộ trong môi trường đáng tin cậy.",
+    "enableUnrestricted": "Tôi Hiểu, Bật",
+    "sandboxUnavailableTitle": "Chế Độ Sandbox Không Khả Dụng",
+    "sandboxUnavailableBody": "Các điều kiện tiên quyết sandbox runtime chưa được đáp ứng. Các vấn đề sau được tìm thấy:",
+    "sandboxUnavailableFooter": "Bật chế độ sandbox vẫn sẽ gây ra giảm cấp runtime xuống chế độ restricted.",
+    "enableAnyway": "Vẫn Bật",
+    "saveAsTitle": "Lưu Như Cấu Hình Mới",
+    "configNameLabel": "TÊN CẤU HÌNH",
+    "configNamePlaceholder": "ví dụ: Strict Dev, Python Disabled",
+    "renameTitle": "Đổi Tên Cấu Hình",
+    "newNameLabel": "TÊN MỚI",
+    "newNamePlaceholder": "ví dụ: Cấu Hình Tùy Chỉnh",
+    "renaming": "Đang đổi tên...",
+    "deleteTitle": "Xóa \"{{title}}\"?",
+    "deleteBody": "Cấu hình này sẽ bị xóa vĩnh viễn. Dự án sẽ trở về cài đặt mặc định của hệ thống."
+  },
+  "filesystem": {
+    "sectionTitle": "QUYỀN HỆ THỐNG FILE",
+    "allowWrite": "CHO PHÉP GHI",
+    "allowWriteHelper": "Đường dẫn mà agent có thể ghi file. Mặc định: thư mục workspace dự án.",
+    "allowWritePlaceholder": "ví dụ: /Users/name/workspace",
+    "denyRead": "TỪ CHỐI ĐỌC",
+    "denyReadHelper": "File/thư mục nhạy cảm bị chặn đọc.",
+    "denyReadPlaceholder": "ví dụ: ~/.ssh, .env",
+    "denyWrite": "TỪ CHỐI GHI",
+    "denyWriteHelper": "Đường dẫn bị chặn ghi. Ưu tiên hơn cho phép ghi.",
+    "denyWritePlaceholder": "ví dụ: /etc, /usr"
+  },
+  "network": {
+    "sectionTitle": "HẠN CHẾ MẠNG",
+    "enableLabel": "Bật",
+    "statusEnabled": "Chỉ các domain đã cấu hình mới có thể truy cập",
+    "statusDisabled": "Tất cả lưu lượng mạng được cho phép",
+    "allowedDomains": "DOMAIN ĐƯỢC PHÉP",
+    "allowedDomainsHelper": "Các domain mà agent có thể truy cập. Chính xác: example.com — Wildcard: *.example.com (2+ phần sau *.)",
+    "allowedDomainsPlaceholder": "ví dụ: api.github.com",
+    "deniedDomains": "DOMAIN BỊ CHẶN",
+    "deniedDomainsHelper": "Các domain bị chặn. Định dạng giống như domain được phép.",
+    "deniedDomainsPlaceholder": "ví dụ: malicious-site.com"
+  },
+  "commands": {
+    "sectionTitle": "HẠN CHẾ LỆNH",
+    "deniedCommands": "LỆNH BỊ CHẶN",
+    "deniedCommandsHelper": "Các lệnh bị chặn thực thi.",
+    "deniedCommandsPlaceholder": "ví dụ: python, python3, pip"
+  },
+  "mcp": {
+    "applyLabel": "Áp dụng cho MCP",
+    "warning": "(⚠ Tắt tính năng này có thể cho phép MCP server bên thứ ba truy cập hoặc chỉnh sửa file trên máy tính của bạn)",
+    "description": "Khi được bật, các lệnh MCP server sẽ được bọc bởi sandbox runtime (srt). Điều này áp dụng các hạn chế filesystem, mạng và lệnh tương tự cho MCP server."
+  },
+  "windows": {
+    "notice": "⚠ THÔNG BÁO WINDOWS",
+    "message": "Dự án của bạn được bảo vệ bởi các hạn chế hệ thống tệp, lệnh và biến môi trường. Máy chủ MCP của bên thứ ba và các lệnh của chúng có thể vượt qua các bảo vệ này trên Windows."
+  },
+  "validation": {
+    "removeProtocol": "Xóa giao thức, đường dẫn, hoặc cổng — chỉ nhập domain",
+    "wildcardParts": "Wildcard cần 2+ phần sau *. (ví dụ: *.example.com)",
+    "onlyWildcard": "Chỉ hỗ trợ định dạng wildcard *.domain.com",
+    "validDomain": "Phải là domain hợp lệ với ít nhất một dấu chấm (ví dụ: example.com)"
+  }
+}

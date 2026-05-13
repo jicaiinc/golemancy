@@ -1,0 +1,23 @@
+{
+  "page": {
+    "title": "会話タスク",
+    "taskCount_one": "全 {{count}} タスク",
+    "taskCount_other": "全 {{count}} タスク"
+  },
+  "loading": "タスクを読み込み中...",
+  "empty": {
+    "noTasks": "タスクが見つかりません"
+  },
+  "openChat": "チャットを開く →",
+  "detail": {
+    "description": "説明",
+    "blockedBy": "ブロック元",
+    "metadata": "メタデータ"
+  },
+  "status": {
+    "pending": "保留中",
+    "in_progress": "進行中",
+    "completed": "完了",
+    "deleted": "削除済み"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Глобальні налаштування"
+  },
+  "tabs": {
+    "general": "Основне",
+    "providers": "Провайдери",
+    "speech": "Мовлення",
+    "about": "Про програму"
+  },
+  "about": {
+    "slogan": "Призови AI-команду, яка працює на тебе",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "ОНОВЛЕННЯ",
+    "checkForUpdates": "Сповіщення про оновлення",
+    "upToDate": "У вас актуальна версія — v{{version}}",
+    "available": "ДОСТУПНЕ ОНОВЛЕННЯ",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Завантажити для {{platform}}",
+    "downloadGeneric": "Завантажити",
+    "checking": "Перевірка оновлень...",
+    "downloading": "Завантаження оновлення... {{percent}}%",
+    "downloaded": "Доступна оновлена версія Golemancy v{{version}}.",
+    "seeChangelog": "Дивитись changelog",
+    "restart": "Перезапустити",
+    "restartConfirm": "Активно {{count}} AI-сесій. Все одно перезапустити?",
+    "checkNow": "Перевірити зараз",
+    "retryCheck": "Повторити",
+    "error": "Помилка перевірки оновлень: {{message}}"
+  },
+  "general": {
+    "appearance": "ОФОРМЛЕННЯ",
+    "light": "Світла",
+    "dark": "Темна",
+    "system": "Системна",
+    "language": "МОВА",
+    "telemetry": "ПРОГРАМА ПОКРАЩЕННЯ",
+    "telemetryLabel": "Допоможіть покращити Golemancy",
+    "telemetryDescription": "Дозвольте нам збирати анонімні діагностичні дані та дані про використання, включаючи звіти про збої та використання функцій, щоб ми могли швидше виправляти проблеми та покращувати продукт. Особисті файли та вміст розмов не збираються.",
+    "style": "СТИЛЬ",
+    "stylePixel": "Піксель",
+    "styleModern": "Сучасний"
+  },
+  "defaultModel": {
+    "sectionTitle": "МОДЕЛЬ ЗА ЗАМОВЧУВАННЯМ",
+    "description": "Використовується при створенні нових проєктів та агентів.",
+    "providerLabel": "ПРОВАЙДЕР",
+    "modelLabel": "МОДЕЛЬ",
+    "noProvider": "-- Немає --",
+    "selectProviderFirst": "-- Спочатку оберіть провайдера --",
+    "noModels": "Немає доступних моделей",
+    "saved": "Збережено!",
+    "orphaned": "Провайдер налаштованої моделі більше не доступний. Будь ласка, оберіть нового.",
+    "autoSwitched": "Модель за замовчуванням було автоматично змінено, оскільки попередній провайдер було видалено."
+  },
+  "providers": {
+    "sectionTitle": "ПРОВАЙДЕРИ",
+    "addProvider": "+ Додати провайдера",
+    "selectProvider": "ОБЕРІТЬ ПРОВАЙДЕРА",
+    "customProvider": "КОРИСТУВАЦЬКИЙ ПРОВАЙДЕР",
+    "custom": "Користувацький",
+    "anyEndpoint": "будь-який endpoint",
+    "nameLabel": "НАЗВА",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "ТИП SDK",
+    "empty": "Провайдери не налаштовані. Натисніть «+ Додати провайдера», щоб почати.",
+    "customPlaceholder": "Мій провайдер",
+    "testAndSave": "Перевірити і зберегти",
+    "testingConnection": "Перевірка...",
+    "configureProvider": "НАЛАШТУВАТИ {{name}}",
+    "configureCustom": "НАЛАШТУВАТИ ВЛАСНОГО ПРОВАЙДЕРА",
+    "apiKeyRequired": "API-КЛЮЧ (обов'язково)",
+    "modelsRequired": "МОДЕЛІ (мінімум одна)"
+  },
+  "provider": {
+    "testing": "Тестування...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Помилка",
+    "untested": "Не перевірено",
+    "noKey": "Немає ключа",
+    "retest": "Переперевірити",
+    "test": "Тест",
+    "del": "Вид",
+    "deleteConfirm": "Видалити {{name}}? Цю дію неможливо скасувати.",
+    "apiKeyLabel": "API ключ:",
+    "notSet": "не задано",
+    "hide": "Приховати",
+    "show": "Показати",
+    "urlLabel": "URL:",
+    "modelsCount": "Моделі ({{count}})",
+    "addModel": "+ Додати модель",
+    "apiKeyInputLabel": "API КЛЮЧ",
+    "baseUrlOptional": "BASE URL (необов'язково)",
+    "hideKey": "Приховати ключ",
+    "showKey": "Показати ключ",
+    "oauthSectionTitle": "ВХІД",
+    "oauthActive": "Активно",
+    "oauthSignIn": "Увійти через {{provider}}",
+    "oauthConnected": "Підключено",
+    "oauthDisconnect": "Відключити",
+    "oauthPending": "Очікування автентифікації в браузері...",
+    "oauthPendingHint": "Завершіть вхід у браузері, потім поверніться сюди.",
+    "oauthCancel": "Скасувати",
+    "oauthError": "Помилка автентифікації",
+    "oauthOrApiKey": "Або використати API Key",
+    "oauthNoApiFees": "БЕЗ ОПЛАТИ API",
+    "oauthSubscriptionHint": "Використовує вашу підписку ChatGPT Plus / Pro. Без додаткових витрат на API.",
+    "oauthTokenExpiry": "Token оновлюється автоматично. Закінчується через {{minutes}} хв."
+  },
+  "threshold": {
+    "tokens": "токенів"
+  }
+}

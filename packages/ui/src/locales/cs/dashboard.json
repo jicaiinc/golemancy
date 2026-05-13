@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Panel",
+    "descriptionFallback": "Přehled projektu",
+    "loading": "Načítání panelu..."
+  },
+  "tokenUsage": {
+    "title": "VYUŽITÍ TOKENŮ"
+  },
+  "chart": {
+    "noData": "Žádná data o tokenech",
+    "tooltipIn": "Vst: {{tokens}}",
+    "tooltipOut": "Výst: {{tokens}}",
+    "legendInput": "Vstupní",
+    "legendOutput": "Výstupní"
+  },
+  "tabs": {
+    "trend": "Trend",
+    "byAgent": "Podle agentů",
+    "byModel": "Podle modelů",
+    "byProject": "Podle projektů"
+  },
+  "table": {
+    "colName": "Název",
+    "colTotal": "Celkem",
+    "colInput": "Vstupní",
+    "colOutput": "Výstupní",
+    "colCalls": "Volání",
+    "colRatio": "Poměr",
+    "titleByAgent": "TOKENY PODLE AGENTŮ",
+    "titleByModel": "TOKENY PODLE MODELŮ",
+    "titleByProject": "TOKENY PODLE PROJEKTŮ"
+  },
+  "timeRange": {
+    "today": "Dnes",
+    "sevenDays": "7 dní",
+    "thirtyDays": "30 dní",
+    "allTime": "Celé období"
+  },
+  "summary": {
+    "totalTokens": "Celkem tokenů",
+    "inputTokens": "Vstupní tokeny",
+    "outputTokens": "Výstupní tokeny",
+    "apiCalls": "API volání"
+  },
+  "overview": {
+    "agents": "AGENTI",
+    "recentChats": "NEDÁVNÉ CHATY",
+    "viewAll": "Vše \u2192",
+    "noAgents": "Žádní agenti",
+    "noRecentChats": "Žádné nedávné chaty",
+    "chatStats": "{{count}} zpr \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "AKTIVITA",
+    "tabActive": "Aktivní ({{count}})",
+    "tabScheduled": "Naplánované ({{count}})",
+    "tabRecent": "Nedávné",
+    "badgeChat": "Chat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Žádné aktivní běhy",
+    "noScheduledRuns": "Žádné naplánované běhy",
+    "noRecentActivity": "Žádná nedávná aktivita",
+    "openLink": "OTEVŘÍT \u2192",
+    "tokenCount": "{{tokens}} tokenů"
+  },
+  "global": {
+    "title": "Globální panel",
+    "subtitle": "Přehled všech projektů",
+    "topProjects": "NEJLEPŠÍ PROJEKTY",
+    "noProjectData": "Žádná data o projektech",
+    "projectStats": "{{tokens}} tokenů \u00B7 {{calls}} volání"
+  }
+}

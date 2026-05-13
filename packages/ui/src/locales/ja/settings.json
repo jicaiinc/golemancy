@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "グローバル設定"
+  },
+  "tabs": {
+    "general": "一般",
+    "providers": "プロバイダー",
+    "speech": "音声",
+    "about": "概要"
+  },
+  "about": {
+    "slogan": "あなたのために働く AI チームを召喚しよう",
+    "links": {
+      "website": "ウェブサイト",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "アップデート",
+    "checkForUpdates": "更新通知",
+    "upToDate": "最新バージョンです — v{{version}}",
+    "available": "アップデートあり",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "{{platform}} 版をダウンロード",
+    "downloadGeneric": "ダウンロード",
+    "checking": "アップデートを確認中...",
+    "downloading": "ダウンロード中... {{percent}}%",
+    "downloaded": "Golemancy v{{version}} の新バージョンが利用可能です。",
+    "seeChangelog": "変更履歴を確認",
+    "restart": "再起動",
+    "restartConfirm": "{{count}} 件の AI セッションが実行中です。それでも再起動しますか？",
+    "checkNow": "今すぐ確認",
+    "retryCheck": "再試行",
+    "error": "アップデートの確認に失敗しました：{{message}}"
+  },
+  "general": {
+    "appearance": "外観",
+    "light": "ライト",
+    "dark": "ダーク",
+    "system": "システム",
+    "language": "言語",
+    "telemetry": "改善プログラム",
+    "telemetryLabel": "Golemancy の改善に協力する",
+    "telemetryDescription": "クラッシュレポートや機能の使用状況を含む匿名の診断・利用データの収集を許可し、問題の迅速な修正と製品の改善に役立てます。個人ファイルや会話内容が収集されることはありません。",
+    "style": "スタイル",
+    "stylePixel": "ピクセル",
+    "styleModern": "モダン"
+  },
+  "defaultModel": {
+    "sectionTitle": "デフォルトモデル",
+    "description": "新規プロジェクトや Agent 作成時に使用するデフォルトモデル。",
+    "providerLabel": "プロバイダー",
+    "modelLabel": "モデル",
+    "noProvider": "-- なし --",
+    "selectProviderFirst": "-- まずプロバイダーを選択 --",
+    "noModels": "利用可能なモデルがありません",
+    "saved": "保存しました！",
+    "orphaned": "設定されたモデルのプロバイダーは利用できなくなりました。新しいプロバイダーを選択してください。",
+    "autoSwitched": "以前のプロバイダーが削除されたため、デフォルトモデルが自動的に変更されました。"
+  },
+  "providers": {
+    "sectionTitle": "プロバイダー",
+    "addProvider": "+ プロバイダーを追加",
+    "selectProvider": "プロバイダーを選択",
+    "customProvider": "カスタムプロバイダー",
+    "custom": "カスタム",
+    "anyEndpoint": "任意のエンドポイント",
+    "nameLabel": "名前",
+    "baseUrlLabel": "ベース URL",
+    "sdkTypeLabel": "SDK タイプ",
+    "empty": "プロバイダーが設定されていません。「+ プロバイダーを追加」をクリックして始めましょう。",
+    "customPlaceholder": "マイプロバイダー",
+    "testAndSave": "テスト & 保存",
+    "testingConnection": "テスト中...",
+    "configureProvider": "{{name}} を設定",
+    "configureCustom": "カスタムプロバイダーを設定",
+    "apiKeyRequired": "API キー（必須）",
+    "modelsRequired": "モデル（1つ以上）"
+  },
+  "provider": {
+    "testing": "テスト中...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "失敗",
+    "untested": "未テスト",
+    "noKey": "キーなし",
+    "retest": "再テスト",
+    "test": "テスト",
+    "del": "削除",
+    "deleteConfirm": "{{name}} を削除しますか？この操作は取り消せません。",
+    "apiKeyLabel": "API キー：",
+    "notSet": "未設定",
+    "hide": "非表示",
+    "show": "表示",
+    "urlLabel": "URL：",
+    "modelsCount": "モデル ({{count}})",
+    "addModel": "+ モデルを追加",
+    "apiKeyInputLabel": "API キー",
+    "baseUrlOptional": "ベース URL（任意）",
+    "hideKey": "キーを非表示",
+    "showKey": "キーを表示",
+    "oauthSectionTitle": "サインイン",
+    "oauthActive": "接続中",
+    "oauthSignIn": "{{provider}} でサインイン",
+    "oauthConnected": "接続済み",
+    "oauthDisconnect": "切断",
+    "oauthPending": "ブラウザでの認証を待機中...",
+    "oauthPendingHint": "ブラウザでログインを完了してから、ここに戻ってください。",
+    "oauthCancel": "キャンセル",
+    "oauthError": "認証失敗",
+    "oauthOrApiKey": "または API キーを使用",
+    "oauthNoApiFees": "API 料金なし",
+    "oauthSubscriptionHint": "ChatGPT Plus / Pro サブスクリプションを使用。追加の API 料金はありません。",
+    "oauthTokenExpiry": "Token は自動更新されます。{{minutes}} 分後に期限切れ。"
+  },
+  "threshold": {
+    "tokens": "Token"
+  }
+}

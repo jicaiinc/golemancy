@@ -1,0 +1,57 @@
+{
+  "label": {
+    "projectName": "NAZWA PROJEKTU",
+    "description": "OPIS",
+    "icon": "IKONA",
+    "projectId": "ID PROJEKTU"
+  },
+  "list": {
+    "title": "Wszystkie projekty",
+    "subtitle_one": "{{count}} projekt w przestrzeni roboczej",
+    "subtitle_few": "{{count}} projekty w przestrzeni roboczej",
+    "subtitle_many": "{{count}} projektów w przestrzeni roboczej",
+    "subtitle_other": "{{count}} projektów w przestrzeni roboczej",
+    "newBtn": "+ Nowy projekt",
+    "empty": "Brak projektów",
+    "createFirst": "Utwórz pierwszy projekt",
+    "openInWindow": "Otwórz w nowym oknie",
+    "clone": "Sklonuj projekt",
+    "agents_one": "{{count}} agent",
+    "agents_few": "{{count}} agentów",
+    "agents_many": "{{count}} agentów",
+    "agents_other": "{{count}} agentów",
+    "running_one": "{{count}} działa",
+    "running_few": "{{count}} działają",
+    "running_many": "{{count}} działa",
+    "running_other": "{{count}} działa"
+  },
+  "create": {
+    "modalTitle": "Utwórz nowy projekt",
+    "createBtn": "Utwórz projekt",
+    "namePlaceholder": "Mój projekt",
+    "descPlaceholder": "O czym jest ten projekt?",
+    "errorGeneric": "Nie udało się utworzyć projektu",
+    "noDefaultModel": "Przed utworzeniem projektu z szablonu należy skonfigurować domyślny model.",
+    "goToSettings": "Przejdź do ustawień"
+  },
+  "settings": {
+    "title": "Ustawienia projektu",
+    "savedMsg": "Zapisano!",
+    "clickToCopy": "Kliknij, aby skopiować",
+    "tabs": {
+      "general": "Ogólne",
+      "permissions": "Uprawnienia"
+    },
+    "general": {
+      "sectionTitle": "INFORMACJE PODSTAWOWE",
+      "saveBtn": "Zapisz zmiany",
+      "deleteBtn": "Usuń projekt",
+      "deleteConfirm": "Czy na pewno chcesz usunąć ten projekt?",
+      "defaultLabel": "DOMYŚLNY AGENT / ZESPÓŁ",
+      "defaultDesc": "Domyślny Agent lub zespół dla nowych rozmów.",
+      "defaultNone": "Brak",
+      "defaultTeamsGroup": "Zespoły",
+      "defaultAgentsGroup": "Agenci"
+    }
+  }
+}

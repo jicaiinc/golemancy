@@ -1,0 +1,25 @@
+{
+  "page": {
+    "title": "Задачі розмови",
+    "taskCount_one": "{{count}} задача загалом",
+    "taskCount_few": "{{count}} задачі загалом",
+    "taskCount_many": "{{count}} задач загалом",
+    "taskCount_other": "{{count}} задач загалом"
+  },
+  "loading": "Завантаження задач...",
+  "empty": {
+    "noTasks": "Задач не знайдено"
+  },
+  "openChat": "ВІДКРИТИ ЧАТ →",
+  "detail": {
+    "description": "ОПИС",
+    "blockedBy": "ЗАБЛОКОВАНО",
+    "metadata": "МЕТАДАНІ"
+  },
+  "status": {
+    "pending": "очікування",
+    "in_progress": "виконується",
+    "completed": "завершено",
+    "deleted": "видалено"
+  }
+}

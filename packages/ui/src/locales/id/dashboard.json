@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "Dasbor",
+    "descriptionFallback": "Ringkasan proyek",
+    "loading": "Memuat dasbor..."
+  },
+  "tokenUsage": {
+    "title": "PENGGUNAAN TOKEN"
+  },
+  "chart": {
+    "noData": "Tidak ada data token tersedia",
+    "tooltipIn": "Masuk: {{tokens}}",
+    "tooltipOut": "Keluar: {{tokens}}",
+    "legendInput": "Input",
+    "legendOutput": "Output"
+  },
+  "tabs": {
+    "trend": "Tren",
+    "byAgent": "Per Agent",
+    "byModel": "Per Model",
+    "byProject": "Per Proyek"
+  },
+  "table": {
+    "colName": "Nama",
+    "colTotal": "Total",
+    "colInput": "Input",
+    "colOutput": "Output",
+    "colCalls": "Panggilan",
+    "colRatio": "Rasio",
+    "titleByAgent": "TOKEN PER AGENT",
+    "titleByModel": "TOKEN PER MODEL",
+    "titleByProject": "TOKEN PER PROYEK"
+  },
+  "timeRange": {
+    "today": "Hari Ini",
+    "sevenDays": "7 Hari",
+    "thirtyDays": "30 Hari",
+    "allTime": "Semua Waktu"
+  },
+  "summary": {
+    "totalTokens": "Total Token",
+    "inputTokens": "Token Input",
+    "outputTokens": "Token Output",
+    "apiCalls": "Panggilan API"
+  },
+  "overview": {
+    "agents": "AGENT",
+    "recentChats": "CHAT TERBARU",
+    "viewAll": "Lihat Semua \u2192",
+    "noAgents": "Tidak ada agent",
+    "noRecentChats": "Tidak ada chat terbaru",
+    "chatStats": "{{count}} pesan \u00B7 {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "AKTIVITAS",
+    "tabActive": "Aktif ({{count}})",
+    "tabScheduled": "Terjadwal ({{count}})",
+    "tabRecent": "Terbaru",
+    "badgeChat": "Chat",
+    "badgeCron": "Cron",
+    "noActiveRuns": "Tidak ada yang aktif berjalan",
+    "noScheduledRuns": "Tidak ada yang terjadwal",
+    "noRecentActivity": "Tidak ada aktivitas terbaru",
+    "openLink": "BUKA \u2192",
+    "tokenCount": "{{tokens}} token"
+  },
+  "global": {
+    "title": "Dasbor Global",
+    "subtitle": "Ringkasan lintas proyek",
+    "topProjects": "PROYEK TERATAS",
+    "noProjectData": "Tidak ada data proyek",
+    "projectStats": "{{tokens}} token \u00B7 {{calls}} panggilan"
+  }
+}

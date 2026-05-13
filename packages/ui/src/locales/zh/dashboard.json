@@ -1,0 +1,74 @@
+{
+  "page": {
+    "titleFallback": "仪表盘",
+    "descriptionFallback": "项目概览",
+    "loading": "加载仪表盘..."
+  },
+  "tokenUsage": {
+    "title": "TOKEN 用量"
+  },
+  "chart": {
+    "noData": "暂无 Token 数据",
+    "tooltipIn": "输入：{{tokens}}",
+    "tooltipOut": "输出：{{tokens}}",
+    "legendInput": "输入",
+    "legendOutput": "输出"
+  },
+  "tabs": {
+    "trend": "趋势",
+    "byAgent": "按 Agent",
+    "byModel": "按模型",
+    "byProject": "按项目"
+  },
+  "table": {
+    "colName": "名称",
+    "colTotal": "总计",
+    "colInput": "输入",
+    "colOutput": "输出",
+    "colCalls": "调用次数",
+    "colRatio": "占比",
+    "titleByAgent": "TOKEN（按 AGENT）",
+    "titleByModel": "TOKEN（按模型）",
+    "titleByProject": "TOKEN（按项目）"
+  },
+  "timeRange": {
+    "today": "今天",
+    "sevenDays": "7 天",
+    "thirtyDays": "30 天",
+    "allTime": "全部"
+  },
+  "summary": {
+    "totalTokens": "总 Token",
+    "inputTokens": "输入 Token",
+    "outputTokens": "输出 Token",
+    "apiCalls": "API 调用"
+  },
+  "overview": {
+    "agents": "AGENT",
+    "recentChats": "最近对话",
+    "viewAll": "查看全部 →",
+    "noAgents": "暂无 Agent",
+    "noRecentChats": "暂无最近对话",
+    "chatStats": "{{count}} 条消息 · {{tokens}}"
+  },
+  "runtimePanel": {
+    "title": "活动",
+    "tabActive": "进行中 ({{count}})",
+    "tabScheduled": "已计划 ({{count}})",
+    "tabRecent": "最近",
+    "badgeChat": "对话",
+    "badgeCron": "定时",
+    "noActiveRuns": "无正在运行的任务",
+    "noScheduledRuns": "无已计划的任务",
+    "noRecentActivity": "暂无最近活动",
+    "openLink": "打开 →",
+    "tokenCount": "{{tokens}} Token"
+  },
+  "global": {
+    "title": "全局仪表盘",
+    "subtitle": "跨项目概览",
+    "topProjects": "热门项目",
+    "noProjectData": "暂无项目数据",
+    "projectStats": "{{tokens}} Token · {{calls}} 次调用"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "label": {
+    "name": "名前",
+    "agentName": "AGENT 名",
+    "description": "説明",
+    "systemPrompt": "システムプロンプト",
+    "provider": "プロバイダー",
+    "model": "モデル"
+  },
+  "statusLabel": {
+    "idle": "待機中",
+    "running": "実行中",
+    "error": "エラー",
+    "paused": "一時停止"
+  },
+  "noProviders": "プロバイダーが設定されていません",
+  "noModels": "利用可能なモデルがありません",
+  "savedMsg": "保存しました！",
+  "list": {
+    "title": "Agent",
+    "subtitle_one": "このプロジェクトに {{count}} 個の Agent",
+    "subtitle_other": "このプロジェクトに {{count}} 個の Agent",
+    "newBtn": "+ 新規 Agent",
+    "clone": "Agent をコピー",
+    "empty": "Agent がありません",
+    "createFirst": "最初の Agent を作成"
+  },
+  "count": {
+    "skills_one": "{{count}} スキル",
+    "skills_other": "{{count}} スキル",
+    "tools_one": "{{count}} ツール",
+    "tools_other": "{{count}} ツール",
+    "mcpServers_one": "{{count}} MCP サーバー",
+    "mcpServers_other": "{{count}} MCP サーバー"
+  },
+  "create": {
+    "modalTitle": "新規 Agent 作成",
+    "createBtn": "Agent を作成",
+    "namePlaceholder": "例：リサーチアシスタント",
+    "descPlaceholder": "この Agent は何をしますか？",
+    "promptPlaceholder": "あなたは役に立つアシスタントです..."
+  },
+  "detail": {
+    "notFound": "Agent が見つかりません。",
+    "backToAgents": "< Agent 一覧に戻る",
+    "backBtn": "< Agent",
+    "tabs": {
+      "general": "基本情報",
+      "modelConfig": "モデル設定",
+      "skills": "スキル",
+      "tools": "ツール",
+      "memory": "メモリー"
+    }
+  },
+  "general": {
+    "sectionTitle": "基本情報",
+    "deleteBtn": "Agent を削除",
+    "deleteConfirm": "この Agent を削除してもよろしいですか？"
+  },
+  "modelConfig": {
+    "sectionTitle": "モデル設定",
+    "compactLabel": "圧縮しきい値"
+  },
+  "skills": {
+    "assigned": "割り当て済みスキル",
+    "noneAssigned": "この Agent にスキルは割り当てられていません。",
+    "addSection": "スキルを追加",
+    "noneInProject": "プロジェクトにスキルがありません",
+    "goTo": "スキルページへ",
+    "manage": "スキルを管理 →"
+  },
+  "tools": {
+    "builtinSection": "組み込みツール",
+    "comingSoon": "近日公開",
+    "bashName": "Bash",
+    "browserName": "ブラウザ",
+    "computerUseName": "コンピューター操作",
+    "taskName": "タスク",
+    "memoryName": "メモリー",
+    "customSection": "カスタムツール",
+    "bashDesc": "Bash コマンドの実行、ファイルの読み書き",
+    "browserDesc": "ブラウザを制御して自動操作",
+    "computerUseDesc": "デスクトップ自動化とシステム制御",
+    "taskDesc": "会話中にタスクを作成・管理",
+    "memoryDesc": "会話を跨ぐ永続メモリーバンク"
+  },
+  "mcp": {
+    "warningTitle": "⚠ 警告",
+    "warningText": "サードパーティ MCP サーバーがコンピューター上のファイルにアクセスまたは変更する可能性があります。",
+    "enableSandboxHint": "設定 > 権限で「MCP に適用」を有効にして MCP サーバーをサンドボックス化してください。",
+    "sandboxUnavailable": "サードパーティの MCP サーバーコマンドは Windows でサンドボックス保護を回避する可能性があります。",
+    "assigned": "割り当て済み MCP サーバー",
+    "noneAssigned": "この Agent に MCP サーバーは割り当てられていません。",
+    "addSection": "MCP サーバーを追加",
+    "noneInProject": "プロジェクトに MCP サーバーがありません",
+    "goTo": "MCP サーバーページへ",
+    "manage": "MCP サーバーを管理 →",
+    "restricted": "制限付き"
+  },
+  "panel": {
+    "modelLabel": "モデル",
+    "inherited": "継承",
+    "capabilities": "機能",
+    "openDetail": "詳細を表示"
+  },
+  "memory": {
+    "sectionTitle": "メモリー",
+    "pinnedSection": "ピン留め",
+    "pinnedHint": "常に読み込み",
+    "autoLoadedSection": "自動読み込み",
+    "notLoadedSection": "未読み込み",
+    "notLoadedCount_one": "{{count}} 件のメモリー",
+    "notLoadedCount_other": "{{count}} 件のメモリー",
+    "cutoffLine": "自動読み込みの上限",
+    "addBtn": "+ メモリーを追加",
+    "addTitle": "メモリーを追加",
+    "contentPlaceholder": "Agent に何を覚えさせますか？",
+    "tagsPlaceholder": "タグ（カンマ区切り）",
+    "empty": "メモリーはまだありません。メモリーを追加して会話を跨いで知識を保持しましょう。",
+    "statusLine": "{{pinned}} ピン留め | 自動読み込み: {{autoLoaded}}/{{limit}} | 合計 {{total}}",
+    "priority": "優先度",
+    "pinned": "ピン留め",
+    "pin": "ピン留め",
+    "unpin": "ピン解除"
+  }
+}

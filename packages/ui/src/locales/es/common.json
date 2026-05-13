@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "saved": "Guardado",
+    "delete": "Eliminar",
+    "deleting": "Eliminando...",
+    "edit": "Editar",
+    "add": "Agregar",
+    "confirm": "Confirmar",
+    "retry": "Reintentar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "close": "Cerrar",
+    "create": "Crear",
+    "creating": "Creando...",
+    "refresh": "Actualizar",
+    "send": "Enviar",
+    "stop": "Detener",
+    "dismiss": "Descartar",
+    "done": "Listo",
+    "copy": "Copiar"
+  },
+  "status": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "time": {
+    "justNow": "justo ahora",
+    "minsAgo_one": "hace {{count}}m",
+    "minsAgo_other": "hace {{count}}m",
+    "hoursAgo_one": "hace {{count}}h",
+    "hoursAgo_other": "hace {{count}}h",
+    "daysAgo_one": "hace {{count}}d",
+    "daysAgo_other": "hace {{count}}d",
+    "now": "ahora",
+    "inMins_one": "en {{count}}m",
+    "inMins_other": "en {{count}}m",
+    "inHours_one": "en {{count}}h",
+    "inHours_other": "en {{count}}h",
+    "inDays_one": "en {{count}}d",
+    "inDays_other": "en {{count}}d",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Eliminar",
+    "deleteMessage": "Esta acción no se puede deshacer.",
+    "areYouSure": "¿Está seguro?"
+  },
+  "empty": {
+    "noData": "Sin datos"
+  },
+  "list": {
+    "noneConfigured": "Ninguno configurado"
+  },
+  "label": {
+    "name": "Nombre",
+    "description": "Descripción",
+    "type": "Tipo",
+    "enabled": "Activado",
+    "disabled": "Desactivado"
+  },
+  "dropZone": {
+    "releaseToDrop": "Suelte para soltar",
+    "dragAndDrop": "Arrastre y suelte archivos aquí, o haga clic para subir",
+    "accepts": "Acepta: {{extensions}}"
+  }
+}

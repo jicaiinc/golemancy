@@ -1,0 +1,126 @@
+{
+  "label": {
+    "name": "AD",
+    "agentName": "AJAN ADI",
+    "description": "AÇIKLAMA",
+    "systemPrompt": "SİSTEM PROMPTU",
+    "provider": "SAĞLAYICI",
+    "model": "MODEL"
+  },
+  "statusLabel": {
+    "idle": "boşta",
+    "running": "çalışıyor",
+    "error": "hata",
+    "paused": "duraklatıldı"
+  },
+  "noProviders": "Yapılandırılmış provider yok",
+  "noModels": "Kullanılabilir model yok",
+  "savedMsg": "Kaydedildi!",
+  "list": {
+    "title": "Ajanlar",
+    "subtitle_one": "Bu projede {{count}} ajan",
+    "subtitle_other": "Bu projede {{count}} ajan",
+    "newBtn": "+ Yeni Ajan",
+    "clone": "Ajanı klonla",
+    "empty": "Henüz ajan yok",
+    "createFirst": "İlk Ajanınızı Oluşturun"
+  },
+  "count": {
+    "skills_one": "{{count}} beceri",
+    "skills_other": "{{count}} beceri",
+    "tools_one": "{{count}} araç",
+    "tools_other": "{{count}} araç",
+    "mcpServers_one": "{{count}} MCP sunucusu",
+    "mcpServers_other": "{{count}} MCP sunucusu"
+  },
+  "create": {
+    "modalTitle": "Yeni Ajan Oluştur",
+    "createBtn": "Ajan Oluştur",
+    "namePlaceholder": "ör. Araştırma Asistanı",
+    "descPlaceholder": "Bu ajan ne yapar?",
+    "promptPlaceholder": "Sen yardımcı bir asistansın..."
+  },
+  "detail": {
+    "notFound": "Ajan bulunamadı.",
+    "backToAgents": "< Ajanlara Dön",
+    "backBtn": "< Ajanlar",
+    "tabs": {
+      "general": "Genel",
+      "modelConfig": "Model Yapılandırması",
+      "skills": "Beceriler",
+      "tools": "Araçlar",
+      "memory": "Bellek"
+    }
+  },
+  "general": {
+    "sectionTitle": "BİLGİ",
+    "deleteBtn": "Ajanı Sil",
+    "deleteConfirm": "Bu ajanı silmek istediğinizden emin misiniz?"
+  },
+  "modelConfig": {
+    "sectionTitle": "MODEL YAPILANDIRMASI",
+    "compactLabel": "COMPACT EŞİĞİ"
+  },
+  "skills": {
+    "assigned": "ATANMIŞ BECERİLER",
+    "noneAssigned": "Bu ajana atanmış beceri yok.",
+    "addSection": "BECERİ EKLE",
+    "noneInProject": "Bu projede beceri yok",
+    "goTo": "Becerilere Git",
+    "manage": "Becerileri Yönet →"
+  },
+  "tools": {
+    "builtinSection": "YERLEŞİK ARAÇLAR",
+    "comingSoon": "YAKINDA",
+    "bashName": "Bash",
+    "browserName": "Browser",
+    "computerUseName": "Computer Use",
+    "taskName": "Task",
+    "memoryName": "Memory",
+    "customSection": "ÖZEL ARAÇLAR",
+    "bashDesc": "Bash komutlarını çalıştır, dosya oku ve yaz",
+    "browserDesc": "Otomasyon için web tarayıcısını kontrol et",
+    "computerUseDesc": "Masaüstü otomasyonu ve sistem kontrolü",
+    "taskDesc": "Konuşma içinde görev oluştur ve yönet",
+    "memoryDesc": "Konuşmalar arası kalıcı bellek deposu"
+  },
+  "mcp": {
+    "warningTitle": "⚠ UYARI",
+    "warningText": "Üçüncü taraf MCP sunucuları bilgisayarınızdaki dosyalara erişebilir veya değiştirebilir.",
+    "enableSandboxHint": "MCP sunucularını sandbox'a almak için Ayarlar > Permissions'ta \"Apply to MCP\"yi etkinleştirin.",
+    "sandboxUnavailable": "Üçüncü taraf MCP sunucu komutları Windows'ta sandbox korumalarını atlayabilir.",
+    "assigned": "ATANMIŞ MCP SUNUCULARI",
+    "noneAssigned": "Bu ajana atanmış MCP sunucusu yok.",
+    "addSection": "MCP SUNUCUSU EKLE",
+    "noneInProject": "Bu projede MCP sunucusu yok",
+    "goTo": "MCP Sunucularına Git",
+    "manage": "MCP Sunucularını Yönet →",
+    "restricted": "Restricted"
+  },
+  "panel": {
+    "modelLabel": "MODEL",
+    "inherited": "Miras",
+    "capabilities": "YETENEKLER",
+    "openDetail": "Detayı Aç"
+  },
+  "memory": {
+    "sectionTitle": "BELLEKLER",
+    "pinnedSection": "SABİTLENMİŞ",
+    "pinnedHint": "her zaman yüklü",
+    "autoLoadedSection": "OTOMATİK YÜKLENEN",
+    "notLoadedSection": "YÜKLENMEMİŞ",
+    "notLoadedCount_one": "{{count}} bellek",
+    "notLoadedCount_other": "{{count}} bellek",
+    "cutoffLine": "otomatik yükleme sınırı",
+    "addBtn": "+ Bellek Ekle",
+    "addTitle": "BELLEK EKLE",
+    "contentPlaceholder": "Ajan neyi hatırlamalı?",
+    "tagsPlaceholder": "Etiketler (virgülle ayrılmış)",
+    "empty": "Henüz bellek yok. Konuşmalar arası bilgi saklamak için bellek ekleyin.",
+    "statusLine": "{{pinned}} sabitlenmiş | Otomatik yükleme: {{autoLoaded}}/{{limit}} | {{total}} toplam",
+    "priority": "Öncelik",
+    "pinned": "Sabitlenmiş",
+    "pin": "Sabitle",
+    "unpin": "Sabitlemeyi Kaldır"
+  }
+}

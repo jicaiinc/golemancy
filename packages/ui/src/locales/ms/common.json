@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Batal",
+    "save": "Simpan",
+    "saving": "Menyimpan...",
+    "saved": "Disimpan",
+    "delete": "Padam",
+    "deleting": "Memadam...",
+    "edit": "Sunting",
+    "add": "Tambah",
+    "confirm": "Sahkan",
+    "retry": "Cuba Lagi",
+    "back": "Kembali",
+    "next": "Seterusnya",
+    "close": "Tutup",
+    "create": "Cipta",
+    "creating": "Mencipta...",
+    "refresh": "Muat Semula",
+    "send": "Hantar",
+    "stop": "Berhenti",
+    "dismiss": "Abaikan",
+    "done": "Selesai",
+    "copy": "Salin"
+  },
+  "status": {
+    "loading": "Memuatkan...",
+    "error": "Ralat",
+    "success": "Berjaya"
+  },
+  "time": {
+    "justNow": "baru sahaja",
+    "minsAgo_one": "{{count}} min lalu",
+    "minsAgo_other": "{{count}} min lalu",
+    "hoursAgo_one": "{{count}} jam lalu",
+    "hoursAgo_other": "{{count}} jam lalu",
+    "daysAgo_one": "{{count}} hari lalu",
+    "daysAgo_other": "{{count}} hari lalu",
+    "now": "sekarang",
+    "inMins_one": "dalam {{count}} min",
+    "inMins_other": "dalam {{count}} min",
+    "inHours_one": "dalam {{count}} jam",
+    "inHours_other": "dalam {{count}} jam",
+    "inDays_one": "dalam {{count}} hari",
+    "inDays_other": "dalam {{count}} hari",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Padam",
+    "deleteMessage": "Tindakan ini tidak boleh dibatalkan.",
+    "areYouSure": "Adakah anda pasti?"
+  },
+  "empty": {
+    "noData": "Tiada data"
+  },
+  "list": {
+    "noneConfigured": "Belum dikonfigurasi"
+  },
+  "label": {
+    "name": "Nama",
+    "description": "Penerangan",
+    "type": "Jenis",
+    "enabled": "Aktif",
+    "disabled": "Tidak Aktif"
+  },
+  "dropZone": {
+    "releaseToDrop": "Lepaskan untuk muat naik",
+    "dragAndDrop": "Seret & lepas fail di sini, atau klik untuk muat naik",
+    "accepts": "Diterima: {{extensions}}"
+  }
+}

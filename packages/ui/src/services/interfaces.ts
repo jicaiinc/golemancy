@@ -1,0 +1,17 @@
+export type {
+  IProjectService,
+  IAgentService,
+  IConversationService,
+  ITaskService,
+  IWorkspaceService,
+  ISkillService,
+  IMCPService,
+  ISettingsService,
+  ICronJobService,
+  IDashboardService,
+  IGlobalDashboardService,
+  IPermissionsConfigService,
+  ISpeechService,
+  IMemoryService,
+  ITeamService,
+} from '@golemancy/shared'

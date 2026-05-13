@@ -1,0 +1,37 @@
+{
+  "page": {
+    "title": "Skills",
+    "skillCount_one": "{{count}} skill",
+    "skillCount_other": "{{count}} skills",
+    "newSkillBtn": "+ Nieuwe Skill"
+  },
+  "tabs": {
+    "installed": "Geïnstalleerd",
+    "marketplace": "Marketplace"
+  },
+  "import": {
+    "noValidFiles": "Geen .md- of .zip-bestanden gevonden. Sleep markdown- of zip-bestanden om skills te importeren.",
+    "importedCount_one": "{{count}} skill geïmporteerd",
+    "importedCount_other": "{{count}} skills geïmporteerd",
+    "importError": "Kan skills niet importeren"
+  },
+  "deleteError": {
+    "inUse_one": "Skill \"{{name}}\" is toegewezen aan {{count}} agent. Verwijder eerst de toewijzing.",
+    "inUse_other": "Skill \"{{name}}\" is toegewezen aan {{count}} agenten. Verwijder eerst de toewijzing.",
+    "generic": "Kan skill niet verwijderen"
+  },
+  "loading": "Skills laden...",
+  "empty": {
+    "title": "Nog geen skills",
+    "createFirstBtn": "Maak Uw Eerste Skill"
+  },
+  "comingSoon": "Binnenkort",
+  "form": {
+    "newTitle": "Nieuwe Skill",
+    "editTitle": "Skill Bewerken",
+    "nameLabel": "NAAM",
+    "descriptionLabel": "BESCHRIJVING",
+    "instructionsLabel": "INSTRUCTIES",
+    "instructionsPlaceholder": "Schrijf de skill-instructies in markdown..."
+  }
+}

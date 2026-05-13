@@ -1,0 +1,54 @@
+{
+  "label": {
+    "projectName": "NUME PROIECT",
+    "description": "DESCRIERE",
+    "icon": "PICTOGRAMĂ",
+    "projectId": "ID PROIECT"
+  },
+  "list": {
+    "title": "Toate proiectele",
+    "subtitle_one": "{{count}} proiect în spațiul de lucru",
+    "subtitle_few": "{{count}} proiecte în spațiul de lucru",
+    "subtitle_other": "{{count}} de proiecte în spațiul de lucru",
+    "newBtn": "+ Proiect nou",
+    "empty": "Niciun proiect încă",
+    "createFirst": "Creați primul proiect",
+    "openInWindow": "Deschidere în fereastră nouă",
+    "clone": "Clonează proiectul",
+    "agents_one": "{{count}} agent",
+    "agents_few": "{{count}} agenți",
+    "agents_other": "{{count}} de agenți",
+    "running_one": "{{count}} rulează",
+    "running_few": "{{count}} rulează",
+    "running_other": "{{count}} rulează"
+  },
+  "create": {
+    "modalTitle": "Creare proiect nou",
+    "createBtn": "Creare proiect",
+    "namePlaceholder": "Proiectul meu extraordinar",
+    "descPlaceholder": "Despre ce este acest proiect?",
+    "errorGeneric": "Crearea proiectului a eșuat",
+    "noDefaultModel": "Modelul implicit trebuie configurat înainte de a crea din șablon.",
+    "goToSettings": "Mergeți la setări"
+  },
+  "settings": {
+    "title": "Setări proiect",
+    "savedMsg": "Salvat!",
+    "clickToCopy": "Faceți clic pentru a copia",
+    "tabs": {
+      "general": "General",
+      "permissions": "Permisiuni"
+    },
+    "general": {
+      "sectionTitle": "INFORMAȚII DE BAZĂ",
+      "saveBtn": "Salvare modificări",
+      "deleteBtn": "Șterge proiectul",
+      "deleteConfirm": "Ești sigur că vrei să ștergi acest proiect?",
+      "defaultLabel": "AGENT / ECHIPĂ IMPLICITĂ",
+      "defaultDesc": "Agentul sau echipa implicită pentru conversațiile noi.",
+      "defaultNone": "Niciunul",
+      "defaultTeamsGroup": "Echipe",
+      "defaultAgentsGroup": "Agenți"
+    }
+  }
+}

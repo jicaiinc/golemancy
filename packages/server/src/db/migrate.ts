@@ -1,0 +1,264 @@
+import type { AppDatabase } from './client'
+import { sql } from 'drizzle-orm'
+import { setupFTS } from './fts'
+import { logger } from '../logger'
+
+const log = logger.child({ component: 'db' })
+
+export function migrateDatabase(db: AppDatabase) {
+  log.info('running database migrations')
+  // Create tables
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS conversations (
+      id            TEXT PRIMARY KEY,
+      target_type   TEXT NOT NULL DEFAULT 'agent',
+      target_id     TEXT NOT NULL DEFAULT '',
+      title         TEXT NOT NULL,
+      last_message_at TEXT,
+      created_at    TEXT NOT NULL,
+      updated_at    TEXT NOT NULL
+    )
+  `)
+
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS messages (
+      id                TEXT PRIMARY KEY,
+      conversation_id   TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      role              TEXT NOT NULL,
+      parts             TEXT NOT NULL,
+      content           TEXT NOT NULL DEFAULT '',
+      created_at        TEXT NOT NULL
+    )
+  `)
+
+  // Migration: drop legacy task_logs table
+  db.run(sql`DROP TABLE IF EXISTS task_logs`)
+
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS conversation_tasks (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      subject TEXT NOT NULL,
+      description TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'pending',
+      active_form TEXT,
+      owner TEXT,
+      metadata TEXT,
+      blocks TEXT NOT NULL DEFAULT '[]',
+      blocked_by TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+
+  // Create indexes (conversations target index created after v10 migration below)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, created_at DESC)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversation_tasks_conv ON conversation_tasks(conversation_id)`)
+
+  // --- Migration v2: message parts ---
+  const columns = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+
+  const hasParts = columns.some(col => col.name === 'parts')
+  if (!hasParts) {
+    log.debug('migrating messages table: adding parts column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN parts TEXT`)
+    db.run(sql`
+      UPDATE messages
+      SET parts = json_array(json_object('type', 'text', 'text', content))
+      WHERE parts IS NULL
+    `)
+  }
+
+  const hasToolCalls = columns.some(col => col.name === 'tool_calls')
+  if (hasToolCalls) {
+    log.debug('migrating messages table: dropping tool_calls column')
+    db.run(sql`ALTER TABLE messages DROP COLUMN tool_calls`)
+  }
+
+  const hasTokenUsage = columns.some(col => col.name === 'token_usage')
+  if (hasTokenUsage) {
+    log.debug('migrating messages table: dropping token_usage column')
+    db.run(sql`ALTER TABLE messages DROP COLUMN token_usage`)
+  }
+
+  // --- Migration v3: token tracking columns ---
+  const columnsV3 = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+
+  const hasInputTokens = columnsV3.some(col => col.name === 'input_tokens')
+  if (!hasInputTokens) {
+    log.debug('migrating messages table: adding input_tokens column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN input_tokens INTEGER NOT NULL DEFAULT 0`)
+  }
+
+  const hasOutputTokens = columnsV3.some(col => col.name === 'output_tokens')
+  if (!hasOutputTokens) {
+    log.debug('migrating messages table: adding output_tokens column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN output_tokens INTEGER NOT NULL DEFAULT 0`)
+  }
+
+  // --- Migration v4: cron_job_runs table ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS cron_job_runs (
+      id TEXT PRIMARY KEY,
+      cron_job_id TEXT NOT NULL,
+      agent_id TEXT NOT NULL,
+      conversation_id TEXT,
+      status TEXT NOT NULL DEFAULT 'running',
+      duration_ms INTEGER,
+      error TEXT,
+      triggered_by TEXT NOT NULL DEFAULT 'schedule',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_cron_job_runs_job ON cron_job_runs(cron_job_id, created_at DESC)`)
+
+  // --- Migration v5: token_records table ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS token_records (
+      id                TEXT PRIMARY KEY,
+      conversation_id   TEXT,
+      message_id        TEXT,
+      agent_id          TEXT NOT NULL,
+      provider          TEXT NOT NULL,
+      model             TEXT NOT NULL,
+      input_tokens      INTEGER NOT NULL,
+      output_tokens     INTEGER NOT NULL,
+      source            TEXT NOT NULL,
+      parent_record_id  TEXT,
+      aborted           INTEGER NOT NULL DEFAULT 0,
+      created_at        TEXT NOT NULL
+    )
+  `)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_created ON token_records(created_at)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_agent ON token_records(agent_id, created_at)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_message ON token_records(message_id)`)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_token_records_conversation ON token_records(conversation_id)`)
+
+  // --- Migration v3b: context_tokens column on messages ---
+  const colsV3b = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+  if (!colsV3b.some(c => c.name === 'context_tokens')) {
+    log.debug('migrating messages table: adding context_tokens column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN context_tokens INTEGER NOT NULL DEFAULT 0`)
+  }
+
+  // --- Migration v5b: provider/model columns on messages (display only) ---
+  const colsV5 = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+  if (!colsV5.some(c => c.name === 'provider')) {
+    log.debug('migrating messages table: adding provider column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN provider TEXT NOT NULL DEFAULT ''`)
+  }
+  if (!colsV5.some(c => c.name === 'model')) {
+    log.debug('migrating messages table: adding model column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN model TEXT NOT NULL DEFAULT ''`)
+  }
+
+  // --- Migration v5c: metadata column on messages ---
+  const colsV5c = db.all<{ name: string }>(sql`PRAGMA table_info(messages)`)
+  if (!colsV5c.some(c => c.name === 'metadata')) {
+    log.debug('migrating messages table: adding metadata column')
+    db.run(sql`ALTER TABLE messages ADD COLUMN metadata TEXT`)
+  }
+
+  // --- Migration v6: compact_records table ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS compact_records (
+      id                  TEXT PRIMARY KEY,
+      conversation_id     TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      summary             TEXT NOT NULL,
+      boundary_message_id TEXT NOT NULL,
+      input_tokens        INTEGER NOT NULL DEFAULT 0,
+      output_tokens       INTEGER NOT NULL DEFAULT 0,
+      trigger             TEXT NOT NULL,
+      created_at          TEXT NOT NULL
+    )
+  `)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_compact_records_conv ON compact_records(conversation_id, created_at DESC)`)
+
+  // --- Migration v7: drop redundant project_id columns ---
+  const convCols = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+  if (convCols.some(c => c.name === 'project_id')) {
+    log.debug('migrating conversations: dropping project_id column')
+    db.run(sql`DROP INDEX IF EXISTS idx_conversations_project`)
+    db.run(sql`DROP INDEX IF EXISTS idx_conversations_agent`)
+    db.run(sql`ALTER TABLE conversations DROP COLUMN project_id`)
+    // Re-create index on whatever column exists (agent_id pre-v10, target_type/target_id post-v10)
+    const colsAfterDrop = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+    if (colsAfterDrop.some(c => c.name === 'agent_id')) {
+      db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_agent ON conversations(agent_id)`)
+    }
+  }
+
+  const cronRunCols = db.all<{ name: string }>(sql`PRAGMA table_info(cron_job_runs)`)
+  if (cronRunCols.some(c => c.name === 'project_id')) {
+    log.debug('migrating cron_job_runs: dropping project_id column')
+    db.run(sql`ALTER TABLE cron_job_runs DROP COLUMN project_id`)
+  }
+
+  // --- Migration v8: agent_memories table ---
+  db.run(sql`
+    CREATE TABLE IF NOT EXISTS agent_memories (
+      id         TEXT PRIMARY KEY,
+      agent_id   TEXT NOT NULL,
+      content    TEXT NOT NULL,
+      pinned     INTEGER NOT NULL DEFAULT 0,
+      priority   INTEGER NOT NULL DEFAULT 3,
+      tags       TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+  `)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_agent_memories_agent ON agent_memories(agent_id, pinned DESC, priority DESC, updated_at DESC)`)
+
+  // --- Migration v9: team_id column on conversations ---
+  // (superseded by v10, but kept for databases that already ran v9 — v10 handles cleanup)
+  const convColsV9 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+  if (!convColsV9.some(c => c.name === 'team_id') && convColsV9.some(c => c.name === 'agent_id')) {
+    log.debug('migrating conversations: adding team_id column')
+    db.run(sql`ALTER TABLE conversations ADD COLUMN team_id TEXT`)
+  }
+
+  // --- Migration v10: unify agentId + teamId → targetType + targetId ---
+  const convColsV10 = db.all<{ name: string }>(sql`PRAGMA table_info(conversations)`)
+  const hasAgentId = convColsV10.some(c => c.name === 'agent_id')
+  const hasTargetType = convColsV10.some(c => c.name === 'target_type')
+
+  if (hasAgentId && !hasTargetType) {
+    log.info('migrating conversations: unifying agent_id + team_id → target_type + target_id')
+
+    db.run(sql`BEGIN`)
+    try {
+      // Step 1: Add new columns with safe defaults
+      db.run(sql`ALTER TABLE conversations ADD COLUMN target_type TEXT DEFAULT 'agent'`)
+      db.run(sql`ALTER TABLE conversations ADD COLUMN target_id TEXT DEFAULT ''`)
+
+      // Step 2: Migrate data — if team_id is set, target is team; otherwise agent
+      db.run(sql`
+        UPDATE conversations
+        SET target_type = CASE WHEN team_id IS NOT NULL THEN 'team' ELSE 'agent' END,
+            target_id   = CASE WHEN team_id IS NOT NULL THEN team_id ELSE agent_id END
+      `)
+
+      // Step 3: Drop old indexes and columns
+      db.run(sql`DROP INDEX IF EXISTS idx_conversations_agent`)
+      db.run(sql`ALTER TABLE conversations DROP COLUMN agent_id`)
+      db.run(sql`ALTER TABLE conversations DROP COLUMN team_id`)
+
+      // Step 4: Create new index
+      db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_target ON conversations(target_type, target_id)`)
+
+      db.run(sql`COMMIT`)
+      log.info('migration v10 complete: conversations unified')
+    } catch (err) {
+      db.run(sql`ROLLBACK`)
+      throw err
+    }
+  }
+
+  // Ensure target index exists (fresh DBs, post-v10 migration, or idempotent re-run)
+  db.run(sql`CREATE INDEX IF NOT EXISTS idx_conversations_target ON conversations(target_type, target_id)`)
+
+  // Set up FTS5
+  setupFTS(db)
+  log.info('database migrations complete')
+}

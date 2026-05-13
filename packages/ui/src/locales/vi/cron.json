@@ -1,0 +1,63 @@
+{
+  "page": {
+    "title": "Tự Động Hóa",
+    "newBtn": "+ Mới"
+  },
+  "empty": {
+    "noJobs": "Chưa có tự động hóa",
+    "createFirstBtn": "Tạo Tự Động Hóa Đầu Tiên"
+  },
+  "job": {
+    "runBtn": "Chạy",
+    "historyBtn": "Lịch sử",
+    "runningStatus": "Đang chạy...",
+    "viewChat": "Xem Chat →",
+    "next": "Tiếp theo: {{time}}",
+    "at": "Vào {{time}}",
+    "agentNotFound": "Không tìm thấy Agent",
+    "overdue": "quá hạn",
+    "once": "một lần"
+  },
+  "delete": {
+    "title": "Xóa Tự Động Hóa",
+    "confirm": "Bạn có chắc muốn xóa \"{{name}}\"? Thao tác này không thể hoàn tác."
+  },
+  "runsModal": {
+    "titleWithName": "Lịch Sử Chạy — {{name}}",
+    "title": "Lịch Sử Chạy",
+    "noRuns": "Chưa có lần chạy nào",
+    "openChat": "MỞ CHAT →"
+  },
+  "status": {
+    "success": "thành công",
+    "error": "lỗi",
+    "running": "đang chạy"
+  },
+  "form": {
+    "newTitle": "Tự Động Hóa Mới",
+    "editTitle": "Sửa Tự Động Hóa",
+    "nameLabel": "TÊN",
+    "namePlaceholder": "Review code hàng ngày",
+    "typeLabel": "LOẠI",
+    "recurring": "Lặp lại",
+    "oneTime": "Một lần",
+    "cronLabel": "BIỂU THỨC CRON",
+    "scheduledAtLabel": "LÊN LỊCH VÀO (giờ địa phương)",
+    "agentLabel": "AGENT",
+    "agentPlaceholder": "Chọn agent",
+    "teamsGroup": "Nhóm",
+    "agentsGroup": "Tác nhân",
+    "instructionLabel": "HƯỚNG DẪN (tùy chọn)",
+    "instructionPlaceholder": "Hướng dẫn gửi cho agent khi được kích hoạt",
+    "enabledLabel": "Bật",
+    "presets": {
+      "every5min": "Mỗi 5 phút",
+      "everyHour": "Mỗi giờ",
+      "every12h": "Mỗi 12 giờ",
+      "daily9am": "Hàng ngày 9h",
+      "weeklyMon": "Hàng tuần T2"
+    },
+    "cronHint": "phút giờ ngày tháng ngày_tuần",
+    "invalidExpression": "Biểu thức không hợp lệ"
+  }
+}

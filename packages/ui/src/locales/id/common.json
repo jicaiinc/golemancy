@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Batal",
+    "save": "Simpan",
+    "saving": "Menyimpan...",
+    "saved": "Tersimpan",
+    "delete": "Hapus",
+    "deleting": "Menghapus...",
+    "edit": "Edit",
+    "add": "Tambah",
+    "confirm": "Konfirmasi",
+    "retry": "Coba Lagi",
+    "back": "Kembali",
+    "next": "Berikutnya",
+    "close": "Tutup",
+    "create": "Buat",
+    "creating": "Membuat...",
+    "refresh": "Segarkan",
+    "send": "Kirim",
+    "stop": "Berhenti",
+    "dismiss": "Abaikan",
+    "done": "Selesai",
+    "copy": "Salin"
+  },
+  "status": {
+    "loading": "Memuat...",
+    "error": "Error",
+    "success": "Berhasil"
+  },
+  "time": {
+    "justNow": "baru saja",
+    "minsAgo_one": "{{count}} mnt lalu",
+    "minsAgo_other": "{{count}} mnt lalu",
+    "hoursAgo_one": "{{count}} jam lalu",
+    "hoursAgo_other": "{{count}} jam lalu",
+    "daysAgo_one": "{{count}} hari lalu",
+    "daysAgo_other": "{{count}} hari lalu",
+    "now": "sekarang",
+    "inMins_one": "dalam {{count}} mnt",
+    "inMins_other": "dalam {{count}} mnt",
+    "inHours_one": "dalam {{count}} jam",
+    "inHours_other": "dalam {{count}} jam",
+    "inDays_one": "dalam {{count}} hari",
+    "inDays_other": "dalam {{count}} hari",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Hapus",
+    "deleteMessage": "Tindakan ini tidak dapat dibatalkan.",
+    "areYouSure": "Apakah Anda yakin?"
+  },
+  "empty": {
+    "noData": "Tidak ada data"
+  },
+  "list": {
+    "noneConfigured": "Belum dikonfigurasi"
+  },
+  "label": {
+    "name": "Nama",
+    "description": "Deskripsi",
+    "type": "Tipe",
+    "enabled": "Aktif",
+    "disabled": "Nonaktif"
+  },
+  "dropZone": {
+    "releaseToDrop": "Lepaskan untuk mengunggah",
+    "dragAndDrop": "Seret & lepas file di sini, atau klik untuk mengunggah",
+    "accepts": "Diterima: {{extensions}}"
+  }
+}

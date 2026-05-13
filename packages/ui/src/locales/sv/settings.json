@@ -1,0 +1,122 @@
+{
+  "page": {
+    "title": "Globala inställningar"
+  },
+  "tabs": {
+    "general": "Allmänt",
+    "providers": "Providers",
+    "speech": "Tal",
+    "about": "Om"
+  },
+  "about": {
+    "slogan": "Framkalla ett AI-team som jobbar för dig",
+    "links": {
+      "website": "Website",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "X (Twitter)"
+    },
+    "copyright": "© 2026 Jicai, Inc."
+  },
+  "update": {
+    "sectionTitle": "UPPDATERINGAR",
+    "checkForUpdates": "Uppdateringsaviseringar",
+    "upToDate": "Du är uppdaterad — v{{version}}",
+    "available": "UPPDATERING TILLGÄNGLIG",
+    "newVersion": "v{{current}} → v{{latest}}",
+    "download": "Ladda ner för {{platform}}",
+    "downloadGeneric": "Ladda ner",
+    "checking": "Söker efter uppdateringar...",
+    "downloading": "Laddar ner uppdatering... {{percent}}%",
+    "downloaded": "En uppdaterad version av Golemancy v{{version}} är tillgänglig.",
+    "seeChangelog": "Se changelog",
+    "restart": "Starta om",
+    "restartConfirm": "Det finns {{count}} aktiva AI-sessioner. Starta om ändå?",
+    "checkNow": "Kontrollera nu",
+    "retryCheck": "Försök igen",
+    "error": "Uppdateringskontroll misslyckades: {{message}}"
+  },
+  "general": {
+    "appearance": "UTSEENDE",
+    "light": "Ljust",
+    "dark": "Mörkt",
+    "system": "System",
+    "language": "SPRÅK",
+    "telemetry": "FÖRBÄTTRINGSPROGRAM",
+    "telemetryLabel": "Hjälp till att förbättra Golemancy",
+    "telemetryDescription": "Tillåt oss att samla in anonym diagnostik- och användningsdata, inklusive kraschrapporter och funktionsanvändning, så att vi kan åtgärda problem snabbare och förbättra produkten. Inga personliga filer eller konversationsinnehåll samlas in.",
+    "style": "STIL",
+    "stylePixel": "Pixel",
+    "styleModern": "Modern"
+  },
+  "defaultModel": {
+    "sectionTitle": "STANDARDMODELL",
+    "description": "Används vid skapande av nya projekt och agenter.",
+    "providerLabel": "PROVIDER",
+    "modelLabel": "MODELL",
+    "noProvider": "-- Ingen --",
+    "selectProviderFirst": "-- Välj provider först --",
+    "noModels": "Inga modeller tillgängliga",
+    "saved": "Sparat!",
+    "orphaned": "Providern för den konfigurerade modellen är inte längre tillgänglig. Välj en ny.",
+    "autoSwitched": "Standardmodellen ändrades automatiskt eftersom den tidigare providern togs bort."
+  },
+  "providers": {
+    "sectionTitle": "PROVIDERS",
+    "addProvider": "+ Lägg till provider",
+    "selectProvider": "VÄLJ PROVIDER",
+    "customProvider": "ANPASSAD PROVIDER",
+    "custom": "Anpassad",
+    "anyEndpoint": "valfri endpoint",
+    "nameLabel": "NAMN",
+    "baseUrlLabel": "BASE URL",
+    "sdkTypeLabel": "SDK-TYP",
+    "empty": "Inga providers konfigurerade. Klicka \"+ Lägg till provider\" för att komma igång.",
+    "customPlaceholder": "Min provider",
+    "testAndSave": "Testa & Spara",
+    "testingConnection": "Testar...",
+    "configureProvider": "KONFIGURERA {{name}}",
+    "configureCustom": "KONFIGURERA ANPASSAD LEVERANTÖR",
+    "apiKeyRequired": "API-NYCKEL (krävs)",
+    "modelsRequired": "MODELLER (minst en)"
+  },
+  "provider": {
+    "testing": "Testar...",
+    "ok": "OK",
+    "okLatency": "OK ({{latency}}ms)",
+    "failed": "Misslyckades",
+    "untested": "Otestad",
+    "noKey": "Ingen nyckel",
+    "retest": "Testa igen",
+    "test": "Testa",
+    "del": "Ta bort",
+    "deleteConfirm": "Radera {{name}}? Detta kan inte ångras.",
+    "apiKeyLabel": "API-nyckel:",
+    "notSet": "inte angiven",
+    "hide": "Dölj",
+    "show": "Visa",
+    "urlLabel": "URL:",
+    "modelsCount": "Modeller ({{count}})",
+    "addModel": "+ Lägg till modell",
+    "apiKeyInputLabel": "API-NYCKEL",
+    "baseUrlOptional": "BASE URL (valfritt)",
+    "hideKey": "Dölj nyckel",
+    "showKey": "Visa nyckel",
+    "oauthSectionTitle": "LOGGA IN",
+    "oauthActive": "Aktiv",
+    "oauthSignIn": "Logga in med {{provider}}",
+    "oauthConnected": "Ansluten",
+    "oauthDisconnect": "Koppla från",
+    "oauthPending": "Väntar på autentisering i webbläsaren...",
+    "oauthPendingHint": "Slutför inloggningen i din webbläsare och återvänd hit sedan.",
+    "oauthCancel": "Avbryt",
+    "oauthError": "Autentisering misslyckades",
+    "oauthOrApiKey": "Eller använd API Key",
+    "oauthNoApiFees": "INGA API-AVGIFTER",
+    "oauthSubscriptionHint": "Använder din ChatGPT Plus / Pro-prenumeration. Inga extra API-avgifter.",
+    "oauthTokenExpiry": "Token förnyas automatiskt. Upphör om {{minutes}} min."
+  },
+  "threshold": {
+    "tokens": "tokens"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "button": {
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "saved": "Salvo",
+    "delete": "Excluir",
+    "deleting": "Excluindo...",
+    "edit": "Editar",
+    "add": "Adicionar",
+    "confirm": "Confirmar",
+    "retry": "Tentar novamente",
+    "back": "Voltar",
+    "next": "Próximo",
+    "close": "Fechar",
+    "create": "Criar",
+    "creating": "Criando...",
+    "refresh": "Atualizar",
+    "send": "Enviar",
+    "stop": "Parar",
+    "dismiss": "Dispensar",
+    "done": "Concluído",
+    "copy": "Copiar"
+  },
+  "status": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "time": {
+    "justNow": "agora mesmo",
+    "minsAgo_one": "há {{count}}m",
+    "minsAgo_other": "há {{count}}m",
+    "hoursAgo_one": "há {{count}}h",
+    "hoursAgo_other": "há {{count}}h",
+    "daysAgo_one": "há {{count}}d",
+    "daysAgo_other": "há {{count}}d",
+    "now": "agora",
+    "inMins_one": "em {{count}}m",
+    "inMins_other": "em {{count}}m",
+    "inHours_one": "em {{count}}h",
+    "inHours_other": "em {{count}}h",
+    "inDays_one": "em {{count}}d",
+    "inDays_other": "em {{count}}d",
+    "na": "--"
+  },
+  "confirm": {
+    "deleteTitle": "Excluir",
+    "deleteMessage": "Esta ação não pode ser desfeita.",
+    "areYouSure": "Tem certeza?"
+  },
+  "empty": {
+    "noData": "Sem dados"
+  },
+  "list": {
+    "noneConfigured": "Nenhum configurado"
+  },
+  "label": {
+    "name": "Nome",
+    "description": "Descrição",
+    "type": "Tipo",
+    "enabled": "Ativado",
+    "disabled": "Desativado"
+  },
+  "dropZone": {
+    "releaseToDrop": "Solte para enviar",
+    "dragAndDrop": "Arraste e solte arquivos aqui, ou clique para enviar",
+    "accepts": "Aceita: {{extensions}}"
+  }
+}
